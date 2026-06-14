@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excitation & De-excitation Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:     #F4F6FB;
+  --bg2:    #FFFFFF;
+  --bg3:    #ECEEF5;
+  --plasma: #E87B1E;
+  --text:   #1A1A2E;
+  --text2:  #44446A;
+  --text3:  #9090B0;
+  --border: #D4D6E8;
+  --sh:     0 1px 4px rgba(0,0,0,0.07);
+}
+html, body { width:100%; height:100%; background:var(--bg); overflow:hidden; }
+.root {
+  display:flex; flex-direction:column;
+  width:100%; height:100%;
+  padding:7px 10px 5px; gap:6px;
+  font-family:'JetBrains Mono',monospace; color:var(--text);
+}
+
+/* ── Controls ── */
+.controls {
+  display:flex; gap:6px; align-items:center;
+  flex-shrink:0; flex-wrap:wrap;
+}
+.ctrl-group {
+  display:flex; align-items:center; gap:4px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:4px 8px; box-shadow:var(--sh);
+}
+.ctrl-label {
+  font-size:0.51rem; color:var(--text3);
+  letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap;
+}
+.level-btn {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:5px; color:var(--text2);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; font-weight:600;
+  padding:3px 8px; cursor:pointer; transition:all 0.12s;
+}
+.level-btn:hover { border-color:var(--plasma); color:var(--plasma); background:#fff; }
+.level-btn.sel   { color:#fff; font-weight:700; border-color:transparent; }
+.fire-btn {
+  background:var(--plasma); border:none; border-radius:7px;
+  color:#fff; font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem; font-weight:700;
+  padding:6px 16px; cursor:pointer;
+  box-shadow:0 2px 6px rgba(232,123,30,0.35);
+  transition:background 0.12s,transform 0.1s; flex-shrink:0;
+}
+.fire-btn:hover  { background:#c9660f; }
+.fire-btn:active { transform:scale(0.96); }
+.fire-btn:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; color:#999; }
+.auto-btn {
+  background:var(--bg2); border:1.5px solid #1976D2;
+  border-radius:7px; color:#1565C0;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; font-weight:600;
+  padding:5px 12px; cursor:pointer; transition:all 0.12s; flex-shrink:0;
+}
+.auto-btn.on { background:#1976D2; color:#fff; }
+.auto-btn:hover:not(.on) { background:#E3F2FD; }
+.reset-btn {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:7px; color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; padding:5px 10px;
+  cursor:pointer; transition:all 0.12s; flex-shrink:0;
+}
+.reset-btn:hover { border-color:var(--text2); color:var(--text2); }
+
+/* ── Main area ── */
+.main {
+  display:flex; gap:8px; flex:1; min-height:0;
+}
+
+/* Left: Bohr atom canvas */
+.bohr-wrap {
+  flex-shrink:0;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+canvas#bohrCanvas {
+  background:#FAFBFF;
+  border-radius:10px;
+  border:1.5px solid var(--border);
+  box-shadow:var(--sh); display:block;
+}
+.bohr-caption {
+  font-size:0.50rem; color:var(--text3);
+  text-align:center; letter-spacing:0.04em;
+}
+
+/* Center: Energy level diagram */
+canvas#levelCanvas {
+  flex-shrink:0;
+  background:#FAFBFF;
+  border-radius:10px;
+  border:1.5px solid var(--border);
+  box-shadow:var(--sh); display:block;
+}
+
+/* Right panel */
+.right-panel {
+  flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;
+}
+.info-bar {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:6px 10px;
+  display:flex; gap:10px; align-items:center;
+  flex-shrink:0; flex-wrap:wrap; box-shadow:var(--sh);
+}
+.info-item { display:flex; gap:4px; align-items:baseline; }
+.info-key  { font-size:0.49rem; color:var(--text3); letter-spacing:0.08em; text-transform:uppercase; }
+.info-val  { font-size:0.70rem; font-weight:700; }
+.log-box {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:6px 9px;
+  flex:1; overflow-y:auto; box-shadow:var(--sh);
+  scrollbar-width:thin; scrollbar-color:var(--border) transparent;
+}
+.log-title { font-size:0.49rem; color:var(--text3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; }
+.log-entry {
+  font-size:0.62rem; line-height:1.65;
+  border-bottom:1px solid #F0F0F8; padding:2px 0;
+  display:flex; gap:5px; align-items:center; flex-wrap:wrap;
+}
+.log-empty { font-size:0.61rem; color:var(--text3); font-style:italic; }
+.spectrum-box {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:6px 9px;
+  flex-shrink:0; box-shadow:var(--sh);
+}
+.spec-title { font-size:0.49rem; color:var(--text3); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px; }
+canvas#specCanvas { width:100%; height:24px; border-radius:4px; border:1px solid var(--border); display:block; }
+.spec-labels { display:flex; justify-content:space-between; margin-top:2px; }
+.spec-labels span { font-size:0.45rem; color:var(--text3); }
+
+.footer-caption {
+  font-size:0.49rem; color:var(--text3);
+  text-align:center; letter-spacing:0.04em; flex-shrink:0;
+}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <span class="ctrl-label">From n =</span>
+      <button class="level-btn" id="fnBtn1" onclick="setFrom(1)">1</button>
+      <button class="level-btn" id="fnBtn2" onclick="setFrom(2)">2</button>
+      <button class="level-btn sel" id="fnBtn3" onclick="setFrom(3)">3</button>
+      <button class="level-btn" id="fnBtn4" onclick="setFrom(4)">4</button>
+      <button class="level-btn" id="fnBtn5" onclick="setFrom(5)">5</button>
+      <button class="level-btn" id="fnBtn6" onclick="setFrom(6)">6</button>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">To n =</span>
+      <button class="level-btn sel" id="tnBtn1" onclick="setTo(1)">1</button>
+      <button class="level-btn" id="tnBtn2" onclick="setTo(2)">2</button>
+      <button class="level-btn" id="tnBtn3" onclick="setTo(3)">3</button>
+      <button class="level-btn" id="tnBtn4" onclick="setTo(4)">4</button>
+      <button class="level-btn" id="tnBtn5" onclick="setTo(5)">5</button>
+    </div>
+    <button class="fire-btn" id="fireBtn" onclick="fireTransition()">▼ Emit Photon</button>
+    <button class="auto-btn" id="autoBtn" onclick="toggleAuto()">Auto</button>
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+  </div>
+
+  <div class="main">
+    <!-- LEFT: Bohr atom -->
+    <div class="bohr-wrap">
+      <canvas id="bohrCanvas"></canvas>
+      <div class="bohr-caption">Bohr Atom Model</div>
+    </div>
+
+    <!-- CENTER: Energy level diagram -->
+    <canvas id="levelCanvas"></canvas>
+
+    <!-- RIGHT: Info + log + spectrum -->
+    <div class="right-panel">
+      <div class="info-bar">
+        <div class="info-item">
+          <span class="info-key">Transition</span>
+          <span class="info-val" id="infoTrans" style="color:#E87B1E">n=3→n=1</span>
+        </div>
+        <div class="info-item">
+          <span class="info-key">ΔE</span>
+          <span class="info-val" id="infoDelta" style="color:#C62828">—</span>
+        </div>
+        <div class="info-item">
+          <span class="info-key">λ</span>
+          <span class="info-val" id="infoLambda" style="color:#1B5E20">—</span>
+        </div>
+        <div class="info-item">
+          <span class="info-key">Series</span>
+          <span class="info-val" id="infoSeries" style="color:#0D47A1">—</span>
+        </div>
+      </div>
+      <div class="log-box">
+        <div class="log-title">Transition Log</div>
+        <div id="logList"><div class="log-empty">— Fire a transition to begin —</div></div>
+      </div>
+      <div class="spectrum-box">
+        <div class="spec-title">Emission Spectrum (visible 380–700 nm)</div>
+        <canvas id="specCanvas"></canvas>
+        <div class="spec-labels">
+          <span>380nm</span><span>Violet</span><span>Blue</span>
+          <span>Green</span><span>Yellow</span><span>Red</span><span>700nm</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-caption">
+    Left: Bohr orbit model (concentric shells) · Center: Energy level diagram · ▼ emit photon · ▲ absorb photon
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  PHYSICS
+// ═══════════════════════════════════════════════════════
+const RH = 1.097e7;
+function energyEV(n)       { return -13.6 / (n * n); }
+function wavelengthNM(ni, nf) {
+  const inv = RH * (1/(nf*nf) - 1/(ni*ni));
+  return inv > 0 ? (1/inv)*1e9 : Infinity;
+}
+function seriesName(nf) {
+  return {1:'Lyman (UV)',2:'Balmer (Visible)',3:'Paschen (Near-IR)',
+          4:'Brackett (IR)',5:'Pfund (Far-IR)'}[nf] || 'n→'+nf;
+}
+function wavelengthToColor(nm) {
+  if (nm < 380) return '#9B59B6';
+  if (nm > 700) return '#E53935';
+  let r=0,g=0,b=0;
+  if      (nm<440){r=-(nm-440)/(440-380);b=1;}
+  else if (nm<490){g=(nm-440)/(490-440);b=1;}
+  else if (nm<510){g=1;b=-(nm-510)/(510-490);}
+  else if (nm<580){r=(nm-510)/(580-510);g=1;}
+  else if (nm<645){r=1;g=-(nm-645)/(645-580);}
+  else{r=1;}
+  const h=v=>Math.round(Math.pow(Math.max(0,v),0.75)*230+10).toString(16).padStart(2,'0');
+  return '#'+h(r)+h(g)+h(b);
+}
+
+// ═══════════════════════════════════════════════════════
+//  LEVEL COLORS  (dark, visible on white)
+// ═══════════════════════════════════════════════════════
+const LC=['','#C62828','#E65100','#F9A825','#2E7D32','#1565C0','#6A1B9A','#880E4F'];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let fromN=3, toN=1, currentN=1;
+let autoMode=false, autoTimer=null;
+let logEntries=[], specLines=[];
+
+// Bohr canvas size
+let BW=160, BH=160;
+// Level canvas size
+let LW=130, LH=280;
+
+// Animation objects
+// bohrAnim: electron jump flash + orbit anim
+let bohrTick = 0;
+let flashAnim = null;   // {startTime, fromOrbit, toOrbit, color, type:'emit'|'absorb'}
+let photonRings = [];   // [{startTime, x, y, color, maxR}]  emitted photon ripple
+let absPhoton = null;   // incoming photon for absorption {startTime, color}
+
+// Level canvas photon arrow
+let levelPhoton = null; // {startTime, ni, nf, color}
+
+// ═══════════════════════════════════════════════════════
+//  BOHR CANVAS — orbit radii
+// ═══════════════════════════════════════════════════════
+function orbitR(n) {
+  // n=1 ~ 14px, n=2~22, exponential feel
+  return 10 + n * n * 3.2;
+}
+
+function drawBohr() {
+  const cv = document.getElementById('bohrCanvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const cx = W/2, cy = H/2;
+  const now = Date.now();
+
+  ctx.clearRect(0,0,W,H);
+
+  // Background
+  ctx.fillStyle = '#FAFBFF';
+  ctx.fillRect(0,0,W,H);
+
+  // ── Orbits (circles) ──
+  for (let n=1; n<=6; n++) {
+    const r = orbitR(n);
+    if (r > Math.min(W,H)/2 - 4) continue;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+    const isCurrent = (n === currentN);
+    ctx.strokeStyle = isCurrent ? LC[n] : LC[n]+'44';
+    ctx.lineWidth   = isCurrent ? 1.8 : 0.9;
+    ctx.setLineDash(isCurrent ? [] : [3,3]);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // n= label at top of orbit
+    if (r < Math.min(W,H)/2 - 10) {
+      ctx.fillStyle = LC[n]+(isCurrent?'FF':'88');
+      ctx.font = (isCurrent?'bold ':'')+'8px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.fillText('n='+n, cx, cy - r - 2);
+    }
+  }
+
+  // ── Flash ring during transition ──
+  if (flashAnim) {
+    const age = (now - flashAnim.startTime) / 500; // 0→1 in 500ms
+    if (age < 1) {
+      const fromR = orbitR(flashAnim.fromN);
+      const toR   = orbitR(flashAnim.toN);
+      const r = fromR + (toR - fromR) * Math.min(age, 1);
+      const alpha = 1 - age;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+      ctx.strokeStyle = flashAnim.color;
+      ctx.lineWidth = 3 * alpha;
+      ctx.globalAlpha = alpha;
+      ctx.stroke(); ctx.globalAlpha = 1;
+    } else {
+      flashAnim = null;
+    }
+  }
+
+  // ── Photon emission ripples ──
+  photonRings = photonRings.filter(ring => {
+    const age = (now - ring.startTime) / 900;
+    if (age >= 1) return false;
+    const r = ring.startR + (ring.maxR - ring.startR) * age;
+    const alpha = (1 - age) * 0.8;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.strokeStyle = ring.color;
+    ctx.lineWidth = 2.5 * (1 - age);
+    ctx.setLineDash([4, 4]);
+    ctx.globalAlpha = alpha; ctx.stroke();
+    ctx.globalAlpha = 1; ctx.setLineDash([]);
+    return true;
+  });
+
+  // ── Incoming photon (absorption) ──
+  if (absPhoton) {
+    const age = (now - absPhoton.startTime) / 500;
+    if (age < 1) {
+      // photon comes from outside → current orbit
+      const targetR = orbitR(toN > currentN ? toN : currentN);
+      const startX = cx + Math.min(W,H)/2;
+      const endX   = cx + targetR * 0.7;
+      const px = startX + (endX - startX) * age;
+      const py = cy;
+      const alpha = Math.sin(age * Math.PI);
+      // wavy path
+      ctx.beginPath();
+      ctx.moveTo(startX, py);
+      for (let s=0; s<=20; s++) {
+        const t = s/20;
+        if (t > age) break;
+        const wx = startX + (endX - startX)*t;
+        const wy = py + Math.sin(t * Math.PI * 5) * 4 * Math.sin(t * Math.PI);
+        ctx.lineTo(wx, wy);
+      }
+      ctx.strokeStyle = absPhoton.color;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = alpha; ctx.stroke(); ctx.globalAlpha = 1;
+
+      // photon circle
+      ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI*2);
+      ctx.fillStyle = absPhoton.color;
+      ctx.globalAlpha = alpha * 0.9; ctx.fill(); ctx.globalAlpha = 1;
+
+      // hν label
+      ctx.fillStyle = absPhoton.color;
+      ctx.font = 'bold 8px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.globalAlpha = alpha;
+      ctx.fillText('hν', px, py - 7);
+      ctx.globalAlpha = 1;
+    } else {
+      absPhoton = null;
+    }
+  }
+
+  // ── Nucleus ──
+  // outer soft glow
+  const ng = ctx.createRadialGradient(cx,cy,4, cx,cy,16);
+  ng.addColorStop(0, 'rgba(255,140,60,0.5)');
+  ng.addColorStop(1, 'rgba(255,140,60,0)');
+  ctx.beginPath(); ctx.arc(cx, cy, 16, 0, Math.PI*2);
+  ctx.fillStyle = ng; ctx.fill();
+  // solid core
+  ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI*2);
+  ctx.fillStyle = '#E65100'; ctx.fill();
+  ctx.strokeStyle = '#BF360C'; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 8px Montserrat,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('H⁺', cx, cy);
+
+  // ── Electron ──
+  const er = orbitR(currentN);
+  // electron orbits at angle=bohrTick*speed
+  const speed = 0.018 / Math.sqrt(currentN); // inner faster
+  const angle = bohrTick * speed;
+  const ex = cx + er * Math.cos(angle);
+  const ey = cy + er * Math.sin(angle);
+
+  // glow
+  ctx.shadowColor = LC[currentN]+'BB';
+  ctx.shadowBlur = 10;
+  ctx.beginPath(); ctx.arc(ex, ey, 6, 0, Math.PI*2);
+  ctx.fillStyle = LC[currentN]; ctx.fill();
+  ctx.shadowBlur = 0;
+  // white highlight
+  ctx.beginPath(); ctx.arc(ex-1.5, ey-1.5, 2, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fill();
+  // e⁻ label
+  ctx.fillStyle = LC[currentN];
+  ctx.font = 'bold 7px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('e⁻', ex, ey+7);
+
+  bohrTick++;
+  requestAnimationFrame(drawBohr);
+}
+
+// ═══════════════════════════════════════════════════════
+//  LEVEL DIAGRAM CANVAS
+// ═══════════════════════════════════════════════════════
+const N_MAX = 7;
+const L_AX  = 30;  // left margin for level labels
+const L_PAD = 32;  // right margin for eV labels
+
+function levelY_L(n) {
+  const mt=22, mb=18, usable=LH-mt-mb;
+  const eMin=energyEV(N_MAX), eMax=0;
+  const frac=(energyEV(n)-eMin)/(eMax-eMin);
+  return LH-mb-frac*usable;
+}
+
+let levelPhotonAnim = null; // {startTime, dur, ni, nf, color, emitting}
+
+function drawLevel() {
+  const cv = document.getElementById('levelCanvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const now = Date.now();
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFF';
+  ctx.fillRect(0,0,W,H);
+
+  // ── Level lines ──
+  for (let n=1; n<=N_MAX; n++) {
+    const y = levelY_L(n);
+    const col = LC[n];
+    const isCurrent = (n === currentN);
+    const isFrom = (n === fromN);
+    const isTo   = (n === toN);
+
+    ctx.beginPath();
+    ctx.moveTo(L_AX, y); ctx.lineTo(W-L_PAD, y);
+    ctx.strokeStyle = isCurrent ? col : col+'55';
+    ctx.lineWidth = isCurrent ? 2.0 : (isFrom||isTo ? 1.3 : 0.8);
+    ctx.setLineDash(isCurrent ? [] : [3,3]);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // n= label
+    ctx.fillStyle = col+(isCurrent?'':'99');
+    ctx.font = (isCurrent?'bold ':'')+'8.5px JetBrains Mono,monospace';
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText('n='+n, L_AX-3, y);
+
+    // eV label
+    ctx.fillStyle = '#AAAACC';
+    ctx.font = '7px JetBrains Mono,monospace';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(energyEV(n).toFixed(2), W-L_PAD+2, y);
+  }
+
+  // Ionisation
+  const yIon = levelY_L(N_MAX) - 18;
+  ctx.beginPath();
+  ctx.moveTo(L_AX, yIon); ctx.lineTo(W-L_PAD, yIon);
+  ctx.strokeStyle='rgba(100,100,180,0.25)';
+  ctx.lineWidth=0.7; ctx.setLineDash([2,5]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#BBBBDD';
+  ctx.font='6.5px JetBrains Mono,monospace';
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  ctx.fillText('0 eV', L_AX-3, yIon);
+
+  // ── Static transition arrow (selection preview) ──
+  if (fromN !== toN) {
+    const y1 = levelY_L(fromN), y2 = levelY_L(toN);
+    const ax = L_AX + (W - L_AX - L_PAD) * 0.52;
+    const emitting = fromN > toN;
+    const acol = emitting ? '#C62828' : '#1565C0';
+
+    ctx.beginPath(); ctx.moveTo(ax, y1); ctx.lineTo(ax, y2);
+    ctx.strokeStyle = acol+'55';
+    ctx.lineWidth = 1.5; ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+
+    // Arrow head
+    const dir = emitting ? 1 : -1;
+    ctx.beginPath();
+    ctx.moveTo(ax, y2 + dir*9);
+    ctx.lineTo(ax-5, y2 + dir*3);
+    ctx.lineTo(ax+5, y2 + dir*3);
+    ctx.closePath();
+    ctx.fillStyle = acol+'88'; ctx.fill();
+  }
+
+  // ── Animated transition arrow ──
+  if (levelPhotonAnim) {
+    const age = (now - levelPhotonAnim.startTime) / levelPhotonAnim.dur;
+    if (age < 1) {
+      const y1 = levelY_L(levelPhotonAnim.ni);
+      const y2 = levelY_L(levelPhotonAnim.nf);
+      const ax = L_AX + (W - L_AX - L_PAD) * 0.52;
+      const emitting = levelPhotonAnim.emitting;
+      const acol = levelPhotonAnim.color;
+
+      // Draw animated line from ni to current progress
+      const yCurr = y1 + (y2 - y1) * Math.min(age*1.2, 1);
+      ctx.beginPath(); ctx.moveTo(ax, y1); ctx.lineTo(ax, yCurr);
+      ctx.strokeStyle = acol;
+      ctx.lineWidth = 2.5;
+      ctx.globalAlpha = 0.9; ctx.stroke(); ctx.globalAlpha = 1;
+
+      // Moving dot along arrow
+      ctx.beginPath(); ctx.arc(ax, yCurr, 4, 0, Math.PI*2);
+      ctx.fillStyle = acol; ctx.fill();
+
+      // ΔE / λ mid label
+      const midY = (y1+y2)/2;
+      const nm = wavelengthNM(
+        Math.max(levelPhotonAnim.ni, levelPhotonAnim.nf),
+        Math.min(levelPhotonAnim.ni, levelPhotonAnim.nf)
+      );
+      const dE = Math.abs(energyEV(levelPhotonAnim.ni) - energyEV(levelPhotonAnim.nf));
+      ctx.fillStyle = acol;
+      ctx.font = 'bold 7.5px JetBrains Mono,monospace';
+      ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(dE.toFixed(2)+' eV', ax+8, midY-6);
+      if (nm < 2000) {
+        const ncol = (nm>=380&&nm<=700) ? wavelengthToColor(nm) : '#777';
+        ctx.fillStyle = ncol;
+        ctx.fillText(nm.toFixed(0)+' nm', ax+8, midY+7);
+      }
+
+      // Arrowhead at destination (appears when close)
+      if (age > 0.75) {
+        const dir = emitting ? 1 : -1;
+        const alpha = (age - 0.75) / 0.25;
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.moveTo(ax, y2 + dir*9);
+        ctx.lineTo(ax-5, y2 + dir*3);
+        ctx.lineTo(ax+5, y2 + dir*3);
+        ctx.closePath();
+        ctx.fillStyle = acol; ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    } else {
+      levelPhotonAnim = null;
+    }
+  }
+
+  requestAnimationFrame(drawLevel);
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════════════════
+function applyBtnColors() {
+  for (let n=1;n<=6;n++) {
+    const b=document.getElementById('fnBtn'+n); if(!b)continue;
+    if(n===fromN){b.classList.add('sel');b.style.background=LC[n];b.style.color='#fff';b.style.borderColor=LC[n];}
+    else{b.classList.remove('sel');b.style.background='';b.style.color='';b.style.borderColor='';}
+  }
+  for (let n=1;n<=5;n++) {
+    const b=document.getElementById('tnBtn'+n); if(!b)continue;
+    if(n===toN){b.classList.add('sel');b.style.background=LC[n];b.style.color='#fff';b.style.borderColor=LC[n];}
+    else{b.classList.remove('sel');b.style.background='';b.style.color='';b.style.borderColor='';}
+  }
+}
+
+function setFrom(n){ fromN=n; applyBtnColors(); updateInfo(); }
+function setTo(n)  { toN=n;   applyBtnColors(); updateInfo(); }
+
+function updateInfo() {
+  const emitting = fromN > toN;
+  const type = fromN===toN ? '—' : (emitting?'de-excitation':'excitation');
+  const dE   = fromN!==toN ? Math.abs(energyEV(fromN)-energyEV(toN)).toFixed(2)+' eV' : '—';
+  const nm   = fromN!==toN ? wavelengthNM(Math.max(fromN,toN),Math.min(fromN,toN)) : Infinity;
+  const nmStr= nm<2000 ? nm.toFixed(0)+' nm' : (nm<Infinity?'>2000 nm':'—');
+  const ser  = fromN!==toN ? seriesName(Math.min(fromN,toN)) : '—';
+
+  document.getElementById('infoTrans').textContent = `n=${fromN}→n=${toN}  (${type})`;
+  document.getElementById('infoDelta').textContent = dE;
+  document.getElementById('infoLambda').textContent = nmStr;
+  document.getElementById('infoSeries').textContent = ser;
+
+  const fb = document.getElementById('fireBtn');
+  if (fromN===toN) {
+    fb.disabled=true; fb.textContent='— same level —'; fb.style.background='#ccc'; fb.style.boxShadow='none';
+  } else {
+    fb.disabled=false;
+    fb.textContent = emitting ? '▼ Emit Photon' : '▲ Absorb Photon';
+    fb.style.background = emitting ? '#C62828' : '#1565C0';
+    fb.style.boxShadow  = emitting
+      ? '0 2px 6px rgba(198,40,40,0.35)'
+      : '0 2px 6px rgba(21,101,192,0.35)';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  FIRE TRANSITION
+// ═══════════════════════════════════════════════════════
+function fireTransition() {
+  if (fromN===toN) return;
+  const ni=fromN, nf=toN;
+  const emitting = ni>nf;
+  const nm  = wavelengthNM(Math.max(ni,nf), Math.min(ni,nf));
+  const dE  = Math.abs(energyEV(ni)-energyEV(nf));
+  const col = (nm>=380&&nm<=700) ? wavelengthToColor(nm) : (emitting?'#C62828':'#1565C0');
+  const now = Date.now();
+
+  // 1. Move electron
+  currentN = nf;
+
+  // 2. Bohr: flash ring (orbit sweep)
+  flashAnim = { startTime:now, fromN:ni, toN:nf, color:col };
+
+  // 3. Bohr: emit → ripple out; absorb → incoming photon
+  if (emitting) {
+    photonRings.push({
+      startTime: now,
+      startR: orbitR(nf),
+      maxR: Math.min(BW, BH) * 0.55,
+      color: col
+    });
+    // second ring for Lyman (UV)
+    if (nf===1) {
+      photonRings.push({
+        startTime: now+120,
+        startR: orbitR(nf),
+        maxR: Math.min(BW,BH)*0.5,
+        color: col
+      });
+    }
+  } else {
+    absPhoton = { startTime:now, color:col };
+  }
+
+  // 4. Level diagram: animated arrow
+  levelPhotonAnim = { startTime:now, dur:600, ni, nf, color:col, emitting };
+
+  // 5. Log
+  const nmStr = nm<2000 ? nm.toFixed(0)+' nm' : '>2000 nm';
+  logEntries.unshift({ type:emitting?'EMIT':'ABS', ni, nf,
+    dE:dE.toFixed(2), nm:nmStr, col, series:seriesName(Math.min(ni,nf)) });
+  if (logEntries.length>10) logEntries.pop();
+  renderLog();
+
+  // 6. Spectrum
+  if (emitting && nm>=380 && nm<=700) {
+    specLines.push({nm, col});
+    renderSpectrum();
+  }
+
+  try {
+    window.parent.postMessage({type:'excitation:transition',
+      from:ni,to:nf,emitting,wavelengthNM:nm,energyEV:dE},'*');
+  } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════════
+//  LOG
+// ═══════════════════════════════════════════════════════
+function renderLog() {
+  const list = document.getElementById('logList');
+  if (!logEntries.length) {
+    list.innerHTML='<div class="log-empty">— Fire a transition to begin —</div>'; return;
+  }
+  list.innerHTML = logEntries.map(e => {
+    const arrow = e.type==='EMIT'
+      ? '<span style="color:#C62828;font-weight:700">↓ emit</span>'
+      : '<span style="color:#1565C0;font-weight:700">↑ absorb</span>';
+    const dot=`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${e.col};border:1px solid rgba(0,0,0,0.12);flex-shrink:0"></span>`;
+    return `<div class="log-entry">${dot}
+      <span style="color:#333;font-weight:600">n=${e.ni}→${e.nf}</span>
+      ${arrow}
+      <span style="color:#C62828">${e.dE} eV</span>
+      <span style="color:#1B5E20">${e.nm}</span>
+      <span style="color:#999;font-size:0.56rem">${e.series}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SPECTRUM
+// ═══════════════════════════════════════════════════════
+function renderSpectrum() {
+  const cv=document.getElementById('specCanvas');
+  const ctx=cv.getContext('2d');
+  const W=cv.width, H=cv.height;
+  ctx.fillStyle='#1a1a2e'; ctx.fillRect(0,0,W,H);
+  const grad=ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'rgba(100,0,180,0.13)');
+  grad.addColorStop(0.15,'rgba(60,0,255,0.10)');
+  grad.addColorStop(0.30,'rgba(0,200,255,0.09)');
+  grad.addColorStop(0.46,'rgba(0,255,100,0.09)');
+  grad.addColorStop(0.62,'rgba(255,255,0,0.09)');
+  grad.addColorStop(0.78,'rgba(255,100,0,0.11)');
+  grad.addColorStop(1,   'rgba(200,0,0,0.13)');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  specLines.forEach(sl => {
+    const x=((sl.nm-380)/320)*W;
+    const glow=ctx.createLinearGradient(x-5,0,x+5,0);
+    glow.addColorStop(0,sl.col+'00');
+    glow.addColorStop(0.5,sl.col+'99');
+    glow.addColorStop(1,sl.col+'00');
+    ctx.fillStyle=glow; ctx.fillRect(x-5,0,10,H);
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H);
+    ctx.strokeStyle=sl.col; ctx.lineWidth=1.5;
+    ctx.globalAlpha=0.95; ctx.stroke(); ctx.globalAlpha=1;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  AUTO MODE
+// ═══════════════════════════════════════════════════════
+const AUTO_SEQ=[[3,1],[4,2],[5,2],[6,2],[3,2],[4,3],[5,3],[2,1],[4,1],[5,4]];
+let autoIdx=0;
+function toggleAuto() {
+  autoMode=!autoMode;
+  const btn=document.getElementById('autoBtn');
+  btn.classList.toggle('on',autoMode);
+  btn.textContent=autoMode?'⏸ Stop':'Auto';
+  if(autoMode) runAuto(); else clearTimeout(autoTimer);
+}
+function runAuto() {
+  if(!autoMode) return;
+  const s=AUTO_SEQ[autoIdx%AUTO_SEQ.length];
+  setFrom(s[0]); setTo(s[1]);
+  setTimeout(()=>{ fireTransition(); autoIdx++; autoTimer=setTimeout(runAuto,1600); },300);
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESET
+// ═══════════════════════════════════════════════════════
+function resetAll() {
+  autoMode=false; clearTimeout(autoTimer);
+  document.getElementById('autoBtn').classList.remove('on');
+  document.getElementById('autoBtn').textContent='Auto';
+  logEntries=[]; specLines=[]; photonRings=[]; flashAnim=null;
+  absPhoton=null; levelPhotonAnim=null;
+  currentN=1; bohrTick=0;
+  renderLog(); renderSpectrum();
+  setFrom(3); setTo(1);
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESIZE
+// ═══════════════════════════════════════════════════════
+function resize() {
+  const mainEl = document.querySelector('.main');
+  const mH = mainEl.offsetHeight;
+  const mW = mainEl.offsetWidth;
+
+  // Bohr canvas: square, ~30% of width, max 200
+  BW = BH = Math.max(140, Math.min(200, mW * 0.28, mH - 4));
+  const bc = document.getElementById('bohrCanvas');
+  bc.width = BW; bc.height = BH;
+
+  // Level canvas: fixed width ~110px, full height
+  LW = Math.max(100, Math.min(130, mW * 0.18));
+  LH = mH - 2;
+  const lc = document.getElementById('levelCanvas');
+  lc.width = LW; lc.height = LH;
+
+  // Spectrum canvas
+  const sc = document.getElementById('specCanvas');
+  sc.width  = sc.parentElement.offsetWidth - 18;
+  sc.height = 24;
+  renderSpectrum();
+}
+
+// ═══════════════════════════════════════════════════════
+//  postMessage
+// ═══════════════════════════════════════════════════════
+window.addEventListener('message', e => {
+  if(!e.data||!e.data.type) return;
+  if(e.data.type==='excitation:setTransition'){
+    if(e.data.from) setFrom(e.data.from);
+    if(e.data.to)   setTo(e.data.to);
+  }
+  if(e.data.type==='excitation:fire')  fireTransition();
+  if(e.data.type==='excitation:reset') resetAll();
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('resize', resize);
+window.addEventListener('load', () => {
+  resize();
+  applyBtnColors();
+  updateInfo();
+  requestAnimationFrame(drawBohr);
+  requestAnimationFrame(drawLevel);
+});
+</script>
+</body>
+</html>

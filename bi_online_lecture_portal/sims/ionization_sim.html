@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionization & Recombination Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:    #F4F6FB; --bg2: #FFFFFF; --border: #D8DAE8;
+  --text:  #1A1A2E; --text2: #4A4A6A; --text3: #9090B0;
+  --sh:    0 1px 4px rgba(0,0,0,0.07);
+  --plasma:#E87B1E;
+  --ion:   #E65100;  /* orange — ion */
+  --elec:  #1565C0;  /* blue  — free electron */
+  --neut:  #546E7A;  /* gray  — neutral */
+  --recom: #1B5E20;  /* green — recombination photon */
+}
+html, body { width:100%; height:100%; background:var(--bg); overflow:hidden; }
+.root {
+  display:flex; flex-direction:column;
+  width:100%; height:100%;
+  padding:7px 10px 5px; gap:6px;
+  font-family:'Google Sans','Segoe UI',sans-serif; color:var(--text);
+}
+
+/* ── Controls ── */
+.controls {
+  display:flex; gap:6px; align-items:center;
+  flex-shrink:0; flex-wrap:wrap;
+}
+.ctrl-group {
+  display:flex; align-items:center; gap:5px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:4px 9px; box-shadow:var(--sh);
+}
+.ctrl-label { font-size:0.51rem; color:var(--text3); letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap; }
+.elem-btn {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:5px; color:var(--text2);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; font-weight:600;
+  padding:3px 9px; cursor:pointer; transition:all 0.12s;
+}
+.elem-btn:hover { border-color:var(--plasma); color:var(--plasma); }
+.elem-btn.sel   { background:var(--plasma); border-color:var(--plasma); color:#fff; font-weight:700; }
+.rf-toggle {
+  border:none; border-radius:7px;
+  font-family:'Google Sans',sans-serif;
+  font-size:0.7rem; font-weight:700;
+  padding:5px 14px; cursor:pointer;
+  transition:background 0.15s, transform 0.1s; flex-shrink:0;
+}
+.rf-on  { background:#1565C0; color:#fff; box-shadow:0 2px 6px rgba(21,101,192,0.35); }
+.rf-off { background:#C62828; color:#fff; box-shadow:0 2px 6px rgba(198,40,40,0.35); }
+.rf-toggle:active { transform:scale(0.96); }
+.reset-btn {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:7px; color:var(--text3);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; padding:5px 10px;
+  cursor:pointer; flex-shrink:0;
+}
+.reset-btn:hover { border-color:var(--text2); color:var(--text2); }
+
+/* ── Stats bar ── */
+.stats-bar {
+  display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap;
+}
+.stat-pill {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:4px 10px;
+  display:flex; gap:5px; align-items:baseline;
+  box-shadow:var(--sh); flex-shrink:0;
+}
+.stat-key  { font-size:0.50rem; color:var(--text3); letter-spacing:0.08em; text-transform:uppercase; }
+.stat-val  { font-size:0.78rem; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.rf-indicator {
+  margin-left:auto; padding:3px 12px;
+  border-radius:20px; font-size:0.60rem; font-weight:700;
+  font-family:'JetBrains Mono',monospace; letter-spacing:0.06em;
+}
+.rf-ind-on  { background:#E3F2FD; color:#1565C0; border:1px solid #90CAF9; }
+.rf-ind-off { background:#FFEBEE; color:#C62828; border:1px solid #EF9A9A; }
+
+/* ── Main 3-zone layout ── */
+.main {
+  display:flex; gap:7px; flex:1; min-height:0;
+}
+.zone {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:10px; box-shadow:var(--sh);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.zone-title {
+  font-size:0.50rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text3); padding:5px 9px 3px;
+  border-bottom:1px solid #F0F0F8; flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;
+}
+.zone canvas { flex:1; display:block; min-height:0; width:100%; }
+
+/* Zone widths */
+#zoneBohr  { flex:0 0 auto; width:200px; }
+#zoneLevel { flex:0 0 auto; width:130px; }
+#zonePlasma { flex:1; }
+
+/* ── RF slider ── */
+.rf-slider-wrap {
+  display:flex; gap:5px; align-items:center;
+}
+input[type=range]#rfSlider {
+  width:90px; accent-color:var(--plasma);
+}
+.rf-val {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; color:var(--text2); min-width:32px;
+}
+
+/* ── Caption ── */
+.caption {
+  font-size:0.49rem; color:var(--text3);
+  text-align:center; flex-shrink:0; letter-spacing:0.04em;
+}
+
+/* Event flash overlay */
+.event-toast {
+  position:absolute; top:4px; left:50%; transform:translateX(-50%);
+  background:rgba(255,255,255,0.92); border:1px solid var(--border);
+  border-radius:20px; padding:2px 10px;
+  font-size:0.58rem; font-weight:700;
+  font-family:'JetBrains Mono',monospace;
+  pointer-events:none; opacity:0;
+  transition:opacity 0.3s;
+  white-space:nowrap; box-shadow:var(--sh);
+}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Element</span>
+      <button class="elem-btn sel" id="btnAr" onclick="setElement('Ar')">Ar</button>
+      <button class="elem-btn" id="btnH"  onclick="setElement('H')">H</button>
+      <button class="elem-btn" id="btnHe" onclick="setElement('He')">He</button>
+      <button class="elem-btn" id="btnO"  onclick="setElement('O')">O</button>
+      <button class="elem-btn" id="btnF"  onclick="setElement('F')">F</button>
+    </div>
+    <div class="ctrl-group">
+      <span class="ctrl-label">RF Power</span>
+      <div class="rf-slider-wrap">
+        <input type="range" id="rfSlider" min="0" max="100" value="35"
+               oninput="setRF(this.value)">
+        <span class="rf-val" id="rfVal">35 W</span>
+      </div>
+    </div>
+    <button class="rf-toggle rf-on" id="rfToggleBtn" onclick="toggleRF()">RF ON</button>
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-pill">
+      <span class="stat-key">Element</span>
+      <span class="stat-val" id="statElem" style="color:var(--ion)">Ar</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-key">IE</span>
+      <span class="stat-val" id="statIE" style="color:#C62828">15.76 eV</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-key">Neutral</span>
+      <span class="stat-val" id="statNeut" style="color:var(--neut)">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-key">Ion A⁺</span>
+      <span class="stat-val" id="statIon" style="color:var(--ion)">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-key">Free e⁻</span>
+      <span class="stat-val" id="statElec" style="color:var(--elec)">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-key">Ioniz. %</span>
+      <span class="stat-val" id="statPct" style="color:var(--plasma)">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-key">Last event</span>
+      <span class="stat-val" id="statEvent" style="color:var(--text2)">—</span>
+    </div>
+    <span class="rf-indicator rf-ind-on" id="rfIndicator">RF ON</span>
+  </div>
+
+  <!-- 3 zones -->
+  <div class="main">
+    <!-- Zone 1: Bohr atom -->
+    <div class="zone" id="zoneBohr">
+      <div class="zone-title">Zone 1 — Bohr Atom</div>
+      <canvas id="bohrCanvas"></canvas>
+    </div>
+    <!-- Zone 2: Energy level -->
+    <div class="zone" id="zoneLevel">
+      <div class="zone-title">Zone 2 — Energy</div>
+      <canvas id="levelCanvas"></canvas>
+    </div>
+    <!-- Zone 3: Plasma chamber -->
+    <div class="zone" id="zonePlasma" style="position:relative;">
+      <div class="zone-title">Zone 3 — Plasma Chamber</div>
+      <canvas id="plasmaCanvas"></canvas>
+    </div>
+  </div>
+
+  <div class="caption">
+    Neutral <span style="color:var(--neut);font-weight:600">●</span> ·
+    Ion A⁺ <span style="color:var(--ion);font-weight:600">●</span> ·
+    Free e⁻ <span style="color:var(--elec);font-weight:600">●</span> ·
+    RF power controls electron energy → collision ionization rate
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  ELEMENT DATA
+// ═══════════════════════════════════════════════════════
+const ELEMENTS = {
+  Ar: { ie: 15.76, color:'#E65100', name:'Argon',   valence:8,  role:'Sputter gas (CCP/ICP)' },
+  H:  { ie: 13.60, color:'#1565C0', name:'Hydrogen', valence:1,  role:'Oxide reduction (H₂ plasma)' },
+  He: { ie: 24.59, color:'#6A1B9A', name:'Helium',   valence:2,  role:'Inert carrier gas' },
+  O:  { ie: 13.62, color:'#C62828', name:'Oxygen',   valence:6,  role:'Ashing / oxidation' },
+  F:  { ie: 17.42, color:'#1B5E20', name:'Fluorine', valence:7,  role:'RIE etchant (CF₄, SF₆)' },
+};
+const LC = ['','#C62828','#E65100','#F9A825','#2E7D32','#1565C0','#6A1B9A'];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let currentEl   = 'Ar';
+let rfPower     = 35;     // 0~100 W
+let rfOn        = true;
+let bohrTick    = 0;
+
+// Bohr atom state
+let atomState   = 'neutral';  // 'neutral' | 'ion'
+let bohrElAngle = 0;
+let bohrFlash   = null;  // { type:'ionize'|'recomb', t:0, maxT:30 }
+let bohrPhoton  = null;  // { x, y, vx, t:0, maxT:25, col }
+let bohrFreeEl  = null;  // { angle, r, vr, t:0, maxT:35 }
+
+// Level diagram
+let levelAnim   = null;  // { type, t:0, maxT }
+
+// Plasma chamber — 총 18개 파티클 (교육적으로 적절)
+const TOTAL_P   = 18;
+let particles   = [];
+let pEventQueue = [];   // { type, idx, t }
+
+// ═══════════════════════════════════════════════════════
+//  INIT PARTICLES
+// ═══════════════════════════════════════════════════════
+function initParticles() {
+  const cv  = document.getElementById('plasmaCanvas');
+  const W   = cv.width  || 320;
+  const H   = cv.height || 240;
+  particles = [];
+  for (let i = 0; i < TOTAL_P; i++) {
+    particles.push({
+      x:  20 + Math.random() * (W - 40),
+      y:  20 + Math.random() * (H - 40),
+      vx: (Math.random() - 0.5) * 1.4,
+      vy: (Math.random() - 0.5) * 1.4,
+      type: 'neutral',  // 'neutral' | 'ion' | 'electron'
+      flash: 0,
+      flashCol: '',
+      paired: -1,       // ion paired with electron index (for recomb proximity)
+    });
+  }
+  atomState = 'neutral';
+  bohrFlash = null; bohrPhoton = null; bohrFreeEl = null; levelAnim = null;
+  updateStats();
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════════════════
+function setElement(el) {
+  currentEl = el;
+  document.querySelectorAll('.elem-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('btn'+el).classList.add('sel');
+  document.getElementById('statElem').textContent = el;
+  document.getElementById('statIE').textContent   = ELEMENTS[el].ie.toFixed(2) + ' eV';
+  resetAll();
+}
+
+function setRF(v) {
+  rfPower = parseInt(v);
+  document.getElementById('rfVal').textContent = rfPower + ' W';
+}
+
+function toggleRF() {
+  rfOn = !rfOn;
+  const btn = document.getElementById('rfToggleBtn');
+  const ind = document.getElementById('rfIndicator');
+  btn.textContent = rfOn ? 'RF ON' : 'RF OFF';
+  btn.className   = 'rf-toggle ' + (rfOn ? 'rf-on' : 'rf-off');
+  ind.textContent = rfOn ? 'RF ON' : 'RF OFF';
+  ind.className   = 'rf-indicator ' + (rfOn ? 'rf-ind-on' : 'rf-ind-off');
+}
+
+function resetAll() {
+  bohrTick = 0; bohrElAngle = 0;
+  initParticles();
+}
+
+// ═══════════════════════════════════════════════════════
+//  PHYSICS UPDATE  (called each frame)
+// ═══════════════════════════════════════════════════════
+function physicsUpdate() {
+  const cv = document.getElementById('plasmaCanvas');
+  const W  = cv.width  || 320;
+  const H  = cv.height || 240;
+
+  // Ionization probability per frame per neutral particle
+  // RF off → 0; RF 100W → ~0.008 per neutral per frame
+  const ionProb   = rfOn ? (rfPower / 100) * 0.007 : 0;
+  // Recombination: if ion and electron are within ~24px, prob per frame
+  const recomProb = 0.018;
+
+  let ionEvent   = false;
+  let recomEvent = false;
+
+  const neutrals  = particles.filter(p => p.type === 'neutral');
+  const ions      = particles.filter(p => p.type === 'ion');
+  const electrons = particles.filter(p => p.type === 'electron');
+
+  // ── Ionization ──
+  neutrals.forEach(n => {
+    if (Math.random() < ionProb) {
+      n.type = 'ion';
+      n.flash = 12; n.flashCol = ELEMENTS[currentEl].color;
+      // spawn electron near it
+      particles.push({
+        x: n.x + (Math.random()-0.5)*12,
+        y: n.y + (Math.random()-0.5)*12,
+        vx: (Math.random()-0.5)*3.5,
+        vy: (Math.random()-0.5)*3.5,
+        type: 'electron', flash:0, flashCol:'', paired:-1
+      });
+      ionEvent = true;
+    }
+  });
+
+  // ── Recombination (ion + nearest electron within proximity) ──
+  ions.forEach(ion => {
+    const nearby = particles.filter(p =>
+      p.type === 'electron' &&
+      Math.hypot(p.x - ion.x, p.y - ion.y) < 26
+    );
+    if (nearby.length > 0 && Math.random() < recomProb) {
+      const el = nearby[0];
+      ion.type  = 'neutral';
+      ion.flash = 14; ion.flashCol = '#1B5E20';
+      // Remove electron
+      const idx = particles.indexOf(el);
+      if (idx > -1) particles.splice(idx, 1);
+      recomEvent = true;
+    }
+  });
+
+  // ── Trigger Bohr + Level animations on first event per frame ──
+  if (ionEvent && atomState === 'neutral') {
+    triggerIonization();
+  }
+  if (recomEvent && atomState === 'ion') {
+    triggerRecombination();
+  }
+
+  // ── RF off → slow recombination dominates ──
+  // (already handled by ionProb=0 above)
+
+  // ── Move particles ──
+  particles.forEach(p => {
+    // Electrons get extra kick from RF
+    if (p.type === 'electron' && rfOn) {
+      p.vx += (Math.random()-0.5) * rfPower * 0.0014;
+      p.vy += (Math.random()-0.5) * rfPower * 0.0014;
+    }
+    // Speed cap
+    const sp = Math.hypot(p.vx, p.vy);
+    const maxSp = p.type === 'electron' ? 4.5 : 2.2;
+    if (sp > maxSp) { p.vx *= maxSp/sp; p.vy *= maxSp/sp; }
+    // Slow down ions/neutrals slightly (thermal)
+    if (p.type !== 'electron') { p.vx *= 0.998; p.vy *= 0.998; }
+
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 8)    { p.x = 8;    p.vx =  Math.abs(p.vx); }
+    if (p.x > W-8)  { p.x = W-8;  p.vx = -Math.abs(p.vx); }
+    if (p.y < 8)    { p.y = 8;    p.vy =  Math.abs(p.vy); }
+    if (p.y > H-8)  { p.y = H-8;  p.vy = -Math.abs(p.vy); }
+    if (p.flash > 0) p.flash--;
+  });
+
+  updateStats();
+}
+
+// ═══════════════════════════════════════════════════════
+//  BOHR & LEVEL TRIGGERS
+// ═══════════════════════════════════════════════════════
+function triggerIonization() {
+  atomState  = 'ion';
+  bohrFlash  = { type:'ionize', t:0, maxT:28 };
+  bohrFreeEl = { angle:0.2, r:28, vr:2.2, t:0, maxT:32 };
+  levelAnim  = { type:'ionize', t:0, maxT:40 };
+
+  document.getElementById('statEvent').textContent = 'IONIZATION ↑';
+  document.getElementById('statEvent').style.color = ELEMENTS[currentEl].color;
+}
+
+function triggerRecombination() {
+  atomState = 'neutral';
+  bohrFlash = { type:'recomb', t:0, maxT:28 };
+  bohrPhoton= { angle: Math.random()*Math.PI*2, t:0, maxT:28 };
+  levelAnim = { type:'recomb', t:0, maxT:40 };
+
+  document.getElementById('statEvent').textContent = 'RECOMBINATION ↓ + hν';
+  document.getElementById('statEvent').style.color = '#1B5E20';
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════════════
+function updateStats() {
+  const nCount = particles.filter(p=>p.type==='neutral').length;
+  const iCount = particles.filter(p=>p.type==='ion').length;
+  const eCount = particles.filter(p=>p.type==='electron').length;
+  const total  = nCount + iCount;
+  const pct    = total > 0 ? ((iCount/total)*100).toFixed(1) : '0.0';
+  document.getElementById('statNeut').textContent = nCount;
+  document.getElementById('statIon').textContent  = iCount;
+  document.getElementById('statElec').textContent = eCount;
+  document.getElementById('statPct').textContent  = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════════
+//  DRAW: ZONE 1 — Bohr atom
+// ═══════════════════════════════════════════════════════
+function drawBohr() {
+  const cv  = document.getElementById('bohrCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const cx = W/2, cy = H/2;
+  const el = ELEMENTS[currentEl];
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFF'; ctx.fillRect(0,0,W,H);
+
+  // Shell radii
+  const shellR = [0,22,36,48,58,66,73];
+  const nShells = Math.min(el.valence <= 2 ? 1 : el.valence <= 10 ? 2 : 3, 3);
+
+  // ── Orbits ──
+  for (let n=1; n<=nShells; n++) {
+    const r = shellR[n];
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle = LC[n]+(atomState==='ion'&&n===nShells?'44':'66');
+    ctx.lineWidth   = n===nShells ? 1.2 : 0.7;
+    ctx.setLineDash(atomState==='ion'&&n===nShells?[3,3]:[]);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // n= label at top
+    ctx.fillStyle = LC[n]+'99';
+    ctx.font = '8px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText('n='+n, cx, cy - r - 2);
+  }
+
+  // Ionisation threshold line
+  const yIon = cy - 82;
+  ctx.beginPath(); ctx.moveTo(cx-60, yIon); ctx.lineTo(cx+60, yIon);
+  ctx.strokeStyle='rgba(180,0,0,0.25)'; ctx.lineWidth=0.8;
+  ctx.setLineDash([3,4]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(180,0,0,0.5)'; ctx.font='7.5px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('0 eV (ioniz.)', cx, yIon-2);
+
+  // ── Ionization flash ring ──
+  if (bohrFlash) {
+    const age = bohrFlash.t / bohrFlash.maxT;
+    const r   = shellR[nShells] + age * 55;
+    const alpha = (1-age) * 0.8;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle = bohrFlash.type==='ionize' ? el.color : '#1B5E20';
+    ctx.lineWidth = 2.5*(1-age);
+    ctx.globalAlpha = alpha; ctx.stroke(); ctx.globalAlpha=1;
+    bohrFlash.t++;
+    if (bohrFlash.t >= bohrFlash.maxT) bohrFlash = null;
+  }
+
+  // ── Free electron (after ionization) ──
+  if (bohrFreeEl) {
+    const ex = cx + bohrFreeEl.r * Math.cos(bohrFreeEl.angle);
+    const ey = cy + bohrFreeEl.r * Math.sin(bohrFreeEl.angle);
+    const age = bohrFreeEl.t / bohrFreeEl.maxT;
+    ctx.beginPath(); ctx.arc(ex,ey,4.5,0,Math.PI*2);
+    ctx.fillStyle = '#1565C0';
+    ctx.globalAlpha = 1-age; ctx.fill(); ctx.globalAlpha=1;
+    ctx.fillStyle='#1565C0'; ctx.font='7px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.globalAlpha=1-age;
+    ctx.fillText('e⁻→', ex+8, ey);
+    ctx.globalAlpha=1;
+    bohrFreeEl.r += bohrFreeEl.vr;
+    bohrFreeEl.t++;
+    if (bohrFreeEl.t >= bohrFreeEl.maxT) bohrFreeEl = null;
+  }
+
+  // ── Photon wave (recombination) ──
+  if (bohrPhoton) {
+    const age = bohrPhoton.t / bohrPhoton.maxT;
+    const r1  = shellR[nShells] + age * 45;
+    const r2  = r1 + 12;
+    const alpha = (1-age)*0.85;
+    // wavy ring segment
+    for (let a=0; a < Math.PI*2; a+=0.25) {
+      const rx = cx + r1*Math.cos(a);
+      const ry = cy + r1*Math.sin(a);
+      ctx.beginPath(); ctx.arc(rx,ry,2,0,Math.PI*2);
+      ctx.fillStyle='#1B5E20';
+      ctx.globalAlpha=alpha*0.7; ctx.fill(); ctx.globalAlpha=1;
+    }
+    ctx.fillStyle='#1B5E20'; ctx.font='bold 8px JetBrains Mono,monospace';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.globalAlpha=alpha;
+    ctx.fillText('hν', cx + r1 + 4, cy - 8);
+    ctx.globalAlpha=1;
+    bohrPhoton.t++;
+    if (bohrPhoton.t >= bohrPhoton.maxT) bohrPhoton=null;
+  }
+
+  // ── Nucleus ──
+  const ng = ctx.createRadialGradient(cx,cy,0,cx,cy,13);
+  ng.addColorStop(0,'#FFF3E0'); ng.addColorStop(0.4,'#FF8A65');
+  ng.addColorStop(0.8,'#E65100'); ng.addColorStop(1,'rgba(183,28,28,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,13,0,Math.PI*2);
+  ctx.fillStyle=ng; ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='bold 8.5px Montserrat,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(currentEl+'⁺', cx, cy);
+
+  // Ion label overlay
+  if (atomState==='ion') {
+    ctx.fillStyle=el.color; ctx.font='bold 9px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(currentEl+'⁺  (ionized)', cx, cy+70);
+  }
+
+  // ── Orbiting electron (only when neutral) ──
+  if (atomState==='neutral') {
+    const r  = shellR[nShells];
+    const sp = 0.010 / nShells;
+    bohrElAngle += sp * 60;
+    const ex = cx + r*Math.cos(bohrElAngle);
+    const ey = cy + r*Math.sin(bohrElAngle);
+    // glow
+    ctx.shadowColor=LC[nShells]+'AA'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.arc(ex,ey,5.5,0,Math.PI*2);
+    ctx.fillStyle=LC[nShells]; ctx.fill(); ctx.shadowBlur=0;
+    ctx.beginPath(); ctx.arc(ex-1.5,ey-1.5,2,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.fill();
+    ctx.fillStyle=LC[nShells]; ctx.font='bold 7px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText('e⁻', ex, ey+7);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  DRAW: ZONE 2 — Energy level diagram
+// ═══════════════════════════════════════════════════════
+function drawLevel() {
+  const cv  = document.getElementById('levelCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const L = 28, R = 18;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+
+  const N_MAX = 6;
+  const MT=20, MB=22;
+  function lvlY(n) {
+    const usable = H-MT-MB;
+    const frac = (-13.6/(n*n) - (-13.6/(N_MAX*N_MAX))) / (0 - (-13.6/(N_MAX*N_MAX)));
+    return H-MB - frac*usable;
+  }
+  const yIon = MT + 10;
+
+  // Ionization threshold (0 eV)
+  ctx.beginPath(); ctx.moveTo(L,yIon); ctx.lineTo(W-R,yIon);
+  ctx.strokeStyle='rgba(180,0,0,0.4)'; ctx.lineWidth=1.2;
+  ctx.setLineDash([3,4]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(180,0,0,0.6)'; ctx.font='7px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('0 eV', L + (W-L-R)/2, yIon-1);
+
+  // Level lines
+  for (let n=1; n<=N_MAX; n++) {
+    const y   = lvlY(n);
+    const col = LC[n] || '#888';
+    ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(W-R,y);
+    ctx.strokeStyle = col+(atomState==='ion'?'44':'88');
+    ctx.lineWidth = 0.9; ctx.setLineDash([3,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = col+'99'; ctx.font='7.5px JetBrains Mono,monospace';
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText('n='+n, L-2, y);
+  }
+
+  // ── Animated arrow ──
+  if (levelAnim) {
+    const age = levelAnim.t / levelAnim.maxT;
+    const ax  = L + (W-L-R)*0.55;
+
+    if (levelAnim.type === 'ionize') {
+      // Arrow rises from n=1 → past 0eV
+      const y1  = lvlY(1);
+      const y2  = yIon - 8;
+      const yCurr = y1 + (y2-y1) * Math.min(age*1.3,1);
+      ctx.beginPath(); ctx.moveTo(ax,y1); ctx.lineTo(ax,yCurr);
+      ctx.strokeStyle=ELEMENTS[currentEl].color; ctx.lineWidth=2.5;
+      ctx.globalAlpha=0.9; ctx.stroke(); ctx.globalAlpha=1;
+      // Arrow head
+      if (age > 0.6) {
+        const a2 = (age-0.6)/0.4;
+        ctx.globalAlpha=a2;
+        ctx.beginPath(); ctx.moveTo(ax,yCurr-10); ctx.lineTo(ax-5,yCurr); ctx.lineTo(ax+5,yCurr); ctx.closePath();
+        ctx.fillStyle=ELEMENTS[currentEl].color; ctx.fill(); ctx.globalAlpha=1;
+      }
+      // "IONIZED!" label
+      if (age > 0.8) {
+        ctx.fillStyle=ELEMENTS[currentEl].color; ctx.font='bold 8px JetBrains Mono,monospace';
+        ctx.textAlign='center'; ctx.fillText('IONIZED!', ax, yIon-16);
+      }
+      // ΔE label
+      const dE = 13.6;
+      ctx.fillStyle='#C62828'; ctx.font='7px JetBrains Mono,monospace';
+      ctx.textAlign='left'; ctx.fillText('≥'+ELEMENTS[currentEl].ie+'eV', ax+6, (y1+yIon)/2);
+
+    } else if (levelAnim.type === 'recomb') {
+      // Arrow drops from 0eV → n=2
+      const y1  = yIon + 5;
+      const y2  = lvlY(2);
+      const yCurr = y1 + (y2-y1) * Math.min(age*1.3,1);
+      ctx.beginPath(); ctx.moveTo(ax,y1); ctx.lineTo(ax,yCurr);
+      ctx.strokeStyle='#1B5E20'; ctx.lineWidth=2.5;
+      ctx.globalAlpha=0.9; ctx.stroke(); ctx.globalAlpha=1;
+      // Arrow head down
+      if (age > 0.6) {
+        const a2 = (age-0.6)/0.4;
+        ctx.globalAlpha=a2;
+        ctx.beginPath(); ctx.moveTo(ax,yCurr+10); ctx.lineTo(ax-5,yCurr); ctx.lineTo(ax+5,yCurr); ctx.closePath();
+        ctx.fillStyle='#1B5E20'; ctx.fill(); ctx.globalAlpha=1;
+      }
+      // Photon wave (horizontal)
+      if (age > 0.5) {
+        const pa = (age-0.5)/0.5;
+        const py = (y1+lvlY(2))/2;
+        const wx = ax + pa*30;
+        for (let s=0; s<4; s++) {
+          ctx.beginPath(); ctx.arc(ax+8+s*7, py+Math.sin(s*1.5)*4, 2.5,0,Math.PI*2);
+          ctx.fillStyle='#1B5E20'; ctx.globalAlpha=pa*(1-s*0.2); ctx.fill(); ctx.globalAlpha=1;
+        }
+        ctx.fillStyle='#1B5E20'; ctx.font='bold 7.5px JetBrains Mono,monospace';
+        ctx.textAlign='left'; ctx.globalAlpha=pa;
+        ctx.fillText('hν', ax+36, py); ctx.globalAlpha=1;
+      }
+    }
+
+    levelAnim.t++;
+    if (levelAnim.t >= levelAnim.maxT) levelAnim=null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  DRAW: ZONE 3 — Plasma chamber
+// ═══════════════════════════════════════════════════════
+function drawPlasma() {
+  const cv  = document.getElementById('plasmaCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+
+  // RF field lines (faint)
+  if (rfOn && rfPower > 0) {
+    const alpha = (rfPower/100)*0.10;
+    ctx.strokeStyle=`rgba(21,101,192,${alpha})`;
+    ctx.lineWidth=0.6;
+    for (let x=20; x<W; x+=28) {
+      ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+    }
+  }
+
+  // Draw particles
+  particles.forEach(p => {
+    const isFlash = p.flash > 0;
+    if (p.type === 'neutral') {
+      ctx.beginPath(); ctx.arc(p.x,p.y,7,0,Math.PI*2);
+      ctx.fillStyle = isFlash ? p.flashCol : '#78909C';
+      ctx.globalAlpha = isFlash ? 0.5+p.flash*0.04 : 0.85;
+      ctx.fill(); ctx.globalAlpha=1;
+      ctx.strokeStyle='#B0BEC5'; ctx.lineWidth=0.7; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 7px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(currentEl, p.x, p.y);
+
+    } else if (p.type === 'ion') {
+      ctx.beginPath(); ctx.arc(p.x,p.y,7,0,Math.PI*2);
+      ctx.fillStyle = isFlash ? p.flashCol : ELEMENTS[currentEl].color;
+      ctx.globalAlpha = isFlash ? 0.5+p.flash*0.04 : 0.9;
+      ctx.fill(); ctx.globalAlpha=1;
+      ctx.strokeStyle=ELEMENTS[currentEl].color+'AA'; ctx.lineWidth=1.2; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 6.5px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(currentEl+'⁺', p.x, p.y);
+
+    } else if (p.type === 'electron') {
+      ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
+      ctx.fillStyle='#1565C0';
+      ctx.globalAlpha=0.9; ctx.fill(); ctx.globalAlpha=1;
+      ctx.strokeStyle='#90CAF9'; ctx.lineWidth=0.8; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 6px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('e⁻', p.x, p.y);
+    }
+
+    // Flash ring
+    if (p.flash > 0) {
+      ctx.beginPath(); ctx.arc(p.x,p.y,8+p.flash*0.8,0,Math.PI*2);
+      ctx.strokeStyle=p.flashCol||'#FFD54F';
+      ctx.lineWidth=1.5; ctx.globalAlpha=p.flash/14*0.6; ctx.stroke(); ctx.globalAlpha=1;
+    }
+  });
+
+  // Legend
+  const items=[
+    {col:'#78909C', label:'Neutral '+currentEl},
+    {col:ELEMENTS[currentEl].color, label:currentEl+'⁺ Ion'},
+    {col:'#1565C0', label:'Free e⁻'},
+  ];
+  items.forEach((item,i) => {
+    const lx=10, ly=H-32+i*11;
+    ctx.beginPath(); ctx.arc(lx+5,ly+4,4,0,Math.PI*2);
+    ctx.fillStyle=item.col; ctx.fill();
+    ctx.fillStyle=item.col; ctx.font='7.5px JetBrains Mono,monospace';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(item.label, lx+13, ly+4);
+  });
+
+  // RF status label
+  const rfLabel = rfOn ? `RF ON  ${rfPower}W` : 'RF OFF';
+  const rfCol   = rfOn ? '#1565C0' : '#C62828';
+  ctx.fillStyle=rfCol+'22';
+  ctx.fillRect(W-80,4,76,16);
+  ctx.fillStyle=rfCol; ctx.font='bold 8px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(rfLabel, W-42, 12);
+}
+
+// ═══════════════════════════════════════════════════════
+//  MAIN LOOP
+// ═══════════════════════════════════════════════════════
+let lastFrame=0;
+function loop(ts) {
+  if (ts-lastFrame >= 16) {
+    lastFrame=ts;
+    physicsUpdate();
+    drawBohr();
+    drawLevel();
+    drawPlasma();
+    bohrTick++;
+  }
+  requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESIZE
+// ═══════════════════════════════════════════════════════
+function resize() {
+  const main = document.querySelector('.main');
+  if (!main) return;
+  const H = main.offsetHeight;
+
+  const bCanvas = document.getElementById('bohrCanvas');
+  bCanvas.width  = 200; bCanvas.height = H - 30;
+
+  const lCanvas = document.getElementById('levelCanvas');
+  lCanvas.width  = 130; lCanvas.height = H - 30;
+
+  const pCanvas = document.getElementById('plasmaCanvas');
+  const pw = document.getElementById('zonePlasma').offsetWidth - 2;
+  pCanvas.width  = Math.max(200, pw); pCanvas.height = H - 30;
+}
+
+// ═══════════════════════════════════════════════════════
+//  postMessage
+// ═══════════════════════════════════════════════════════
+window.addEventListener('message', e => {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === 'ioniz:setElement' && e.data.element) setElement(e.data.element);
+  if (e.data.type === 'ioniz:setRF' && e.data.power != null) {
+    document.getElementById('rfSlider').value = e.data.power;
+    setRF(e.data.power);
+  }
+  if (e.data.type === 'ioniz:toggleRF') toggleRF();
+  if (e.data.type === 'ioniz:reset')    resetAll();
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+window.addEventListener('resize', resize);
+window.addEventListener('load', () => {
+  resize();
+  initParticles();
+  requestAnimationFrame(loop);
+});
+</script>
+</body>
+</html>

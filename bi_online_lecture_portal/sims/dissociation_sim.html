@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dissociation Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F4F6FB; --bg2:#FFFFFF; --bg3:#ECEEF5;
+  --border:#D8DAE8; --text:#1A1A2E; --text2:#4A4A6A; --text3:#9090B0;
+  --sh:0 1px 4px rgba(0,0,0,0.07);
+  --plasma:#E87B1E;
+  /* species colors */
+  --mol: #1565C0;   /* neutral molecule */
+  --rad: #C62828;   /* radical */
+  --ion: #E65100;   /* ion */
+  --elec:#6A1B9A;   /* electron */
+  --prod:#1B5E20;   /* product gas */
+}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;}
+.root{display:flex;flex-direction:column;width:100%;height:100%;
+  padding:7px 10px 5px;gap:6px;
+  font-family:'Google Sans','Segoe UI',sans-serif;color:var(--text);}
+
+/* Controls */
+.top-row{display:flex;gap:6px;align-items:stretch;flex-shrink:0;flex-wrap:wrap;}
+.ctrl-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  padding:5px 10px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:4px;}
+.ctrl-title{font-size:0.49rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);font-family:'JetBrains Mono',monospace;}
+
+/* Gas selector */
+.gas-btns{display:flex;gap:4px;align-items:center;}
+.gas-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  color:var(--text2);font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem;font-weight:600;padding:3px 9px;cursor:pointer;transition:all 0.12s;}
+.gas-btn:hover{border-color:var(--plasma);color:var(--plasma);}
+.gas-btn.sel{background:var(--plasma);border-color:var(--plasma);color:#fff;font-weight:700;}
+
+/* Sliders */
+.sl-row{display:flex;align-items:center;gap:6px;}
+.sl-label{font-size:0.62rem;color:var(--text2);min-width:88px;}
+input[type=range]{width:88px;accent-color:var(--plasma);cursor:pointer;}
+.sl-val{font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;
+  min-width:44px;color:var(--text);}
+
+/* RF toggle */
+.rf-toggle{border:none;border-radius:7px;font-family:'Google Sans',sans-serif;
+  font-size:0.7rem;font-weight:700;padding:5px 13px;cursor:pointer;
+  transition:background 0.12s,transform 0.1s;flex-shrink:0;}
+.rf-on {background:#1565C0;color:#fff;box-shadow:0 2px 6px rgba(21,101,192,0.35);}
+.rf-off{background:#C62828;color:#fff;box-shadow:0 2px 6px rgba(198,40,40,0.35);}
+.rf-toggle:active{transform:scale(0.96);}
+.reset-btn{background:var(--bg2);border:1px solid var(--border);border-radius:7px;
+  color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.65rem;
+  padding:5px 9px;cursor:pointer;flex-shrink:0;}
+.reset-btn:hover{border-color:var(--text2);color:var(--text2);}
+
+/* Stats bar */
+.stats-bar{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;align-items:center;}
+.stat-pill{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:3px 9px;display:flex;gap:4px;align-items:baseline;box-shadow:var(--sh);}
+.sk{font-size:0.49rem;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.sv{font-size:0.72rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
+
+/* Main: 2 zones */
+.main{display:flex;gap:7px;flex:1;min-height:0;}
+.zone{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--sh);display:flex;flex-direction:column;overflow:hidden;}
+.zone-title{font-size:0.49rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);padding:5px 9px 3px;border-bottom:1px solid #F0F0F8;
+  flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.zone canvas{flex:1;display:block;min-height:0;width:100%;}
+
+/* Reaction panel */
+.rxn-panel{flex:0 0 auto;width:210px;display:flex;flex-direction:column;gap:6px;padding:6px;}
+.rxn-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 9px;}
+.rxn-title{font-size:0.50rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:4px;}
+.rxn-eq{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--text);
+  line-height:1.7;}
+.rxn-eq b{font-weight:700;}
+.rxn-tag{display:inline-block;padding:1px 7px;border-radius:8px;
+  font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:600;
+  margin-top:3px;}
+.tag-dissoc{background:#FEF0E3;color:var(--plasma);border:1px solid #F5C990;}
+.tag-ioniz {background:#FFF3E0;color:var(--ion);border:1px solid #FFCC80;}
+.tag-radical{background:#FFEBEE;color:var(--rad);border:1px solid #EF9A9A;}
+.tag-product{background:#E8F5E9;color:var(--prod);border:1px solid #A5D6A7;}
+
+/* Energy bar in rxn card */
+.energy-bar-wrap{margin-top:5px;}
+.energy-bar-label{font-size:0.52rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:2px;}
+.energy-bar-bg{background:var(--border);border-radius:4px;height:8px;overflow:hidden;}
+.energy-bar-fill{height:100%;border-radius:4px;transition:width 0.3s;}
+
+.caption{font-size:0.49rem;color:var(--text3);text-align:center;flex-shrink:0;letter-spacing:0.04em;}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- Controls -->
+  <div class="top-row">
+    <div class="ctrl-card">
+      <div class="ctrl-title">Process Gas</div>
+      <div class="gas-btns">
+        <button class="gas-btn sel" id="btnCF4" onclick="setGas('CF4')">CF₄</button>
+        <button class="gas-btn" id="btnSF6" onclick="setGas('SF6')">SF₆</button>
+        <button class="gas-btn" id="btnO2"  onclick="setGas('O2')">O₂</button>
+        <button class="gas-btn" id="btnH2"  onclick="setGas('H2')">H₂</button>
+        <button class="gas-btn" id="btnN2"  onclick="setGas('N2')">N₂</button>
+        <button class="gas-btn" id="btnAr"  onclick="setGas('Ar')">Ar</button>
+      </div>
+    </div>
+    <div class="ctrl-card">
+      <div class="ctrl-title">RF Power &amp; Pressure</div>
+      <div class="sl-row">
+        <span class="sl-label">RF Power</span>
+        <input type="range" id="slRF" min="0" max="100" value="40" oninput="update()">
+        <span class="sl-val" id="valRF">40 W</span>
+      </div>
+      <div class="sl-row">
+        <span class="sl-label">Pressure</span>
+        <input type="range" id="slP" min="1" max="100" value="20" oninput="update()">
+        <span class="sl-val" id="valP">20 mTorr</span>
+      </div>
+    </div>
+    <button class="rf-toggle rf-on" id="rfBtn" onclick="toggleRF()">RF ON</button>
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-pill"><span class="sk">Gas</span><span class="sv" id="statGas" style="color:var(--mol)">CF₄</span></div>
+    <div class="stat-pill"><span class="sk">Molecule</span><span class="sv" id="statMol" style="color:var(--mol)">—</span></div>
+    <div class="stat-pill"><span class="sk">Radical·</span><span class="sv" id="statRad" style="color:var(--rad)">—</span></div>
+    <div class="stat-pill"><span class="sk">Ion⁺</span><span class="sv" id="statIon" style="color:var(--ion)">—</span></div>
+    <div class="stat-pill"><span class="sk">Product</span><span class="sv" id="statProd" style="color:var(--prod)">—</span></div>
+    <div class="stat-pill"><span class="sk">Dissoc.%</span><span class="sv" id="statDis" style="color:var(--plasma)">—</span></div>
+    <div class="stat-pill"><span class="sk">Last event</span><span class="sv" id="statEvt" style="color:var(--text2)">—</span></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Left: plasma chamber canvas -->
+    <div class="zone" style="flex:1;">
+      <div class="zone-title">Plasma Chamber — Dissociation & Radical Generation</div>
+      <canvas id="plasmaCanvas"></canvas>
+    </div>
+
+    <!-- Right: reaction equations -->
+    <div class="rxn-panel">
+
+      <div class="rxn-card">
+        <div class="rxn-title">① Dissociation (해리)</div>
+        <div class="rxn-eq" id="rxnDissoc">—</div>
+        <div class="energy-bar-wrap">
+          <div class="energy-bar-label">Bond energy threshold</div>
+          <div class="energy-bar-bg"><div class="energy-bar-fill" id="bondBar" style="width:50%;background:var(--plasma)"></div></div>
+        </div>
+        <span class="rxn-tag tag-dissoc">Dissociation</span>
+      </div>
+
+      <div class="rxn-card">
+        <div class="rxn-title">② Radical Role (라디칼의 역할)</div>
+        <div class="rxn-eq" id="rxnRadical">—</div>
+        <span class="rxn-tag tag-radical">Chemical Etching</span>
+      </div>
+
+      <div class="rxn-card">
+        <div class="rxn-title">③ Ionization (이온화)</div>
+        <div class="rxn-eq" id="rxnIon">—</div>
+        <span class="rxn-tag tag-ioniz">Physical Sputtering</span>
+      </div>
+
+      <div class="rxn-card">
+        <div class="rxn-title">④ Product (반응 생성물)</div>
+        <div class="rxn-eq" id="rxnProd">—</div>
+        <span class="rxn-tag tag-product">Volatile → Pump Out</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="caption" id="captionText">
+    Blue = molecule · Red = radical · Orange = ion · Purple = e⁻ · Green = volatile product · RF power controls dissociation rate
+  </div>
+</div>
+
+<script>
+// ══ Gas species data ══════════════════════════════════
+const GASES = {
+  CF4: {
+    label:'CF₄', color:'#1565C0', bondE: 5.6,
+    dissoc: 'e⁻ + CF₄  →  CF₃· + F· + e⁻',
+    radical:'F· + Si  →  SiF₄↑  (volatile)\nCF₃· + surface  →  polymer film',
+    ion:    'e⁻ + CF₄  →  CF₄⁺ + 2e⁻\nCF₄⁺ accelerated → physical etch',
+    prod:   'SiF₄↑  (bp -86°C, pumped out)\nCO₂, CO by-products',
+    radLabel:'F·', ionLabel:'CF₄⁺', prodLabel:'SiF₄',
+    use:'Silicon dry etching (RIE/DRIE)\nCreates F· radicals → isotropic Si etch'
+  },
+  SF6: {
+    label:'SF₆', color:'#C62828', bondE: 3.7,
+    dissoc: 'e⁻ + SF₆  →  SF₅· + F· + e⁻\n(6 F atoms available per molecule)',
+    radical:'F· + Si  →  SiF₄↑\nSF₅· contributes additional F·',
+    ion:    'e⁻ + SF₆  →  SF₅⁺ + F + 2e⁻',
+    prod:   'SiF₄↑, SF₄↑ (pumped out)',
+    radLabel:'F·', ionLabel:'SF₅⁺', prodLabel:'SiF₄',
+    use:'Deep Si etching (DRIE Bosch process)\nHigh F· yield per molecule'
+  },
+  O2: {
+    label:'O₂', color:'#E65100', bondE: 5.1,
+    dissoc: 'e⁻ + O₂  →  O· + O· + e⁻',
+    radical:'O· + photoresist  →  CO₂↑, H₂O↑\nO· + Si  →  SiO₂ (oxidation)',
+    ion:    'e⁻ + O₂  →  O₂⁺ + 2e⁻',
+    prod:   'CO₂↑, H₂O↑ (ashing products)',
+    radLabel:'O·', ionLabel:'O₂⁺', prodLabel:'CO₂',
+    use:'Photoresist ashing\nSurface oxidation, cleaning'
+  },
+  H2: {
+    label:'H₂', color:'#1B5E20', bondE: 4.5,
+    dissoc: 'e⁻ + H₂  →  H· + H· + e⁻',
+    radical:'H· + SiO₂  →  SiO₂ reduction\nH· + native oxide  →  H₂O↑',
+    ion:    'e⁻ + H₂  →  H₂⁺ + 2e⁻',
+    prod:   'H₂O↑ (oxide removal)',
+    radLabel:'H·', ionLabel:'H₂⁺', prodLabel:'H₂O',
+    use:'Native oxide removal\nSurface passivation, reduction'
+  },
+  N2: {
+    label:'N₂', color:'#4A148C', bondE: 9.8,
+    dissoc: 'e⁻ + N₂  →  N· + N· + e⁻\n(Strong triple bond — high energy needed)',
+    radical:'N· + Si  →  Si₃N₄ (nitridation)\nN· used in ALD processes',
+    ion:    'e⁻ + N₂  →  N₂⁺ + 2e⁻',
+    prod:   'Si₃N₄ (barrier layer deposited)',
+    radLabel:'N·', ionLabel:'N₂⁺', prodLabel:'Si₃N₄',
+    use:'Si₃N₄ deposition (barrier layer)\nALD, nitridation of surfaces'
+  },
+  Ar: {
+    label:'Ar', color:'#6A1B9A', bondE: 15.76,
+    dissoc: 'Ar is monatomic — NO dissociation\nAr is used for physical sputtering only',
+    radical:'No radicals generated\nAr⁺ ions only → physical bombardment',
+    ion:    'e⁻ + Ar  →  Ar⁺ + 2e⁻\nIonization energy: 15.76 eV',
+    prod:   'No chemical products\n(physical sputtering only)',
+    radLabel:'(none)', ionLabel:'Ar⁺', prodLabel:'(none)',
+    use:'Physical sputtering (CCP/ICP)\nNo chemical reaction — mechanical removal'
+  }
+};
+
+// ══ State ═════════════════════════════════════════════
+let currentGas = 'CF4';
+let rfPower = 40, pressure = 20, rfOn = true;
+let particles = [], tick = 0;
+const TOTAL_MOL = 22;
+
+// ══ Gas setup ══════════════════════════════════════════
+function setGas(g) {
+  currentGas = g;
+  document.querySelectorAll('.gas-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('btn'+g).classList.add('sel');
+  document.getElementById('statGas').textContent = GASES[g].label;
+  document.getElementById('statGas').style.color = GASES[g].color;
+  updateReactionPanel();
+  resetAll();
+}
+
+function updateReactionPanel() {
+  const d = GASES[currentGas];
+  document.getElementById('rxnDissoc').innerHTML  = d.dissoc.replace(/\n/g,'<br>');
+  document.getElementById('rxnRadical').innerHTML = d.radical.replace(/\n/g,'<br>');
+  document.getElementById('rxnIon').innerHTML     = d.ion.replace(/\n/g,'<br>');
+  document.getElementById('rxnProd').innerHTML    = d.prod.replace(/\n/g,'<br>');
+  // Bond energy bar
+  const frac = Math.min(d.bondE / 16, 1) * 100;
+  document.getElementById('bondBar').style.width = frac+'%';
+  const col = d.bondE > 8 ? '#C62828' : d.bondE > 5 ? '#E87B1E' : '#1B5E20';
+  document.getElementById('bondBar').style.background = col;
+  // Caption
+  document.getElementById('captionText').textContent =
+    d.use + ' · RF power controls dissociation rate';
+}
+
+// ══ Slider ═════════════════════════════════════════════
+function update() {
+  rfPower  = parseInt(document.getElementById('slRF').value);
+  pressure = parseInt(document.getElementById('slP').value);
+  document.getElementById('valRF').textContent = rfPower + ' W';
+  document.getElementById('valP').textContent  = pressure + ' mTorr';
+}
+
+function toggleRF() {
+  rfOn = !rfOn;
+  const btn = document.getElementById('rfBtn');
+  btn.textContent = rfOn ? 'RF ON' : 'RF OFF';
+  btn.className = 'rf-toggle ' + (rfOn ? 'rf-on' : 'rf-off');
+}
+
+// ══ Particles ══════════════════════════════════════════
+function initParticles() {
+  const cv = document.getElementById('plasmaCanvas');
+  const W = cv.width||400, H = cv.height||240;
+  particles = [];
+  for (let i = 0; i < TOTAL_MOL; i++) {
+    particles.push({
+      x: 15 + Math.random()*(W-30),
+      y: 15 + Math.random()*(H-30),
+      vx: (Math.random()-0.5)*1.4,
+      vy: (Math.random()-0.5)*1.4,
+      type: 'mol',   // 'mol'|'radical'|'ion'|'electron'|'product'
+      flash: 0, flashCol: '',
+      life: 0,       // for products (fade out)
+    });
+  }
+}
+
+function physicsStep() {
+  const cv = document.getElementById('plasmaCanvas');
+  const W = cv.width||400, H = cv.height||240;
+  const d = GASES[currentGas];
+
+  // Dissociation probability (mol → 2 radicals)
+  const dissocProb = rfOn ? rfPower * 0.0003 * Math.max(0.2, 1 - d.bondE/18) : 0;
+  // Ionization probability
+  const ionProb    = rfOn ? rfPower * 0.0004 : 0;
+  // Recombination (radical + radical → product)
+  const recomProb  = pressure * 0.00015;
+
+  const mols     = particles.filter(p=>p.type==='mol');
+  const radicals = particles.filter(p=>p.type==='radical');
+  const ions     = particles.filter(p=>p.type==='ion');
+
+  // Dissociation: mol → 2 radicals + possible e⁻ flash
+  mols.forEach(m => {
+    if (currentGas === 'Ar') return; // Ar doesn't dissociate
+    if (Math.random() < dissocProb) {
+      m.type = 'radical'; m.flash = 14; m.flashCol = '#C62828';
+      // Spawn second radical
+      if (particles.length < TOTAL_MOL + 20) {
+        particles.push({ x:m.x+6,y:m.y+6, vx:(Math.random()-0.5)*2.5, vy:(Math.random()-0.5)*2.5,
+          type:'radical', flash:10, flashCol:'#C62828', life:0 });
+      }
+      // Spawn electron trace
+      particles.push({ x:m.x,y:m.y, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4,
+        type:'electron', flash:8, flashCol:'#6A1B9A', life:8 });
+      setEvent('DISSOCIATION ✂️  '+d.label+' → 2'+d.radLabel);
+    }
+  });
+
+  // Ionization: mol → ion + e⁻
+  mols.forEach(m => {
+    if (Math.random() < ionProb) {
+      m.type = 'ion'; m.flash = 12; m.flashCol = '#E65100';
+      particles.push({ x:m.x,y:m.y, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4,
+        type:'electron', flash:8, flashCol:'#6A1B9A', life:8 });
+      setEvent('IONIZATION ⚡  '+d.label+' → '+d.ionLabel);
+    }
+  });
+
+  // Radical recombination → product
+  if (radicals.length >= 2) {
+    radicals.forEach(r => {
+      const partner = radicals.find(r2 => r2!==r && Math.hypot(r.x-r2.x,r.y-r2.y)<20);
+      if (partner && Math.random() < recomProb && currentGas !== 'Ar') {
+        r.type = 'product'; r.flash = 16; r.flashCol = '#1B5E20'; r.life = 80;
+        const idx = particles.indexOf(partner);
+        if (idx>-1) particles.splice(idx,1);
+        setEvent('REACTION  · + ·  →  '+d.prodLabel+'↑');
+      }
+    });
+  }
+
+  // Move particles
+  particles = particles.filter(p => {
+    if (p.type === 'electron') { p.life--; return p.life > 0; }
+    if (p.type === 'product')  { p.life--; return p.life > 0; }
+    return true;
+  });
+
+  particles.forEach(p => {
+    if (p.type === 'electron') {
+      p.vx += (Math.random()-0.5)*1.2;
+      p.vy += (Math.random()-0.5)*1.2;
+    }
+    if (p.type === 'ion' && rfOn) {
+      p.vy += 0.04; // drift toward substrate (downward)
+    }
+    const sp = Math.hypot(p.vx,p.vy);
+    const mxsp = p.type==='electron'?5: p.type==='ion'?2.5:1.8;
+    if (sp>mxsp){p.vx*=mxsp/sp;p.vy*=mxsp/sp;}
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<8){p.x=8;p.vx=Math.abs(p.vx);}
+    if(p.x>W-8){p.x=W-8;p.vx=-Math.abs(p.vx);}
+    if(p.y<8){p.y=8;p.vy=Math.abs(p.vy);}
+    if(p.y>H-8){p.y=H-8;p.vy=-Math.abs(p.vy);}
+    if(p.flash>0) p.flash--;
+  });
+
+  updateStats();
+}
+
+let lastEvtTime = 0;
+function setEvent(txt) {
+  const now = Date.now();
+  if (now - lastEvtTime < 400) return;
+  lastEvtTime = now;
+  document.getElementById('statEvt').textContent = txt;
+}
+
+function updateStats() {
+  const mol  = particles.filter(p=>p.type==='mol').length;
+  const rad  = particles.filter(p=>p.type==='radical').length;
+  const ion  = particles.filter(p=>p.type==='ion').length;
+  const prod = particles.filter(p=>p.type==='product').length;
+  const total = mol + rad + ion;
+  const dis = total > 0 ? ((rad+ion)/total*100).toFixed(0) : '0';
+  document.getElementById('statMol').textContent  = mol;
+  document.getElementById('statRad').textContent  = rad;
+  document.getElementById('statIon').textContent  = ion;
+  document.getElementById('statProd').textContent = prod;
+  document.getElementById('statDis').textContent  = dis+'%';
+}
+
+// ══ Draw ═══════════════════════════════════════════════
+function draw() {
+  const cv  = document.getElementById('plasmaCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const d = GASES[currentGas];
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFF';
+  ctx.fillRect(0,0,W,H);
+
+  // RF field lines
+  if (rfOn && rfPower > 0) {
+    const a = rfPower/100*0.09;
+    ctx.strokeStyle = `rgba(21,101,192,${a})`;
+    ctx.lineWidth = 0.7;
+    for (let x=18;x<W;x+=28){
+      ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+    }
+  }
+
+  // Substrate bar (bottom)
+  const subH = 14;
+  const subGrad = ctx.createLinearGradient(0,H-subH,0,H);
+  subGrad.addColorStop(0,'rgba(100,100,140,0.25)');
+  subGrad.addColorStop(1,'rgba(100,100,140,0.45)');
+  ctx.fillStyle = subGrad;
+  ctx.fillRect(0, H-subH, W, subH);
+  ctx.fillStyle = '#4A4A8A';
+  ctx.font = 'bold 8px Google Sans,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Si Substrate (Wafer)', W/2, H-4);
+
+  // Draw particles
+  particles.forEach(p => {
+    const isFlash = p.flash > 0;
+
+    if (p.type === 'mol') {
+      // Molecule: filled circle with label
+      ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);
+      ctx.fillStyle = isFlash ? p.flashCol : d.color+'CC';
+      ctx.fill();
+      ctx.strokeStyle = d.color; ctx.lineWidth=0.8; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 6.5px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(d.label,p.x,p.y);
+
+    } else if (p.type === 'radical') {
+      // Radical: jagged circle + dot
+      ctx.beginPath();ctx.arc(p.x,p.y,6.5,0,Math.PI*2);
+      ctx.fillStyle = isFlash ? '#FF5252' : '#C62828CC';
+      ctx.fill();
+      ctx.strokeStyle='#B71C1C';ctx.lineWidth=0.8;ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 6px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      const rl = d.radLabel || '·';
+      ctx.fillText(rl,p.x,p.y);
+      // Radical dot marker
+      ctx.beginPath();ctx.arc(p.x+6,p.y-6,2.5,0,Math.PI*2);
+      ctx.fillStyle='#FF5252';ctx.fill();
+
+    } else if (p.type === 'ion') {
+      // Ion: ring
+      ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);
+      ctx.fillStyle = '#E6510099';
+      ctx.fill();
+      ctx.strokeStyle='#E65100';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 6px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(d.ionLabel||'A⁺',p.x,p.y);
+
+    } else if (p.type === 'electron') {
+      // Electron: small fast dot
+      const alpha = p.life/8;
+      ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);
+      ctx.fillStyle = `rgba(106,27,154,${alpha})`;
+      ctx.fill();
+
+    } else if (p.type === 'product') {
+      // Product: green rising with fade
+      const alpha = p.life/80;
+      ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);
+      ctx.fillStyle = `rgba(27,94,32,${alpha*0.7})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(27,94,32,${alpha})`;ctx.lineWidth=0.8;ctx.stroke();
+      ctx.fillStyle = `rgba(27,94,32,${alpha*0.9})`;
+      ctx.font = '6px JetBrains Mono,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(d.prodLabel||'↑',p.x,p.y);
+      // Rise
+      p.y -= 0.6;
+    }
+
+    // Flash ring
+    if (p.flash > 0) {
+      ctx.beginPath();ctx.arc(p.x,p.y,9+p.flash*0.6,0,Math.PI*2);
+      ctx.strokeStyle = p.flashCol+'99';
+      ctx.lineWidth=1.5; ctx.globalAlpha=p.flash/14; ctx.stroke(); ctx.globalAlpha=1;
+    }
+  });
+
+  // Legend (bottom right)
+  const legend = [
+    {col:d.color, label:d.label+' molecule'},
+    {col:'#C62828', label:'Radical '+d.radLabel},
+    {col:'#E65100', label:'Ion '+d.ionLabel},
+    {col:'#1B5E20', label:'Product↑ '+d.prodLabel},
+  ];
+  legend.forEach((item,i)=>{
+    const lx=W-130, ly=10+i*13;
+    ctx.beginPath();ctx.arc(lx,ly+4,4,0,Math.PI*2);
+    ctx.fillStyle=item.col;ctx.fill();
+    ctx.fillStyle=item.col; ctx.font='7.5px JetBrains Mono,monospace';
+    ctx.textAlign='left';ctx.textBaseline='middle';
+    ctx.fillText(item.label,lx+8,ly+4);
+  });
+
+  // RF status
+  const rfLbl = rfOn?`RF ON  ${rfPower}W`:'RF OFF';
+  ctx.fillStyle = rfOn?'rgba(21,101,192,0.12)':'rgba(198,40,40,0.1)';
+  ctx.fillRect(8,8,80,16);
+  ctx.fillStyle = rfOn?'#1565C0':'#C62828';
+  ctx.font='bold 8px JetBrains Mono,monospace';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(rfLbl,48,16);
+}
+
+// ══ Reset ═══════════════════════════════════════════════
+function resetAll() {
+  particles=[];
+  initParticles();
+  updateStats();
+  updateReactionPanel();
+  document.getElementById('statEvt').textContent='—';
+}
+
+// ══ Resize ══════════════════════════════════════════════
+function resize() {
+  const zone = document.querySelector('.zone');
+  const cv = document.getElementById('plasmaCanvas');
+  cv.width  = zone.offsetWidth-2;
+  cv.height = zone.offsetHeight-28;
+  initParticles();
+}
+
+// ══ Main loop ═══════════════════════════════════════════
+let lastF=0;
+function loop(ts) {
+  if(ts-lastF>=16){
+    lastF=ts;
+    physicsStep();
+    draw();
+    tick++;
+  }
+  requestAnimationFrame(loop);
+}
+
+// ══ postMessage ══════════════════════════════════════════
+window.addEventListener('message', e => {
+  if(!e.data||!e.data.type) return;
+  if(e.data.type==='dissoc:setGas')   setGas(e.data.gas);
+  if(e.data.type==='dissoc:setRF')    { document.getElementById('slRF').value=e.data.v; update(); }
+  if(e.data.type==='dissoc:toggleRF') toggleRF();
+  if(e.data.type==='dissoc:reset')    resetAll();
+});
+
+window.addEventListener('resize', resize);
+window.addEventListener('load', ()=>{
+  resize(); update(); updateReactionPanel(); requestAnimationFrame(loop);
+});
+</script>
+</body>
+</html>

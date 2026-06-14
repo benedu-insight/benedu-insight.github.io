@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plasma Condition Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F4F6FB;--bg2:#FFFFFF;--bg3:#ECEEF5;
+  --border:#D8DAE8;--text:#1A1A2E;--text2:#4A4A6A;--text3:#9090B0;
+  --sh:0 1px 4px rgba(0,0,0,0.07);
+  --orange:#E65100;--orange-l:#FFF3E0;--orange-m:#FB8C00;
+}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;}
+.root{display:flex;flex-direction:column;width:100%;height:100%;
+  padding:7px 10px 5px;gap:6px;
+  font-family:'Google Sans','Segoe UI',sans-serif;color:var(--text);}
+
+/* controls */
+.top-row{display:flex;gap:7px;align-items:stretch;flex-shrink:0;flex-wrap:wrap;}
+.ctrl-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  padding:6px 10px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:4px;}
+.ctrl-title{font-size:0.49rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.sl-row{display:flex;align-items:center;gap:6px;}
+.sl-label{font-size:0.62rem;color:var(--text2);min-width:116px;}
+input[type=range]{width:100px;accent-color:var(--orange-m);cursor:pointer;}
+.sl-val{font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;
+  min-width:70px;color:var(--text);}
+
+/* readout */
+.readout{background:linear-gradient(135deg,var(--orange-l),#FFF8E1);
+  border:1.5px solid #FFCC80;border-radius:9px;padding:5px 12px;
+  display:flex;align-items:center;gap:8px;box-shadow:var(--sh);flex-shrink:0;}
+.ro-label{font-family:'JetBrains Mono',monospace;font-size:0.52rem;
+  color:var(--orange);letter-spacing:0.08em;text-transform:uppercase;}
+.ro-val{font-family:'JetBrains Mono',monospace;font-size:1.0rem;font-weight:700;color:#BF360C;}
+.cond-badge{margin-left:auto;font-size:0.58rem;font-family:'JetBrains Mono',monospace;
+  padding:2px 10px;border-radius:10px;font-weight:600;}
+.cond-ok {background:#E8F5E9;color:#1B5E20;border:1px solid #A5D6A7;}
+.cond-bad{background:#FFEBEE;color:#C62828;border:1px solid #EF9A9A;}
+.cond-warn{background:#FFF3E0;color:#E65100;border:1px solid #FFB74D;}
+
+/* mode tabs */
+.mode-tabs{display:flex;gap:4px;margin-left:auto;align-items:center;}
+.mode-btn{background:var(--bg3);border:1px solid var(--border);border-radius:7px;
+  padding:4px 11px;font-family:'Google Sans',sans-serif;font-size:0.65rem;
+  font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.13s;}
+.mode-btn:hover{border-color:var(--orange-m);color:var(--orange);}
+.mode-btn.active{background:var(--orange-m);border-color:var(--orange-m);color:#fff;}
+
+/* formula strip */
+.formula-strip{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;display:flex;gap:14px;align-items:center;flex-shrink:0;
+  flex-wrap:wrap;box-shadow:var(--sh);}
+.formula-eq{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text2);
+  background:var(--bg3);border-radius:6px;padding:2px 8px;}
+.fi{display:flex;gap:5px;align-items:baseline;}
+.fk{font-size:0.49rem;color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.08em;font-family:'JetBrains Mono',monospace;}
+.fv{font-size:0.70rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--orange);}
+
+/* main */
+.main{display:flex;gap:7px;flex:1;min-height:0;}
+.zone{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--sh);display:flex;flex-direction:column;overflow:hidden;flex:1;}
+.zone-title{font-size:0.49rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);padding:5px 9px 3px;border-bottom:1px solid #F0F0F8;
+  flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.zone canvas{flex:1;display:block;min-height:0;width:100%;}
+.caption{font-size:0.49rem;color:var(--text3);text-align:center;flex-shrink:0;letter-spacing:0.04em;}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <div class="top-row">
+    <div class="ctrl-card">
+      <div class="ctrl-title">Plasma Parameters</div>
+      <div class="sl-row">
+        <span class="sl-label">Electron Temp Tₑ</span>
+        <input type="range" id="slTe" min="1" max="20" step="0.5" value="3" oninput="update()">
+        <span class="sl-val" id="valTe">3.0 eV</span>
+      </div>
+      <div class="sl-row">
+        <span class="sl-label">Electron Density nₑ</span>
+        <input type="range" id="slNe" min="1" max="100" step="1" value="10" oninput="update()">
+        <span class="sl-val" id="valNe">10¹⁶ m⁻³</span>
+      </div>
+    </div>
+
+    <div class="readout">
+      <span class="ro-label">nₑ λ_D³</span>
+      <span class="ro-val" id="roNL3">—</span>
+      <span style="font-size:0.75rem;color:#E65100;font-family:'JetBrains Mono',monospace;margin-left:4px" id="roPlasma">—</span>
+      <span class="cond-badge cond-ok" id="condBadge">Plasma ✓</span>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mode-btn active" id="modeSphere" onclick="setMode('sphere')">① Debye Sphere</button>
+      <button class="mode-btn"        id="modeMap"    onclick="setMode('map')">② Condition Map</button>
+      <button class="mode-btn"        id="modePara"   onclick="setMode('parametric')">③ Parametric</button>
+    </div>
+  </div>
+
+  <div class="formula-strip">
+    <span class="formula-eq">N_D = nₑ · (4/3)π λ_D³  ≫ 1</span>
+    <div class="fi"><span class="fk">λ_D</span><span class="fv" id="ldVal">—</span><span style="font-size:0.6rem;color:var(--text3);font-family:'JetBrains Mono',monospace"> μm</span></div>
+    <div class="fi"><span class="fk">N_D (electrons in sphere)</span><span class="fv" id="ndVal">—</span></div>
+    <div class="fi"><span class="fk">Condition</span><span class="fv" id="condText">—</span></div>
+  </div>
+
+  <div class="main">
+    <div class="zone" id="zoneMain">
+      <div class="zone-title" id="zoneLabel">① Debye Sphere — Electrons Inside the Debye Radius</div>
+      <canvas id="mainCanvas"></canvas>
+    </div>
+  </div>
+  <div class="caption" id="captionText">
+    Orange sphere = Debye sphere (radius λ_D) · Blue dots = electrons inside · n_e λ_D³ ≫ 1 required for collective plasma behavior
+  </div>
+</div>
+
+<script>
+// ── Constants ─────────────────────────────────────
+const EPS0=8.854e-12, EL=1.602e-19, KB=1.381e-23, EV2K=11604;
+function calcLambdaD(Te_eV, ne) {
+  return Math.sqrt(EPS0*KB*Te_eV*EV2K/(ne*EL*EL));
+}
+function calcND(Te_eV, ne) {
+  const ld=calcLambdaD(Te_eV,ne);
+  return ne*(4/3)*Math.PI*ld*ld*ld;
+}
+
+// ── State ─────────────────────────────────────────
+let Te=3.0, ne=1e16, mode='sphere', tick=0;
+let sphereParticles=[];
+
+function sliderToNe(v){return Math.pow(10,15+(v-1)/99*3);}
+function sliderToNeLabel(v){
+  const exp=15+(v-1)/99*3;
+  return '10^'+exp.toFixed(1)+' m⁻³';
+}
+
+function update() {
+  Te = parseFloat(document.getElementById('slTe').value);
+  const neSl = parseInt(document.getElementById('slNe').value);
+  ne = sliderToNe(neSl);
+
+  document.getElementById('valTe').textContent = Te.toFixed(1)+' eV';
+  document.getElementById('valNe').textContent = sliderToNeLabel(neSl);
+
+  const ld = calcLambdaD(Te,ne);
+  const nd = calcND(Te,ne);
+  document.getElementById('ldVal').textContent = (ld*1e6).toFixed(1);
+  document.getElementById('ndVal').textContent = nd>1000 ? nd.toExponential(2) : nd.toFixed(1);
+  document.getElementById('roNL3').textContent = nd>1000 ? nd.toExponential(2) : nd.toFixed(2);
+  document.getElementById('roPlasma').textContent = nd>1?'≫ 1':'< 1';
+
+  const cb=document.getElementById('condBadge');
+  const ct=document.getElementById('condText');
+  if(nd>100){ cb.textContent='Plasma ✓  (n_e λ_D³ = '+nd.toFixed(0)+')'; cb.className='cond-badge cond-ok'; ct.textContent='PLASMA'; ct.style.color='#1B5E20';}
+  else if(nd>1){ cb.textContent='Marginal  (n_e λ_D³ = '+nd.toFixed(1)+')'; cb.className='cond-badge cond-warn'; ct.textContent='MARGINAL'; ct.style.color='#E65100';}
+  else { cb.textContent='NOT plasma  (n_e λ_D³ = '+nd.toFixed(2)+')'; cb.className='cond-badge cond-bad'; ct.textContent='NOT PLASMA'; ct.style.color='#C62828';}
+}
+
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  const id=m==='sphere'?'modeSphere':m==='map'?'modeMap':'modePara';
+  document.getElementById(id).classList.add('active');
+  if(m==='sphere'){
+    document.getElementById('zoneLabel').textContent='① Debye Sphere — Electrons Inside the Debye Radius';
+    document.getElementById('captionText').textContent=
+      'Orange sphere = Debye sphere (radius λ_D) · Blue dots = electrons inside · Adjust T_e and n_e to see how N_D changes';
+    initSphereParticles();
+  } else if(m==='map'){
+    document.getElementById('zoneLabel').textContent='② Condition Map — n_e λ_D³ ≫ 1 in T_e vs n_e Space';
+    document.getElementById('captionText').textContent=
+      'Green region: plasma condition satisfied · Red: not plasma · Boundary: n_e λ_D³ = 1 · White dot = current parameters';
+  } else {
+    document.getElementById('zoneLabel').textContent='③ Parametric — N_D vs T_e and n_e';
+    document.getElementById('captionText').textContent=
+      'N_D ∝ T_e^(3/2) · N_D ∝ n_e^(-1/2) · Higher T_e expands sphere; higher n_e shrinks it per unit volume';
+  }
+}
+
+// ── Mode 1: Debye Sphere ─────────────────────────
+function initSphereParticles(){
+  sphereParticles=[];
+  const nd=Math.min(Math.round(calcND(Te,ne)),80);
+  for(let i=0;i<nd;i++){
+    // Uniform distribution in sphere
+    const u=Math.random(), cosT=2*Math.random()-1, phi=2*Math.PI*Math.random();
+    const r=Math.cbrt(u);
+    const sinT=Math.sqrt(1-cosT*cosT);
+    sphereParticles.push({
+      rx:r*sinT*Math.cos(phi), ry:r*sinT*Math.sin(phi), rz:r*cosT,
+      vx:(Math.random()-0.5)*0.008, vy:(Math.random()-0.5)*0.008,
+    });
+  }
+}
+
+function drawSphere(ctx,W,H){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+  const cx=W/2, cy=H/2;
+  const sphereR=Math.min(W,H)*0.32;
+
+  // Background ions (faint, many)
+  for(let i=0;i<40;i++){
+    const angle=i/40*Math.PI*2;
+    const r=(0.2+Math.random()*0.95)*sphereR*1.4;
+    const x=cx+r*Math.cos(angle)*(0.9+Math.random()*0.2);
+    const y=cy+r*Math.sin(angle)*(0.9+Math.random()*0.2);
+    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(230,81,0,0.15)'; ctx.fill();
+  }
+
+  // Sphere boundary (Debye sphere)
+  const ld_um=(calcLambdaD(Te,ne)*1e6).toFixed(1);
+  const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,sphereR);
+  grad.addColorStop(0,'rgba(251,140,0,0.08)');
+  grad.addColorStop(0.7,'rgba(251,140,0,0.05)');
+  grad.addColorStop(1,'rgba(251,140,0,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,sphereR,0,Math.PI*2);
+  ctx.fillStyle=grad; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,sphereR,0,Math.PI*2);
+  ctx.strokeStyle='rgba(230,81,0,0.5)'; ctx.lineWidth=1.8;
+  ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+
+  // λ_D radius arrow
+  ctx.strokeStyle='rgba(230,81,0,0.6)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+sphereR,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+sphereR-7,cy-4); ctx.lineTo(cx+sphereR,cy); ctx.lineTo(cx+sphereR-7,cy+4);
+  ctx.stroke();
+  ctx.fillStyle='rgba(230,81,0,0.75)'; ctx.font='bold 9px Google Sans,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('λ_D = '+ld_um+' μm', cx+sphereR/2, cy-4);
+
+  // Update and draw electron particles
+  const nd=calcND(Te,ne);
+  // Refresh if count mismatch
+  const targetCount=Math.min(Math.round(nd),80);
+  while(sphereParticles.length<targetCount)
+    sphereParticles.push({
+      rx:Math.random()*2-1, ry:Math.random()*2-1, rz:0,
+      vx:(Math.random()-0.5)*0.008, vy:(Math.random()-0.5)*0.008,
+    });
+  while(sphereParticles.length>targetCount) sphereParticles.pop();
+
+  sphereParticles.forEach(p=>{
+    // Move in 2D projection
+    p.rx+=p.vx; p.ry+=p.vy;
+    const r2=p.rx*p.rx+p.ry*p.ry;
+    if(r2>1){const r=Math.sqrt(r2); p.rx/=r; p.ry/=r; p.vx*=-1; p.vy*=-1;}
+    const x=cx+p.rx*sphereR*0.95;
+    const y=cy+p.ry*sphereR*0.95;
+
+    const eg=ctx.createRadialGradient(x,y,0,x,y,6);
+    eg.addColorStop(0,'rgba(21,101,192,0.9)');
+    eg.addColorStop(1,'rgba(21,101,192,0)');
+    ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2);
+    ctx.fillStyle=eg; ctx.fill();
+    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2);
+    ctx.fillStyle='#1565C0'; ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 6px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('−',x,y);
+  });
+
+  // N_D label
+  const ndRound=nd<1000?nd.toFixed(1):nd.toExponential(2);
+  const isPlasma=nd>100;
+  const isWarn=nd>1&&nd<=100;
+  const col=isPlasma?'#1B5E20':isWarn?'#E65100':'#C62828';
+
+  ctx.fillStyle=col; ctx.font='bold 13px Google Sans,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('N_D = '+ndRound, cx, cy+sphereR+10);
+  ctx.font='10px JetBrains Mono,monospace';
+  ctx.fillText(isPlasma?'✓ Plasma condition met':isWarn?'⚠ Marginal':'✗ Not plasma', cx, cy+sphereR+26);
+
+  // Outside sphere label
+  ctx.fillStyle='rgba(100,100,140,0.4)'; ctx.font='8px Google Sans,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('Quasi-neutral outside λ_D', cx, cy-sphereR-12);
+}
+
+// ── Mode 2: Condition map ─────────────────────────
+function drawMap(ctx,W,H){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+  const PAD={l:52,r:18,t:22,b:44};
+  const gW=W-PAD.l-PAD.r, gH=H-PAD.t-PAD.b;
+  // x axis: log10(ne) 15~18, y axis: Te 0.5~20 eV
+
+  const N=80;
+  for(let j=0;j<N;j++){
+    for(let i=0;i<N;i++){
+      const ne_v=Math.pow(10,15+(i/N)*3);
+      const te_v=0.5+(j/N)*19.5;
+      const nd=ne_v*(4/3)*Math.PI*Math.pow(calcLambdaD(te_v,ne_v),3);
+      let col;
+      if(nd>100)     col=`rgba(27,94,32,${0.12+Math.min(Math.log10(nd)/4,0.35)})`;
+      else if(nd>1)  col=`rgba(230,81,0,${0.18+0.2*(1-nd/100)})`;
+      else           col=`rgba(198,40,40,${0.22})`;
+      ctx.fillStyle=col;
+      ctx.fillRect(PAD.l+(i/N)*gW, PAD.t+(1-j/N)*gH-gH/N, gW/N+1, gH/N+1);
+    }
+  }
+
+  // Boundary line n_e λ_D³ = 1
+  ctx.beginPath(); let started=false;
+  for(let i=0;i<=120;i++){
+    const ne_v=Math.pow(10,15+(i/120)*3);
+    // n_e*(4/3)π*λ_D³ = 1 → solve for Te
+    // λ_D = sqrt(ε0 kB Te / (ne e²))  → λ_D³ = (ε0 kB/(ne e²))^(3/2) * Te^(3/2)
+    // ne * (4/3)π * (ε0 kB Te EV2K/(ne e²))^(3/2) = 1
+    const A=(EPS0*KB*EV2K/(ne_v*EL*EL));
+    const Te_v=Math.pow(1/(ne_v*(4/3)*Math.PI*Math.pow(A,1.5)),2/3)/A;
+    if(Te_v<0.5||Te_v>20) continue;
+    const x=PAD.l+(i/120)*gW;
+    const y=PAD.t+gH-((Te_v-0.5)/19.5)*gH;
+    if(!started){ctx.moveTo(x,y);started=true;} else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='#333'; ctx.lineWidth=1.8; ctx.stroke();
+  ctx.fillStyle='#333'; ctx.font='bold 8.5px Google Sans,sans-serif';
+  ctx.textAlign='left'; ctx.fillText('n_e λ_D³ = 1', PAD.l+gW*0.55, PAD.t+gH*0.22);
+
+  // Axes
+  ctx.strokeStyle='#8888AA'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD.l,PAD.t); ctx.lineTo(PAD.l,PAD.t+gH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD.l,PAD.t+gH); ctx.lineTo(PAD.l+gW,PAD.t+gH); ctx.stroke();
+
+  // X ticks
+  ['10¹⁵','10¹⁶','10¹⁷','10¹⁸'].forEach((lb,i)=>{
+    const x=PAD.l+(i/3)*gW;
+    ctx.fillStyle='#888'; ctx.font='8px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(lb,x,PAD.t+gH+4);
+  });
+  ctx.fillStyle='#888'; ctx.font='9px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.fillText('nₑ  [m⁻³]',PAD.l+gW/2,H-6);
+  ctx.save(); ctx.translate(13,PAD.t+gH/2); ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center'; ctx.fillText('Tₑ  [eV]',0,0); ctx.restore();
+
+  [2,5,10,15,20].forEach(tv=>{
+    const y=PAD.t+gH-((tv-0.5)/19.5)*gH;
+    ctx.fillStyle='#888'; ctx.font='7.5px JetBrains Mono,monospace';
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText(tv,PAD.l-3,y);
+  });
+
+  // Current point
+  const cx_=PAD.l+((Math.log10(ne)-15)/3)*gW;
+  const cy_=PAD.t+gH-((Te-0.5)/19.5)*gH;
+  ctx.beginPath(); ctx.arc(cx_,cy_,6,0,Math.PI*2);
+  ctx.fillStyle='white'; ctx.fill();
+  ctx.strokeStyle='#333'; ctx.lineWidth=2; ctx.stroke();
+
+  // Region labels
+  ctx.fillStyle='rgba(27,94,32,0.8)'; ctx.font='bold 9px Google Sans,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('PLASMA  (n_e λ_D³ ≫ 1)',PAD.l+gW*0.35,PAD.t+20);
+  ctx.fillStyle='rgba(198,40,40,0.7)';
+  ctx.fillText('NOT PLASMA',PAD.l+gW*0.78,PAD.t+gH-16);
+}
+
+// ── Mode 3: Parametric ────────────────────────────
+function drawParametric(ctx,W,H){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+  const W2=W/2;
+  const PAD={l:52,r:14,t:22,b:44};
+
+  function drawGraph(offX,gW2,xVals,yVals,xlabel,lineCol,fillCol,curX,title){
+    const usable=gW2-PAD.l-PAD.r, usableH=H-PAD.t-PAD.b;
+    const maxY=Math.max(...yVals)*1.08;
+    function xp(i){return offX+PAD.l+(i/(xVals.length-1))*usable;}
+    function yp(v){return PAD.t+usableH*(1-Math.min(v/maxY,1));}
+
+    // Grid
+    ctx.strokeStyle='rgba(200,200,220,0.45)'; ctx.lineWidth=0.6;
+    for(let g=1;g<=4;g++){
+      const y=PAD.t+usableH*(g/4);
+      ctx.beginPath(); ctx.moveTo(offX+PAD.l,y); ctx.lineTo(offX+PAD.l+usable,y); ctx.stroke();
+    }
+    // Fill
+    ctx.beginPath(); ctx.moveTo(xp(0),yp(0));
+    yVals.forEach((v,i)=>ctx.lineTo(xp(i),yp(v)));
+    ctx.lineTo(xp(yVals.length-1),yp(0)); ctx.closePath();
+    ctx.fillStyle=fillCol; ctx.fill();
+    // Curve
+    ctx.beginPath();
+    yVals.forEach((v,i)=>i===0?ctx.moveTo(xp(i),yp(v)):ctx.lineTo(xp(i),yp(v)));
+    ctx.strokeStyle=lineCol; ctx.lineWidth=2.2; ctx.stroke();
+    // N_D=1 line
+    const y1=yp(1);
+    ctx.beginPath(); ctx.moveTo(offX+PAD.l,y1); ctx.lineTo(offX+PAD.l+usable,y1);
+    ctx.strokeStyle='rgba(198,40,40,0.5)'; ctx.lineWidth=1.1;
+    ctx.setLineDash([4,3]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='rgba(198,40,40,0.6)'; ctx.font='7.5px Google Sans,sans-serif';
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText('N_D=1 (min)',offX+PAD.l+usable-2,y1-4);
+    // Marker
+    const fi=Math.max(0,Math.min(yVals.length-1,Math.round((curX-xVals[0])/(xVals[xVals.length-1]-xVals[0])*(xVals.length-1))));
+    ctx.beginPath(); ctx.arc(xp(fi),yp(yVals[fi]),5,0,Math.PI*2);
+    ctx.fillStyle=lineCol; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle=lineCol; ctx.font='bold 8px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    const label=yVals[fi]>1000?yVals[fi].toExponential(1):yVals[fi].toFixed(1);
+    ctx.fillText('N_D='+label,xp(fi),yp(yVals[fi])-4);
+    // Axes
+    ctx.strokeStyle='#8888AA'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(offX+PAD.l,PAD.t); ctx.lineTo(offX+PAD.l,PAD.t+usableH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(offX+PAD.l,PAD.t+usableH); ctx.lineTo(offX+PAD.l+usable,PAD.t+usableH); ctx.stroke();
+    // Labels
+    ctx.fillStyle='#888'; ctx.font='9px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.fillText(xlabel,offX+PAD.l+usable/2,H-6);
+    ctx.fillStyle=lineCol; ctx.font='bold 9.5px Google Sans,sans-serif';
+    ctx.fillText(title,offX+PAD.l+usable/2,PAD.t-6);
+    ctx.save(); ctx.translate(offX+13,PAD.t+usableH/2); ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#888'; ctx.font='9px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.fillText('N_D',0,0); ctx.restore();
+    // Divider
+    if(offX>0){ctx.strokeStyle='rgba(200,200,220,0.6)'; ctx.lineWidth=0.8;
+      ctx.beginPath(); ctx.moveTo(offX,PAD.t); ctx.lineTo(offX,H-PAD.b); ctx.stroke();}
+  }
+
+  const teVals=Array.from({length:50},(_,i)=>0.5+i*0.39);
+  const ndVsTe=teVals.map(t=>calcND(t,ne));
+  drawGraph(0,W2,teVals,ndVsTe,'T_e (eV)','#E65100','rgba(230,81,0,0.08)',Te,'N_D  vs  T_e  (n_e fixed)');
+
+  const neVals=Array.from({length:50},(_,i)=>Math.pow(10,15+i*3/49));
+  const ndVsNe=neVals.map(n=>calcND(Te,n));
+  drawGraph(W2,W2,neVals,ndVsNe,'log(n_e)','#1565C0','rgba(21,101,192,0.08)',ne,'N_D  vs  n_e  (T_e fixed)');
+
+  ctx.fillStyle='rgba(100,100,160,0.5)'; ctx.font='8px Google Sans,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('N_D ∝ T_e^(3/2)  →  hotter plasma: larger Debye sphere',W2/2,H-PAD.b+26);
+  ctx.fillText('N_D ∝ n_e^(-1/2)  →  denser plasma: smaller λ_D, fewer electrons per sphere',W2+W2/2,H-PAD.b+26);
+}
+
+// ── Draw loop ─────────────────────────────────────
+let lastF=0;
+function loop(ts){
+  if(ts-lastF>=16){
+    lastF=ts;
+    const cv=document.getElementById('mainCanvas');
+    const ctx=cv.getContext('2d');
+    const W=cv.width,H=cv.height;
+    if(mode==='sphere') drawSphere(ctx,W,H);
+    else if(mode==='map') drawMap(ctx,W,H);
+    else drawParametric(ctx,W,H);
+    tick++;
+  }
+  requestAnimationFrame(loop);
+}
+
+function resize(){
+  const zone=document.getElementById('zoneMain');
+  const cv=document.getElementById('mainCanvas');
+  cv.width=zone.offsetWidth-2; cv.height=zone.offsetHeight-28;
+  if(mode==='sphere') initSphereParticles();
+}
+window.addEventListener('resize',resize);
+window.addEventListener('load',()=>{
+  resize(); update(); initSphereParticles(); requestAnimationFrame(loop);
+});
+window.addEventListener('message',e=>{
+  if(!e.data||!e.data.type) return;
+  if(e.data.type==='plasma_cond:setParams'){
+    if(e.data.Te!=null){document.getElementById('slTe').value=e.data.Te;}
+    if(e.data.ne!=null){document.getElementById('slNe').value=e.data.ne;}
+    update();
+  }
+  if(e.data.type==='plasma_cond:setMode') setMode(e.data.mode);
+});
+</script>
+</body>
+</html>

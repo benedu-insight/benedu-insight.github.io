@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debye Length Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:     #F4F6FB; --bg2: #FFFFFF; --bg3: #ECEEF5;
+  --border: #D8DAE8; --text: #1A1A2E; --text2: #4A4A6A; --text3: #9090B0;
+  --plasma: #E87B1E; --sh: 0 1px 4px rgba(0,0,0,0.07);
+  --ion:    #E65100; --elec: #1565C0; --field: #C62828;
+  --shield: #1B5E20; --debye: #7B1FA2;
+}
+html, body { width:100%; height:100%; background:var(--bg); overflow:hidden; }
+.root {
+  display:flex; flex-direction:column;
+  width:100%; height:100%;
+  padding:7px 10px 5px; gap:6px;
+  font-family:'Google Sans','Segoe UI',sans-serif; color:var(--text);
+}
+
+/* ── Top controls ── */
+.top-row {
+  display:flex; gap:7px; align-items:stretch; flex-shrink:0; flex-wrap:wrap;
+}
+.ctrl-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:9px; padding:6px 10px;
+  box-shadow:var(--sh); display:flex; flex-direction:column; gap:4px;
+}
+.ctrl-card-title {
+  font-size:0.49rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text3); font-family:'JetBrains Mono',monospace;
+}
+.slider-row {
+  display:flex; align-items:center; gap:6px;
+}
+.slider-label { font-size:0.62rem; color:var(--text2); min-width:110px; }
+input[type=range] {
+  width:100px; accent-color:var(--plasma);
+  cursor:pointer;
+}
+.slider-val {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; font-weight:700; min-width:62px; color:var(--text);
+}
+
+/* ── Mode tabs ── */
+.mode-tabs {
+  display:flex; gap:4px; margin-left:auto; align-items:center;
+}
+.mode-btn {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:7px; padding:4px 11px;
+  font-family:'Google Sans',sans-serif;
+  font-size:0.65rem; font-weight:600; color:var(--text2);
+  cursor:pointer; transition:all 0.13s;
+}
+.mode-btn:hover { border-color:var(--debye); color:var(--debye); }
+.mode-btn.active { background:var(--debye); border-color:var(--debye); color:#fff; }
+
+/* ── Debye readout ── */
+.debye-readout {
+  background: linear-gradient(135deg, #F3E5F5, #EDE7F6);
+  border: 1.5px solid #CE93D8;
+  border-radius: 9px;
+  padding: 5px 12px;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: var(--sh); flex-shrink:0;
+}
+.debye-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.52rem; color:#6A1B9A; letter-spacing:0.08em; text-transform:uppercase;
+}
+.debye-val {
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.0rem; font-weight:700; color:#4A148C;
+}
+.debye-unit { font-size:0.62rem; color:#7B1FA2; font-family:'JetBrains Mono',monospace; }
+.debye-cond {
+  margin-left:auto;
+  font-size:0.58rem; font-family:'JetBrains Mono',monospace;
+  padding:2px 9px; border-radius:10px;
+  font-weight:600;
+}
+.cond-ok  { background:#E8F5E9; color:#1B5E20; border:1px solid #A5D6A7; }
+.cond-bad { background:#FFEBEE; color:#C62828; border:1px solid #EF9A9A; }
+
+/* ── Main layout ── */
+.main {
+  display:flex; gap:7px; flex:1; min-height:0;
+}
+
+/* Canvas zones */
+.zone {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:10px; box-shadow:var(--sh);
+  display:flex; flex-direction:column; overflow:hidden; flex:1;
+}
+.zone-title {
+  font-size:0.49rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--text3); padding:5px 9px 3px;
+  border-bottom:1px solid #F0F0F8; flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;
+  display:flex; align-items:center; gap:6px;
+}
+.zone-title-badge {
+  font-size:0.47rem; font-weight:700; padding:1px 6px;
+  border-radius:8px; letter-spacing:0.06em;
+}
+.zone canvas { flex:1; display:block; min-height:0; width:100%; }
+
+/* ── Formula strip ── */
+.formula-strip {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:6px 12px;
+  display:flex; gap:14px; align-items:center;
+  flex-shrink:0; flex-wrap:wrap; box-shadow:var(--sh);
+}
+.formula-item { display:flex; gap:5px; align-items:baseline; }
+.fkey { font-size:0.49rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace; }
+.fval { font-size:0.70rem; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--debye); }
+.formula-eq {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.65rem; color:var(--text2);
+  background:var(--bg3); border-radius:6px; padding:2px 8px;
+}
+
+/* ── Caption ── */
+.caption { font-size:0.49rem; color:var(--text3); text-align:center; flex-shrink:0; letter-spacing:0.04em; }
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- Controls -->
+  <div class="top-row">
+    <div class="ctrl-card">
+      <div class="ctrl-card-title">Plasma Parameters</div>
+      <div class="slider-row">
+        <span class="slider-label">Electron Temp Tₑ</span>
+        <input type="range" id="slTe" min="1" max="20" step="0.5" value="3"
+               oninput="update()">
+        <span class="slider-val" id="valTe">3.0 eV</span>
+      </div>
+      <div class="slider-row">
+        <span class="slider-label">Electron Density nₑ</span>
+        <input type="range" id="slNe" min="1" max="100" step="1" value="10"
+               oninput="update()">
+        <span class="slider-val" id="valNe">10¹⁶ m⁻³</span>
+      </div>
+    </div>
+
+    <!-- Debye readout -->
+    <div class="debye-readout">
+      <span class="debye-label">Debye Length λ_D</span>
+      <span class="debye-val" id="debeyeVal">—</span>
+      <span class="debye-unit">μm</span>
+      <span class="debye-cond cond-ok" id="debeyCond">Plasma condition ✓</span>
+    </div>
+
+    <!-- Mode tabs -->
+    <div class="mode-tabs">
+      <button class="mode-btn active" id="modeShield" onclick="setMode('shield')">① Debye Shielding</button>
+      <button class="mode-btn" id="modePot"   onclick="setMode('potential')">② Potential Decay</button>
+      <button class="mode-btn" id="modePara"  onclick="setMode('parametric')">③ λD vs Tₑ / nₑ</button>
+    </div>
+  </div>
+
+  <!-- Formula strip -->
+  <div class="formula-strip">
+    <span class="formula-eq">λ_D = √( ε₀ k_B T_e / n_e e² )</span>
+    <div class="formula-item"><span class="fkey">ε₀</span><span class="fval">8.85×10⁻¹² F/m</span></div>
+    <div class="formula-item"><span class="fkey">k_B</span><span class="fval">1.38×10⁻²³ J/K</span></div>
+    <div class="formula-item"><span class="fkey">1 eV</span><span class="fval">= 11,604 K</span></div>
+    <div class="formula-item"><span class="fkey">n_e λ_D³ ≫ 1</span><span class="fval" id="debeyeSphere">—</span></div>
+  </div>
+
+  <!-- Main canvas area -->
+  <div class="main" id="mainArea">
+    <div class="zone" id="zoneMain">
+      <div class="zone-title">
+        <span id="zoneLabel">① Debye Shielding — Electron Cloud Around a Test Ion</span>
+        <span class="zone-title-badge" id="zoneBadge" style="background:#F3E5F5;color:#6A1B9A;">INTERACTIVE</span>
+      </div>
+      <canvas id="mainCanvas"></canvas>
+    </div>
+  </div>
+
+  <div class="caption" id="captionText">
+    Adjust T_e and n_e · Purple dashed circle = Debye length λ_D · Blue dots = electrons · Red dots = ions
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════
+const EPS0 = 8.854e-12;  // F/m
+const KB   = 1.381e-23;  // J/K
+const E    = 1.602e-19;  // C
+const EV_TO_K = 11604;
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let Te_eV = 3.0;    // electron temperature (eV)
+let ne_exp = 16;    // electron density exponent (10^x m^-3) — slider maps 1~100 → 15~17
+let ne     = 1e16;
+let lambdaD_m = 0;  // Debye length in meters
+let mode   = 'shield';
+let animTick = 0;
+let animFrame = null;
+
+// Particles for shield mode
+let particles = [];
+const N_ELEC = 40, N_ION = 14;
+
+// ═══════════════════════════════════════════════════
+//  PHYSICS
+// ═══════════════════════════════════════════════════
+function calcDebye(Te_eV, ne_m3) {
+  const Te_K = Te_eV * EV_TO_K;
+  return Math.sqrt(EPS0 * KB * Te_K / (ne_m3 * E * E));
+}
+
+function debyeSphereN(lambdaD_m, ne_m3) {
+  const vol = (4/3) * Math.PI * Math.pow(lambdaD_m, 3);
+  return ne_m3 * vol;
+}
+
+// ═══════════════════════════════════════════════════
+//  SLIDER → ne mapping: slider 1~100 → 10^15 ~ 10^18
+// ═══════════════════════════════════════════════════
+function sliderToNe(v) {
+  // Map 1~100 → exponent 15.0~18.0
+  const exp = 15.0 + (v - 1) / 99 * 3.0;
+  return Math.pow(10, exp);
+}
+function sliderToNeLabel(v) {
+  const exp = 15.0 + (v - 1) / 99 * 3.0;
+  return '10^' + exp.toFixed(1) + ' m⁻³';
+}
+
+// ═══════════════════════════════════════════════════
+//  UPDATE
+// ═══════════════════════════════════════════════════
+function update() {
+  Te_eV = parseFloat(document.getElementById('slTe').value);
+  const neSlider = parseInt(document.getElementById('slNe').value);
+  ne = sliderToNe(neSlider);
+
+  document.getElementById('valTe').textContent = Te_eV.toFixed(1) + ' eV';
+  document.getElementById('valNe').textContent = sliderToNeLabel(neSlider);
+
+  lambdaD_m = calcDebye(Te_eV, ne);
+  const lambdaD_um = lambdaD_m * 1e6; // micrometres
+
+  document.getElementById('debeyeVal').textContent = lambdaD_um.toFixed(0);
+
+  const Nsphere = debyeSphereN(lambdaD_m, ne);
+  document.getElementById('debeyeSphere').textContent =
+    'n_e λ_D³ = ' + (Nsphere < 1000 ? Nsphere.toFixed(1) : Nsphere.toExponential(2));
+
+  // Plasma condition: n_e λ_D^3 >> 1
+  const condEl = document.getElementById('debeyCond');
+  if (Nsphere > 10) {
+    condEl.textContent = 'Plasma condition ✓  (n_e λ_D³ = ' + Nsphere.toFixed(1) + ')';
+    condEl.className = 'debye-cond cond-ok';
+  } else {
+    condEl.textContent = '⚠ Not plasma!  (n_e λ_D³ = ' + Nsphere.toFixed(2) + ')';
+    condEl.className = 'debye-cond cond-bad';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  MODE
+// ═══════════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(
+    m === 'shield' ? 'modeShield' : m === 'potential' ? 'modePot' : 'modePara'
+  ).classList.add('active');
+
+  if (m === 'shield') {
+    document.getElementById('zoneLabel').textContent = '① Debye Shielding — Electron Cloud Around a Test Ion';
+    document.getElementById('captionText').textContent =
+      'Blue = electrons drawn toward test ion (red+) · Purple circle = λ_D boundary · Outside λ_D: field is screened';
+    initParticles();
+  } else if (m === 'potential') {
+    document.getElementById('zoneLabel').textContent = '② Electric Potential Decay — φ(r) = (Q/4πε₀r) × exp(−r/λ_D)';
+    document.getElementById('captionText').textContent =
+      'Solid orange = Coulomb potential (1/r) · Solid purple = Debye-screened (exponential decay) · λ_D line shows screening range';
+  } else {
+    document.getElementById('zoneLabel').textContent = '③ Parametric — How λ_D depends on Tₑ and nₑ';
+    document.getElementById('captionText').textContent =
+      'λ_D ∝ √T_e  (temperature ↑ → shielding range ↑) · λ_D ∝ 1/√n_e  (density ↑ → shielding range ↓)';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  MODE 1 — Debye shielding particles
+// ═══════════════════════════════════════════════════
+function initParticles() {
+  const cv = document.getElementById('mainCanvas');
+  const W = cv.width || 600, H = cv.height || 300;
+  const cx = W/2, cy = H/2;
+  particles = [];
+
+  // Electrons — random, some attracted toward center
+  for (let i = 0; i < N_ELEC; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = 20 + Math.random() * Math.min(W, H) * 0.42;
+    particles.push({
+      type: 'e',
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle),
+      vx: (Math.random()-0.5)*1.2,
+      vy: (Math.random()-0.5)*1.2,
+      r: 4,
+    });
+  }
+  // Background ions (fixed, spread)
+  for (let i = 0; i < N_ION; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const r = 30 + Math.random() * Math.min(W, H) * 0.44;
+    particles.push({
+      type: 'i',
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle),
+      vx: 0, vy: 0,
+      r: 6, fixed: true,
+    });
+  }
+}
+
+function drawShield(ctx, W, H) {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#F7F9FF'; ctx.fillRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+  // Scale: canvas pixel ↔ physical space
+  // λ_D displayed as fixed fraction of canvas for visualization
+  const lambda_px = Math.min(W, H) * 0.22 * Math.min(1.5, Math.max(0.3, Te_eV/5));
+
+  // ── Potential field (color map) ──
+  // Draw radial color bands showing screened potential strength
+  const bands = 60;
+  for (let b = bands; b >= 1; b--) {
+    const r = (b/bands) * Math.min(W,H) * 0.48;
+    const decay = Math.exp(-r / lambda_px);
+    const intensity = Math.min(1, decay * 1.4);
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(198,40,40,${intensity * 0.10})`;
+    ctx.fill();
+  }
+
+  // ── Debye length circle ──
+  ctx.beginPath(); ctx.arc(cx, cy, lambda_px, 0, Math.PI*2);
+  ctx.strokeStyle = '#7B1FA2';
+  ctx.lineWidth = 2; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+
+  // Label λ_D
+  ctx.fillStyle = '#7B1FA2';
+  ctx.font = 'bold 11px Google Sans,sans-serif';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+  ctx.fillText('λ_D', cx + lambda_px + 4, cy - 4);
+
+  // ── "Screened" label outside ──
+  ctx.fillStyle = 'rgba(100,100,140,0.55)';
+  ctx.font = '9px JetBrains Mono,monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('Field screened', cx, cy - lambda_px - 14);
+  ctx.fillText('(quasi-neutral)', cx, cy - lambda_px - 4);
+
+  // ── Physics update for electrons ──
+  particles.forEach(p => {
+    if (p.fixed) return;
+    const dx = cx - p.x, dy = cy - p.y;
+    const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+
+    // Attraction force toward test ion (inside λ_D: stronger)
+    const inside = dist < lambda_px;
+    const forceScale = inside ? 0.018 : 0.004;
+    const force = forceScale * (Te_eV / 3) * (1/dist);
+    p.vx += dx/dist * force;
+    p.vy += dy/dist * force;
+
+    // Thermal random kick (temperature controls spread)
+    const thermal = 0.04 * Math.sqrt(Te_eV / 3);
+    p.vx += (Math.random()-0.5) * thermal;
+    p.vy += (Math.random()-0.5) * thermal;
+
+    // Speed limit
+    const sp = Math.sqrt(p.vx*p.vx+p.vy*p.vy);
+    const maxSp = 1.8;
+    if (sp > maxSp) { p.vx *= maxSp/sp; p.vy *= maxSp/sp; }
+
+    p.x += p.vx; p.y += p.vy;
+
+    // Boundary wrap
+    const margin = 10;
+    if (p.x < margin) p.x = W - margin;
+    if (p.x > W-margin) p.x = margin;
+    if (p.y < margin) p.y = H - margin;
+    if (p.y > H-margin) p.y = margin;
+  });
+
+  // ── Draw background ions ──
+  particles.filter(p=>p.fixed).forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(230,81,0,0.35)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(230,81,0,0.5)'; ctx.lineWidth=0.8; ctx.stroke();
+    ctx.fillStyle = 'rgba(230,81,0,0.7)';
+    ctx.font = 'bold 7px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('+', p.x, p.y);
+  });
+
+  // ── Draw electrons ──
+  particles.filter(p=>!p.fixed).forEach(p => {
+    const dx = cx - p.x, dy = cy - p.y;
+    const dist = Math.sqrt(dx*dx+dy*dy);
+    const inside = dist < lambda_px;
+    const alpha = inside ? 0.9 : 0.45;
+
+    const grd = ctx.createRadialGradient(p.x,p.y,0, p.x,p.y,p.r*2);
+    grd.addColorStop(0, `rgba(21,101,192,${alpha})`);
+    grd.addColorStop(1, `rgba(21,101,192,0)`);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r*2, 0, Math.PI*2);
+    ctx.fillStyle=grd; ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r-1, 0, Math.PI*2);
+    ctx.fillStyle=`rgba(21,101,192,${alpha})`; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.7)';
+    ctx.font='bold 7px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('−', p.x, p.y);
+  });
+
+  // ── Test ion (center) ──
+  // glow
+  const tg = ctx.createRadialGradient(cx,cy,0,cx,cy,28);
+  tg.addColorStop(0,'rgba(198,40,40,0.3)'); tg.addColorStop(1,'rgba(198,40,40,0)');
+  ctx.beginPath(); ctx.arc(cx,cy,28,0,Math.PI*2); ctx.fillStyle=tg; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,12,0,Math.PI*2);
+  ctx.fillStyle='#C62828'; ctx.fill();
+  ctx.strokeStyle='#B71C1C'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='bold 10px Google Sans,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('A⁺', cx, cy);
+
+  // ── Annotation arrow λ_D ──
+  ctx.strokeStyle='#7B1FA2'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+lambda_px, cy);
+  ctx.stroke();
+  // arrowhead
+  ctx.beginPath(); ctx.moveTo(cx+lambda_px-7,cy-4); ctx.lineTo(cx+lambda_px,cy); ctx.lineTo(cx+lambda_px-7,cy+4);
+  ctx.strokeStyle='#7B1FA2'; ctx.lineWidth=1.2; ctx.stroke();
+  ctx.fillStyle='#7B1FA2'; ctx.font='bold 9.5px Google Sans,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  const ld_um = (lambdaD_m*1e6).toFixed(0);
+  ctx.fillText(`λ_D = ${ld_um} μm`, cx + lambda_px/2, cy - 3);
+}
+
+// ═══════════════════════════════════════════════════
+//  MODE 2 — Potential decay curve
+// ═══════════════════════════════════════════════════
+function drawPotential(ctx, W, H) {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+
+  const PAD_L=52, PAD_R=20, PAD_T=20, PAD_B=50;
+  const gW = W-PAD_L-PAD_R, gH = H-PAD_T-PAD_B;
+
+  // Scale: x = r/λ_D (0 → 5), y = potential (log)
+  const R_MAX_LAMBDA = 4.5; // plot out to 4.5 λ_D
+
+  function xPos(r_over_lam) { return PAD_L + (r_over_lam/R_MAX_LAMBDA)*gW; }
+  function yPos(phi_norm)    { return PAD_T + gH - phi_norm*gH; }  // phi_norm 0~1
+
+  // Grid lines
+  ctx.strokeStyle='rgba(200,200,220,0.5)'; ctx.lineWidth=0.6;
+  for (let g=1; g<=5; g++) {
+    const x = xPos(g);
+    ctx.beginPath(); ctx.moveTo(x,PAD_T); ctx.lineTo(x,PAD_T+gH); ctx.stroke();
+    ctx.fillStyle='#AAAACC'; ctx.font='8px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(g+'λ_D', x, PAD_T+gH+3);
+  }
+  for (let g=0; g<=4; g++) {
+    const y = PAD_T + gH - (g/4)*gH;
+    ctx.beginPath(); ctx.moveTo(PAD_L,y); ctx.lineTo(PAD_L+gW,y); ctx.stroke();
+    ctx.fillStyle='#AAAACC'; ctx.font='8px JetBrains Mono,monospace';
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText((g/4).toFixed(2), PAD_L-3, y);
+  }
+
+  // Axes
+  ctx.strokeStyle='#8888AA'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD_L,PAD_T); ctx.lineTo(PAD_L,PAD_T+gH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD_L,PAD_T+gH); ctx.lineTo(PAD_L+gW,PAD_T+gH); ctx.stroke();
+
+  ctx.fillStyle='#888'; ctx.font='9px JetBrains Mono,monospace';
+  ctx.textAlign='center';
+  ctx.fillText('r  (units of λ_D)', PAD_L+gW/2, H-8);
+  ctx.save(); ctx.translate(12, PAD_T+gH/2);
+  ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+  ctx.fillText('φ(r) / φ(r₀)', 0, 0); ctx.restore();
+
+  // ── Coulomb potential: 1/r ──
+  ctx.beginPath();
+  const steps = 200;
+  const r0 = 0.15; // start from small r
+  for (let i=0; i<=steps; i++) {
+    const r_lam = r0 + (R_MAX_LAMBDA-r0) * i/steps;
+    const phi   = r0 / r_lam;  // normalized 1/r
+    const x = xPos(r_lam), y = yPos(Math.min(phi, 1));
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='#E87B1E'; ctx.lineWidth=2; ctx.setLineDash([8,4]); ctx.stroke(); ctx.setLineDash([]);
+
+  // ── Debye-screened: (1/r)*exp(-r/λ_D) ──
+  ctx.beginPath();
+  for (let i=0; i<=steps; i++) {
+    const r_lam = r0 + (R_MAX_LAMBDA-r0) * i/steps;
+    const phi   = (r0/r_lam) * Math.exp(-(r_lam-r0));
+    const x = xPos(r_lam), y = yPos(Math.min(phi, 1));
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='#7B1FA2'; ctx.lineWidth=2.5; ctx.stroke();
+
+  // ── λ_D marker vertical line ──
+  const xLam = xPos(1);
+  ctx.beginPath(); ctx.moveTo(xLam,PAD_T); ctx.lineTo(xLam,PAD_T+gH);
+  ctx.strokeStyle='rgba(123,31,162,0.4)'; ctx.lineWidth=1.2;
+  ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#7B1FA2'; ctx.font='bold 9px Google Sans,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText('r = λ_D', xLam, PAD_T-3);
+
+  // ── Shaded region: "screened zone" ──
+  ctx.fillStyle='rgba(123,31,162,0.06)';
+  ctx.fillRect(xLam, PAD_T, PAD_L+gW-xLam, gH);
+  ctx.fillStyle='rgba(123,31,162,0.35)'; ctx.font='9px Google Sans,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('Screened zone', xLam+(PAD_L+gW-xLam)/2, PAD_T+16);
+
+  // ── Labels ──
+  ctx.fillStyle='#E87B1E'; ctx.font='bold 9.5px Google Sans,sans-serif';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('Coulomb: φ ∝ 1/r', xPos(2.2)+4, yPos(0.18));
+
+  ctx.fillStyle='#7B1FA2';
+  ctx.fillText('Debye: φ ∝ (1/r)e^(−r/λ_D)', xPos(1.6), yPos(0.45));
+
+  // ── Annotation: at r=λ_D, screened potential = Coulomb × e⁻¹ ≈ 37% ──
+  const yAt1 = yPos(Math.exp(-1) * (r0/1));
+  ctx.beginPath(); ctx.arc(xLam, yAt1, 4, 0, Math.PI*2);
+  ctx.fillStyle='#7B1FA2'; ctx.fill();
+  ctx.fillStyle='#4A148C'; ctx.font='8.5px JetBrains Mono,monospace';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('e⁻¹ ≈ 37% at r=λ_D', xLam+7, yAt1);
+}
+
+// ═══════════════════════════════════════════════════
+//  MODE 3 — Parametric: λ_D vs Te and ne
+// ═══════════════════════════════════════════════════
+function drawParametric(ctx, W, H) {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+
+  const W2 = W/2;
+  const PAD = {l:50, r:14, t:22, b:42};
+
+  function drawGraph(offsetX, gW,
+    xVals, yVals, xlabel, lineCol, fillCol, currentX, title) {
+    const maxY = Math.max(...yVals) * 1.05;
+    const minY = 0;
+
+    function gx(i) { return offsetX + PAD.l + (i/(xVals.length-1))*(gW-PAD.l-PAD.r); }
+    function gy(v) { return PAD.t + (H-PAD.t-PAD.b) * (1 - (v-minY)/(maxY-minY)); }
+
+    // Grid
+    ctx.strokeStyle='rgba(200,200,220,0.5)'; ctx.lineWidth=0.6;
+    for (let g=1;g<=4;g++) {
+      const y = PAD.t + (H-PAD.t-PAD.b)*(g/4);
+      ctx.beginPath(); ctx.moveTo(offsetX+PAD.l,y); ctx.lineTo(offsetX+gW-PAD.r,y); ctx.stroke();
+    }
+
+    // Fill under curve
+    ctx.beginPath();
+    ctx.moveTo(gx(0), gy(0));
+    yVals.forEach((v,i) => ctx.lineTo(gx(i), gy(v)));
+    ctx.lineTo(gx(yVals.length-1), gy(0));
+    ctx.closePath();
+    ctx.fillStyle = fillCol; ctx.fill();
+
+    // Curve
+    ctx.beginPath();
+    yVals.forEach((v,i) => i===0 ? ctx.moveTo(gx(i),gy(v)) : ctx.lineTo(gx(i),gy(v)));
+    ctx.strokeStyle=lineCol; ctx.lineWidth=2.2; ctx.stroke();
+
+    // Current value marker
+    const curIdx = Math.round((currentX / xVals[xVals.length-1]) * (xVals.length-1));
+    const ci = Math.min(curIdx, yVals.length-1);
+    ctx.beginPath(); ctx.arc(gx(ci), gy(yVals[ci]), 5, 0, Math.PI*2);
+    ctx.fillStyle=lineCol; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    // value label
+    ctx.fillStyle=lineCol; ctx.font='bold 8.5px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText((yVals[ci]*1e6).toFixed(0)+'μm', gx(ci), gy(yVals[ci])-4);
+
+    // Axes
+    ctx.strokeStyle='#8888AA'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(offsetX+PAD.l,PAD.t); ctx.lineTo(offsetX+PAD.l,H-PAD.b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(offsetX+PAD.l,H-PAD.b); ctx.lineTo(offsetX+gW-PAD.r,H-PAD.b); ctx.stroke();
+
+    // X labels
+    ctx.fillStyle='#888'; ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='center';
+    [0, 0.5, 1].forEach(frac => {
+      const xi = Math.round(frac*(xVals.length-1));
+      ctx.fillText(xVals[xi].toFixed(frac===0?0:1), gx(xi), H-PAD.b+10);
+    });
+    ctx.fillText(xlabel, offsetX+PAD.l+(gW-PAD.l-PAD.r)/2, H-8);
+
+    // Y axis label
+    ctx.save(); ctx.translate(offsetX+14, PAD.t+(H-PAD.t-PAD.b)/2);
+    ctx.rotate(-Math.PI/2); ctx.textAlign='center'; ctx.fillText('λ_D (μm)', 0, 0); ctx.restore();
+
+    // Title
+    ctx.fillStyle=lineCol; ctx.font='bold 10px Google Sans,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(title, offsetX+PAD.l+(gW-PAD.l-PAD.r)/2, PAD.t-6);
+
+    // Divider
+    if (offsetX > 0) {
+      ctx.strokeStyle='rgba(200,200,220,0.6)'; ctx.lineWidth=0.8;
+      ctx.beginPath(); ctx.moveTo(offsetX,PAD.t); ctx.lineTo(offsetX,H-PAD.b); ctx.stroke();
+    }
+  }
+
+  // Left graph: λ_D vs Te (ne fixed)
+  const teVals  = Array.from({length:50}, (_,i) => 0.5 + i*0.4);  // 0.5~20 eV
+  const ldVsTe  = teVals.map(te => calcDebye(te, ne));
+  drawGraph(0, W2, teVals, ldVsTe, 'T_e (eV)', '#C62828', 'rgba(198,40,40,0.08)',
+    Te_eV, 'λ_D  ∝  √T_e   (n_e fixed)');
+
+  // Right graph: λ_D vs ne (Te fixed)
+  const neValsExp = Array.from({length:50}, (_,i) => 15 + i*3/49);  // 10^15 ~ 10^18
+  const neVals    = neValsExp.map(e => Math.pow(10,e));
+  const ldVsNe    = neVals.map(ne_v => calcDebye(Te_eV, ne_v));
+  // x-axis label uses exponent
+  const neXVals   = neValsExp.map(e => e);
+  drawGraph(W2, W2, neXVals, ldVsNe, 'log₁₀(n_e) [m⁻³]', '#1565C0', 'rgba(21,101,192,0.08)',
+    Math.log10(ne), 'λ_D  ∝  1/√n_e   (T_e fixed)');
+
+  // Annotations
+  ctx.fillStyle='rgba(100,100,160,0.5)';
+  ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('Higher T_e → electrons travel further → larger λ_D', W2/2, H-PAD.b+26);
+  ctx.fillText('Higher n_e → more electrons available → smaller λ_D', W2+W2/2, H-PAD.b+26);
+}
+
+// ═══════════════════════════════════════════════════
+//  MAIN DRAW LOOP
+// ═══════════════════════════════════════════════════
+function drawLoop() {
+  const cv  = document.getElementById('mainCanvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  if (mode === 'shield') {
+    drawShield(ctx, W, H);
+  } else if (mode === 'potential') {
+    drawPotential(ctx, W, H);
+  } else {
+    drawParametric(ctx, W, H);
+  }
+
+  animTick++;
+  requestAnimationFrame(drawLoop);
+}
+
+// ═══════════════════════════════════════════════════
+//  RESIZE
+// ═══════════════════════════════════════════════════
+function resize() {
+  const zone  = document.getElementById('zoneMain');
+  const cv    = document.getElementById('mainCanvas');
+  const titleH = 26;
+  cv.width  = zone.offsetWidth  - 2;
+  cv.height = zone.offsetHeight - titleH - 2;
+  if (mode === 'shield') initParticles();
+}
+
+window.addEventListener('resize', resize);
+
+window.addEventListener('load', () => {
+  resize();
+  update();
+  initParticles();
+  requestAnimationFrame(drawLoop);
+});
+
+// postMessage for iframe integration
+window.addEventListener('message', e => {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === 'debye:setParams') {
+    if (e.data.Te != null) {
+      document.getElementById('slTe').value = e.data.Te;
+    }
+    if (e.data.ne != null) {
+      document.getElementById('slNe').value = e.data.ne;
+    }
+    update();
+  }
+  if (e.data.type === 'debye:setMode') setMode(e.data.mode);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bohr Model Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Montserrat:wght@500;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0a0a14;
+    --bg2:      #0f0f1e;
+    --bg3:      #141428;
+    --plasma:   #E87B1E;
+    --plasma-s: #FEF0E3;
+    --text:     #E8E8F0;
+    --text2:    #9CA3AF;
+    --text3:    #6B7280;
+    --border:   rgba(255,255,255,0.08);
+    --green:    #0F8C50;
+    --blue:     #1565C0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    overflow: hidden;
+  }
+
+  .sim-root {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 10px 12px 8px;
+    gap: 8px;
+  }
+
+  /* ── Top: element buttons ── */
+  .elem-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .elem-row::-webkit-scrollbar { display: none; }
+
+  .elem-label {
+    font-size: 0.52rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+
+  .elem-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .elem-btn:hover {
+    border-color: var(--plasma);
+    color: var(--plasma);
+    background: rgba(232,123,30,0.08);
+  }
+  .elem-btn.active {
+    background: var(--plasma);
+    border-color: var(--plasma);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* ── Main content area ── */
+  .main-area {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  /* ── Canvas column ── */
+  .canvas-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  #bohrCanvas {
+    background: #060612;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(232,123,30,0.12);
+    display: block;
+  }
+
+  #bohrInfo {
+    font-size: 0.65rem;
+    color: #FFD580;
+    text-align: center;
+    min-height: 16px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Info panels ── */
+  .info-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+
+  .info-panel {
+    border-radius: 8px;
+    padding: 7px 10px;
+    flex-shrink: 0;
+  }
+
+  .panel-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .panel-value {
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .p-aufbau  { background: #0d1a2a; border: 1px solid #1e3a5f; }
+  .p-aufbau  .panel-label  { color: #64B5F6; }
+  .p-aufbau  .panel-value  { color: #E3F2FD; }
+
+  .p-valence { background: #0d2011; border: 1px solid #1b4a24; }
+  .p-valence .panel-label  { color: #81C784; }
+  .p-valence .panel-value  { color: #A5D6A7; font-weight: 700; font-size: 0.8rem; }
+
+  .p-bonding { background: #1a1a0d; border: 1px solid #4a4a1b; }
+  .p-bonding .panel-label  { color: #FFF176; }
+  .p-bonding .panel-value  { color: #FFFDE7; font-size: 0.68rem; }
+
+  .p-ionize  { background: #1a0d0d; border: 1px solid #4a1b1b; }
+  .p-ionize  .panel-label  { color: #EF9A9A; }
+  .p-ionize  .panel-value  { color: #FFCDD2; }
+
+  /* ── Footer caption ── */
+  .sim-caption {
+    font-size: 0.55rem;
+    color: var(--text3);
+    text-align: center;
+    letter-spacing: 0.05em;
+    padding-bottom: 2px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="sim-root">
+
+  <!-- Element selector -->
+  <div class="elem-row">
+    <span class="elem-label">Element:</span>
+    <button class="elem-btn" id="btn-H"  onclick="selectEl('H')">H</button>
+    <button class="elem-btn" id="btn-He" onclick="selectEl('He')">He</button>
+    <button class="elem-btn" id="btn-C"  onclick="selectEl('C')">C</button>
+    <button class="elem-btn" id="btn-N"  onclick="selectEl('N')">N</button>
+    <button class="elem-btn" id="btn-O"  onclick="selectEl('O')">O</button>
+    <button class="elem-btn" id="btn-F"  onclick="selectEl('F')">F</button>
+    <button class="elem-btn" id="btn-Ne" onclick="selectEl('Ne')">Ne</button>
+    <button class="elem-btn active" id="btn-Si" onclick="selectEl('Si')">Si</button>
+    <button class="elem-btn" id="btn-Ar" onclick="selectEl('Ar')">Ar</button>
+  </div>
+
+  <!-- Main -->
+  <div class="main-area">
+
+    <!-- Canvas -->
+    <div class="canvas-col">
+      <canvas id="bohrCanvas" width="240" height="240"></canvas>
+      <div id="bohrInfo">Si (Silicon)  Z = 14</div>
+    </div>
+
+    <!-- Info panels -->
+    <div class="info-col">
+      <div class="info-panel p-aufbau">
+        <div class="panel-label">Electron Configuration (Aufbau)</div>
+        <div class="panel-value" id="panelAufbau">1s² 2s² 2p⁶ 3s² 3p²</div>
+      </div>
+      <div class="info-panel p-valence">
+        <div class="panel-label">Valence Electrons</div>
+        <div class="panel-value" id="panelValence">4 &nbsp;<span style="font-size:0.65rem;font-weight:400;color:#81C784">4 valence electrons (sp³)</span></div>
+      </div>
+      <div class="info-panel p-bonding">
+        <div class="panel-label">Semiconductor Bonding / Role</div>
+        <div class="panel-value" id="panelBonding">Diamond cubic crystal (4 covalent bonds).<br>Semiconductor substrate: 300mm wafer.<br>Plasma etch target: F·, Cl· radicals<br>break Si–Si bonds → SiF₄, SiCl₄ ↑.</div>
+      </div>
+      <div class="info-panel p-ionize">
+        <div class="panel-label">Ionization Energy</div>
+        <div class="panel-value" id="panelIE">8.15 eV</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="sim-caption">
+    Select an element · Bohr model updates in real time · Yellow electrons = valence shell
+  </div>
+
+</div>
+
+<script>
+// ─── Element data ───────────────────────────────────────────
+const ELEMENTS = {
+  H:  { name:'Hydrogen',  Z:1,  shells:[1],     color:'#90CAF9',
+        aufbau:'1s¹',
+        valence:1,  vNote:'1 valence electron',
+        ie:'13.60 eV',
+        bond:'Forms H–H covalent bond (H₂).\nIn plasma: dissociates to H· radicals\nused for oxide reduction & passivation.' },
+  He: { name:'Helium',    Z:2,  shells:[2],     color:'#B0BEC5',
+        aufbau:'1s²',
+        valence:2,  vNote:'2 valence electrons (complete shell)',
+        ie:'24.59 eV',
+        bond:'Noble gas — complete outer shell.\nNo chemical bonding.\nPlasma use: inert carrier / OES reference.' },
+  C:  { name:'Carbon',    Z:6,  shells:[2,4],   color:'#80CBC4',
+        aufbau:'1s² 2s² 2p²',
+        valence:4,  vNote:'4 valence electrons (sp³ / sp²)',
+        ie:'11.26 eV',
+        bond:'Forms 4 covalent bonds.\nIn CVD precursors: CH₄, C₂F₆.\nDiamond-like carbon (DLC) hard coat.' },
+  N:  { name:'Nitrogen',  Z:7,  shells:[2,5],   color:'#A5D6A7',
+        aufbau:'1s² 2s² 2p³',
+        valence:5,  vNote:'5 valence electrons',
+        ie:'14.53 eV',
+        bond:'Stable N₂ triple bond.\nN₂ plasma: Si₃N₄ deposition (barrier).\nAlso used in purge gas and ALD.' },
+  O:  { name:'Oxygen',    Z:8,  shells:[2,6],   color:'#EF9A9A',
+        aufbau:'1s² 2s² 2p⁴',
+        valence:6,  vNote:'6 valence electrons',
+        ie:'13.62 eV',
+        bond:'Forms 2 covalent bonds.\nO₂ plasma: photoresist ashing,\ngate oxide growth (SiO₂).\nO· radical: CVD oxidant.' },
+  F:  { name:'Fluorine',  Z:9,  shells:[2,7],   color:'#FFF176',
+        aufbau:'1s² 2s² 2p⁵',
+        valence:7,  vNote:'7 valence electrons (1 short of octet)',
+        ie:'17.42 eV',
+        bond:'Most electronegative element.\nF· radical (CF₄, SF₆, NF₃):\nSi + 4F· → SiF₄↑ (volatile)\n→ core chemistry of RIE / DRIE etching.' },
+  Ne: { name:'Neon',      Z:10, shells:[2,8],   color:'#FF8A65',
+        aufbau:'1s² 2s² 2p⁶',
+        valence:8,  vNote:'8 valence electrons (complete octet)',
+        ie:'21.56 eV',
+        bond:'Noble gas — chemically inert.\nNeon signs: 640 nm red glow.\nOES reference line; not a process gas.' },
+  Si: { name:'Silicon',   Z:14, shells:[2,8,4], color:'#80DEEA',
+        aufbau:'1s² 2s² 2p⁶ 3s² 3p²',
+        valence:4,  vNote:'4 valence electrons (sp³)',
+        ie:'8.15 eV',
+        bond:'Diamond cubic crystal (4 covalent bonds).\nSemiconductor substrate: 300mm wafer.\nPlasma etch target: F·, Cl· radicals\nbreak Si–Si bonds → SiF₄, SiCl₄ ↑.' },
+  Ar: { name:'Argon',     Z:18, shells:[2,8,8], color:'#CE93D8',
+        aufbau:'1s² 2s² 2p⁶ 3s² 3p⁶',
+        valence:8,  vNote:'8 valence electrons (complete outer shell)',
+        ie:'15.76 eV',
+        bond:'Noble gas — chemically inert.\nAr⁺ ion: physical sputtering\n(removes material mechanically).\nCore gas for CCP/ICP plasma; PVD target.' }
+};
+
+// ─── State ──────────────────────────────────────────────────
+let currentEl = 'Si';
+let animFrame = null;
+let tick = 0;
+
+// ─── Element select ──────────────────────────────────────────
+function selectEl(sym) {
+  // button highlight
+  document.querySelectorAll('.elem-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('btn-' + sym);
+  if (btn) btn.classList.add('active');
+
+  currentEl = sym;
+  const d = ELEMENTS[sym];
+  if (!d) return;
+
+  // info panels
+  document.getElementById('panelAufbau').innerHTML =
+    d.aufbau.replace(/([0-9]+[spdf][⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g,
+      '<span style="color:#90CAF9">$1</span>');
+
+  document.getElementById('panelValence').innerHTML =
+    d.valence + ' &nbsp;<span style="font-size:0.65rem;font-weight:400;color:#81C784">' +
+    d.vNote + '</span>';
+
+  document.getElementById('panelBonding').innerHTML =
+    d.bond.replace(/\n/g, '<br>');
+
+  document.getElementById('panelIE').textContent = d.ie;
+
+  // header info
+  document.getElementById('bohrInfo').textContent =
+    sym + '  (' + d.name + ')  Z = ' + d.Z;
+
+  // restart animation
+  startAnim();
+
+  // notify parent (postMessage for iframe communication)
+  try {
+    window.parent.postMessage({ type: 'bohr:elementSelected', element: sym, data: d }, '*');
+  } catch(e) {}
+}
+
+// ─── Canvas animation ────────────────────────────────────────
+function startAnim() {
+  if (animFrame) cancelAnimationFrame(animFrame);
+  tick = 0;
+  draw();
+}
+
+function draw() {
+  const canvas = document.getElementById('bohrCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const d = ELEMENTS[currentEl];
+  if (!d) return;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.52);
+  bg.addColorStop(0, '#0c0c20');
+  bg.addColorStop(1, '#05050e');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Star field (deterministic)
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  for (let s = 0; s < 24; s++) {
+    const sx = (Math.sin(s * 137.5 + 1) * 0.5 + 0.5) * W;
+    const sy = (Math.cos(s * 97.3  + 2) * 0.5 + 0.5) * H;
+    ctx.beginPath();
+    ctx.arc(sx, sy, 0.5 + (s % 3) * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Shell radii (adaptive to canvas size)
+  const shellR = [0, Math.min(W,H)*0.20, Math.min(W,H)*0.34, Math.min(W,H)*0.47];
+
+  // Orbit rings
+  d.shells.forEach((count, si) => {
+    const r = shellR[si + 1];
+    if (!r) return;
+    const isOuter = (si === d.shells.length - 1);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = isOuter
+      ? 'rgba(255,213,79,0.25)' : 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = isOuter ? 1.2 : 0.7;
+    if (isOuter) ctx.setLineDash([4, 4]);
+    else         ctx.setLineDash([]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Shell label
+    ctx.fillStyle = isOuter ? 'rgba(255,213,79,0.5)' : 'rgba(255,255,255,0.18)';
+    ctx.font = '8px JetBrains Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('n=' + (si + 1), cx + r + 3, cy - 3);
+  });
+
+  // Nucleus glow
+  const ng = ctx.createRadialGradient(cx, cy, 0, cx, cy, 16);
+  ng.addColorStop(0, '#FFF3E0');
+  ng.addColorStop(0.35, '#FF8A65');
+  ng.addColorStop(0.7, '#E65100');
+  ng.addColorStop(1, 'rgba(183,28,28,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 16, 0, Math.PI * 2);
+  ctx.fillStyle = ng;
+  ctx.fill();
+
+  // Symbol in nucleus
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px Montserrat, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(currentEl, cx, cy);
+
+  // Electrons
+  d.shells.forEach((count, si) => {
+    const r = shellR[si + 1];
+    if (!r) return;
+    const isOuter = (si === d.shells.length - 1);
+    const speed = 0.011 / (si + 1);
+    const dir = si % 2 === 0 ? 1 : -1;
+
+    for (let i = 0; i < count; i++) {
+      const base = (i / count) * Math.PI * 2;
+      const angle = base + tick * speed * dir;
+      const ex = cx + r * Math.cos(angle);
+      const ey = cy + r * Math.sin(angle);
+      const er = isOuter ? 5 : 3.8;
+
+      // Glow halo
+      const eg = ctx.createRadialGradient(ex, ey, 0, ex, ey, er * 2.4);
+      if (isOuter) {
+        eg.addColorStop(0, '#FFFFFF');
+        eg.addColorStop(0.3, '#FFD54F');
+        eg.addColorStop(0.7, 'rgba(255,213,79,0.3)');
+        eg.addColorStop(1,   'rgba(255,213,79,0)');
+      } else {
+        eg.addColorStop(0, d.color + 'FF');
+        eg.addColorStop(0.5, d.color + '70');
+        eg.addColorStop(1,   d.color + '00');
+      }
+      ctx.beginPath();
+      ctx.arc(ex, ey, er * 2.4, 0, Math.PI * 2);
+      ctx.fillStyle = eg;
+      ctx.fill();
+
+      // Core dot
+      ctx.beginPath();
+      ctx.arc(ex, ey, isOuter ? 3.2 : 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = isOuter ? '#FFD54F' : d.color;
+      ctx.fill();
+    }
+  });
+
+  // Valence badge
+  const vc = d.shells[d.shells.length - 1];
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(W - 80, H - 22, 76, 18, 5);
+  else { ctx.rect(W - 80, H - 22, 76, 18); }
+  ctx.fill();
+  ctx.fillStyle = '#FFD54F';
+  ctx.font = 'bold 8.5px JetBrains Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Valence: ' + vc + 'e⁻', W - 42, H - 13);
+
+  tick++;
+  animFrame = requestAnimationFrame(draw);
+}
+
+// ─── postMessage: receive commands from parent ───────────────
+window.addEventListener('message', function(e) {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === 'bohr:selectElement' && e.data.element) {
+    selectEl(e.data.element);
+  }
+});
+
+// ─── Resize canvas to fit available space ────────────────────
+function resizeCanvas() {
+  const canvas = document.getElementById('bohrCanvas');
+  const col = canvas.parentElement;
+  const available = Math.min(col.offsetWidth, col.offsetHeight - 28);
+  const size = Math.max(160, Math.min(available, 280));
+  canvas.width  = size;
+  canvas.height = size;
+}
+
+// ─── Init ────────────────────────────────────────────────────
+window.addEventListener('resize', () => { resizeCanvas(); });
+window.addEventListener('load', () => {
+  resizeCanvas();
+  selectEl('Si');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydrogen Spectrum Calculator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #F4F6FB;
+  --bg2:     #FFFFFF;
+  --border:  #D8DAE8;
+  --text:    #1A1A2E;
+  --text2:   #4A4A6A;
+  --text3:   #9090B0;
+  --plasma:  #E87B1E;
+  --green:   #0F8C50;
+  --blue:    #1565C0;
+  --red:     #C62828;
+  --sh:      0 1px 4px rgba(0,0,0,0.07);
+
+  /* Series colors */
+  --lyman:    #9B59B6;
+  --balmer:   #E87B1E;
+  --paschen:  #C62828;
+  --brackett: #8B4513;
+  --pfund:    #555;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  font-family: 'Google Sans', 'Segoe UI', sans-serif;
+  color: var(--text);
+  overflow: hidden;
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  width: 100%; height: 100%;
+  padding: 8px 12px 6px;
+  gap: 7px;
+}
+
+/* ── Header formula bar ── */
+.formula-bar {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.formula-pill {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text2);
+  box-shadow: var(--sh);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.formula-pill .label {
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-right: 2px;
+}
+.formula-pill .eq {
+  color: var(--blue);
+  font-weight: 500;
+}
+
+/* ── Main layout ── */
+.main {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Left: input + result ── */
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 200px;
+  flex-shrink: 0;
+}
+
+.input-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: var(--sh);
+}
+
+.input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.input-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.n-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.n-btn {
+  width: 24px; height: 24px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.n-btn:hover { background: var(--plasma); color: #fff; border-color: var(--plasma); }
+.n-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 22px;
+  text-align: center;
+}
+
+.calc-btn {
+  width: 100%;
+  background: var(--plasma);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(232,123,30,0.35);
+  transition: background 0.12s, transform 0.1s;
+  letter-spacing: 0.03em;
+}
+.calc-btn:hover  { background: #c9660f; }
+.calc-btn:active { transform: scale(0.97); }
+
+/* Result card */
+.result-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: var(--sh);
+  flex: 1;
+}
+.result-title {
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 7px;
+}
+
+.result-rows { display: flex; flex-direction: column; gap: 5px; }
+.result-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px 0;
+  border-bottom: 1px solid #F0F0F8;
+}
+.result-row:last-child { border-bottom: none; }
+.r-key {
+  font-size: 0.62rem;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+.r-val {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.series-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 6px;
+  letter-spacing: 0.03em;
+}
+
+.photon-swatch {
+  display: inline-block;
+  width: 28px; height: 14px;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-left: 4px;
+  border: 1px solid rgba(0,0,0,0.10);
+}
+
+/* ── Right: SVG diagram + spectrum ── */
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+}
+
+.diagram-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px 6px;
+  box-shadow: var(--sh);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.diagram-title {
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 5px;
+  flex-shrink: 0;
+}
+#diagram {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: block;
+  border-radius: 6px;
+}
+
+.spectrum-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: var(--sh);
+  flex-shrink: 0;
+}
+.spectrum-title {
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 5px;
+}
+canvas#specCanvas {
+  width: 100%;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  display: block;
+}
+.spec-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+.spec-labels span {
+  font-size: 0.44rem;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── caption ── */
+.footer {
+  font-size: 0.49rem;
+  color: var(--text3);
+  text-align: center;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
+}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <!-- Formula bar -->
+  <div class="formula-bar">
+    <div class="formula-pill">
+      <span class="label">Bohr Energy</span>
+      <span class="eq">Eₙ = −13.6 / n²  eV</span>
+    </div>
+    <div class="formula-pill">
+      <span class="label">Rydberg</span>
+      <span class="eq">1/λ = R<sub>H</sub>(1/n<sub>f</sub>² − 1/n<sub>i</sub>²)</span>
+    </div>
+    <div class="formula-pill">
+      <span class="label">Planck</span>
+      <span class="eq">E = hν = hc/λ</span>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- LEFT -->
+    <div class="left-col">
+
+      <div class="input-card">
+        <div class="input-row">
+          <div class="input-group">
+            <span class="input-label">Initial level  n<sub>i</sub></span>
+            <div class="n-controls">
+              <button class="n-btn" onclick="adjustN('ni',-1)">−</button>
+              <span class="n-display" id="niDisplay">5</span>
+              <button class="n-btn" onclick="adjustN('ni',+1)">+</button>
+            </div>
+          </div>
+          <div class="input-group">
+            <span class="input-label">Final level  n<sub>f</sub></span>
+            <div class="n-controls">
+              <button class="n-btn" onclick="adjustN('nf',-1)">−</button>
+              <span class="n-display" id="nfDisplay">2</span>
+              <button class="n-btn" onclick="adjustN('nf',+1)">+</button>
+            </div>
+          </div>
+        </div>
+        <button class="calc-btn" onclick="calc()">▶  Calculate</button>
+      </div>
+
+      <div class="result-card">
+        <div class="result-title">Result</div>
+        <div id="resultContent">
+          <div style="font-size:0.62rem;color:var(--text3);font-style:italic;">— press Calculate —</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-col">
+      <div class="diagram-card">
+        <div class="diagram-title">Energy Level Diagram</div>
+        <svg id="diagram" viewBox="0 0 460 220" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div class="spectrum-card">
+        <div class="spectrum-title">Cumulative Emission Lines (visible 380–700 nm)</div>
+        <canvas id="specCanvas"></canvas>
+        <div class="spec-labels">
+          <span>380 nm</span><span>Violet</span><span>Blue</span>
+          <span>Green</span><span>Yellow</span><span>Red</span><span>700 nm</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Hydrogen Atom · Bohr Model · R<sub>H</sub> = 1.097 × 10⁷ m⁻¹ · E = hc/λ ≈ 1240 eV·nm / λ(nm)
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let niVal = 5, nfVal = 2;
+let specLines = [];
+
+const SERIES_INFO = {
+  1: { name: 'Lyman',    region: 'UV',       color: '#7B1FA2' },
+  2: { name: 'Balmer',   region: 'Visible',  color: '#E87B1E' },
+  3: { name: 'Paschen',  region: 'Near-IR',  color: '#C62828' },
+  4: { name: 'Brackett', region: 'IR',       color: '#6D4C41' },
+  5: { name: 'Pfund',    region: 'Far-IR',   color: '#546E7A' },
+};
+
+// Level colors
+const LC = ['','#C62828','#E65100','#F9A825','#2E7D32','#1565C0','#6A1B9A','#880E4F'];
+
+function seriesInfo(nf) {
+  return SERIES_INFO[nf] || { name: 'Higher', region: 'Far-IR', color: '#777' };
+}
+
+function wavelengthToColor(nm) {
+  if (nm < 380 || nm > 700) return null;
+  let r=0,g=0,b=0;
+  if      (nm<440){r=-(nm-440)/(440-380);b=1;}
+  else if (nm<490){g=(nm-440)/(490-440);b=1;}
+  else if (nm<510){g=1;b=-(nm-510)/(510-490);}
+  else if (nm<580){r=(nm-510)/(580-510);g=1;}
+  else if (nm<645){r=1;g=-(nm-645)/(645-580);}
+  else{r=1;}
+  const h=v=>Math.round(Math.pow(Math.max(0,v),0.75)*230+12).toString(16).padStart(2,'0');
+  return '#'+h(r)+h(g)+h(b);
+}
+
+// ── N controls ─────────────────────────────────────────────
+function adjustN(id, delta) {
+  if (id === 'ni') {
+    niVal = Math.max(2, Math.min(7, niVal + delta));
+    document.getElementById('niDisplay').textContent = niVal;
+  } else {
+    nfVal = Math.max(1, Math.min(6, nfVal + delta));
+    document.getElementById('nfDisplay').textContent = nfVal;
+  }
+}
+
+// ── Calculate ──────────────────────────────────────────────
+function calc() {
+  const ni = niVal, nf = nfVal;
+  if (ni <= nf) {
+    document.getElementById('resultContent').innerHTML =
+      '<div style="color:#C62828;font-size:0.68rem;font-weight:600">⚠ nᵢ must be greater than n<sub>f</sub></div>';
+    return;
+  }
+
+  const Ei = -13.6 / (ni * ni);
+  const Ef = -13.6 / (nf * nf);
+  const dE = Math.abs(Ei - Ef);
+  const lambda_nm = 1240 / dE;
+  const si = seriesInfo(nf);
+  const photonColor = wavelengthToColor(lambda_nm);
+  const isVisible = lambda_nm >= 380 && lambda_nm <= 700;
+
+  // Result panel
+  const regionLabel = lambda_nm < 380 ? 'UV' : lambda_nm > 700 ? 'Infrared' : 'Visible';
+  const swatchHtml = isVisible
+    ? `<span class="photon-swatch" style="background:${photonColor}"></span>`
+    : '';
+
+  document.getElementById('resultContent').innerHTML = `
+    <div class="result-rows">
+      <div class="result-row">
+        <span class="r-key">Eᵢ (n=${ni})</span>
+        <span class="r-val" style="color:${LC[ni] || '#555'}">${Ei.toFixed(3)} eV</span>
+      </div>
+      <div class="result-row">
+        <span class="r-key">Ef (n=${nf})</span>
+        <span class="r-val" style="color:${LC[nf] || '#555'}">${Ef.toFixed(3)} eV</span>
+      </div>
+      <div class="result-row">
+        <span class="r-key">ΔE</span>
+        <span class="r-val" style="color:#C62828">${dE.toFixed(3)} eV</span>
+      </div>
+      <div class="result-row">
+        <span class="r-key">λ</span>
+        <span class="r-val" style="color:#1B5E20">
+          ${lambda_nm.toFixed(1)} nm ${swatchHtml}
+        </span>
+      </div>
+      <div class="result-row">
+        <span class="r-key">Region</span>
+        <span class="r-val" style="color:var(--text2)">${regionLabel}</span>
+      </div>
+    </div>
+    <div style="margin-top:7px">
+      <span class="series-badge" style="background:${si.color}">
+        ${si.name} Series &nbsp;(n→${nf}, ${si.region})
+      </span>
+    </div>
+  `;
+
+  // Add to spectrum
+  if (isVisible) {
+    if (!specLines.find(s => Math.abs(s.nm - lambda_nm) < 0.5)) {
+      specLines.push({ nm: lambda_nm, col: photonColor });
+    }
+    renderSpectrum();
+  }
+
+  // Draw energy diagram
+  drawDiagram(ni, nf, dE, lambda_nm, photonColor, si.color);
+}
+
+// ── Energy diagram ─────────────────────────────────────────
+function drawDiagram(ni, nf, dE, lambda_nm, photonColor, seriesColor) {
+  const svg = document.getElementById('diagram');
+  const VW = 460, VH = 220;
+  const LEFT = 52, RIGHT = 340;
+  const TOP  = 14, BOT  = 204;
+  const usable = BOT - TOP;
+  const N_MAX = 7;
+
+  function lvlY(n) {
+    const eMin = -13.6/(N_MAX*N_MAX), eMax = 0;
+    const frac  = (-13.6/(n*n) - eMin) / (eMax - eMin);
+    return BOT - frac * usable;
+  }
+
+  let svg_content = '';
+
+  // ── Level lines ──
+  for (let n = 1; n <= N_MAX; n++) {
+    const y   = lvlY(n);
+    const col = LC[n] || '#888';
+    const isCurrent = (n === ni || n === nf);
+    svg_content += `<line x1="${LEFT}" y1="${y}" x2="${RIGHT}" y2="${y}"
+      stroke="${col}" stroke-width="${isCurrent ? 2 : 0.9}"
+      stroke-dasharray="${isCurrent ? '' : '4 3'}" opacity="${isCurrent ? 1 : 0.45}"/>`;
+    // n= label
+    svg_content += `<text x="${LEFT - 4}" y="${y + 4}" text-anchor="end"
+      font-family="JetBrains Mono,monospace" font-size="10"
+      font-weight="${isCurrent ? 700 : 400}"
+      fill="${isCurrent ? col : col+'99'}">n=${n}</text>`;
+    // eV label
+    const ev = (-13.6/(n*n)).toFixed(2);
+    svg_content += `<text x="${RIGHT + 5}" y="${y + 4}" text-anchor="start"
+      font-family="JetBrains Mono,monospace" font-size="8.5" fill="#AAAACC">${ev} eV</text>`;
+  }
+
+  // Ionisation line
+  const yIon = lvlY(N_MAX) - 15;
+  svg_content += `<line x1="${LEFT}" y1="${yIon}" x2="${RIGHT}" y2="${yIon}"
+    stroke="rgba(100,100,200,0.2)" stroke-width="0.7" stroke-dasharray="3 6"/>`;
+  svg_content += `<text x="${LEFT-4}" y="${yIon+4}" text-anchor="end"
+    font-family="JetBrains Mono,monospace" font-size="8" fill="#BBBBDD">0 eV</text>`;
+
+  // ── Transition arrow ──
+  const yi = lvlY(ni), yf = lvlY(nf);
+  const ax = LEFT + (RIGHT - LEFT) * 0.42;
+  const arrowCol = seriesColor;
+
+  // Gradient line body
+  svg_content += `<defs>
+    <linearGradient id="arrowGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${arrowCol}" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="${arrowCol}" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>`;
+  svg_content += `<line x1="${ax}" y1="${yi}" x2="${ax}" y2="${yf}"
+    stroke="url(#arrowGrad)" stroke-width="3.5"/>`;
+
+  // Arrow head (pointing down = emission)
+  svg_content += `<polygon points="${ax},${yf+11} ${ax-7},${yf+2} ${ax+7},${yf+2}"
+    fill="${arrowCol}"/>`;
+
+  // Electron circle at ni
+  svg_content += `<circle cx="${ax}" cy="${yi}" r="7"
+    fill="${LC[ni]||'#888'}" stroke="white" stroke-width="1.5"/>`;
+  svg_content += `<text x="${ax}" y="${yi+4}" text-anchor="middle"
+    font-family="JetBrains Mono,monospace" font-size="7.5" fill="white" font-weight="700">e⁻</text>`;
+
+  // ΔE + λ labels beside arrow
+  const midY = (yi + yf) / 2;
+  svg_content += `<rect x="${ax+13}" y="${midY-20}" width="72" height="38"
+    rx="5" fill="white" stroke="${arrowCol}33" stroke-width="1"/>`;
+  svg_content += `<text x="${ax+49}" y="${midY-6}" text-anchor="middle"
+    font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700"
+    fill="${arrowCol}">ΔE = ${dE.toFixed(3)} eV</text>`;
+  const nmStr = lambda_nm < 2000 ? lambda_nm.toFixed(1)+' nm' : '>2000 nm';
+  const nmFill = photonColor || '#777';
+  svg_content += `<text x="${ax+49}" y="${midY+10}" text-anchor="middle"
+    font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700"
+    fill="${nmFill}">λ = ${nmStr}</text>`;
+
+  // Photon wave (emission) going right
+  if (photonColor) {
+    const waveX = ax + 90, waveY = yi;
+    svg_content += `<path d="M${waveX},${waveY}
+      Q${waveX+8},${waveY-8} ${waveX+16},${waveY}
+      Q${waveX+24},${waveY+8} ${waveX+32},${waveY}
+      Q${waveX+40},${waveY-8} ${waveX+48},${waveY}"
+      fill="none" stroke="${photonColor}" stroke-width="2.5" stroke-linecap="round"/>`;
+    svg_content += `<circle cx="${waveX+54}" cy="${waveY}" r="5"
+      fill="${photonColor}" opacity="0.85"/>`;
+    svg_content += `<text x="${waveX+54}" y="${waveY+17}" text-anchor="middle"
+      font-family="JetBrains Mono,monospace" font-size="9" fill="${photonColor}"
+      font-weight="700">hν</text>`;
+  }
+
+  svg.setAttribute('viewBox', `0 0 ${VW} ${VH}`);
+  svg.innerHTML = svg_content;
+}
+
+// ── Spectrum ────────────────────────────────────────────────
+function renderSpectrum() {
+  const cv = document.getElementById('specCanvas');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  ctx.fillStyle = '#14142a';
+  ctx.fillRect(0, 0, W, H);
+
+  const grad = ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,    'rgba(100,0,180,0.12)');
+  grad.addColorStop(0.14, 'rgba(50,0,255,0.09)');
+  grad.addColorStop(0.30, 'rgba(0,200,255,0.08)');
+  grad.addColorStop(0.46, 'rgba(0,255,100,0.08)');
+  grad.addColorStop(0.62, 'rgba(255,230,0,0.09)');
+  grad.addColorStop(0.78, 'rgba(255,100,0,0.10)');
+  grad.addColorStop(1,    'rgba(200,0,0,0.12)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  specLines.forEach(sl => {
+    const x = ((sl.nm - 380) / 320) * W;
+    const glow = ctx.createLinearGradient(x-5, 0, x+5, 0);
+    glow.addColorStop(0,   sl.col + '00');
+    glow.addColorStop(0.5, sl.col + 'AA');
+    glow.addColorStop(1,   sl.col + '00');
+    ctx.fillStyle = glow;
+    ctx.fillRect(x-5, 0, 10, H);
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H);
+    ctx.strokeStyle = sl.col;
+    ctx.lineWidth = 1.8;
+    ctx.globalAlpha = 0.95; ctx.stroke(); ctx.globalAlpha = 1;
+  });
+}
+
+// ── Resize spectrum canvas ──────────────────────────────────
+function resizeSpec() {
+  const cv = document.getElementById('specCanvas');
+  if (!cv) return;
+  cv.width  = cv.parentElement.offsetWidth - 24;
+  cv.height = 22;
+  renderSpectrum();
+}
+
+// ── postMessage ─────────────────────────────────────────────
+window.addEventListener('message', e => {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === 'spectrum:set') {
+    if (e.data.ni) { niVal = e.data.ni; document.getElementById('niDisplay').textContent = niVal; }
+    if (e.data.nf) { nfVal = e.data.nf; document.getElementById('nfDisplay').textContent = nfVal; }
+  }
+  if (e.data.type === 'spectrum:calc') calc();
+  if (e.data.type === 'spectrum:reset') {
+    specLines = [];
+    niVal = 5; nfVal = 2;
+    document.getElementById('niDisplay').textContent = niVal;
+    document.getElementById('nfDisplay').textContent = nfVal;
+    document.getElementById('resultContent').innerHTML = '<div style="font-size:0.62rem;color:var(--text3);font-style:italic;">— press Calculate —</div>';
+    drawDiagram(5, 2, 0.967, 1281.7, null, '#E87B1E');
+    renderSpectrum();
+  }
+});
+
+window.addEventListener('resize', resizeSpec);
+window.addEventListener('load', () => {
+  resizeSpec();
+  drawDiagram(5, 2, 0.967, 1281.7, null, '#E87B1E');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICP Aluminum Etch — Interactive Lesson · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #F7F8FA;
+    --panel:       #FFFFFF;
+    --ink:         #2D2D2D;
+    --muted:       #6B7280;
+    --muted2:      #9CA3AF;
+    --purple:      #7030A0;
+    --purple-soft: #F0E6F6;
+    --purple-mid:  #d9b8ed;
+    --purple-dark: #521a78;
+    --green:       #0F8C50;
+    --border:      #E5E7EB;
+    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+    --hdr:         52px;
+    --side:        450px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; overflow: hidden; }
+  body {
+    height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: 'Google Sans','Noto Sans KR','Segoe UI',system-ui,sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .hdr {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    height: var(--hdr); background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 1rem; padding: 0 1.25rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  }
+  .hdr-logo   { height: 32px; width: auto; flex-shrink: 0; }
+  .hdr-div    { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+  .hdr-title  { font-size: 0.95rem; font-weight: 700; color: var(--purple); line-height: 1.2; }
+  .hdr-sub    {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.50rem;
+    color: var(--muted2); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;
+  }
+  .hdr-right  { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+
+  .lang-toggle { display: flex; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .lang-btn {
+    padding: 3px 13px; border: none; background: transparent; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.60rem; font-weight: 500;
+    color: var(--muted2); transition: all 0.16s;
+  }
+  .lang-btn.active { background: var(--purple); color: #fff; }
+
+  /* ── Main area (below fixed header) ── */
+  .main {
+    position: fixed;
+    top: var(--hdr); left: 0; right: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr var(--side);
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* ── Canvas area ── */
+  .canvas-wrap {
+    position: relative;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    padding: 10px 8px 6px 10px;
+    overflow: hidden;
+  }
+  .canvas-card {
+    flex: 1;
+    background: var(--panel);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  #cv {
+    display: block;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    object-fit: contain;
+  }
+  /* Step controls below canvas card */
+  .step-controls {
+    flex-shrink: 0;
+    min-height: 28px; height: 28px;
+    display: flex; gap: 8px; align-items: center;
+    margin-top: 6px; flex-wrap: nowrap; overflow: hidden;
+  }
+  .mode-toggle {
+    display: inline-flex; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 20px; padding: 2px; gap: 2px;
+  }
+  .mode-toggle button {
+    border: none; background: transparent; padding: 3px 12px;
+    font-family: 'Google Sans', sans-serif; font-size: 0.70rem; font-weight: 600;
+    cursor: pointer; color: var(--muted); border-radius: 14px; transition: all 0.14s;
+  }
+  .mode-toggle button.active { background: var(--purple); color: #fff; }
+  .mode-info {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.60rem;
+    background: var(--purple-soft); color: var(--purple-dark);
+    padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+  }
+  .reset-btn {
+    font-family: 'Google Sans', sans-serif; font-size: 0.70rem; font-weight: 600;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 7px;
+    padding: 4px 12px; cursor: pointer; color: var(--ink); transition: all 0.14s;
+    white-space: nowrap;
+  }
+  .reset-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
+
+  /* Tooltip */
+  #tooltip {
+    position: absolute; pointer-events: none;
+    background: rgba(18,22,38,0.97); color: #fff;
+    padding: 9px 13px; border-radius: 9px; font-size: 12.5px;
+    line-height: 1.6; max-width: 270px;
+    transform: translate(-50%,-100%); margin-top: -12px;
+    opacity: 0; transition: opacity 0.11s; z-index: 50;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.32); border: 1px solid rgba(255,255,255,0.09);
+  }
+  #tooltip.show { opacity: 1; }
+  #tooltip b { color: #c4a0f0; }
+
+  /* ── Side Panel ── */
+  .side {
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .side-inner {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 1rem 1.1rem 0.5rem;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .side-inner::-webkit-scrollbar { width: 4px; }
+  .side-inner::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .step-eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.54rem;
+    color: var(--muted2); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.3rem;
+  }
+  .step-title { font-size: 1.08rem; font-weight: 700; color: var(--ink); margin-bottom: 0.6rem; line-height: 1.3; }
+  .step-body  { font-size: 0.82rem; line-height: 1.76; color: #3a4055; }
+  .step-body ul { padding-left: 1.1rem; margin: 0.35rem 0; }
+  .step-body li { margin-bottom: 0.28rem; }
+  .step-body b  { font-weight: 700; color: var(--ink); }
+  .step-body code {
+    background: var(--purple-soft); padding: 1px 6px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; color: var(--purple-dark);
+  }
+  .hint-box {
+    margin-top: 0.7rem; display: flex; gap: 9px; align-items: flex-start;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px;
+  }
+  .hint-icon {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--purple-soft); display: flex; align-items: center;
+    justify-content: center; font-size: 13px;
+  }
+  .hint-text { font-size: 0.71rem; line-height: 1.58; color: #4a5070; flex: 1; align-self: center; }
+
+  /* Deep Dive accordion */
+  .deep-wrap {
+    margin-top: 0.85rem; border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; background: var(--panel);
+  }
+  .deep-hdr {
+    display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.85rem;
+    cursor: pointer; user-select: none; background: var(--panel); transition: background 0.15s;
+  }
+  .deep-hdr:hover { background: var(--bg); }
+  .deep-hdr.open { background: var(--purple-soft); border-bottom: 1px solid var(--border); }
+  .deep-icon  { font-size: 1rem; flex-shrink: 0; }
+  .deep-title { font-size: 0.80rem; font-weight: 700; color: var(--ink); flex: 1; line-height: 1.3; }
+  .deep-badge {
+    background: var(--purple); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.50rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+    letter-spacing: 0.04em;
+  }
+  .deep-chevron { font-size: 0.62rem; color: var(--muted2); transition: transform 0.2s; flex-shrink: 0; }
+  .deep-hdr.open .deep-chevron { transform: rotate(180deg); }
+  .deep-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; background: var(--bg); }
+  .deep-body.open { max-height: 2000px; }
+  .deep-inner { padding: 0.85rem 0.9rem; font-size: 0.76rem; line-height: 1.78; color: #4a5070; }
+  .deep-inner p + p { margin-top: 0.6em; }
+  .deep-inner b { color: var(--ink); }
+  .deep-inner .deep-eq {
+    background: var(--charcoal,#2D2D2D); border-radius: 6px; padding: 0.55rem 0.8rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: #FFD580;
+    margin: 0.5rem 0; overflow-x: auto; letter-spacing: 0.03em; line-height: 1.6;
+  }
+  .deep-inner .deep-hl {
+    background: var(--purple-soft); border-left: 3px solid var(--purple);
+    border-radius: 0 7px 7px 0; padding: 0.5rem 0.8rem; margin: 0.5rem 0;
+    font-size: 0.74rem; line-height: 1.7; color: var(--purple-dark);
+  }
+  .deep-inner ul { padding-left: 1.1rem; margin: 0.35rem 0; }
+  .deep-inner li { margin-bottom: 0.3rem; }
+  .deep-inner .deep-img-wrap { margin: 0.6rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); cursor: zoom-in; }
+  .deep-inner .deep-img-wrap img { display: block; width: 100%; height: auto; transition: opacity 0.15s; }
+  .deep-inner .deep-img-wrap:hover img { opacity: 0.88; }
+  .deep-inner .deep-cap { font-size: 0.70rem; color: #8a93ad; text-align: center; margin-top: 0.35rem; line-height: 1.5; }
+  .img-lightbox {
+    position: fixed; inset: 0; background: rgba(20,22,34,0.82);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; cursor: zoom-out; padding: 2.5rem;
+  }
+  .img-lightbox.open { display: flex; }
+  .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 12px 48px rgba(0,0,0,0.45); }
+  .img-lightbox .lightbox-close {
+    position: absolute; top: 1.1rem; right: 1.4rem; width: 38px; height: 38px;
+    border-radius: 50%; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 1.1rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .img-lightbox .lightbox-close:hover { background: rgba(255,255,255,0.22); }
+
+  /* Side footer: step buttons + nav */
+  .side-footer {
+    flex-shrink: 0;
+    padding: 0.65rem 1.1rem 0.8rem;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .step-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.6rem; }
+  .step-btn {
+    padding: 5px 10px; font-size: 0.70rem; font-weight: 600;
+    border: 1px solid var(--border); background: var(--panel); border-radius: 6px;
+    cursor: pointer; color: var(--muted); transition: all 0.13s;
+    font-family: 'Google Sans', sans-serif; min-width: 30px; text-align: center;
+  }
+  .step-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
+  .step-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+  .nav-row { display: flex; gap: 7px; }
+  .nav-btn {
+    flex: 1; padding: 9px; font-size: 0.78rem; font-weight: 700;
+    border: none; background: var(--ink); color: #fff; border-radius: 8px;
+    cursor: pointer; font-family: 'Google Sans', sans-serif; transition: background 0.14s;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--purple); }
+  .nav-btn:disabled { background: var(--border); color: var(--muted2); cursor: not-allowed; }
+
+  /* Footer bar */
+  .foot {
+    display: none; /* hidden — space too tight in full-screen mode */
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixed Header -->
+<header class="hdr">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer"
+     style="display:inline-flex;align-items:center;text-decoration:none;">
+    <img class="hdr-logo"
+      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+      alt="Benedu Insight">
+  </a>
+  <div class="hdr-div"></div>
+  <div>
+    <div class="hdr-title" id="hTitle">ICP Aluminum Etch — Interactive Lesson</div>
+    <div class="hdr-sub"   id="hSub">Class 3 · BCl₃ + Cl₂ + Ar → Al RIE (ICP) · Benedu Insight</div>
+  </div>
+  <div class="hdr-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        id="btnKO" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main 2-column layout -->
+<div class="main">
+
+  <!-- Left: Canvas + controls -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="canvas-card" id="canvasCard">
+      <canvas id="cv"></canvas>
+      <div id="tooltip"></div>
+    </div>
+    <div class="step-controls" id="stepControls"></div>
+  </div>
+
+  <!-- Right: Side panel -->
+  <div class="side">
+    <div class="side-inner" id="sideInner">
+      <div class="step-eyebrow">Step <span id="stepNum">S</span> / 9</div>
+      <div class="step-title" id="stepTitle"></div>
+      <div class="step-body"  id="stepBody"></div>
+      <div class="hint-box"   id="stepHint" style="display:none;"></div>
+      <div id="deepDiveContainer"></div>
+    </div>
+    <div class="side-footer">
+      <div class="step-btns" id="stepButtons"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn">◀ Prev</button>
+        <button class="nav-btn" id="nextBtn">Next ▶</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="img-lightbox" id="imgLightbox" onclick="closeLightbox()">
+  <div class="lightbox-close" onclick="closeLightbox()">✕</div>
+  <img id="imgLightboxSrc" src="" alt="">
+</div>
+
+<script>
+/* ============================================================
+   ICP Aluminum Etch Interactive Lesson v1
+   Benedu Insight · Google Sans · Full-viewport layout
+   Responsive Canvas — geometry scales with window size
+   BCl3 + Cl2 + Ar -> Al RIE (Inductively Coupled Plasma)
+   TOP: Coil (Antenna) -> Faraday Shield -> Dielectric Window
+        (Y2O3-coated Al2O3 ceramic Lid) -- Source RF 13.56 MHz
+   BOTTOM: Wafer Chuck -- RF-POWERED via Blocking Capacitor
+        (Bias RF 13.56 MHz, independent of Source RF)
+   KO / EN bilingual
+   ============================================================ */
+
+// ── Canvas & ctx ──────────────────────────────────────────────
+const canvas = document.getElementById('cv');
+const ctx    = canvas.getContext('2d');
+const tooltip     = document.getElementById('tooltip');
+const stepCtrlEl  = document.getElementById('stepControls');
+
+// ── Logical canvas dimensions (constant ratio 900:640) ────────
+const LW = 900, LH = 640;
+let DPR = window.devicePixelRatio || 1;
+
+let renderScale = 1, renderOffX = 0, renderOffY = 0;
+function resizeCanvas() {
+  const card = document.getElementById('canvasCard');
+  const cw = card.clientWidth;
+  const ch = card.clientHeight;
+  DPR = window.devicePixelRatio || 1;
+  canvas.width  = Math.round(cw * DPR);
+  canvas.height = Math.round(ch * DPR);
+  canvas.style.width  = cw + 'px';
+  canvas.style.height = ch + 'px';
+  const aspect = LW / LH;
+  let drawW, drawH;
+  if (cw / ch > aspect) { drawH = ch; drawW = ch * aspect; }
+  else                   { drawW = cw; drawH = cw / aspect; }
+  renderScale = drawW / LW;
+  renderOffX = (cw - drawW) / 2;
+  renderOffY = (ch - drawH) / 2;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(renderScale * DPR, renderScale * DPR);
+  ctx.translate(renderOffX / renderScale, renderOffY / renderScale);
+}
+
+const ro = new ResizeObserver(() => resizeCanvas());
+ro.observe(document.getElementById('canvasCard'));
+resizeCanvas();
+
+// ── Brand ─────────────────────────────────────────────────────
+const FONT = '"Google Sans","Noto Sans KR",system-ui,sans-serif';
+const MONO = '"JetBrains Mono",monospace';
+const B = {
+  purple:'#7030A0', purpleSoft:'#F0E6F6', purpleDark:'#521a78',
+  green:'#0F8C50',  greenSoft:'#E5F4EC',
+  charcoal:'#2D2D2D', muted:'#6B7280', muted2:'#9CA3AF',
+  bg:'#F7F8FA', panel:'#FFFFFF', border:'#E5E7EB',
+  red:'#E8553B', blue:'#3A7AD6', teal:'#1f9e8e', amber:'#caa23a',
+};
+
+// ── Logo ──────────────────────────────────────────────────────
+const LOGO = new Image();
+LOGO.crossOrigin = 'anonymous';
+LOGO.src = 'https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png';
+function drawLogo(a=0.45) {
+  if (!LOGO.complete || !LOGO.naturalWidth) return;
+  const lh=26, lw=Math.round(lh*LOGO.naturalWidth/LOGO.naturalHeight);
+  ctx.save(); ctx.globalAlpha=a;
+  ctx.drawImage(LOGO, LW-lw-12, LH-lh-10, lw, lh);
+  ctx.restore();
+}
+
+// ── Geometry — all in LW×LH (900×640) logical space ──────────
+// ICP CHAMBER for Aluminum Etch:
+//   - Coil (Antenna)  : ABOVE the chamber shell, planar/spiral, Source RF 13.56 MHz
+//   - Faraday Shield  : thin slotted plate between Coil and Dielectric Window
+//   - Dielectric Window (Lid) : Y2O3-coated Al2O3 ceramic, full inner width (top of chamber interior)
+//   - Wafer Chuck (bottom) : RF-POWERED via Blocking Capacitor, Bias RF 13.56 MHz
+//        (electrically INDEPENDENT of the Source RF circuit)
+//   - Gas (BCl3 + Cl2 + Ar) injected through SIDE nozzles (top is occupied by window/coil)
+const W=LW, H=LH;
+const CH={x:215,y:175,w:470,h:380,r:18};
+const IP=18, inX=CH.x+IP, inY=CH.y+IP, inW=CH.w-IP*2, inH=CH.h-IP*2;
+
+// Dielectric Window (Lid) — Y2O3-coated Al2O3 ceramic, full inner width (top)
+const DW={x:inX, y:inY, w:inW, h:20};
+
+// Coil (Antenna) — drawn ABOVE the chamber shell, planar/spiral, full width
+const COIL={x:inX, y:CH.y-58, w:inW, h:34};
+// Faraday Shield — thin slotted plate between coil and chamber top / window
+const FS={x:inX, y:CH.y-16, w:inW, h:9};
+
+// Wafer Chuck — Bias RF-POWERED via Blocking Capacitor, ~70% of inner width
+const PEW=Math.round(inW*0.70);
+const SC={x:inX+Math.round((inW-PEW)/2), y:inY+inH-30, w:PEW, h:30};
+const wW=Math.round(PEW*0.88);
+const WF={x:SC.x+Math.round((PEW-wW)/2), y:SC.y-5, w:wW, h:5};
+
+// Top sheath — thin, near the dielectric window (very low voltage; no
+// area-asymmetry mechanism in ICP — this is just the natural wall sheath)
+const ST={x:inX+6, y:DW.y+DW.h, w:inW-12, h:14};
+// Bottom sheath — Bias-RF-controlled, thickness/intensity reflects V_DC
+// from the BIAS supply (independent of Source RF / plasma density)
+const SB_H_BASE=20;
+const AL_MAX=26, PR_H=13;
+const SB={x:SC.x-4, y:0, w:SC.w+8, h:SB_H_BASE};
+SB.y = WF.y - AL_MAX - PR_H - SB_H_BASE;
+const PL={x:ST.x,y:ST.y+ST.h,w:ST.w,h:SB.y-(ST.y+ST.h)};
+const GND_X = CH.x+55;
+
+// Gas system — SIDE injection (right wall), per ICP layout: Box -> Valve (⋈)
+// -> Bus -> nozzle into the chamber side wall. Order top-to-bottom: BCl3, Cl2, Ar.
+const GAS_BUS_X = 730;
+const M1={cx:780, cy:300};
+const M2={cx:780, cy:350};
+const M3={cx:780, cy:400};
+const G1S={x:820, y:M1.cy-12, w:70, h:24};
+const G2S={x:820, y:M2.cy-12, w:70, h:24};
+const G3S={x:820, y:M3.cy-12, w:70, h:24};
+// Nozzle entry points on the chamber's right inner wall —
+// all three gas lines MERGE into a single common header pipe and enter
+// the chamber through ONE nozzle (single injection point), not three.
+const MERGE_X = GAS_BUS_X - 26;          // x-position of the common vertical merge pipe
+const NZ_MAIN = {x:inX+inW, y:M2.cy};    // single nozzle (mid-height of the gas manifold)
+const NZ1=NZ_MAIN, NZ2=NZ_MAIN, NZ3=NZ_MAIN; // species spawn alias — same physical inlet
+
+// Bias RF Matcher (LEFT) + Bias RF Generator (RIGHT) — bottom of chamber,
+// horizontal. DC Blocking Capacitor sits above the Matcher and routes right
+// to the chuck's RF feed point at the chamber's bottom-right corner.
+// (Same physical pattern as the CCP chuck circuit — but here it is the
+//  INDEPENDENT Bias RF supply, not the only RF supply.)
+const MAT={x:500,y:580,w:110,h:44,r:10};
+const RFG={x:MAT.x+MAT.w+14,y:580,w:110,h:44,r:10};
+const BCAP={cx:MAT.x+55,cy:560};
+
+// Source RF Matcher (LEFT) + Source RF Generator (RIGHT) — above the
+// chamber, feeding the Coil. Independent circuit from the Bias RF below.
+const SMAT={x:500,y:18,w:110,h:40,r:10};
+const SRFG={x:SMAT.x+SMAT.w+14,y:18,w:110,h:40,r:10};
+const SFEED_X = SMAT.x+SMAT.w/2;
+
+// Backside He Cooling — directly below the powered chuck's center.
+const HEC={x:425,y:592,w:50,h:30,r:8};
+const HEC_GLASS_CY=560;
+
+// Turbo Pump + Dry Vacuum Pump — bottom of chamber, left of the He cooling
+// box, near the chamber's bottom-left corner.
+const TP={x:222,y:588,w:84,h:40,r:20};
+const DVP={x:TP.x+TP.w+12,y:582,w:92,h:52,r:8};
+
+// ── Species — BCl3 + Cl2 + Ar -> Al RIE ───────────────────────
+const SP={
+  'BCl3': {f:'BCl3', c:'#2a3145',  sz:11, q:0,  m:117,    cat:'neutral' },
+  'Cl2':  {f:'Cl2',  c:'#2a3145',  sz:11, q:0,  m:71,     cat:'neutral' },
+  'Ar':   {f:'Ar',   c:'#2a3145',  sz:11, q:0,  m:40,     cat:'neutral' },
+  'BCl2': {f:'BCl2', c:B.blue,     sz:11, q:0,  m:96,     cat:'radical' },
+  'Cl':   {f:'Cl',   c:B.blue,     sz:10, q:0,  m:35,     cat:'radical' },
+  'Cl+':  {f:'Cl+',  c:B.red,      sz:10, q:+1, m:35,     cat:'ion'     },
+  'Ar+':  {f:'Ar+',  c:B.red,      sz:11, q:+1, m:40,     cat:'ion'     },
+  'BCl2+':{f:'BCl2+',c:B.red,      sz:11, q:+1, m:96,     cat:'ion'     },
+  'e-':   {f:'e-',   c:B.red,      sz:10, q:-1, m:0.0005, cat:'electron'},
+  'AlCl3':{f:'AlCl3',c:'#9CA3AF',  sz:10, q:0,  m:133,    cat:'byproduct'},
+};
+
+// ── Bilingual text ────────────────────────────────────────────
+const T = {
+en:{
+  hTitle:'ICP Aluminum Etch — Interactive Lesson',
+  hSub:'Class 3 · BCl₃ + Cl₂ + Ar → Al RIE (ICP) · Benedu Insight',
+  stepLabel:'Step',
+  modeInfoSrcOnly:'Source RF only — dense plasma, but ions arrive with low, undirected energy',
+  modeInfoSrcBias:'Source + Bias RF — dense plasma AND directed ion energy (independent control)',
+  resetEtch:'↻ Reset Etch Depth',
+  prevBtn:'◀ Prev', nextBtn:'Next ▶',
+  modeLabel:'Mode', plasmaLabel:'Plasma intensity',
+  lowEnergy:'⚠  Low ion energy — Bias RF is OFF',
+  biasActive:'Bias RF active · V_DC controls ion energy independently',
+  molCount:'Gas Molecules',
+  vdcLabel:'V_DC — Self-Bias (Bias-RF chuck)',
+  ionEnergyLabel:'Ion energy ≈ |V_DC + V_RF| × q  (set by Bias RF, not by Source RF)',
+  etchLabel:'Etch Depth', etchPctOf:'% of Al', eqLabel:'Overall:',
+  etchThrough:'✓ Etch through Al — underlayer reached',
+  srcLabel:'Source RF (Coil)', biasLabel:'Bias RF (Chuck)',
+  densityLabel:'Plasma density ≈ 10¹¹–10¹² cm⁻³ (H-mode)',
+  steps:[
+    { title:'Inductively Coupled Plasma — Chamber Structure',
+      body:`ICP chamber for Aluminum Etch (RIE) — <b>two independent RF circuits</b>, top and bottom.
+        <ul>
+          <li><b>Coil (Antenna)</b> — sits above the chamber, driven by <b>Source RF (13.56 MHz)</b> through its own Matcher</li>
+          <li><b>Faraday Shield</b> — thin slotted grounded plate between the Coil and the Dielectric Window</li>
+          <li><b>Dielectric Window (Lid)</b> — <b>Y₂O₃-coated Al₂O₃ ceramic</b>, forms the chamber's top wall</li>
+          <li><b>Wafer Chuck (bottom)</b> — driven by a separate <b>Bias RF (13.56 MHz)</b> through a <b>Blocking Capacitor</b></li>
+          <li>Gas: <code>BCl₃ + Cl₂ + Ar</code>, pre-mixed in a common header and injected through a <b>single side-wall nozzle</b> (the top is occupied by the Coil/Window)</li>
+        </ul>
+        Pre-ignition overview — gas flowing, plasma not yet formed.
+        <b>Notice there are two separate RF Generator/Matcher pairs</b> — one feeding the Coil (Source), one feeding the Chuck (Bias). This separation is the defining feature of ICP and the starting point for every step that follows.`,
+      hint:'💡 Hover over chamber parts for details.',
+      deepDive:{
+        title:'Coil & Faraday Shield — Three Common Geometries',
+        body:`<p>In this lesson the Coil sits as a flat <b>planar spiral</b> above a flat Dielectric Window, with a flat slotted Faraday Shield in between — a cross-section view that can look like little more than "two stacked rectangles." In real ICP chambers, the coil/window assembly takes a few characteristic shapes. Recognizing them helps when reading equipment manuals or chamber drawings.</p>
+<div class="deep-img-wrap" onclick="openLightbox('./images/icp_antenna_style.png')"><img src="./images/icp_antenna_style.png" alt="ICP antenna coil geometry comparison"></div>
+<div class="deep-cap">Comparative ICP antenna/coil geometries — planar spiral, multi-zone dome, and cylindrical/helical (remote plasma source).</div>
+<ul>
+  <li><b>Planar Spiral Coil (used in this lesson)</b> — a flat spiral coil over a flat dielectric window, with RF power fed at the outer end and the inner end grounded (or vice versa). Simple and robust; the Faraday Shield is a flat slotted plate sandwiched between the coil and the window — exactly the geometry drawn in this chamber.</li>
+  <li><b>Multi-Zone Dome Coil</b> — the dielectric window is shaped as a dome, and the coil follows that curved surface, often split into independently-driven inner/outer zones. The varying coil-to-wafer distance and dual-zone control improve plasma uniformity across large (300 mm+) wafers and reduce edge effects.</li>
+  <li><b>Cylindrical / Helical Coil</b> — the coil is wound helically around a dielectric tube rather than placed above a flat window. This produces very high plasma density along the tube axis and is most often used as a <b>Remote Plasma Source (RPS)</b> — generating radicals upstream, which then flow into a separate process chamber — rather than as the main etch-chamber source.</li>
+</ul>
+<div class="deep-hl">Regardless of shape, the underlying physics is identical: AC current in the coil → oscillating B-field → (Faraday's Law) induced E-field in the plasma. The Faraday Shield's job — letting the B-field through its slots while blocking direct capacitive coupling — is also the same in every geometry. Shape changes uniformity, scalability, and mechanical complexity; it does not change the induction mechanism covered in Step 2.</div>` }
+    },
+    { title:'Gas Fill — Side Injection',
+      body:`<code>BCl₃ + Cl₂ + Ar</code> are metered by their own MFCs, then merge into a <b>common header</b> and enter through a <b>single nozzle</b> on the chamber's <b>side wall</b>.
+        <ul>
+          <li>The top of the chamber is occupied by the <b>Dielectric Window</b> — gas cannot be distributed from there as in a CCP showerhead</li>
+          <li>Each gas line has its own MFC for precise sccm control, but the three streams are pre-mixed before entering the chamber — there is one physical inlet, not three</li>
+          <li>Operating pressure: <code>1–50 mTorr</code> — ICP can run at the lower end of this range because the discharge does not depend on capacitive coupling to sustain itself</li>
+          <li><b>Coil</b> and <b>Chuck</b> are mechanically and electrically <b>separate</b> — no shared ground return, no shared RF path</li>
+          <li>This electrical independence is what allows Source and Bias power to be tuned separately — unlike the single-circuit CCP chamber</li>
+        </ul>`,
+      hint:'⚙ Note the single merged gas inlet — a direct consequence of the Coil/Window occupying the top of the chamber.' },
+    { title:'Source RF Ignition — Coil → B-field → Rotating E-field',
+      body:`<b>Source RF (13.56 MHz)</b> drives an AC current through the <b>Coil</b>. This is the heart of inductive coupling.
+        <ul>
+          <li>AC current in the Coil produces an <b>oscillating magnetic field (B)</b>, oriented vertically through the chamber axis</li>
+          <li>The <b>Dielectric Window</b> (Y₂O₃-coated Al₂O₃) is transparent to this B-field — it passes through with minimal loss</li>
+          <li>By <b>Faraday's Law</b>, the time-varying B-field induces a <b>horizontal, azimuthal (rotating) E-field</b> inside the chamber — a closed-loop electric field with no electrodes required</li>
+          <li>This rotating E-field accelerates electrons in circular paths, driving:
+            <code>e⁻ + BCl₃ → BCl₂· + Cl· + e⁻</code>,
+            <code>e⁻ + Cl₂ → 2Cl· + e⁻</code>,
+            <code>e⁻ + Ar → Ar⁺ + 2e⁻</code></li>
+          <li>At this instant, <b>Bias RF is OFF</b> → <b>V_DC = 0 V</b></li>
+        </ul>`,
+      hint:'⚡ Watch the rotating arrows inside the chamber — that is the induced horizontal E-field accelerating electrons.',
+      deepDive:{
+        title:'Why Does This Produce a Much Denser Plasma Than CCP?',
+        body:`<p>In a CCP, RF power couples to the plasma through a <b>capacitive sheath</b> at an electrode — the electron heating happens mainly near that one electrode's sheath, and the field there is largely electrostatic (E-mode).</p>
+<div class="deep-hl">In an ICP, the Coil's oscillating current produces a B-field that threads through the entire plasma volume below the window. By Faraday's Law (∇×E = −∂B/∂t), this B-field induces a circulating E-field <b>throughout that volume</b> — not just at one surface.</div>
+<p>Electrons caught in this rotating E-field are accelerated along closed loops, gaining energy over many revolutions before colliding with a neutral. Because the heating region is volumetric rather than confined to a thin sheath, far more electrons participate in ionizing collisions per unit time.</p>
+<div class="deep-eq">CCP (E-mode):  heating confined to electrode sheath  → nₑ ≈ 10⁸–10¹⁰ cm⁻³
+ICP (H-mode):  heating distributed through plasma volume (induced E-field) → nₑ ≈ 10¹¹–10¹² cm⁻³</div>
+<p>This is also why ICP achieves much higher dissociation fractions for BCl₃ and Cl₂ — more electron-impact collisions per molecule, even though Te itself is only modestly higher than in a CCP. The "H" in H-mode stands for the dominant role of the induced (inductive) field; "E" in E-mode stands for the dominant role of the electrostatic sheath field.</p>
+<p>The Y₂O₃ coating on the Al₂O₃ window matters here too: it is chemically resistant to Cl-based chemistry, which would otherwise slowly erode a bare alumina window and introduce particle/metal contamination into an Al-etch process.</p>`}
+    },
+    { title:'Source-Only Plasma — High Density, Low Ion Energy',
+      body:`With <b>Source RF ON</b> and <b>Bias RF still OFF</b>, the plasma is dense — but ions arrive at the wafer with very <b>low, undirected energy</b>.
+        <ul>
+          <li>Ions are accelerated only by the natural <b>floating-potential sheath</b> at the chuck surface — typically just a few × T<sub>e</sub>, often <b>well under 30 V</b></li>
+          <li>There is <b>no large negative chuck potential</b> in this state — nothing analogous to the CCP's area-ratio-driven V_DC exists yet</li>
+          <li>Ion arrival direction is close to <b>random / isotropic</b> — fine for blanket processes (e.g. photoresist ash, surface cleaning), but <b>not sufficient for anisotropic Al etch</b></li>
+          <li>This is the operating point a "remote plasma" or "downstream" source resembles — high density, low bombardment energy</li>
+        </ul>`,
+      hint:'🔬 Source RF alone gives a bright, dense plasma — but the V_DC meter stays near 0 V.',
+      deepDive:{
+        title:'Why Doesn\u2019t ICP Develop a Large V_DC on Its Own?',
+        body:`<p>In the CCP oxide-etch chamber, a large negative V_DC arose automatically from the <b>asymmetric electrode areas</b> (A<sub>g</sub> ≫ A<sub>p</sub>) — the small RF-powered electrode had to drop to a deep negative potential to balance electron and ion flux.</p>
+<div class="deep-hl">The ICP Chuck, with Source RF alone, is <b>not</b> an RF-powered electrode at all in this state — it is simply a grounded (or floating) surface immersed in the plasma. Its potential settles at the <b>plasma floating potential</b>, V_f ≈ −(few)×T<sub>e</sub>/e, typically only a few to ~20 V negative.</div>
+<p>There is no blocking capacitor accumulating charge, because no RF current is being driven into the chuck circuit. The "two buckets, one drain" picture from the CCP lesson simply doesn't apply here — there's no second bucket with a one-way valve yet.</p>
+<div class="deep-eq">CCP: V_DC driven by AREA RATIO of two RF-coupled electrodes  (|V_DC| ∝ (A_g/A_p)^2.5)
+ICP (Source only): chuck potential ≈ floating potential V_f ≈ −few × Te/e  (a few volts to ~20 V)</div>
+<p>This is precisely the gap that <b>Step 4</b> fills: applying a separate Bias RF to the chuck re-creates the blocking-capacitor / charge-accumulation mechanism — but now as a <b>deliberately added, independently tunable</b> circuit, not a side-effect of chamber geometry.</p>`}
+    },
+    { title:'Bias RF Activation — Independent V_DC Control',
+      body:`A separate <b>Bias RF (13.56 MHz)</b> is now applied to the Wafer Chuck through its own <b>Blocking Capacitor</b> — the same charge-trapping mechanism seen in the CCP lesson, but now as a deliberate second circuit.
+        <ul>
+          <li>Net negative charge accumulates on the chuck → <b>V_DC</b> develops, typically <b>−10 to −100 V</b> (much smaller than CCP's −200 to −500 V)</li>
+          <li><b>V_DC scales with Bias RF power</b> — the engineer sets it directly, rather than it being fixed by chamber geometry</li>
+          <li><b>Plasma density barely changes</b> — it is still set mainly by Source RF. Source and Bias are <b>decoupled control knobs</b></li>
+          <li>This independent control — density via Source RF, ion energy via Bias RF — is the central practical advantage of ICP over CCP</li>
+        </ul>`,
+      hint:'📊 Watch the V_DC meter build toward about −50 V as Bias RF turns on — plasma brightness barely changes.',
+      deepDive:{
+        title:'Two Knobs Instead of One',
+        body:`<p>In the CCP oxide-etch chamber, a <b>single</b> RF supply did two jobs at once: it sustained the plasma <b>and</b> it set the ion energy (via the geometry-fixed V_DC). Turning that one knob up increased both density and ion energy together — they could not be set independently.</p>
+<div class="deep-hl">ICP separates these into two knobs:<br>
+<b>Source RF power</b> → controls plasma density (via the induced E-field, Step 3)<br>
+<b>Bias RF power</b> → controls V_DC and therefore ion energy (via the chuck's blocking capacitor, this step)</div>
+<p>Mechanically, the Bias circuit here is the <b>same</b> "two buckets, one drain" system from the CCP lesson — Bucket A (anything grounded) has an open drain to ground; Bucket B (the Bias-RF chuck) has a one-way valve (the blocking capacitor) and accumulates negative charge until electron flux = ion flux at some V_DC.</p>
+<p>The reason V_DC is smaller here (−10 to −100 V vs. CCP's −200 to −500 V) is simply that Bias RF power levels for ICP are chosen to be modest — just enough to add directionality — because the dense ICP plasma already supplies abundant ion flux; very high bias power would cause excessive sputtering/damage at these densities.</p>
+<div class="deep-eq">CCP: ONE RF supply  →  sets BOTH density AND V_DC (coupled, fixed by A_g/A_p)
+ICP: TWO RF supplies →  Source sets density,  Bias sets V_DC  (independently tunable)</div>`}
+    },
+    { title:'Ion Acceleration & Surface Reaction — Al Etch Chemistry',
+      body:`With both Source and Bias RF active, <b>Cl⁺ / Ar⁺ / BCl₂⁺</b> ions accelerate across the (now-present) thin bottom sheath toward the Al film.
+        <ul>
+          <li><b>Spontaneous chemical etch:</b> <code>Al(s) + 3Cl· → AlCl₃↑</code> — Al + Cl chemistry is fast even without ion bombardment, unlike SiO₂ + F</li>
+          <li><b>Native-oxide removal:</b> the thin Al₂O₃ layer that forms on any Al surface resists Cl attack — <code>BCl₃</code> helps getter/reduce this oxide, exposing fresh Al</li>
+          <li><b>Ion bombardment</b> (Cl⁺, Ar⁺) breaks through the native oxide and adds <b>directionality</b> to an otherwise fast, chemically-driven (and thus easily isotropic) etch</li>
+          <li><code>AlCl₃</code> is volatile → desorbs and is pumped away</li>
+        </ul>`,
+      hint:'🎯 Gray AlCl₃ byproduct lifts off the Al surface and is evacuated.',
+      deepDive:{
+        title:'A Different Synergy Than Oxide RIE',
+        body:`<p>In the CCP oxide-etch lesson, F radicals etch SiO₂ only slowly without ion bombardment — ions were essential to <b>break Si–O bonds</b> before F· could react. The synergy there was "ions activate the surface, then radicals react."</p>
+<div class="deep-hl">Al + Cl chemistry is different: <b>Cl· alone can spontaneously etch Al</b> at a significant rate, because Al–Cl bond formation is thermodynamically favorable and AlCl₃ is volatile at typical process temperatures. The chemical etch component is strong on its own.</div>
+<p>So why bother with ion bombardment and directional V_DC at all? Two reasons:</p>
+<ul>
+  <li><b>Native oxide breakthrough</b> — Al₂O₃ is chemically much more resistant to Cl than metallic Al. Ion bombardment (and BCl₃'s oxide-gettering chemistry) is what gets <i>through</i> this barrier layer, especially at the start of etch and on any newly-exposed sidewall oxide.</li>
+  <li><b>Directionality despite a fast spontaneous etch</b> — because Cl· reacts with Al so readily and isotropically, an Al etch with <b>no</b> ion-driven directionality would undercut the mask badly. V_DC-driven ion bombardment biases the <i>net</i> etch toward the vertical direction even though the chemical component itself is not direction-selective.</li>
+</ul>
+<div class="deep-hl">Summary: in oxide RIE, ions enable the chemistry. In Al RIE, the chemistry is already fast — ions mainly enable <b>directionality</b> and <b>oxide breakthrough</b>. This is also why excessive ion energy is less necessary for Al — modest Bias-RF-driven V_DC (−10 to −100 V) is typically sufficient.</div>`}
+    },
+    { title:'Independent Control — Source RF vs. Bias RF',
+      body:`Toggle between <b>Source Only</b> and <b>Source + Bias</b> below to see the practical effect of ICP's two independent RF circuits.
+        <ul>
+          <li><b>Source Only:</b> plasma stays dense and bright (Source RF unchanged) — but V_DC ≈ 0 V, ions arrive with near-random direction</li>
+          <li><b>Source + Bias:</b> plasma brightness is essentially <b>unchanged</b> — but V_DC builds to about −50 V, and ions now accelerate <b>downward</b> toward the wafer</li>
+          <li>The independent variable here is <b>only</b> the Bias RF — this isolates exactly what the Bias supply contributes</li>
+          <li>Contrast with the CCP lesson's RF/DC toggle: there, switching modes changed whether the plasma <b>existed at all</b>. Here, switching modes changes only the <b>ion energy / directionality</b> — the plasma itself is barely affected</li>
+        </ul>`,
+      hint:'🔁 Toggle below: watch the V_DC meter and ion trajectories change while the plasma brightness stays nearly constant.',
+      deepDive:[{
+        title:'Reading the Toggle Against Steps 3–5',
+        body:`<p>This toggle is a direct, side-by-side replay of Steps 3 and 5: "Source Only" reproduces the low-V_DC, near-isotropic ion arrival of Step 3; "Source + Bias" reproduces the directed bombardment of Step 5.</p>
+<div class="deep-hl">The key observation is what does <b>NOT</b> change between the two modes: plasma density, glow intensity, and dissociation/ionization rate (all set by Source RF) stay essentially constant. Only the ion trajectories and V_DC meter respond to the toggle.</div>
+<p>In a real process recipe, this means an engineer can hold etch rate-determining parameters (density, radical flux — both density-dependent) roughly fixed while tuning Bias RF power to dial in the desired anisotropy and oxide-breakthrough behavior — a degree of independent control simply unavailable in the single-circuit CCP chamber.</p>`
+      }] },
+    { title:'Full Anisotropic Al RIE — Trench Formation',
+      body:`With Source RF sustaining a dense plasma and Bias RF providing directional V_DC, Cl⁺/Ar⁺ ions and Cl· radicals etch <b>vertical trenches</b> into the Al film through the PR mask openings.
+        <ul>
+          <li>Directional ion flux + fast Al–Cl chemistry → <b>vertical sidewalls</b></li>
+          <li>PR mask protects the covered Al — directionality limits lateral (undercut) etch beneath the mask</li>
+          <li><code>AlCl₃</code> byproduct is volatile → pumped away, no redeposition</li>
+        </ul>
+        Overall: <code>Al + 3Cl· + (ion-assisted oxide breakthrough) → AlCl₃↑</code>`,
+      hint:'🎯 Watch the trench deepen with vertical sidewalls. Press Reset to restart the animation.' },
+    { title:'ICP Aluminum Etch — Key Takeaways',
+      body:`Consolidated reference for inductively-coupled-plasma Al etching.
+        <ul>
+          <li><b>Coil + Faraday Shield + Dielectric Window</b> → induced rotating E-field → high-density (H-mode) plasma</li>
+          <li><b>Source RF</b> (density) and <b>Bias RF</b> (ion energy / V_DC) are <b>independent</b> circuits — the defining ICP advantage</li>
+          <li><code>BCl₃ + Cl₂ + Ar</code>: Cl· does the chemistry, BCl₃ getters native Al₂O₃, Ar provides physical sputtering/dilution</li>
+          <li>Modest V_DC (−10 to −100 V) + fast Al–Cl chemistry → <b>anisotropic (vertical) etch</b> profiles</li>
+        </ul>`,
+      hint:'📋 Summary of all ICP Al-etch concepts — compare with the CCP oxide-etch module.' },
+  ],
+  hotspots:[
+    {n:'coil',  title:'Coil (Antenna) · Source RF', text:'Planar/spiral coil above the chamber, driven by Source RF (13.56 MHz). Its AC current produces an oscillating B-field that couples into the chamber through the Dielectric Window.'},
+    {n:'fshield', title:'Faraday Shield', text:'Thin, slotted, grounded conductive plate between the Coil and the Dielectric Window. Lets the (magnetic) B-field through the slots while blocking direct capacitive (electrostatic) coupling from the coil to the plasma — reduces window erosion and metal contamination.'},
+    {n:'window', title:'Dielectric Window (Lid) — Y₂O₃-coated Al₂O₃', text:'Ceramic window forming the chamber\u2019s top wall. Transparent to the Coil\u2019s B-field, so the induced E-field can form inside the chamber. The Y₂O₃ coating resists erosion by Cl-based chemistry.'},
+    {n:'bcl3', title:'BCl₃ Source', text:'Primary chlorine-chemistry precursor. Dissociates to BCl₂· + Cl·. Also chemically getters/reduces the native Al₂O₃ oxide layer on the wafer surface.'},
+    {n:'cl2',  title:'Cl₂ Source',  text:'Dissociates to 2Cl· — the main reactive species for the Al + 3Cl → AlCl₃ etch reaction. Can also ionize to Cl⁺.'},
+    {n:'ar',   title:'Ar Source',   text:'Argon, noble gas. Ar⁺ provides physical sputtering and helps stabilize/dilute the discharge, similar to its role in CCP oxide etch.'},
+    {n:'mfc',  title:'Mass Flow Controllers (MFC)', text:'Precise sccm control for each gas. The three streams merge into a common header and enter the chamber through a single side-wall nozzle. BCl₃ : Cl₂ : Ar ratio controls etch rate, oxide breakthrough, and sidewall profile.'},
+    {n:'plasma', title:'Bulk Plasma — Induction (H-mode) Region', text:'High-density region (≈10¹¹–10¹² cm⁻³) where the induced, rotating E-field accelerates electrons. BCl₃/Cl₂/Ar plasma is heated volumetrically, not just at one electrode\u2019s sheath.'},
+    {n:'sheath_top', title:'Top (Window-side) Sheath — Thin', text:'Natural wall sheath near the Dielectric Window — low voltage, no area-asymmetry mechanism. Not a controlled bias surface.'},
+    {n:'sheath_bot', title:'Bottom Sheath — Bias-RF Controlled', text:'Sheath above the powered chuck. Its thickness/voltage is set by the BIAS RF supply (V_DC ≈ −10 to −100 V) — independent of plasma density, which is set by Source RF.'},
+    {n:'wafer', title:'Al Wafer / Al Film', text:'Al film (silver) on Si substrate, with PR mask.\nRxn: Al + 3Cl· → AlCl₃↑\nBCl₃ getters the native Al₂O₃ surface oxide so Cl· can reach fresh Al.'},
+    {n:'chuck', title:'Wafer Chuck — Bias RF-Powered (13.56 MHz)', text:'Holds the wafer. Driven by its own Bias RF Generator/Matcher through a Blocking Capacitor — electrically independent of the Coil/Source RF circuit above.'},
+    {n:'biasrf', title:'Bias RF Generator · 13.56 MHz → Chuck', text:'Independent RF supply connected to the Wafer Chuck via the Blocking Capacitor (C_block). Sets V_DC and therefore ion energy, without significantly affecting plasma density.'},
+    {n:'biasmat', title:'Bias RF Matcher', text:'Matches the chuck-side plasma impedance to the Bias RF Generator\u2019s 50 Ω output.'},
+    {n:'srcrf', title:'Source RF Generator · 13.56 MHz → Coil', text:'Independent RF supply connected to the Coil. Sustains the induced rotating E-field and sets plasma density — without significantly affecting V_DC at the chuck.'},
+    {n:'srcmat', title:'Source RF Matcher', text:'Matches the Coil\u2019s impedance to the Source RF Generator\u2019s 50 Ω output.'},
+    {n:'pump',  title:'Turbo Pump + Dry Vacuum Pump', text:'Turbo molecular pump (high-vacuum stage) backed by a dry vacuum pump (roughing/exhaust stage). Maintains 1–50 mTorr and removes volatile AlCl₃ byproduct.'},
+    {n:'he',    title:'Backside He Cooling', text:'Helium gas circulated behind the wafer through a flow restrictor (orifice). Provides thermal contact between the wafer and the temperature-controlled chuck.'},
+  ],
+  takeawayHeader:'ICP Aluminum Etch — Key Takeaways',
+  takeawaySubheader:'Inductively Coupled Plasma · BCl₃ + Cl₂ + Ar → Al RIE Process Summary',
+  takeawayDesign:'Design Principles', takeawayParams:'Plasma Parameters',
+  takeawayWindow:'Typical Process Window', takeawayLimits:'Key Limitations',
+  principles:[
+    ['Coil + Faraday Shield + Y₂O₃-Coated Window', 'AC current in the Coil → oscillating B-field → (Faraday\u2019s Law) induced rotating E-field inside the chamber'],
+    ['Independent Source / Bias RF (both 13.56 MHz)', 'Source RF sets plasma density (H-mode); Bias RF sets V_DC / ion energy via its own Blocking Capacitor'],
+    ['Modest Bottom-Sheath Voltage (V_DC ≈ −10 to −100 V)', 'Ion energy ≈ q × |V_DC + V_RF| — enough for directionality + oxide breakthrough, without excessive bombardment'],
+    ['Low Pressure (1–50 mTorr)',          'Long mean free path → directional ion flux; ICP can sustain discharge at the lower end of this range'],
+    ['Gas Ratio  BCl₃ : Cl₂ : Ar',          'Cl· chemistry (Cl₂), native-oxide gettering (BCl₃), physical sputtering/dilution (Ar)'],
+  ],
+  tHeaders:['Parameter','ICP (Al RIE)','CCP (Oxide RIE)'],
+  tRows:[
+    ['Plasma density (nₑ)',  '10¹⁰ – 10¹² cm⁻³',   '10⁸ – 10¹⁰ cm⁻³'],
+    ['Ionization degree',    '10⁻³ – 10⁻¹',        '10⁻⁵ – 10⁻³'],
+    ['Source gas dissociation', '> 80 %',          '30 – 70 %'],
+    ['Electron temp (Tₑ)',   '3 – 6 eV',           '2 – 5 eV'],
+    ['DC Self-Bias (V_DC)',  '−10 to −100 V (Bias RF)', '−200 to −500 V (area-ratio driven)'],
+    ['Ion energy (Eᵢ)',      '10 – 200 eV',        '200 – 1000+ eV'],
+    ['Operating pressure',  '1 – 50 mTorr',        '5 – 50 mTorr'],
+    ['RF coupling',         'Inductive (H-mode)',  'Capacitive (E-mode)'],
+  ],
+  pwItems:[
+    ['Etch Rate',            '200 – 800 nm/min'],
+    ['Selectivity (Al:PR)',  '2 – 5 : 1'],
+    ['Anisotropy',           '> 0.85  (near-vertical sidewalls)'],
+    ['DC Self-Bias (V_DC)',  '−10 to −100 V (Bias RF, typical)'],
+  ],
+  limitLines:[
+    '• Dielectric window erodes over time (esp. with Cl-chemistry) — Y₂O₃ coating extends life, but window is a consumable  ·  Two RF circuits → more complex matching/tuning',
+    '• Higher equipment cost/complexity vs. single-circuit CCP  ·  Faraday shield adds another maintenance item but reduces window wear and metal contamination',
+  ],
+},
+ko:{
+  hTitle:'ICP 알루미늄 식각 — 인터랙티브 강의',
+  hSub:'Class 3 · BCl₃ + Cl₂ + Ar → Al RIE (ICP) · Benedu Insight',
+  stepLabel:'단계',
+  modeInfoSrcOnly:'Source RF만 작동 — 고밀도 플라즈마이지만, 이온은 낮고 방향성 없는 에너지로 도달',
+  modeInfoSrcBias:'Source + Bias RF — 고밀도 플라즈마와 방향성 이온 에너지 동시 확보 (독립 제어)',
+  resetEtch:'↻ 식각 깊이 초기화',
+  prevBtn:'◀ 이전', nextBtn:'다음 ▶',
+  modeLabel:'모드', plasmaLabel:'플라즈마 강도',
+  lowEnergy:'⚠  낮은 이온 에너지 — Bias RF OFF 상태',
+  biasActive:'Bias RF 작동 중 · V_DC가 이온 에너지를 독립적으로 제어',
+  molCount:'가스 분자',
+  vdcLabel:'V_DC — 셀프 바이어스 (Bias-RF 척)',
+  ionEnergyLabel:'이온 에너지 ≈ |V_DC + V_RF| × q  (Source RF가 아닌 Bias RF로 설정됨)',
+  etchLabel:'식각 깊이', etchPctOf:'% of Al', eqLabel:'전체 반응:',
+  etchThrough:'✓ Al 전체 식각 완료 — 하부층 도달',
+  srcLabel:'Source RF (Coil)', biasLabel:'Bias RF (Chuck)',
+  densityLabel:'플라즈마 밀도 ≈ 10¹¹–10¹² cm⁻³ (H-모드)',
+  steps:[
+    { title:'유도결합형 플라즈마(ICP) — 챔버 구조',
+      body:`알루미늄 식각(RIE)을 위한 ICP 챔버 — 상부와 하부에 <b>두 개의 독립적인 RF 회로</b>가 존재합니다.
+        <ul>
+          <li><b>코일(안테나)</b> — 챔버 상부에 위치하며, 자체 매처(Matcher)를 통해 <b>Source RF (13.56 MHz)</b>로 구동</li>
+          <li><b>Faraday Shield(정전 차폐)</b> — 코일과 Dielectric Window 사이에 위치한 얇은 슬릿형 접지 도체판</li>
+          <li><b>Dielectric Window(상부 윈도우)</b> — <b>Y₂O₃ 코팅된 Al₂O₃ 세라믹</b>으로, 챔버의 상부 벽을 구성</li>
+          <li><b>웨이퍼 척(하부)</b> — <b>블로킹 커패시터</b>를 통해 별도의 <b>Bias RF (13.56 MHz)</b>로 구동</li>
+          <li>가스: <code>BCl₃ + Cl₂ + Ar</code>, 공통 헤더에서 사전 혼합되어 <b>단일 측벽 노즐</b>을 통해 주입 (상부는 코일/윈도우가 차지하고 있음)</li>
+        </ul>
+        점화 전 개요 — 가스는 흐르고 있으나 아직 플라즈마는 형성되지 않은 상태입니다.
+        <b>두 개의 독립적인 RF Generator/Matcher 쌍</b>이 있다는 점에 주목하십시오 — 하나는 코일(Source)에, 다른 하나는 척(Bias)에 연결됩니다. 이 분리 구조가 ICP의 핵심 특징이며, 이후 모든 단계의 출발점이 됩니다.`,
+      hint:'💡 챔버 각 부품에 마우스를 올려 세부 정보를 확인하세요.',
+      deepDive:{
+        title:'코일 & Faraday Shield — 대표적인 3가지 형태',
+        body:`<p>본 강의에서는 코일이 평평한 Dielectric Window 위에 놓인 평면형 스파이럴(Planar Spiral) 형태이며, 그 사이에 슬릿형 Faraday Shield가 평판 형태로 끼워져 있습니다. 단면도로만 보면 "사각형 두 개가 겹쳐진" 모양으로 보여 어떤 구조인지 직관적으로 이해하기 어려운 경우가 많습니다. 실제 ICP 챔버에서 코일/윈도우 조합은 몇 가지 대표적인 형태로 나뉘며, 이를 알아두면 장비 매뉴얼이나 챔버 도면을 이해하는 데 도움이 됩니다.</p>
+<div class="deep-img-wrap" onclick="openLightbox('./images/icp_antenna_style.png')"><img src="./images/icp_antenna_style.png" alt="ICP 안테나 코일 형태 비교"></div>
+<div class="deep-cap">ICP 안테나/코일 형태 비교 — 평면형 스파이럴, 멀티존 돔형, 원통형/헬리컬(Remote Plasma Source).</div>
+<ul>
+  <li><b>평면형 스파이럴 코일 (본 강의에서 사용된 형태)</b> — 평평한 Dielectric Window 위에 평면 스파이럴 코일이 놓이며, RF 전력은 외곽 끝단에서 공급되고 내측 끝단은 접지(또는 반대)됩니다. 구조가 단순하고 견고하며, Faraday Shield는 코일과 윈도우 사이에 끼워진 평판형 슬릿 도체판입니다 — 본 챔버에 그려진 형태와 동일합니다.</li>
+  <li><b>멀티존 돔(Dome)형 코일</b> — Dielectric Window가 돔(반구형) 형태로 되어 있고, 코일이 그 곡면을 따라 감기며, 흔히 내측/외측 존(Zone)이 독립적으로 구동됩니다. 코일-웨이퍼 거리가 위치에 따라 달라지는 구조와 듀얼존 제어를 통해 대면적(300mm 이상) 웨이퍼 전체의 플라즈마 균일도를 개선하고 에지(Edge) 영역의 불균일을 줄입니다.</li>
+  <li><b>원통형 / 헬리컬(Helical) 코일</b> — 평평한 윈도우 위가 아니라, 유전체 튜브(Dielectric Tube)를 감싸는 형태로 코일이 헬리컬하게 권선됩니다. 튜브 축 방향으로 매우 높은 플라즈마 밀도를 만들 수 있어, 메인 식각 챔버의 소스로 사용되기보다는 주로 <b>Remote Plasma Source(RPS)</b> — 별도의 위치에서 라디칼을 생성한 뒤 공정 챔버로 흘려보내는 구조 — 로 활용됩니다.</li>
+</ul>
+<div class="deep-hl">형태가 달라도 기본 물리는 동일합니다: 코일의 AC 전류 → 진동하는 B-field → (Faraday's Law) 플라즈마 내부에 유도되는 E-field. Faraday Shield의 역할 — 슬릿을 통해 B-field는 통과시키고 코일-플라즈마 간 직접적인 정전(Capacitive) 결합은 차단하는 것 — 도 모든 형태에서 동일합니다. 형태의 차이는 균일도, 대면적 확장성, 기계적 복잡도에 영향을 줄 뿐, Step 2에서 다루는 유도(Induction) 메커니즘 자체를 바꾸지는 않습니다.</div>` }
+    },
+    { title:'가스 주입 — 측벽 단일 노즐 주입',
+      body:`<code>BCl₃ + Cl₂ + Ar</code>은 각각의 MFC로 유량을 제어한 후 <b>공통 헤더(Header)</b>에서 합류하여, 챔버 <b>측벽</b>의 <b>단일 노즐</b>을 통해 주입됩니다.
+        <ul>
+          <li>챔버 상부는 <b>Dielectric Window</b>가 차지하고 있어 — CCP의 샤워헤드처럼 상부에서 가스를 분배할 수 없음</li>
+          <li>각 가스 라인은 정밀 sccm 제어를 위한 개별 MFC를 가지지만, 챔버에 들어가기 전 세 흐름이 미리 혼합됨 — 물리적 주입구는 1개</li>
+          <li>동작 압력: <code>1–50 mTorr</code> — ICP는 방전 유지가 전극 간 정전 결합에 의존하지 않으므로 이 범위의 낮은 쪽에서도 운전 가능</li>
+          <li><b>코일</b>과 <b>척</b>은 기계적·전기적으로 <b>완전히 분리</b>되어 있음 — 접지 귀환 경로 및 RF 경로를 공유하지 않음</li>
+          <li>이러한 전기적 독립성이 Source와 Bias 파워를 각각 별도로 조정할 수 있게 하는 근거 — 단일 회로 구조인 CCP 챔버와 다른 점</li>
+        </ul>`,
+      hint:'⚙ 단일 가스 주입구에 주목하세요 — 코일/윈도우가 챔버 상부를 차지하는 데서 비롯된 직접적인 결과입니다.' },
+    { title:'Source RF 점화 — 코일 → B-field → 회전 E-field',
+      body:`<b>Source RF (13.56 MHz)</b>가 <b>코일</b>에 교류 전류를 흘립니다. 이것이 유도 결합(inductive coupling)의 핵심입니다.
+        <ul>
+          <li>코일의 교류 전류는 챔버 축을 따라 수직 방향의 <b>진동 자기장(B-field)</b>을 만듦</li>
+          <li><b>Dielectric Window</b>(Y₂O₃ 코팅 Al₂O₃)는 이 B-field에 투명하여 — 최소한의 손실로 통과시킴</li>
+          <li><b>Faraday의 법칙</b>에 따라, 시간에 따라 변하는 B-field는 챔버 내부에 <b>수평·방위 방향(회전형) E-field</b>를 유도함 — 전극 없이 형성되는 폐회로 형태의 전기장</li>
+          <li>이 회전 E-field는 전자를 원형 궤적으로 가속시켜 다음 반응을 유발:
+            <code>e⁻ + BCl₃ → BCl₂· + Cl· + e⁻</code>,
+            <code>e⁻ + Cl₂ → 2Cl· + e⁻</code>,
+            <code>e⁻ + Ar → Ar⁺ + 2e⁻</code></li>
+          <li>이 시점에서 <b>Bias RF는 OFF</b> 상태 → <b>V_DC = 0 V</b></li>
+        </ul>`,
+      hint:'⚡ 챔버 내부의 회전하는 화살표를 보세요 — 이것이 전자를 가속시키는 유도된 수평 E-field입니다.',
+      deepDive:{
+        title:'왜 CCP보다 훨씬 더 고밀도인 플라즈마가 형성될까?',
+        body:`<p>CCP에서는 RF 파워가 한 전극의 <b>정전 시스(capacitive sheath)</b>를 통해 플라즈마에 결합됩니다 — 전자 가열은 주로 그 전극 시스 주변에서 일어나고, 그곳의 장(field)은 대체로 정전기적(electrostatic, E-모드)입니다.</p>
+<div class="deep-hl">ICP에서는 코일의 진동 전류가 윈도우 아래 플라즈마 전체 부피를 관통하는 B-field를 만듭니다. Faraday의 법칙(∇×E = −∂B/∂t)에 따라, 이 B-field는 <b>그 부피 전체에 걸쳐</b> 순환하는 E-field를 유도합니다 — 한 표면에만 국한되지 않습니다.</div>
+<p>이 회전 E-field에 잡힌 전자들은 폐쇄 경로를 따라 가속되며, 중성 입자와 충돌하기 전까지 여러 차례 회전하며 에너지를 얻습니다. 가열 영역이 얇은 시스에 국한되지 않고 부피 전체에 분포하기 때문에, 단위 시간당 이온화 충돌에 참여하는 전자 수가 훨씬 많아집니다.</p>
+<div class="deep-eq">CCP (E-모드):  가열이 전극 시스에 국한됨  → nₑ ≈ 10⁸–10¹⁰ cm⁻³
+ICP (H-모드):  가열이 플라즈마 부피 전체에 분포(유도 E-field) → nₑ ≈ 10¹¹–10¹² cm⁻³</div>
+<p>이것이 또한 ICP에서 BCl₃와 Cl₂의 해리율이 훨씬 높은 이유입니다 — Tₑ 자체는 CCP보다 약간 높은 정도이지만, 분자당 전자 충돌 횟수가 훨씬 많기 때문입니다. H-모드의 "H"는 유도(inductive) 장의 지배적 역할을, E-모드의 "E"는 정전 시스 장의 지배적 역할을 의미합니다.</p>
+<p>Al₂O₃ 윈도우의 Y₂O₃ 코팅도 여기서 중요합니다: Cl 계열 화학에 대한 화학적 내성을 가지므로, 코팅이 없을 경우 알루미나 윈도우가 서서히 식각되어 Al 식각 공정에 파티클/금속 오염을 유발할 수 있습니다.</p>`}
+    },
+    { title:'Source 단독 플라즈마 — 고밀도, 낮은 이온 에너지',
+      body:`<b>Source RF는 ON</b>, <b>Bias RF는 아직 OFF</b>인 상태에서 플라즈마는 고밀도이지만 — 이온은 매우 <b>낮고 방향성 없는 에너지</b>로 웨이퍼에 도달합니다.
+        <ul>
+          <li>이온은 척 표면의 자연적인 <b>플로팅 포텐셜 시스(floating-potential sheath)</b>에 의해서만 가속됨 — 일반적으로 수×Tₑ 수준, 흔히 <b>30 V 이하</b></li>
+          <li>이 상태에서는 <b>큰 음의 척 전위</b>가 존재하지 않음 — CCP의 면적비 기반 V_DC에 대응하는 메커니즘이 아직 없음</li>
+          <li>이온 입사 방향은 거의 <b>무작위/등방적</b>임 — 블랭킷 공정(예: 포토레지스트 애싱, 표면 세정)에는 적합하지만, <b>비등방성 Al 식각에는 부족</b></li>
+          <li>이 동작점은 "리모트 플라즈마" 또는 "다운스트림" 소스와 유사 — 고밀도, 낮은 충돌 에너지</li>
+        </ul>`,
+      hint:'🔬 Source RF만으로도 밝고 고밀도인 플라즈마가 생성되지만 — V_DC 미터는 0 V 근처에 머뭅니다.',
+      deepDive:{
+        title:'왜 ICP는 자체적으로 큰 V_DC를 형성하지 않는가?',
+        body:`<p>CCP 산화막 식각 챔버에서는 <b>비대칭 전극 면적</b>(A_g ≫ A_p)으로 인해 큰 음의 V_DC가 자동으로 형성되었습니다 — 작은 RF 전극이 전자/이온 플럭스의 균형을 맞추기 위해 깊은 음의 전위로 내려가야 했습니다.</p>
+<div class="deep-hl">Source RF만 작동하는 ICP의 척은 이 상태에서 RF 전력이 인가된 전극이 <b>전혀 아닙니다</b> — 그저 플라즈마에 잠겨 있는 접지(또는 플로팅) 표면일 뿐입니다. 그 전위는 <b>플라즈마 플로팅 전위</b> V_f ≈ −(수)×Tₑ/e 수준에 정착하며, 일반적으로 음수 수 V ~ 약 20 V 정도입니다.</div>
+<p>척 회로에 RF 전류가 흐르지 않으므로 전하를 축적하는 블로킹 커패시터도 존재하지 않습니다. CCP 강의에서의 "두 개의 양동이, 하나의 배수구" 그림은 여기에 그대로 적용되지 않습니다 — 아직 일방향 밸브를 가진 두 번째 양동이가 없는 상태입니다.</p>
+<div class="deep-eq">CCP: V_DC는 두 RF-결합 전극의 면적 비율에 의해 결정됨  (|V_DC| ∝ (A_g/A_p)^2.5)
+ICP (Source만): 척 전위 ≈ 플로팅 전위 V_f ≈ −수 × Tₑ/e  (수 V ~ 약 20 V)</div>
+<p>바로 이 공백을 <b>4단계</b>가 채웁니다: 척에 별도의 Bias RF를 인가하면 블로킹 커패시터/전하 축적 메커니즘이 재현됩니다 — 단, 이번에는 챔버 형상의 부수적 결과가 아니라 <b>의도적으로 추가되고 독립적으로 조정 가능한</b> 회로로서 작동합니다.</p>`}
+    },
+    { title:'Bias RF 인가 — 독립적인 V_DC 제어',
+      body:`이제 별도의 <b>Bias RF (13.56 MHz)</b>가 자체 <b>블로킹 커패시터</b>를 통해 웨이퍼 척에 인가됩니다 — CCP 강의에서 본 것과 동일한 전하 축적 메커니즘이지만, 이번에는 의도적으로 추가된 두 번째 회로입니다.
+        <ul>
+          <li>척에 순 음전하가 축적됨 → <b>V_DC</b>가 형성, 일반적으로 <b>−10 ~ −100 V</b> (CCP의 −200 ~ −500 V보다 훨씬 작음)</li>
+          <li><b>V_DC는 Bias RF 파워에 비례</b> — 챔버 형상에 의해 고정되는 것이 아니라 엔지니어가 직접 설정</li>
+          <li><b>플라즈마 밀도는 거의 변화 없음</b> — 여전히 주로 Source RF에 의해 결정됨. Source와 Bias는 <b>분리된 제어 변수</b></li>
+          <li>이러한 독립 제어 — Source RF로 밀도, Bias RF로 이온 에너지 — 가 ICP가 CCP에 비해 갖는 핵심적인 실용적 장점</li>
+        </ul>`,
+      hint:'📊 Bias RF가 켜지면서 V_DC 미터가 약 −50 V를 향해 올라가는 것을 보세요 — 플라즈마 밝기는 거의 변하지 않습니다.',
+      deepDive:{
+        title:'하나의 노브가 아닌 두 개의 노브',
+        body:`<p>CCP 산화막 식각 챔버에서는 <b>단일</b> RF 공급이 두 가지 역할을 동시에 수행했습니다: 플라즈마를 유지하는 동시에 (형상에 의해 고정된 V_DC를 통해) 이온 에너지를 결정했습니다. 이 하나의 노브를 올리면 밀도와 이온 에너지가 함께 증가했으며, 독립적으로 설정할 수 없었습니다.</p>
+<div class="deep-hl">ICP는 이를 두 개의 노브로 분리합니다:<br>
+<b>Source RF 파워</b> → 플라즈마 밀도 제어 (유도 E-field를 통해, 3단계)<br>
+<b>Bias RF 파워</b> → V_DC, 즉 이온 에너지 제어 (척의 블로킹 커패시터를 통해, 본 단계)</div>
+<p>메커니즘 측면에서, 여기서의 Bias 회로는 CCP 강의에서 본 "두 개의 양동이, 하나의 배수구" 시스템과 <b>동일</b>합니다 — 양동이 A(접지된 모든 것)는 접지로 향하는 열린 배수구를 가지며; 양동이 B(Bias-RF 척)는 일방향 밸브(블로킹 커패시터)를 가지고 있어 전자 플럭스 = 이온 플럭스가 되는 어떤 V_DC까지 음전하가 축적됩니다.</p>
+<p>여기서 V_DC가 더 작은 이유(−10~−100 V vs CCP의 −200~−500 V)는 단순히 ICP용 Bias RF 파워 레벨이 적정 수준으로 선택되기 때문입니다 — 방향성을 부여할 정도만 충분하면 되는데, 이미 고밀도인 ICP 플라즈마가 풍부한 이온 플럭스를 공급하고 있기 때문입니다. 이 정도 밀도에서 매우 높은 바이어스 파워는 과도한 스퍼터링/손상을 유발합니다.</p>
+<div class="deep-eq">CCP: 하나의 RF 공급  →  밀도와 V_DC를 모두 결정 (결합됨, A_g/A_p로 고정)
+ICP: 두 개의 RF 공급 →  Source가 밀도를, Bias가 V_DC를 결정 (독립적으로 조정 가능)</div>`}
+    },
+    { title:'이온 가속 및 표면 반응 — Al 식각 화학',
+      body:`Source와 Bias RF가 모두 작동하는 상태에서, <b>Cl⁺ / Ar⁺ / BCl₂⁺</b> 이온은 (이제 형성된) 얇은 하부 시스를 가로질러 가속되어 Al 막을 향해 진행합니다.
+        <ul>
+          <li><b>자발적 화학 식각:</b> <code>Al(s) + 3Cl· → AlCl₃↑</code> — SiO₂ + F와 달리, Al + Cl 화학은 이온 충돌 없이도 빠르게 진행됨</li>
+          <li><b>자연 산화막 제거:</b> Al 표면에 형성되는 얇은 Al₂O₃층은 Cl 공격에 저항성을 가짐 — <code>BCl₃</code>가 이 산화막을 게터링/환원하여 신선한 Al을 노출시킴</li>
+          <li><b>이온 충돌</b>(Cl⁺, Ar⁺)은 자연 산화막을 돌파하고, 그렇지 않으면 빠른 화학 반응에 의해 등방적으로 진행될 식각에 <b>방향성</b>을 부여</li>
+          <li><code>AlCl₃</code>는 휘발성 → 탈착되어 펌프로 배출됨</li>
+        </ul>`,
+      hint:'🎯 회색의 AlCl₃ 부산물이 Al 표면에서 떨어져 나와 배출됩니다.',
+      deepDive:{
+        title:'산화막 RIE와는 다른 시너지',
+        body:`<p>CCP 산화막 식각 강의에서는, F 라디칼만으로는 SiO₂를 매우 느리게 식각하며 — 이온은 F·가 반응하기 전에 <b>Si–O 결합을 끊는</b> 데 필수적이었습니다. 그곳의 시너지는 "이온이 표면을 활성화하면, 라디칼이 반응한다"였습니다.</p>
+<div class="deep-hl">Al + Cl 화학은 다릅니다: <b>Cl· 단독으로도 Al을 상당한 속도로 자발적으로 식각</b>할 수 있습니다. Al–Cl 결합 형성은 열역학적으로 유리하고, AlCl₃는 일반적인 공정 온도에서 휘발성을 가지기 때문입니다. 화학적 식각 성분 자체가 이미 강력합니다.</p>
+<p>그렇다면 왜 이온 충돌과 방향성 V_DC가 필요할까요? 두 가지 이유가 있습니다:</p>
+<ul>
+  <li><b>자연 산화막 돌파</b> — Al₂O₃는 금속 Al보다 Cl에 대해 화학적으로 훨씬 더 저항성이 큽니다. 이온 충돌(그리고 BCl₃의 산화막 게터링 화학)이 이 장벽층을 <i>돌파</i>하는 역할을 합니다. 특히 식각 초기와 새로 노출되는 측벽 산화막에서 중요합니다.</li>
+  <li><b>빠른 자발적 식각에도 필요한 방향성</b> — Cl·이 Al과 너무 쉽고 등방적으로 반응하기 때문에, 이온에 의한 방향성이 <b>전혀 없는</b> Al 식각은 마스크 아래를 심하게 언더컷할 것입니다. V_DC에 의한 이온 충돌은 화학적 성분 자체는 방향 선택성이 없더라도 <i>전체</i> 식각을 수직 방향으로 편향시킵니다.</li>
+</ul>
+<div class="deep-hl">요약: 산화막 RIE에서는 이온이 화학 반응을 가능하게 합니다. Al RIE에서는 화학 반응이 이미 빠르므로 — 이온은 주로 <b>방향성</b>과 <b>산화막 돌파</b>를 담당합니다. 이것이 또한 Al에서 과도한 이온 에너지가 덜 필요한 이유입니다 — 적정 수준의 Bias-RF 기반 V_DC(−10~−100 V)면 대개 충분합니다.</div>`}
+    },
+    { title:'독립 제어 — Source RF vs. Bias RF',
+      body:`아래에서 <b>Source Only</b>와 <b>Source + Bias</b>를 전환하여 ICP의 두 독립 RF 회로가 갖는 실질적 효과를 확인하세요.
+        <ul>
+          <li><b>Source Only:</b> 플라즈마는 여전히 고밀도이고 밝음(Source RF 변화 없음) — 그러나 V_DC ≈ 0 V, 이온은 거의 무작위 방향으로 도달</li>
+          <li><b>Source + Bias:</b> 플라즈마 밝기는 거의 <b>변화 없음</b> — 그러나 V_DC가 약 −50 V까지 형성되며, 이온이 이제 웨이퍼를 향해 <b>아래쪽으로</b> 가속됨</li>
+          <li>여기서의 독립 변수는 <b>오직</b> Bias RF — 이를 통해 Bias 공급이 정확히 무엇을 기여하는지 분리하여 확인 가능</li>
+          <li>CCP 강의의 RF/DC 토글과 대비: 그곳에서는 모드를 전환하면 플라즈마가 <b>존재하는지 여부</b> 자체가 바뀌었습니다. 여기서는 모드 전환이 <b>이온 에너지/방향성</b>만 변화시키며 — 플라즈마 자체는 거의 영향받지 않습니다</li>
+        </ul>`,
+      hint:'🔁 아래 토글을 조작해 보세요: 플라즈마 밝기는 거의 일정하게 유지되면서 V_DC 미터와 이온 궤적만 변화합니다.',
+      deepDive:[{
+        title:'3~5단계와 비교하여 토글 읽기',
+        body:`<p>이 토글은 3단계와 5단계를 직접적이고 나란히 재현하는 것입니다: "Source Only"는 3단계의 낮은 V_DC, 거의 등방적인 이온 입사를 재현하고; "Source + Bias"는 5단계의 방향성 충돌을 재현합니다.</p>
+<div class="deep-hl">핵심 관찰은 두 모드 사이에서 <b>변하지 않는</b> 것입니다: 플라즈마 밀도, 발광 강도, 해리/이온화 속도(모두 Source RF에 의해 결정됨)는 본질적으로 일정하게 유지됩니다. 오직 이온 궤적과 V_DC 미터만이 토글에 반응합니다.</div>
+<p>실제 공정 레시피에서는, 엔지니어가 식각률을 결정하는 파라미터(밀도, 라디칼 플럭스 — 둘 다 밀도에 의존)를 대략 고정한 채로 Bias RF 파워를 조정하여 원하는 비등방성과 산화막 돌파 거동을 설정할 수 있다는 의미입니다 — 이는 단일 회로 구조인 CCP 챔버에서는 불가능한 수준의 독립 제어입니다.</p>`
+      }] },
+    { title:'완전한 비등방성 Al RIE — 트렌치 형성',
+      body:`Source RF가 고밀도 플라즈마를 유지하고 Bias RF가 방향성 V_DC를 제공하는 상태에서, Cl⁺/Ar⁺ 이온과 Cl· 라디칼이 PR 마스크 개구부를 통해 Al 막에 <b>수직 트렌치</b>를 식각합니다.
+        <ul>
+          <li>방향성 이온 플럭스 + 빠른 Al–Cl 화학 → <b>수직 측벽</b></li>
+          <li>PR 마스크가 덮인 Al을 보호 — 방향성으로 인해 마스크 하부의 측면(언더컷) 식각이 제한됨</li>
+          <li><code>AlCl₃</code> 부산물은 휘발성 → 펌프로 배출, 재증착 없음</li>
+        </ul>
+        전체 반응: <code>Al + 3Cl· + (이온 보조 산화막 돌파) → AlCl₃↑</code>`,
+      hint:'🎯 트렌치가 수직 측벽을 유지하며 깊어지는 것을 관찰하세요. Reset을 눌러 애니메이션을 다시 시작할 수 있습니다.' },
+    { title:'ICP 알루미늄 식각 — 핵심 정리',
+      body:`유도결합형 플라즈마(ICP) Al 식각에 대한 통합 참고 자료입니다.
+        <ul>
+          <li><b>코일 + Faraday Shield + Dielectric Window</b> → 유도된 회전 E-field → 고밀도(H-모드) 플라즈마</li>
+          <li><b>Source RF</b>(밀도)와 <b>Bias RF</b>(이온 에너지/V_DC)는 <b>독립적인</b> 회로 — ICP의 핵심 장점</li>
+          <li><code>BCl₃ + Cl₂ + Ar</code>: Cl·이 화학 반응을 담당, BCl₃는 자연 Al₂O₃를 게터링, Ar은 물리적 스퍼터링/희석 제공</li>
+          <li>적정 V_DC(−10~−100 V) + 빠른 Al–Cl 화학 → <b>비등방성(수직) 식각</b> 프로파일</li>
+        </ul>`,
+      hint:'📋 모든 ICP Al 식각 개념의 요약 — CCP 산화막 식각 모듈과 비교해 보세요.' },
+  ],
+  hotspots:[
+    {n:'coil',  title:'코일(안테나) · Source RF', text:'챔버 상부에 위치한 평판/나선형 코일로, Source RF(13.56 MHz)로 구동됩니다. 교류 전류가 진동하는 B-field를 생성하여 Dielectric Window를 통해 챔버 내부로 결합됩니다.'},
+    {n:'fshield', title:'Faraday Shield (정전 차폐)', text:'코일과 Dielectric Window 사이에 위치한 얇은 슬릿형 접지 도체판입니다. 슬릿을 통해 (자기적인) B-field는 통과시키면서, 코일로부터 플라즈마로의 직접적인 정전(직류성) 결합은 차단하여 — 윈도우 부식과 금속 오염을 줄여줍니다.'},
+    {n:'window', title:'Dielectric Window(상부 윈도우) — Y₂O₃ 코팅 Al₂O₃', text:'챔버의 상부 벽을 구성하는 세라믹 윈도우입니다. 코일의 B-field에 투명하여, 챔버 내부에 유도 E-field가 형성될 수 있습니다. Y₂O₃ 코팅은 Cl 계열 화학에 대한 부식 저항성을 제공합니다.'},
+    {n:'bcl3', title:'BCl₃ 소스', text:'주요 염소 화학 전구체입니다. BCl₂· + Cl·로 해리됩니다. 또한 웨이퍼 표면의 자연 Al₂O₃ 산화막을 화학적으로 게터링/환원합니다.'},
+    {n:'cl2',  title:'Cl₂ 소스',  text:'2Cl·로 해리됩니다 — Al + 3Cl → AlCl₃ 식각 반응의 주요 반응종입니다. Cl⁺로 이온화될 수도 있습니다.'},
+    {n:'ar',   title:'Ar 소스',   text:'아르곤, 비활성 가스입니다. Ar⁺는 물리적 스퍼터링을 제공하고 방전을 안정화/희석하는 역할을 합니다 — CCP 산화막 식각에서의 역할과 유사합니다.'},
+    {n:'mfc',  title:'질량 유량 제어기(MFC)', text:'각 가스에 대한 정밀 sccm 제어를 수행합니다. 세 흐름은 공통 헤더에서 합류하여 챔버 측벽의 단일 노즐을 통해 주입됩니다. BCl₃ : Cl₂ : Ar 비율은 식각률, 산화막 돌파, 측벽 프로파일을 결정합니다.'},
+    {n:'plasma', title:'벌크 플라즈마 — 유도(H-모드) 영역', text:'유도된 회전 E-field가 전자를 가속시키는 고밀도(≈10¹¹–10¹² cm⁻³) 영역입니다. BCl₃/Cl₂/Ar 플라즈마는 한 전극의 시스에서만이 아니라 부피 전체에서 가열됩니다.'},
+    {n:'sheath_top', title:'상부(윈도우 측) 시스 — 얇음', text:'Dielectric Window 근처의 자연 벽 시스입니다 — 전압이 낮고 면적 비대칭 메커니즘이 없습니다. 제어되는 바이어스 표면이 아닙니다.'},
+    {n:'sheath_bot', title:'하부 시스 — Bias-RF 제어', text:'전력이 인가된 척 위의 시스입니다. 그 두께/전압은 BIAS RF 공급에 의해 결정됩니다(V_DC ≈ −10 ~ −100 V) — Source RF에 의해 결정되는 플라즈마 밀도와는 독립적입니다.'},
+    {n:'wafer', title:'Al 웨이퍼 / Al 막', text:'Si 기판 위의 Al 막(은색)과 PR 마스크.\nRxn: Al + 3Cl· → AlCl₃↑\nBCl₃가 자연 Al₂O₃ 표면 산화막을 게터링하여 Cl·이 신선한 Al에 도달할 수 있게 합니다.'},
+    {n:'chuck', title:'웨이퍼 척 — Bias RF 구동 (13.56 MHz)', text:'웨이퍼를 고정합니다. 블로킹 커패시터를 통해 자체 Bias RF Generator/Matcher로 구동되며 — 위쪽의 코일/Source RF 회로와 전기적으로 독립되어 있습니다.'},
+    {n:'biasrf', title:'Bias RF Generator · 13.56 MHz → 척', text:'블로킹 커패시터(C_block)를 통해 웨이퍼 척에 연결된 독립 RF 공급입니다. V_DC, 즉 이온 에너지를 결정하며, 플라즈마 밀도에는 큰 영향을 주지 않습니다.'},
+    {n:'biasmat', title:'Bias RF Matcher', text:'척 측 플라즈마 임피던스를 Bias RF Generator의 50 Ω 출력에 매칭합니다.'},
+    {n:'srcrf', title:'Source RF Generator · 13.56 MHz → 코일', text:'코일에 연결된 독립 RF 공급입니다. 유도된 회전 E-field를 유지하고 플라즈마 밀도를 결정하며 — 척의 V_DC에는 큰 영향을 주지 않습니다.'},
+    {n:'srcmat', title:'Source RF Matcher', text:'코일의 임피던스를 Source RF Generator의 50 Ω 출력에 매칭합니다.'},
+    {n:'pump',  title:'터보 펌프 + 드라이 진공 펌프', text:'고진공 단계를 담당하는 터보 분자 펌프와, 러핑/배기 단계를 담당하는 드라이 진공 펌프입니다. 1–50 mTorr를 유지하고 휘발성 AlCl₃ 부산물을 제거합니다.'},
+    {n:'he',    title:'후면 He 냉각', text:'오리피스(유량 제한기)를 통해 웨이퍼 후면으로 헬륨 가스를 순환시킵니다. 웨이퍼와 온도 제어되는 척 사이의 열 접촉을 제공합니다.'},
+  ],
+  takeawayHeader:'ICP 알루미늄 식각 — 핵심 정리',
+  takeawaySubheader:'유도결합형 플라즈마 · BCl₃ + Cl₂ + Ar → Al RIE 공정 요약',
+  takeawayDesign:'설계 원칙', takeawayParams:'플라즈마 파라미터',
+  takeawayWindow:'일반적인 공정 윈도우', takeawayLimits:'주요 한계점',
+  principles:[
+    ['코일 + Faraday Shield + Y₂O₃ 코팅 윈도우', '코일의 교류 전류 → 진동 B-field → (Faraday 법칙) 챔버 내부에 회전 E-field 유도'],
+    ['독립적인 Source / Bias RF (둘 다 13.56 MHz)', 'Source RF가 플라즈마 밀도(H-모드)를 결정; Bias RF가 자체 블로킹 커패시터를 통해 V_DC/이온 에너지를 결정'],
+    ['적정 수준의 하부 시스 전압 (V_DC ≈ −10 ~ −100 V)', '이온 에너지 ≈ q × |V_DC + V_RF| — 과도한 충돌 없이 방향성 확보 및 산화막 돌파에 충분한 수준'],
+    ['저압 (1–50 mTorr)',          '긴 평균 자유 경로 → 방향성 이온 플럭스; ICP는 이 범위의 낮은 쪽에서도 방전 유지 가능'],
+    ['가스 비율  BCl₃ : Cl₂ : Ar',          'Cl· 화학(Cl₂), 자연 산화막 게터링(BCl₃), 물리적 스퍼터링/희석(Ar)'],
+  ],
+  tHeaders:['파라미터','ICP (Al RIE)','CCP (산화막 RIE)'],
+  tRows:[
+    ['플라즈마 밀도 (nₑ)',  '10¹⁰ – 10¹² cm⁻³',   '10⁸ – 10¹⁰ cm⁻³'],
+    ['이온화율',    '10⁻³ – 10⁻¹',        '10⁻⁵ – 10⁻³'],
+    ['소스 가스 해리율', '> 80 %',          '30 – 70 %'],
+    ['전자 온도 (Tₑ)',   '3 – 6 eV',           '2 – 5 eV'],
+    ['DC 셀프 바이어스 (V_DC)',  '−10 ~ −100 V (Bias RF)', '−200 ~ −500 V (면적비 구동)'],
+    ['이온 에너지 (Eᵢ)',      '10 – 200 eV',        '200 – 1000+ eV'],
+    ['동작 압력',  '1 – 50 mTorr',        '5 – 50 mTorr'],
+    ['RF 결합 방식',         '유도형 (H-모드)',  '정전형 (E-모드)'],
+  ],
+  pwItems:[
+    ['식각률',            '200 – 800 nm/min'],
+    ['선택비 (Al:PR)',  '2 – 5 : 1'],
+    ['비등방성',           '> 0.85  (거의 수직인 측벽)'],
+    ['DC 셀프 바이어스 (V_DC)',  '−10 ~ −100 V (Bias RF, 일반적)'],
+  ],
+  limitLines:[
+    '• Dielectric Window는 시간이 지남에 따라 부식됨(특히 Cl 화학 환경) — Y₂O₃ 코팅이 수명을 연장하지만 윈도우는 소모품임  ·  두 개의 RF 회로 → 매칭/튜닝이 더 복잡해짐',
+    '• 단일 회로 CCP 대비 장비 비용/복잡도가 높음  ·  Faraday Shield는 추가 유지보수 항목이지만 윈도우 마모와 금속 오염을 줄여줌',
+  ],
+},
+};
+const L = () => T[lang];
+
+
+// ── State ─────────────────────────────────────────────────────
+let particles=[], lights=[], impacts=[];
+let currentStep=0, lang='en';
+let etchDepths={}, mode='SRC', hoveredHotspot=null;
+let t0=performance.now(), lastT=t0;
+let step4DCProgress=0;
+
+// ── Hotspot rects ─────────────────────────────────────────────
+const HR=[
+  {n:'coil',  rect:COIL},
+  {n:'fshield', rect:FS},
+  {n:'window', rect:DW},
+  {n:'bcl3', rect:{x:G1S.x-4,y:G1S.y-4,w:G1S.w+8,h:G1S.h+8}},
+  {n:'cl2',  rect:{x:G2S.x-4,y:G2S.y-4,w:G2S.w+8,h:G2S.h+8}},
+  {n:'ar',   rect:{x:G3S.x-4,y:G3S.y-4,w:G3S.w+8,h:G3S.h+8}},
+  {n:'mfc',  rect:{x:M1.cx-16,y:M1.cy-13,w:32,h:M3.cy+13-(M1.cy-13)}},
+  {n:'plasma', rect:PL},
+  {n:'sheath_top', rect:ST},
+  {n:'sheath_bot', rect:SB},
+  {n:'wafer', rect:{x:WF.x,y:WF.y-AL_MAX-PR_H-4,w:WF.w,h:WF.h+AL_MAX+PR_H+8}},
+  {n:'chuck', rect:SC},
+  {n:'biasmat',  rect:MAT},
+  {n:'biasrf',   rect:RFG},
+  {n:'srcmat', rect:SMAT},
+  {n:'srcrf',  rect:SRFG},
+  {n:'pump', rect:{x:TP.x-4,y:TP.y-4,w:(DVP.x+DVP.w)-TP.x+8,h:DVP.h+8}},
+  {n:'he',   rect:{x:HEC.x-4,y:HEC_GLASS_CY-11,w:HEC.w+8,h:(HEC.y+HEC.h)-(HEC_GLASS_CY-11)+4}},
+];
+
+// ── Drawing helpers (unchanged from CCP reference) ────────────
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+function pipe(pts,col='#b3bac8',w=2.2){
+  ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.stroke();
+}
+function arw(x0,y0,x1,y1,col='#1d2436',w=1.2){
+  ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0),h=5.5;
+  ctx.beginPath();ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));
+  ctx.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));
+  ctx.closePath();ctx.fill();
+}
+function gnd(cx,cy){
+  ctx.strokeStyle='#1d2436';ctx.lineWidth=1.5;ctx.beginPath();
+  ctx.moveTo(cx,cy);ctx.lineTo(cx,cy+6);
+  ctx.moveTo(cx-10,cy+6);ctx.lineTo(cx+10,cy+6);
+  ctx.moveTo(cx-7,cy+10);ctx.lineTo(cx+7,cy+10);
+  ctx.moveTo(cx-4,cy+14);ctx.lineTo(cx+4,cy+14);
+  ctx.stroke();
+}
+function chem(formula,x,y,sz=11,col='#1d2436'){  ctx.fillStyle=col;
+  const bF=`bold ${sz}px ${FONT}`,sF=`bold ${Math.round(sz*.7)}px ${FONT}`,pF=`bold ${Math.round(sz*.75)}px ${FONT}`;
+  ctx.textAlign='left';ctx.textBaseline='middle';
+  const segs=[];let i=0;
+  while(i<formula.length){
+    const ch=formula[i];
+    if(/[A-Za-z]/.test(ch)){let s=ch;while(i+1<formula.length&&/[a-z]/.test(formula[i+1])){s+=formula[++i];}segs.push({t:'b',s});}
+    else if(/[0-9]/.test(ch))segs.push({t:'sub',s:ch});
+    else if(ch==='+'||ch==='-')segs.push({t:'sup',s:ch});
+    i++;
+  }
+  let tot=0;for(const s of segs){ctx.font=s.t==='b'?bF:s.t==='sub'?sF:pF;tot+=ctx.measureText(s.s).width;}
+  let cx=x-tot/2;
+  for(const s of segs){
+    ctx.font=s.t==='b'?bF:s.t==='sub'?sF:pF;
+    const oy=s.t==='sub'?sz*.30:s.t==='sup'?-sz*.32:0;
+    ctx.fillText(s.s,cx,y+oy);cx+=ctx.measureText(s.s).width;
+  }
+}
+
+
+// ── Component renderers ────────────────────────────────────────
+function drawGasSrc(x,y,w,h,formula,sc){
+  rr(x,y,w,h,8);const g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,'#fff');g.addColorStop(1,'#eef0f5');
+  ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#cdd2dd';ctx.lineWidth=1.2;ctx.stroke();
+  ctx.fillStyle=sc;ctx.fillRect(x+6,y+h-5,w-12,3);chem(formula,x+w/2,y+h/2-3,13,'#1d2436');
+}
+function drawMFC(cx,cy){
+  ctx.fillStyle='#fff';ctx.strokeStyle='#cdd2dd';ctx.lineWidth=1.2;rr(cx-15,cy-13,30,26,4);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#5a6479';ctx.lineWidth=1.3;ctx.beginPath();
+  ctx.moveTo(cx-7,cy-6);ctx.lineTo(cx+7,cy+6);ctx.lineTo(cx+7,cy-6);ctx.lineTo(cx-7,cy+6);ctx.closePath();ctx.stroke();
+}
+// Gas distribution — SIDE injection: each gas Box -> Valve(MFC) -> Bus ->
+// nozzle into the chamber's right inner wall (NZ1/NZ2/NZ3). Order: BCl3, Cl2, Ar.
+function drawGasSys(){
+  // Vertical bus collects all three MFC outputs
+  pipe([[GAS_BUS_X,M1.cy],[GAS_BUS_X,M3.cy]]);
+  // Each MFC line feeds into the vertical bus
+  pipe([[GAS_BUS_X,M1.cy],[M1.cx-15,M1.cy]]);drawMFC(M1.cx,M1.cy);pipe([[M1.cx+15,M1.cy],[G1S.x,M1.cy]]);
+  drawGasSrc(G1S.x,G1S.y,G1S.w,G1S.h,'BCl3','#7030A0');
+  pipe([[GAS_BUS_X,M2.cy],[M2.cx-15,M2.cy]]);drawMFC(M2.cx,M2.cy);pipe([[M2.cx+15,M2.cy],[G2S.x,M2.cy]]);
+  drawGasSrc(G2S.x,G2S.y,G2S.w,G2S.h,'Cl2','#3A9A6E');
+  pipe([[GAS_BUS_X,M3.cy],[M3.cx-15,M3.cy]]);drawMFC(M3.cx,M3.cy);pipe([[M3.cx+15,M3.cy],[G3S.x,M3.cy]]);
+  drawGasSrc(G3S.x,G3S.y,G3S.w,G3S.h,'Ar','#4a7ab0');
+  // ── Single common header: bus -> merge pipe -> ONE nozzle into the chamber ──
+  pipe([[GAS_BUS_X,M2.cy],[MERGE_X,M2.cy]]);
+  pipe([[MERGE_X,M2.cy],[NZ_MAIN.x,NZ_MAIN.y]]);
+  ctx.fillStyle='#7c8499';rr(NZ_MAIN.x-2,NZ_MAIN.y-4,8,8,2);ctx.fill();
+  ctx.fillStyle='rgba(80,110,160,.85)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='bottom';
+  ctx.fillText(lang==='ko'?'단일 주입구':'Single Inlet',MERGE_X-4,M2.cy-8);
+}
+function drawChamberShell(){
+  ctx.save();ctx.shadowColor='rgba(40,50,80,0.10)';ctx.shadowBlur=14;ctx.shadowOffsetY=6;
+  rr(CH.x,CH.y,CH.w,CH.h,CH.r);
+  const g=ctx.createLinearGradient(CH.x,CH.y,CH.x,CH.y+CH.h);g.addColorStop(0,'#f6f7fb');g.addColorStop(1,'#e6e9f1');
+  ctx.fillStyle=g;ctx.fill();ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.5;rr(CH.x,CH.y,CH.w,CH.h,CH.r);ctx.stroke();
+  ctx.strokeStyle='#dadfeb';ctx.lineWidth=1;rr(CH.x+6,CH.y+6,CH.w-12,CH.h-12,CH.r-6);ctx.stroke();
+}
+// Coil (Antenna) — planar/spiral, drawn ABOVE the chamber shell. AC current
+// driven by Source RF; oscillates with t when active.
+function drawCoil(active,t){
+  const cy0=COIL.y+COIL.h/2;
+  const N=4, span=COIL.w*0.92;
+  ctx.strokeStyle='#8a6fb0';ctx.lineWidth=2.4;
+  for(let i=0;i<N;i++){
+    const r=(span/2)*(1-i/(N+0.6));
+    ctx.beginPath();ctx.ellipse(COIL.x+COIL.w/2,cy0,r,COIL.h*0.42,0,0,Math.PI*2);ctx.stroke();
+  }
+  if(active){
+    const ph=Math.sin(t*2*Math.PI*0.9);
+    ctx.fillStyle=`rgba(112,48,160,${0.18+0.12*Math.abs(ph)})`;
+    rr(COIL.x-4,COIL.y-4,COIL.w+8,COIL.h+8,8);ctx.fill();
+  }
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(lang==='ko'?'코일 (안테나)':'Coil (Antenna)',COIL.x+COIL.w/2,COIL.y-4);
+  pipe([[SFEED_X,SMAT.y+SMAT.h],[SFEED_X,COIL.y+COIL.h/2-2],[COIL.x+COIL.w*0.78,COIL.y+COIL.h/2-2]],'#5a6479',1.5);
+}
+// Vertical B-field flux lines — Coil current -> oscillating B-field -> threads
+// straight down through the Faraday Shield's slots and the Dielectric Window
+// into the chamber. Direction/intensity follow the Coil's AC phase (sin(t)).
+// This is the field whose TIME-VARIATION induces the rotating E-field shown
+// by drawRotatingEField (Faraday's Law: induced E ⟂ to changing B).
+function drawBFieldFluxLines(t,al=0.85){
+  const phase=Math.sin(t*2*Math.PI*0.9);   // same AC phase used by drawCoil's glow
+  const dirUp=phase>=0;                     // B-field reverses every half-cycle
+  const mag=Math.abs(phase);                // 0..1, pulses through zero at field reversal
+  const col=dirUp?B.teal:B.amber;
+  const N=8;                                // fewer, evenly spaced lines (subset of FS slots)
+  const yTop=COIL.y-2;
+  const yBot=PL.y+PL.h*0.30;                // lines fade out shortly into the plasma
+  for(let i=0;i<N;i++){
+    const x=FS.x+10+(i+0.5)*(FS.w-20)/N;
+    const a=al*(0.30+0.70*mag);
+    ctx.save();
+    ctx.globalAlpha=a;
+    ctx.strokeStyle=col;ctx.lineWidth=1.3;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(x,yTop);ctx.lineTo(x,yBot);ctx.stroke();
+    ctx.setLineDash([]);
+    // arrowhead showing instantaneous B-field direction at this point in the AC cycle
+    const ay=dirUp?(yBot-6):(yTop+6);
+    const ah=7;
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    if(dirUp){ctx.moveTo(x,ay+ah);ctx.lineTo(x-4,ay);ctx.lineTo(x+4,ay);}
+    else{ctx.moveTo(x,ay-ah);ctx.lineTo(x-4,ay);ctx.lineTo(x+4,ay);}
+    ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+  ctx.save();ctx.globalAlpha=Math.min(1,al+0.15);
+  ctx.fillStyle=col;ctx.font=`bold 9px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'B-field (수직, 진동)':'B-field (vertical, oscillating)',FS.x+6,COIL.y-12);
+  ctx.restore();
+}
+// Faraday Shield — thin slotted grounded plate between Coil and Dielectric Window
+function drawFaradayShield(){
+  const g=ctx.createLinearGradient(FS.x,FS.y,FS.x,FS.y+FS.h);
+  g.addColorStop(0,'#c8cdd9');g.addColorStop(1,'#9aa2b4');
+  ctx.fillStyle=g;rr(FS.x,FS.y,FS.w,FS.h,2);ctx.fill();
+  ctx.fillStyle='#7c8499';
+  const N=16;
+  for(let i=0;i<N;i++){ctx.fillRect(FS.x+8+i*(FS.w-16)/N,FS.y+2,(FS.w-16)/N*0.55,FS.h-4);}
+  pipe([[FS.x-10,FS.y+FS.h/2],[FS.x,FS.y+FS.h/2]],'#1d2436',1.3);
+  gnd(FS.x-10,FS.y+FS.h/2-2);
+}
+// Dielectric Window (Lid) — Y2O3-coated Al2O3 ceramic, top wall of chamber interior
+function drawDielectricWindow(){
+  const g=ctx.createLinearGradient(DW.x,DW.y,DW.x,DW.y+DW.h);
+  g.addColorStop(0,'#fdf6e3');g.addColorStop(1,'#ecdcb0');
+  ctx.fillStyle=g;rr(DW.x,DW.y,DW.w,DW.h,4);ctx.fill();
+  ctx.strokeStyle='#cdb872';ctx.lineWidth=1;rr(DW.x,DW.y,DW.w,DW.h,4);ctx.stroke();
+  ctx.fillStyle='rgba(120,95,30,0.78)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Y\u2082O\u2083 / Al\u2082O\u2083 — '+(lang==='ko'?'유전체 윈도우':'Dielectric Window'),DW.x+DW.w/2,DW.y+DW.h/2);
+}
+// Wafer Chuck — Bias RF-Powered via Blocking Capacitor (no area-ratio framing)
+function drawChuck(charge){
+  ctx.fillStyle='rgba(170,180,196,.22)';
+  ctx.fillRect(inX,SC.y,SC.x-inX,SC.h);
+  ctx.fillRect(SC.x+SC.w,SC.y,(inX+inW)-(SC.x+SC.w),SC.h);
+  const g=ctx.createLinearGradient(SC.x,SC.y,SC.x,SC.y+SC.h);
+  g.addColorStop(0,'#505e7a');g.addColorStop(.5,'#7888a8');g.addColorStop(1,'#a8b4c8');
+  ctx.fillStyle=g;rr(SC.x,SC.y,SC.w,SC.h,4);ctx.fill();
+  ctx.fillStyle='rgba(79,109,240,.90)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'Bias RF 인가':'Bias RF Powered',SC.x+SC.w/2,SC.y+SC.h/2);
+  if(charge!==0){
+    ctx.fillStyle=charge>0?B.red:B.blue;ctx.font=`bold 12px ${FONT}`;
+    const sym=charge>0?'+':'−',Nc=5;
+    for(let i=0;i<Nc;i++)ctx.fillText(sym,SC.x+14+i*(SC.w-44)/(Nc-1),SC.y+SC.h/2);
+  }
+}
+// Flat Al wafer (steps 0-6): Si substrate with Al film on top, PR mask
+function drawWafer(){
+  ctx.fillStyle='#4a5470';ctx.fillRect(WF.x,WF.y,WF.w,WF.h);
+  const sy=WF.y-AL_MAX, my=sy-PR_H;
+  const sg=ctx.createLinearGradient(0,sy,0,WF.y);sg.addColorStop(0,'#cfd4dc');sg.addColorStop(1,'#a7adb8');
+  ctx.fillStyle=sg;ctx.fillRect(WF.x,sy,WF.w,AL_MAX);
+  ctx.strokeStyle='rgba(120,128,145,.35)';ctx.lineWidth=.7;ctx.strokeRect(WF.x,sy,WF.w,AL_MAX);
+  drawPRStripes(WF.x,my,WF.w,PR_H,true);
+  ctx.fillStyle='rgba(60,68,84,.62)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Al',WF.x+28,sy+AL_MAX/2);
+  ctx.fillStyle='#9aa0b0';ctx.font=`9px ${FONT}`;ctx.textAlign='right';ctx.fillText('Si',WF.x+WF.w-5,WF.y+3);
+}
+const PR_SEGMENTS=9;
+function drawPRStripes(x,y,w,h,labeled){
+  const segW=w/PR_SEGMENTS;
+  const prg=ctx.createLinearGradient(0,y,0,y+h);prg.addColorStop(0,'#7030A0');prg.addColorStop(1,'#5a1f82');
+  for(let i=0;i<PR_SEGMENTS;i++){
+    const sx=x+i*segW;
+    if(i%2===0){
+      ctx.fillStyle=prg;ctx.fillRect(sx,y,segW,h);
+      if(labeled&&i===4){
+        ctx.fillStyle='rgba(255,255,255,.82)';ctx.font=`bold 8px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('PR',sx+segW/2,y+h/2);
+      }
+    }else{
+      ctx.fillStyle='#ffffff';ctx.fillRect(sx,y,segW,h);
+      ctx.strokeStyle='rgba(112,48,160,.18)';ctx.lineWidth=.6;ctx.strokeRect(sx,y,segW,h);
+    }
+  }
+}
+const OPEN_SEGS=[1,3,5,7];
+const TRENCH_SEG=5;
+function drawWaferWithTrench(eds){
+  const sy=WF.y-AL_MAX, my=sy-PR_H;
+  const segW=WF.w/PR_SEGMENTS;
+  ctx.fillStyle='#4a5470';ctx.fillRect(WF.x,WF.y,WF.w,WF.h);
+  const sg=ctx.createLinearGradient(0,sy,0,WF.y);sg.addColorStop(0,'#d4d8e0');sg.addColorStop(1,'#aab0bb');
+  ctx.fillStyle=sg;ctx.fillRect(WF.x,sy,WF.w,AL_MAX);
+  for(const seg of OPEN_SEGS){
+    const tL=Math.round(WF.x+seg*segW), tR=Math.round(tL+segW);
+    const et=Math.min(eds[seg]||0,AL_MAX);
+    if(et<=0)continue;
+    ctx.fillStyle='#0c1020';ctx.fillRect(tL,sy,tR-tL,et);
+    ctx.strokeStyle='rgba(140,148,165,.45)';ctx.lineWidth=1;ctx.strokeRect(tL,sy,tR-tL,et);
+  }
+  const prg=ctx.createLinearGradient(0,my,0,my+PR_H);prg.addColorStop(0,'#7030A0');prg.addColorStop(1,'#5a1f82');
+  for(let i=0;i<PR_SEGMENTS;i++){
+    const sx=WF.x+i*segW;
+    if(i%2===0){
+      ctx.fillStyle=prg;ctx.fillRect(sx,my,segW,PR_H);
+      if(i===4){
+        ctx.fillStyle='rgba(255,255,255,.82)';ctx.font=`bold 8px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('PR',sx+segW/2,my+PR_H/2);
+      }
+    }else{
+      ctx.strokeStyle='rgba(112,48,160,.18)';ctx.lineWidth=.6;ctx.strokeRect(sx,my,segW,PR_H);
+    }
+  }
+  ctx.fillStyle='rgba(60,68,84,.62)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Al',WF.x+28,sy+AL_MAX/2);
+  ctx.fillStyle='#8a90a0';ctx.font=`9px ${FONT}`;ctx.textAlign='right';ctx.fillText('Si',WF.x+WF.w-5,WF.y+3);
+  const etP=eds[TRENCH_SEG]||0;
+  if(etP>2){
+    const tL=Math.round(WF.x+TRENCH_SEG*segW);
+    const ax=tL-14;
+    ctx.strokeStyle='#e8553b';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(ax,sy);ctx.lineTo(ax,sy+etP);ctx.stroke();
+    arw(ax,sy+5,ax,sy,'#e8553b',.9);arw(ax,sy+etP-5,ax,sy+etP,'#e8553b',.9);
+    ctx.fillStyle='#e8553b';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText(`${Math.round(etP/AL_MAX*100)}%`,ax-3,sy+etP/2);
+  }
+}
+// Blocking capacitor symbol — generic; placed per-circuit via (cx,cy)
+function drawBlockingCap(cx,cy){
+  ctx.strokeStyle='#5a6479';ctx.lineWidth=2.2;
+  ctx.beginPath();ctx.moveTo(cx-11,cy-6);ctx.lineTo(cx+11,cy-6);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx-11,cy+6);ctx.lineTo(cx+11,cy+6);ctx.stroke();
+  ctx.fillStyle='#6b7388';ctx.font=`9px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('C',cx+14,cy-5);ctx.font=`7.5px ${FONT}`;ctx.fillText('block',cx+14,cy+5);
+}
+// Bias RF Matcher (LEFT) + Bias RF Generator (RIGHT) — bottom of chamber,
+// feeds Wafer Chuck through Blocking Capacitor (same pattern as CCP's circuit,
+// but here it is the INDEPENDENT Bias supply, not the only RF supply).
+function drawBiasRFModule(active,t){
+  const matCX=MAT.x+MAT.w/2, chCY=SC.y+SC.h/2;
+  pipe([[MAT.x+MAT.w,MAT.y+MAT.h/2],[RFG.x,RFG.y+RFG.h/2]],'#5a6479',1.5);
+  pipe([[matCX,MAT.y],[matCX,BCAP.cy+11]],'#5a6479',1.5);
+  drawBlockingCap(BCAP.cx,BCAP.cy);
+  pipe([[matCX,BCAP.cy-11],[matCX,chCY],[CH.x+CH.w,chCY]],'#5a6479',1.5);
+  ctx.fillStyle='#7c8499';rr(CH.x+CH.w-4,chCY-4,10,8,2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(MAT.x,MAT.y,MAT.w,MAT.h,MAT.r);ctx.fill();
+  ctx.save();rr(MAT.x,MAT.y,MAT.w,MAT.h,MAT.r);ctx.clip();ctx.fillStyle=B.green;ctx.fillRect(MAT.x,MAT.y,MAT.w,4);ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(MAT.x,MAT.y,MAT.w,MAT.h,MAT.r);ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Bias RF Matcher',MAT.x+MAT.w/2,MAT.y+15);
+  ctx.strokeStyle=active?B.green:'#c8cdd9';ctx.lineWidth=1.4;ctx.beginPath();
+  const ph=active?t*6:0,sx=MAT.x+12,sy2=MAT.y+29,sw=MAT.w-24;
+  for(let i=0;i<=sw;i++){const y=sy2+5*Math.sin((i/sw)*Math.PI*4+ph);i===0?ctx.moveTo(sx+i,y):ctx.lineTo(sx+i,y);}ctx.stroke();
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(RFG.x,RFG.y,RFG.w,RFG.h,RFG.r);ctx.fill();
+  ctx.save();rr(RFG.x,RFG.y,RFG.w,RFG.h,RFG.r);ctx.clip();ctx.fillStyle=B.purple;ctx.fillRect(RFG.x,RFG.y,RFG.w,5);ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(RFG.x,RFG.y,RFG.w,RFG.h,RFG.r);ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Bias RF Generator',RFG.x+RFG.w/2,RFG.y+17);
+  ctx.fillStyle=active?B.purple:'#a8aebd';ctx.font=`9.5px ${MONO}`;ctx.fillText(active?'13.56 MHz · ON':'13.56 MHz · OFF',RFG.x+RFG.w/2,RFG.y+32);
+}
+// Source RF Matcher (LEFT) + Source RF Generator (RIGHT) — above the chamber,
+// feeds the Coil. Independent circuit from the Bias RF below.
+function drawSourceRFModule(active,t){
+  const matCX=SMAT.x+SMAT.w/2;
+  pipe([[SMAT.x+SMAT.w,SMAT.y+SMAT.h/2],[SRFG.x,SRFG.y+SRFG.h/2]],'#5a6479',1.5);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(SMAT.x,SMAT.y,SMAT.w,SMAT.h,SMAT.r);ctx.fill();
+  ctx.save();rr(SMAT.x,SMAT.y,SMAT.w,SMAT.h,SMAT.r);ctx.clip();ctx.fillStyle=B.green;ctx.fillRect(SMAT.x,SMAT.y,SMAT.w,4);ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(SMAT.x,SMAT.y,SMAT.w,SMAT.h,SMAT.r);ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Source RF Matcher',SMAT.x+SMAT.w/2,SMAT.y+14);
+  ctx.strokeStyle=active?B.green:'#c8cdd9';ctx.lineWidth=1.4;ctx.beginPath();
+  const ph=active?t*6:0,sx=SMAT.x+12,sy2=SMAT.y+27,sw=SMAT.w-24;
+  for(let i=0;i<=sw;i++){const y=sy2+5*Math.sin((i/sw)*Math.PI*4+ph);i===0?ctx.moveTo(sx+i,y):ctx.lineTo(sx+i,y);}ctx.stroke();
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(SRFG.x,SRFG.y,SRFG.w,SRFG.h,SRFG.r);ctx.fill();
+  ctx.save();rr(SRFG.x,SRFG.y,SRFG.w,SRFG.h,SRFG.r);ctx.clip();ctx.fillStyle=B.purple;ctx.fillRect(SRFG.x,SRFG.y,SRFG.w,5);ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(SRFG.x,SRFG.y,SRFG.w,SRFG.h,SRFG.r);ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Source RF Generator',SRFG.x+SRFG.w/2,SRFG.y+16);
+  ctx.fillStyle=active?B.purple:'#a8aebd';ctx.font=`9px ${MONO}`;ctx.fillText(active?'13.56 MHz · ON':'13.56 MHz · OFF',SRFG.x+SRFG.w/2,SRFG.y+30);
+  pipe([[matCX,SMAT.y+SMAT.h]],'#5a6479',1.5);
+}
+function drawPumpSystem(t){
+  const cx0=CH.x, cy0=CH.y+CH.h;
+  pipe([[cx0,cy0-30],[cx0-18,cy0-10],[cx0-18,TP.y+TP.h/2],[TP.x,TP.y+TP.h/2]],'#b3bac8',2.5);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#1d2436';ctx.lineWidth=1.3;rr(TP.x,TP.y,TP.w,TP.h,TP.r);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#6b7388';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(TP.x+18,TP.y+TP.h/2,8,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();for(let k=0;k<3;k++){const a=t*2+k*Math.PI*2/3;ctx.moveTo(TP.x+18,TP.y+TP.h/2);ctx.lineTo(TP.x+18+6.5*Math.cos(a),TP.y+TP.h/2+6.5*Math.sin(a));}ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Turbo',TP.x+TP.w/2+8,TP.y+TP.h/2-6);ctx.fillText('Pump',TP.x+TP.w/2+8,TP.y+TP.h/2+6);
+  pipe([[TP.x+TP.w,TP.y+TP.h/2],[DVP.x,DVP.y+DVP.h/2]],'#b3bac8',2.5);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(DVP.x,DVP.y,DVP.w,DVP.h,DVP.r);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#6b7388';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(DVP.x+18,DVP.y+DVP.h/2,8,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();for(let k=0;k<3;k++){const a=-t*1.5+k*Math.PI*2/3;ctx.moveTo(DVP.x+18,DVP.y+DVP.h/2);ctx.lineTo(DVP.x+18+6.5*Math.cos(a),DVP.y+DVP.h/2+6.5*Math.sin(a));}ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('Dry',DVP.x+32,DVP.y+DVP.h/2-12);ctx.fillText('Vacuum',DVP.x+32,DVP.y+DVP.h/2);ctx.fillText('Pump',DVP.x+32,DVP.y+DVP.h/2+12);
+}
+function drawHeCooling(){
+  const cx=SC.x+SC.w/2;
+  pipe([[cx,SC.y+SC.h],[cx,HEC.y]],'#5a6479',1.8);
+  ctx.strokeStyle='#5a6479';ctx.lineWidth=1.4;
+  rr(cx-7,HEC_GLASS_CY-7,14,14,2);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx-5,HEC_GLASS_CY-5);ctx.lineTo(cx+5,HEC_GLASS_CY+5);
+  ctx.moveTo(cx+5,HEC_GLASS_CY-5);ctx.lineTo(cx-5,HEC_GLASS_CY+5);
+  ctx.stroke();
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(HEC.x,HEC.y,HEC.w,HEC.h,HEC.r);ctx.fill();ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('He',HEC.x+HEC.w/2,HEC.y+HEC.h/2);
+  ctx.fillStyle=B.muted;ctx.font=`9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'후면 He 냉각':'Backside He Cooling',HEC.x+HEC.w/2,HEC.y+HEC.h+4);
+}
+function drawGlow(i,t){
+  if(i<=0)return;
+  const px=PL.x+PL.w/2,py=PL.y+PL.h/2,pr=Math.max(PL.w,PL.h)*.7,br=.92+.08*Math.sin(t*1.8),a=i*br;
+  const g=ctx.createRadialGradient(px,py,0,px,py,pr);
+  g.addColorStop(0,`rgba(220,230,255,${.90*a})`);g.addColorStop(.35,`rgba(200,218,255,${.82*a})`);
+  g.addColorStop(.65,`rgba(215,205,245,${.68*a})`);g.addColorStop(1,`rgba(185,182,225,${.45*a})`);
+  ctx.fillStyle=g;ctx.fillRect(PL.x,PL.y,PL.w,PL.h);
+}
+// Sheaths: top (thin, natural wall sheath near window) and bottom
+// (Bias-RF controlled, grows with V_DC from the BIAS supply).
+function drawSheaths(intensity,biasProg=0){
+  if(intensity<=0)return;
+  const aT=0.30*intensity;
+  const sT=ctx.createLinearGradient(0,ST.y,0,ST.y+ST.h);sT.addColorStop(0,`rgba(40,45,65,${aT})`);sT.addColorStop(1,'rgba(40,45,65,.03)');
+  ctx.fillStyle=sT;ctx.fillRect(ST.x,ST.y,ST.w,ST.h);
+  const extraH=biasProg*22;
+  const bH=SB.h+extraH, bY=SB.y+SB.h-bH;
+  const aB=(0.12+0.50*biasProg)*intensity;
+  const sB=ctx.createLinearGradient(0,bY,0,bY+bH);sB.addColorStop(0,'rgba(28,33,52,.02)');sB.addColorStop(1,`rgba(28,33,52,${aB})`);
+  ctx.fillStyle=sB;ctx.fillRect(SC.x-5,bY,SC.w+10,bH);
+}
+// Rotating (azimuthal) E-field — KEY VISUAL for ICP: horizontal arrows that
+// rotate direction over time within the plasma region, induced by the
+// Coil's oscillating B-field per Faraday's Law.
+function drawRotatingEField(t,al=.55){
+  const ys=[PL.y+PL.h*0.28, PL.y+PL.h*0.52, PL.y+PL.h*0.76];
+  const dirSign=Math.sin(t*2*Math.PI*0.55)>0?1:-1;
+  ys.forEach((y,row)=>{
+    const span=PL.w*0.78, x0=PL.x+(PL.w-span)/2;
+    const phase=dirSign*((row%2===0)?1:-1);
+    const segs=4;
+    for(let i=0;i<segs;i++){
+      const xa=x0+i*span/segs+4, xb=x0+(i+1)*span/segs-4;
+      if(phase>0) arw(xa,y,xb,y,`rgba(112,48,160,${al})`,1.4);
+      else arw(xb,y,xa,y,`rgba(112,48,160,${al})`,1.4);
+    }
+  });
+}
+function drawFieldArrows(dir,al=.50){
+  const N=6, sx=SC.x+22, span=SC.w-44;
+  const yT=SB.y+3, yB=SB.y+SB.h-3;
+  for(let i=0;i<N;i++){const x=sx+i*span/(N-1);dir>0?arw(x,yT,x,yB,`rgba(60,70,95,${al})`,.9):arw(x,yB,x,yT,`rgba(60,70,95,${al})`,.9);}
+}
+function drawSideLabels(){
+  ctx.fillStyle=B.muted;ctx.font=`11px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'유전체 윈도우':'Dielectric Window',CH.x-8,ST.y-7);
+  ctx.fillText(lang==='ko'?'상부 시스':'Top Sheath',CH.x-8,ST.y+ST.h/2);
+  ctx.fillText(lang==='ko'?'플라즈마':'Plasma',CH.x-8,PL.y+PL.h/2);
+  ctx.fillText(lang==='ko'?'하부 시스':'Bot Sheath',CH.x-8,SB.y+SB.h/2);
+  ctx.fillText(lang==='ko'?'웨이퍼 척':'Wafer Chuck',CH.x-8,SC.y+SC.h/2);
+}
+// V_DC digital meter (top-left overlay)
+function drawDCMeter(vdc){
+  const mx=22,my=22,mw=160,mh=44;
+  ctx.fillStyle='#111827';rr(mx,my,mw,mh,7);ctx.fill();
+  ctx.strokeStyle='#1e3048';ctx.lineWidth=.8;rr(mx,my,mw,mh,7);ctx.stroke();
+  ctx.fillStyle='#5a7890';ctx.font=`9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText(L().vdcLabel,mx+mw/2,my+5);
+  const built=Math.abs(vdc)>2;
+  ctx.fillStyle=built?'#4ade80':'#505060';ctx.font=`bold 16px ${MONO}`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(`${vdc.toFixed(0)} V`,mx+mw/2,my+mh/2+5);
+}
+// V_electrode(t) waveform (Step 5) — V_RF·sin(wt) + V_DC offset, Bias RF.
+// Scale is much smaller than CCP (|V_DC| max ~100V vs 350V there).
+function drawVoltageWaveform(dcOff,t){
+  const gx=22,gy=H-170,gw=215,gh=140;
+  ctx.fillStyle='#111827';rr(gx,gy,gw,gh,8);ctx.fill();
+  ctx.strokeStyle='#1e3048';ctx.lineWidth=.8;rr(gx,gy,gw,gh,8);ctx.stroke();
+  ctx.fillStyle='#7eb5d6';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'V_electrode (Bias RF Chuck)':'V_electrode (Bias RF chuck)',gx+8,gy+8);
+  const ax=gx+22, ay0=gy+26, aw=gw-32, ah=gh-40;
+  const rfA=120;
+  const span=rfA + (100+rfA);
+  const vScale=ah/span;
+  const zeroY=ay0+rfA*vScale;
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=.8;
+  ctx.beginPath();ctx.moveTo(ax,zeroY);ctx.lineTo(ax+aw,zeroY);ctx.stroke();
+  ctx.strokeStyle='#4f8ff0';ctx.lineWidth=1.5;ctx.beginPath();
+  for(let i=0;i<=aw;i++){
+    const ph=(i/aw)*Math.PI*6+t*3.2;
+    const vy=zeroY-(rfA*Math.sin(ph)+dcOff)*vScale;
+    i===0?ctx.moveTo(ax+i,vy):ctx.lineTo(ax+i,vy);
+  }
+  ctx.stroke();
+  if(Math.abs(dcOff)>2){
+    const dcY=zeroY-dcOff*vScale;
+    ctx.strokeStyle='#f06060';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(ax,dcY);ctx.lineTo(ax+aw,dcY);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#f06060';ctx.font=`bold 9.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='bottom';
+    ctx.fillText(`V_DC = ${dcOff.toFixed(0)} V`,ax+3,dcY-2);
+  }
+  ctx.fillStyle='rgba(255,255,255,.45)';ctx.font=`9px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+  ctx.fillText('0',ax-3,zeroY);
+  ctx.fillStyle='#4f8ff0';ctx.textAlign='right';ctx.textBaseline='bottom';
+  ctx.fillText('V_RF (13.56 MHz, Bias)',ax+aw,gy+gh-4);
+}
+function chrome(srcActive,biasActive,t){
+  ctx.fillStyle=B.bg;ctx.fillRect(0,0,W,H);drawLogo(.50);
+  drawGasSys();drawChamberShell();drawSourceRFModule(srcActive,t);drawBiasRFModule(biasActive,t);
+  drawCoil(srcActive,t);drawFaradayShield();drawPumpSystem(t);drawHeCooling();
+}
+
+
+// ── Particle system ───────────────────────────────────────────
+function spawn(type,x,y,vx=null,vy=null){
+  particles.push({type,x,y,vx:vx!==null?vx:(Math.random()-.5)*.4,vy:vy!==null?vy:(Math.random()-.5)*.4,age:0});
+  return particles[particles.length-1];
+}
+function rndPt(){return{x:PL.x+10+Math.random()*(PL.w-20),y:PL.y+8+Math.random()*(PL.h-16)};}
+function clr(){particles=[];lights=[];impacts=[];}
+function updP(p,dt,o){
+  const d=SP[p.type];p.age+=dt;
+  if(d.cat==='byproduct'){
+    p.vy-=0.55;p.vx+=(Math.random()-.5)*.08;p.vx*=.97;p.vy*=.97;
+    return p.age<1.8;
+  }
+  if(d.q!==0&&o.fieldActive){
+    // Bottom sheath (Bias-RF chuck) is much stronger than the top sheath
+    // (thin, natural wall sheath near the window). Boost is modest at the
+    // top because there is no large electrode-area asymmetry in ICP.
+    let boost=1;
+    if(p.y<ST.y+ST.h) boost=1.3;
+    else if(p.y>SB.y) boost=o.botBoost!==undefined?o.botBoost:1.0;
+    const f=d.q*o.fieldDir*o.fieldStrength*boost;
+    p.vy+=f/Math.max(d.m,5e-4)*dt*.5;
+  }
+  // Mass-independent downward drift toward the chuck (bottom) — represents
+  // directional acceleration across the bottom sheath for ions when Bias RF
+  // is active, and general transport toward the etch front for radicals.
+  if(o.driftBot&&(d.cat==='ion'||d.cat==='radical')){
+    const target=d.cat==='ion'?(o.ionDriftTarget!==undefined?o.ionDriftTarget:2.0):1.2;
+    if(p.vy<target)p.vy+=(target-p.vy)*Math.min(1,dt*1.2);
+  }
+  const br=o.brownian??0.08,dr=o.drag??0.96;
+  if(d.cat==='neutral'||d.cat==='radical'){p.vx+=(Math.random()-.5)*br;p.vy+=(Math.random()-.5)*br;}
+  else p.vx+=(Math.random()-.5)*(br*.5);
+  p.vx*=dr;p.vy*=dr;
+  const mx=d.cat==='electron'?4.5:d.cat==='ion'?2.4:1.0,sp=Math.hypot(p.vx,p.vy);
+  if(sp>mx){p.vx*=mx/sp;p.vy*=mx/sp;}
+  p.x+=p.vx;p.y+=p.vy;
+  if(p.x<PL.x+4){p.x=PL.x+4;p.vx=Math.abs(p.vx)*.4;}
+  if(p.x>PL.x+PL.w-4){p.x=PL.x+PL.w-4;p.vx=-Math.abs(p.vx)*.4;}
+  // Top boundary (dielectric-window side, natural wall sheath)
+  if(p.y<ST.y+2){
+    if(d.cat==='electron'&&o.absorbElectronTop)return false;
+    if(d.cat==='ion'&&o.absorbIonTop){o.onImpact&&o.onImpact(p,'top');return false;}
+    p.y=ST.y+2;p.vy=Math.abs(p.vy)*.4;
+  }
+  // Bottom boundary (Bias-RF chuck / Al surface)
+  if(p.y>SB.y+SB.h-2){
+    if(d.cat==='ion'&&o.absorbIonBot){o.onImpact&&o.onImpact(p,'bot');return false;}
+    if(d.cat==='electron'&&o.absorbElectronBot)return false;
+    if(d.cat==='radical'&&o.absorbRadBot){o.onImpact&&o.onImpact(p,'bot');return false;}
+    p.y=SB.y+SB.h-2;p.vy=-Math.abs(p.vy)*.4;
+  }
+  return true;
+}
+function drawParts(){
+  for(const p of particles){
+    const d=SP[p.type];
+    if(d.cat==='byproduct'){ctx.save();ctx.globalAlpha=Math.max(0,1-p.age/1.8);chem(d.f,p.x,p.y,d.sz,d.c);ctx.restore();}
+    else chem(d.f,p.x,p.y,d.sz,d.c);
+  }
+}
+function emitL(x,y,col='rgba(255,220,200,1)',life=.6){lights.push({x,y,col,life,maxLife:life,r:0});}
+function updL(dt){for(let i=lights.length-1;i>=0;i--){const Lp=lights[i];Lp.life-=dt;Lp.r+=30*dt;if(Lp.life<=0)lights.splice(i,1);}}
+function drawL(){
+  for(const Lp of lights){const a=Lp.life/Lp.maxLife,g=ctx.createRadialGradient(Lp.x,Lp.y,0,Lp.x,Lp.y,Lp.r);
+    g.addColorStop(0,Lp.col.replace('1)',`${a})`));g.addColorStop(1,Lp.col.replace('1)','0)'));
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(Lp.x,Lp.y,Lp.r,0,Math.PI*2);ctx.fill();}
+}
+function addImp(x,y){impacts.push({x,y,life:.4,maxLife:.4});}
+function updImp(dt){for(let i=impacts.length-1;i>=0;i--){impacts[i].life-=dt;if(impacts[i].life<=0)impacts.splice(i,1);}}
+function drawImp(){
+  for(const I of impacts){const a=I.life/I.maxLife;ctx.strokeStyle=`rgba(232,85,59,${a})`;ctx.lineWidth=1.4;
+    ctx.beginPath();for(let k=0;k<8;k++){const ag=k*Math.PI*2/8,r0=4,r1=4+(1-a)*12;ctx.moveTo(I.x+r0*Math.cos(ag),I.y+r0*Math.sin(ag));ctx.lineTo(I.x+r1*Math.cos(ag),I.y+r1*Math.sin(ag));}ctx.stroke();}
+}
+// V_DC model:
+//  Step 2 (Source ignition): 0
+//  Step 3 (Source-only):     ~ -8V floating potential (small, constant)
+//  Step 4 (Bias activation): ramps 0 -> -50V via step4DCProgress
+//  Step 5 (ion accel/etch):  -50V (full)
+//  Step 6 (toggle):          mode==='SRC' -> floating (~-8V); mode==='BIAS' -> -50V
+//  Step 7 (trench):          -50V (full)
+function getVdc(){
+  if(currentStep===2) return 0;
+  if(currentStep===3) return -8;
+  if(currentStep===4) return -50*step4DCProgress;
+  if(currentStep===5) return -50;
+  if(currentStep===6) return mode==='BIAS'?-50:-8;
+  if(currentStep===7) return -50;
+  return 0;
+}
+function setupStep(i){
+  clr();etchDepths={};step4DCProgress=0;
+  if(i===1){
+    // Step 1 (gas fill): starts empty, fills via side-nozzle spawn
+  }else if(i>=2){
+    for(let k=0;k<20;k++){const p=rndPt(),r=Math.random();spawn(r<.40?'BCl3':r<.75?'Cl2':'Ar',p.x,p.y);}
+    for(let k=0;k<5;k++){const p=rndPt(),r=Math.random();spawn(r<.5?'BCl2':'Cl',p.x,p.y);}
+    for(let k=0;k<5;k++){const p=rndPt();spawn('e-',p.x,p.y);}
+    const ions=['Cl+','Ar+','BCl2+'];
+    for(let k=0;k<3;k++){const p=rndPt();spawn(ions[k%3],p.x,p.y);}
+  }
+  renderStepCtrl(i);
+}
+
+
+// ── Step renderers ────────────────────────────────────────────
+// steps[0]=S0->s1 (chamber structure), steps[1]=S1->s2 (gas fill),
+// steps[2]=S2->s3 (Source RF ignition), steps[3]=S3->s4 (source-only plasma),
+// steps[4]=S4->s5 (Bias RF activation), steps[5]=S5->s6 (ion accel + etch chem),
+// steps[6]=S6->s7 (Source vs Source+Bias toggle), steps[7]=S7->s8 (RIE trench),
+// steps[8]=K->s9 (Key Takeaways)
+
+function s1(dt,t){
+  chrome(false,false,t);drawGlow(0.18,t);drawDielectricWindow();drawChuck(0);drawWafer();drawSideLabels();
+  drawBFieldFluxLines(0,0.16);
+  if(hoveredHotspot){
+    const r=hoveredHotspot.rect;ctx.strokeStyle=B.purple;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+    rr(r.x-3,r.y-3,r.w+6,r.h+6,6);ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.fillStyle='rgba(60,70,95,.42)';ctx.font=`13px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'플라즈마 (점화 전)':'Plasma (pre-ignition)',PL.x+PL.w/2,PL.y+PL.h/2);
+}
+
+let t2=0;
+function s2(dt,t){
+  chrome(false,false,t);drawDielectricWindow();drawChuck(0);drawWafer();drawSideLabels();
+  drawBFieldFluxLines(0,0.16);
+  if(particles.length<75&&Math.random()<.20){
+    const src=[NZ1,NZ2,NZ3][Math.floor(Math.random()*3)];
+    const types=['BCl3','Cl2','Ar'];
+    const idx=[NZ1,NZ2,NZ3].findIndex(n=>n===src);
+    const p=spawn(types[idx],src.x-4,src.y+(Math.random()-.5)*10);
+    p.vx=-.15-Math.random()*.2;p.vy=(Math.random()-.5)*.15;
+  }
+  particles=particles.filter(p=>updP(p,dt,{fieldActive:false,brownian:.30,drag:.984}));
+  drawParts();
+  // Side-injection marker — single merged nozzle
+  ctx.strokeStyle='rgba(100,130,180,.55)';ctx.lineWidth=1;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(inX+inW,NZ_MAIN.y-12);ctx.lineTo(inX+inW,NZ_MAIN.y+12);ctx.stroke();ctx.setLineDash([]);
+  arw(inX+inW+12,NZ_MAIN.y,inX+inW-2,NZ_MAIN.y,'rgba(100,130,180,.7)',1);
+  ctx.fillStyle='rgba(80,110,160,.85)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'측벽 단일 노즐 주입 (사전 혼합)':'Side-wall single-nozzle injection (pre-mixed)',inX+inW+16,NZ_MAIN.y);
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().molCount}: ${particles.length}`,22,22);
+  const pct=Math.min(particles.length/75,1);
+  ctx.fillStyle=B.border;ctx.fillRect(22,38,130,5);ctx.fillStyle=B.purple;ctx.fillRect(22,38,130*pct,5);
+}
+
+let t3=0;
+function s3(dt,t){
+  chrome(true,false,t);drawGlow(.55,t);drawSheaths(.55,0);
+  drawDielectricWindow();drawChuck(0);drawWafer();drawSideLabels();drawDCMeter(0);
+  drawBFieldFluxLines(t,0.85);
+  drawRotatingEField(t,.55);
+  particles=particles.filter(p=>updP(p,dt,{fieldActive:false,brownian:.30,drag:.97}));
+  t3+=dt;if(t3>.22){t3=0;
+    const ns=particles.filter(p=>SP[p.type].cat==='neutral');
+    if(ns.length>0){
+      const tgt=ns[Math.floor(Math.random()*ns.length)],idx=particles.indexOf(tgt);
+      if(tgt.type==='BCl3'){particles.splice(idx,1);spawn('BCl2',tgt.x-4,tgt.y).vx=-.4;spawn('Cl',tgt.x+5,tgt.y-2).vx=.5;}
+      else if(tgt.type==='Cl2'){particles.splice(idx,1);spawn('Cl',tgt.x-3,tgt.y).vx=-.5;spawn('Cl',tgt.x+3,tgt.y).vx=.5;}
+      else{particles.splice(idx,1);spawn('Ar+',tgt.x,tgt.y);spawn('e-',tgt.x+4,tgt.y-3);}
+      emitL(tgt.x,tgt.y,'rgba(220,230,255,1)',.4);
+    }
+  }
+  updL(dt);drawL();drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'Plasma 점화 중 — V_DC = 0 V (Bias RF OFF)':'Plasma igniting — V_DC = 0 V (Bias RF OFF)',22,72);
+}
+
+let t4=0;
+function s4(dt,t){
+  chrome(true,false,t);drawGlow(.85,t);drawSheaths(.55,0);
+  drawDielectricWindow();drawChuck(0);drawWafer();drawSideLabels();
+  drawBFieldFluxLines(t,0.85);
+  drawRotatingEField(t,.65);drawDCMeter(-8);
+  // Floating-potential sheath: thin, near-isotropic ion arrival (no directed field)
+  particles=particles.filter(p=>updP(p,dt,{fieldActive:true,fieldDir:+1,fieldStrength:.04,botBoost:1.2,brownian:.18,drag:.97}));
+  t4+=dt;if(t4>.18){t4=0;
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<7){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<6){const r=rndPt();const ions=['Cl+','Ar+','BCl2+'];spawn(ions[Math.floor(Math.random()*3)],r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='radical').length<6){const r=rndPt();spawn(Math.random()<.5?'Cl':'BCl2',r.x,r.y);}
+  }
+  updL(dt);drawL();drawParts();
+  ctx.fillStyle='rgba(100,140,180,.75)';ctx.font=`bold 9.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'▶ 얇은 Floating-Potential Sheath':'▶ Thin floating-potential sheath',SC.x+SC.w+7,SB.y+SB.h/2);
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(L().densityLabel,22,72);
+  ctx.fillText(lang==='ko'?'이온 입사 방향: 거의 등방적':'Ion arrival direction: near-isotropic',22,88);
+}
+
+function s5(dt,t){
+  step4DCProgress=Math.min(step4DCProgress+dt*.30,1);
+  const vdc=-50*step4DCProgress;
+  chrome(true,true,t);drawGlow(.85,t);drawSheaths(.85,step4DCProgress);
+  drawDielectricWindow();drawChuck(step4DCProgress>.5?-1:0);drawWafer();drawSideLabels();
+  drawBFieldFluxLines(t,0.85);
+  drawRotatingEField(t,.50);drawDCMeter(vdc);drawVoltageWaveform(vdc,t);
+  // Charge accumulation indicator on the Bias blocking capacitor
+  if(step4DCProgress>.15){
+    const al=Math.min((step4DCProgress-.15)/.85,1);
+    ctx.save();ctx.globalAlpha=al;
+    ctx.fillStyle='#f06060';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText(`−${Math.round(step4DCProgress*22)} μC`,BCAP.cx-16,BCAP.cy);
+    ctx.restore();
+  }
+  particles=particles.filter(p=>updP(p,dt,{fieldActive:true,fieldDir:+1,fieldStrength:.06+0.20*step4DCProgress,botBoost:1.0+3.0*step4DCProgress,brownian:.14,drag:.97}));
+  t4+=dt;if(t4>.18){t4=0;
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<7){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<6){const r=rndPt();const ions=['Cl+','Ar+','BCl2+'];spawn(ions[Math.floor(Math.random()*3)],r.x,r.y);}
+  }
+  updL(dt);drawL();drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'Bias RF 인가 중 — 플라즈마 밝기 거의 변화 없음':'Bias RF ramping — plasma brightness barely changes',22,72);
+}
+
+let t5=0;
+function s6(dt,t){
+  const vdc=-50;
+  chrome(true,true,t);drawGlow(.85,t);drawSheaths(.90,1.0);
+  drawDielectricWindow();drawChuck(-1);drawWafer();drawSideLabels();
+  drawBFieldFluxLines(t,0.85);
+  drawRotatingEField(t,.50);drawDCMeter(vdc);
+  const opts={fieldActive:true,fieldDir:+1,fieldStrength:.26,botBoost:4.0,absorbIonBot:true,absorbElectronTop:true,
+    onImpact:(p,w)=>{if(w==='bot')addImp(p.x,SB.y+SB.h-3);}};
+  particles=particles.filter(p=>updP(p,dt,opts));
+  t5+=dt;if(t5>.14){t5=0;
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<10){const r=rndPt();const ions=['Cl+','Ar+','BCl2+'];spawn(ions[Math.floor(Math.random()*3)],r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<6){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='radical').length<7){const r=rndPt();spawn(Math.random()<.5?'Cl':'BCl2',r.x,r.y);}
+  }
+  updImp(dt);drawParts();drawImp();
+  const bH=SB.h+22, bY=SB.y+SB.h-bH;
+  ctx.fillStyle='rgba(232,85,59,.75)';ctx.font=`bold 9.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'▶ Bias-RF 시스 (이온 가속)':'▶ Bias-RF sheath (ion acceleration)',SC.x+SC.w+7,(bY+bY+bH)/2);
+  // Equation row below DC meter
+  const eqY=86;ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(L().eqLabel,22,eqY);
+  const eqX0=22+ctx.measureText(L().eqLabel).width+14;
+  chem('Al',eqX0+12,eqY,12,'#5a6479');ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.fillText('+',eqX0+32,eqY);chem('3Cl',eqX0+56,eqY,12,B.blue);
+  ctx.fillText('→',eqX0+88,eqY);chem('AlCl3',eqX0+118,eqY,12,'#9CA3AF');ctx.fillText('↑',eqX0+156,eqY);
+  ctx.fillStyle='rgba(138,138,154,.7)';ctx.font=`9.5px ${FONT}`;
+  ctx.fillText(lang==='ko'?'BCl₃: 자연 Al₂O₃ 게터링 · 휘발성 부산물':'BCl₃: getters native Al₂O₃ · volatile byproduct',22,110);
+}
+
+let t6=0;
+function s7(dt,t){
+  const isBias=mode==='BIAS';
+  const vdc=isBias?-50:-8;
+  const biasProg=isBias?1.0:0;
+  chrome(true,isBias,t);drawGlow(.85,t);drawSheaths(isBias?.90:.55,biasProg);
+  drawDielectricWindow();drawChuck(isBias?-1:0);drawWafer();drawSideLabels();
+  drawBFieldFluxLines(t,0.85);
+  drawRotatingEField(t,isBias?.50:.65);drawDCMeter(vdc);
+  const opts=isBias
+    ? {fieldActive:true,fieldDir:+1,fieldStrength:.26,botBoost:4.0,absorbIonBot:true,absorbElectronTop:true,
+        onImpact:(p,w)=>{if(w==='bot')addImp(p.x,SB.y+SB.h-3);}}
+    : {fieldActive:true,fieldDir:+1,fieldStrength:.04,botBoost:1.2,brownian:.18,drag:.97};
+  particles=particles.filter(p=>updP(p,dt,opts));
+  t6+=dt;if(t6>.16){t6=0;
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<7){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<(isBias?10:6)){const r=rndPt();const ions=['Cl+','Ar+','BCl2+'];spawn(ions[Math.floor(Math.random()*3)],r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='radical').length<6){const r=rndPt();spawn(Math.random()<.5?'Cl':'BCl2',r.x,r.y);}
+  }
+  if(isBias)updImp(dt);
+  drawParts();
+  if(isBias)drawImp();
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().modeLabel}: ${isBias?'Source + Bias':'Source Only'}`,22,72);
+  ctx.fillStyle=isBias?B.purple:'#3a9af0';
+  ctx.fillText(isBias?L().biasActive:L().lowEnergy,22,88);
+}
+
+let t8=0;
+function s8(dt,t){
+  const vdc=-50;
+  chrome(true,true,t);drawGlow(.85,t);drawSheaths(.90,1.0);
+  drawDielectricWindow();drawChuck(-1);drawWaferWithTrench(etchDepths);drawSideLabels();
+  drawBFieldFluxLines(t,0.85);
+  drawRotatingEField(t,.45);drawDCMeter(vdc);
+  const surfY=SB.y+SB.h-2;
+  const segW=WF.w/PR_SEGMENTS;
+  const openRanges=OPEN_SEGS.map(seg=>({seg,tL:Math.round(WF.x+seg*segW),tR:Math.round(WF.x+(seg+1)*segW)}));
+  const opts={fieldActive:true,fieldDir:+1,fieldStrength:.26,botBoost:4.0,absorbIonBot:true,absorbRadBot:true,driftBot:true,
+    onImpact:(p,w)=>{
+      if(w!=='bot')return;
+      addImp(p.x,surfY);
+      const hit=openRanges.find(r=>p.x>=r.tL&&p.x<=r.tR);
+      if(hit){
+        const cur=etchDepths[hit.seg]||0;
+        if(cur<AL_MAX){
+          const isIon=SP[p.type].cat==='ion';
+          etchDepths[hit.seg]=cur+(isIon?.16:.14);
+          emitL(p.x,surfY,'rgba(200,210,225,1)',.3);
+          if(Math.random()<.45){spawn('AlCl3',p.x,surfY,(Math.random()-.5)*.5,-1.6-Math.random()*.5);}
+        }
+      }
+    }};
+  particles=particles.filter(p=>updP(p,dt,opts));
+  t8+=dt;if(t8>.12){t8=0;
+    if(Math.random()<.7){
+      const src=[NZ1,NZ2,NZ3][Math.floor(Math.random()*3)];
+      const types=['BCl3','Cl2','Ar'];
+      const idx=[NZ1,NZ2,NZ3].findIndex(n=>n===src);
+      const p=spawn(types[idx],src.x-4,src.y+(Math.random()-.5)*10);
+      p.vx=-.3-Math.random()*.2;
+    }
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<9){const r=rndPt();const ions=['Cl+','Ar+','BCl2+'];spawn(ions[Math.floor(Math.random()*3)],r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<5){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='radical').length<8){const r=rndPt();spawn(Math.random()<.5?'Cl':'BCl2',r.x,r.y);}
+    if(Math.random()<.5){const r=rndPt();emitL(r.x,r.y,'rgba(210,225,255,1)',.4);}
+  }
+  updL(dt);updImp(dt);drawParts();drawL();drawImp();
+  const eqY=86;ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(L().eqLabel,22,eqY);
+  const eqX0=22+ctx.measureText(L().eqLabel).width+14;
+  chem('Al',eqX0+12,eqY,12,'#5a6479');ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.fillText('+',eqX0+32,eqY);chem('3Cl',eqX0+56,eqY,12,B.blue);
+  ctx.fillText('→',eqX0+88,eqY);chem('AlCl3',eqX0+118,eqY,12,'#9CA3AF');ctx.fillText('↑',eqX0+156,eqY);
+  const etP=etchDepths[TRENCH_SEG]||0;
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().etchLabel}: ${(etP/AL_MAX*100).toFixed(1)} ${L().etchPctOf}`,22,114);
+  ctx.fillStyle=B.border;ctx.fillRect(22,130,200,5);
+  ctx.fillStyle=etP>=AL_MAX?B.green:'#3a9af0';
+  ctx.fillRect(22,130,Math.min(200,etP/AL_MAX*200),5);
+  if(etP>=AL_MAX){ctx.fillStyle=B.green;ctx.font=`bold 10px ${FONT}`;ctx.fillText(L().etchThrough,22,142);}
+}
+
+// ── STEP 9 (K) — Key Takeaways ──────────────────────────────────
+function s9(){
+  ctx.fillStyle=B.bg;ctx.fillRect(0,0,W,H);
+  const hg=ctx.createLinearGradient(0,0,W,0);hg.addColorStop(0,B.purple);hg.addColorStop(1,'#8B40B8');
+  ctx.fillStyle=hg;ctx.fillRect(0,0,W,64);
+  ctx.fillStyle='#fff';ctx.font=`bold 19px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(L().takeawayHeader,24,26);
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font=`11.5px ${FONT}`;ctx.fillText(L().takeawaySubheader,24,50);
+  ctx.fillStyle=B.green;ctx.fillRect(0,64,W,4);
+  function secLbl(txt,x,y){ctx.fillStyle=B.purple;ctx.fillRect(x,y-7,3,14);ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=B.charcoal;ctx.fillText(txt,x+10,y);}
+  const LX=20,LWc=408;secLbl(L().takeawayDesign,LX,84);
+  L().principles.forEach(([title,desc],i)=>{
+    const cy=100+i*82,ch=72;
+    ctx.save();rr(LX,cy,LWc,ch,8);ctx.clip();ctx.fillStyle='rgba(15,140,80,.07)';ctx.fillRect(LX,cy,LWc,ch);ctx.restore();
+    rr(LX,cy,LWc,ch,8);ctx.strokeStyle='rgba(15,140,80,.28)';ctx.lineWidth=.8;ctx.stroke();
+    ctx.fillStyle=B.green;ctx.beginPath();ctx.arc(LX+22,cy+ch/2,11,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font=`bold 13px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✓',LX+22,cy+ch/2);
+    ctx.fillStyle='#0a5e34';ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.fillText(title,LX+42,cy+24);
+    ctx.fillStyle='#4a5565';ctx.font=`10.5px ${FONT}`;ctx.fillText(desc,LX+42,cy+48);
+  });
+  const RX=446,RW=436;secLbl(L().takeawayParams,RX,84);
+  const TY=98,RH=30,cols=[0,192,314,436],totH=RH*(L().tRows.length+1);
+  ctx.save();rr(RX,TY,RW,totH,8);ctx.clip();
+  ctx.fillStyle=B.purple;ctx.fillRect(RX,TY,RW,RH);
+  L().tHeaders.forEach((h,ci)=>{const mx=RX+(cols[ci]+cols[ci+1])/2;ctx.fillStyle='#fff';ctx.font=`bold 11.5px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h,mx,TY+RH/2);});
+  L().tRows.forEach((row,ri)=>{
+    const ry=TY+RH+ri*RH;ctx.fillStyle=ri%2===0?B.purpleSoft:'#fff';ctx.fillRect(RX,ry,RW,RH);
+    ctx.strokeStyle='#ddd0ee';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(RX,ry+RH);ctx.lineTo(RX+RW,ry+RH);ctx.stroke();
+    [1,2].forEach(ci=>{ctx.beginPath();ctx.moveTo(RX+cols[ci],ry);ctx.lineTo(RX+cols[ci],ry+RH);ctx.stroke();});
+    row.forEach((cell,ci)=>{
+      ctx.fillStyle=ci===0?B.charcoal:ci===1?B.purple:'#6b7388';ctx.font=ci===0?`11px ${FONT}`:`bold 11px ${FONT}`;
+      ctx.textAlign=ci===0?'left':'center';ctx.textBaseline='middle';
+      ctx.fillText(cell,ci===0?RX+8:RX+(cols[ci]+cols[ci+1])/2,ry+RH/2);
+    });
+  });
+  ctx.restore();rr(RX,TY,RW,totH,8);ctx.strokeStyle='#d0c0e8';ctx.lineWidth=1;ctx.stroke();
+  const PWY=TY+totH+18;
+  ctx.fillStyle=B.green;ctx.fillRect(RX,PWY,3,14);ctx.fillStyle=B.charcoal;ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(L().takeawayWindow,RX+10,PWY+7);
+  L().pwItems.forEach(([k,v],i)=>{
+    const py=PWY+26+i*22;ctx.fillStyle='#7a7a8a';ctx.font=`11px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(k,RX+10,py);
+    ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='right';ctx.fillText(v,RX+RW-6,py);
+  });
+  const BX=20,BY=514,BW=W-40,BH=74,HDH=30;
+  ctx.save();rr(BX,BY,BW,BH,8);ctx.clip();ctx.fillStyle='rgba(242,201,76,.13)';ctx.fillRect(BX,BY,BW,HDH);ctx.fillStyle='#fff';ctx.fillRect(BX,BY+HDH,BW,BH-HDH);ctx.restore();
+  rr(BX,BY,BW,BH,8);ctx.strokeStyle='rgba(190,155,40,.32)';ctx.lineWidth=.8;ctx.stroke();
+  ctx.strokeStyle='rgba(190,155,40,.32)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(BX+1,BY+HDH);ctx.lineTo(BX+BW-1,BY+HDH);ctx.stroke();
+  ctx.fillStyle='rgba(242,201,76,.50)';ctx.beginPath();ctx.arc(BX+20,BY+HDH/2,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#7a5800';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',BX+20,BY+HDH/2);
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.fillText(L().takeawayLimits,BX+36,BY+HDH/2);
+  ctx.fillStyle='#5a6070';ctx.font=`10.5px ${FONT}`;
+  L().limitLines.forEach((ln,i)=>ctx.fillText(ln,BX+14,BY+HDH+16+i*18));
+  drawLogo(.55);
+}
+
+const RENDERS=[s1,s2,s3,s4,s5,s6,s7,s8,s9];
+
+// ── Step controls ─────────────────────────────────────────────
+function renderStepCtrl(i){
+  stepCtrlEl.innerHTML='';
+  if(i===6){
+    const wrap=document.createElement('div');wrap.className='mode-toggle';
+    const srcB=document.createElement('button');srcB.textContent=lang==='ko'?'Source Only':'Source Only';
+    const biasB=document.createElement('button');biasB.textContent=lang==='ko'?'Source + Bias':'Source + Bias';
+    if(mode==='SRC')srcB.classList.add('active');else biasB.classList.add('active');
+    srcB.addEventListener('click',()=>{mode='SRC';setupStep(6);});
+    biasB.addEventListener('click',()=>{mode='BIAS';setupStep(6);});
+    wrap.appendChild(srcB);wrap.appendChild(biasB);stepCtrlEl.appendChild(wrap);
+    const note=document.createElement('span');note.className='mode-info';
+    note.textContent=mode==='SRC'?L().modeInfoSrcOnly:L().modeInfoSrcBias;
+    stepCtrlEl.appendChild(note);
+  }else if(i===7){
+    const btn=document.createElement('button');btn.className='reset-btn';btn.textContent=L().resetEtch;
+    btn.addEventListener('click',()=>{etchDepths={};});stepCtrlEl.appendChild(btn);
+  }
+}
+
+// ── Main loop ─────────────────────────────────────────────────
+function render(){
+  const now=performance.now(),dt=Math.min((now-lastT)/1000,.05);lastT=now;
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle=B.bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(renderScale * DPR, renderScale * DPR);
+  ctx.translate(renderOffX / renderScale, renderOffY / renderScale);
+  RENDERS[currentStep](dt,(now-t0)/1000);
+  requestAnimationFrame(render);
+}
+document.fonts.ready.then(()=>render()).catch(()=>render());
+
+// ── Step buttons ──────────────────────────────────────────────
+const sBEl=document.getElementById('stepButtons');
+function buildBtns(){
+  sBEl.innerHTML='';
+  L().steps.forEach((s,i)=>{
+    const b=document.createElement('button');b.className='step-btn'+(i===currentStep?' active':'');
+    b.textContent=i===0?'S':i===L().steps.length-1?'K':i;b.title=s.title;
+    b.addEventListener('click',()=>setStep(i));sBEl.appendChild(b);
+  });
+}
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+prevBtn.addEventListener('click',()=>setStep(currentStep-1));
+nextBtn.addEventListener('click',()=>setStep(currentStep+1));
+
+function fmtHint(raw){
+  if(!raw)return'';const sp=raw.indexOf(' ');
+  if(sp>0){const icon=raw.slice(0,sp),body=raw.slice(sp+1);if(/\p{Emoji}/u.test(icon))return`<div class="hint-icon">${icon}</div><div class="hint-text">${body}</div>`;}
+  return`<div class="hint-text">${raw}</div>`;
+}
+const DEEP_DIVE_LABEL = { en:'Deep Dive', ko:'심화학습' };
+function toggleDeepDive(idx){
+  const hdr=document.getElementById('ddHdr'+idx), body=document.getElementById('ddBody'+idx);
+  if(!hdr||!body)return;
+  const open=body.classList.toggle('open');
+  hdr.classList.toggle('open',open);
+}
+function setStep(i){
+  if(i<0||i>=L().steps.length)return;currentStep=i;
+  document.querySelectorAll('.step-btn.active').forEach(b=>b.classList.remove('active'));
+  if(sBEl.children[i])sBEl.children[i].classList.add('active');
+  document.getElementById('stepNum').textContent=i===0?'S':i===L().steps.length-1?'K':i;
+  document.getElementById('stepTitle').textContent=L().steps[i].title;
+  document.getElementById('stepBody').innerHTML=L().steps[i].body;
+  const hEl=document.getElementById('stepHint');
+  if(L().steps[i].hint){hEl.innerHTML=fmtHint(L().steps[i].hint);hEl.style.display='';}
+  else hEl.style.display='none';
+  const ddEl=document.getElementById('deepDiveContainer');
+  let dds=L().steps[i].deepDive;
+  if(dds && !Array.isArray(dds)) dds=[dds];
+  if(dds && dds.length){
+    ddEl.innerHTML=dds.map((dd,idx)=>`
+      <div class="deep-wrap">
+        <div class="deep-hdr" id="ddHdr${idx}" onclick="toggleDeepDive(${idx})">
+          <span class="deep-icon">📚</span>
+          <span class="deep-title">${dd.title}</span>
+          <span class="deep-badge">${DEEP_DIVE_LABEL[lang]}</span>
+          <span class="deep-chevron">▼</span>
+        </div>
+        <div class="deep-body" id="ddBody${idx}">
+          <div class="deep-inner">${dd.body}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    ddEl.innerHTML='';
+  }
+  prevBtn.disabled=(i===0);nextBtn.disabled=(i===L().steps.length-1);
+  prevBtn.textContent=L().prevBtn;nextBtn.textContent=L().nextBtn;
+  document.getElementById('sideInner').scrollTop=0;
+  renderStepCtrl(i);
+  setupStep(i);
+}
+
+// ── Language ──────────────────────────────────────────────────
+function setLang(l){
+  lang=l;
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  document.getElementById('btnKO').classList.toggle('active',l==='ko');
+  document.getElementById('hTitle').textContent=L().hTitle;
+  document.getElementById('hSub').textContent=L().hSub;
+  buildBtns();setStep(currentStep);
+}
+
+// ── Tooltip ───────────────────────────────────────────────────
+function ptIn(x,y,r){return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;}
+canvas.addEventListener('mousemove',e=>{
+  const cr=canvas.getBoundingClientRect();
+  const mx=(e.clientX-cr.left), my=(e.clientY-cr.top);
+  const cx=(mx-renderOffX)/renderScale, cy=(my-renderOffY)/renderScale;
+  if(currentStep!==0){hoveredHotspot=null;tooltip.classList.remove('show');canvas.style.cursor='default';return;}
+  let foundR=null;for(const h of HR){if(ptIn(cx,cy,h.rect)){foundR=h;break;}}
+  hoveredHotspot=foundR;
+  if(foundR){
+    const hs=L().hotspots.find(h=>h.n===foundR.n);
+    tooltip.classList.add('show');
+    tooltip.innerHTML=`<b>${hs.title}</b><br>${hs.text.replace(/\n/g,'<br>')}`;
+    const cardRect=canvas.parentElement.getBoundingClientRect();
+    tooltip.style.left=(e.clientX-cardRect.left)+'px';
+    tooltip.style.top=(e.clientY-cardRect.top-10)+'px';
+    canvas.style.cursor='pointer';
+  }else{tooltip.classList.remove('show');canvas.style.cursor='default';}
+});
+canvas.addEventListener('mouseleave',()=>{hoveredHotspot=null;tooltip.classList.remove('show');});
+
+// ── Image Lightbox ────────────────────────────────────────────
+function openLightbox(src){
+  const lb=document.getElementById('imgLightbox'), img=document.getElementById('imgLightboxSrc');
+  img.src=src;lb.classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('imgLightbox').classList.remove('open');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+
+// ── Init ──────────────────────────────────────────────────────
+buildBtns();
+setStep(0);
+</script>
+</body>
+</html>

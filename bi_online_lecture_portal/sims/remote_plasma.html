@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remote Plasma Source — Interactive Lesson · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #F7F8FA;
+    --panel:       #FFFFFF;
+    --ink:         #2D2D2D;
+    --muted:       #6B7280;
+    --muted2:      #9CA3AF;
+    --purple:      #7030A0;
+    --purple-soft: #F0E6F6;
+    --purple-mid:  #d9b8ed;
+    --purple-dark: #521a78;
+    --green:       #0F8C50;
+    --border:      #E5E7EB;
+    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+    --hdr:         52px;
+    --side:        450px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; overflow: hidden; }
+  body {
+    height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: 'Google Sans','Noto Sans KR','Segoe UI',system-ui,sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .hdr {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    height: var(--hdr); background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 1rem; padding: 0 1.25rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  }
+  .hdr-logo   { height: 32px; width: auto; flex-shrink: 0; }
+  .hdr-div    { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+  .hdr-title  { font-size: 0.95rem; font-weight: 700; color: var(--purple); line-height: 1.2; }
+  .hdr-sub    {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.50rem;
+    color: var(--muted2); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;
+  }
+  .hdr-right  { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+
+  .lang-toggle { display: flex; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .lang-btn {
+    padding: 3px 13px; border: none; background: transparent; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.60rem; font-weight: 500;
+    color: var(--muted2); transition: all 0.16s;
+  }
+  .lang-btn.active { background: var(--purple); color: #fff; }
+
+  /* ── Main area (below fixed header) ── */
+  .main {
+    position: fixed;
+    top: var(--hdr); left: 0; right: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr var(--side);
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* ── Canvas area ── */
+  .canvas-wrap {
+    position: relative;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    padding: 10px 8px 6px 10px;
+    overflow: hidden;
+  }
+  .canvas-card {
+    flex: 1;
+    background: var(--panel);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  #cv {
+    display: block;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    object-fit: contain;
+  }
+  /* Step controls below canvas card */
+  .step-controls {
+    flex-shrink: 0;
+    min-height: 28px; height: 28px;
+    display: flex; gap: 8px; align-items: center;
+    margin-top: 6px; flex-wrap: nowrap; overflow: hidden;
+  }
+  .mode-toggle {
+    display: inline-flex; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 20px; padding: 2px; gap: 2px;
+  }
+  .mode-toggle button {
+    border: none; background: transparent; padding: 3px 12px;
+    font-family: 'Google Sans', sans-serif; font-size: 0.70rem; font-weight: 600;
+    cursor: pointer; color: var(--muted); border-radius: 14px; transition: all 0.14s;
+  }
+  .mode-toggle button.active { background: var(--purple); color: #fff; }
+  .mode-info {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.60rem;
+    background: var(--purple-soft); color: var(--purple-dark);
+    padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+  }
+  .reset-btn {
+    font-family: 'Google Sans', sans-serif; font-size: 0.70rem; font-weight: 600;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 7px;
+    padding: 4px 12px; cursor: pointer; color: var(--ink); transition: all 0.14s;
+    white-space: nowrap;
+  }
+  .reset-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
+
+  /* Tooltip */
+  #tooltip {
+    position: absolute; pointer-events: none;
+    background: rgba(18,22,38,0.97); color: #fff;
+    padding: 9px 13px; border-radius: 9px; font-size: 12.5px;
+    line-height: 1.6; max-width: 270px;
+    transform: translate(-50%,-100%); margin-top: -12px;
+    opacity: 0; transition: opacity 0.11s; z-index: 50;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.32); border: 1px solid rgba(255,255,255,0.09);
+  }
+  #tooltip.show { opacity: 1; }
+  #tooltip b { color: #c4a0f0; }
+
+  /* ── Side Panel ── */
+  .side {
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .side-inner {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 1rem 1.1rem 0.5rem;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .side-inner::-webkit-scrollbar { width: 4px; }
+  .side-inner::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .step-eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.54rem;
+    color: var(--muted2); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.3rem;
+  }
+  .step-title { font-size: 1.08rem; font-weight: 700; color: var(--ink); margin-bottom: 0.6rem; line-height: 1.3; }
+  .step-body  { font-size: 0.82rem; line-height: 1.76; color: #3a4055; }
+  .step-body ul { padding-left: 1.1rem; margin: 0.35rem 0; }
+  .step-body li { margin-bottom: 0.28rem; }
+  .step-body b  { font-weight: 700; color: var(--ink); }
+  .step-body code {
+    background: var(--purple-soft); padding: 1px 6px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; color: var(--purple-dark);
+  }
+  .hint-box {
+    margin-top: 0.7rem; display: flex; gap: 9px; align-items: flex-start;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px;
+  }
+  .hint-icon {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--purple-soft); display: flex; align-items: center;
+    justify-content: center; font-size: 13px;
+  }
+  .hint-text { font-size: 0.71rem; line-height: 1.58; color: #4a5070; flex: 1; align-self: center; }
+
+  /* Deep Dive accordion */
+  .deep-wrap {
+    margin-top: 0.85rem; border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; background: var(--panel);
+  }
+  .deep-hdr {
+    display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.85rem;
+    cursor: pointer; user-select: none; background: var(--panel); transition: background 0.15s;
+  }
+  .deep-hdr:hover { background: var(--bg); }
+  .deep-hdr.open { background: var(--purple-soft); border-bottom: 1px solid var(--border); }
+  .deep-icon  { font-size: 1rem; flex-shrink: 0; }
+  .deep-title { font-size: 0.80rem; font-weight: 700; color: var(--ink); flex: 1; line-height: 1.3; }
+  .deep-badge {
+    background: var(--purple); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.50rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+    letter-spacing: 0.04em;
+  }
+  .deep-chevron { font-size: 0.62rem; color: var(--muted2); transition: transform 0.2s; flex-shrink: 0; }
+  .deep-hdr.open .deep-chevron { transform: rotate(180deg); }
+  .deep-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; background: var(--bg); }
+  .deep-body.open { max-height: 2000px; }
+  .deep-inner { padding: 0.85rem 0.9rem; font-size: 0.76rem; line-height: 1.78; color: #4a5070; }
+  .deep-inner p + p { margin-top: 0.6em; }
+  .deep-inner b { color: var(--ink); }
+  .deep-inner .deep-eq {
+    background: var(--charcoal,#2D2D2D); border-radius: 6px; padding: 0.55rem 0.8rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: #FFD580;
+    margin: 0.5rem 0; overflow-x: auto; letter-spacing: 0.03em; line-height: 1.6;
+  }
+  .deep-inner .deep-hl {
+    background: var(--purple-soft); border-left: 3px solid var(--purple);
+    border-radius: 0 7px 7px 0; padding: 0.5rem 0.8rem; margin: 0.5rem 0;
+    font-size: 0.74rem; line-height: 1.7; color: var(--purple-dark);
+  }
+  .deep-inner ul { padding-left: 1.1rem; margin: 0.35rem 0; }
+  .deep-inner li { margin-bottom: 0.3rem; }
+  .deep-inner .deep-img-wrap { margin: 0.6rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); cursor: zoom-in; }
+  .deep-inner .deep-img-wrap img { display: block; width: 100%; height: auto; transition: opacity 0.15s; }
+  .deep-inner .deep-img-wrap:hover img { opacity: 0.88; }
+  .deep-inner .deep-cap { font-size: 0.70rem; color: #8a93ad; text-align: center; margin-top: 0.35rem; line-height: 1.5; }
+  .img-lightbox {
+    position: fixed; inset: 0; background: rgba(20,22,34,0.82);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; cursor: zoom-out; padding: 2.5rem;
+  }
+  .img-lightbox.open { display: flex; }
+  .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 12px 48px rgba(0,0,0,0.45); }
+  .img-lightbox .lightbox-close {
+    position: absolute; top: 1.1rem; right: 1.4rem; width: 38px; height: 38px;
+    border-radius: 50%; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; font-size: 1.1rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .img-lightbox .lightbox-close:hover { background: rgba(255,255,255,0.22); }
+
+  /* Side footer: step buttons + nav */
+  .side-footer {
+    flex-shrink: 0;
+    padding: 0.65rem 1.1rem 0.8rem;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .step-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.6rem; }
+  .step-btn {
+    padding: 5px 10px; font-size: 0.70rem; font-weight: 600;
+    border: 1px solid var(--border); background: var(--panel); border-radius: 6px;
+    cursor: pointer; color: var(--muted); transition: all 0.13s;
+    font-family: 'Google Sans', sans-serif; min-width: 30px; text-align: center;
+  }
+  .step-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
+  .step-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+  .nav-row { display: flex; gap: 7px; }
+  .nav-btn {
+    flex: 1; padding: 9px; font-size: 0.78rem; font-weight: 700;
+    border: none; background: var(--ink); color: #fff; border-radius: 8px;
+    cursor: pointer; font-family: 'Google Sans', sans-serif; transition: background 0.14s;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--purple); }
+  .nav-btn:disabled { background: var(--border); color: var(--muted2); cursor: not-allowed; }
+
+  /* Footer bar */
+  .foot {
+    display: none; /* hidden — space too tight in full-screen mode */
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixed Header -->
+<header class="hdr">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer"
+     style="display:inline-flex;align-items:center;text-decoration:none;">
+    <img class="hdr-logo"
+      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+      alt="Benedu Insight">
+  </a>
+  <div class="hdr-div"></div>
+  <div>
+    <div class="hdr-title" id="hTitle">Remote Plasma Source — Interactive Lesson</div>
+    <div class="hdr-sub"   id="hSub">Class 5 · O₂ → O Radical → PR Ashing (Remote Plasma Source) · Benedu Insight</div>
+  </div>
+  <div class="hdr-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        id="btnKO" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main 2-column layout -->
+<div class="main">
+
+  <!-- Left: Canvas + controls -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="canvas-card" id="canvasCard">
+      <canvas id="cv"></canvas>
+      <div id="tooltip"></div>
+    </div>
+    <div class="step-controls" id="stepControls"></div>
+  </div>
+
+  <!-- Right: Side panel -->
+  <div class="side">
+    <div class="side-inner" id="sideInner">
+      <div class="step-eyebrow">Step <span id="stepNum">S</span> / 9</div>
+      <div class="step-title" id="stepTitle"></div>
+      <div class="step-body"  id="stepBody"></div>
+      <div class="hint-box"   id="stepHint" style="display:none;"></div>
+      <div id="deepDiveContainer"></div>
+    </div>
+    <div class="side-footer">
+      <div class="step-btns" id="stepButtons"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn">◀ Prev</button>
+        <button class="nav-btn" id="nextBtn">Next ▶</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="img-lightbox" id="imgLightbox" onclick="closeLightbox()">
+  <div class="lightbox-close" onclick="closeLightbox()">✕</div>
+  <img id="imgLightboxSrc" src="" alt="">
+</div>
+
+<script>
+/* ============================================================
+   Remote Plasma Source (RPS) Interactive Lesson v1
+   Benedu Insight · Google Sans · Full-viewport layout
+   Responsive Canvas — geometry scales with window size
+   O2 -> O Radical -> PR Ashing (Toroidal RPS, Transformer-Coupled)
+   LEFT  : Toroidal Quartz Tube + Split Ferrite Core + Primary Coil
+           -- AC Source (400 kHz), single circuit, no matcher/bias
+   MID   : Downstream Transport Duct -- charged-species filter
+   RIGHT : Process (Ashing) Chamber -- grounded, NO RF,
+           passive radical showerhead + heated wafer chuck
+   KO / EN bilingual
+   ============================================================ */
+
+// ── Canvas & ctx ──────────────────────────────────────────────
+const canvas = document.getElementById('cv');
+const ctx    = canvas.getContext('2d');
+const tooltip     = document.getElementById('tooltip');
+const stepCtrlEl  = document.getElementById('stepControls');
+
+// ── Logical canvas dimensions (constant ratio 900:640) ────────
+const LW = 900, LH = 640;
+let DPR = window.devicePixelRatio || 1;
+
+let renderScale = 1, renderOffX = 0, renderOffY = 0;
+function resizeCanvas() {
+  const card = document.getElementById('canvasCard');
+  const cw = card.clientWidth;
+  const ch = card.clientHeight;
+  DPR = window.devicePixelRatio || 1;
+  canvas.width  = Math.round(cw * DPR);
+  canvas.height = Math.round(ch * DPR);
+  canvas.style.width  = cw + 'px';
+  canvas.style.height = ch + 'px';
+  const aspect = LW / LH;
+  let drawW, drawH;
+  if (cw / ch > aspect) { drawH = ch; drawW = ch * aspect; }
+  else                   { drawW = cw; drawH = cw / aspect; }
+  renderScale = drawW / LW;
+  renderOffX = (cw - drawW) / 2;
+  renderOffY = (ch - drawH) / 2;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(renderScale * DPR, renderScale * DPR);
+  ctx.translate(renderOffX / renderScale, renderOffY / renderScale);
+}
+
+const ro = new ResizeObserver(() => resizeCanvas());
+ro.observe(document.getElementById('canvasCard'));
+resizeCanvas();
+
+// ── Brand ─────────────────────────────────────────────────────
+const FONT = '"Google Sans","Noto Sans KR",system-ui,sans-serif';
+const MONO = '"JetBrains Mono",monospace';
+const B = {
+  purple:'#7030A0', purpleSoft:'#F0E6F6', purpleDark:'#521a78',
+  green:'#0F8C50',  greenSoft:'#E5F4EC',
+  charcoal:'#2D2D2D', muted:'#6B7280', muted2:'#9CA3AF',
+  bg:'#F7F8FA', panel:'#FFFFFF', border:'#E5E7EB',
+  red:'#E8553B', blue:'#3A7AD6', teal:'#1f9e8e', amber:'#caa23a',
+};
+
+// ── Logo ──────────────────────────────────────────────────────
+const LOGO = new Image();
+LOGO.crossOrigin = 'anonymous';
+LOGO.src = 'https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png';
+function drawLogo(a=0.45) {
+  if (!LOGO.complete || !LOGO.naturalWidth) return;
+  const lh=26, lw=Math.round(lh*LOGO.naturalWidth/LOGO.naturalHeight);
+  ctx.save(); ctx.globalAlpha=a;
+  ctx.drawImage(LOGO, LW-lw-12, LH-lh-10, lw, lh);
+  ctx.restore();
+}
+// ── Geometry — all in LW×LH (900×640) logical space ──────────
+// REMOTE PLASMA SOURCE (RPS) for PR Ashing (+ Chamber Cleaning, deepDive):
+//   LEFT  : Toroidal RPS module — ferrite-core transformer coupling.
+//           A helical primary coil wraps a split ferrite core; the
+//           plasma forms a closed current loop (secondary) INSIDE a
+//           quartz toroidal tube. Driven by an AC source (400 kHz, common).
+//   MID   : Downstream transport duct — ions/electrons recombine on
+//           the duct walls; only NEUTRAL RADICALS (O·) survive to
+//           reach the process chamber.
+//   RIGHT : Process (Ashing) Chamber — grounded, NO RF applied here.
+//           Radical shower-head style inlet at top, wafer chuck
+//           (grounded, temperature-controlled) at bottom, pump below.
+const W=LW, H=LH;
+
+// ── RPS Toroid (left module) ───────────────────────────────────
+const TOR={cx:175, cy:230, rOut:92, rIn:50};      // outer/inner radius of ceramic torus (drawn as a ring in cross-section)
+const TOR_TUBE_W = TOR.rOut - TOR.rIn;            // tube wall thickness (visual)
+// Ferrite core halves (split core clamped around one side of the torus)
+const FCORE={cx:TOR.cx, cy:TOR.cy-TOR.rOut-26, w:96, h:40, r:8};
+FCORE.x = FCORE.cx - FCORE.w/2;
+FCORE.y = FCORE.cy - FCORE.h/2;
+// AC Source — single circuit driving the primary coil directly. RPS
+// plasma is not used to bias/accelerate ions toward any wafer, so there
+// is no separate matcher/bias supply — just one AC source.
+const AC_SRC={x:TOR.cx-75, y:TOR.cy+TOR.rOut+16, w:150, h:46, r:10};
+
+// ── Downstream transport duct (mid section) ─────────────────────
+// Horizontal duct connecting the RPS outlet (right side of torus) to
+// the Process Chamber inlet (left wall, top region).
+const DUCT={x:TOR.cx+TOR.rOut+14, y:118, w:150, h:34};
+
+// ── RPS Module bounding box (dashed) ─────────────────────────────
+// AC Source + Ferrite Core + Toroid + Downstream Duct inlet are supplied
+// as a single product. Gas supply (MFCs/sources) sits BELOW this box,
+// outside its boundary.
+const RPS_BOX={x:30, y:FCORE.y-14, w:(DUCT.x+DUCT.w)-30, h:(AC_SRC.y+AC_SRC.h)-(FCORE.y-14)+10};
+
+// ── Process (Ashing) Chamber (right module) ──────────────────────
+const PCH={x:430, y:90, w:430, h:430, r:18};
+const PIP=18, pinX=PCH.x+PIP, pinY=PCH.y+PIP, pinW=PCH.w-PIP*2, pinH=PCH.h-PIP*2;
+
+// Radical shower-head — grounded, distributes O· across the chamber top.
+// NOTE: unlike PE-CVD, this showerhead carries NO RF — it is a passive gas
+// distribution plate fed by the downstream duct.
+const RSH={x:pinX, y:pinY, w:pinW-46, h:18};
+
+// Wafer chuck — grounded, temperature-controlled (often heated for ashing),
+// NOT RF-powered. No sheath/V_DC physics here — this is the defining
+// contrast with CCP/ICP direct-plasma chambers.
+const PCW=Math.round(pinW*0.62);
+const PSC={x:pinX+Math.round((pinW-PCW)/2), y:pinY+pinH-32, w:PCW, h:32};
+
+// PR film on wafer — ashing target. Drawn as a uniform top layer that
+// thins isotropically (top-down) as O radicals consume it.
+const PR_FULL_H = 22;
+const PWF={x:PSC.x+Math.round(PCW*0.08), y:PSC.y-PR_FULL_H, w:Math.round(PCW*0.84), h:PR_FULL_H};
+
+// Plasma-free "reaction zone" — the volume between showerhead and wafer
+// where O· radicals diffuse and react. No glow drawn here (no plasma).
+const RZ={x:pinX+8, y:RSH.y+RSH.h, w:pinW-16, h:PSC.y-(RSH.y+RSH.h)-4};
+
+// Process chamber pump — Dry Vacuum Pump only (no turbo; not used at
+// RPS-typical pressures of 0.5–5 Torr). Positioned below the chamber.
+const PDVP={x:PCH.x+60, y:PCH.y+PCH.h+34, w:110, h:56, r:8};
+
+// ── Gas system — O2 (ashing) + NF3/Ar (cleaning, alt mode) ───────
+// Two gas boxes feed a shared MFC manifold into the RPS toroid inlet.
+// Positioned BELOW the RPS module's bounding box (gas supply is external
+// to the single-product RPS module).
+const GM1={cx:175, cy:RPS_BOX.y+RPS_BOX.h+44};   // MFC for O2
+const GM2={cx:175, cy:GM1.cy+48};                // MFC for NF3 (cleaning mode) / N2
+const GS1={x:50, y:GM1.cy-12, w:62, h:24};
+const GS2={x:50, y:GM2.cy-12, w:62, h:24};
+const TOR_INLET={x:TOR.cx, y:TOR.cy+TOR.rOut};   // gas enters torus from below
+const TOR_OUTLET={x:TOR.cx+TOR.rOut, y:TOR.cy};  // radicals exit toroid toward duct
+
+// ── Species — O2 (Ashing) / NF3+Ar (Cleaning, deepDive only) ─────
+const SP={
+  'O2':  {f:'O2',  c:'#2a3145', sz:11, q:0,  m:32,  cat:'neutral' },
+  'O':   {f:'O',   c:B.blue,    sz:10, q:0,  m:16,  cat:'radical' },
+  'O+':  {f:'O+',  c:B.red,     sz:10, q:+1, m:16,  cat:'ion'     },
+  'O2+': {f:'O2+', c:B.red,     sz:11, q:+1, m:32,  cat:'ion'     },
+  'e-':  {f:'e-',  c:B.red,     sz:10, q:-1, m:0.0005, cat:'electron'},
+  'CO2': {f:'CO2', c:'#9CA3AF', sz:10, q:0,  m:44,  cat:'byproduct'},
+  'H2O': {f:'H2O', c:'#9CA3AF', sz:10, q:0,  m:18,  cat:'byproduct'},
+  // Cleaning-mode species (deepDive / step 8 comparison only)
+  'NF3': {f:'NF3', c:'#2a3145', sz:11, q:0,  m:71,  cat:'neutral' },
+  'F':   {f:'F',   c:B.green,   sz:10, q:0,  m:19,  cat:'radical' },
+  'SiF4':{f:'SiF4',c:'#9CA3AF', sz:11, q:0,  m:104, cat:'byproduct'},
+};
+const T = {
+en:{
+  hTitle:'Remote Plasma Source — Interactive Lesson',
+  hSub:'Class 5 · O₂ → O Radical → PR Ashing (Remote Plasma Source) · Benedu Insight',
+  stepLabel:'Step',
+  modeInfoDirect:'Direct Plasma — wafer immersed in plasma, exposed to ions + UV + radicals',
+  modeInfoRemote:'Remote Plasma — wafer sees radicals only; ions/electrons recombine upstream',
+  resetAsh:'↻ Reset Ashing',
+  prevBtn:'◀ Prev', nextBtn:'Next ▶',
+  modeLabel:'Mode',
+  ashLabel:'PR Remaining', ashPctOf:'% of PR', eqLabel:'Overall:',
+  ashComplete:'✓ PR fully ashed — substrate exposed',
+  rpsLabel:'AC Source (Toroid)',
+  densityLabel:'Plasma density ≈ 10¹⁰–10¹² cm⁻³ (confined inside toroid)',
+  molCount:'Gas Molecules',
+  noVdc:'No V_DC — wafer is grounded, not RF-powered',
+  steps:[
+    { title:'Remote Plasma Source — System Overview',
+      body:`A Remote Plasma Source (RPS) system has <b>two physically separate regions</b>, connected by a transport duct.
+        <ul>
+          <li><b>RPS Module (left)</b> — a <b>toroidal quartz tube</b> wrapped by a <b>split ferrite core + primary coil</b>, driven by an AC source. This is where the plasma actually exists.</li>
+          <li><b>Downstream Duct (middle)</b> — connects the RPS outlet to the process chamber inlet. Charged species (ions, electrons) recombine here; only <b>neutral radicals</b> survive the trip.</li>
+          <li><b>Process (Ashing) Chamber (right)</b> — a <b>grounded</b> chamber with <b>no RF applied</b>. A passive radical showerhead distributes O· over the wafer.</li>
+          <li>Gas: <code>O₂</code> (PR ashing) enters the toroid from below; an alternate <code>NF₃ + Ar</code> path (chamber cleaning) is covered in the Deep Dive.</li>
+        </ul>
+        The defining idea: <b>plasma generation and wafer processing are spatially separated</b> — the wafer never sits inside the plasma itself.`,
+      hint:'💡 Hover over each module for details. Notice there is no RF circuit anywhere near the wafer.',
+      deepDive:{
+        title:'Where Else Is RPS Used? Ashing vs. Chamber Cleaning vs. Remote PE-CVD',
+        body:`<p>The exact same RPS hardware — toroidal tube, ferrite core, AC source — is reused across several applications by simply changing the <b>gas chemistry</b> and the <b>downstream destination</b>.</p>
+<div class="deep-hl"><b>PR Ashing (this lesson):</b> O₂ → O· radicals → flow to the wafer chamber → oxidize photoresist (CₓHᵥ) to volatile CO₂ + H₂O.</div>
+<div class="deep-hl"><b>Chamber Cleaning:</b> NF₃ + Ar → F· radicals → flow into an (empty, no-wafer) process chamber → react with SiO₂/polymer residue deposited on chamber walls during PE-CVD or etch, forming volatile SiF₄. This is run <b>between wafers</b>, not during device processing.</div>
+<div class="deep-hl"><b>Remote Plasma PE-CVD / PE-ALD:</b> the RPS feeds activated radicals (e.g. N·, H·, O·) directly into a separate deposition chamber as a co-reactant — combining the gentleness of "no direct plasma exposure" with the reactivity boost of plasma activation.</div>
+<p>In every case, the toroidal RPS itself is identical. What changes is only the gas supply (O₂ vs. NF₃/Ar vs. N₂/H₂ etc.) and where the downstream line is routed. This module-reuse is one of RPS's biggest practical advantages.</p>` }
+    },
+    { title:'Gas Fill — O₂ into the Toroid',
+      body:`<code>O₂</code> is metered by its own MFC and enters the <b>toroidal quartz tube</b> through an inlet port — typically on the underside of the torus, away from the ferrite core.
+        <ul>
+          <li>The toroid is a <b>closed quartz loop</b> — the plasma, once ignited, forms a ring-shaped current path <i>inside</i> this tube</li>
+          <li>Operating pressure: <code>0.5–5 Torr</code> — much higher than CCP/ICP etch chambers, because RPS plasma does not need to sustain directional ion bombardment</li>
+          <li>An optional <code>NF₃ + Ar</code> line (chamber-cleaning mode) shares the same inlet manifold but is not used in this PR-ashing sequence</li>
+          <li>At this point, no RF is applied yet — gas simply fills the toroid and the downstream duct/process chamber</li>
+        </ul>`,
+      hint:'⚙ Note the closed-loop ceramic tube shape — this geometry is what makes transformer (inductive) coupling possible without electrodes.' },
+    { title:'AC Source Ignition — Transformer-Coupled Plasma',
+      body:`The <b>AC Source</b> (commonly <code>400 kHz</code>, sometimes 13.56 MHz or 2.45 GHz microwave) drives an AC current through the <b>primary coil</b> wound around the <b>split ferrite core</b>.
+        <ul>
+          <li>The ferrite core concentrates the coil's magnetic flux and channels it through the <b>toroidal plasma loop</b> — exactly like the iron core of a transformer</li>
+          <li>The plasma ring acts as the transformer's <b>secondary winding</b> — a single-turn, short-circuited loop</li>
+          <li>By <b>Faraday's Law</b>, the AC flux through the core induces a <b>circulating E-field</b> around the toroidal loop, accelerating electrons in a closed ring path</li>
+          <li>This drives: <code>e⁻ + O₂ → O₂⁺ + 2e⁻</code> and <code>e⁻ + O₂ → 2O· + e⁻</code></li>
+          <li>No electrodes are inside the toroid — purely magnetic (transformer) coupling, the same family as ICP but geometrically a closed loop instead of an open coil-over-window</li>
+        </ul>`,
+      hint:'⚡ Watch the ferrite core glow and the circulating current form inside the toroid — that is the transformer\u2019s secondary.',
+      deepDive:{
+        title:'Transformer-Coupled Plasma (TCP) vs. Planar ICP',
+        body:`<p>The planar ICP lesson described a flat spiral coil over a flat dielectric window, inducing a rotating E-field in an open plasma volume below it. RPS uses the <b>same underlying physics</b> — AC current → oscillating flux → induced E-field — but with two geometric changes.</p>
+<div class="deep-hl"><b>1. Closed magnetic core:</b> a ferrite core (high magnetic permeability) channels nearly all of the coil's flux through the plasma loop, instead of relying on an open dielectric window. This makes coupling far more efficient at lower frequencies (hundreds of kHz instead of 13.56 MHz).</div>
+<div class="deep-hl"><b>2. Closed plasma loop:</b> the plasma itself forms a closed ring (the torus), acting as a true single-turn transformer secondary. In planar ICP, the "plasma volume" is an open slab, not a closed loop — the coupling is inductive but not strictly transformer-like.</div>
+<p>Because the magnetic core does the heavy lifting, RPS sources can ignite and sustain dense plasmas (<code>10¹⁰–10¹² cm⁻³</code>) at relatively low RF power and frequency — well-suited to continuous operation feeding a separate chamber.</p>` }
+    },
+    { title:'O₂ Dissociation — Plasma Confined Inside the Toroid',
+      body:`Once ignited, the toroid is filled with a <b>dense O₂ plasma</b> — but this plasma is <b>physically confined</b> to the quartz tube. Nothing about the wafer or process chamber has changed yet.
+        <ul>
+          <li><code>e⁻ + O₂ → 2O·</code> — the dominant dissociation channel, producing atomic oxygen radicals</li>
+          <li><code>e⁻ + O₂ → O₂⁺ + 2e⁻</code> — ionization, producing O₂⁺ ions and additional electrons</li>
+          <li><b>Ions, electrons, AND radicals</b> all coexist inside the toroid at this stage — just like any other plasma</li>
+          <li>The toroid wall (quartz, often coated) is the only surface in contact with this plasma — there is no wafer here</li>
+        </ul>`,
+      hint:'🔬 The bright ring inside the toroid contains O·, O⁺, O₂⁺, and e⁻ all together — the separation happens in the next step.',
+      deepDive:{
+        title:'Why O₂ Dissociates So Readily',
+        body:`<p>The O=O double bond dissociation energy (~5.2 eV) is comparable to or lower than many bonds broken in CCP/ICP etch and CVD chemistries (e.g. C–F, Si–H). Electron-impact dissociation of O₂ is therefore efficient even at the modest electron temperatures (Tₑ ≈ 1–3 eV) typical of RPS discharges.</p>
+<div class="deep-hl">High operating pressure (0.5–5 Torr) also helps here: more frequent electron-neutral collisions mean more dissociation events per unit time, even though each individual collision may transfer less energy than in a low-pressure ICP discharge.</div>
+<p>The net result is a high <b>dissociation fraction</b> for O₂ — often well above 50% — which is exactly what an ashing or cleaning process needs: a steady supply of O· (or F·, for NF₃) leaving the toroid.</p>` }
+    },
+    { title:'Downstream Transport — Charged Species Recombine, Radicals Survive',
+      body:`As the gas mixture flows out of the toroid through the <b>downstream duct</b> toward the process chamber, something critical happens: <b>ions and electrons disappear</b>, but <b>radicals survive</b>.
+        <ul>
+          <li><b>Ion–electron recombination</b> at the duct walls: <code>O₂⁺ + e⁻ → O₂</code> (or → 2O), occurring on a timescale of microseconds to milliseconds — short compared to the gas transit time through the duct</li>
+          <li><b>Neutral radicals (O·) have much longer lifetimes</b> — they survive wall collisions many times before recombining, especially if the duct surface is chosen/treated to minimize radical-loss (low recombination-coefficient materials)</li>
+          <li>By the time the gas reaches the process chamber inlet, the population is overwhelmingly <b>neutral O₂ + O·</b> — essentially zero net charge, zero electric field</li>
+          <li>This is the <b>physical mechanism</b> behind "remote" plasma: distance + wall collisions act as a built-in charged-particle filter</li>
+        </ul>`,
+      hint:'🔁 Watch red (ions) and dark-red (electrons) particles disappear along the duct, while blue radicals (O·) pass through freely.',
+      deepDive:{
+        title:'Duct Design — Length, Material, and Radical Loss',
+        body:`<p>The downstream duct is not just a pipe — its <b>length, diameter, and wall material</b> are engineering choices that trade off two competing effects.</p>
+<div class="deep-hl"><b>Charged-species removal</b> improves with longer duct / more wall collisions — good for ensuring zero ion flux reaches the wafer.</div>
+<div class="deep-hl"><b>Radical survival</b> degrades with longer duct / more wall collisions — every collision is a chance for O· to recombine into O₂ on the wall (recombination coefficient depends on wall material and temperature).</div>
+<p>In practice, duct walls are often made from or coated with materials that have a <b>low surface recombination coefficient for the radical of interest</b> (e.g. certain anodized aluminum or quartz treatments for O·), so that the duct preferentially removes ions/electrons (which recombine almost instantly regardless of wall material) while letting radicals pass with relatively low loss.</p>
+<p>This is also why RPS systems are typically placed <b>as close as practical</b> to the process chamber — minimizing duct length reduces radical loss without compromising charged-species filtering, since ion/electron recombination is so much faster anyway.</p>` }
+    },
+    { title:'Process Chamber — Radical Showerhead, No Plasma, No RF',
+      body:`The gas — now essentially <code>O₂ + O·</code> with no ions or electrons — enters the <b>process chamber</b> through a <b>passive showerhead</b>.
+        <ul>
+          <li>The showerhead is <b>grounded and carries no RF</b> — it is purely a gas distribution plate, geometrically similar to a CCP showerhead but electrically inert</li>
+          <li>The wafer chuck is also <b>grounded</b> — often heated (typically 150–300 °C) to accelerate the ashing reaction thermally, but <b>never RF-powered</b></li>
+          <li><b>There is no plasma glow anywhere in this chamber</b> — no ionization, no sheath, no V_DC, no ion bombardment</li>
+          <li>O· radicals diffuse from the showerhead toward the wafer purely by <b>concentration gradient + thermal motion</b> — not by any electric field</li>
+        </ul>`,
+      hint:'🌡 Notice: no glow, no sheath shading, no DC meter. The only thing happening here is radical diffusion and surface chemistry.',
+      deepDive:{
+        title:'Why Remove Ions At All? The Damage-Sensitivity Argument',
+        body:`<p>In the CCP/ICP etch lessons, ion bombardment was <b>essential</b> — it provided directionality and broke through native oxides. Why would a process deliberately throw that away?</p>
+<div class="deep-hl">Photoresist ashing happens <b>after</b> the etch or implant step it was protecting is already complete. The PR's only remaining job is to be removed — completely, isotropically, and <b>without damaging whatever is underneath it</b> (gate oxide, low-k dielectric, exposed metal, implanted junctions).</div>
+<p>Ion bombardment at even modest energies can: cause physical sputtering/damage to sensitive underlying films, drive implanted dopants further into the substrate (knock-on effect), or charge up sensitive gate structures (charging damage). UV photons from a direct plasma can also degrade low-k dielectrics.</p>
+<div class="deep-eq">Direct plasma (CCP/ICP): ions + UV + radicals all reach the wafer — fast, directional, but carries damage risk
+Remote plasma (RPS): radicals ONLY reach the wafer — slower, isotropic, minimal damage risk</div>
+<p>For PR ashing specifically, isotropic removal is actually <b>desirable</b> (PR covers the whole topography and must come off everywhere), and the underlying films are often the most damage-sensitive in the entire process flow. RPS trades etch/ash <i>rate</i> for damage-free, isotropic removal — a trade worth making at this stage of the process.</p>` }
+    },
+    { title:'Direct Plasma vs. Remote Plasma — Side-by-Side',
+      body:`Toggle between <b>Direct Plasma</b> and <b>Remote Plasma</b> below to compare what reaches the wafer in each case, using the same O₂ chemistry.
+        <ul>
+          <li><b>Direct Plasma:</b> the wafer sits directly inside (or at the edge of) the plasma — O·, O⁺/O₂⁺ ions, electrons, and UV photons all reach the surface together</li>
+          <li><b>Remote Plasma (RPS):</b> the wafer sits in a separate, plasma-free chamber — only O· radicals (neutral, no charge, no directed energy) arrive</li>
+          <li>Ashing still proceeds in both modes — O· does the actual chemistry in either case — but <b>only Direct Plasma also delivers ion bombardment and UV</b></li>
+          <li>This is the practical meaning of "remote": same radical chemistry, minus the charged/energetic species</li>
+        </ul>`,
+      hint:'🔁 Toggle below: in Direct mode, red ions strike the wafer; in Remote mode, only blue O· radicals arrive.',
+      deepDive:[{
+        title:'Reading the Toggle Against Steps 4–6',
+        body:`<p>"Direct Plasma" mode reproduces what Step 4 looked like if the wafer were placed directly inside the toroid — ions, electrons, and radicals all present together at the surface. "Remote Plasma" mode reproduces the end state of Step 6 — only O· remains by the time anything reaches the wafer.</p>
+<div class="deep-hl">The chemistry term <code>O· + PR → CO₂ + H₂O (volatile)</code> is identical in both modes — O· is doing the same job either way. What differs is everything else that accompanies it: ion energy, directionality, and UV flux, all of which are present in Direct mode and absent in Remote mode.</div>
+<p>This toggle is therefore not a toggle of <i>chemistry</i> but of <i>delivery method</i> — the same reactive species, with or without its usual plasma entourage.</p>`
+      }] },
+    { title:'Full PR Ashing — Isotropic Removal',
+      body:`With a steady supply of O· radicals diffusing down from the showerhead, the photoresist layer <b>thins uniformly from the top down</b> across the entire wafer.
+        <ul>
+          <li><code>O· + CₓHᵥ (PR) → CO₂↑ + H₂O↑</code> — volatile byproducts, pumped away by the process-chamber pump</li>
+          <li>Removal is <b>isotropic</b> — PR on sidewalls, trenches, and flat areas all ash at similar rates, since there is no directional ion flux to create anisotropy (and none is needed — PR removal has no "profile" requirement)</li>
+          <li>Ashing rate increases with wafer temperature (Arrhenius-type dependence) and O· flux (set by AC source power and O₂ flow)</li>
+          <li>Once PR is fully consumed, the underlying film (e.g. gate oxide, metal, low-k dielectric) is exposed — <b>undamaged</b>, since it was never exposed to ions or UV</li>
+        </ul>
+        Overall: <code>CₓHᵥ + O₂ (via O·) → CO₂↑ + H₂O↑</code>`,
+      hint:'🎯 Watch the PR layer thin evenly across the whole wafer. Press Reset to restart.' },
+    { title:'Remote Plasma Source — Key Takeaways',
+      body:`Consolidated reference for Remote Plasma Source (RPS) PR ashing.
+        <ul>
+          <li><b>Toroidal ceramic tube + ferrite core + primary coil</b> → transformer-coupled plasma, fully confined inside the torus</li>
+          <li><b>Spatial separation</b> is the defining feature: plasma exists only in the RPS module — never near the wafer</li>
+          <li><b>Downstream duct</b> acts as a charged-particle filter — ions/electrons recombine on walls; neutral O· radicals survive</li>
+          <li>Process chamber is <b>fully grounded, no RF, no plasma glow</b> — radicals diffuse to the wafer thermally</li>
+          <li>Trade-off vs. direct plasma (CCP/ICP): <b>slower</b> but <b>isotropic and damage-free</b> — ideal for PR ashing and chamber cleaning</li>
+          <li>Same hardware platform is reused for chamber cleaning (NF₃/Ar → F·) and remote-plasma PE-CVD/ALD co-reactants</li>
+        </ul>`,
+      hint:'📋 Summary of all RPS concepts — compare with the CCP / ICP direct-plasma modules.' },
+  ],
+  hotspots:[
+    {n:'toroid', title:'Toroidal Quartz Tube', text:'Closed-loop quartz tube. The plasma forms a ring-shaped current path inside this tube once the AC source is applied — fully confined, never in contact with the wafer.'},
+    {n:'ferrite', title:'Split Ferrite Core', text:'High-permeability magnetic core clamped around the toroid, like a transformer core. Channels the primary coil\u2019s AC flux through the plasma loop (the transformer\u2019s secondary).'},
+    {n:'pcoil', title:'Primary Coil · AC Source', text:'Wound around the ferrite core. AC current here creates the oscillating magnetic flux that induces a circulating E-field in the toroidal plasma — the transformer\u2019s primary winding.'},
+    {n:'o2', title:'O₂ Source', text:'Primary ashing gas. e⁻ + O₂ → 2O· (dissociation, the working species) and e⁻ + O₂ → O₂⁺ + 2e⁻ (ionization). Operating pressure 0.5–5 Torr.'},
+    {n:'nf3', title:'NF₃ + Ar (Cleaning Mode)', text:'Alternate gas path for chamber-cleaning mode (see Deep Dive, Step 1). NF₃ → F· radicals, used to remove SiO₂/polymer residue from an empty process chamber between wafers — not used in this PR-ashing sequence.'},
+    {n:'mfc', title:'Mass Flow Controllers (MFC)', text:'Precise sccm control. O₂ flow sets the available radical budget; NF₃/Ar flow is used only in cleaning mode.'},
+    {n:'acsrc', title:'AC Source', text:'Drives the primary coil directly — commonly 400 kHz, sometimes 13.56 MHz or 2.45 GHz (microwave variants). Single circuit — no separate matcher or bias supply exists in RPS, since the plasma is never used to accelerate ions toward a wafer.'},
+    {n:'duct', title:'Downstream Transport Duct', text:'Connects the RPS outlet to the process chamber. Ions and electrons recombine on the duct walls within microseconds–milliseconds; neutral O· radicals survive the transit with much lower loss.'},
+    {n:'showerhead', title:'Radical Showerhead (Grounded, No RF)', text:'Passive gas distribution plate at the top of the process chamber. Geometrically similar to a CCP showerhead but carries no RF — purely distributes the O₂ + O· mixture arriving from the duct.'},
+    {n:'rzone', title:'Reaction Zone — No Plasma, No Sheath', text:'Volume between showerhead and wafer. No glow, no ionization, no electric field — O· radicals move by diffusion and thermal motion only.'},
+    {n:'pwafer', title:'Wafer / Photoresist (PR) Layer', text:'PR (CₓHᵥ) on the substrate. Rxn: O· + CₓHᵥ → CO₂↑ + H₂O↑. Ashes isotropically (top-down, uniform) — no directionality needed or present.'},
+    {n:'pchuck', title:'Wafer Chuck — Grounded, Often Heated', text:'Holds and (typically) heats the wafer (150–300 °C) to accelerate ashing thermally. NOT RF-powered — no V_DC, no sheath, no ion acceleration.'},
+    {n:'ppump', title:'Process Chamber Pump', text:'Removes volatile ashing byproducts (CO₂, H₂O) from the process chamber. Separate from any pumping on the RPS module itself.'},
+  ],
+  takeawayHeader:'Remote Plasma Source — Key Takeaways',
+  takeawaySubheader:'Toroidal RPS · O₂ → O Radical → PR Ashing Process Summary',
+  takeawayDesign:'Design Principles', takeawayParams:'Plasma Parameters',
+  takeawayWindow:'Typical Process Window', takeawayLimits:'Key Limitations',
+  principles:[
+    ['Toroidal Quartz Tube + Ferrite Core + Primary Coil', 'AC current in primary coil → oscillating flux through ferrite → induced circulating E-field in the closed plasma loop (transformer-coupled)'],
+    ['Spatial Separation of Plasma and Wafer', 'Plasma exists ONLY inside the toroid — process chamber is fully grounded, no RF, no plasma glow'],
+    ['Downstream Duct = Charged-Species Filter', 'Ion/electron recombination on duct walls (μs–ms) ≫ radical recombination — only neutral radicals reach the chamber'],
+    ['High Pressure (0.5–5 Torr)', 'High electron-neutral collision rate → high dissociation fraction for O₂ (or NF₃) without needing high Tₑ'],
+    ['Single RF Circuit, No Bias', 'No V_DC, no ion acceleration anywhere near the wafer — by design, not by omission'],
+  ],
+  tHeaders:['Parameter','RPS (Remote)','CCP / ICP (Direct)'],
+  tRows:[
+    ['Plasma location',      'Confined in toroid',  'Surrounds the wafer'],
+    ['Species reaching wafer','Neutral radicals only (O·)', 'Ions + radicals + UV + electrons'],
+    ['Ion energy at wafer',  '~ 0 eV (none)',       '10 – 1000+ eV'],
+    ['V_DC at wafer chuck',  'None (grounded)',     '−10 to −500 V'],
+    ['Operating pressure',   '0.5 – 5 Torr',        '1 – 50 mTorr'],
+    ['Profile control',      'Isotropic only',      'Anisotropic (directional) possible'],
+    ['Typical use',          'PR ashing, chamber clean, remote PE-CVD co-reactant', 'Etch, deposition, sputter'],
+  ],
+  pwItems:[
+    ['Ashing Rate',          '0.5 – 5 µm/min'],
+    ['Wafer Temperature',    '150 – 300 °C'],
+    ['Selectivity (PR : underlayer)', '> 100 : 1 (no ion-driven damage)'],
+    ['Ion Flux at Wafer',    '≈ 0 (by design)'],
+  ],
+  limitLines:[
+    '• Ashing rate generally lower than direct-plasma processes — purely chemical/thermal, no ion-assisted acceleration  ·  Anisotropic profiles are not possible (and not needed for ashing)',
+    '• Toroid quartz and ferrite core are consumables under prolonged exposure to reactive chemistries  ·  Duct geometry/material must be carefully designed to balance ion filtering vs. radical loss',
+  ],
+},
+ko:{
+  hTitle:'Remote Plasma Source — 인터랙티브 강의',
+  hSub:'Class 5 · O₂ → O Radical → PR Ashing (Remote Plasma Source) · Benedu Insight',
+  stepLabel:'단계',
+  modeInfoDirect:'Direct Plasma — 웨이퍼가 플라즈마에 직접 노출됨, 이온+UV+라디칼 모두 도달',
+  modeInfoRemote:'Remote Plasma — 웨이퍼는 라디칼만 만남, 이온/전자는 상류에서 재결합',
+  resetAsh:'↻ Ashing 초기화',
+  prevBtn:'◀ 이전', nextBtn:'다음 ▶',
+  modeLabel:'모드',
+  ashLabel:'PR 잔여량', ashPctOf:'% of PR', eqLabel:'전체 반응:',
+  ashComplete:'✓ PR 완전 제거 — 하부층 노출',
+  rpsLabel:'AC Source (Toroid)',
+  densityLabel:'플라즈마 밀도 ≈ 10¹⁰–10¹² cm⁻³ (토로이드 내부에 한정)',
+  molCount:'가스 분자',
+  noVdc:'V_DC 없음 — 웨이퍼는 접지 상태, RF 인가되지 않음',
+  steps:[
+    { title:'Remote Plasma Source — 시스템 개요',
+      body:`RPS(Remote Plasma Source) 시스템은 <b>물리적으로 분리된 두 영역</b>이 이송 배관(Duct)으로 연결된 구조입니다.
+        <ul>
+          <li><b>RPS 모듈 (좌측)</b> — <b>토로이달 석영 튜브</b>를 <b>분리형 페라이트 코어 + 1차 코일</b>이 감싸고 있으며, AC Source로 구동됩니다. 실제로 플라즈마가 존재하는 위치입니다.</li>
+          <li><b>Downstream Duct (중앙)</b> — RPS 출구와 공정 챔버 입구를 연결합니다. 이온·전자 등 하전 입자는 이 구간에서 재결합되어 소멸하고, <b>중성 라디칼만</b> 생존하여 통과합니다.</li>
+          <li><b>공정(Ashing) 챔버 (우측)</b> — <b>접지</b>되어 있으며 <b>RF가 전혀 인가되지 않는</b> 챔버입니다. Passive한 라디칼 샤워헤드가 O·를 웨이퍼 위로 분배합니다.</li>
+          <li>가스: <code>O₂</code>(PR Ashing)가 토로이드 하부로 주입되며, <code>NF₃ + Ar</code>(Chamber Cleaning) 경로는 Deep Dive에서 다룹니다.</li>
+        </ul>
+        핵심 개념: <b>플라즈마 생성과 웨이퍼 공정이 공간적으로 분리</b>되어 있으며, 웨이퍼는 결코 플라즈마 내부에 위치하지 않습니다.`,
+      hint:'💡 각 모듈에 마우스를 올려 세부 정보를 확인하세요. 웨이퍼 주변에는 어떠한 RF 회로도 없다는 점에 주목하세요.',
+      deepDive:{
+        title:'RPS는 어디에 또 쓰일까? PR Ashing vs. Chamber Cleaning vs. Remote PE-CVD',
+        body:`<p>토로이달 튜브, 페라이트 코어, AC Source로 구성된 동일한 하드웨어가 <b>가스 화학</b>과 <b>Downstream 목적지</b>만 바꾸어 여러 응용에 재사용됩니다.</p>
+<div class="deep-hl"><b>PR Ashing (본 강의):</b> O₂ → O· 라디칼 → 웨이퍼 챔버로 이동 → 포토레지스트(CₓHᵥ)를 휘발성 CO₂ + H₂O로 산화시켜 제거.</div>
+<div class="deep-hl"><b>Chamber Cleaning:</b> NF₃ + Ar → F· 라디칼 → (웨이퍼가 없는, 빈) 공정 챔버로 유입 → PE-CVD나 식각 공정 중 챔버 벽에 누적된 SiO₂/폴리머 잔류물과 반응하여 휘발성 SiF₄ 생성. 이는 웨이퍼 공정 <b>사이사이</b>에 수행되며, 디바이스 공정 중이 아닙니다.</div>
+<div class="deep-hl"><b>Remote Plasma PE-CVD / PE-ALD:</b> RPS가 활성화된 라디칼(예: N·, H·, O·)을 별도의 증착 챔버에 보조 반응물(co-reactant)로 공급 — "직접 플라즈마 노출 없음"의 부드러움과 플라즈마 활성화에 의한 반응성 향상을 동시에 얻습니다.</div>
+<p>모든 경우에서 토로이달 RPS 자체는 동일합니다. 변하는 것은 가스 공급(O₂ vs. NF₃/Ar vs. N₂/H₂ 등)과 Downstream 라인의 연결 위치뿐입니다. 이러한 모듈 재사용성은 RPS의 가장 큰 실용적 장점 중 하나입니다.</p>` }
+    },
+    { title:'가스 주입 — 토로이드로 O₂ 공급',
+      body:`<code>O₂</code>는 자체 MFC로 유량을 제어한 후, <b>토로이달 석영 튜브</b>의 주입구를 통해 — 일반적으로 페라이트 코어에서 먼 토로이드 하단부로 — 주입됩니다.
+        <ul>
+          <li>토로이드는 <b>닫힌 루프 형태의 석영 관</b>입니다 — 점화 후 플라즈마는 이 튜브 <i>내부</i>에 링(고리) 형태의 전류 경로를 형성합니다</li>
+          <li>동작 압력: <code>0.5–5 Torr</code> — CCP/ICP 식각 챔버보다 훨씬 높습니다. RPS 플라즈마는 방향성 이온 충돌을 유지할 필요가 없기 때문입니다</li>
+          <li>선택적인 <code>NF₃ + Ar</code> 라인(Chamber Cleaning 모드)은 동일한 가스 매니폴드를 공유하지만, 본 PR Ashing 시퀀스에서는 사용되지 않습니다</li>
+          <li>이 시점에서는 아직 RF가 인가되지 않았으며, 가스는 단순히 토로이드와 Downstream Duct/공정 챔버를 채우고 있는 상태입니다</li>
+        </ul>`,
+      hint:'⚙ 닫힌 루프 형태의 석영 튜브 모양에 주목하세요 — 이 형상이 전극 없이 변압기(유도) 결합을 가능하게 합니다.' },
+    { title:'AC Source 점화 — 변압기 결합형 플라즈마(TCP)',
+      body:`<b>AC Source</b>(일반적으로 <code>400 kHz</code>, 일부는 13.56 MHz 또는 2.45 GHz 마이크로웨이브)가 <b>분리형 페라이트 코어</b>에 감긴 <b>1차 코일</b>에 교류 전류를 흘립니다.
+        <ul>
+          <li>페라이트 코어는 코일의 자기 플럭스를 집중시켜 <b>토로이달 플라즈마 루프</b>로 통과시킵니다 — 변압기의 철심(core)과 정확히 동일한 역할입니다</li>
+          <li>플라즈마 링은 변압기의 <b>2차 권선</b>처럼 동작합니다 — 단일 턴(turn), 단락(short-circuit)된 루프</li>
+          <li><b>Faraday의 법칙</b>에 따라, 코어를 통과하는 교류 플럭스는 토로이달 루프를 따라 <b>순환하는 E-field</b>를 유도하여, 전자를 닫힌 링 경로를 따라 가속시킵니다</li>
+          <li>이로 인해 다음 반응이 진행됩니다: <code>e⁻ + O₂ → O₂⁺ + 2e⁻</code> 및 <code>e⁻ + O₂ → 2O· + e⁻</code></li>
+          <li>토로이드 내부에는 전극이 전혀 없습니다 — 순수하게 자기적(변압기형) 결합이며, ICP와 같은 계열이지만 평판형 코일-윈도우 구조가 아닌 닫힌 루프 형태입니다</li>
+        </ul>`,
+      hint:'⚡ 페라이트 코어가 활성화되고, 토로이드 내부에 순환 전류가 형성되는 것을 관찰하세요 — 이것이 변압기의 2차측입니다.',
+      deepDive:{
+        title:'변압기 결합형 플라즈마(TCP) vs. 평면형 ICP',
+        body:`<p>평면형 ICP 강의에서는 평평한 Dielectric Window 위의 평면 스파이럴 코일이 그 아래 열린 플라즈마 부피에 회전 E-field를 유도했습니다. RPS도 <b>동일한 근본 물리</b>를 사용합니다 — 교류 전류 → 진동하는 플럭스 → 유도 E-field — 다만 두 가지 형상적 차이가 있습니다.</p>
+<div class="deep-hl"><b>1. 닫힌 자기 코어:</b> 높은 투자율(permeability)을 가진 페라이트 코어가 코일 플럭스의 대부분을 플라즈마 루프로 통과시킵니다 — 열린 Dielectric Window에 의존하지 않습니다. 이로 인해 더 낮은 주파수(13.56 MHz가 아닌 수백 kHz)에서도 결합 효율이 훨씬 높아집니다.</div>
+<div class="deep-hl"><b>2. 닫힌 플라즈마 루프:</b> 플라즈마 자체가 닫힌 링(토러스)을 형성하여, 진정한 의미의 단일 턴 변압기 2차측처럼 작동합니다. 평면형 ICP에서는 "플라즈마 부피"가 열린 평판(slab) 형태이며 닫힌 루프가 아닙니다 — 유도 결합이지만 엄격한 의미의 변압기 결합은 아닙니다.</div>
+<p>자기 코어가 핵심 역할을 담당하기 때문에, RPS 소스는 상대적으로 낮은 RF 파워와 주파수에서도 고밀도(<code>10¹⁰–10¹² cm⁻³</code>) 플라즈마를 점화하고 유지할 수 있으며 — 별도의 챔버에 연속적으로 라디칼을 공급하는 용도에 적합합니다.</p>` }
+    },
+    { title:'O₂ 해리 — 플라즈마는 토로이드 내부에 한정됨',
+      body:`점화 이후, 토로이드는 <b>고밀도 O₂ 플라즈마</b>로 채워집니다 — 그러나 이 플라즈마는 석영 튜브 내부에 <b>물리적으로 한정</b>되어 있습니다. 웨이퍼나 공정 챔버 쪽은 아직 아무런 변화가 없습니다.
+        <ul>
+          <li><code>e⁻ + O₂ → 2O·</code> — 가장 우세한 해리 경로로, 원자 산소 라디칼을 생성합니다</li>
+          <li><code>e⁻ + O₂ → O₂⁺ + 2e⁻</code> — 이온화 반응으로, O₂⁺ 이온과 추가 전자를 생성합니다</li>
+          <li>이 단계에서는 <b>이온, 전자, 라디칼이 모두</b> 토로이드 내부에 함께 존재합니다 — 다른 일반적인 플라즈마와 동일</li>
+          <li>이 플라즈마와 접촉하는 표면은 토로이드 벽(석영, 흔히 코팅 처리됨)뿐이며 — 여기에 웨이퍼는 없습니다</li>
+        </ul>`,
+      hint:'🔬 토로이드 내부의 밝은 링에는 O·, O⁺, O₂⁺, e⁻가 모두 함께 존재합니다 — 분리는 다음 단계에서 일어납니다.',
+      deepDive:{
+        title:'왜 O₂는 이렇게 쉽게 해리되는가?',
+        body:`<p>O=O 이중결합의 해리 에너지(약 5.2 eV)는 CCP/ICP 식각 및 CVD 화학에서 끊어지는 많은 결합(예: C–F, Si–H)과 비교해 비슷하거나 더 낮은 수준입니다. 따라서 RPS 방전에서 일반적인 비교적 낮은 전자 온도(Tₑ ≈ 1–3 eV)에서도 전자 충돌에 의한 O₂ 해리가 효율적으로 일어납니다.</p>
+<div class="deep-hl">높은 동작 압력(0.5–5 Torr) 또한 여기서 도움이 됩니다: 전자-중성 입자 충돌 빈도가 높아지면, 개별 충돌당 전달되는 에너지가 저압 ICP 방전보다 적더라도 단위 시간당 해리 이벤트 수는 증가합니다.</div>
+<p>결과적으로 O₂의 <b>해리율</b>은 매우 높습니다 — 흔히 50%를 크게 상회 — 이는 Ashing이나 Cleaning 공정이 정확히 필요로 하는 것입니다: 토로이드를 떠나는 O·(또는 NF₃의 경우 F·)의 안정적인 공급.</p>` }
+    },
+    { title:'Downstream Transport — 하전 입자는 재결합, 라디칼은 생존',
+      body:`가스 혼합물이 토로이드를 떠나 <b>Downstream Duct</b>를 통해 공정 챔버로 흐르는 동안, 핵심적인 일이 일어납니다: <b>이온과 전자는 소멸</b>하지만 <b>라디칼은 생존</b>합니다.
+        <ul>
+          <li><b>Duct 벽에서의 이온-전자 재결합:</b> <code>O₂⁺ + e⁻ → O₂</code> (또는 → 2O), 이 반응은 마이크로초~밀리초 단위로 일어나며 — Duct를 통과하는 가스 체류 시간에 비해 매우 짧습니다</li>
+          <li><b>중성 라디칼(O·)은 훨씬 긴 수명</b>을 가집니다 — 특히 Duct 표면이 라디칼 손실을 최소화하도록(낮은 재결합 계수의 소재로) 선택/처리된 경우, 재결합되기 전 여러 차례 벽과 충돌해도 생존합니다</li>
+          <li>가스가 공정 챔버 입구에 도달할 즈음에는, 그 구성은 압도적으로 <b>중성 O₂ + O·</b>입니다 — 순전하는 거의 0, 전기장도 0입니다</li>
+          <li>이것이 "Remote" 플라즈마를 가능하게 하는 <b>물리적 메커니즘</b>입니다: 거리와 벽 충돌이 내재된 하전입자 필터 역할을 합니다</li>
+        </ul>`,
+      hint:'🔁 Duct를 따라 붉은색(이온)과 짙은 적색(전자) 입자가 사라지고, 파란색 라디칼(O·)만 자유롭게 통과하는 것을 관찰하세요.',
+      deepDive:{
+        title:'Duct 설계 — 길이, 소재, 라디칼 손실',
+        body:`<p>Downstream Duct는 단순한 배관이 아닙니다 — 그 <b>길이, 직경, 벽 소재</b>는 서로 상충하는 두 가지 효과 사이에서 균형을 맞추는 엔지니어링 선택입니다.</p>
+<div class="deep-hl"><b>하전 입자 제거</b>는 Duct가 길어지고 벽 충돌이 많아질수록 향상됩니다 — 웨이퍼에 이온 플럭스가 도달하지 않도록 보장하는 데 유리합니다.</div>
+<div class="deep-hl"><b>라디칼 생존율</b>은 Duct가 길어지고 벽 충돌이 많아질수록 저하됩니다 — 충돌마다 O·가 벽에서 O₂로 재결합될 가능성이 발생합니다 (재결합 계수는 벽 소재와 온도에 따라 달라짐).</div>
+<p>실무에서는 Duct 벽을 관심 라디칼에 대한 <b>표면 재결합 계수가 낮은 소재</b>(예: O·에 대해서는 특정 양극산화 알루미늄 또는 석영 처리)로 제작하거나 코팅하여, 이온/전자(어떤 벽 소재에서든 거의 즉시 재결합됨)는 효과적으로 제거하면서 라디칼은 상대적으로 낮은 손실로 통과시킵니다.</p>
+<p>이러한 이유로 RPS 시스템은 일반적으로 공정 챔버에 <b>실용적으로 가능한 한 가깝게</b> 배치됩니다 — Duct 길이를 최소화하면 라디칼 손실이 줄어들면서도, 이온/전자 재결합은 어차피 훨씬 빠르므로 하전입자 필터링 성능은 그대로 유지됩니다.</p>` }
+    },
+    { title:'공정 챔버 — 라디칼 샤워헤드, 플라즈마 없음, RF 없음',
+      body:`이제 거의 <code>O₂ + O·</code>만 남은 가스(이온·전자 없음)가 <b>Passive 샤워헤드</b>를 통해 <b>공정 챔버</b>로 유입됩니다.
+        <ul>
+          <li>샤워헤드는 <b>접지되어 있으며 RF가 인가되지 않습니다</b> — 기하학적으로는 CCP 샤워헤드와 유사하지만 전기적으로는 비활성(inert)인 단순 가스 분배판입니다</li>
+          <li>웨이퍼 척 역시 <b>접지</b>되어 있으며 — Ashing 반응을 열적으로 촉진하기 위해 흔히 가열(일반적으로 150–300 °C)되지만 <b>RF는 절대 인가되지 않습니다</b></li>
+          <li><b>이 챔버 어디에도 플라즈마 발광이 없습니다</b> — 이온화도, 시스(sheath)도, V_DC도, 이온 충돌도 없습니다</li>
+          <li>O· 라디칼은 샤워헤드에서 웨이퍼 쪽으로 순전히 <b>농도 구배 + 열적 운동(확산)</b>에 의해 이동합니다 — 어떠한 전기장에 의한 것도 아닙니다</li>
+        </ul>`,
+      hint:'🌡 주목: 발광 없음, 시스 음영 없음, DC 미터 없음. 이 챔버에서 일어나는 일은 오직 라디칼 확산과 표면 화학 반응뿐입니다.',
+      deepDive:{
+        title:'왜 이온을 제거해야 하는가? — 손상 민감도(Damage-Sensitivity) 논점',
+        body:`<p>CCP/ICP 식각 강의에서는 이온 충돌이 <b>필수적</b>이었습니다 — 방향성을 제공하고 자연 산화막을 돌파했습니다. 그런데 왜 어떤 공정은 이를 의도적으로 포기할까요?</p>
+<div class="deep-hl">포토레지스트 Ashing은 PR이 보호하고 있던 식각이나 이온주입 공정이 <b>이미 완료된 이후</b>에 진행됩니다. PR이 남아서 해야 할 유일한 역할은 — 완전히, 등방적으로, 그리고 <b>그 아래에 있는 무엇(게이트 산화막, low-k 유전체, 노출된 금속, 주입된 접합부 등)도 손상시키지 않으면서</b> — 제거되는 것뿐입니다.</div>
+<p>비교적 낮은 에너지의 이온 충돌이라도: 민감한 하부 막에 물리적 스퍼터링/손상을 유발하거나, 이온주입된 도펀트를 기판 더 깊은 곳으로 밀어넣는(knock-on) 효과를 만들거나, 민감한 게이트 구조에 charging damage를 유발할 수 있습니다. Direct Plasma에서 발생하는 UV 광자 역시 low-k 유전체를 손상시킬 수 있습니다.</p>
+<div class="deep-eq">Direct Plasma (CCP/ICP): 이온 + UV + 라디칼이 모두 웨이퍼에 도달 — 빠르고 방향성 있지만 손상 위험 동반
+Remote Plasma (RPS): 오직 라디칼만 웨이퍼에 도달 — 느리고 등방적이지만 손상 위험 최소</div>
+<p>특히 PR Ashing의 경우, 등방적 제거는 오히려 <b>바람직</b>합니다(PR은 전체 토포그래피를 덮고 있으며 모든 면에서 제거되어야 함). 그리고 그 하부 막들은 흔히 전체 공정 흐름에서 가장 손상에 민감한 막들입니다. RPS는 식각/Ashing <i>속도</i>를 일부 희생하는 대신 손상 없는 등방적 제거를 얻으며 — 이 단계의 공정에서는 충분히 합리적인 거래입니다.</p>` }
+    },
+    { title:'Direct Plasma vs. Remote Plasma — 나란히 비교',
+      body:`아래에서 <b>Direct Plasma</b>와 <b>Remote Plasma</b>를 전환하여, 동일한 O₂ 화학에서 웨이퍼에 무엇이 도달하는지 비교하세요.
+        <ul>
+          <li><b>Direct Plasma:</b> 웨이퍼가 플라즈마 내부(또는 그 경계)에 직접 위치 — O·, O⁺/O₂⁺ 이온, 전자, UV 광자가 모두 표면에 함께 도달</li>
+          <li><b>Remote Plasma (RPS):</b> 웨이퍼는 플라즈마가 없는 별도의 챔버에 위치 — 오직 O· 라디칼(전하 없음, 방향성 에너지 없음)만 도달</li>
+          <li>두 모드 모두에서 Ashing은 진행됩니다 — 어느 경우든 실제 화학 반응은 O·가 담당하지만 — <b>Direct Plasma만</b> 이온 충돌과 UV를 추가로 전달합니다</li>
+          <li>이것이 "Remote"의 실질적 의미입니다: 동일한 라디칼 화학에서, 하전/고에너지 입자만 제거된 상태</li>
+        </ul>`,
+      hint:'🔁 아래 토글을 조작해 보세요: Direct 모드에서는 붉은 이온이 웨이퍼에 충돌하고, Remote 모드에서는 파란 O· 라디칼만 도달합니다.',
+      deepDive:[{
+        title:'4~6단계와 비교하여 토글 읽기',
+        body:`<p>"Direct Plasma" 모드는 만약 웨이퍼가 토로이드 내부에 직접 놓였다면 4단계가 어떻게 보였을지를 재현합니다 — 이온, 전자, 라디칼이 표면에서 모두 함께 존재합니다. "Remote Plasma" 모드는 6단계의 최종 상태를 재현합니다 — 무언가가 웨이퍼에 도달할 즈음에는 O·만 남아 있습니다.</p>
+<div class="deep-hl">화학 반응식 <code>O· + PR → CO₂ + H₂O (휘발성)</code>은 두 모드에서 동일합니다 — O·는 어느 쪽에서든 동일한 역할을 수행합니다. 다른 것은 그것에 동반되는 나머지 모든 것입니다: 이온 에너지, 방향성, UV 플럭스 — 이들은 Direct 모드에는 존재하지만 Remote 모드에는 없습니다.</div>
+<p>따라서 이 토글은 <i>화학</i>의 토글이 아니라 <i>전달 방식(delivery method)</i>의 토글입니다 — 동일한 반응종을, 평소 동반되는 플라즈마 "수행원"과 함께 또는 없이 전달하는 차이입니다.</p>`
+      }] },
+    { title:'완전한 PR Ashing — 등방적 제거',
+      body:`샤워헤드로부터 O· 라디칼이 안정적으로 확산되어 공급되면서, 포토레지스트 층은 웨이퍼 전체에 걸쳐 <b>위에서부터 균일하게</b> 얇아집니다.
+        <ul>
+          <li><code>O· + CₓHᵥ (PR) → CO₂↑ + H₂O↑</code> — 휘발성 부산물로, 공정 챔버 펌프를 통해 배출됩니다</li>
+          <li>제거는 <b>등방적</b>입니다 — 측벽, 트렌치, 평탄 영역의 PR이 모두 유사한 속도로 Ashing됩니다. 비등방성을 만드는 방향성 이온 플럭스가 없기 때문입니다(그리고 필요하지도 않습니다 — PR 제거에는 "프로파일" 요구사항이 없습니다)</li>
+          <li>Ashing 속도는 웨이퍼 온도(Arrhenius형 의존성)와 O· 플럭스(AC Source 파워 및 O₂ 유량에 의해 결정)가 높아질수록 증가합니다</li>
+          <li>PR이 완전히 소모되면, 하부 막(예: 게이트 산화막, 금속, low-k 유전체)이 노출됩니다 — 이온이나 UV에 노출된 적이 없으므로 <b>손상되지 않은</b> 상태입니다</li>
+        </ul>
+        전체 반응: <code>CₓHᵥ + O₂ (O·를 통해) → CO₂↑ + H₂O↑</code>`,
+      hint:'🎯 PR 층이 웨이퍼 전체에 걸쳐 균일하게 얇아지는 것을 관찰하세요. Reset을 눌러 다시 시작할 수 있습니다.' },
+    { title:'Remote Plasma Source — 핵심 정리',
+      body:`Remote Plasma Source(RPS) PR Ashing에 대한 통합 참고 자료입니다.
+        <ul>
+          <li><b>토로이달 석영 튜브 + 페라이트 코어 + 1차 코일</b> → 변압기 결합형 플라즈마, 토러스 내부에 완전히 한정됨</li>
+          <li><b>공간적 분리</b>가 핵심 특징입니다: 플라즈마는 RPS 모듈에만 존재하며 — 결코 웨이퍼 근처에 존재하지 않습니다</li>
+          <li><b>Downstream Duct</b>는 하전입자 필터 역할을 합니다 — 이온/전자는 벽에서 재결합되고, 중성 O· 라디칼만 생존합니다</li>
+          <li>공정 챔버는 <b>완전히 접지, RF 없음, 플라즈마 발광 없음</b> — 라디칼은 열적으로 웨이퍼까지 확산됩니다</li>
+          <li>Direct Plasma(CCP/ICP) 대비: <b>속도는 느리지만</b> <b>등방적이고 손상 없음</b> — PR Ashing과 Chamber Cleaning에 이상적</li>
+          <li>동일한 하드웨어 플랫폼이 Chamber Cleaning(NF₃/Ar → F·) 및 Remote Plasma PE-CVD/ALD의 보조 반응물 공급에도 재사용됩니다</li>
+        </ul>`,
+      hint:'📋 모든 RPS 개념의 요약 — CCP / ICP Direct Plasma 모듈과 비교해 보세요.' },
+  ],
+  hotspots:[
+    {n:'toroid', title:'토로이달 석영 튜브', text:'닫힌 루프 형태의 석영 튜브입니다. AC Source가 인가되면 플라즈마가 이 튜브 내부에 링 형태의 전류 경로를 형성합니다 — 완전히 한정되어 있으며 웨이퍼와 접촉하지 않습니다.'},
+    {n:'ferrite', title:'분리형 페라이트 코어', text:'토로이드를 감싸는 고투자율 자성 코어로, 변압기의 철심과 같습니다. 1차 코일의 교류 플럭스를 플라즈마 루프(변압기의 2차측)로 통과시킵니다.'},
+    {n:'pcoil', title:'1차 코일 · AC Source', text:'페라이트 코어에 권선되어 있습니다. 여기에 흐르는 교류 전류가 진동하는 자기 플럭스를 만들어, 토로이달 플라즈마에 순환 E-field를 유도합니다 — 변압기의 1차 권선입니다.'},
+    {n:'o2', title:'O₂ 소스', text:'주요 Ashing 가스입니다. e⁻ + O₂ → 2O·(해리, 실제 작용 종) 및 e⁻ + O₂ → O₂⁺ + 2e⁻(이온화). 동작 압력 0.5–5 Torr.'},
+    {n:'nf3', title:'NF₃ + Ar (Cleaning 모드)', text:'Chamber Cleaning 모드용 대체 가스 경로입니다(Step 1의 Deep Dive 참조). NF₃ → F· 라디칼로, 웨이퍼 공정 사이에 빈 공정 챔버 내 SiO₂/폴리머 잔류물을 제거하는 데 사용되며 본 PR Ashing 시퀀스에서는 사용되지 않습니다.'},
+    {n:'mfc', title:'질량 유량 제어기(MFC)', text:'정밀 sccm 제어를 수행합니다. O₂ 유량이 가용 라디칼 양을 결정하며, NF₃/Ar 유량은 Cleaning 모드에서만 사용됩니다.'},
+    {n:'acsrc', title:'AC Source', text:'1차 코일을 직접 구동합니다 — 일반적으로 400 kHz, 일부는 13.56 MHz 또는 2.45 GHz(마이크로웨이브 방식)입니다. 단일 회로 구조이며 — RPS에는 별도의 Matcher나 Bias 공급장치가 존재하지 않습니다. 플라즈마가 웨이퍼 쪽 이온을 가속하는 데 사용되지 않기 때문입니다.'},
+    {n:'duct', title:'Downstream Transport Duct', text:'RPS 출구와 공정 챔버를 연결합니다. 이온과 전자는 Duct 벽에서 마이크로초~밀리초 내에 재결합되며, 중성 O· 라디칼은 훨씬 적은 손실로 통과합니다.'},
+    {n:'showerhead', title:'라디칼 샤워헤드 (접지, RF 없음)', text:'공정 챔버 상부의 Passive 가스 분배판입니다. 형태는 CCP 샤워헤드와 유사하지만 RF가 인가되지 않으며, Duct로부터 도달한 O₂ + O· 혼합물을 단순히 분배합니다.'},
+    {n:'rzone', title:'반응 영역 — 플라즈마 없음, 시스 없음', text:'샤워헤드와 웨이퍼 사이의 공간입니다. 발광, 이온화, 전기장이 전혀 없으며 — O· 라디칼은 오직 확산과 열적 운동으로만 이동합니다.'},
+    {n:'pwafer', title:'웨이퍼 / 포토레지스트(PR) 층', text:'기판 위의 PR(CₓHᵥ)입니다. Rxn: O· + CₓHᵥ → CO₂↑ + H₂O↑. 등방적(위에서부터 균일)으로 Ashing되며 — 방향성이 필요하지도, 존재하지도 않습니다.'},
+    {n:'pchuck', title:'웨이퍼 척 — 접지, 흔히 가열됨', text:'웨이퍼를 고정하고 (일반적으로) 150–300 °C로 가열하여 Ashing을 열적으로 촉진합니다. RF가 인가되지 않으므로 — V_DC, 시스, 이온 가속이 존재하지 않습니다.'},
+    {n:'ppump', title:'공정 챔버 펌프', text:'공정 챔버에서 휘발성 Ashing 부산물(CO₂, H₂O)을 제거합니다. RPS 모듈 자체의 배기 시스템과는 별도입니다.'},
+  ],
+  takeawayHeader:'Remote Plasma Source — 핵심 정리',
+  takeawaySubheader:'토로이달 RPS · O₂ → O Radical → PR Ashing 공정 요약',
+  takeawayDesign:'설계 원칙', takeawayParams:'플라즈마 파라미터',
+  takeawayWindow:'일반적인 공정 윈도우', takeawayLimits:'주요 한계점',
+  principles:[
+    ['토로이달 석영 튜브 + 페라이트 코어 + 1차 코일', '1차 코일의 교류 전류 → 페라이트를 통한 진동 플럭스 → 닫힌 플라즈마 루프에 순환 E-field 유도 (변압기 결합)'],
+    ['플라즈마와 웨이퍼의 공간적 분리', '플라즈마는 토로이드 내부에만 존재 — 공정 챔버는 완전히 접지, RF 없음, 플라즈마 발광 없음'],
+    ['Downstream Duct = 하전입자 필터', 'Duct 벽에서의 이온/전자 재결합(μs–ms) ≫ 라디칼 재결합 — 중성 라디칼만 챔버에 도달'],
+    ['고압 (0.5–5 Torr)', '높은 전자-중성 입자 충돌율 → 높은 Tₑ 없이도 O₂(또는 NF₃)의 높은 해리율 확보'],
+    ['단일 RF 회로, Bias 없음', '웨이퍼 근처에 V_DC, 이온 가속이 전혀 없음 — 설계상 의도된 결과'],
+  ],
+  tHeaders:['파라미터','RPS (Remote)','CCP / ICP (Direct)'],
+  tRows:[
+    ['플라즈마 위치',        '토로이드 내부에 한정', '웨이퍼를 둘러쌈'],
+    ['웨이퍼에 도달하는 입자','중성 라디칼만 (O·)',  '이온 + 라디칼 + UV + 전자'],
+    ['웨이퍼 이온 에너지',    '~ 0 eV (없음)',       '10 – 1000+ eV'],
+    ['웨이퍼 척 V_DC',       '없음 (접지)',         '−10 ~ −500 V'],
+    ['동작 압력',            '0.5 – 5 Torr',        '1 – 50 mTorr'],
+    ['프로파일 제어',        '등방성만 가능',       '비등방성(방향성) 가능'],
+    ['일반적 용도',          'PR Ashing, Chamber Cleaning, Remote PE-CVD 보조반응물', '식각, 증착, 스퍼터링'],
+  ],
+  pwItems:[
+    ['Ashing 속도',          '0.5 – 5 µm/min'],
+    ['웨이퍼 온도',          '150 – 300 °C'],
+    ['선택비 (PR : 하부막)', '> 100 : 1 (이온에 의한 손상 없음)'],
+    ['웨이퍼 이온 플럭스',   '≈ 0 (설계상)'],
+  ],
+  limitLines:[
+    '• Ashing 속도는 일반적으로 Direct Plasma 공정보다 낮음 — 순수 화학적/열적 반응이며 이온 가속 보조가 없음  ·  비등방성 프로파일은 구현 불가능(또한 Ashing에는 불필요)',
+    '• 토로이드 석영과 페라이트 코어는 반응성 화학물질에 장시간 노출 시 소모품임  ·  Duct의 형상/소재는 이온 필터링과 라디칼 손실 사이의 균형을 신중히 고려하여 설계되어야 함',
+  ],
+},
+};
+const L = () => T[lang];
+// ── State ─────────────────────────────────────────────────────
+let particles=[], lights=[], impacts=[];
+let currentStep=0, lang='en';
+let ashRemain=1.0, mode='REMOTE', hoveredHotspot=null;
+let t0=performance.now(), lastT=t0;
+
+// ── Hotspot rects ─────────────────────────────────────────────
+const HR=[
+  {n:'toroid', rect:{x:TOR.cx-TOR.rOut-4, y:TOR.cy-TOR.rOut-4, w:(TOR.rOut+4)*2, h:(TOR.rOut+4)*2}},
+  {n:'ferrite', rect:FCORE},
+  {n:'pcoil', rect:{x:FCORE.x-6, y:FCORE.y-6, w:FCORE.w+12, h:FCORE.h+12}},
+  {n:'o2', rect:{x:GS1.x-4,y:GS1.y-4,w:GS1.w+8,h:GS1.h+8}},
+  {n:'nf3', rect:{x:GS2.x-4,y:GS2.y-4,w:GS2.w+8,h:GS2.h+8}},
+  {n:'mfc', rect:{x:GM1.cx-16,y:GM1.cy-13,w:32,h:GM2.cy+13-(GM1.cy-13)}},
+  {n:'acsrc', rect:AC_SRC},
+  {n:'duct', rect:DUCT},
+  {n:'showerhead', rect:RSH},
+  {n:'rzone', rect:RZ},
+  {n:'pwafer', rect:{x:PWF.x-4,y:PWF.y-4,w:PWF.w+8,h:PWF.h+(PSC.y-PWF.y-PWF.h)+8}},
+  {n:'pchuck', rect:PSC},
+  {n:'ppump', rect:{x:PDVP.x-4,y:PDVP.y-4,w:PDVP.w+8,h:PDVP.h+8}},
+];
+
+// ── Drawing helpers (unchanged from CCP/ICP reference) ─────────
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+function pipe(pts,col='#b3bac8',w=2.2){
+  ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.stroke();
+}
+function arw(x0,y0,x1,y1,col='#1d2436',w=1.2){
+  ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0),h=5.5;
+  ctx.beginPath();ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));
+  ctx.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));
+  ctx.closePath();ctx.fill();
+}
+function gnd(cx,cy){
+  ctx.strokeStyle='#1d2436';ctx.lineWidth=1.5;ctx.beginPath();
+  ctx.moveTo(cx,cy);ctx.lineTo(cx,cy+6);
+  ctx.moveTo(cx-10,cy+6);ctx.lineTo(cx+10,cy+6);
+  ctx.moveTo(cx-7,cy+10);ctx.lineTo(cx+7,cy+10);
+  ctx.moveTo(cx-4,cy+14);ctx.lineTo(cx+4,cy+14);
+  ctx.stroke();
+}
+function chem(formula,x,y,sz=11,col='#1d2436'){  ctx.fillStyle=col;
+  const bF=`bold ${sz}px ${FONT}`,sF=`bold ${Math.round(sz*.7)}px ${FONT}`,pF=`bold ${Math.round(sz*.75)}px ${FONT}`;
+  ctx.textAlign='left';ctx.textBaseline='middle';
+  const segs=[];let i=0;
+  while(i<formula.length){
+    const ch=formula[i];
+    if(/[A-Za-z]/.test(ch)){let s=ch;while(i+1<formula.length&&/[a-z]/.test(formula[i+1])){s+=formula[++i];}segs.push({t:'b',s});}
+    else if(/[0-9]/.test(ch))segs.push({t:'sub',s:ch});
+    else if(ch==='+'||ch==='-')segs.push({t:'sup',s:ch});
+    i++;
+  }
+  let tot=0;for(const s of segs){ctx.font=s.t==='b'?bF:s.t==='sub'?sF:pF;tot+=ctx.measureText(s.s).width;}
+  let cx=x-tot/2;
+  for(const s of segs){
+    ctx.font=s.t==='b'?bF:s.t==='sub'?sF:pF;
+    const oy=s.t==='sub'?sz*.30:s.t==='sup'?-sz*.32:0;
+    ctx.fillText(s.s,cx,y+oy);cx+=ctx.measureText(s.s).width;
+  }
+}
+
+// ── Component renderers ─────────────────────────────────────────
+function drawGasSrc(x,y,w,h,formula,sc){
+  rr(x,y,w,h,8);const g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,'#fff');g.addColorStop(1,'#eef0f5');
+  ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#cdd2dd';ctx.lineWidth=1.2;ctx.stroke();
+  ctx.fillStyle=sc;ctx.fillRect(x+6,y+h-5,w-12,3);chem(formula,x+w/2,y+h/2-3,12,'#1d2436');
+}
+function drawMFC(cx,cy){
+  ctx.fillStyle='#fff';ctx.strokeStyle='#cdd2dd';ctx.lineWidth=1.2;rr(cx-15,cy-13,30,26,4);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#5a6479';ctx.lineWidth=1.3;ctx.beginPath();
+  ctx.moveTo(cx-7,cy-6);ctx.lineTo(cx+7,cy+6);ctx.lineTo(cx+7,cy-6);ctx.lineTo(cx-7,cy+6);ctx.closePath();ctx.stroke();
+}
+// Gas system — O2 (primary, ashing) + NF3/Ar (alternate, cleaning mode).
+// Both share a manifold feeding the toroid inlet from below, routed
+// around the right side of the AC Source module.
+function drawGasSys(cleanMode=false){
+  // Draw all pipe segments first...
+  pipe([[GM1.cx+15,GM1.cy],[GS1.x,GM1.cy]]);
+  pipe([[GM2.cx+15,GM2.cy],[GS2.x,GM2.cy]]);
+  // Manifold: both MFC outputs merge into a vertical bus, then route
+  // around the right edge of the AC Source module up to the toroid inlet.
+  const busX=AC_SRC.x+AC_SRC.w+24;
+  pipe([[GM1.cx-15,GM1.cy],[busX,GM1.cy]]);
+  pipe([[GM2.cx-15,GM2.cy],[busX,GM2.cy]]);
+  pipe([[busX,GM1.cy],[busX,TOR_INLET.y]]);
+  pipe([[busX,TOR_INLET.y],[TOR_INLET.x,TOR_INLET.y]]);
+  ctx.fillStyle='#7c8499';rr(TOR_INLET.x-4,TOR_INLET.y-4,8,8,2);ctx.fill();
+  // ...then gas source boxes and MFC shapes on top, so pipes never
+  // visually overlap the component shapes.
+  drawGasSrc(GS1.x,GS1.y,GS1.w,GS1.h,'O2','#3A7AD6');
+  drawGasSrc(GS2.x,GS2.y,GS2.w,GS2.h,'NF3+Ar','#0F8C50');
+  drawMFC(GM1.cx,GM1.cy);drawMFC(GM2.cx,GM2.cy);
+  // Highlight whichever line is active
+  ctx.fillStyle=cleanMode?'rgba(15,140,80,.85)':'rgba(58,122,214,.85)';
+  ctx.font=`bold 9px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  const lbl = cleanMode ? (lang==='ko'?'Cleaning 모드 (NF₃+Ar)':'Cleaning mode (NF₃+Ar)')
+                        : (lang==='ko'?'Ashing 모드 (O₂)':'Ashing mode (O₂)');
+  ctx.fillText(lbl, GS1.x, GM1.cy-26);
+}
+
+// Toroidal RPS module — closed ceramic ring (cross-section: two concentric
+// circles), wrapped by a split ferrite core + primary coil at the top.
+function drawToroid(active,t){
+  // Outer/inner ring = ceramic tube cross-section
+  const g=ctx.createRadialGradient(TOR.cx,TOR.cy,TOR.rIn*0.8,TOR.cx,TOR.cy,TOR.rOut);
+  g.addColorStop(0,'#ffffff');g.addColorStop(1,'#eef0f5');
+  ctx.fillStyle=g;
+  ctx.beginPath();ctx.arc(TOR.cx,TOR.cy,TOR.rOut,0,Math.PI*2);
+  ctx.arc(TOR.cx,TOR.cy,TOR.rIn,0,Math.PI*2,true);ctx.fill('evenodd');
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(TOR.cx,TOR.cy,TOR.rOut,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(TOR.cx,TOR.cy,TOR.rIn,0,Math.PI*2);ctx.stroke();
+  // Label
+  ctx.fillStyle='rgba(120,95,30,0.78)';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.save();ctx.translate(TOR.cx-TOR.rOut-14, TOR.cy);ctx.rotate(-Math.PI/2);
+  ctx.fillText(lang==='ko'?'석영 토로이드':'Quartz Toroid', 0, 0);
+  ctx.restore();
+  if(active){
+    const ph=Math.sin(t*2*Math.PI*0.9);
+    const rMid=(TOR.rOut+TOR.rIn)/2;
+    const g2=ctx.createRadialGradient(TOR.cx,TOR.cy,TOR.rIn,TOR.cx,TOR.cy,TOR.rOut);
+    g2.addColorStop(0,`rgba(220,230,255,${0+0*ph})`);
+    g2.addColorStop(0.5,`rgba(200,218,255,${0.55+0.20*Math.abs(ph)})`);
+    g2.addColorStop(1,`rgba(185,182,225,${0.20})`);
+    ctx.save();
+    ctx.beginPath();ctx.arc(TOR.cx,TOR.cy,TOR.rOut,0,Math.PI*2);
+    ctx.arc(TOR.cx,TOR.cy,TOR.rIn,0,Math.PI*2,true);ctx.clip('evenodd');
+    ctx.fillStyle=g2;ctx.fillRect(TOR.cx-TOR.rOut,TOR.cy-TOR.rOut,TOR.rOut*2,TOR.rOut*2);
+    ctx.restore();
+  }
+}
+// Split ferrite core — sits across the top of the toroid, primary coil wound around it
+function drawFerriteCore(active,t){
+  const fx=FCORE.cx-FCORE.w/2, fy=FCORE.y;
+  const g=ctx.createLinearGradient(fx,fy,fx,fy+FCORE.h);
+  g.addColorStop(0,'#6b7388');g.addColorStop(1,'#3f4658');
+  ctx.fillStyle=g;rr(fx,fy,FCORE.w,FCORE.h,FCORE.r);ctx.fill();
+  // split gap (two halves clamped)
+  ctx.strokeStyle='#1d2436';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(fx+FCORE.w/2,fy);ctx.lineTo(fx+FCORE.w/2,fy+FCORE.h);ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(lang==='ko'?'페라이트 코어 (분리형)':'Ferrite Core (split)', FCORE.cx, fy-6);
+  // Primary coil — windings around the core
+  const N=6;
+  ctx.strokeStyle='#8a6fb0';ctx.lineWidth=2.2;
+  for(let i=0;i<N;i++){
+    const wx=fx+8+i*(FCORE.w-16)/(N-1);
+    ctx.beginPath();ctx.ellipse(wx,fy+FCORE.h/2,7,FCORE.h*0.62,0,0,Math.PI*2);ctx.stroke();
+  }
+  if(active){
+    const ph=Math.sin(t*2*Math.PI*0.9);
+    ctx.fillStyle=`rgba(112,48,160,${0.16+0.14*Math.abs(ph)})`;
+    rr(fx-4,fy-4,FCORE.w+8,FCORE.h+8,8);ctx.fill();
+  }
+  // Feed from AC Source up to the primary coil — routed around the
+  // toroid's left side to avoid crossing through the plasma ring.
+  const feedX=TOR.cx-TOR.rOut-30;
+  pipe([[AC_SRC.x,AC_SRC.y+AC_SRC.h/2],[feedX,AC_SRC.y+AC_SRC.h/2],[feedX,fy+FCORE.h/2],[fx,fy+FCORE.h/2]],'#5a6479',1.5);
+}
+// Circulating current/E-field inside the toroidal plasma loop (Step 3+)
+// Drawn as a ring of arrows following the toroid's midline, direction
+// alternating with the AC phase — the transformer's secondary current.
+function drawCirculatingEField(t,al=.55){
+  const rMid=(TOR.rOut+TOR.rIn)/2;
+  const dirSign=Math.sin(t*2*Math.PI*0.55)>0?1:-1;
+  const N=10;
+  for(let i=0;i<N;i++){
+    const a0=(i/N)*Math.PI*2, a1=((i+0.72)/N)*Math.PI*2;
+    const x0=TOR.cx+rMid*Math.cos(a0), y0=TOR.cy+rMid*Math.sin(a0);
+    const x1=TOR.cx+rMid*Math.cos(a1), y1=TOR.cy+rMid*Math.sin(a1);
+    if(dirSign>0) arw(x0,y0,x1,y1,`rgba(112,48,160,${al})`,1.4);
+    else arw(x1,y1,x0,y0,`rgba(112,48,160,${al})`,1.4);
+  }
+}
+// Vertical flux lines through the ferrite core, into the plasma loop
+function drawCoreFluxLines(t,al=.85){
+  const phase=Math.sin(t*2*Math.PI*0.9);
+  const dirUp=phase>=0;
+  const mag=Math.abs(phase);
+  const col=dirUp?B.teal:B.amber;
+  const fx=FCORE.cx-FCORE.w/2, fy=FCORE.y;
+  const N=4;
+  for(let i=0;i<N;i++){
+    const x=fx+(i+0.5)*FCORE.w/N;
+    const a=al*(0.30+0.70*mag);
+    ctx.save();ctx.globalAlpha=a;
+    ctx.strokeStyle=col;ctx.lineWidth=1.3;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(x,fy-2);ctx.lineTo(x,fy+FCORE.h+2);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+}
+
+// Downstream duct — horizontal pipe between toroid outlet and process chamber.
+// Drawn with a gradient that fades from "mixed species" (left) to "neutral
+// only" (right), reinforcing the charged-particle-filter narrative.
+function drawDuct(){
+  const g=ctx.createLinearGradient(DUCT.x,0,DUCT.x+DUCT.w,0);
+  g.addColorStop(0,'#eef0f5');g.addColorStop(1,'#f7f8fa');
+  ctx.fillStyle=g;rr(DUCT.x,DUCT.y,DUCT.w,DUCT.h,6);ctx.fill();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(DUCT.x,DUCT.y,DUCT.w,DUCT.h,6);ctx.stroke();
+  ctx.fillStyle='rgba(80,90,110,.62)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(lang==='ko'?'Downstream Duct':'Downstream Duct', DUCT.x+DUCT.w/2, DUCT.y-4);
+}
+// Process (Ashing) chamber shell
+function drawProcessChamberShell(){
+  ctx.save();ctx.shadowColor='rgba(40,50,80,0.10)';ctx.shadowBlur=14;ctx.shadowOffsetY=6;
+  rr(PCH.x,PCH.y,PCH.w,PCH.h,PCH.r);
+  const g=ctx.createLinearGradient(PCH.x,PCH.y,PCH.x,PCH.y+PCH.h);g.addColorStop(0,'#f6f7fb');g.addColorStop(1,'#e6e9f1');
+  ctx.fillStyle=g;ctx.fill();ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.5;rr(PCH.x,PCH.y,PCH.w,PCH.h,PCH.r);ctx.stroke();
+  ctx.strokeStyle='#dadfeb';ctx.lineWidth=1;rr(PCH.x+6,PCH.y+6,PCH.w-12,PCH.h-12,PCH.r-6);ctx.stroke();
+  // "GROUNDED · NO RF" badge — placed below the showerhead, on the
+  // right side of the reaction zone, clear of the chuck and pump lines.
+  ctx.fillStyle='rgba(15,140,80,.10)';rr(PCH.x+PCH.w-118,PCH.y+44,108,22,6);ctx.fill();
+  ctx.strokeStyle='rgba(15,140,80,.35)';ctx.lineWidth=1;rr(PCH.x+PCH.w-118,PCH.y+44,108,22,6);ctx.stroke();
+  ctx.fillStyle=B.green;ctx.font=`bold 10px ${MONO}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'접지 · RF 없음':'GROUNDED · NO RF', PCH.x+PCH.w-64, PCH.y+55);
+}
+// Passive radical showerhead — grounded, no RF
+function drawShowerhead(){
+  const g=ctx.createLinearGradient(RSH.x,RSH.y,RSH.x,RSH.y+RSH.h);
+  g.addColorStop(0,'#dde1ea');g.addColorStop(1,'#c4cad8');
+  ctx.fillStyle=g;rr(RSH.x,RSH.y,RSH.w,RSH.h,4);ctx.fill();
+  ctx.strokeStyle='#aab0bf';ctx.lineWidth=1;rr(RSH.x,RSH.y,RSH.w,RSH.h,4);ctx.stroke();
+  // apertures
+  ctx.fillStyle='#9aa0b0';
+  const nAp=14;
+  for(let i=0;i<nAp;i++){
+    const ax=RSH.x+10+i*(RSH.w-20)/(nAp-1);
+    ctx.beginPath();ctx.arc(ax,RSH.y+RSH.h/2,1.6,0,Math.PI*2);ctx.fill();
+  }
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText(lang==='ko'?'라디칼 샤워헤드 (접지)':'Radical Showerhead (grounded)', RSH.x+RSH.w/2, RSH.y-4);
+  gnd(RSH.x+RSH.w+18, RSH.y+RSH.h/2-2);
+  pipe([[RSH.x+RSH.w,RSH.y+RSH.h/2],[RSH.x+RSH.w+18,RSH.y+RSH.h/2]],'#1d2436',1.3);
+}
+// Wafer chuck — grounded, often heated, NOT RF-powered
+function drawProcessChuck(){
+  const g=ctx.createLinearGradient(PSC.x,PSC.y,PSC.x,PSC.y+PSC.h);
+  g.addColorStop(0,'#b8c0d0');g.addColorStop(.5,'#d8dde6');g.addColorStop(1,'#b8c0d0');
+  ctx.fillStyle=g;rr(PSC.x,PSC.y,PSC.w,PSC.h,4);ctx.fill();
+  ctx.strokeStyle='#aab0bf';ctx.lineWidth=1;rr(PSC.x,PSC.y,PSC.w,PSC.h,4);ctx.stroke();
+  ctx.fillStyle='rgba(60,68,84,.70)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'접지 · 가열 척':'Grounded · Heated Chuck', PSC.x+PSC.w/2, PSC.y+PSC.h/2);
+  gnd(PSC.x-16, PSC.y+PSC.h/2-2);
+  pipe([[PSC.x,PSC.y+PSC.h/2],[PSC.x-16,PSC.y+PSC.h/2]],'#1d2436',1.3);
+}
+// PR film on wafer — thins uniformly from the top as ashRemain decreases
+function drawWaferWithPR(remain){
+  // Si substrate
+  ctx.fillStyle='#4a5470';ctx.fillRect(PWF.x,PWF.y+PWF.h,PWF.w,10);
+  ctx.fillStyle='#8a90a0';ctx.font=`9px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='top';
+  ctx.fillText('Si',PWF.x+PWF.w-4,PWF.y+PWF.h+1);
+  // PR layer — height scales with remain (1.0 = full PR_FULL_H)
+  const h=Math.max(0,PR_FULL_H*remain);
+  const y=PWF.y+PWF.h-h;
+  if(h>0.5){
+    const prg=ctx.createLinearGradient(0,y,0,y+h);prg.addColorStop(0,'#7030A0');prg.addColorStop(1,'#5a1f82');
+    ctx.fillStyle=prg;ctx.fillRect(PWF.x,y,PWF.w,h);
+    ctx.strokeStyle='rgba(112,48,160,.25)';ctx.lineWidth=.7;ctx.strokeRect(PWF.x,y,PWF.w,h);
+    if(h>8){
+      ctx.fillStyle='rgba(255,255,255,.82)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('PR',PWF.x+PWF.w/2,y+h/2);
+    }
+  }
+}
+
+function chrome(rpsActive,t,cleanMode=false){
+  ctx.fillStyle=B.bg;ctx.fillRect(0,0,W,H);drawLogo(.50);
+  drawGasSys(cleanMode);
+  drawToroid(rpsActive,t);drawFerriteCore(rpsActive,t);
+  drawACSource(rpsActive,t);
+  drawDuct();
+  drawRPSBox();
+  drawProcessChamberShell();drawShowerhead();drawProcessChuck();
+  drawProcessPumpSystem(t);
+}
+
+// AC Source — single circuit, drives the primary coil directly (no matcher/bias)
+function drawACSource(active,t){
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(AC_SRC.x,AC_SRC.y,AC_SRC.w,AC_SRC.h,AC_SRC.r);ctx.fill();
+  ctx.save();rr(AC_SRC.x,AC_SRC.y,AC_SRC.w,AC_SRC.h,AC_SRC.r);ctx.clip();ctx.fillStyle=B.purple;ctx.fillRect(AC_SRC.x,AC_SRC.y,AC_SRC.w,5);ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(AC_SRC.x,AC_SRC.y,AC_SRC.w,AC_SRC.h,AC_SRC.r);ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lang==='ko'?'AC Source':'AC Source',AC_SRC.x+AC_SRC.w/2,AC_SRC.y+17);
+  ctx.strokeStyle=active?B.purple:'#c8cdd9';ctx.lineWidth=1.4;ctx.beginPath();
+  const ph=active?t*6:0,sx=AC_SRC.x+14,sy2=AC_SRC.y+32,sw=AC_SRC.w-28;
+  for(let i=0;i<=sw;i++){const y=sy2+5*Math.sin((i/sw)*Math.PI*4+ph);i===0?ctx.moveTo(sx+i,y):ctx.lineTo(sx+i,y);}ctx.stroke();
+  ctx.fillStyle=active?B.purple:'#a8aebd';ctx.font=`9px ${MONO}`;ctx.fillText(active?'400 kHz · ON':'400 kHz · OFF',AC_SRC.x+AC_SRC.w/2,AC_SRC.y-7);
+}
+// RPS module bounding box (dashed) — AC Source + Ferrite Core + Toroid +
+// Downstream Duct inlet are supplied as a single product. Gas supply is
+// outside this boundary.
+function drawRPSBox(){
+  ctx.save();
+  ctx.strokeStyle='rgba(112,48,160,.45)';ctx.lineWidth=1.4;ctx.setLineDash([6,5]);
+  rr(RPS_BOX.x,RPS_BOX.y,RPS_BOX.w,RPS_BOX.h,12);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(112,48,160,.85)';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='bottom';
+  ctx.fillText(lang==='ko'?'RPS 모듈 (단일 제품)':'RPS Module (single product)', RPS_BOX.x+10, RPS_BOX.y-4);
+  ctx.restore();
+}
+function drawProcessPumpSystem(t){
+  const pumpTopCX=PDVP.x+PDVP.w/2;
+  pipe([[PCH.x+60,PCH.y+PCH.h-30],[PCH.x+60,PDVP.y-16],[pumpTopCX,PDVP.y-16],[pumpTopCX,PDVP.y]],'#b3bac8',2.5);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(PDVP.x,PDVP.y,PDVP.w,PDVP.h,PDVP.r);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#6b7388';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(PDVP.x+18,PDVP.y+PDVP.h/2,8,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();for(let k=0;k<3;k++){const a=-t*1.5+k*Math.PI*2/3;ctx.moveTo(PDVP.x+18,PDVP.y+PDVP.h/2);ctx.lineTo(PDVP.x+18+6.5*Math.cos(a),PDVP.y+PDVP.h/2+6.5*Math.sin(a));}ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'Dry Vacuum Pump':'Dry Vacuum Pump',PDVP.x+32,PDVP.y+PDVP.h/2);
+}
+function drawSideLabels(){
+  ctx.fillStyle=B.muted;ctx.font=`11px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'RPS 모듈':'RPS Module', TOR.cx-TOR.rOut-2, TOR.cy-TOR.rOut-50);
+  ctx.fillText(lang==='ko'?'공정(Ashing) 챔버':'Process (Ashing) Chamber', PCH.x+8, PCH.y-10);
+}
+// ── Particle system ───────────────────────────────────────────
+function spawn(type,x,y,vx=null,vy=null){
+  particles.push({type,x,y,vx:vx!==null?vx:(Math.random()-.5)*.4,vy:vy!==null?vy:(Math.random()-.5)*.4,age:0});
+  return particles[particles.length-1];
+}
+// Random point inside the toroid ring (donut cross-section)
+function rndPtTor(){
+  const a=Math.random()*Math.PI*2;
+  const r=TOR.rIn+6+Math.random()*(TOR.rOut-TOR.rIn-12);
+  return {x:TOR.cx+r*Math.cos(a), y:TOR.cy+r*Math.sin(a)};
+}
+function clr(){particles=[];lights=[];impacts=[];}
+// Generic boundary: keep particles inside a rect, bouncing off walls
+function bounceRect(p,rect,damp=.4){
+  if(p.x<rect.x+3){p.x=rect.x+3;p.vx=Math.abs(p.vx)*damp;}
+  if(p.x>rect.x+rect.w-3){p.x=rect.x+rect.w-3;p.vx=-Math.abs(p.vx)*damp;}
+  if(p.y<rect.y+3){p.y=rect.y+3;p.vy=Math.abs(p.vy)*damp;}
+  if(p.y>rect.y+rect.h-3){p.y=rect.y+rect.h-3;p.vy=-Math.abs(p.vy)*damp;}
+}
+function drawParts(){
+  for(const p of particles){
+    const d=SP[p.type];
+    if(d.cat==='byproduct'){ctx.save();ctx.globalAlpha=Math.max(0,1-p.age/1.8);chem(d.f,p.x,p.y,d.sz,d.c);ctx.restore();}
+    else chem(d.f,p.x,p.y,d.sz,d.c);
+  }
+}
+function emitL(x,y,col='rgba(255,220,200,1)',life=.6){lights.push({x,y,col,life,maxLife:life,r:0});}
+function updL(dt){for(let i=lights.length-1;i>=0;i--){const Lp=lights[i];Lp.life-=dt;Lp.r+=30*dt;if(Lp.life<=0)lights.splice(i,1);}}
+function drawL(){
+  for(const Lp of lights){const a=Lp.life/Lp.maxLife,g=ctx.createRadialGradient(Lp.x,Lp.y,0,Lp.x,Lp.y,Lp.r);
+    g.addColorStop(0,Lp.col.replace('1)',`${a})`));g.addColorStop(1,Lp.col.replace('1)','0)'));
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(Lp.x,Lp.y,Lp.r,0,Math.PI*2);ctx.fill();}
+}
+function addImp(x,y){impacts.push({x,y,life:.4,maxLife:.4});}
+function updImp(dt){for(let i=impacts.length-1;i>=0;i--){impacts[i].life-=dt;if(impacts[i].life<=0)impacts.splice(i,1);}}
+function drawImp(){
+  for(const I of impacts){const a=I.life/I.maxLife;ctx.strokeStyle=`rgba(232,85,59,${a})`;ctx.lineWidth=1.4;
+    ctx.beginPath();for(let k=0;k<8;k++){const ag=k*Math.PI*2/8,r0=4,r1=4+(1-a)*12;ctx.moveTo(I.x+r0*Math.cos(ag),I.y+r0*Math.sin(ag));ctx.lineTo(I.x+r1*Math.cos(ag),I.y+r1*Math.sin(ag));}ctx.stroke();}
+}
+
+function setupStep(i){
+  clr();
+  if(i===8){ashRemain=1.0;}
+  if(i===1){
+    // Gas-fill: starts empty, particles spawn via MFC inlet
+  }else if(i===2||i===3){
+    for(let k=0;k<22;k++){const p=rndPtTor();spawn('O2',p.x,p.y);}
+  }else if(i===4){
+    for(let k=0;k<14;k++){const p=rndPtTor();spawn('O2',p.x,p.y);}
+    for(let k=0;k<6;k++){const p=rndPtTor();spawn('O',p.x,p.y);}
+    for(let k=0;k<3;k++){const p=rndPtTor();spawn('O2+',p.x,p.y);}
+    for(let k=0;k<4;k++){const p=rndPtTor();spawn('e-',p.x,p.y);}
+  }else if(i===5){
+    for(let k=0;k<10;k++){const p=rndPtTor();spawn('O2',p.x,p.y);}
+    for(let k=0;k<8;k++){const p=rndPtTor();spawn('O',p.x,p.y);}
+    for(let k=0;k<3;k++){const p=rndPtTor();spawn('O2+',p.x,p.y);}
+    for(let k=0;k<4;k++){const p=rndPtTor();spawn('e-',p.x,p.y);}
+  }else if(i===6){
+    for(let k=0;k<10;k++){const p={x:RZ.x+Math.random()*RZ.w,y:RZ.y+Math.random()*RZ.h*0.5};spawn('O',p.x,p.y,(Math.random()-.5)*.3,.3+Math.random()*.3);}
+    for(let k=0;k<6;k++){const p={x:RZ.x+Math.random()*RZ.w,y:RZ.y+Math.random()*RZ.h*0.5};spawn('O2',p.x,p.y,(Math.random()-.5)*.3,.2+Math.random()*.3);}
+  }else if(i===7){
+    mode='REMOTE';
+    for(let k=0;k<10;k++){const p={x:RZ.x+Math.random()*RZ.w,y:RZ.y+Math.random()*RZ.h*0.5};spawn('O',p.x,p.y,(Math.random()-.5)*.3,.3+Math.random()*.3);}
+  }
+  renderStepCtrl(i);
+}
+
+// ── Step renderers ────────────────────────────────────────────
+// steps[0]=S0->s1 (system overview), steps[1]=S1->s2 (gas fill O2),
+// steps[2]=S2->s3 (RPS RF ignition / TCP), steps[3]=S3->s4 (O2 dissociation, confined plasma),
+// steps[4]=S4->s5 (downstream transport — ion/e- filtering), steps[5]=S5->s6 (process chamber, radical diffusion),
+// steps[6]=S6->s7 (Direct vs Remote toggle), steps[7]=S7->s8 (full PR ashing),
+// steps[8]=K->s9 (Key Takeaways)
+
+function s1(dt,t){
+  chrome(false,t);
+  drawWaferWithPR(1.0);
+  drawSideLabels();
+  drawCoreFluxLines(0,0.12);
+  if(hoveredHotspot){
+    const r=hoveredHotspot.rect;ctx.strokeStyle=B.purple;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+    rr(r.x-3,r.y-3,r.w+6,r.h+6,6);ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.fillStyle='rgba(60,70,95,.42)';ctx.font=`12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'플라즈마 (점화 전)':'Plasma (pre-ignition)', TOR.cx, TOR.cy);
+}
+
+function s2(dt,t){
+  chrome(false,t);
+  drawWaferWithPR(1.0);
+  drawSideLabels();
+  drawCoreFluxLines(0,0.12);
+  // O2 fills the toroid via the inlet
+  if(particles.length<40&&Math.random()<.22){
+    const p=spawn('O2',TOR_INLET.x-2,TOR_INLET.y-4);
+    p.vx=(Math.random()-.5)*.1;p.vy=-.25-Math.random()*.15;
+  }
+  particles=particles.filter(p=>{
+    p.age+=dt;
+    p.vx+=(Math.random()-.5)*.08;p.vy+=(Math.random()-.5)*.08;
+    p.vx*=.97;p.vy*=.97;
+    p.x+=p.vx;p.y+=p.vy;
+    // confine to toroid annulus
+    const dx=p.x-TOR.cx, dy=p.y-TOR.cy, r=Math.hypot(dx,dy);
+    if(r>TOR.rOut-4||r<TOR.rIn+4){
+      const targetR=Math.min(Math.max(r,TOR.rIn+4),TOR.rOut-4);
+      const a=Math.atan2(dy,dx);
+      p.x=TOR.cx+targetR*Math.cos(a);p.y=TOR.cy+targetR*Math.sin(a);
+      p.vx*=-.3;p.vy*=-.3;
+    }
+    return true;
+  });
+  drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().molCount}: ${particles.length}`,22,22);
+  const pct=Math.min(particles.length/40,1);
+  ctx.fillStyle=B.border;ctx.fillRect(22,38,130,5);ctx.fillStyle=B.blue;ctx.fillRect(22,38,130*pct,5);
+}
+
+let t3=0;
+function s3(dt,t){
+  chrome(true,t);
+  drawWaferWithPR(1.0);
+  drawSideLabels();
+  drawCoreFluxLines(t,0.85);
+  drawCirculatingEField(t,.45);
+  // particles drift along the toroid annulus
+  particles=particles.filter(p=>{
+    p.age+=dt;
+    const dx=p.x-TOR.cx, dy=p.y-TOR.cy, r=Math.hypot(dx,dy), a=Math.atan2(dy,dx);
+    const na=a+dt*0.6;
+    const nr=Math.min(Math.max(r+(Math.random()-.5)*.6,TOR.rIn+4),TOR.rOut-4);
+    p.x=TOR.cx+nr*Math.cos(na);p.y=TOR.cy+nr*Math.sin(na);
+    return true;
+  });
+  t3+=dt;if(t3>.30){t3=0;
+    // O2 -> O2+ + e- ionization event somewhere in the ring
+    const o2s=particles.filter(p=>p.type==='O2');
+    if(o2s.length>2){
+      const tgt=o2s[Math.floor(Math.random()*o2s.length)],idx=particles.indexOf(tgt);
+      particles.splice(idx,1);
+      spawn('O2+',tgt.x,tgt.y);spawn('e-',tgt.x+3,tgt.y-2);
+      emitL(tgt.x,tgt.y,'rgba(220,230,255,1)',.4);
+    }
+  }
+  updL(dt);drawL();drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'AC Source 점화 중 — 변압기 결합형 플라즈마 형성':'AC Source igniting — transformer-coupled plasma forming',22,22);
+}
+
+function s4(dt,t){
+  chrome(true,t);
+  drawWaferWithPR(1.0);
+  drawSideLabels();
+  drawCoreFluxLines(t,0.85);
+  drawCirculatingEField(t,.55);
+  particles=particles.filter(p=>{
+    p.age+=dt;
+    const dx=p.x-TOR.cx, dy=p.y-TOR.cy, r=Math.hypot(dx,dy), a=Math.atan2(dy,dx);
+    const speed = SP[p.type].cat==='electron'?1.4:SP[p.type].cat==='ion'?0.9:0.6;
+    const na=a+dt*0.6*speed;
+    const nr=Math.min(Math.max(r+(Math.random()-.5)*.8,TOR.rIn+4),TOR.rOut-4);
+    p.x=TOR.cx+nr*Math.cos(na);p.y=TOR.cy+nr*Math.sin(na);
+    return true;
+  });
+  let t4=window.__t4||0;t4+=dt;window.__t4=t4;
+  if(t4>.24){window.__t4=0;
+    // e- + O2 -> 2O (dissociation) or O2+ + 2e- (ionization)
+    const o2s=particles.filter(p=>p.type==='O2');
+    if(o2s.length>2){
+      const tgt=o2s[Math.floor(Math.random()*o2s.length)],idx=particles.indexOf(tgt);
+      particles.splice(idx,1);
+      if(Math.random()<.65){
+        spawn('O',tgt.x-3,tgt.y);spawn('O',tgt.x+3,tgt.y);
+      }else{
+        spawn('O2+',tgt.x,tgt.y);spawn('e-',tgt.x+3,tgt.y-2);
+      }
+      emitL(tgt.x,tgt.y,'rgba(220,230,255,1)',.4);
+    }
+    // replenish O2 supply slowly from inlet
+    if(particles.filter(p=>p.type==='O2').length<6){
+      const p=rndPtTor();spawn('O2',p.x,p.y);
+    }
+  }
+  updL(dt);drawL();drawParts();
+  const nO=particles.filter(p=>p.type==='O').length;
+  const nIon=particles.filter(p=>SP[p.type].cat==='ion').length;
+  const nE=particles.filter(p=>SP[p.type].cat==='electron').length;
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(L().densityLabel,22,22);
+  ctx.fillText(`O·: ${nO}   O⁺/O₂⁺: ${nIon}   e⁻: ${nE}`,22,38);
+}
+
+function s5(dt,t){
+  chrome(true,t);
+  drawWaferWithPR(1.0);
+  drawSideLabels();
+  drawCoreFluxLines(t,0.65);
+  drawCirculatingEField(t,.40);
+  // Particles travel from toroid outlet, through duct, into RZ.
+  const exitPt={x:TOR_OUTLET.x, y:TOR_OUTLET.y};
+  particles=particles.filter(p=>{
+    p.age+=dt;
+    if(p.phase===undefined)p.phase='toroid';
+    if(p.phase==='toroid'){
+      const dx=p.x-TOR.cx, dy=p.y-TOR.cy, r=Math.hypot(dx,dy), a=Math.atan2(dy,dx);
+      const speed = SP[p.type].cat==='electron'?1.4:SP[p.type].cat==='ion'?0.9:0.6;
+      let na=a+dt*0.6*speed;
+      const nr=Math.min(Math.max(r+(Math.random()-.5)*.8,TOR.rIn+4),TOR.rOut-4);
+      p.x=TOR.cx+nr*Math.cos(na);p.y=TOR.cy+nr*Math.sin(na);
+      // near the outlet angle (a≈0, right side) -> chance to exit into duct
+      const aN=((na%(Math.PI*2))+Math.PI*2)%(Math.PI*2);
+      if(aN<0.35 && Math.random()<0.02){
+        p.phase='duct';p.x=DUCT.x+4;p.y=DUCT.y+DUCT.h/2+(Math.random()-.5)*8;
+        p.vx=.6+Math.random()*.3;p.vy=(Math.random()-.5)*.1;
+      }
+      return true;
+    }
+    if(p.phase==='duct'){
+      p.x+=p.vx;p.y+=p.vy;
+      p.vy*=.95;
+      // wall collision check -> charged species recombine and vanish
+      if(p.y<DUCT.y+3||p.y>DUCT.y+DUCT.h-3){
+        if(SP[p.type].cat==='ion'||SP[p.type].cat==='electron'){
+          emitL(p.x,p.y,'rgba(255,210,200,1)',.35);
+          return false; // recombined on wall
+        }
+        p.y=Math.min(Math.max(p.y,DUCT.y+3),DUCT.y+DUCT.h-3);
+        p.vy*=-.4;
+      }
+      if(p.x>DUCT.x+DUCT.w){
+        p.phase='rz';p.x=RZ.x+4;p.y=RSH.y+RSH.h+6;p.vx=(Math.random()-.5)*.3;p.vy=.3+Math.random()*.3;
+      }
+      return true;
+    }
+    // phase 'rz' — diffuse toward wafer, bounce within reaction zone
+    p.vx+=(Math.random()-.5)*.08;p.vy+=(Math.random()-.5)*.04;
+    p.vx*=.97;p.vy*=.97;
+    p.x+=p.vx;p.y+=p.vy;
+    bounceRect(p,RZ,.5);
+    return p.age<6;
+  });
+  // replenish O2/O in toroid so the flow continues
+  let t5=window.__t5||0;t5+=dt;window.__t5=t5;
+  if(t5>.30){window.__t5=0;
+    const inTor=particles.filter(p=>p.phase==='toroid');
+    if(inTor.filter(p=>p.type==='O2').length<4){const p=rndPtTor();spawn('O2',p.x,p.y).phase='toroid';}
+    if(inTor.filter(p=>p.type==='O').length<5){const p=rndPtTor();spawn('O',p.x,p.y).phase='toroid';}
+    if(inTor.filter(p=>SP[p.type].cat==='ion').length<3){const p=rndPtTor();spawn('O2+',p.x,p.y).phase='toroid';}
+    if(inTor.filter(p=>SP[p.type].cat==='electron').length<3){const p=rndPtTor();spawn('e-',p.x,p.y).phase='toroid';}
+    // ionization/dissociation inside toroid
+    const o2s=inTor.filter(p=>p.type==='O2');
+    if(o2s.length>1 && Math.random()<.6){
+      const tgt=o2s[Math.floor(Math.random()*o2s.length)],idx=particles.indexOf(tgt);
+      particles.splice(idx,1);
+      spawn('O',tgt.x-3,tgt.y).phase='toroid';spawn('O',tgt.x+3,tgt.y).phase='toroid';
+    }
+  }
+  updL(dt);drawL();drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'이온·전자: Duct 벽에서 재결합 소멸 / 라디칼(O·): 통과':'Ions·electrons: recombine on duct walls / Radicals (O·): pass through',22,22);
+}
+
+function s6(dt,t){
+  chrome(false,t);
+  drawWaferWithPR(1.0);
+  drawSideLabels();
+  // Process chamber: pure diffusion, no field, no glow
+  particles=particles.filter(p=>{
+    p.age+=dt;
+    p.vx+=(Math.random()-.5)*.10;p.vy+=(Math.random()-.5)*.06;
+    p.vx*=.97;p.vy*=.97;
+    p.x+=p.vx;p.y+=p.vy;
+    bounceRect(p,RZ,.5);
+    // chance to hit the wafer top and react -> CO2/H2O byproduct
+    if(p.type==='O' && p.y>PWF.y-2 && p.y<PWF.y+PWF.h && Math.random()<0.02){
+      emitL(p.x,p.y,'rgba(200,210,225,1)',.3);
+      spawn(Math.random()<.5?'CO2':'H2O',p.x,PWF.y-2,(Math.random()-.5)*.3,-.8-Math.random()*.4);
+      return false;
+    }
+    return p.age<8;
+  });
+  let t6=window.__t6||0;t6+=dt;window.__t6=t6;
+  if(t6>.28){window.__t6=0;
+    if(particles.filter(p=>p.type==='O').length<10){
+      const p={x:RSH.x+Math.random()*RSH.w,y:RSH.y+RSH.h+2};spawn('O',p.x,p.y,(Math.random()-.5)*.2,.3+Math.random()*.3);
+    }
+    if(particles.filter(p=>p.type==='O2').length<5){
+      const p={x:RSH.x+Math.random()*RSH.w,y:RSH.y+RSH.h+2};spawn('O2',p.x,p.y,(Math.random()-.5)*.2,.2+Math.random()*.2);
+    }
+  }
+  updL(dt);drawL();drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(L().noVdc,22,22);
+  ctx.fillStyle='rgba(80,110,160,.85)';
+  ctx.fillText(lang==='ko'?'O· 라디칼이 확산되어 PR과 반응 (CO₂, H₂O 생성)':'O· radicals diffuse and react with PR (forming CO₂, H₂O)',22,38);
+}
+
+function s7(dt,t){
+  const isRemote = mode==='REMOTE';
+  if(isRemote){
+    chrome(false,t);
+    drawWaferWithPR(1.0);
+  }else{
+    // Direct plasma: draw the wafer as if placed inside the toroid region —
+    // show toroid active with glow reaching down toward a wafer drawn at PWF.
+    chrome(true,t);
+    drawWaferWithPR(1.0);
+    drawCoreFluxLines(t,0.85);drawCirculatingEField(t,.50);
+  }
+  drawSideLabels();
+  particles=particles.filter(p=>{
+    p.age+=dt;
+    if(isRemote){
+      p.vx+=(Math.random()-.5)*.10;p.vy+=(Math.random()-.5)*.06;
+      p.vx*=.97;p.vy*=.97;
+      p.x+=p.vx;p.y+=p.vy;
+      bounceRect(p,RZ,.5);
+      if(p.type==='O' && p.y>PWF.y-2 && p.y<PWF.y+PWF.h && Math.random()<0.02){
+        addImp(p.x,PWF.y);
+        spawn(Math.random()<.5?'CO2':'H2O',p.x,PWF.y-2,(Math.random()-.5)*.3,-.8-Math.random()*.4);
+        return false;
+      }
+      return p.age<8;
+    }else{
+      // Direct mode: ions accelerate toward wafer, electrons/radicals more random
+      const d=SP[p.type];
+      if(d.cat==='ion'){p.vy+=0.10*dt*40;}
+      p.vx+=(Math.random()-.5)*.12;p.vy*=.985;p.vx*=.985;
+      p.x+=p.vx;p.y+=p.vy;
+      bounceRect(p,RZ,.4);
+      if(p.y>PWF.y-2 && p.y<PWF.y+PWF.h){
+        if(d.cat==='ion'){addImp(p.x,PWF.y);return false;}
+        if(p.type==='O'&&Math.random()<0.02){
+          addImp(p.x,PWF.y);
+          spawn(Math.random()<.5?'CO2':'H2O',p.x,PWF.y-2,(Math.random()-.5)*.3,-.8-Math.random()*.4);
+          return false;
+        }
+      }
+      return p.age<6;
+    }
+  });
+  let t7=window.__t7||0;t7+=dt;window.__t7=t7;
+  if(t7>.22){window.__t7=0;
+    if(isRemote){
+      if(particles.filter(p=>p.type==='O').length<10){
+        const p={x:RSH.x+Math.random()*RSH.w,y:RSH.y+RSH.h+2};spawn('O',p.x,p.y,(Math.random()-.5)*.2,.3+Math.random()*.3);
+      }
+    }else{
+      if(particles.filter(p=>p.type==='O').length<8){
+        const p={x:RZ.x+Math.random()*RZ.w,y:RZ.y+2};spawn('O',p.x,p.y,(Math.random()-.5)*.3,.2+Math.random()*.3);
+      }
+      if(particles.filter(p=>SP[p.type].cat==='ion').length<6){
+        const p={x:RZ.x+Math.random()*RZ.w,y:RZ.y+2};spawn(Math.random()<.5?'O+':'O2+',p.x,p.y,(Math.random()-.5)*.2,.15);
+      }
+      if(particles.filter(p=>SP[p.type].cat==='electron').length<4){
+        const p={x:RZ.x+Math.random()*RZ.w,y:RZ.y+2};spawn('e-',p.x,p.y);
+      }
+    }
+  }
+  updImp(dt);drawParts();drawImp();
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().modeLabel}: ${isRemote?'Remote Plasma':'Direct Plasma'}`,22,22);
+  ctx.fillStyle=isRemote?B.blue:B.purple;
+  ctx.fillText(isRemote?L().modeInfoRemote:L().modeInfoDirect,22,38);
+}
+
+let t8=0;
+function s8(dt,t){
+  chrome(false,t);
+  drawSideLabels();
+  if(ashRemain>0){
+    particles=particles.filter(p=>{
+      p.age+=dt;
+      p.vx+=(Math.random()-.5)*.10;p.vy+=(Math.random()-.5)*.06;
+      p.vx*=.97;p.vy*=.97;
+      p.x+=p.vx;p.y+=p.vy;
+      bounceRect(p,RZ,.5);
+      const prTopY=PWF.y+PWF.h*(1-ashRemain);
+      if(p.type==='O' && p.y>prTopY-2 && p.y<prTopY+6 && Math.random()<0.03){
+        addImp(p.x,prTopY);
+        spawn(Math.random()<.5?'CO2':'H2O',p.x,prTopY-2,(Math.random()-.5)*.3,-.8-Math.random()*.4);
+        ashRemain=Math.max(0,ashRemain-0.0035);
+        return false;
+      }
+      return p.age<8;
+    });
+    t8+=dt;if(t8>.18){t8=0;
+      if(particles.filter(p=>p.type==='O').length<12){
+        const p={x:RSH.x+Math.random()*RSH.w,y:RSH.y+RSH.h+2};spawn('O',p.x,p.y,(Math.random()-.5)*.2,.3+Math.random()*.3);
+      }
+      if(particles.filter(p=>p.type==='O2').length<5){
+        const p={x:RSH.x+Math.random()*RSH.w,y:RSH.y+RSH.h+2};spawn('O2',p.x,p.y,(Math.random()-.5)*.2,.2+Math.random()*.2);
+      }
+    }
+  }
+  drawWaferWithPR(ashRemain);
+  updImp(dt);drawParts();drawImp();
+  // Overall equation
+  const eqY=22;ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(L().eqLabel,22,eqY);
+  const eqX0=22+ctx.measureText(L().eqLabel).width+14;
+  chem('CxHy',eqX0+18,eqY,12,B.purple);ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.fillText('+ O\u00b7 \u2192',eqX0+50,eqY);
+  chem('CO2',eqX0+108,eqY,12,'#9CA3AF');ctx.fillStyle='#3a4358';ctx.fillText('+',eqX0+132,eqY);chem('H2O',eqX0+158,eqY,12,'#9CA3AF');
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().ashLabel}: ${(ashRemain*100).toFixed(0)} ${L().ashPctOf}`,22,46);
+  ctx.fillStyle=B.border;ctx.fillRect(22,62,200,5);
+  ctx.fillStyle=ashRemain<=0?B.green:B.blue;
+  ctx.fillRect(22,62,200*(1-ashRemain),5);
+  if(ashRemain<=0){ctx.fillStyle=B.green;ctx.font=`bold 10px ${FONT}`;ctx.fillText(L().ashComplete,22,74);}
+}
+
+// ── STEP 9 (K) — Key Takeaways ──────────────────────────────────
+function s9(){
+  ctx.fillStyle=B.bg;ctx.fillRect(0,0,W,H);
+  const hg=ctx.createLinearGradient(0,0,W,0);hg.addColorStop(0,B.purple);hg.addColorStop(1,'#8B40B8');
+  ctx.fillStyle=hg;ctx.fillRect(0,0,W,64);
+  ctx.fillStyle='#fff';ctx.font=`bold 19px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(L().takeawayHeader,24,26);
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font=`11.5px ${FONT}`;ctx.fillText(L().takeawaySubheader,24,50);
+  ctx.fillStyle=B.green;ctx.fillRect(0,64,W,4);
+  function secLbl(txt,x,y){ctx.fillStyle=B.purple;ctx.fillRect(x,y-7,3,14);ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=B.charcoal;ctx.fillText(txt,x+10,y);}
+  const LX=20,LWc=408;secLbl(L().takeawayDesign,LX,84);
+  L().principles.forEach(([title,desc],i)=>{
+    const cy=100+i*82,ch=72;
+    ctx.save();rr(LX,cy,LWc,ch,8);ctx.clip();ctx.fillStyle='rgba(15,140,80,.07)';ctx.fillRect(LX,cy,LWc,ch);ctx.restore();
+    rr(LX,cy,LWc,ch,8);ctx.strokeStyle='rgba(15,140,80,.28)';ctx.lineWidth=.8;ctx.stroke();
+    ctx.fillStyle=B.green;ctx.beginPath();ctx.arc(LX+22,cy+ch/2,11,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font=`bold 13px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✓',LX+22,cy+ch/2);
+    ctx.fillStyle='#0a5e34';ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.fillText(title,LX+42,cy+24);
+    ctx.fillStyle='#4a5565';ctx.font=`10.5px ${FONT}`;ctx.fillText(desc,LX+42,cy+48);
+  });
+  const RX=446,RW=436;secLbl(L().takeawayParams,RX,84);
+  const TY=98,RH=30,cols=[0,192,314,436],totH=RH*(L().tRows.length+1);
+  ctx.save();rr(RX,TY,RW,totH,8);ctx.clip();
+  ctx.fillStyle=B.purple;ctx.fillRect(RX,TY,RW,RH);
+  L().tHeaders.forEach((h,ci)=>{const mx=RX+(cols[ci]+cols[ci+1])/2;ctx.fillStyle='#fff';ctx.font=`bold 11.5px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h,mx,TY+RH/2);});
+  L().tRows.forEach((row,ri)=>{
+    const ry=TY+RH+ri*RH;ctx.fillStyle=ri%2===0?B.purpleSoft:'#fff';ctx.fillRect(RX,ry,RW,RH);
+    ctx.strokeStyle='#ddd0ee';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(RX,ry+RH);ctx.lineTo(RX+RW,ry+RH);ctx.stroke();
+    [1,2].forEach(ci=>{ctx.beginPath();ctx.moveTo(RX+cols[ci],ry);ctx.lineTo(RX+cols[ci],ry+RH);ctx.stroke();});
+    row.forEach((cell,ci)=>{
+      ctx.fillStyle=ci===0?B.charcoal:ci===1?B.purple:'#6b7388';ctx.font=ci===0?`11px ${FONT}`:`bold 11px ${FONT}`;
+      ctx.textAlign=ci===0?'left':'center';ctx.textBaseline='middle';
+      ctx.fillText(cell,ci===0?RX+8:RX+(cols[ci]+cols[ci+1])/2,ry+RH/2);
+    });
+  });
+  ctx.restore();rr(RX,TY,RW,totH,8);ctx.strokeStyle='#d0c0e8';ctx.lineWidth=1;ctx.stroke();
+  const PWY=TY+totH+18;
+  ctx.fillStyle=B.green;ctx.fillRect(RX,PWY,3,14);ctx.fillStyle=B.charcoal;ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(L().takeawayWindow,RX+10,PWY+7);
+  L().pwItems.forEach(([k,v],i)=>{
+    const py=PWY+26+i*22;ctx.fillStyle='#7a7a8a';ctx.font=`11px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(k,RX+10,py);
+    ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='right';ctx.fillText(v,RX+RW-6,py);
+  });
+  const BX=20,BY=514,BW=W-40,BH=74,HDH=30;
+  ctx.save();rr(BX,BY,BW,BH,8);ctx.clip();ctx.fillStyle='rgba(242,201,76,.13)';ctx.fillRect(BX,BY,BW,HDH);ctx.fillStyle='#fff';ctx.fillRect(BX,BY+HDH,BW,BH-HDH);ctx.restore();
+  rr(BX,BY,BW,BH,8);ctx.strokeStyle='rgba(190,155,40,.32)';ctx.lineWidth=.8;ctx.stroke();
+  ctx.strokeStyle='rgba(190,155,40,.32)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(BX+1,BY+HDH);ctx.lineTo(BX+BW-1,BY+HDH);ctx.stroke();
+  ctx.fillStyle='rgba(242,201,76,.50)';ctx.beginPath();ctx.arc(BX+20,BY+HDH/2,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#7a5800';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',BX+20,BY+HDH/2);
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.fillText(L().takeawayLimits,BX+36,BY+HDH/2);
+  ctx.fillStyle='#5a6070';ctx.font=`10.5px ${FONT}`;
+  L().limitLines.forEach((ln,i)=>ctx.fillText(ln,BX+14,BY+HDH+16+i*18));
+  drawLogo(.55);
+}
+
+const RENDERS=[s1,s2,s3,s4,s5,s6,s7,s8,s9];
+
+// ── Step controls ─────────────────────────────────────────────
+function renderStepCtrl(i){
+  stepCtrlEl.innerHTML='';
+  if(i===6){
+    const wrap=document.createElement('div');wrap.className='mode-toggle';
+    const remB=document.createElement('button');remB.textContent='Remote Plasma';
+    const dirB=document.createElement('button');dirB.textContent='Direct Plasma';
+    if(mode==='REMOTE')remB.classList.add('active');else dirB.classList.add('active');
+    remB.addEventListener('click',()=>{mode='REMOTE';setupStep(6);});
+    dirB.addEventListener('click',()=>{mode='DIRECT';setupStep(6);});
+    wrap.appendChild(remB);wrap.appendChild(dirB);stepCtrlEl.appendChild(wrap);
+    const note=document.createElement('span');note.className='mode-info';
+    note.textContent=mode==='REMOTE'?L().modeInfoRemote:L().modeInfoDirect;
+    stepCtrlEl.appendChild(note);
+  }else if(i===7){
+    const btn=document.createElement('button');btn.className='reset-btn';btn.textContent=L().resetAsh;
+    btn.addEventListener('click',()=>{ashRemain=1.0;});stepCtrlEl.appendChild(btn);
+  }
+}
+
+// ── Main loop ─────────────────────────────────────────────────
+function render(){
+  const now=performance.now(),dt=Math.min((now-lastT)/1000,.05);lastT=now;
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle=B.bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(renderScale * DPR, renderScale * DPR);
+  ctx.translate(renderOffX / renderScale, renderOffY / renderScale);
+  RENDERS[currentStep](dt,(now-t0)/1000);
+  requestAnimationFrame(render);
+}
+document.fonts.ready.then(()=>render()).catch(()=>render());
+
+// ── Step buttons ──────────────────────────────────────────────
+const sBEl=document.getElementById('stepButtons');
+function buildBtns(){
+  sBEl.innerHTML='';
+  L().steps.forEach((s,i)=>{
+    const b=document.createElement('button');b.className='step-btn'+(i===currentStep?' active':'');
+    b.textContent=i===0?'S':i===L().steps.length-1?'K':i;b.title=s.title;
+    b.addEventListener('click',()=>setStep(i));sBEl.appendChild(b);
+  });
+}
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+prevBtn.addEventListener('click',()=>setStep(currentStep-1));
+nextBtn.addEventListener('click',()=>setStep(currentStep+1));
+
+function fmtHint(raw){
+  if(!raw)return'';const sp=raw.indexOf(' ');
+  if(sp>0){const icon=raw.slice(0,sp),body=raw.slice(sp+1);if(/\p{Emoji}/u.test(icon))return`<div class="hint-icon">${icon}</div><div class="hint-text">${body}</div>`;}
+  return`<div class="hint-text">${raw}</div>`;
+}
+const DEEP_DIVE_LABEL = { en:'Deep Dive', ko:'심화학습' };
+function toggleDeepDive(idx){
+  const hdr=document.getElementById('ddHdr'+idx), body=document.getElementById('ddBody'+idx);
+  if(!hdr||!body)return;
+  const open=body.classList.toggle('open');
+  hdr.classList.toggle('open',open);
+}
+function setStep(i){
+  if(i<0||i>=L().steps.length)return;currentStep=i;
+  document.querySelectorAll('.step-btn.active').forEach(b=>b.classList.remove('active'));
+  if(sBEl.children[i])sBEl.children[i].classList.add('active');
+  document.getElementById('stepNum').textContent=i===0?'S':i===L().steps.length-1?'K':i;
+  document.getElementById('stepTitle').textContent=L().steps[i].title;
+  document.getElementById('stepBody').innerHTML=L().steps[i].body;
+  const hEl=document.getElementById('stepHint');
+  if(L().steps[i].hint){hEl.innerHTML=fmtHint(L().steps[i].hint);hEl.style.display='';}
+  else hEl.style.display='none';
+  const ddEl=document.getElementById('deepDiveContainer');
+  let dds=L().steps[i].deepDive;
+  if(dds && !Array.isArray(dds)) dds=[dds];
+  if(dds && dds.length){
+    ddEl.innerHTML=dds.map((dd,idx)=>`
+      <div class="deep-wrap">
+        <div class="deep-hdr" id="ddHdr${idx}" onclick="toggleDeepDive(${idx})">
+          <span class="deep-icon">📚</span>
+          <span class="deep-title">${dd.title}</span>
+          <span class="deep-badge">${DEEP_DIVE_LABEL[lang]}</span>
+          <span class="deep-chevron">▼</span>
+        </div>
+        <div class="deep-body" id="ddBody${idx}">
+          <div class="deep-inner">${dd.body}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    ddEl.innerHTML='';
+  }
+  prevBtn.disabled=(i===0);nextBtn.disabled=(i===L().steps.length-1);
+  prevBtn.textContent=L().prevBtn;nextBtn.textContent=L().nextBtn;
+  document.getElementById('sideInner').scrollTop=0;
+  renderStepCtrl(i);
+  setupStep(i);
+}
+
+// ── Language ──────────────────────────────────────────────────
+function setLang(l){
+  lang=l;
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  document.getElementById('btnKO').classList.toggle('active',l==='ko');
+  document.getElementById('hTitle').textContent=L().hTitle;
+  document.getElementById('hSub').textContent=L().hSub;
+  buildBtns();setStep(currentStep);
+}
+
+// ── Tooltip ───────────────────────────────────────────────────
+function ptIn(x,y,r){return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;}
+canvas.addEventListener('mousemove',e=>{
+  const cr=canvas.getBoundingClientRect();
+  const mx=(e.clientX-cr.left), my=(e.clientY-cr.top);
+  const cx=(mx-renderOffX)/renderScale, cy=(my-renderOffY)/renderScale;
+  if(currentStep!==0){hoveredHotspot=null;tooltip.classList.remove('show');canvas.style.cursor='default';return;}
+  let foundR=null;for(const h of HR){if(ptIn(cx,cy,h.rect)){foundR=h;break;}}
+  hoveredHotspot=foundR;
+  if(foundR){
+    const hs=L().hotspots.find(h=>h.n===foundR.n);
+    tooltip.classList.add('show');
+    tooltip.innerHTML=`<b>${hs.title}</b><br>${hs.text.replace(/\n/g,'<br>')}`;
+    const cardRect=canvas.parentElement.getBoundingClientRect();
+    tooltip.style.left=(e.clientX-cardRect.left)+'px';
+    tooltip.style.top=(e.clientY-cardRect.top-10)+'px';
+    canvas.style.cursor='pointer';
+  }else{tooltip.classList.remove('show');canvas.style.cursor='default';}
+});
+canvas.addEventListener('mouseleave',()=>{hoveredHotspot=null;tooltip.classList.remove('show');});
+
+// ── Image Lightbox ────────────────────────────────────────────
+function openLightbox(src){
+  const lb=document.getElementById('imgLightbox'), img=document.getElementById('imgLightboxSrc');
+  img.src=src;lb.classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('imgLightbox').classList.remove('open');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+
+// ── Init ──────────────────────────────────────────────────────
+buildBtns();
+setStep(0);
+</script>
+</body>
+</html>

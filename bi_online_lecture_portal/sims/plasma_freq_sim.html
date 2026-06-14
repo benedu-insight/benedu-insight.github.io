@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electron Plasma Frequency Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --bg:#F4F6FB; --bg2:#FFFFFF; --bg3:#ECEEF5;
+  --border:#D8DAE8; --text:#1A1A2E; --text2:#4A4A6A; --text3:#9090B0;
+  --sh:0 1px 4px rgba(0,0,0,0.07);
+  --green:#1B5E20; --green-l:#E8F5E9; --green-m:#43A047;
+}
+html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;}
+.root{display:flex;flex-direction:column;width:100%;height:100%;padding:7px 10px 5px;gap:6px;
+  font-family:'Google Sans','Segoe UI',sans-serif;color:var(--text);}
+
+/* Controls */
+.top-row{display:flex;gap:7px;align-items:stretch;flex-shrink:0;flex-wrap:wrap;}
+.ctrl-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  padding:6px 10px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:4px;}
+.ctrl-title{font-size:0.49rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.sl-row{display:flex;align-items:center;gap:6px;}
+.sl-label{font-size:0.62rem;color:var(--text2);min-width:120px;}
+input[type=range]{width:100px;accent-color:var(--green-m);cursor:pointer;}
+.sl-val{font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:700;
+  min-width:72px;color:var(--text);}
+
+/* Readout */
+.readout{background:linear-gradient(135deg,#E8F5E9,#F1F8E9);
+  border:1.5px solid #A5D6A7;border-radius:9px;padding:5px 12px;
+  display:flex;align-items:center;gap:8px;box-shadow:var(--sh);flex-shrink:0;}
+.ro-label{font-family:'JetBrains Mono',monospace;font-size:0.52rem;
+  color:var(--green);letter-spacing:0.08em;text-transform:uppercase;}
+.ro-val{font-family:'JetBrains Mono',monospace;font-size:1.0rem;font-weight:700;color:#1B5E20;}
+.ro-unit{font-size:0.62rem;color:var(--green-m);font-family:'JetBrains Mono',monospace;}
+.rf-compare{margin-left:auto;font-size:0.58rem;font-family:'JetBrains Mono',monospace;
+  padding:2px 9px;border-radius:10px;font-weight:600;}
+.rf-low {background:#E8F5E9;color:#1B5E20;border:1px solid #A5D6A7;}
+.rf-high{background:#FFEBEE;color:#C62828;border:1px solid #EF9A9A;}
+
+/* Mode tabs */
+.mode-tabs{display:flex;gap:4px;margin-left:auto;align-items:center;}
+.mode-btn{background:var(--bg3);border:1px solid var(--border);border-radius:7px;
+  padding:4px 11px;font-family:'Google Sans',sans-serif;font-size:0.65rem;
+  font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.13s;}
+.mode-btn:hover{border-color:var(--green-m);color:var(--green);}
+.mode-btn.active{background:var(--green-m);border-color:var(--green-m);color:#fff;}
+
+/* Formula strip */
+.formula-strip{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;display:flex;gap:14px;align-items:center;flex-shrink:0;
+  flex-wrap:wrap;box-shadow:var(--sh);}
+.formula-eq{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--text2);
+  background:var(--bg3);border-radius:6px;padding:2px 8px;}
+.fi{display:flex;gap:5px;align-items:baseline;}
+.fk{font-size:0.49rem;color:var(--text3);text-transform:uppercase;
+  letter-spacing:0.08em;font-family:'JetBrains Mono',monospace;}
+.fv{font-size:0.70rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--green);}
+
+/* Main */
+.main{display:flex;gap:7px;flex:1;min-height:0;}
+.zone{background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  box-shadow:var(--sh);display:flex;flex-direction:column;overflow:hidden;flex:1;}
+.zone-title{font-size:0.49rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);padding:5px 9px 3px;border-bottom:1px solid #F0F0F8;
+  flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.zone canvas{flex:1;display:block;min-height:0;width:100%;}
+.caption{font-size:0.49rem;color:var(--text3);text-align:center;flex-shrink:0;letter-spacing:0.04em;}
+</style>
+</head>
+<body>
+<div class="root">
+
+  <div class="top-row">
+    <div class="ctrl-card">
+      <div class="ctrl-title">Plasma Parameters</div>
+      <div class="sl-row">
+        <span class="sl-label">Electron Density nₑ</span>
+        <input type="range" id="slNe" min="1" max="100" value="10" oninput="update()">
+        <span class="sl-val" id="valNe">10¹⁶ m⁻³</span>
+      </div>
+      <div class="sl-row">
+        <span class="sl-label">Electron Mass ratio</span>
+        <input type="range" id="slMass" min="1" max="10" value="1" oninput="update()">
+        <span class="sl-val" id="valMass">1.0× mₑ</span>
+      </div>
+    </div>
+    <div class="readout">
+      <span class="ro-label">ω_pe</span>
+      <span class="ro-val" id="roVal">—</span>
+      <span class="ro-unit">rad/s</span>
+      <span class="ro-val" id="roFreq" style="font-size:0.75rem;margin-left:8px;color:#43A047">—</span>
+      <span class="ro-unit">GHz</span>
+      <span class="rf-compare rf-low" id="rfComp">ω_pe &gt; ω_RF ✓</span>
+    </div>
+    <div class="mode-tabs">
+      <button class="mode-btn active" id="modeOsc" onclick="setMode('oscillation')">① Oscillation</button>
+      <button class="mode-btn" id="modeDisp"  onclick="setMode('dispersion')">② Dispersion</button>
+      <button class="mode-btn" id="modePara"  onclick="setMode('parametric')">③ Parametric</button>
+    </div>
+  </div>
+
+  <div class="formula-strip">
+    <span class="formula-eq">ω_pe = √( nₑ e² / ε₀ mₑ )</span>
+    <div class="fi"><span class="fk">e</span><span class="fv">1.602×10⁻¹⁹ C</span></div>
+    <div class="fi"><span class="fk">ε₀</span><span class="fv">8.85×10⁻¹² F/m</span></div>
+    <div class="fi"><span class="fk">mₑ</span><span class="fv">9.11×10⁻³¹ kg</span></div>
+    <div class="fi"><span class="fk">RF (13.56 MHz)</span><span class="fv" id="rfRatio">—</span></div>
+  </div>
+
+  <div class="main">
+    <div class="zone" id="zoneMain">
+      <div class="zone-title" id="zoneLabel">① Electron Oscillation — Collective Response to Displacement</div>
+      <canvas id="mainCanvas"></canvas>
+    </div>
+  </div>
+
+  <div class="caption" id="captionText">
+    Green electrons displaced from equilibrium → restoring electric force → collective oscillation at ω_pe
+  </div>
+</div>
+
+<script>
+// ── Constants ──────────────────────────────────────
+const E0  = 8.854e-12, EL = 1.602e-19, ME = 9.109e-31;
+const RF_HZ = 13.56e6; // 13.56 MHz
+
+let ne = 1e16, massRatio = 1.0;
+let mode = 'oscillation';
+let tick = 0;
+// Oscillation animation state
+let oscPhase = 0;
+let oscAmplitude = 0.18; // fraction of half-width
+let particles = [];
+
+function sliderToNe(v) { return Math.pow(10, 15 + (v-1)/99*3); }
+function sliderToNeLabel(v) {
+  const exp = 15+(v-1)/99*3;
+  return '10^'+exp.toFixed(1)+' m⁻³';
+}
+function calcOmegaPe(ne_m3, mr) {
+  return Math.sqrt(ne_m3*EL*EL/(E0*ME*mr));
+}
+
+function update() {
+  const neSlider   = parseInt(document.getElementById('slNe').value);
+  const massSlider = parseFloat(document.getElementById('slMass').value);
+  ne = sliderToNe(neSlider);
+  massRatio = massSlider;
+
+  document.getElementById('valNe').textContent   = sliderToNeLabel(neSlider);
+  document.getElementById('valMass').textContent = massSlider.toFixed(1)+'× mₑ';
+
+  const omega = calcOmegaPe(ne, massRatio);
+  const freq_GHz = omega/(2*Math.PI)/1e9;
+  document.getElementById('roVal').textContent  = omega.toExponential(2);
+  document.getElementById('roFreq').textContent = freq_GHz.toFixed(2);
+
+  const ratio = omega/(2*Math.PI*RF_HZ);
+  document.getElementById('rfRatio').textContent = 'ω_pe/ω_RF = '+ratio.toFixed(0)+'×';
+
+  const comp = document.getElementById('rfComp');
+  if (ratio > 1) {
+    comp.textContent = 'ω_pe >> ω_RF  → electrons follow RF ✓';
+    comp.className = 'rf-compare rf-low';
+  } else {
+    comp.textContent = 'ω_pe < ω_RF  → electrons cannot follow';
+    comp.className = 'rf-compare rf-high';
+  }
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  const btnId = m==='oscillation'?'modeOsc': m==='dispersion'?'modeDisp':'modePara';
+  document.getElementById(btnId).classList.add('active');
+
+  if (m==='oscillation') {
+    document.getElementById('zoneLabel').textContent =
+      '① Electron Oscillation — Collective Response to Displacement';
+    document.getElementById('captionText').textContent =
+      'Green electrons displaced → restoring electric field → oscillate at ω_pe · Ion lattice (orange) stays fixed';
+    initOscParticles();
+  } else if (m==='dispersion') {
+    document.getElementById('zoneLabel').textContent =
+      '② Dispersion Relation — ω² = ω_pe² + 3k²v_th² (Bohm-Gross)';
+    document.getElementById('captionText').textContent =
+      'Orange: light-wave dispersion (ω=ck) · Green: electron plasma wave · Cutoff at ω=ω_pe (wave cannot propagate below)';
+  } else {
+    document.getElementById('zoneLabel').textContent =
+      '③ Parametric — ω_pe vs nₑ  (ω_pe ∝ √nₑ)';
+    document.getElementById('captionText').textContent =
+      'Plasma frequency scales as √nₑ · Higher density → electrons harder to displace → faster oscillation · RF operating point shown';
+  }
+}
+
+// ── Mode 1: Oscillation ──────────────────────────
+const N_COLS = 8, N_ROWS = 5;
+function initOscParticles() {
+  particles = [];
+  for (let r=0;r<N_ROWS;r++)
+    for (let c=0;c<N_COLS;c++)
+      particles.push({col:c, row:r, phase: c*0.35});
+}
+
+function drawOscillation(ctx, W, H) {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+  const cx=W/2, cy=H/2;
+  const cellW=W/(N_COLS+2), cellH=H/(N_ROWS+2);
+  const amp = Math.min(cellW, cellH)*0.55*oscAmplitude*25;
+
+  // Displacement direction label
+  ctx.fillStyle='rgba(27,94,32,0.35)';
+  ctx.font='9px Google Sans,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('← Electron displacement →', cx, 14);
+
+  // Ion lattice (fixed orange dots)
+  for (let r=0;r<N_ROWS;r++) {
+    for (let c=0;c<N_COLS;c++) {
+      const ix = (c+1)*cellW + cellW/2;
+      const iy = (r+1)*cellH + cellH/2;
+      ctx.beginPath(); ctx.arc(ix,iy,5,0,Math.PI*2);
+      ctx.fillStyle='rgba(230,81,0,0.22)'; ctx.fill();
+      ctx.strokeStyle='rgba(230,81,0,0.45)'; ctx.lineWidth=0.8; ctx.stroke();
+      ctx.fillStyle='rgba(230,81,0,0.6)'; ctx.font='bold 7px JetBrains Mono,monospace';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('+', ix, iy);
+    }
+  }
+
+  // omega_pe determines oscillation speed
+  const omega = calcOmegaPe(ne, massRatio);
+  // Map real freq to visual speed (log scale)
+  const visSpeed = 0.018 + Math.log10(omega/1e9)*0.006;
+  oscPhase += visSpeed;
+
+  // Electrons (displaced sinusoidally)
+  particles.forEach(p => {
+    const ix = (p.col+1)*cellW + cellW/2;
+    const iy = (p.row+1)*cellH + cellH/2;
+    const disp = amp * Math.sin(oscPhase + p.phase);
+    const ex = ix + disp, ey = iy;
+
+    // Draw displacement trail (faint)
+    if (Math.abs(disp) > 2) {
+      ctx.beginPath(); ctx.moveTo(ix,iy); ctx.lineTo(ex,ey);
+      ctx.strokeStyle='rgba(67,160,71,0.18)'; ctx.lineWidth=1.2; ctx.stroke();
+    }
+
+    // Electric restoring force arrow
+    if (Math.abs(disp) > 4) {
+      const arrowDir = disp > 0 ? -1 : 1;
+      const arrowLen = Math.min(Math.abs(disp)*0.55, cellW*0.4);
+      ctx.beginPath(); ctx.moveTo(ex,ey);
+      ctx.lineTo(ex+arrowDir*arrowLen, ey);
+      ctx.strokeStyle='rgba(198,40,40,0.4)'; ctx.lineWidth=1; ctx.stroke();
+      const ax = ex+arrowDir*arrowLen;
+      ctx.beginPath();
+      ctx.moveTo(ax+arrowDir*5, ey-3);
+      ctx.lineTo(ax, ey);
+      ctx.lineTo(ax+arrowDir*5, ey+3);
+      ctx.strokeStyle='rgba(198,40,40,0.4)'; ctx.lineWidth=1; ctx.stroke();
+    }
+
+    // Electron glow
+    const grd = ctx.createRadialGradient(ex,ey,0,ex,ey,7);
+    grd.addColorStop(0,'rgba(67,160,71,0.85)');
+    grd.addColorStop(1,'rgba(67,160,71,0)');
+    ctx.beginPath(); ctx.arc(ex,ey,7,0,Math.PI*2);
+    ctx.fillStyle=grd; ctx.fill();
+    ctx.beginPath(); ctx.arc(ex,ey,4,0,Math.PI*2);
+    ctx.fillStyle='#2E7D32'; ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 6.5px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('−', ex, ey);
+  });
+
+  // ω_pe label + period indicator
+  const freq_GHz = calcOmegaPe(ne,massRatio)/(2*Math.PI)/1e9;
+  ctx.fillStyle='#1B5E20'; ctx.font='bold 10px Google Sans,sans-serif';
+  ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText(`ω_pe = ${calcOmegaPe(ne,massRatio).toExponential(2)} rad/s`, 10, H-22);
+  ctx.fillStyle='#43A047'; ctx.font='9px JetBrains Mono,monospace';
+  ctx.fillText(`f_pe = ${freq_GHz.toFixed(2)} GHz`, 10, H-10);
+
+  // Oscillation frequency bar (visual)
+  const barMax = W*0.45;
+  const barW   = Math.min(barMax, barMax * Math.log10(ne/1e14) / 4);
+  ctx.fillStyle='rgba(27,94,32,0.12)';
+  ctx.fillRect(W-barMax-10, H-20, barMax, 12);
+  ctx.fillStyle='#43A047'; ctx.fillRect(W-barMax-10, H-20, barW, 12);
+  ctx.fillStyle='#1B5E20'; ctx.font='7px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.fillText('ω_pe scale', W-barMax/2-10, H-6);
+
+  // RF comparison line
+  const rfBarW = barMax * Math.log10(RF_HZ*2*Math.PI/1e9*10) / 4 * 0.15;
+  ctx.strokeStyle='rgba(198,40,40,0.6)'; ctx.lineWidth=1.5;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(W-barMax-10+rfBarW,H-22); ctx.lineTo(W-barMax-10+rfBarW,H-6);
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(198,40,40,0.7)'; ctx.font='6.5px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.fillText('RF', W-barMax-10+rfBarW, H-24);
+}
+
+// ── Mode 2: Dispersion relation ──────────────────
+function drawDispersion(ctx, W, H) {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+  const PAD={l:52,r:18,t:24,b:44};
+  const gW=W-PAD.l-PAD.r, gH=H-PAD.t-PAD.b;
+
+  const omega_pe = calcOmegaPe(ne, massRatio);
+  const kMax = omega_pe * 3.5 / 3e8;
+  function xPos(k)   { return PAD.l + (k/kMax)*gW; }
+  function yPos(omega_val) {
+    const oMax = omega_pe * 2.2;
+    return PAD.t + gH - (omega_val/oMax)*gH;
+  }
+
+  // Grid
+  ctx.strokeStyle='rgba(200,200,220,0.45)'; ctx.lineWidth=0.6;
+  for (let g=1;g<=4;g++) {
+    const y=PAD.t+gH*(g/4);
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+gW,y); ctx.stroke();
+  }
+
+  // ω_pe cutoff line
+  const yCut = yPos(omega_pe);
+  ctx.beginPath(); ctx.moveTo(PAD.l,yCut); ctx.lineTo(PAD.l+gW,yCut);
+  ctx.strokeStyle='rgba(27,94,32,0.45)'; ctx.lineWidth=1.2;
+  ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#1B5E20'; ctx.font='8.5px Google Sans,sans-serif';
+  ctx.textAlign='left'; ctx.textBaseline='bottom';
+  ctx.fillText('ω = ω_pe  (cutoff)', PAD.l+4, yCut-3);
+
+  // Shaded region below cutoff (no wave propagation)
+  ctx.fillStyle='rgba(27,94,32,0.05)';
+  ctx.fillRect(PAD.l, yCut, gW, PAD.t+gH-yCut);
+  ctx.fillStyle='rgba(27,94,32,0.4)'; ctx.font='8px Google Sans,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('No wave propagation (ω < ω_pe)', PAD.l+gW/2, yCut+14);
+
+  // Light wave: ω = ck
+  ctx.beginPath();
+  const N=120;
+  for (let i=0;i<=N;i++) {
+    const k=i/N*kMax;
+    const om=3e8*k;
+    if (om>omega_pe*2.2) break;
+    const x=xPos(k), y=yPos(om);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='#E87B1E'; ctx.lineWidth=2; ctx.setLineDash([7,4]); ctx.stroke(); ctx.setLineDash([]);
+
+  // Electron plasma wave: ω² = ω_pe² + 3k²v_th² (Bohm-Gross, v_th simplified)
+  const vth = Math.sqrt(3*1.38e-23*Te_eff(ne)/ME);
+  ctx.beginPath();
+  let started=false;
+  for (let i=0;i<=N;i++) {
+    const k=i/N*kMax;
+    const om=Math.sqrt(omega_pe*omega_pe + 3*k*k*vth*vth);
+    if (om>omega_pe*2.2) break;
+    const x=xPos(k), y=yPos(om);
+    if(!started){ctx.moveTo(x,y);started=true;}
+    else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='#2E7D32'; ctx.lineWidth=2.5; ctx.stroke();
+
+  // Axes
+  ctx.strokeStyle='#8888AA'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD.l,PAD.t); ctx.lineTo(PAD.l,PAD.t+gH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD.l,PAD.t+gH); ctx.lineTo(PAD.l+gW,PAD.t+gH); ctx.stroke();
+
+  ctx.fillStyle='#888'; ctx.font='9px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.fillText('wave number  k', PAD.l+gW/2, H-6);
+  ctx.save(); ctx.translate(14,PAD.t+gH/2); ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center'; ctx.fillText('ω (angular freq)', 0, 0); ctx.restore();
+
+  // Legend
+  ctx.fillStyle='#E87B1E'; ctx.font='8.5px Google Sans,sans-serif';
+  ctx.textAlign='left'; ctx.fillText('Light wave: ω = ck', PAD.l+gW*0.55, PAD.t+22);
+  ctx.fillStyle='#2E7D32'; ctx.fillText('Plasma wave: ω² = ω_pe² + 3k²v_th²', PAD.l+gW*0.55, PAD.t+36);
+}
+
+function Te_eff(ne_v) {
+  // Approximate T_e in Kelvin from ne (for Bohm-Gross)
+  return 3 * 11604; // 3 eV fixed
+}
+
+// ── Mode 3: Parametric ──────────────────────────
+function drawParametric(ctx, W, H) {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+  const PAD={l:55,r:18,t:24,b:46};
+  const gW=W-PAD.l-PAD.r, gH=H-PAD.t-PAD.b;
+
+  const neVals=Array.from({length:60},(_,i)=>Math.pow(10,15+i*3/59));
+  const omVals=neVals.map(n=>calcOmegaPe(n,massRatio)/(2*Math.PI)/1e9);
+  const maxOm=Math.max(...omVals)*1.05;
+
+  function xPos(i){return PAD.l+(i/(neVals.length-1))*gW;}
+  function yPos(v){return PAD.t+gH-Math.min(v/maxOm,1)*gH;}
+
+  // Grid
+  ctx.strokeStyle='rgba(200,200,220,0.45)'; ctx.lineWidth=0.6;
+  for(let g=1;g<=4;g++){
+    const y=PAD.t+gH*(g/4);
+    ctx.beginPath(); ctx.moveTo(PAD.l,y); ctx.lineTo(PAD.l+gW,y); ctx.stroke();
+    ctx.fillStyle='#AAAACC'; ctx.font='7.5px JetBrains Mono,monospace';
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText((maxOm*(1-g/4)).toFixed(1)+' GHz', PAD.l-3, y);
+  }
+
+  // Fill
+  ctx.beginPath();
+  ctx.moveTo(xPos(0),yPos(0));
+  omVals.forEach((v,i)=>ctx.lineTo(xPos(i),yPos(v)));
+  ctx.lineTo(xPos(omVals.length-1),yPos(0));
+  ctx.closePath();
+  ctx.fillStyle='rgba(46,125,50,0.08)'; ctx.fill();
+
+  // Curve
+  ctx.beginPath();
+  omVals.forEach((v,i)=>i===0?ctx.moveTo(xPos(i),yPos(v)):ctx.lineTo(xPos(i),yPos(v)));
+  ctx.strokeStyle='#2E7D32'; ctx.lineWidth=2.2; ctx.stroke();
+
+  // RF line (13.56 MHz = 0.01356 GHz)
+  const rfGHz = RF_HZ/1e9;
+  const yRF   = yPos(rfGHz);
+  ctx.beginPath(); ctx.moveTo(PAD.l,yRF); ctx.lineTo(PAD.l+gW,yRF);
+  ctx.strokeStyle='rgba(198,40,40,0.5)'; ctx.lineWidth=1.2;
+  ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(198,40,40,0.7)'; ctx.font='8px Google Sans,sans-serif';
+  ctx.textAlign='right'; ctx.fillText('RF (13.56 MHz)', PAD.l+gW-2, yRF-4);
+
+  // Current ne marker
+  const curFrac=(Math.log10(ne)-15)/3;
+  const ci=Math.round(curFrac*(neVals.length-1));
+  const ciClamped=Math.max(0,Math.min(neVals.length-1,ci));
+  ctx.beginPath(); ctx.arc(xPos(ciClamped),yPos(omVals[ciClamped]),5,0,Math.PI*2);
+  ctx.fillStyle='#2E7D32'; ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='#1B5E20'; ctx.font='bold 8.5px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText(omVals[ciClamped].toFixed(2)+' GHz', xPos(ciClamped), yPos(omVals[ciClamped])-5);
+
+  // Axes
+  ctx.strokeStyle='#8888AA'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD.l,PAD.t); ctx.lineTo(PAD.l,PAD.t+gH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD.l,PAD.t+gH); ctx.lineTo(PAD.l+gW,PAD.t+gH); ctx.stroke();
+
+  // X labels
+  ['10¹⁵','10¹⁶','10¹⁷','10¹⁸'].forEach((lb,i)=>{
+    const x=PAD.l+(i/3)*gW;
+    ctx.fillStyle='#888'; ctx.font='8px JetBrains Mono,monospace';
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(lb, x, PAD.t+gH+4);
+  });
+  ctx.fillStyle='#888'; ctx.font='9px JetBrains Mono,monospace';
+  ctx.textAlign='center'; ctx.fillText('nₑ  [m⁻³]', PAD.l+gW/2, H-8);
+  ctx.save(); ctx.translate(14,PAD.t+gH/2); ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center'; ctx.fillText('f_pe  [GHz]', 0, 0); ctx.restore();
+
+  // Annotation
+  ctx.fillStyle='rgba(46,125,50,0.6)'; ctx.font='8.5px Google Sans,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('f_pe ∝ √nₑ  →  doubling nₑ increases f_pe by √2', PAD.l+gW/2, H-20);
+}
+
+// ── Draw loop ─────────────────────────────────────
+let lastF=0;
+function loop(ts) {
+  if(ts-lastF>=16){
+    lastF=ts;
+    const cv=document.getElementById('mainCanvas');
+    const ctx=cv.getContext('2d');
+    const W=cv.width,H=cv.height;
+    if(mode==='oscillation') drawOscillation(ctx,W,H);
+    else if(mode==='dispersion') drawDispersion(ctx,W,H);
+    else drawParametric(ctx,W,H);
+    tick++;
+  }
+  requestAnimationFrame(loop);
+}
+
+function resize() {
+  const zone=document.getElementById('zoneMain');
+  const cv=document.getElementById('mainCanvas');
+  cv.width=zone.offsetWidth-2; cv.height=zone.offsetHeight-28;
+  if(mode==='oscillation') initOscParticles();
+}
+
+window.addEventListener('resize',resize);
+window.addEventListener('load',()=>{
+  resize(); update(); initOscParticles(); requestAnimationFrame(loop);
+});
+window.addEventListener('message',e=>{
+  if(!e.data||!e.data.type)return;
+  if(e.data.type==='plasma_freq:setNe'){
+    document.getElementById('slNe').value=e.data.v; update();
+  }
+  if(e.data.type==='plasma_freq:setMode') setMode(e.data.mode);
+});
+</script>
+</body>
+</html>

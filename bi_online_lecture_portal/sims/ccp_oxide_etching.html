@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCP Oxide Etching — Interactive Lesson · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:          #F7F8FA;
+    --panel:       #FFFFFF;
+    --ink:         #2D2D2D;
+    --muted:       #6B7280;
+    --muted2:      #9CA3AF;
+    --purple:      #7030A0;
+    --purple-soft: #F0E6F6;
+    --purple-mid:  #d9b8ed;
+    --purple-dark: #521a78;
+    --green:       #0F8C50;
+    --border:      #E5E7EB;
+    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06);
+    --hdr:         52px;
+    --side:        450px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; overflow: hidden; }
+  body {
+    height: 100%; overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    font-family: 'Google Sans','Noto Sans KR','Segoe UI',system-ui,sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .hdr {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    height: var(--hdr); background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 1rem; padding: 0 1.25rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  }
+  .hdr-logo   { height: 32px; width: auto; flex-shrink: 0; }
+  .hdr-div    { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+  .hdr-title  { font-size: 0.95rem; font-weight: 700; color: var(--purple); line-height: 1.2; }
+  .hdr-sub    {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.50rem;
+    color: var(--muted2); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;
+  }
+  .hdr-right  { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+
+  .lang-toggle { display: flex; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .lang-btn {
+    padding: 3px 13px; border: none; background: transparent; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.60rem; font-weight: 500;
+    color: var(--muted2); transition: all 0.16s;
+  }
+  .lang-btn.active { background: var(--purple); color: #fff; }
+
+  /* ── Main area (below fixed header) ── */
+  .main {
+    position: fixed;
+    top: var(--hdr); left: 0; right: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: 1fr var(--side);
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* ── Canvas area ── */
+  .canvas-wrap {
+    position: relative;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    padding: 10px 8px 6px 10px;
+    overflow: hidden;
+  }
+  .canvas-card {
+    flex: 1;
+    background: var(--panel);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  #cv {
+    display: block;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    object-fit: contain;
+  }
+  /* Step controls below canvas card */
+  .step-controls {
+    flex-shrink: 0;
+    min-height: 28px; height: 28px;
+    display: flex; gap: 8px; align-items: center;
+    margin-top: 6px; flex-wrap: nowrap; overflow: hidden;
+  }
+  .mode-toggle {
+    display: inline-flex; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 20px; padding: 2px; gap: 2px;
+  }
+  .mode-toggle button {
+    border: none; background: transparent; padding: 3px 12px;
+    font-family: 'Google Sans', sans-serif; font-size: 0.70rem; font-weight: 600;
+    cursor: pointer; color: var(--muted); border-radius: 14px; transition: all 0.14s;
+  }
+  .mode-toggle button.active { background: var(--purple); color: #fff; }
+  .mode-info {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.60rem;
+    background: var(--purple-soft); color: var(--purple-dark);
+    padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+  }
+  .reset-btn {
+    font-family: 'Google Sans', sans-serif; font-size: 0.70rem; font-weight: 600;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 7px;
+    padding: 4px 12px; cursor: pointer; color: var(--ink); transition: all 0.14s;
+    white-space: nowrap;
+  }
+  .reset-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
+
+  /* Tooltip */
+  #tooltip {
+    position: absolute; pointer-events: none;
+    background: rgba(18,22,38,0.97); color: #fff;
+    padding: 9px 13px; border-radius: 9px; font-size: 12.5px;
+    line-height: 1.6; max-width: 270px;
+    transform: translate(-50%,-100%); margin-top: -12px;
+    opacity: 0; transition: opacity 0.11s; z-index: 50;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.32); border: 1px solid rgba(255,255,255,0.09);
+  }
+  #tooltip.show { opacity: 1; }
+  #tooltip b { color: #c4a0f0; }
+
+  /* ── Side Panel ── */
+  .side {
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .side-inner {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 1rem 1.1rem 0.5rem;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .side-inner::-webkit-scrollbar { width: 4px; }
+  .side-inner::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .step-eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.54rem;
+    color: var(--muted2); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 0.3rem;
+  }
+  .step-title { font-size: 1.08rem; font-weight: 700; color: var(--ink); margin-bottom: 0.6rem; line-height: 1.3; }
+  .step-body  { font-size: 0.82rem; line-height: 1.76; color: #3a4055; }
+  .step-body ul { padding-left: 1.1rem; margin: 0.35rem 0; }
+  .step-body li { margin-bottom: 0.28rem; }
+  .step-body b  { font-weight: 700; color: var(--ink); }
+  .step-body code {
+    background: var(--purple-soft); padding: 1px 6px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.70rem; color: var(--purple-dark);
+  }
+  .hint-box {
+    margin-top: 0.7rem; display: flex; gap: 9px; align-items: flex-start;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px;
+  }
+  .hint-icon {
+    flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--purple-soft); display: flex; align-items: center;
+    justify-content: center; font-size: 13px;
+  }
+  .hint-text { font-size: 0.71rem; line-height: 1.58; color: #4a5070; flex: 1; align-self: center; }
+
+  /* Deep Dive accordion */
+  .deep-wrap {
+    margin-top: 0.85rem; border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; background: var(--panel);
+  }
+  .deep-hdr {
+    display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.85rem;
+    cursor: pointer; user-select: none; background: var(--panel); transition: background 0.15s;
+  }
+  .deep-hdr:hover { background: var(--bg); }
+  .deep-hdr.open { background: var(--purple-soft); border-bottom: 1px solid var(--border); }
+  .deep-icon  { font-size: 1rem; flex-shrink: 0; }
+  .deep-title { font-size: 0.80rem; font-weight: 700; color: var(--ink); flex: 1; line-height: 1.3; }
+  .deep-badge {
+    background: var(--purple); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.50rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; flex-shrink: 0;
+    letter-spacing: 0.04em;
+  }
+  .deep-chevron { font-size: 0.62rem; color: var(--muted2); transition: transform 0.2s; flex-shrink: 0; }
+  .deep-hdr.open .deep-chevron { transform: rotate(180deg); }
+  .deep-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; background: var(--bg); }
+  .deep-body.open { max-height: 2000px; }
+  .deep-inner { padding: 0.85rem 0.9rem; font-size: 0.76rem; line-height: 1.78; color: #4a5070; }
+  .deep-inner p + p { margin-top: 0.6em; }
+  .deep-inner b { color: var(--ink); }
+  .deep-inner .deep-eq {
+    background: var(--charcoal,#2D2D2D); border-radius: 6px; padding: 0.55rem 0.8rem;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: #FFD580;
+    margin: 0.5rem 0; overflow-x: auto; letter-spacing: 0.03em; line-height: 1.6;
+  }
+  .deep-inner .deep-hl {
+    background: var(--purple-soft); border-left: 3px solid var(--purple);
+    border-radius: 0 7px 7px 0; padding: 0.5rem 0.8rem; margin: 0.5rem 0;
+    font-size: 0.74rem; line-height: 1.7; color: var(--purple-dark);
+  }
+  .deep-inner ul { padding-left: 1.1rem; margin: 0.35rem 0; }
+  .deep-inner li { margin-bottom: 0.3rem; }
+
+  /* Side footer: step buttons + nav */
+  .side-footer {
+    flex-shrink: 0;
+    padding: 0.65rem 1.1rem 0.8rem;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .step-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.6rem; }
+  .step-btn {
+    padding: 5px 10px; font-size: 0.70rem; font-weight: 600;
+    border: 1px solid var(--border); background: var(--panel); border-radius: 6px;
+    cursor: pointer; color: var(--muted); transition: all 0.13s;
+    font-family: 'Google Sans', sans-serif; min-width: 30px; text-align: center;
+  }
+  .step-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
+  .step-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+  .nav-row { display: flex; gap: 7px; }
+  .nav-btn {
+    flex: 1; padding: 9px; font-size: 0.78rem; font-weight: 700;
+    border: none; background: var(--ink); color: #fff; border-radius: 8px;
+    cursor: pointer; font-family: 'Google Sans', sans-serif; transition: background 0.14s;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--purple); }
+  .nav-btn:disabled { background: var(--border); color: var(--muted2); cursor: not-allowed; }
+
+  /* Footer bar */
+  .foot {
+    display: none; /* hidden — space too tight in full-screen mode */
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixed Header -->
+<header class="hdr">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer"
+     style="display:inline-flex;align-items:center;text-decoration:none;">
+    <img class="hdr-logo"
+      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+      alt="Benedu Insight">
+  </a>
+  <div class="hdr-div"></div>
+  <div>
+    <div class="hdr-title" id="hTitle">CCP Oxide Etching — Interactive Lesson</div>
+    <div class="hdr-sub"   id="hSub">Class 2 · C₄F₈ + Ar + O₂ → SiO₂ RIE · Benedu Insight</div>
+  </div>
+  <div class="hdr-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        id="btnKO" onclick="setLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<!-- Main 2-column layout -->
+<div class="main">
+
+  <!-- Left: Canvas + controls -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="canvas-card" id="canvasCard">
+      <canvas id="cv"></canvas>
+      <div id="tooltip"></div>
+    </div>
+    <div class="step-controls" id="stepControls"></div>
+  </div>
+
+  <!-- Right: Side panel -->
+  <div class="side">
+    <div class="side-inner" id="sideInner">
+      <div class="step-eyebrow">Step <span id="stepNum">S</span> / 9</div>
+      <div class="step-title" id="stepTitle"></div>
+      <div class="step-body"  id="stepBody"></div>
+      <div class="hint-box"   id="stepHint" style="display:none;"></div>
+      <div id="deepDiveContainer"></div>
+    </div>
+    <div class="side-footer">
+      <div class="step-btns" id="stepButtons"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn">◀ Prev</button>
+        <button class="nav-btn" id="nextBtn">Next ▶</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   CCP Oxide Etching Interactive Lesson v2
+   Benedu Insight · Google Sans · Full-viewport layout
+   Responsive Canvas — geometry scales with window size
+   C4F8 + Ar + O2 -> SiO2 RIE (Asymmetric CCP, DC Self-Bias)
+   Showerhead (top) = GROUNDED, full width
+   Wafer Chuck (bottom) = RF-POWERED via Blocking Capacitor, ~60% width
+   KO / EN bilingual
+   ============================================================ */
+
+// ── Canvas & ctx ──────────────────────────────────────────────
+const canvas = document.getElementById('cv');
+const ctx    = canvas.getContext('2d');
+const tooltip     = document.getElementById('tooltip');
+const stepCtrlEl  = document.getElementById('stepControls');
+
+// ── Logical canvas dimensions (constant ratio 900:640) ────────
+const LW = 900, LH = 640;
+let DPR = window.devicePixelRatio || 1;
+
+let renderScale = 1, renderOffX = 0, renderOffY = 0;
+function resizeCanvas() {
+  const card = document.getElementById('canvasCard');
+  const cw = card.clientWidth;
+  const ch = card.clientHeight;
+  DPR = window.devicePixelRatio || 1;
+  canvas.width  = Math.round(cw * DPR);
+  canvas.height = Math.round(ch * DPR);
+  canvas.style.width  = cw + 'px';
+  canvas.style.height = ch + 'px';
+  const aspect = LW / LH;
+  let drawW, drawH;
+  if (cw / ch > aspect) { drawH = ch; drawW = ch * aspect; }
+  else                   { drawW = cw; drawH = cw / aspect; }
+  renderScale = drawW / LW;
+  renderOffX = (cw - drawW) / 2;
+  renderOffY = (ch - drawH) / 2;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(renderScale * DPR, renderScale * DPR);
+  ctx.translate(renderOffX / renderScale, renderOffY / renderScale);
+}
+
+const ro = new ResizeObserver(() => resizeCanvas());
+ro.observe(document.getElementById('canvasCard'));
+resizeCanvas();
+
+// ── Brand ─────────────────────────────────────────────────────
+const FONT = '"Google Sans","Noto Sans KR",system-ui,sans-serif';
+const MONO = '"JetBrains Mono",monospace';
+const B = {
+  purple:'#7030A0', purpleSoft:'#F0E6F6', purpleDark:'#521a78',
+  green:'#0F8C50',  greenSoft:'#E5F4EC',
+  charcoal:'#2D2D2D', muted:'#6B7280', muted2:'#9CA3AF',
+  bg:'#F7F8FA', panel:'#FFFFFF', border:'#E5E7EB',
+  red:'#E8553B', blue:'#3A7AD6',
+};
+
+// ── Logo ──────────────────────────────────────────────────────
+const LOGO = new Image();
+LOGO.crossOrigin = 'anonymous';
+LOGO.src = 'https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png';
+function drawLogo(a=0.45) {
+  if (!LOGO.complete || !LOGO.naturalWidth) return;
+  const lh=26, lw=Math.round(lh*LOGO.naturalWidth/LOGO.naturalHeight);
+  ctx.save(); ctx.globalAlpha=a;
+  ctx.drawImage(LOGO, LW-lw-12, LH-lh-10, lw, lh);
+  ctx.restore();
+}
+
+// ── Geometry — all in LW×LH (900×640) logical space ──────────
+// CORRECTED ASYMMETRIC CCP for oxide etching:
+//   - Showerhead (TOP)   = GROUNDED, gas distributor, spans full inner width (large A_g)
+//   - Wafer Chuck (BOTTOM) = RF-POWERED via Blocking Capacitor, ~60% width (small A_p)
+//   - Wafer sits on the powered chuck — this is where the DC self-bias
+//     accelerates ions into the SiO2 film.
+const W=LW, H=LH;
+const CH={x:215,y:175,w:470,h:380,r:18};
+const IP=18, inX=CH.x+IP, inY=CH.y+IP, inW=CH.w-IP*2, inH=CH.h-IP*2;
+// Showerhead — GROUNDED, full inner width (top)
+const SH={x:inX, y:inY, w:inW, h:26};
+// Wafer Chuck — RF-POWERED, ~60% of inner width (bottom)
+const PEW=Math.round(inW*0.60);
+const SC={x:inX+Math.round((inW-PEW)/2), y:inY+inH-30, w:PEW, h:30};
+const wW=Math.round(PEW*0.88);
+const WF={x:SC.x+Math.round((PEW-wW)/2), y:SC.y-5, w:wW, h:5};
+// Sheaths: top (thin, grounded side), bottom (thick, DC self-bias side)
+const ST={x:inX+6, y:SH.y+SH.h, w:inW-12, h:18};
+// Bottom sheath base height is intentionally larger than the top sheath's
+// (18px) so the DC-self-bias asymmetry is visible even before V_DC ramps up.
+const SB_H_BASE=34;
+const SB={x:SC.x-4, y:0, w:SC.w+8, h:SB_H_BASE}; // y assigned below
+const SIO2_MAX=26, PR_H=13;
+SB.y = WF.y - SIO2_MAX - PR_H - SB_H_BASE;
+const PL={x:ST.x,y:ST.y+ST.h,w:ST.w,h:SB.y-(ST.y+ST.h)};
+// Ground symbol — top-left of chamber, connects down to the showerhead's
+// grounded chamber-wall connection point.
+const GND_X = CH.x+55;
+
+// Gas system — per guideline: vertical BUS just right of the chamber,
+// then VALVE (⋈) symbols, then gas-name BOXES on the far-right edge.
+// Order top-to-bottom: C4F8, O2, Ar. Flow: Box -> Valve -> Bus -> Showerhead.
+const GAS_BUS_X = 730;
+const M1={cx:780, cy:38};
+const M2={cx:780, cy:88};
+const M3={cx:780, cy:138};
+const G1S={x:820, y:M1.cy-12, w:70, h:24};
+const G2S={x:820, y:M2.cy-12, w:70, h:24};
+const G3S={x:820, y:M3.cy-12, w:70, h:24};
+
+// RF Matcher (LEFT) + RF Generator (RIGHT) — bottom of chamber, horizontal.
+// DC Blocking Capacitor sits above the Matcher and routes right to the
+// chuck's RF feed point at the chamber's bottom-right corner.
+const MAT={x:500,y:580,w:110,h:44,r:10};
+const RFG={x:MAT.x+MAT.w+14,y:580,w:110,h:44,r:10};
+const BCAP={cx:MAT.x+55,cy:560};
+
+// Backside He Cooling — directly below the powered chuck's center.
+const HEC={x:425,y:592,w:50,h:30,r:8};
+const HEC_GLASS_CY=560;
+
+// Turbo Pump + Dry Vacuum Pump — bottom of chamber, left of the He cooling
+// box, near the chamber's bottom-left corner.
+const TP={x:222,y:588,w:84,h:40,r:20};
+const DVP={x:TP.x+TP.w+12,y:582,w:92,h:52,r:8};
+
+// ── Species — C4F8 + Ar + O2 -> SiO2 RIE ──────────────────────
+const SP={
+  'C4F8': {f:'C4F8', c:'#2a3145',  sz:11, q:0,  m:200,    cat:'neutral' },
+  'Ar':   {f:'Ar',   c:'#2a3145',  sz:11, q:0,  m:40,     cat:'neutral' },
+  'O2':   {f:'O2',   c:'#2a3145',  sz:11, q:0,  m:32,     cat:'neutral' },
+  'CF3':  {f:'CF3',  c:B.blue,     sz:11, q:0,  m:69,     cat:'radical' },
+  'CF2':  {f:'CF2',  c:B.blue,     sz:11, q:0,  m:50,     cat:'radical' },
+  'F':    {f:'F',    c:B.blue,     sz:10, q:0,  m:19,     cat:'radical' },
+  'O':    {f:'O',    c:'#52a87c',  sz:10, q:0,  m:16,     cat:'radical' },
+  'CF3+': {f:'CF3+', c:B.red,      sz:11, q:+1, m:69,     cat:'ion'     },
+  'Ar+':  {f:'Ar+',  c:B.red,      sz:11, q:+1, m:40,     cat:'ion'     },
+  'CF2+': {f:'CF2+', c:B.red,      sz:11, q:+1, m:50,     cat:'ion'     },
+  'e-':   {f:'e-',   c:B.red,      sz:10, q:-1, m:0.0005, cat:'electron'},
+  'SiF4': {f:'SiF4', c:'#9CA3AF',  sz:10, q:0,  m:104,    cat:'byproduct'},
+  'CO2':  {f:'CO2',  c:'#9CA3AF',  sz:10, q:0,  m:44,     cat:'byproduct'},
+};
+// ── Bilingual text ────────────────────────────────────────────
+const T = {
+en:{
+  hTitle:'CCP Oxide Etching — Interactive Lesson',
+  hSub:'Class 2 · C₄F₈ + Ar + O₂ → SiO₂ RIE · Benedu Insight',
+  stepLabel:'Step',
+  modeInfoDC:'Select DC to watch the plasma collapse on insulating SiO₂',
+  modeInfoRF:'RF sustains the plasma · DC self-bias active',
+  resetEtch:'↻ Reset Etch Depth',
+  prevBtn:'◀ Prev', nextBtn:'Next ▶',
+  modeLabel:'Mode', plasmaLabel:'Plasma intensity',
+  extinguished:'⚠  Plasma extinguished — DC fails on SiO₂',
+  sustained:'RF sustained · DC self-bias active',
+  molCount:'Gas Molecules',
+  vdcLabel:'V_DC — Self-Bias (powered chuck)',
+  ionEnergyLabel:'Ion energy ≈ |V_DC + V_RF| × q',
+  etchLabel:'Etch Depth', etchPctOf:'% of SiO₂', eqLabel:'Overall:',
+  etchThrough:'✓ Etch through SiO₂ — Si stop reached',
+  koenig:'|V_DC| ∝ (A_g / A_p)ⁿ,  n ≈ 2.5',
+  steps:[
+    { title:'Asymmetric CCP — Chamber Structure',
+      body:`Parallel-plate <b>Capacitively Coupled Plasma</b> chamber for SiO₂ Oxide Etch (RIE).
+        <ul>
+          <li><b>Showerhead (top)</b> — Grounded electrode &amp; gas distributor, full chamber width (large A<sub>g</sub>)</li>
+          <li><b>Wafer Chuck (bottom)</b> — RF-Powered electrode, smaller width (A<sub>p</sub>), driven through a <b>Blocking Capacitor</b></li>
+          <li><b>Key relationship:</b> A<sub>g</sub> ≫ A<sub>p</sub> → DC self-bias develops on the chuck</li>
+          <li>Gas: <code>C₄F₈ + Ar + O₂</code>, each via its own MFC</li>
+          <li>Low-pressure environment: <code>5–50 mTorr</code></li>
+        </ul>
+        Pre-ignition overview — gas flowing, plasma not yet formed.
+        <b>Compare the showerhead width to the chuck width</b> — this area asymmetry is the origin of everything in Steps 4–5, and the wafer sits on the <b>smaller, RF-powered</b> electrode.`,
+      hint:'💡 Hover over chamber parts for details.' },
+    { title:'Gas Fill & Electrode Asymmetry',
+      body:`C₄F₈ + Ar + O₂ injected through the <b>Showerhead</b>, rapidly filling the chamber.
+        <ul>
+          <li><b>Showerhead</b> spans the full chamber width → large grounded area A<sub>g</sub></li>
+          <li><b>Wafer Chuck</b> spans ≈60% of the chamber width → small RF-powered area A<sub>p</sub></li>
+          <li><b>A<sub>g</sub> / A<sub>p</sub> ≈ 1.7</b> — this ratio is what will drive the DC self-bias once plasma ignites</li>
+          <li>At 5–50 mTorr, the mean free path is long enough that ion flux can become highly directional</li>
+        </ul>`,
+      hint:'⚙ The width markers show the electrode area ratio — the single most important design parameter in this chamber.' },
+    { title:'RF Ignition — Fluorocarbon Dissociation',
+      body:`RF power is applied to the <b>Wafer Chuck</b>. Accelerated electrons dissociate and ionize the process gases.
+        <ul>
+          <li><code>e⁻ + C₄F₈ → 2CF₂· + CF₃· + F·</code> &nbsp;(ring-opening dissociation)</li>
+          <li><code>e⁻ + Ar → Ar⁺ + 2e⁻</code> &nbsp;(ionization)</li>
+          <li><code>e⁻ + O₂ → 2O· + e⁻</code> &nbsp;(dissociation)</li>
+        </ul>
+        <b>Blue</b> = fluorocarbon radicals (CF₂·, CF₃·, F·) &nbsp;·&nbsp; <b>Red</b> = ions &amp; e⁻.
+        At this instant <b>V_DC = 0 V</b> — the self-bias has not yet had time to build up.`,
+      hint:'⚡ C₄F₈ undergoes ring-opening dissociation, releasing reactive fluorocarbon radicals. V_DC = 0 V initially.',
+      deepDive:{
+        title:'How Does Plasma Actually Ignite?',
+        body:`<p>At this stage the chamber is full of <b>neutral molecules only</b> — RF power has just turned on. A natural question: is the RF field itself strong enough to ionize a neutral molecule directly?</p>
+<p><b>No — not directly.</b> A neutral molecule has no charge, so an electric field exerts no net force on it. Direct field-ionization would require field strengths many orders of magnitude beyond typical RIE conditions.</p>
+<div class="deep-hl">Plasma ignition is a <b>two-step energy relay</b>, not a one-step field effect.</div>
+<p><b>Step 1 — Seed electrons exist already.</b> Even before RF power is applied, trace free electrons are present from cosmic rays, background radiation, and spontaneous ionization of residual gas.</p>
+<p><b>Step 2 — The field accelerates electrons, not molecules.</b> Electrons are roughly 30,000–400,000× lighter than C₄F₈, Ar, or O₂. From <b>a = qE / m</b>, the same field gives an electron enormous acceleration — it can gain several to tens of eV of kinetic energy within one RF cycle.</p>
+<div class="deep-eq">e⁻ (accelerated by RF field) + Ar  → Ar⁺ + 2e⁻        (ionization, ~15.8 eV)
+e⁻ (accelerated by RF field) + C₄F₈ → 2CF₂· + CF₃· + F· + e⁻  (dissociation, lower threshold)</div>
+<p><b>Step 3 — Avalanche.</b> Each ionizing collision produces a new electron, which is itself accelerated and causes further collisions. This <b>electron avalanche</b> rapidly builds the plasma from a near-vacuum of charged species to a self-sustaining discharge.</p>
+<div class="deep-hl">Key takeaway: the RF field's role is to <b>pump energy into electrons</b>. The electrons then deliver that energy to neutral molecules via collisions. This is why electron temperature (T<sub>e</sub>) is so much higher than gas temperature in a CCP discharge — and it's the same mechanism regardless of which electrode RF is applied to. What's different here is <b>which</b> electrode RF is applied to: the small, wafer-bearing chuck — and that choice is what sets up Step 4.</div>` }
+    },
+    { title:'DC Self-Bias Formation',
+      body:`Electrons (very light, fast) reach the small powered chuck more efficiently than ions on every RF half-cycle. The <b>Blocking Capacitor</b> traps the resulting charge imbalance.
+        <ul>
+          <li>Net negative charge accumulates on the chuck, cycle after cycle</li>
+          <li>V_DC (self-bias) shifts: 0 V → <b>−200 to −500 V</b></li>
+          <li><b>Koenig–Maissel scaling:</b> |V_DC| ∝ (A<sub>g</sub>/A<sub>p</sub>)ⁿ, with n ≈ 2.5</li>
+          <li>The bottom sheath (chuck side) thickens as V_DC grows; the top sheath (showerhead side) stays thin</li>
+        </ul>`,
+      hint:'📊 Watch the waveform shift negative. The V_DC meter builds from 0 to about −350 V over roughly 8 seconds.',
+      deepDive:{
+        title:'The "Two Buckets, One Drain" Picture of DC Self-Bias',
+        body:`<p>Forget electrons and ions for a moment. Imagine <b>two buckets</b> sitting under the <b>same rain shower</b> (the oscillating plasma current, which is symmetric on average — equal current must flow to both electrodes over one RF cycle, because the discharge circuit must be closed).</p>
+<ul>
+  <li><b>Bucket A (Showerhead, grounded):</b> has a <b>wide-open drain pipe straight to the ground</b> — a true DC path to earth. Whatever rain falls in drains right back out. The water level stays at zero.</li>
+  <li><b>Bucket B (Wafer Chuck, RF-powered):</b> its drain pipe has a <b>one-way valve that blocks DC flow</b> — that valve is the <b>Blocking Capacitor</b>. AC current (the rhythmic sloshing of the rain) can still pass through a capacitor, but any steady, one-directional flow cannot.</li>
+</ul>
+<div class="deep-hl">Because electrons arrive at <b>every</b> surface in contact with plasma far more often than ions (electrons are tens of thousands of times lighter), the "rain" itself is negatively charged on average — both buckets receive a net negative charge per unit time, before any equilibrium is reached.</div>
+<p><b>What happens at Bucket A (showerhead, open drain):</b> negative charge arrives, but the open path to ground lets it flow away immediately. The bucket's water level (its potential) stays essentially at <b>0 V</b> — this is the definition of "ground."</p>
+<p><b>What happens at Bucket B (chuck, capacitor-blocked drain):</b> negative charge arrives — but the blocking capacitor prevents any <b>net</b> (DC) current from leaving. The charge has nowhere to go, so it <b>accumulates</b>, cycle after cycle. The bucket's water level <b>drops below zero</b> — it becomes a negative DC voltage. This is exactly the electrode the wafer sits on.</p>
+<div class="deep-eq">Cycle 1: small negative charge ΔQ accumulates on the chuck (Bucket B)
+Cycle 2: a little more ΔQ accumulates → chuck potential drops further (more negative)
+...
+Cycle N: chuck potential is now negative enough that it starts
+         REPELLING incoming electrons and ATTRACTING ions
+→ at some negative voltage V_DC, electron flux = ion flux again (flux balance restored)
+→ system reaches equilibrium — charge stops accumulating</div>
+<div class="deep-hl">Why "hundreds of volts" and not "a few volts"? The magnitude of V_DC scales with how unequal the two "buckets" are — specifically the <b>ratio of the electrode areas</b>, captured by the Koenig–Maissel relation |V_DC| ∝ (A_g/A_p)ⁿ with n ≈ 2.5. A small powered-chuck area relative to the large grounded showerhead area means a much larger negative V_DC is needed to throttle the electron flux down to match the (smaller) ion flux arriving at that small area.</div>
+<p><b>One sentence summary:</b> <b>DC self-bias is the steady-state "water level" that a one-way-valved bucket settles at, once it has accumulated just enough negative charge to make its own outgoing electron flux match its incoming ion flux — and a small powered electrode facing a large grounded area has to drop a lot lower to achieve that match.</b> Because the wafer sits directly on this "Bucket B" electrode, it is bathed in the resulting deep negative potential — which is precisely what Step 5 puts to use.</p>` }
+    },
+    { title:'Asymmetric Sheath & Ion Acceleration',
+      body:`The fully-developed DC self-bias (≈ −350 V) creates a <b>deep potential well in the bottom sheath</b>, above the powered chuck. Positive ions accelerate across this sheath and gain large directional energy.
+        <ul>
+          <li><b>Bottom sheath</b> (chuck side): |V_DC + V_RF| → ion energy <b>200–1000+ eV</b></li>
+          <li><b>Top sheath</b> (showerhead side): very thin, low voltage — large grounded area keeps it shallow</li>
+          <li>Ion flux arrives <b>nearly perpendicular</b> to the wafer → <b>anisotropic etching</b></li>
+          <li>By contrast, a symmetric CCP (as used for PE-CVD) develops <b>no</b> DC self-bias — this asymmetry is unique to (and essential for) etch-type chambers</li>
+        </ul>`,
+      hint:'💥 High-energy ions bombard the wafer vertically. The grounded showerhead sees almost no bombardment.',
+      deepDive:{
+        title:'Is "Hundreds of eV" Bombardment a Problem Here?',
+        body:`<p>A common intuition from deposition processes: <b>"ion bombardment damages the film."</b> In a symmetric PE-CVD chamber, sheath voltages are only tens of volts, and that level of bombardment is mild — often even beneficial (densification). Here in oxide RIE, the question flips:</p>
+<div class="deep-eq">Ion energy ≈ q × |V_DC + V_RF|
+Symmetric CCP (PE-CVD):  V_sheath ≈ tens of volts    → E_ion ≈ tens of eV    (mild / densification)
+Asymmetric CCP (RIE):    V_sheath ≈ hundreds of volts → E_ion ≈ 200–1000+ eV  (bond-breaking / etch)</div>
+<p><b>In oxide RIE, hundreds of eV is exactly the intended operating regime</b> — not a side effect to avoid. Ion energy in this range exceeds the bond-breaking threshold for Si–O (~50–100 eV), which is precisely what's needed to:</p>
+<ul>
+  <li><b>Break Si–O bonds</b> at the SiO₂ surface, activating reaction sites for F radicals</li>
+  <li><b>Physically sputter</b> weakly-bonded reaction products, helping desorption of volatile byproducts (SiF₄, CO₂)</li>
+  <li>Provide <b>directionality</b> — ions arrive nearly perpendicular to the wafer, accelerated straight down through the thick bottom sheath, giving <b>anisotropic, vertical-sidewall</b> profiles instead of isotropic (sideways) etching</li>
+</ul>
+<div class="deep-hl">The same physics (q × V_sheath) that is mild at tens of eV in a symmetric PE-CVD chamber becomes the <b>primary etch-driving mechanism</b> at hundreds of eV in this asymmetric RIE chamber. The "good" or "bad" label depends entirely on the process goal — deposit-and-densify vs. remove-and-shape — not on the physics itself. The area asymmetry (A_g ≫ A_p, Steps 2–4) is precisely what raises V_DC into the regime oxide RIE needs.</div>
+<p><b>Could V_sheath be "too high"?</b> Yes — excessive ion energy can cause substrate damage (dangling bonds, ion implantation into underlying layers), reduced selectivity (etching the mask or underlying layer too), and feature-bottom roughening. Process engineers tune RF power, pressure, and electrode area ratio to keep V_DC in the range that balances etch rate against these side effects.</p>` }
+    },
+    { title:'Surface Reaction — Reactive Ion Etching',
+      body:`Physical sputtering and chemical reaction work <b>synergistically</b> on SiO₂.
+        <ul>
+          <li>Ion bombardment breaks Si–O bonds and activates reaction sites</li>
+          <li><code>SiO₂ + 4F· → SiF₄↑ + O₂↑</code> &nbsp;(chemical / radical-driven)</li>
+          <li><code>SiO₂ + CF₃⁺ → SiF₄↑ + CO₂↑</code> &nbsp;(ion-enhanced)</li>
+          <li>All products are volatile → pumped away; <b>no redeposition</b></li>
+        </ul>`,
+      hint:'🎯 Gray SiF₄ / CO₂ byproducts rise away from the surface and are evacuated.',
+      deepDive:{
+        title:'Why Does Etching Need Both Radicals AND Ions?',
+        body:`<p>F radicals are highly reactive with SiO₂ on their own — this is "chemical" etching, and it happens even with purely thermal F-atom exposure and no ions at all. So why does this chamber bother generating <b>energetic ions</b> via the large V_DC from Step 4? Two reasons:</p>
+<div class="deep-hl">① Directionality — anisotropic profiles</div>
+<p>Pure chemical etching by neutral F radicals is <b>isotropic</b> — radicals arrive from random directions (diffusion), so they etch sideways under the photoresist mask just as fast as straight down. This produces rounded, undercut profiles — unacceptable for modern high-aspect-ratio features.</p>
+<p>Ions, by contrast, are accelerated <b>nearly perpendicular</b> to the wafer by the thick bottom sheath (Step 5). Their bombardment energy is concentrated at the <b>bottom</b> of a trench, not the sidewalls. This gives <b>anisotropic (vertical-sidewall) etching</b> — the defining requirement of modern oxide RIE.</p>
+<div class="deep-hl">② Ion-Enhanced / Synergistic etching — rate boost beyond either alone</div>
+<p>Experimentally, the etch rate with <b>both</b> F radicals and energetic ions present is often much <b>higher than the sum</b> of (chemical-only etch rate) + (physical-sputter-only rate). This synergy arises because:</p>
+<ul>
+  <li>Ion bombardment <b>breaks Si–O bonds</b> and disrupts the surface lattice, creating reactive sites that F radicals can attack more readily</li>
+  <li>Ion impact helps <b>desorb</b> reaction products (SiF₄, CO₂) that might otherwise remain adsorbed and block further reaction — "clearing the surface" for the next cycle</li>
+</ul>
+<div class="deep-hl">Summary: F radicals (from C₄F₈ + O₂) supply the <b>chemistry</b> (what bonds form/break), while Ar⁺/CF₃⁺ ions supply the <b>direction and surface activation</b> (where it happens, and how fast). Neither alone gives the combination of etch rate and anisotropy that modern oxide RIE requires — which is exactly why the asymmetric-electrode CCP design (built specifically to generate a large V_DC on the wafer-bearing chuck) is the standard architecture for this process.</div>
+<p><b>Role of Ar:</b> Argon is chemically inert — it doesn't directly react with SiO₂. Its job is purely physical: Ar⁺ ions (40 amu, relatively heavy) deliver efficient momentum transfer for sputtering, supplementing the chemically-driven F·/CF₃⁺ pathway and helping stabilize the discharge.</p>` }
+    },
+    { title:'DC vs RF — Why RF for Oxide Etching?',
+      body:`A fixed DC discharge <b>cannot etch SiO₂ effectively</b> — for a reason specific to insulating films.
+        <ul>
+          <li><b>DC mode:</b> positive ions arriving at the SiO₂ surface neutralize there, but cannot be replenished by conduction (SiO₂ is an insulator) → the surface charges up positively → the accelerating E-field collapses → plasma <b>extinguishes</b></li>
+          <li><b>RF mode:</b> polarity reverses 13.56 million times/sec → any surface charge is neutralized again each half-cycle, before it can build up enough to collapse the field → plasma <b>sustained</b></li>
+          <li>RF is also what makes the <b>Blocking Capacitor</b> (Step 4) functional — it passes AC but blocks DC, which is how it traps charge to build V_DC while still letting RF power flow</li>
+        </ul>`,
+      hint:'🔁 Toggle DC ↔ RF below: DC mode causes surface charge buildup and plasma collapse.',
+      deepDive:[{
+        title:'RF Sustains Ionization AND Builds DC Self-Bias — At the Same Time',
+        body:`<p>This may look like a contradiction at first: RF keeps electrons <b>oscillating</b> (this step's main point), while Step 4 says a steady <b>DC offset</b> (V_DC) builds up on the powered chuck. How can an oscillating signal create something described as "DC"?</p>
+<div class="deep-hl">The resolution: V_DC is a DC <b>offset</b> superimposed on an RF <b>waveform</b> — not a replacement for it. The instantaneous voltage on the chuck is V(t) = V_DC + V_RF·sin(ωt). The waveform still swings up and down at 13.56 MHz (sustaining ionization via electron oscillation), but its <b>average value</b> sits at a large negative number (V_DC) instead of zero.</div>
+<p>The blocking capacitor is what allows this split to exist: it passes the oscillating (RF) component freely — so RF power still couples into the plasma and electrons still oscillate — but it <b>cannot</b> pass the net (DC) component, so any DC charge imbalance accumulated each cycle stays trapped on the chuck side of the capacitor as V_DC.</p>
+<div class="deep-eq">V(t) on the powered chuck = V_DC (large negative, slowly-varying)
+                           + V_RF · sin(2π × 13.56MHz × t)  (oscillating, sustains ionization)</div>
+<p>This is in addition to — not instead of — the insulating-surface-charging issue covered in this step's main text. Both effects (sustained ionization on an insulating SiO₂ surface, and the chuck-side self-bias offset) require the <b>same</b> RF drive; they are two faces of the same coin. If the system were run on pure DC, neither would exist: the plasma would collapse from surface charging (as shown when you toggle to DC mode), and there would be no oscillation to repeatedly "test" the flux balance that defines V_DC.</p>`
+      }] },
+    { title:'Full RIE — Anisotropic Trench Formation',
+      body:`With DC self-bias fully active, ions bombard the SiO₂ <b>vertically</b> through the photoresist (PR) mask opening.
+        <ul>
+          <li>Directional ion flux → <b>vertical sidewalls</b></li>
+          <li>PR mask protects the covered SiO₂ — no lateral etch under the mask</li>
+          <li>High SiO₂/Si selectivity achievable with the right C₄F₈ : O₂ ratio</li>
+        </ul>
+        Overall: <code>SiO₂ + C₄F₈ + Ar → SiF₄↑ + CO₂↑ + COF₂↑</code>`,
+      hint:'🎯 Watch the trench deepen with vertical sidewalls. Press Reset to restart the animation.' },
+    { title:'CCP Oxide Etching — Key Takeaways',
+      body:`Consolidated reference for asymmetric CCP oxide etching.
+        <ul>
+          <li>Asymmetric electrodes (A<sub>g</sub> ≫ A<sub>p</sub>) → <b>DC self-bias</b> on the wafer-bearing chuck → high directional ion energy</li>
+          <li>RF sustains the plasma on dielectric SiO₂ — DC fails due to surface charging</li>
+          <li>C₄F₈ / Ar / O₂ combines reactive F· chemistry with physical Ar⁺ sputtering</li>
+          <li>Low pressure + high |V_DC| → <b>anisotropic (vertical) etch</b> profiles</li>
+        </ul>`,
+      hint:'📋 Summary of all CCP oxide-etching concepts — compare with the PE-CVD deposition module.' },
+  ],
+  hotspots:[
+    {n:'c4f8', title:'C₄F₈ Source', text:'Octafluorocyclobutane — primary etchant. Plasma ring-opening yields CF₃·, CF₂·, F· radicals. F reacts with SiO₂ → volatile SiF₄.'},
+    {n:'ar',   title:'Ar Source',   text:'Argon, noble gas. Ar⁺ (40 amu) provides physical sputtering to help break Si–O bonds. Dilutes C₄F₈ and stabilizes the plasma.'},
+    {n:'o2',   title:'O₂ Source',   text:'Controls the C/F ratio. O₂ scavenges carbon (→ CO₂), releasing extra F for faster etch, and suppresses fluorocarbon polymer deposition.'},
+    {n:'mfc',  title:'Mass Flow Controllers (MFC)', text:'Precise sccm control for each gas. C₄F₈ : Ar : O₂ ratio controls etch rate, selectivity, and sidewall passivation. Typical: C₄F₈ 10, Ar 200, O₂ 5 sccm.'},
+    {n:'showerhead', title:'Showerhead (Grounded — Large A_g)', text:'Grounded, full-width electrode + gas distributor. Large area keeps the top sheath voltage low. Connected to chamber ground.'},
+    {n:'sheath_top', title:'Top Sheath (Thin — Grounded Side)', text:'Thin dark space near the grounded showerhead. Low sheath voltage because A_g is large — little ion bombardment here.'},
+    {n:'plasma', title:'Bulk Plasma (Quasi-Neutral)', text:'e⁻, ions, and radicals coexist. C₄F₈/Ar plasma emits pale blue-pink: CF₂* bands (260–290 nm) and Ar I lines (696–800 nm, red).'},
+    {n:'sheath_bot', title:'Bottom Sheath (Thick — DC Self-Bias)', text:'Thick dark space above the powered chuck. V_DC (−200 to −500 V) plus V_RF gives a total sheath potential of hundreds to >1000 eV for ions.'},
+    {n:'wafer', title:'Si Wafer / SiO₂ Layer', text:'Si substrate (gray) with SiO₂ (blue) to be etched.\nRxn: SiO₂ + 4F· → SiF₄↑ + O₂↑\nIon-enhanced: SiO₂ + CF₃⁺ → SiF₄↑ + CO₂↑'},
+    {n:'chuck', title:'Wafer Chuck (RF-Powered — Small A_p)', text:'Small-area RF-powered electrode (A_p) — holds the wafer. RF connects via the Blocking Capacitor. A_g ≫ A_p drives the negative DC self-bias: V_DC ∝ −(A_g/A_p)^2.5.'},
+    {n:'rf',    title:'RF Generator · 13.56 MHz → Chuck', text:'Connected to the Wafer Chuck (opposite of a PE-CVD chamber). The Blocking Capacitor (C_block) in line allows DC self-bias to develop while RF current still passes.'},
+    {n:'mat',   title:'RF Matcher', text:'Matches the plasma\u2019s impedance to the generator\u2019s 50 \u03a9 output, maximizing delivered power and minimizing reflection.'},
+    {n:'pump',  title:'Turbo Pump + Dry Vacuum Pump', text:'Turbo molecular pump (high-vacuum stage) backed by a dry vacuum pump (roughing/exhaust stage). Together they maintain 5–50 mTorr and remove volatile etch byproducts: SiF₄ (bp −86 °C), CO₂, COF₂. Low pressure → directional ion flux.'},
+    {n:'he',    title:'Backside He Cooling', text:'Helium gas circulated behind the wafer through a flow restrictor (orifice). Provides efficient thermal contact between the wafer and the temperature-controlled chuck, removing the heat load from ion bombardment.'},
+  ],
+  takeawayHeader:'CCP Oxide Etching — Key Takeaways',
+  takeawaySubheader:'Capacitively Coupled Plasma · C₄F₈ + Ar + O₂ SiO₂ RIE Process Summary',
+  takeawayDesign:'Design Principles', takeawayParams:'Plasma Parameters',
+  takeawayWindow:'Typical Process Window', takeawayLimits:'Key Limitations',
+  principles:[
+    ['Asymmetric Electrodes (A_g ≫ A_p)', 'Large grounded showerhead vs. small RF-powered chuck → large negative V_DC on the chuck'],
+    ['Blocking Capacitor · 13.56 MHz',    'Passes RF, blocks DC → traps charge as V_DC on the chuck while sustaining ionization'],
+    ['High Bottom-Sheath Voltage (~hundreds V)', 'Ion energy ≈ q × |V_DC + V_RF| → bond-breaking, directional etch'],
+    ['Low Pressure (5–50 mTorr)',          'Long mean free path → highly directional ion flux → anisotropic profiles'],
+    ['Gas Ratio  C₄F₈ : Ar : O₂',          'Controls F/C ratio, etch rate, selectivity, and sidewall passivation'],
+  ],
+  tHeaders:['Parameter','CCP Oxide Etch (RIE)','ICP'],
+  tRows:[
+    ['Plasma density (nₑ)',  '10⁸ – 10¹⁰ cm⁻³',   '10¹⁰ – 10¹² cm⁻³'],
+    ['Ionization degree',    '10⁻⁵ – 10⁻³',        '10⁻³ – 10⁻¹'],
+    ['C₄F₈ dissociation',    '30 – 70 %',          '> 80 %'],
+    ['Electron temp (Tₑ)',   '2 – 5 eV',           '3 – 6 eV'],
+    ['DC Self-Bias (V_DC)',  '−200 to −500 V',     '−10 to −100 V (bias-assisted)'],
+    ['Ion energy (Eᵢ)',      '200 – 1000+ eV',     '10 – 200 eV'],
+    ['Operating pressure',  '5 – 50 mTorr',        '1 – 50 mTorr'],
+    ['RF coupling',         'Capacitive (E-mode)', 'Inductive (H-mode)'],
+  ],
+  pwItems:[
+    ['Etch Rate',            '100 – 600 nm/min'],
+    ['Selectivity (SiO₂:PR)','2 – 6 : 1'],
+    ['Anisotropy',           '> 0.9  (near-vertical sidewalls)'],
+    ['DC Self-Bias (V_DC)',  '−200 to −500 V (typical)'],
+  ],
+  limitLines:[
+    '• Ion flux & energy coupled via RF power — not independently controllable  ·  Lower plasma density vs ICP/ECR',
+    '• V_DC depends on the A_g/A_p area ratio — chamber geometry constrains the achievable bias range  ·  High V_DC can reduce mask/underlayer selectivity',
+  ],
+},
+ko:{
+  hTitle:'CCP Oxide Etching — Interactive Lesson',
+  hSub:'Class 2 · C₄F₈ + Ar + O₂ → SiO₂ RIE · Benedu Insight',
+  stepLabel:'Step',
+  modeInfoDC:'DC 선택 시, 절연 SiO₂ 위에서 Plasma가 붕괴되는 과정을 확인하세요',
+  modeInfoRF:'RF가 Plasma를 유지 · DC Self-Bias 활성',
+  resetEtch:'↻ Etch Depth 초기화',
+  prevBtn:'◀ 이전', nextBtn:'다음 ▶',
+  modeLabel:'Mode', plasmaLabel:'Plasma 강도',
+  extinguished:'⚠  Plasma 소멸 — SiO₂ 위에서 DC는 동작 불가',
+  sustained:'RF 유지 중 · DC Self-Bias 활성',
+  molCount:'가스 분자',
+  vdcLabel:'V_DC — Self-Bias (Powered Chuck)',
+  ionEnergyLabel:'이온 에너지 ≈ |V_DC + V_RF| × q',
+  etchLabel:'Etch Depth', etchPctOf:'% of SiO₂', eqLabel:'전체 반응:',
+  etchThrough:'✓ SiO₂ 관통 — Si Stop 도달',
+  koenig:'|V_DC| ∝ (A_g / A_p)ⁿ,  n ≈ 2.5',
+  steps:[
+    { title:'Asymmetric CCP — Chamber 구조',
+      body:`SiO₂ Oxide Etch (RIE)를 위한 평행판 <b>Capacitively Coupled Plasma</b> Chamber.
+        <ul>
+          <li><b>Showerhead (상부)</b> — 접지(Grounded) 전극 &amp; 가스 분배기, Chamber 전체 폭 (넓은 면적 A<sub>g</sub>)</li>
+          <li><b>Wafer Chuck (하부)</b> — RF-Powered 전극, 더 작은 폭(A<sub>p</sub>), <b>Blocking Capacitor</b>를 통해 구동</li>
+          <li><b>핵심 관계:</b> A<sub>g</sub> ≫ A<sub>p</sub> → Chuck에 DC Self-Bias 형성</li>
+          <li>가스: <code>C₄F₈ + Ar + O₂</code>, 각각 독립 MFC로 제어</li>
+          <li>저압 환경: <code>5–50 mTorr</code></li>
+        </ul>
+        점화 전 상태 — 가스는 흐르지만 Plasma는 아직 없음.
+        <b>Showerhead의 폭과 Chuck의 폭을 비교</b>해 보세요 — 이 면적 비대칭이 4~5 Step 전체의 출발점이며, 웨이퍼는 <b>더 작은, RF-Powered</b> 전극 위에 놓입니다.`,
+      hint:'💡 Chamber 각 부품에 마우스를 올려 설명을 확인하세요.' },
+    { title:'가스 분포 & 전극 비대칭',
+      body:`C₄F₈ + Ar + O₂가 <b>Showerhead</b>를 통해 유입되어 Chamber를 빠르게 채웁니다.
+        <ul>
+          <li><b>Showerhead</b>는 Chamber 전체 폭을 차지 → 넓은 접지 면적 A<sub>g</sub></li>
+          <li><b>Wafer Chuck</b>은 Chamber 폭의 약 60% → 작은 RF-Powered 면적 A<sub>p</sub></li>
+          <li><b>A<sub>g</sub> / A<sub>p</sub> ≈ 1.7</b> — Plasma 점화 후 이 비율이 DC Self-Bias를 만드는 핵심 변수입니다</li>
+          <li>5–50 mTorr에서는 평균 자유 행정이 충분히 길어 이온 Flux가 강한 방향성을 가질 수 있습니다</li>
+        </ul>`,
+      hint:'⚙ 폭 표시 마커가 전극 면적 비율을 보여줍니다 — 이 Chamber에서 가장 중요한 설계 변수입니다.' },
+    { title:'RF Ignition — 불화탄소 해리',
+      body:`RF Power가 <b>Wafer Chuck</b>에 인가됩니다. 가속된 전자가 공정 가스를 해리·이온화시킵니다.
+        <ul>
+          <li><code>e⁻ + C₄F₈ → 2CF₂· + CF₃· + F·</code> &nbsp;(고리 개환 해리)</li>
+          <li><code>e⁻ + Ar → Ar⁺ + 2e⁻</code> &nbsp;(이온화)</li>
+          <li><code>e⁻ + O₂ → 2O· + e⁻</code> &nbsp;(해리)</li>
+        </ul>
+        <b>파랑</b> = 불화탄소 Radical(CF₂·, CF₃·, F·) &nbsp;·&nbsp; <b>빨강</b> = 이온 &amp; e⁻.
+        이 순간 <b>V_DC = 0 V</b> — Self-Bias가 아직 형성될 시간이 없었습니다.`,
+      hint:'⚡ C₄F₈는 고리 개환 해리를 거쳐 반응성 높은 불화탄소 Radical을 방출합니다. 초기 V_DC = 0 V.',
+      deepDive:{
+        title:'Plasma는 실제로 어떻게 점화될까?',
+        body:`<p>현재 단계에서는 Chamber 안에 <b>중성 분자만</b> 존재하고, RF Power가 막 켜진 상태입니다. 자연스러운 질문 — RF Field 자체의 에너지만으로 중성 분자를 직접 이온화시킬 수 있을까요?</p>
+<p><b>아니요 — 직접적으로는 불가능합니다.</b> 중성 분자는 전하가 없으므로 전기장이 가하는 순(net) 힘이 0입니다. 전기장이 분자를 직접 이온화시키려면 일반적인 RIE 공정 조건보다 훨씬(수 자릿수) 강한 전기장이 필요합니다.</p>
+<div class="deep-hl">Plasma 점화는 전기장의 단독 효과가 아니라, <b>전자를 매개로 한 2단계 에너지 전달(relay)</b>입니다.</div>
+<p><b>1단계 — Seed Electron은 이미 존재합니다.</b> RF Power 인가 전에도, 우주선(cosmic ray)·자연 방사선·잔류 가스의 자발적 이온화 등으로 생성된 미량의 자유전자가 Chamber 내부에 항상 존재합니다.</p>
+<p><b>2단계 — 전기장은 분자가 아니라 전자를 가속합니다.</b> 전자는 C₄F₈, Ar, O₂보다 약 30,000~400,000배 가볍습니다. <b>a = qE / m</b>에서 같은 전기장이라도 전자는 극단적으로 큰 가속을 받아, RF 한 주기 안에 수~수십 eV의 운동 에너지를 얻을 수 있습니다.</p>
+<div class="deep-eq">e⁻ (RF Field로 가속됨) + Ar  → Ar⁺ + 2e⁻        (이온화, 약 15.8 eV)
+e⁻ (RF Field로 가속됨) + C₄F₈ → 2CF₂· + CF₃· + F· + e⁻  (해리, 더 낮은 임계 에너지)</div>
+<p><b>3단계 — Avalanche(전자 사슬 증식).</b> 이온화 충돌마다 새로운 전자가 생성되고, 이 전자 역시 가속되어 추가 충돌을 일으킵니다. 이 <b>전자 Avalanche</b>가 거의 무(無)에 가까운 하전 입자 밀도를 빠르게 증폭시켜 자기유지(self-sustaining) Plasma를 형성합니다.</p>
+<div class="deep-hl">핵심: RF Field의 역할은 <b>전자에 에너지를 주입</b>하는 것입니다. 전자는 그 에너지를 충돌을 통해 중성 분자에 전달합니다. 이것이 CCP Discharge에서 전자 온도(T<sub>e</sub>)가 가스 온도보다 훨씬 높은 이유이며, RF가 어느 전극에 인가되든 동일한 메커니즘입니다. 여기서 다른 점은 RF가 <b>어느 전극</b>에 인가되는가입니다 — 작은, 웨이퍼를 탑재한 Chuck에 인가되며, 이 선택이 4 Step의 출발점이 됩니다.</div>` }
+    },
+    { title:'DC Self-Bias 형성',
+      body:`전자(매우 가볍고 빠름)는 매 RF 반주기마다 이온보다 훨씬 효율적으로 작은 Powered Chuck에 도달합니다. <b>Blocking Capacitor</b>가 그 결과로 생긴 전하 불균형을 가둡니다.
+        <ul>
+          <li>Chuck에 순(net) (−) 전하가 매 주기마다 누적</li>
+          <li>V_DC (Self-Bias) 변화: 0 V → <b>−200 ~ −500 V</b></li>
+          <li><b>Koenig–Maissel Scaling:</b> |V_DC| ∝ (A<sub>g</sub>/A<sub>p</sub>)ⁿ, n ≈ 2.5</li>
+          <li>V_DC가 커질수록 하부 Sheath(Chuck 측)는 두꺼워지고, 상부 Sheath(Showerhead 측)는 얇게 유지됩니다</li>
+        </ul>`,
+      hint:'📊 파형이 (−) 쪽으로 이동하는 것을 관찰하세요. V_DC 미터는 약 8초에 걸쳐 0에서 약 −350V까지 형성됩니다.',
+      deepDive:{
+        title:'"두 개의 물통, 하나의 배수구" — DC Self-Bias를 그림으로 이해하기',
+        body:`<p>잠시 전자와 이온은 잊고, <b>같은 비(雨)</b>를 맞는 <b>두 개의 물통</b>을 떠올려 봅시다. 이 비는 진동하는 Plasma 전류를 의미하며, 평균적으로는 양쪽 전극에 동일한 전류가 흐릅니다(Discharge 회로는 반드시 닫혀 있어야 하므로).</p>
+<ul>
+  <li><b>물통 A (Showerhead, 접지):</b> <b>접지로 직접 연결된, 활짝 열린 배수구</b>를 가지고 있습니다(진짜 DC 경로). 비가 떨어지는 만큼 곧바로 빠져나갑니다. 물통의 수위(전위)는 항상 0 근처에 머뭅니다.</li>
+  <li><b>물통 B (Wafer Chuck, RF-Powered):</b> 이 물통의 배수구에는 <b>DC 흐름을 막는 일방향 밸브</b>가 달려 있습니다 — 이 밸브가 바로 <b>Blocking Capacitor</b>입니다. AC(빗물의 출렁임처럼 주기적으로 방향이 바뀌는 흐름)는 Capacitor를 통과할 수 있지만, 한 방향으로만 흐르는 정상 흐름(DC)은 통과할 수 없습니다.</li>
+</ul>
+<div class="deep-hl">전자는 Plasma와 접촉하는 <b>모든</b> 표면에 이온보다 훨씬(수만 배) 자주 도달하므로, 이 "비" 자체가 평균적으로 (−) 전하를 띱니다 — 즉 평형에 도달하기 전부터, 두 물통 모두 단위 시간당 순(net) (−) 전하를 받습니다.</div>
+<p><b>물통 A(Showerhead, 열린 배수구)에서 일어나는 일:</b> (−) 전하가 도달하지만, 접지로 가는 열린 경로를 통해 즉시 빠져나갑니다. 물통의 수위(전위)는 거의 <b>0 V</b>를 유지합니다 — 이것이 바로 "접지(Ground)"의 정의입니다.</p>
+<p><b>물통 B(Chuck, Capacitor로 막힌 배수구)에서 일어나는 일:</b> (−) 전하가 도달하지만, Blocking Capacitor가 <b>순(net)</b> DC 전류가 빠져나가는 것을 막습니다. 전하가 갈 곳이 없으므로 매 주기마다 <b>축적</b>됩니다. 물통의 수위는 0보다 <b>점점 낮아져</b> — 즉 (−) DC 전압이 됩니다. 바로 이 전극 위에 웨이퍼가 놓여 있습니다.</p>
+<div class="deep-eq">주기 1: Chuck(물통 B)에 작은 (−) 전하 ΔQ 축적
+주기 2: ΔQ가 조금 더 축적 → Chuck 전위가 더 (−)로 내려감
+...
+주기 N: Chuck 전위가 충분히 (−)가 되어
+        들어오는 전자를 밀어내고(repel) 이온을 끌어당기기(attract) 시작
+→ 어떤 (−) 전압 V_DC에서, 전자 flux = 이온 flux로 다시 평형 (Flux Balance 회복)
+→ 시스템이 평형에 도달 — 전하 축적 중단</div>
+<div class="deep-hl">왜 "수백 V"이고 "수 V"가 아닐까? V_DC의 크기는 두 "물통"이 얼마나 불균등한가 — 구체적으로는 <b>전극 면적의 비율</b>에 따라 달라지며, Koenig–Maissel 관계식 |V_DC| ∝ (A_g/A_p)ⁿ (n ≈ 2.5)로 표현됩니다. 넓은 접지 Showerhead 면적에 비해 작은 Powered Chuck 면적일수록, 그 작은 면적에 도달하는 (더 적은) 이온 flux에 전자 flux를 맞추기 위해 훨씬 더 큰 (−) V_DC가 필요합니다.</div>
+<p><b>한 문장 요약:</b> <b>DC Self-Bias는 "일방향 밸브가 달린 물통"이, 자신에게서 빠져나가는 전자 flux가 들어오는 이온 flux와 같아질 만큼의 (−) 전하를 축적한 시점에 도달하는 정상상태(steady-state) "수위"입니다 — 그리고 넓은 접지 면적을 마주한 작은 Powered 전극은, 그 균형을 맞추기 위해 훨씬 더 낮은 수위까지 내려가야 합니다.</b> 웨이퍼가 바로 이 "물통 B" 전극 위에 놓여 있기 때문에, 그 결과로 형성되는 깊은 (−) 전위에 그대로 노출됩니다 — 이것이 5 Step에서 활용되는 핵심입니다.</p>` }
+    },
+    { title:'비대칭 Sheath & Ion Acceleration',
+      body:`완전히 형성된 DC Self-Bias(≈ −350 V)는 Powered Chuck 위 <b>하부 Sheath에 깊은 전위 우물</b>을 만듭니다. 양이온은 이 Sheath를 가로지르며 큰 방향성 에너지를 얻습니다.
+        <ul>
+          <li><b>하부 Sheath</b>(Chuck 측): |V_DC + V_RF| → 이온 에너지 <b>200–1000+ eV</b></li>
+          <li><b>상부 Sheath</b>(Showerhead 측): 매우 얇고 낮은 전압 — 넓은 접지 면적이 얕게 유지</li>
+          <li>이온 Flux는 웨이퍼에 <b>거의 수직</b>으로 도달 → <b>Anisotropic Etch</b></li>
+          <li>반면 대칭 CCP(PE-CVD에서 사용)는 DC Self-Bias가 <b>거의 형성되지 않습니다</b> — 이 비대칭은 Etch형 Chamber에만 존재하며 필수적입니다</li>
+        </ul>`,
+      hint:'💥 고에너지 이온이 웨이퍼를 수직으로 충격합니다. 접지된 Showerhead는 거의 충격을 받지 않습니다.',
+      deepDive:{
+        title:'여기서 "수백 eV" Bombardment는 문제일까?',
+        body:`<p>증착 공정에서 흔한 직관: <b>"Ion Bombardment는 막을 손상시킨다."</b> 대칭 PE-CVD Chamber에서는 Sheath 전압이 수십 V에 불과하며, 이 정도 Bombardment는 약하고 — 종종 유익(Densification)하기도 합니다. 여기 Oxide RIE에서는 질문이 뒤집힙니다:</p>
+<div class="deep-eq">이온 에너지 ≈ q × |V_DC + V_RF|
+대칭 CCP (PE-CVD):   V_sheath ≈ 수십 V    → E_ion ≈ 수십 eV     (약함 / Densification)
+비대칭 CCP (RIE):    V_sheath ≈ 수백 V   → E_ion ≈ 200–1000+ eV (결합 파괴 / Etch)</div>
+<p><b>Oxide RIE에서는 수백 eV가 바로 의도된 동작 영역</b>입니다 — 피해야 할 부작용이 아닙니다. 이 에너지 영역의 이온은 Si–O(~50–100 eV) 결합의 파괴 임계값을 초과하며, 이는 다음을 위해 정확히 필요한 수준입니다:</p>
+<ul>
+  <li>SiO₂ 표면의 <b>Si–O 결합을 끊어</b> F Radical이 반응할 수 있는 자리를 활성화</li>
+  <li>약하게 결합된 반응 생성물을 <b>물리적으로 Sputter</b>하여 휘발성 부산물(SiF₄, CO₂)의 탈착(Desorption)을 도움</li>
+  <li><b>방향성(Directionality)</b> 제공 — 이온은 두꺼운 하부 Sheath를 통해 거의 수직으로 가속되어 웨이퍼에 도달 → Isotropic(등방성, 옆으로도 진행) Etch가 아닌 <b>Anisotropic(이방성, 수직 측벽) 프로파일</b>을 만듦</li>
+</ul>
+<div class="deep-hl">대칭 PE-CVD Chamber에서 수십 eV로 약하게 작용했던 동일한 물리(q × V_sheath)가, 이 비대칭 RIE Chamber에서는 수백 eV로 <b>주요 Etch 구동 메커니즘</b>이 됩니다. "좋다/나쁘다"의 판단은 물리 자체가 아니라 공정 목표 — 증착·밀도화 vs 제거·형상화 — 에 따라 달라질 뿐입니다. 면적 비대칭(A_g ≫ A_p, 2~4 Step)이 바로 V_DC를 Oxide RIE에 필요한 영역까지 끌어올리는 장치입니다.</div>
+<p><b>V_sheath가 "너무 높을" 수도 있을까?</b> 네 — 과도한 이온 에너지는 기판 손상(Dangling Bond, 하부층으로의 이온 주입), Selectivity 저하(Mask나 하부층까지 식각), Feature 하단 거칠기 증가를 일으킬 수 있습니다. 공정 엔지니어는 RF Power, 압력, 전극 면적비를 조절하여 V_DC를 Etch Rate와 이러한 부작용 사이의 균형점에 맞춥니다.</p>` }
+    },
+    { title:'표면 반응 — Reactive Ion Etching',
+      body:`물리적 Sputtering과 화학적 반응이 SiO₂ 위에서 <b>시너지</b>를 이루며 작동합니다.
+        <ul>
+          <li>Ion Bombardment가 Si–O 결합을 끊고 반응 자리를 활성화</li>
+          <li><code>SiO₂ + 4F· → SiF₄↑ + O₂↑</code> &nbsp;(화학적 / Radical 주도)</li>
+          <li><code>SiO₂ + CF₃⁺ → SiF₄↑ + CO₂↑</code> &nbsp;(Ion-Enhanced)</li>
+          <li>모든 생성물은 휘발성 → 배기됨; <b>재증착 없음</b></li>
+        </ul>`,
+      hint:'🎯 회색 SiF₄ / CO₂ 부산물이 표면에서 떠올라 배기되는 것을 관찰하세요.',
+      deepDive:{
+        title:'Etch에는 왜 Radical과 Ion이 모두 필요할까?',
+        body:`<p>F Radical은 그 자체로도 SiO₂와 매우 반응성이 높습니다 — 이것이 "화학적" Etch이며, 이온 없이 순수한 열적 F 원자 노출만으로도 일어납니다. 그렇다면 이 Chamber가 굳이 4 Step의 큰 V_DC를 통해 <b>고에너지 이온</b>을 만드는 이유는 무엇일까요? 두 가지 이유가 있습니다:</p>
+<div class="deep-hl">① 방향성 — Anisotropic 프로파일</div>
+<p>중성 F Radical에 의한 순수 화학적 Etch는 <b>Isotropic(등방성)</b>입니다 — Radical은 무작위 방향(확산)에서 도달하므로, Photoresist Mask 아래로 옆 방향 Etch도 아래 방향 Etch만큼 빠르게 진행됩니다. 이는 둥글게 깎이거나 Undercut된 프로파일을 만들어 — 최신 High-Aspect-Ratio Feature에는 허용되지 않습니다.</p>
+<p>반면 이온은 두꺼운 하부 Sheath(5 Step)에 의해 웨이퍼에 <b>거의 수직</b>으로 가속됩니다. 이온의 충격 에너지는 Trench의 <b>바닥</b>에 집중되고, 측벽에는 거의 영향을 주지 않습니다. 이로써 <b>Anisotropic(수직 측벽) Etch</b> — 현대 Oxide RIE의 핵심 요구사항 — 가 가능해집니다.</p>
+<div class="deep-hl">② Ion-Enhanced / 시너지 Etch — 단독으로는 얻을 수 없는 속도 향상</div>
+<p>실험적으로, F Radical과 고에너지 Ion이 <b>둘 다</b> 존재할 때의 Etch Rate는 종종 (화학적 Etch 단독 Rate) + (물리적 Sputter 단독 Rate)의 <b>단순 합보다 훨씬 큽니다</b>. 이 시너지는 다음에서 비롯됩니다:</p>
+<ul>
+  <li>Ion Bombardment가 <b>Si–O 결합을 끊고</b> 표면 격자를 교란시켜, F Radical이 더 쉽게 공격할 수 있는 반응 자리(Reactive Site)를 만듦</li>
+  <li>Ion 충격이 그렇지 않으면 표면에 흡착된 채 남아 추가 반응을 막을 수 있는 반응 생성물(SiF₄, CO₂)의 <b>탈착(Desorption)</b>을 도와 — 다음 반응을 위한 "표면 정리" 역할</li>
+</ul>
+<div class="deep-hl">정리: (C₄F₈ + O₂에서 생성된) F Radical은 <b>화학(어떤 결합이 형성/파괴되는가)</b>을, Ar⁺/CF₃⁺ Ion은 <b>방향성과 표면 활성화(어디서, 얼마나 빠르게 일어나는가)</b>를 제공합니다. 둘 중 하나만으로는 현대 Oxide RIE가 요구하는 Etch Rate와 Anisotropy의 조합을 얻을 수 없습니다 — 이것이 바로 (웨이퍼를 탑재한 Chuck에 큰 V_DC를 만들도록 설계된) 비대칭 전극 CCP가 이 공정의 표준 구조인 이유입니다.</div>
+<p><b>Ar의 역할:</b> Argon은 화학적으로 불활성이며 SiO₂와 직접 반응하지 않습니다. 그 역할은 순수하게 물리적입니다 — Ar⁺ Ion(40 amu, 비교적 무거움)이 효율적인 운동량 전달로 Sputtering을 수행하여, 화학적으로 작동하는 F·/CF₃⁺ 경로를 보완하고 Discharge를 안정화합니다.</p>` }
+    },
+    { title:'DC vs RF — Oxide Etch에는 왜 RF가 필요한가?',
+      body:`고정 DC Discharge는 <b>SiO₂를 효과적으로 식각할 수 없습니다</b> — 절연막에 특화된 이유 때문입니다.
+        <ul>
+          <li><b>DC 모드:</b> SiO₂ 표면에 도달한 양이온이 표면에서 중성화되지만, SiO₂는 절연체이므로 전도를 통해 보충되지 않음 → 표면이 (+)로 충전됨 → 가속 E-field가 붕괴 → Plasma <b>소멸</b></li>
+          <li><b>RF 모드:</b> 극성이 1초에 1,356만 번 반전 → 매 반주기마다 표면 전하가 다시 중성화되어, Field를 붕괴시킬 만큼 쌓이기 전에 해소됨 → Plasma <b>유지</b></li>
+          <li>RF는 또한 <b>Blocking Capacitor</b>(4 Step)를 동작시키는 조건이기도 합니다 — Capacitor는 AC는 통과시키고 DC는 막으므로, RF Power는 계속 흐르게 하면서 동시에 전하를 가둬 V_DC를 형성할 수 있습니다.</li>
+        </ul>`,
+      hint:'🔁 아래 DC ↔ RF 토글로 차이를 확인하세요: DC 모드에서는 표면 전하 축적과 Plasma 붕괴가 발생합니다.',
+      deepDive:[{
+        title:'RF는 이온화를 유지하는 동시에 DC Self-Bias를 만든다',
+        body:`<p>처음에는 모순처럼 보일 수 있습니다: RF는 전자를 계속 <b>진동</b>시키는 역할(이 Step의 핵심)을 하는데, 4 Step에서는 Powered Chuck에 일정한 <b>DC Offset</b>(V_DC)이 쌓인다고 했습니다. 진동하는 신호가 어떻게 "DC"라고 부르는 것을 만들어낼 수 있을까요?</p>
+<div class="deep-hl">해답: V_DC는 RF <b>파형</b> 위에 더해진 DC <b>Offset</b>입니다 — RF를 대체하는 것이 아닙니다. Chuck의 순간 전압은 V(t) = V_DC + V_RF·sin(ωt)입니다. 파형은 여전히 13.56 MHz로 오르내리며(전자 진동을 통해 이온화 유지), 그 <b>평균값</b>이 0이 아니라 큰 (−) 값(V_DC)에 위치할 뿐입니다.</div>
+<p>Blocking Capacitor가 바로 이 분리를 가능하게 합니다: 진동하는(RF) 성분은 자유롭게 통과시켜 — RF Power가 Plasma에 계속 결합되고 전자가 계속 진동하게 하면서 — 순(net) DC 성분은 <b>통과시키지 않으므로</b>, 매 주기마다 축적된 DC 전하 불균형이 Capacitor 안쪽 Chuck 측에 V_DC로 갇히게 됩니다.</p>
+<div class="deep-eq">Powered Chuck의 V(t) = V_DC (크고 (−)인, 천천히 변하는 값)
+                       + V_RF · sin(2π × 13.56MHz × t)  (진동, 이온화 유지)</div>
+<p>이것은 이 Step 본문에서 다룬 절연막 표면 충전 문제와 <b>별개가 아니라 함께 일어나는</b> 효과입니다. 두 효과(절연 SiO₂ 표면에서의 이온화 유지, 그리고 Chuck 측 Self-Bias Offset 형성) 모두 <b>동일한</b> RF Drive에 의존합니다 — 같은 동전의 양면입니다. 만약 시스템이 순수 DC로만 동작한다면 둘 다 존재할 수 없습니다: Plasma는 표면 충전으로 붕괴되고(DC 모드 토글에서 확인 가능), V_DC를 정의하는 Flux Balance를 매 주기 "테스트"할 진동도 없게 됩니다.</p>`
+      }] },
+    { title:'Full RIE — Anisotropic Trench 형성',
+      body:`DC Self-Bias가 완전히 활성화된 상태에서, 이온은 Photoresist(PR) Mask 개구부를 통해 SiO₂를 <b>수직으로</b> 충격합니다.
+        <ul>
+          <li>방향성 이온 Flux → <b>수직 측벽</b></li>
+          <li>PR Mask가 덮인 SiO₂를 보호 — Mask 아래로 측면 Etch 없음</li>
+          <li>적절한 C₄F₈ : O₂ 비율로 높은 SiO₂/Si Selectivity 달성 가능</li>
+        </ul>
+        전체 반응: <code>SiO₂ + C₄F₈ + Ar → SiF₄↑ + CO₂↑ + COF₂↑</code>`,
+      hint:'🎯 Trench가 수직 측벽을 유지하며 깊어지는 것을 관찰하세요. Reset을 누르면 애니메이션이 다시 시작됩니다.' },
+    { title:'CCP Oxide Etching Key Takeaways',
+      body:`비대칭 CCP Oxide Etching 종합 정리.
+        <ul>
+          <li>비대칭 전극(A<sub>g</sub> ≫ A<sub>p</sub>) → 웨이퍼를 탑재한 Chuck에 <b>DC Self-Bias</b> → 고에너지 방향성 이온</li>
+          <li>RF가 절연 SiO₂ 위에서 Plasma를 유지 — DC는 표면 충전으로 인해 실패</li>
+          <li>C₄F₈ / Ar / O₂는 반응성 F· 화학과 물리적 Ar⁺ Sputtering을 결합</li>
+          <li>저압 + 높은 |V_DC| → <b>Anisotropic(수직) Etch</b> 프로파일</li>
+        </ul>`,
+      hint:'📋 모든 CCP Oxide Etching 개념 요약 — PE-CVD 증착 모듈과 비교해 보세요.' },
+  ],
+  hotspots:[
+    {n:'c4f8', title:'C₄F₈ Source', text:'Octafluorocyclobutane — 주요 식각 가스. Plasma 내 고리 개환으로 CF₃·, CF₂·, F· Radical 생성. F가 SiO₂와 반응 → 휘발성 SiF₄.'},
+    {n:'ar',   title:'Ar Source',   text:'아르곤, 비활성 가스. Ar⁺(40 amu)이 물리적 Sputtering을 제공하여 Si–O 결합 파괴를 도움. C₄F₈을 희석하고 Plasma를 안정화.'},
+    {n:'o2',   title:'O₂ Source',   text:'C/F 비율을 제어. O₂가 탄소를 소거(→ CO₂)하여 추가 F를 방출해 Etch Rate를 높이고, Fluorocarbon Polymer 증착을 억제.'},
+    {n:'mfc',  title:'Mass Flow Controller (MFC)', text:'각 가스의 sccm을 정밀 제어. C₄F₈ : Ar : O₂ 비율이 Etch Rate, Selectivity, 측벽 Passivation을 결정. 일반적인 값: C₄F₈ 10, Ar 200, O₂ 5 sccm.'},
+    {n:'showerhead', title:'Showerhead (Grounded — 대면적 A_g)', text:'접지된 전체-폭 전극 + 가스 분배기. 큰 면적이 상부 Sheath 전압을 낮게 유지. Chamber 접지에 연결.'},
+    {n:'sheath_top', title:'상부 Sheath (얇음 — 접지 측)', text:'접지된 Showerhead 근처의 얇은 Dark Space. A_g가 크기 때문에 Sheath 전압이 낮음 — 이온 Bombardment가 거의 없음.'},
+    {n:'plasma', title:'Bulk Plasma (준중성)', text:'전자, 이온, Radical이 공존. C₄F₈/Ar Plasma는 연한 청-자색으로 발광: CF₂* 밴드(260–290 nm) 및 Ar I 선(696–800 nm, 적색).'},
+    {n:'sheath_bot', title:'하부 Sheath (두꺼움 — DC Self-Bias)', text:'Powered Chuck 위의 두꺼운 Dark Space. V_DC(−200 ~ −500 V)와 V_RF가 합쳐져 이온에 수백~1000+ eV의 총 Sheath 전위를 제공.'},
+    {n:'wafer', title:'Si Wafer / SiO₂ Layer', text:'Si 기판(회색) 위 SiO₂(파란색)가 식각 대상.\n반응: SiO₂ + 4F· → SiF₄↑ + O₂↑\nIon-Enhanced: SiO₂ + CF₃⁺ → SiF₄↑ + CO₂↑'},
+    {n:'chuck', title:'Wafer Chuck (RF-Powered — 소면적 A_p)', text:'작은 면적의 RF-Powered 전극(A_p) — 웨이퍼 탑재. Blocking Capacitor를 통해 RF 연결. A_g ≫ A_p가 (−) DC Self-Bias를 구동: V_DC ∝ −(A_g/A_p)^2.5.'},
+    {n:'rf',    title:'RF Generator · 13.56 MHz → Chuck', text:'Wafer Chuck에 연결(PE-CVD Chamber와 반대). Blocking Capacitor(C_block)가 RF 경로 상에 있어 RF 전류는 계속 흐르면서 DC Self-Bias가 형성될 수 있도록 함.'},
+    {n:'mat',   title:'RF Matcher', text:'Plasma의 Impedance를 RF Generator의 50 Ω 출력에 정합시켜, 전달 Power를 최대화하고 반사를 최소화.'},
+    {n:'pump',  title:'Turbo Pump + Dry Vacuum Pump', text:'고진공 단계를 담당하는 Turbo Molecular Pump와 후단의 Dry Vacuum Pump(Roughing/배기 단계)로 구성. 두 장비가 함께 5–50 mTorr를 유지하고, 휘발성 Etch 부산물(SiF₄, bp −86°C, CO₂, COF₂)을 배기. 저압 → 방향성 이온 Flux.'},
+    {n:'he',    title:'후면 He 냉각 (Backside He Cooling)', text:'Flow Restrictor(Orifice)를 통해 웨이퍼 후면으로 He 가스를 순환시켜, 웨이퍼와 온도 제어되는 Chuck 사이의 열 접촉을 향상. Ion Bombardment로 인한 열 부하를 효과적으로 제거.'},
+  ],
+  takeawayHeader:'CCP Oxide Etching — Key Takeaways',
+  takeawaySubheader:'Capacitively Coupled Plasma · C₄F₈ + Ar + O₂ SiO₂ RIE Process Summary',
+  takeawayDesign:'Design Principles', takeawayParams:'Plasma Parameters',
+  takeawayWindow:'Typical Process Window', takeawayLimits:'Key Limitations',
+  principles:[
+    ['비대칭 전극 (A_g ≫ A_p)',     '넓은 접지 Showerhead vs 작은 RF-Powered Chuck → Chuck에 큰 (−) V_DC'],
+    ['Blocking Capacitor · 13.56 MHz', 'RF 통과·DC 차단 → Chuck에 전하를 V_DC로 가두면서 이온화 유지'],
+    ['높은 하부 Sheath 전압 (~수백 V)', '이온 에너지 ≈ q × |V_DC + V_RF| → 결합 파괴, 방향성 Etch'],
+    ['저압 (5–50 mTorr)',           '긴 평균 자유 행정 → 강한 방향성 이온 Flux → Anisotropic 프로파일'],
+    ['가스 비율  C₄F₈ : Ar : O₂',  'F/C 비율, Etch Rate, Selectivity, 측벽 Passivation 제어'],
+  ],
+  tHeaders:['파라미터','CCP Oxide Etch (RIE)','ICP'],
+  tRows:[
+    ['Plasma 밀도 (nₑ)',     '10⁸ – 10¹⁰ cm⁻³',   '10¹⁰ – 10¹² cm⁻³'],
+    ['이온화율',             '10⁻⁵ – 10⁻³',        '10⁻³ – 10⁻¹'],
+    ['C₄F₈ 해리율',         '30 – 70 %',          '> 80 %'],
+    ['전자 온도 (Tₑ)',       '2 – 5 eV',           '3 – 6 eV'],
+    ['DC Self-Bias (V_DC)', '−200 ~ −500 V',      '−10 ~ −100 V (Bias-Assisted)'],
+    ['이온 에너지 (Eᵢ)',     '200 – 1000+ eV',     '10 – 200 eV'],
+    ['공정 압력',           '5 – 50 mTorr',        '1 – 50 mTorr'],
+    ['RF 커플링 방식',       'Capacitive (E-mode)', 'Inductive (H-mode)'],
+  ],
+  pwItems:[
+    ['Etch Rate',             '100 – 600 nm/min'],
+    ['Selectivity (SiO₂:PR)', '2 – 6 : 1'],
+    ['Anisotropy',            '> 0.9  (수직에 가까운 측벽)'],
+    ['DC Self-Bias (V_DC)',   '−200 ~ −500 V (통상)'],
+  ],
+  limitLines:[
+    '• RF Power로 이온 Flux와 에너지가 연동 — 독립 제어 불가  ·  ICP/ECR 대비 낮은 Plasma 밀도',
+    '• V_DC는 A_g/A_p 면적비에 의존 — Chamber 구조가 달성 가능한 Bias 범위를 제한  ·  높은 V_DC는 Mask/하부막 Selectivity 저하 가능',
+  ],
+}};
+
+let lang = 'en';
+const L = () => T[lang];
+
+// ── Global state ──────────────────────────────────────────────
+let currentStep=0, particles=[], lights=[], impacts=[];
+let etchDepths={}, mode='RF', hoveredHotspot=null;
+let t0=performance.now(), lastT=t0;
+let step4DCProgress=0, step7DCDecay=0;
+
+// ── Hotspot rects ─────────────────────────────────────────────
+const HR=[
+  {n:'c4f8', rect:{x:G1S.x-4,y:G1S.y-4,w:G1S.w+8,h:G1S.h+8}},
+  {n:'o2',   rect:{x:G2S.x-4,y:G2S.y-4,w:G2S.w+8,h:G2S.h+8}},
+  {n:'ar',   rect:{x:G3S.x-4,y:G3S.y-4,w:G3S.w+8,h:G3S.h+8}},
+  {n:'mfc',  rect:{x:M1.cx-16,y:M1.cy-13,w:32,h:M3.cy+13-(M1.cy-13)}},
+  {n:'showerhead', rect:SH},
+  {n:'sheath_top', rect:ST},
+  {n:'plasma', rect:PL},
+  {n:'sheath_bot', rect:SB},
+  {n:'wafer', rect:{x:WF.x,y:WF.y-SIO2_MAX-PR_H-4,w:WF.w,h:WF.h+SIO2_MAX+PR_H+8}},
+  {n:'chuck', rect:SC},
+  {n:'mat',  rect:MAT},
+  {n:'rf',   rect:RFG},
+  {n:'pump', rect:{x:TP.x-4,y:TP.y-4,w:(DVP.x+DVP.w)-TP.x+8,h:DVP.h+8}},
+  {n:'he',   rect:{x:HEC.x-4,y:HEC_GLASS_CY-11,w:HEC.w+8,h:(HEC.y+HEC.h)-(HEC_GLASS_CY-11)+4}},
+];
+
+// ── Drawing helpers ───────────────────────────────────────────
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+function pipe(pts,col='#b3bac8',w=2.2){
+  ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.stroke();
+}
+function arw(x0,y0,x1,y1,col='#1d2436',w=1.2){
+  ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;
+  ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0),h=5.5;
+  ctx.beginPath();ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4));
+  ctx.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4));
+  ctx.closePath();ctx.fill();
+}
+function gnd(cx,cy){
+  ctx.strokeStyle='#1d2436';ctx.lineWidth=1.5;ctx.beginPath();
+  ctx.moveTo(cx,cy);ctx.lineTo(cx,cy+6);
+  ctx.moveTo(cx-10,cy+6);ctx.lineTo(cx+10,cy+6);
+  ctx.moveTo(cx-7,cy+10);ctx.lineTo(cx+7,cy+10);
+  ctx.moveTo(cx-4,cy+14);ctx.lineTo(cx+4,cy+14);
+  ctx.stroke();
+}
+function chem(formula,x,y,sz=11,col='#1d2436'){  ctx.fillStyle=col;
+  const bF=`bold ${sz}px ${FONT}`,sF=`bold ${Math.round(sz*.7)}px ${FONT}`,pF=`bold ${Math.round(sz*.75)}px ${FONT}`;
+  ctx.textAlign='left';ctx.textBaseline='middle';
+  const segs=[];let i=0;
+  while(i<formula.length){
+    const ch=formula[i];
+    if(/[A-Za-z]/.test(ch)){let s=ch;while(i+1<formula.length&&/[a-z]/.test(formula[i+1])){s+=formula[++i];}segs.push({t:'b',s});}
+    else if(/[0-9]/.test(ch))segs.push({t:'sub',s:ch});
+    else if(ch==='+'||ch==='-')segs.push({t:'sup',s:ch});
+    i++;
+  }
+  let tot=0;for(const s of segs){ctx.font=s.t==='b'?bF:s.t==='sub'?sF:pF;tot+=ctx.measureText(s.s).width;}
+  let cx=x-tot/2;
+  for(const s of segs){
+    ctx.font=s.t==='b'?bF:s.t==='sub'?sF:pF;
+    const oy=s.t==='sub'?sz*.30:s.t==='sup'?-sz*.32:0;
+    ctx.fillText(s.s,cx,y+oy);cx+=ctx.measureText(s.s).width;
+  }
+}
+
+// RF-ON electrode polarity oscillation (Steps 2-7): with the RF supply
+// driving the chuck, the instantaneous polarity of chuck vs. showerhead
+// flips every half-cycle. Returns +1 / -1 representing the chuck's
+// instantaneous polarity; the showerhead shows the complementary sign.
+function rfPolarity(t,freq=0.6){
+  return Math.sin(t*2*Math.PI*freq)>0 ? +1 : -1;
+}
+
+// ── Component renderers ───────────────────────────────────────
+function drawGasSrc(x,y,w,h,formula,sc){
+  rr(x,y,w,h,8);const g=ctx.createLinearGradient(x,y,x,y+h);g.addColorStop(0,'#fff');g.addColorStop(1,'#eef0f5');
+  ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#cdd2dd';ctx.lineWidth=1.2;ctx.stroke();
+  ctx.fillStyle=sc;ctx.fillRect(x+6,y+h-5,w-12,3);chem(formula,x+w/2,y+h/2-3,13,'#1d2436');
+}
+function drawMFC(cx,cy){
+  ctx.fillStyle='#fff';ctx.strokeStyle='#cdd2dd';ctx.lineWidth=1.2;rr(cx-15,cy-13,30,26,4);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#5a6479';ctx.lineWidth=1.3;ctx.beginPath();
+  ctx.moveTo(cx-7,cy-6);ctx.lineTo(cx+7,cy+6);ctx.lineTo(cx+7,cy-6);ctx.lineTo(cx-7,cy+6);ctx.closePath();ctx.stroke();
+}
+// Gas distribution per guideline layout: vertical BUS just right of the
+// chamber feeds a single line up into the showerhead; each gas line runs
+// BUS -> VALVE (⋈) -> gas-name BOX on the far-right edge.
+function drawGasSys(){
+  const eX=CH.x+CH.w-90;
+  // Bus: vertical line collecting the three rows, then up into showerhead
+  pipe([[GAS_BUS_X,M1.cy],[GAS_BUS_X,M3.cy]]);
+  pipe([[GAS_BUS_X,M1.cy],[eX,M1.cy],[eX,CH.y]]);
+  rr(eX-5,CH.y-4,10,8,2);ctx.fillStyle='#7c8499';ctx.fill();
+  // C4F8 row
+  pipe([[GAS_BUS_X,M1.cy],[M1.cx-15,M1.cy]]);drawMFC(M1.cx,M1.cy);pipe([[M1.cx+15,M1.cy],[G1S.x,M1.cy]]);
+  drawGasSrc(G1S.x,G1S.y,G1S.w,G1S.h,'C4F8','#6b2fa0');
+  // O2 row
+  pipe([[GAS_BUS_X,M2.cy],[M2.cx-15,M2.cy]]);drawMFC(M2.cx,M2.cy);pipe([[M2.cx+15,M2.cy],[G2S.x,M2.cy]]);
+  drawGasSrc(G2S.x,G2S.y,G2S.w,G2S.h,'O2','#e8553b');
+  // Ar row
+  pipe([[GAS_BUS_X,M3.cy],[M3.cx-15,M3.cy]]);drawMFC(M3.cx,M3.cy);pipe([[M3.cx+15,M3.cy],[G3S.x,M3.cy]]);
+  drawGasSrc(G3S.x,G3S.y,G3S.w,G3S.h,'Ar','#4a7ab0');
+}
+function drawChamberShell(){
+  ctx.save();ctx.shadowColor='rgba(40,50,80,0.10)';ctx.shadowBlur=14;ctx.shadowOffsetY=6;
+  rr(CH.x,CH.y,CH.w,CH.h,CH.r);
+  const g=ctx.createLinearGradient(CH.x,CH.y,CH.x,CH.y+CH.h);g.addColorStop(0,'#f6f7fb');g.addColorStop(1,'#e6e9f1');
+  ctx.fillStyle=g;ctx.fill();ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.5;rr(CH.x,CH.y,CH.w,CH.h,CH.r);ctx.stroke();
+  ctx.strokeStyle='#dadfeb';ctx.lineWidth=1;rr(CH.x+6,CH.y+6,CH.w-12,CH.h-12,CH.r-6);ctx.stroke();
+}
+// Showerhead — ALWAYS GROUNDED, full inner width (large A_g), gas distributor
+function drawShowerhead(plasmaCharge=0){
+  const g=ctx.createLinearGradient(SH.x,SH.y,SH.x,SH.y+SH.h);
+  g.addColorStop(0,'#c8cdd9');g.addColorStop(.5,'#a8aebd');g.addColorStop(1,'#7c8499');
+  ctx.fillStyle=g;rr(SH.x,SH.y,SH.w,SH.h,4);ctx.fill();
+  ctx.fillStyle='#3a4055';
+  const N=14, hy=SH.y+SH.h-4;
+  for(let i=0;i<N;i++){ctx.beginPath();ctx.arc(SH.x+14+i*(SH.w-28)/(N-1),hy,1.6,0,Math.PI*2);ctx.fill();}
+  if(plasmaCharge!==0){
+    ctx.fillStyle=plasmaCharge>0?B.red:B.blue;ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+    const sym=plasmaCharge>0?'+':'−';for(let i=0;i<11;i++)ctx.fillText(sym,SH.x+18+i*(SH.w-36)/10,SH.y+9);
+  }
+  ctx.fillStyle='rgba(255,255,255,0.72)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('⏚  GROUNDED — Large Aᵍ',SH.x+SH.w/2,SH.y+SH.h/2-1);
+}
+// Wafer Chuck — RF-POWERED via Blocking Capacitor, ~60% width (small A_p),
+// holds the wafer. Side fills represent the grounded chamber floor outside
+// the chuck.
+function drawChuck(charge){
+  ctx.fillStyle='rgba(170,180,196,.22)';
+  ctx.fillRect(inX,SC.y,SC.x-inX,SC.h);
+  ctx.fillRect(SC.x+SC.w,SC.y,(inX+inW)-(SC.x+SC.w),SC.h);
+  const g=ctx.createLinearGradient(SC.x,SC.y,SC.x,SC.y+SC.h);
+  g.addColorStop(0,'#505e7a');g.addColorStop(.5,'#7888a8');g.addColorStop(1,'#a8b4c8');
+  ctx.fillStyle=g;rr(SC.x,SC.y,SC.w,SC.h,4);ctx.fill();
+  ctx.fillStyle='rgba(79,109,240,.90)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('RF POWERED — Small Aₚ',SC.x+SC.w/2,SC.y+SC.h/2);
+  if(charge!==0){
+    ctx.fillStyle=charge>0?B.red:B.blue;ctx.font=`bold 12px ${FONT}`;
+    const sym=charge>0?'+':'−',Nc=5;
+    for(let i=0;i<Nc;i++)ctx.fillText(sym,SC.x+14+i*(SC.w-44)/(Nc-1),SC.y+SC.h/2);
+  }
+}
+// Flat wafer (steps 0-6): Si substrate with SiO2 layer on top, sitting on the chuck
+function drawWafer(){
+  ctx.fillStyle='#4a5470';ctx.fillRect(WF.x,WF.y,WF.w,WF.h);
+  const sy=WF.y-SIO2_MAX, my=sy-PR_H;
+  const sg=ctx.createLinearGradient(0,sy,0,WF.y);sg.addColorStop(0,'rgba(70,150,220,.72)');sg.addColorStop(1,'rgba(50,120,190,.85)');
+  ctx.fillStyle=sg;ctx.fillRect(WF.x,sy,WF.w,SIO2_MAX);
+  ctx.strokeStyle='rgba(60,130,200,.30)';ctx.lineWidth=.7;ctx.strokeRect(WF.x,sy,WF.w,SIO2_MAX);
+  // Photoresist (PR) mask — striped pattern (5 PR segments / 4 openings),
+  // present from the start, per the chamber-configuration guideline.
+  drawPRStripes(WF.x,my,WF.w,PR_H,true);
+  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('SiO₂',WF.x+28,sy+SIO2_MAX/2);
+  ctx.fillStyle='#9aa0b0';ctx.font=`9px ${FONT}`;ctx.textAlign='right';ctx.fillText('Si',WF.x+WF.w-5,WF.y+3);
+}
+// Striped PR mask pattern: 9 segments alternating PURPLE(PR)/WHITE(opening),
+// 5 PR blocks + 4 openings, matching the chamber-configuration guideline.
+// The center PR block carries the "PR" label.
+const PR_SEGMENTS=9;
+function drawPRStripes(x,y,w,h,labeled){
+  const segW=w/PR_SEGMENTS;
+  const prg=ctx.createLinearGradient(0,y,0,y+h);prg.addColorStop(0,'#7030A0');prg.addColorStop(1,'#5a1f82');
+  for(let i=0;i<PR_SEGMENTS;i++){
+    const sx=x+i*segW;
+    if(i%2===0){ // PR block (purple)
+      ctx.fillStyle=prg;ctx.fillRect(sx,y,segW,h);
+      if(labeled&&i===4){
+        ctx.fillStyle='rgba(255,255,255,.82)';ctx.font=`bold 8px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('PR',sx+segW/2,y+h/2);
+      }
+    }else{ // opening (white)
+      ctx.fillStyle='#ffffff';ctx.fillRect(sx,y,segW,h);
+      ctx.strokeStyle='rgba(112,48,160,.18)';ctx.lineWidth=.6;ctx.strokeRect(sx,y,segW,h);
+    }
+  }
+}
+// Wafer with trench (step 8): anisotropic etch into SiO2 through ALL of
+// the PR mask's striped openings (white segments 1,3,5,7 of the 9-segment
+// pattern). `eds` is an array indexed by segment number giving each
+// opening's etch depth; TRENCH_SEG carries the on-screen depth readout.
+const OPEN_SEGS=[1,3,5,7];
+const TRENCH_SEG=5;
+function drawWaferWithTrench(eds){
+  const sy=WF.y-SIO2_MAX, my=sy-PR_H;
+  const segW=WF.w/PR_SEGMENTS;
+  ctx.fillStyle='#4a5470';ctx.fillRect(WF.x,WF.y,WF.w,WF.h);
+  const sg=ctx.createLinearGradient(0,sy,0,WF.y);sg.addColorStop(0,'rgba(70,150,220,.82)');sg.addColorStop(1,'rgba(50,120,190,.92)');
+  // Base SiO2 layer across the full width
+  ctx.fillStyle=sg;ctx.fillRect(WF.x,sy,WF.w,SIO2_MAX);
+  // Cut each open segment's trench into the SiO2
+  for(const seg of OPEN_SEGS){
+    const tL=Math.round(WF.x+seg*segW), tR=Math.round(tL+segW);
+    const et=Math.min(eds[seg]||0,SIO2_MAX);
+    if(et<=0)continue;
+    ctx.fillStyle='#0c1020';ctx.fillRect(tL,sy,tR-tL,et);
+    ctx.strokeStyle='rgba(70,140,210,.45)';ctx.lineWidth=1;ctx.strokeRect(tL,sy,tR-tL,et);
+  }
+  // PR stripe pattern — purple PR blocks at even segments; odd segments are
+  // open (white-bordered outline only, so the trench/SiO2 beneath is visible)
+  const prg=ctx.createLinearGradient(0,my,0,my+PR_H);prg.addColorStop(0,'#7030A0');prg.addColorStop(1,'#5a1f82');
+  for(let i=0;i<PR_SEGMENTS;i++){
+    const sx=WF.x+i*segW;
+    if(i%2===0){
+      ctx.fillStyle=prg;ctx.fillRect(sx,my,segW,PR_H);
+      if(i===4){
+        ctx.fillStyle='rgba(255,255,255,.82)';ctx.font=`bold 8px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('PR',sx+segW/2,my+PR_H/2);
+      }
+    }else{
+      ctx.strokeStyle='rgba(112,48,160,.18)';ctx.lineWidth=.6;ctx.strokeRect(sx,my,segW,PR_H);
+    }
+  }
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('SiO₂',WF.x+28,sy+SIO2_MAX/2);
+  ctx.fillStyle='#8a90a0';ctx.font=`9px ${FONT}`;ctx.textAlign='right';ctx.fillText('Si',WF.x+WF.w-5,WF.y+3);
+  // Depth readout — shown on the primary tracked trench (TRENCH_SEG)
+  const etP=eds[TRENCH_SEG]||0;
+  if(etP>2){
+    const tL=Math.round(WF.x+TRENCH_SEG*segW);
+    const ax=tL-14;
+    ctx.strokeStyle='#e8553b';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(ax,sy);ctx.lineTo(ax,sy+etP);ctx.stroke();
+    arw(ax,sy+5,ax,sy,'#e8553b',.9);arw(ax,sy+etP-5,ax,sy+etP,'#e8553b',.9);
+    ctx.fillStyle='#e8553b';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText(`${Math.round(etP/SIO2_MAX*100)}%`,ax-3,sy+etP/2);
+  }
+}
+// Blocking capacitor symbol — on the wire from the RF Matcher down to the chuck
+function drawBlockingCap(){
+  const {cx,cy}=BCAP;
+  ctx.strokeStyle='#5a6479';ctx.lineWidth=2.2;
+  ctx.beginPath();ctx.moveTo(cx-11,cy-6);ctx.lineTo(cx+11,cy-6);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx-11,cy+6);ctx.lineTo(cx+11,cy+6);ctx.stroke();
+  ctx.fillStyle='#6b7388';ctx.font=`9px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('C',cx+14,cy-5);ctx.font=`7.5px ${FONT}`;ctx.fillText('block',cx+14,cy+5);
+}
+// RF Matcher (LEFT) + RF Generator (RIGHT), connected horizontally.
+// DC Blocking Capacitor sits above the Matcher; its output wire routes
+// right to the powered Wafer Chuck's RF feed point at the chamber's
+// bottom-right corner.
+function drawACModule(active,t){
+  const matCX=MAT.x+MAT.w/2, chCY=SC.y+SC.h/2;
+  // Matcher <-> Generator horizontal link
+  pipe([[MAT.x+MAT.w,MAT.y+MAT.h/2],[RFG.x,RFG.y+RFG.h/2]],'#5a6479',1.5);
+  // Matcher -> Blocking Capacitor (up) -> right -> chuck RF feed (chamber wall)
+  pipe([[matCX,MAT.y],[matCX,BCAP.cy+11]],'#5a6479',1.5);
+  drawBlockingCap();
+  pipe([[matCX,BCAP.cy-11],[matCX,chCY],[CH.x+CH.w,chCY]],'#5a6479',1.5);
+  ctx.fillStyle='#7c8499';rr(CH.x+CH.w-4,chCY-4,10,8,2);ctx.fill();
+  // RF Matcher box
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(MAT.x,MAT.y,MAT.w,MAT.h,MAT.r);ctx.fill();
+  ctx.save();rr(MAT.x,MAT.y,MAT.w,MAT.h,MAT.r);ctx.clip();ctx.fillStyle=B.green;ctx.fillRect(MAT.x,MAT.y,MAT.w,4);ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(MAT.x,MAT.y,MAT.w,MAT.h,MAT.r);ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('RF Matcher',MAT.x+MAT.w/2,MAT.y+15);
+  ctx.strokeStyle=active?B.green:'#c8cdd9';ctx.lineWidth=1.4;ctx.beginPath();
+  const ph=active?t*6:0,sx=MAT.x+12,sy2=MAT.y+29,sw=MAT.w-24;
+  for(let i=0;i<=sw;i++){const y=sy2+5*Math.sin((i/sw)*Math.PI*4+ph);i===0?ctx.moveTo(sx+i,y):ctx.lineTo(sx+i,y);}ctx.stroke();
+  // RF Generator box
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(RFG.x,RFG.y,RFG.w,RFG.h,RFG.r);ctx.fill();
+  ctx.save();rr(RFG.x,RFG.y,RFG.w,RFG.h,RFG.r);ctx.clip();ctx.fillStyle=B.purple;ctx.fillRect(RFG.x,RFG.y,RFG.w,5);ctx.restore();
+  ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(RFG.x,RFG.y,RFG.w,RFG.h,RFG.r);ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('RF Generator',RFG.x+RFG.w/2,RFG.y+17);
+  ctx.fillStyle=active?B.purple:'#a8aebd';ctx.font=`9.5px ${MONO}`;ctx.fillText(active?'13.56 MHz · ON':'13.56 MHz · OFF',RFG.x+RFG.w/2,RFG.y+32);
+}
+// Turbo Pump + Dry Vacuum Pump — exhaust from the chamber's bottom-left
+// corner, routed down to the bottom row (left of He Cooling).
+function drawPumpSystem(t){
+  const cx0=CH.x, cy0=CH.y+CH.h;
+  pipe([[cx0,cy0-30],[cx0-18,cy0-10],[cx0-18,TP.y+TP.h/2],[TP.x,TP.y+TP.h/2]],'#b3bac8',2.5);
+  // Turbo Pump (pill shape)
+  ctx.fillStyle='#fff';ctx.strokeStyle='#1d2436';ctx.lineWidth=1.3;rr(TP.x,TP.y,TP.w,TP.h,TP.r);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#6b7388';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(TP.x+18,TP.y+TP.h/2,8,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();for(let k=0;k<3;k++){const a=t*2+k*Math.PI*2/3;ctx.moveTo(TP.x+18,TP.y+TP.h/2);ctx.lineTo(TP.x+18+6.5*Math.cos(a),TP.y+TP.h/2+6.5*Math.sin(a));}ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 10px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Turbo',TP.x+TP.w/2+8,TP.y+TP.h/2-6);ctx.fillText('Pump',TP.x+TP.w/2+8,TP.y+TP.h/2+6);
+  // Turbo Pump -> Dry Vacuum Pump
+  pipe([[TP.x+TP.w,TP.y+TP.h/2],[DVP.x,DVP.y+DVP.h/2]],'#b3bac8',2.5);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(DVP.x,DVP.y,DVP.w,DVP.h,DVP.r);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#6b7388';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(DVP.x+18,DVP.y+DVP.h/2,8,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();for(let k=0;k<3;k++){const a=-t*1.5+k*Math.PI*2/3;ctx.moveTo(DVP.x+18,DVP.y+DVP.h/2);ctx.lineTo(DVP.x+18+6.5*Math.cos(a),DVP.y+DVP.h/2+6.5*Math.sin(a));}ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('Dry',DVP.x+32,DVP.y+DVP.h/2-12);ctx.fillText('Vacuum',DVP.x+32,DVP.y+DVP.h/2);ctx.fillText('Pump',DVP.x+32,DVP.y+DVP.h/2+12);
+}
+// Ground connection — top-left of the chamber, connects to the
+// grounded showerhead / chamber wall.
+function drawGndConn(){pipe([[GND_X,CH.y],[GND_X,CH.y-22]],'#1d2436',1.5);gnd(GND_X,CH.y-22-14);}
+// Backside He Cooling — directly below the powered chuck's center,
+// connected via a flow-restrictor (orifice) symbol.
+function drawHeCooling(){
+  const cx=SC.x+SC.w/2;
+  pipe([[cx,SC.y+SC.h],[cx,HEC.y]],'#5a6479',1.8);
+  // Restrictor / orifice symbol (hourglass)
+  ctx.strokeStyle='#5a6479';ctx.lineWidth=1.4;
+  rr(cx-7,HEC_GLASS_CY-7,14,14,2);ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx-5,HEC_GLASS_CY-5);ctx.lineTo(cx+5,HEC_GLASS_CY+5);
+  ctx.moveTo(cx+5,HEC_GLASS_CY-5);ctx.lineTo(cx-5,HEC_GLASS_CY+5);
+  ctx.stroke();
+  // He box
+  ctx.fillStyle='#fff';ctx.strokeStyle='#c4cad8';ctx.lineWidth=1.3;rr(HEC.x,HEC.y,HEC.w,HEC.h,HEC.r);ctx.fill();ctx.stroke();
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('He',HEC.x+HEC.w/2,HEC.y+HEC.h/2);
+  ctx.fillStyle=B.muted;ctx.font=`9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'후면 He 냉각':'Backside He Cooling',HEC.x+HEC.w/2,HEC.y+HEC.h+4);
+}
+function drawGlow(i,t){
+  if(i<=0)return;
+  const px=PL.x+PL.w/2,py=PL.y+PL.h/2,pr=Math.max(PL.w,PL.h)*.7,br=.92+.08*Math.sin(t*1.8),a=i*br;
+  const g=ctx.createRadialGradient(px,py,0,px,py,pr);
+  g.addColorStop(0,`rgba(220,230,255,${.90*a})`);g.addColorStop(.35,`rgba(200,218,255,${.82*a})`);
+  g.addColorStop(.65,`rgba(215,205,245,${.68*a})`);g.addColorStop(1,`rgba(185,182,225,${.45*a})`);
+  ctx.fillStyle=g;ctx.fillRect(PL.x,PL.y,PL.w,PL.h);
+}
+// Asymmetric sheaths: TOP (thin, grounded showerhead side) and BOTTOM
+// (thick, grows with DC self-bias on the powered chuck side).
+function drawSheaths(intensity,dcProg=0){
+  if(intensity<=0)return;
+  const aT=0.38*intensity;
+  const sT=ctx.createLinearGradient(0,ST.y,0,ST.y+ST.h);sT.addColorStop(0,`rgba(40,45,65,${aT})`);sT.addColorStop(1,'rgba(40,45,65,.03)');
+  ctx.fillStyle=sT;ctx.fillRect(ST.x,ST.y,ST.w,ST.h);
+  const extraH=dcProg*24;
+  const bH=SB.h+extraH, bY=SB.y+SB.h-bH;
+  const aB=(0.48+0.34*dcProg)*intensity;
+  const sB=ctx.createLinearGradient(0,bY,0,bY+bH);sB.addColorStop(0,'rgba(28,33,52,.02)');sB.addColorStop(1,`rgba(28,33,52,${aB})`);
+  ctx.fillStyle=sB;ctx.fillRect(SC.x-5,bY,SC.w+10,bH);
+}
+function drawFieldArrows(dir,al=.50){
+  const N=6, sx=SC.x+22, span=SC.w-44;
+  const yT=SB.y+3, yB=SB.y+SB.h-3;
+  for(let i=0;i<N;i++){const x=sx+i*span/(N-1);dir>0?arw(x,yT,x,yB,`rgba(60,70,95,${al})`,.9):arw(x,yB,x,yT,`rgba(60,70,95,${al})`,.9);}
+}
+function drawSideLabels(){
+  ctx.fillStyle=B.muted;ctx.font=`11px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+  ctx.fillText('Showerhead',CH.x-8,SH.y+SH.h/2);ctx.fillText('Top Sheath',CH.x-8,ST.y+ST.h/2);
+  ctx.fillText('Plasma',CH.x-8,PL.y+PL.h/2);ctx.fillText('Bot Sheath',CH.x-8,SB.y+SB.h/2);
+  ctx.fillText('Wafer Chuck',CH.x-8,SC.y+SC.h/2);
+}
+// Area-ratio annotation (steps 1 & 2): shows A_g (showerhead) vs A_p (chuck)
+function drawAreaAnnotation(){
+  const ay1=SH.y+SH.h/2, ay2=SC.y+SC.h/2;
+  const rx=CH.x+CH.w+8;
+  ctx.strokeStyle='rgba(100,130,170,.35)';ctx.lineWidth=.8;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(inX+inW,ay1);ctx.lineTo(rx+5,ay1);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(SC.x+SC.w,ay2);ctx.lineTo(rx+5,ay2);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle='rgba(100,130,170,.4)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(rx+5,ay1);ctx.lineTo(rx+5,ay2);ctx.stroke();
+  ctx.fillStyle='#4a5570';ctx.font=`bold 9.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('Aᵍ (GND)',rx+9,ay1);
+  ctx.fillStyle='#c0442a';ctx.fillText('Aₚ (RF)',rx+9,ay2);
+  const midY=(ay1+ay2)/2;
+  ctx.fillStyle='#5a2080';ctx.font=`bold 10px ${FONT}`;
+  ctx.fillText('Aᵍ / Aₚ',rx+9,midY-9);ctx.fillText('≈ 1.7 ×',rx+9,midY+7);
+}
+// V_DC digital meter (top-left overlay)
+function drawDCMeter(vdc){
+  const mx=22,my=22,mw=160,mh=44;
+  ctx.fillStyle='#111827';rr(mx,my,mw,mh,7);ctx.fill();
+  ctx.strokeStyle='#1e3048';ctx.lineWidth=.8;rr(mx,my,mw,mh,7);ctx.stroke();
+  ctx.fillStyle='#5a7890';ctx.font=`9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText(L().vdcLabel,mx+mw/2,my+5);
+  const built=Math.abs(vdc)>5;
+  ctx.fillStyle=built?'#4ade80':'#505060';ctx.font=`bold 16px ${MONO}`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(`${vdc.toFixed(0)} V`,mx+mw/2,my+mh/2+5);
+}
+// V_electrode(t) waveform (Step 4 only) — V_RF·sin(wt) + V_DC offset.
+// V_RF amplitude (380V) is intentionally larger than the maximum |V_DC|
+// (350V): even at full self-bias, the waveform's positive peak sits a
+// little above 0V (the brief instant each cycle when the electron flux
+// can balance the ion flux — this is what defines the equilibrium V_DC).
+// The whole sine wave shifts down as V_DC builds; it is never clipped or
+// half-rectified.
+function drawVoltageWaveform(dcOff,t){
+  const gx=22,gy=H-170,gw=215,gh=140;
+  ctx.fillStyle='#111827';rr(gx,gy,gw,gh,8);ctx.fill();
+  ctx.strokeStyle='#1e3048';ctx.lineWidth=.8;rr(gx,gy,gw,gh,8);ctx.stroke();
+  ctx.fillStyle='#7eb5d6';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'V_electrode (Powered Chuck)':'V_electrode (powered chuck)',gx+8,gy+8);
+  const ax=gx+22, ay0=gy+26, aw=gw-32, ah=gh-40;
+  const rfA=380; // V_RF amplitude (volts) — kept > max |V_DC| so the peak can cross 0V
+  const span=rfA + (350+rfA); // 0..+rfA headroom, plus -(350+rfA) at full bias
+  const vScale=ah/span;
+  const zeroY=ay0+rfA*vScale; // y-position of the 0 V reference line
+  ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=.8;
+  ctx.beginPath();ctx.moveTo(ax,zeroY);ctx.lineTo(ax+aw,zeroY);ctx.stroke();
+  ctx.strokeStyle='#4f8ff0';ctx.lineWidth=1.5;ctx.beginPath();
+  for(let i=0;i<=aw;i++){
+    const ph=(i/aw)*Math.PI*6+t*3.2;
+    const vy=zeroY-(rfA*Math.sin(ph)+dcOff)*vScale;
+    i===0?ctx.moveTo(ax+i,vy):ctx.lineTo(ax+i,vy);
+  }
+  ctx.stroke();
+  if(Math.abs(dcOff)>8){
+    const dcY=zeroY-dcOff*vScale;
+    ctx.strokeStyle='#f06060';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(ax,dcY);ctx.lineTo(ax+aw,dcY);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#f06060';ctx.font=`bold 9.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='bottom';
+    ctx.fillText(`V_DC = ${dcOff.toFixed(0)} V`,ax+3,dcY-2);
+  }
+  ctx.fillStyle='rgba(255,255,255,.45)';ctx.font=`9px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+  ctx.fillText('0',ax-3,zeroY);
+  ctx.fillStyle='#4f8ff0';ctx.textAlign='right';ctx.textBaseline='bottom';
+  ctx.fillText('V_RF (13.56 MHz)',ax+aw,gy+gh-4);
+}
+function chrome(rfActive,t){
+  ctx.fillStyle=B.bg;ctx.fillRect(0,0,W,H);drawLogo(.50);
+  drawGasSys();drawChamberShell();drawACModule(rfActive,t);drawPumpSystem(t);drawGndConn();drawHeCooling();
+}
+
+// ── Particle system ───────────────────────────────────────────
+function spawn(type,x,y,vx=null,vy=null){
+  particles.push({type,x,y,vx:vx!==null?vx:(Math.random()-.5)*.4,vy:vy!==null?vy:(Math.random()-.5)*.4,age:0});
+  return particles[particles.length-1];
+}
+function rndPt(){return{x:PL.x+10+Math.random()*(PL.w-20),y:PL.y+8+Math.random()*(PL.h-16)};}
+function clr(){particles=[];lights=[];impacts=[];}
+function updP(p,dt,o){
+  const d=SP[p.type];p.age+=dt;
+  if(d.cat==='byproduct'){
+    p.vy-=0.55;p.vx+=(Math.random()-.5)*.08;p.vx*=.97;p.vy*=.97;
+    return p.age<1.8;
+  }
+  if(d.q!==0&&o.fieldActive){
+    // Bottom sheath (powered chuck, DC self-bias) is much stronger than
+    // the top sheath (grounded showerhead).
+    let boost=1;
+    if(p.y<ST.y+ST.h) boost=2.5;
+    else if(p.y>SB.y) boost=5.0;
+    const f=d.q*o.fieldDir*o.fieldStrength*boost;
+    p.vy+=f/Math.max(d.m,5e-4)*dt*.5;
+  }
+  // Mass-independent downward drift toward the powered chuck (bottom) —
+  // represents the strong directional acceleration across the thick
+  // bottom sheath for ions, and general transport toward the etch front
+  // for neutral radicals; without this, species drift far too slowly
+  // under the mass-scaled field force above to reach the surface within
+  // an observable timescale.
+  if(o.driftBot&&(d.cat==='ion'||d.cat==='radical')){
+    const target=d.cat==='ion'?2.0:1.2;
+    if(p.vy<target)p.vy+=(target-p.vy)*Math.min(1,dt*1.2);
+  }
+  const br=o.brownian??0.08,dr=o.drag??0.96;
+  if(d.cat==='neutral'||d.cat==='radical'){p.vx+=(Math.random()-.5)*br;p.vy+=(Math.random()-.5)*br;}
+  else p.vx+=(Math.random()-.5)*(br*.5);
+  p.vx*=dr;p.vy*=dr;
+  const mx=d.cat==='electron'?4.5:d.cat==='ion'?2.4:1.0,sp=Math.hypot(p.vx,p.vy);
+  if(sp>mx){p.vx*=mx/sp;p.vy*=mx/sp;}
+  p.x+=p.vx;p.y+=p.vy;
+  if(p.x<PL.x+4){p.x=PL.x+4;p.vx=Math.abs(p.vx)*.4;}
+  if(p.x>PL.x+PL.w-4){p.x=PL.x+PL.w-4;p.vx=-Math.abs(p.vx)*.4;}
+  // Top boundary (grounded showerhead side)
+  if(p.y<ST.y+2){
+    if(d.cat==='electron'&&o.absorbElectronTop)return false;
+    if(d.cat==='ion'&&o.absorbIonTop){o.onImpact&&o.onImpact(p,'top');return false;}
+    p.y=ST.y+2;p.vy=Math.abs(p.vy)*.4;
+  }
+  // Bottom boundary (powered chuck / SiO2 surface)
+  if(p.y>SB.y+SB.h-2){
+    if(d.cat==='ion'&&o.absorbIonBot){o.onImpact&&o.onImpact(p,'bot');return false;}
+    if(d.cat==='electron'&&o.absorbElectronBot)return false;
+    if(d.cat==='radical'&&o.absorbRadBot){o.onImpact&&o.onImpact(p,'bot');return false;}
+    p.y=SB.y+SB.h-2;p.vy=-Math.abs(p.vy)*.4;
+  }
+  return true;
+}
+function drawParts(){
+  for(const p of particles){
+    const d=SP[p.type];
+    if(d.cat==='byproduct'){ctx.save();ctx.globalAlpha=Math.max(0,1-p.age/1.8);chem(d.f,p.x,p.y,d.sz,d.c);ctx.restore();}
+    else chem(d.f,p.x,p.y,d.sz,d.c);
+  }
+}
+function emitL(x,y,col='rgba(255,220,200,1)',life=.6){lights.push({x,y,col,life,maxLife:life,r:0});}
+function updL(dt){for(let i=lights.length-1;i>=0;i--){const Lp=lights[i];Lp.life-=dt;Lp.r+=30*dt;if(Lp.life<=0)lights.splice(i,1);}}
+function drawL(){
+  for(const Lp of lights){const a=Lp.life/Lp.maxLife,g=ctx.createRadialGradient(Lp.x,Lp.y,0,Lp.x,Lp.y,Lp.r);
+    g.addColorStop(0,Lp.col.replace('1)',`${a})`));g.addColorStop(1,Lp.col.replace('1)','0)'));
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(Lp.x,Lp.y,Lp.r,0,Math.PI*2);ctx.fill();}
+}
+function addImp(x,y){impacts.push({x,y,life:.4,maxLife:.4});}
+function updImp(dt){for(let i=impacts.length-1;i>=0;i--){impacts[i].life-=dt;if(impacts[i].life<=0)impacts.splice(i,1);}}
+function drawImp(){
+  for(const I of impacts){const a=I.life/I.maxLife;ctx.strokeStyle=`rgba(232,85,59,${a})`;ctx.lineWidth=1.4;
+    ctx.beginPath();for(let k=0;k<8;k++){const ag=k*Math.PI*2/8,r0=4,r1=4+(1-a)*12;ctx.moveTo(I.x+r0*Math.cos(ag),I.y+r0*Math.sin(ag));ctx.lineTo(I.x+r1*Math.cos(ag),I.y+r1*Math.sin(ag));}ctx.stroke();}
+}
+function getVdc(){
+  if(currentStep===2) return 0;
+  if(currentStep===3) return -350*step4DCProgress;
+  if(currentStep===6) return mode==='RF'?-350:0;
+  return (currentStep>=4)?-350:0;
+}
+function setupStep(i){
+  clr();etchDepths={};step4DCProgress=0;step7DCDecay=0;
+  const ions=['CF3+','Ar+','CF2+'];
+  if(i===1){
+    // Step 2 (gas fill): starts empty, fills via showerhead spawn
+  }else if(i>=2){
+    for(let k=0;k<22;k++){const p=rndPt(),r=Math.random();spawn(r<.35?'C4F8':r<.65?'Ar':'O2',p.x,p.y);}
+    for(let k=0;k<6;k++){const p=rndPt();spawn('CF3',p.x,p.y);}
+    for(let k=0;k<5;k++){const p=rndPt();spawn('e-',p.x,p.y);}
+    for(let k=0;k<3;k++){const p=rndPt();spawn(ions[k%3],p.x,p.y);}
+  }
+  renderStepCtrl(i);
+}
+
+// ── Step renderers ────────────────────────────────────────────
+// steps[0]=S->s1, steps[1]=1->s2, steps[2]=2->s3, steps[3]=3->s4 (DC Self-Bias),
+// steps[4]=4->s5, steps[5]=5->s6, steps[6]=6->s7 (DC/RF), steps[7]=7->s8 (RIE trench),
+// steps[8]=K->s9 (Key Takeaways)
+
+function s1(dt,t){
+  chrome(true,t);drawGlow(1,t);drawSheaths(1,0);drawShowerhead();drawChuck(0);drawWafer();drawSideLabels();drawAreaAnnotation();
+  if(hoveredHotspot){
+    const r=hoveredHotspot.rect;ctx.strokeStyle=B.purple;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+    rr(r.x-3,r.y-3,r.w+6,r.h+6,6);ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.fillStyle='rgba(60,70,95,.42)';ctx.font=`13px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('Plasma',PL.x+PL.w/2,PL.y+PL.h/2);
+}
+let t2=0;
+function s2(dt,t){
+  chrome(false,t);drawShowerhead();drawChuck(0);drawWafer();drawSideLabels();drawAreaAnnotation();
+  if(particles.length<75&&Math.random()<.20){
+    const x=SH.x+20+Math.random()*(SH.w-40),y=SH.y+SH.h+4,r=Math.random();
+    const p=spawn(r<.35?'C4F8':r<.65?'Ar':'O2',x,y);p.vy=.15+Math.random()*.2;
+  }
+  particles=particles.filter(p=>updP(p,dt,{fieldActive:false,brownian:.30,drag:.984}));
+  drawParts();
+  // Width markers
+  const markerY=SH.y-6;
+  ctx.strokeStyle='rgba(100,130,180,.55)';ctx.lineWidth=1;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(inX,markerY);ctx.lineTo(inX+inW,markerY);ctx.stroke();
+  ctx.strokeStyle='rgba(200,80,60,.55)';
+  ctx.beginPath();ctx.moveTo(SC.x,SC.y+SC.h+6);ctx.lineTo(SC.x+SC.w,SC.y+SC.h+6);ctx.stroke();
+  ctx.setLineDash([]);
+  arw(inX+2,markerY,inX+14,markerY,'rgba(100,130,180,.7)',1);
+  arw(inX+inW-2,markerY,inX+inW-14,markerY,'rgba(100,130,180,.7)',1);
+  arw(SC.x+2,SC.y+SC.h+6,SC.x+14,SC.y+SC.h+6,'rgba(200,80,60,.7)',1);
+  arw(SC.x+SC.w-2,SC.y+SC.h+6,SC.x+SC.w-14,SC.y+SC.h+6,'rgba(200,80,60,.7)',1);
+  ctx.fillStyle='rgba(80,110,160,.8)';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText('Aᵍ (grounded, full width)',inX+inW/2,markerY-2);
+  ctx.fillStyle='rgba(180,60,40,.85)';ctx.textBaseline='top';
+  ctx.fillText('Aₚ (RF-powered, 60%)',SC.x+SC.w/2,SC.y+SC.h+9);
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().molCount}: ${particles.length}`,22,22);
+  const pct=Math.min(particles.length/75,1);
+  ctx.fillStyle=B.border;ctx.fillRect(22,38,130,5);ctx.fillStyle=B.purple;ctx.fillRect(22,38,130*pct,5);
+}
+let t3=0;
+function s3(dt,t){
+  chrome(true,t);drawGlow(.55,t);drawSheaths(.60,0);drawFieldArrows(+1,.35);
+  {const pol=rfPolarity(t);drawShowerhead(-pol);drawChuck(pol);}
+  drawWafer();drawSideLabels();drawDCMeter(0);
+  particles=particles.filter(p=>updP(p,dt,{fieldActive:true,fieldDir:+1,fieldStrength:.18}));
+  t3+=dt;if(t3>.24){t3=0;
+    const ns=particles.filter(p=>SP[p.type].cat==='neutral');
+    if(ns.length>0){
+      const tgt=ns[Math.floor(Math.random()*ns.length)],idx=particles.indexOf(tgt);
+      const isC4F8=tgt.type==='C4F8',isAr=tgt.type==='Ar';
+      if(isC4F8){particles.splice(idx,1);spawn(Math.random()<.5?'CF3':'CF2',tgt.x-4,tgt.y).vx=-.5;spawn('F',tgt.x+5,tgt.y-2).vx=.6;}
+      else if(isAr){particles.splice(idx,1);spawn('Ar+',tgt.x,tgt.y);spawn('e-',tgt.x+4,tgt.y-3);}
+      else{particles.splice(idx,1);spawn('O',tgt.x-3,tgt.y).vx=-.5;spawn('O',tgt.x+3,tgt.y).vx=.5;}
+      emitL(tgt.x,tgt.y,'rgba(220,230,255,1)',.4);
+    }
+  }
+  updL(dt);drawL();drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(lang==='ko'?'Plasma 점화 중 — V_DC = 0 V (Bias 미형성)':'Plasma igniting — V_DC = 0 V (no bias yet)',22,72);
+}
+let t4=0;
+function s4(dt,t){
+  chrome(true,t);
+  step4DCProgress=Math.min(step4DCProgress+dt*.115,1);
+  const vdc=-350*step4DCProgress;
+  drawGlow(.80,t);drawSheaths(.80,step4DCProgress);
+  {const pol=rfPolarity(t);
+   const chuckCharge=step4DCProgress>.5?-1:pol;
+   drawShowerhead(-chuckCharge);drawChuck(chuckCharge);}
+  drawWafer();drawSideLabels();
+  drawDCMeter(vdc);drawVoltageWaveform(vdc,t);
+  // Electron-excess arrows: showing the asymmetric flux toward the small chuck
+  if(step4DCProgress>.08){
+    const al=Math.min(step4DCProgress*1.4,1);
+    ctx.save();ctx.globalAlpha=al;
+    const midX=PL.x+PL.w/2+55;
+    arw(midX,PL.y+22,midX,SB.y-4,'#3a7ad6',2.2);
+    ctx.fillStyle='#3a7ad6';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+    ctx.fillText(lang==='ko'?'전자 多':'more e⁻',midX+7,(PL.y+SB.y)/2);
+    ctx.globalAlpha=al*.28;
+    const midX2=PL.x+PL.w/2-55;
+    arw(midX2,PL.y+PL.h-22,midX2,ST.y+ST.h+4,'#3a7ad6',1.2);
+    ctx.globalAlpha=1;ctx.restore();
+  }
+  // Blocking capacitor charging indicator
+  if(step4DCProgress>.15){
+    const al=Math.min((step4DCProgress-.15)/.85,1);
+    ctx.save();ctx.globalAlpha=al;
+    ctx.fillStyle='#f06060';ctx.font=`bold 9px ${FONT}`;ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText(`−${Math.round(step4DCProgress*60)} μC`,BCAP.cx-16,BCAP.cy);
+    ctx.restore();
+  }
+  particles=particles.filter(p=>updP(p,dt,{fieldActive:true,fieldDir:+1,fieldStrength:.22}));
+  t4+=dt;if(t4>.18){t4=0;
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<7){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<6){const r=rndPt();spawn(Math.random()<.5?'CF3+':'Ar+',r.x,r.y);}
+  }
+  updL(dt);drawL();drawParts();
+  // Koenig-Maissel label
+  if(step4DCProgress>.55){
+    const al=Math.min((step4DCProgress-.55)/.45,1);
+    ctx.save();ctx.globalAlpha=al*0.85;
+    ctx.fillStyle='#5a2080';ctx.font=`bold 10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillText(L().koenig,22,72);
+    ctx.restore();
+  }
+}
+
+let t5=0;
+function s5(dt,t){
+  chrome(true,t);const vdc=getVdc();
+  drawGlow(.85,t);drawSheaths(.95,1.0);drawFieldArrows(+1,.50);
+  {const pol=rfPolarity(t);drawShowerhead(-pol);drawChuck(pol);}
+  drawWafer();drawSideLabels();drawDCMeter(vdc);
+  const opts={fieldActive:true,fieldDir:+1,fieldStrength:.40,absorbIonBot:true,absorbElectronTop:true,
+    onImpact:(p,w)=>{if(w==='bot')addImp(p.x,SB.y+SB.h-3);}};
+  particles=particles.filter(p=>updP(p,dt,opts));
+  t5+=dt;if(t5>.14){t5=0;
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<10){const r=rndPt();spawn(Math.random()<.5?'CF3+':'Ar+',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<6){const r=rndPt();spawn('e-',r.x,r.y);}
+  }
+  updImp(dt);drawParts();drawImp();
+  const bH=SB.h+24, bY=SB.y+SB.h-bH;
+  ctx.fillStyle='rgba(232,85,59,.75)';ctx.font=`bold 9.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'▶ 두꺼운 Sheath':'▶ Thick sheath',SC.x+SC.w+7,(bY+bY+bH)/2);
+  ctx.fillStyle='rgba(100,140,180,.75)';
+  ctx.fillText(lang==='ko'?'▶ 얇은 Sheath':'▶ Thin sheath',SH.x+SH.w+7,ST.y+ST.h/2);
+  ctx.fillStyle=B.muted;ctx.font=`10px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(L().ionEnergyLabel,22,72);
+}
+let t6=0;
+function s6(dt,t){
+  chrome(true,t);const vdc=getVdc();
+  drawGlow(.90,t);drawSheaths(.95,1.0);
+  {const pol=rfPolarity(t);drawShowerhead(-pol);drawChuck(pol);}
+  drawWafer();drawSideLabels();drawDCMeter(vdc);
+  const surfY=SB.y+SB.h-2;
+  const opts={fieldActive:true,fieldDir:+1,fieldStrength:.38,absorbIonBot:true,absorbRadBot:true,
+    onImpact:(p,w)=>{
+      if(w!=='bot')return;
+      addImp(p.x,surfY);emitL(p.x,surfY,'rgba(200,230,255,1)',.3);
+      if(Math.random()<.55){const bp=Math.random()<.5?'SiF4':'CO2';spawn(bp,p.x,surfY,(Math.random()-.5)*.6,-1.5-Math.random()*.6);}
+    }};
+  particles=particles.filter(p=>updP(p,dt,opts));
+  t6+=dt;if(t6>.14){t6=0;
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<9){const r=rndPt();spawn(Math.random()<.5?'CF3+':'Ar+',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<5){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='radical').length<8){const r=rndPt();spawn(Math.random()<.5?'CF3':'F',r.x,r.y);}
+    if(Math.random()<.55){const r=rndPt();emitL(r.x,r.y,'rgba(210,225,255,1)',.4);}
+  }
+  updL(dt);updImp(dt);drawParts();drawL();drawImp();
+  // Equation row placed BELOW the V_DC meter (x:22-182, y:22-66)
+  const eqY=86;ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(lang==='ko'?'RIE:':'RIE:',22,eqY);
+  chem('SiO2',62,eqY,12,'#1d2436');ctx.fillText('+',86,eqY);chem('CF3+',106,eqY,12,'#e8553b');
+  ctx.fillText('→',135,eqY);chem('SiF4',162,eqY,12,'#8a8a9a');ctx.fillText('+',188,eqY);chem('CO2',210,eqY,12,'#8a8a9a');ctx.fillText('↑',232,eqY);
+  ctx.fillStyle='rgba(138,138,154,.7)';ctx.font=`9.5px ${FONT}`;
+  ctx.fillText(lang==='ko'?'휘발성 부산물':'volatile byproducts',22,110);
+}
+let t7=0;
+function s7(dt,t){
+  let fieldDir,plasmaI,sheathI,chuckCharge;
+  if(mode==='RF'){
+    fieldDir=Math.sin(t*2*Math.PI*.7)>0?+1:-1;plasmaI=1.0;sheathI=.9;
+    chuckCharge=fieldDir>0?-1:+1;step7DCDecay=0;
+  }else{
+    fieldDir=+1;step7DCDecay=Math.min(step7DCDecay+dt*.22,1);
+    plasmaI=Math.max(0,1-step7DCDecay);sheathI=Math.max(0,1-step7DCDecay*.7);
+    chuckCharge=plasmaI>.05?-1:0;
+  }
+  chrome(mode==='RF',t);
+  drawGlow(plasmaI,t);drawSheaths(sheathI,mode==='RF'?1:0);
+  drawShowerhead(mode==='RF'?-chuckCharge:0);drawChuck(chuckCharge);drawWafer();drawSideLabels();drawDCMeter(getVdc());
+  const opts={fieldActive:plasmaI>.05,fieldDir,fieldStrength:.25,absorbElectronTop:mode==='DC',absorbIonBot:mode==='DC'};
+  particles=particles.filter(p=>updP(p,dt,opts));
+  t7+=dt;if(mode==='RF'&&t7>.20){t7=0;
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<6){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<7){const r=rndPt();spawn(Math.random()<.5?'CF3+':'Ar+',r.x,r.y);}
+  }
+  drawParts();
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().modeLabel}: ${mode}`,22,72);
+  if(mode==='DC'){
+    ctx.fillStyle=step7DCDecay>.5?B.red:B.muted;ctx.fillText(`${L().plasmaLabel}: ${(plasmaI*100).toFixed(0)}%`,22,88);
+    if(plasmaI<.05){ctx.fillStyle=B.red;ctx.font=`bold 13px ${FONT}`;ctx.fillText(L().extinguished,22,106);}
+  }else ctx.fillText(L().sustained,22,88);
+}
+
+let t8=0;
+function s8(dt,t){
+  chrome(true,t);const rfPh=Math.sin(t*2*Math.PI*.9);
+  drawGlow(1.0,t);drawSheaths(1.0,1.0);
+  {const chuckCharge=rfPh>0?-1:+1;drawShowerhead(-chuckCharge);drawChuck(chuckCharge);}
+  drawWaferWithTrench(etchDepths);drawSideLabels();drawDCMeter(getVdc());
+  const surfY=SB.y+SB.h-2;
+  const segW=WF.w/PR_SEGMENTS;
+  // Precompute the x-ranges of all PR-open segments
+  const openRanges=OPEN_SEGS.map(seg=>({seg,tL:Math.round(WF.x+seg*segW),tR:Math.round(WF.x+(seg+1)*segW)}));
+  const opts={fieldActive:true,fieldDir:+1,fieldStrength:.38,absorbIonBot:true,absorbRadBot:true,driftBot:true,
+    onImpact:(p,w)=>{
+      if(w!=='bot')return;
+      addImp(p.x,surfY);
+      const hit=openRanges.find(r=>p.x>=r.tL&&p.x<=r.tR);
+      if(hit){
+        const cur=etchDepths[hit.seg]||0;
+        if(cur<SIO2_MAX){
+          // Both ion-enhanced (faster) and radical (chemical, slower) etching
+          const isIon=SP[p.type].cat==='ion';
+          etchDepths[hit.seg]=cur+(isIon?.22:.10);
+          emitL(p.x,surfY,'rgba(180,220,255,1)',.3);
+          if(Math.random()<.45){spawn(Math.random()<.55?'SiF4':'CO2',p.x,surfY,(Math.random()-.5)*.5,-1.6-Math.random()*.5);}
+        }
+      }
+    }};
+  particles=particles.filter(p=>updP(p,dt,opts));
+  t8+=dt;if(t8>.12){t8=0;
+    if(Math.random()<.7){
+      const x=SH.x+20+Math.random()*(SH.w-40),y=SH.y+SH.h+4;
+      const tp=['CF3','F','Ar+','CF3+','CF2'];
+      const p=spawn(tp[Math.floor(Math.random()*tp.length)],x,y);p.vy=.4;
+    }
+    if(particles.filter(p=>SP[p.type].cat==='ion').length<9){const r=rndPt();spawn(Math.random()<.5?'CF3+':'Ar+',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='electron').length<5){const r=rndPt();spawn('e-',r.x,r.y);}
+    if(particles.filter(p=>SP[p.type].cat==='radical').length<8){const r=rndPt();spawn(Math.random()<.5?'CF3':'F',r.x,r.y);}
+    if(Math.random()<.5){const r=rndPt();emitL(r.x,r.y,'rgba(210,225,255,1)',.4);}
+  }
+  updL(dt);updImp(dt);drawParts();drawL();drawImp();
+  // Equation / Etch-Depth overlay — placed BELOW the V_DC meter (which
+  // occupies x:22-182, y:22-66) so the two never overlap.
+  const eqY=86;ctx.fillStyle='#3a4358';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText(L().eqLabel,22,eqY);
+  chem('SiO2',isKoX(84,100),eqY,12,'#1d2436');ctx.fillText('+',isKoX(108,124),eqY);
+  chem('C4F8',isKoX(126,148),eqY,12,'#6b2fa0');ctx.fillText('+',isKoX(156,180),eqY);
+  chem('Ar',isKoX(170,198),eqY,12,'#4a7ab0');ctx.fillText('→',isKoX(192,222),eqY);
+  chem('SiF4',isKoX(220,256),eqY,12,'#8a8a9a');ctx.fillText('+',isKoX(248,288),eqY);
+  chem('CO2',isKoX(268,308),eqY,12,'#8a8a9a');ctx.fillText('↑',isKoX(290,328),eqY);
+  const etP=etchDepths[TRENCH_SEG]||0;
+  ctx.fillStyle=B.muted;ctx.font=`11px ${MONO}`;ctx.textAlign='left';ctx.textBaseline='top';
+  ctx.fillText(`${L().etchLabel}: ${(etP/SIO2_MAX*100).toFixed(1)} ${L().etchPctOf}`,22,114);
+  ctx.fillStyle=B.border;ctx.fillRect(22,130,200,5);
+  ctx.fillStyle=etP>=SIO2_MAX?B.green:'#3a9af0';
+  ctx.fillRect(22,130,Math.min(200,etP/SIO2_MAX*200),5);
+  if(etP>=SIO2_MAX){ctx.fillStyle=B.green;ctx.font=`bold 10px ${FONT}`;ctx.fillText(L().etchThrough,22,142);}
+}
+function isKoX(en,ko){return lang==='ko'?ko:en;}
+
+// ── STEP 9 (K) — Key Takeaways ──────────────────────────────────
+function s9(){
+  ctx.fillStyle=B.bg;ctx.fillRect(0,0,W,H);
+  const hg=ctx.createLinearGradient(0,0,W,0);hg.addColorStop(0,B.purple);hg.addColorStop(1,'#8B40B8');
+  ctx.fillStyle=hg;ctx.fillRect(0,0,W,64);
+  ctx.fillStyle='#fff';ctx.font=`bold 19px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(L().takeawayHeader,24,26);
+  ctx.fillStyle='rgba(255,255,255,.72)';ctx.font=`11.5px ${FONT}`;ctx.fillText(L().takeawaySubheader,24,50);
+  ctx.fillStyle=B.green;ctx.fillRect(0,64,W,4);
+  function secLbl(txt,x,y){ctx.fillStyle=B.purple;ctx.fillRect(x,y-7,3,14);ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle=B.charcoal;ctx.fillText(txt,x+10,y);}
+  const LX=20,LWc=408;secLbl(L().takeawayDesign,LX,84);
+  L().principles.forEach(([title,desc],i)=>{
+    const cy=100+i*82,ch=72;
+    ctx.save();rr(LX,cy,LWc,ch,8);ctx.clip();ctx.fillStyle='rgba(15,140,80,.07)';ctx.fillRect(LX,cy,LWc,ch);ctx.restore();
+    rr(LX,cy,LWc,ch,8);ctx.strokeStyle='rgba(15,140,80,.28)';ctx.lineWidth=.8;ctx.stroke();
+    ctx.fillStyle=B.green;ctx.beginPath();ctx.arc(LX+22,cy+ch/2,11,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font=`bold 13px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✓',LX+22,cy+ch/2);
+    ctx.fillStyle='#0a5e34';ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.fillText(title,LX+42,cy+24);
+    ctx.fillStyle='#4a5565';ctx.font=`10.5px ${FONT}`;ctx.fillText(desc,LX+42,cy+48);
+  });
+  const RX=446,RW=436;secLbl(L().takeawayParams,RX,84);
+  const TY=98,RH=30,cols=[0,192,314,436],totH=RH*(L().tRows.length+1);
+  ctx.save();rr(RX,TY,RW,totH,8);ctx.clip();
+  ctx.fillStyle=B.purple;ctx.fillRect(RX,TY,RW,RH);
+  L().tHeaders.forEach((h,ci)=>{const mx=RX+(cols[ci]+cols[ci+1])/2;ctx.fillStyle='#fff';ctx.font=`bold 11.5px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h,mx,TY+RH/2);});
+  L().tRows.forEach((row,ri)=>{
+    const ry=TY+RH+ri*RH;ctx.fillStyle=ri%2===0?B.purpleSoft:'#fff';ctx.fillRect(RX,ry,RW,RH);
+    ctx.strokeStyle='#ddd0ee';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(RX,ry+RH);ctx.lineTo(RX+RW,ry+RH);ctx.stroke();
+    [1,2].forEach(ci=>{ctx.beginPath();ctx.moveTo(RX+cols[ci],ry);ctx.lineTo(RX+cols[ci],ry+RH);ctx.stroke();});
+    row.forEach((cell,ci)=>{
+      ctx.fillStyle=ci===0?B.charcoal:ci===1?B.purple:'#6b7388';ctx.font=ci===0?`11px ${FONT}`:`bold 11px ${FONT}`;
+      ctx.textAlign=ci===0?'left':'center';ctx.textBaseline='middle';
+      ctx.fillText(cell,ci===0?RX+8:RX+(cols[ci]+cols[ci+1])/2,ry+RH/2);
+    });
+  });
+  ctx.restore();rr(RX,TY,RW,totH,8);ctx.strokeStyle='#d0c0e8';ctx.lineWidth=1;ctx.stroke();
+  const PWY=TY+totH+18;
+  ctx.fillStyle=B.green;ctx.fillRect(RX,PWY,3,14);ctx.fillStyle=B.charcoal;ctx.font=`bold 12px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(L().takeawayWindow,RX+10,PWY+7);
+  L().pwItems.forEach(([k,v],i)=>{
+    const py=PWY+26+i*22;ctx.fillStyle='#7a7a8a';ctx.font=`11px ${FONT}`;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(k,RX+10,py);
+    ctx.fillStyle=B.charcoal;ctx.font=`bold 11px ${FONT}`;ctx.textAlign='right';ctx.fillText(v,RX+RW-6,py);
+  });
+  const BX=20,BY=514,BW=W-40,BH=74,HDH=30;
+  ctx.save();rr(BX,BY,BW,BH,8);ctx.clip();ctx.fillStyle='rgba(242,201,76,.13)';ctx.fillRect(BX,BY,BW,HDH);ctx.fillStyle='#fff';ctx.fillRect(BX,BY+HDH,BW,BH-HDH);ctx.restore();
+  rr(BX,BY,BW,BH,8);ctx.strokeStyle='rgba(190,155,40,.32)';ctx.lineWidth=.8;ctx.stroke();
+  ctx.strokeStyle='rgba(190,155,40,.32)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(BX+1,BY+HDH);ctx.lineTo(BX+BW-1,BY+HDH);ctx.stroke();
+  ctx.fillStyle='rgba(242,201,76,.50)';ctx.beginPath();ctx.arc(BX+20,BY+HDH/2,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#7a5800';ctx.font=`bold 12px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',BX+20,BY+HDH/2);
+  ctx.fillStyle=B.charcoal;ctx.font=`bold 12.5px ${FONT}`;ctx.textAlign='left';ctx.fillText(L().takeawayLimits,BX+36,BY+HDH/2);
+  ctx.fillStyle='#5a6070';ctx.font=`10.5px ${FONT}`;
+  L().limitLines.forEach((ln,i)=>ctx.fillText(ln,BX+14,BY+HDH+16+i*18));
+  drawLogo(.55);
+}
+
+const RENDERS=[s1,s2,s3,s4,s5,s6,s7,s8,s9];
+
+// ── Step controls ─────────────────────────────────────────────
+function renderStepCtrl(i){
+  stepCtrlEl.innerHTML='';
+  if(i===6){
+    const wrap=document.createElement('div');wrap.className='mode-toggle';
+    const rfB=document.createElement('button');rfB.textContent='RF';
+    const dcB=document.createElement('button');dcB.textContent='DC';
+    if(mode==='RF')rfB.classList.add('active');else dcB.classList.add('active');
+    rfB.addEventListener('click',()=>{mode='RF';step7DCDecay=0;setupStep(6);});
+    dcB.addEventListener('click',()=>{mode='DC';step7DCDecay=0;setupStep(6);});
+    wrap.appendChild(rfB);wrap.appendChild(dcB);stepCtrlEl.appendChild(wrap);
+    const note=document.createElement('span');note.className='mode-info';
+    note.textContent=mode==='RF'?L().modeInfoRF:L().modeInfoDC;
+    stepCtrlEl.appendChild(note);
+  }else if(i===7){
+    const btn=document.createElement('button');btn.className='reset-btn';btn.textContent=L().resetEtch;
+    btn.addEventListener('click',()=>{etchDepths={};});stepCtrlEl.appendChild(btn);
+  }
+}
+
+// ── Main loop ─────────────────────────────────────────────────
+function render(){
+  const now=performance.now(),dt=Math.min((now-lastT)/1000,.05);lastT=now;
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle=B.bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(renderScale * DPR, renderScale * DPR);
+  ctx.translate(renderOffX / renderScale, renderOffY / renderScale);
+  RENDERS[currentStep](dt,(now-t0)/1000);
+  requestAnimationFrame(render);
+}
+document.fonts.ready.then(()=>render()).catch(()=>render());
+
+// ── Step buttons ──────────────────────────────────────────────
+const sBEl=document.getElementById('stepButtons');
+function buildBtns(){
+  sBEl.innerHTML='';
+  L().steps.forEach((s,i)=>{
+    const b=document.createElement('button');b.className='step-btn'+(i===currentStep?' active':'');
+    b.textContent=i===0?'S':i===L().steps.length-1?'K':i;b.title=s.title;
+    b.addEventListener('click',()=>setStep(i));sBEl.appendChild(b);
+  });
+}
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+prevBtn.addEventListener('click',()=>setStep(currentStep-1));
+nextBtn.addEventListener('click',()=>setStep(currentStep+1));
+
+function fmtHint(raw){
+  if(!raw)return'';const sp=raw.indexOf(' ');
+  if(sp>0){const icon=raw.slice(0,sp),body=raw.slice(sp+1);if(/\p{Emoji}/u.test(icon))return`<div class="hint-icon">${icon}</div><div class="hint-text">${body}</div>`;}
+  return`<div class="hint-text">${raw}</div>`;
+}
+const DEEP_DIVE_LABEL = { en:'Deep Dive', ko:'심화학습' };
+function toggleDeepDive(idx){
+  const hdr=document.getElementById('ddHdr'+idx), body=document.getElementById('ddBody'+idx);
+  if(!hdr||!body)return;
+  const open=body.classList.toggle('open');
+  hdr.classList.toggle('open',open);
+}
+function setStep(i){
+  if(i<0||i>=L().steps.length)return;currentStep=i;
+  document.querySelectorAll('.step-btn.active').forEach(b=>b.classList.remove('active'));
+  if(sBEl.children[i])sBEl.children[i].classList.add('active');
+  document.getElementById('stepNum').textContent=i===0?'S':i===L().steps.length-1?'K':i;
+  document.getElementById('stepTitle').textContent=L().steps[i].title;
+  document.getElementById('stepBody').innerHTML=L().steps[i].body;
+  const hEl=document.getElementById('stepHint');
+  if(L().steps[i].hint){hEl.innerHTML=fmtHint(L().steps[i].hint);hEl.style.display='';}
+  else hEl.style.display='none';
+  const ddEl=document.getElementById('deepDiveContainer');
+  let dds=L().steps[i].deepDive;
+  if(dds && !Array.isArray(dds)) dds=[dds];
+  if(dds && dds.length){
+    ddEl.innerHTML=dds.map((dd,idx)=>`
+      <div class="deep-wrap">
+        <div class="deep-hdr" id="ddHdr${idx}" onclick="toggleDeepDive(${idx})">
+          <span class="deep-icon">📚</span>
+          <span class="deep-title">${dd.title}</span>
+          <span class="deep-badge">${DEEP_DIVE_LABEL[lang]}</span>
+          <span class="deep-chevron">▼</span>
+        </div>
+        <div class="deep-body" id="ddBody${idx}">
+          <div class="deep-inner">${dd.body}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    ddEl.innerHTML='';
+  }
+  prevBtn.disabled=(i===0);nextBtn.disabled=(i===L().steps.length-1);
+  prevBtn.textContent=L().prevBtn;nextBtn.textContent=L().nextBtn;
+  document.getElementById('sideInner').scrollTop=0;
+  setupStep(i);
+}
+
+// ── Language ──────────────────────────────────────────────────
+function setLang(l){
+  lang=l;
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  document.getElementById('btnKO').classList.toggle('active',l==='ko');
+  document.getElementById('hTitle').textContent=L().hTitle;
+  document.getElementById('hSub').textContent=L().hSub;
+  buildBtns();setStep(currentStep);
+}
+
+// ── Tooltip ───────────────────────────────────────────────────
+function ptIn(x,y,r){return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;}
+canvas.addEventListener('mousemove',e=>{
+  const cr=canvas.getBoundingClientRect();
+  const mx=(e.clientX-cr.left), my=(e.clientY-cr.top);
+  const cx=(mx-renderOffX)/renderScale, cy=(my-renderOffY)/renderScale;
+  if(currentStep!==0){hoveredHotspot=null;tooltip.classList.remove('show');canvas.style.cursor='default';return;}
+  let foundR=null;for(const h of HR){if(ptIn(cx,cy,h.rect)){foundR=h;break;}}
+  hoveredHotspot=foundR;
+  if(foundR){
+    const hs=L().hotspots.find(h=>h.n===foundR.n);
+    tooltip.classList.add('show');
+    tooltip.innerHTML=`<b>${hs.title}</b><br>${hs.text.replace(/\n/g,'<br>')}`;
+    const cardRect=canvas.parentElement.getBoundingClientRect();
+    tooltip.style.left=(e.clientX-cardRect.left)+'px';
+    tooltip.style.top=(e.clientY-cardRect.top-10)+'px';
+    canvas.style.cursor='pointer';
+  }else{tooltip.classList.remove('show');canvas.style.cursor='default';}
+});
+canvas.addEventListener('mouseleave',()=>{hoveredHotspot=null;tooltip.classList.remove('show');});
+
+// ── Init ──────────────────────────────────────────────────────
+buildBtns();
+setStep(0);
+</script>
+</body>
+</html>
