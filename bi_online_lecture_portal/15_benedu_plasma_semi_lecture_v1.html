@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semiconductor Plasma Process — Benedu Insight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style id="font-override">
+  body[data-lang="en"], body[data-lang="en"] * {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  body[data-lang="en"] .eq-block,
+  body[data-lang="en"] .sci-year,
+  body[data-lang="en"] .detail-meta,
+  body[data-lang="en"] .theory-year,
+  body[data-lang="en"] .quote-attr,
+  body[data-lang="en"] .sim-label,
+  body[data-lang="en"] .sim-caption,
+  body[data-lang="en"] .sidebar-section-label,
+  body[data-lang="en"] .era-range,
+  body[data-lang="en"] .sim-badge,
+  body[data-lang="en"] .lang-btn,
+  body[data-lang="en"] .era-btn,
+  body[data-lang="en"] .toolbar-btn,
+  body[data-lang="en"] #scale-indicator,
+  body[data-lang="en"] .img-zoom-hint,
+  body[data-lang="en"] #imgPopupCaption,
+  body[data-lang="en"] code, body[data-lang="en"] pre {
+    font-family: 'JetBrains Mono', 'Fira Mono', monospace !important;
+  }
+  body[data-lang="en"] .detail-name,
+  body[data-lang="en"] .sim-title,
+  body[data-lang="en"] .theory-name,
+  body[data-lang="en"] .era-label,
+  body[data-lang="en"] h1, body[data-lang="en"] h2, body[data-lang="en"] h3 {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+</style>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+    startup: {
+      ready() {
+        MathJax.startup.defaultReady();
+        const panel = document.getElementById('detail');
+        if (panel && window.MathJax.typesetPromise)
+          MathJax.typesetPromise([panel]).catch(e => console.log('MathJax init: ' + e.message));
+      }
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+  :root {
+    --bg:          #F7F8FA;
+    --bg2:         #FFFFFF;
+    --bg3:         #F0E6F6;
+    --bg4:         #E5F4EC;
+    --green:       #0F8C50;
+    --green-soft:  #E5F4EC;
+    --green-mid:   #cbeadd;
+    --green-dark:  #0a6b3d;
+    --purple:      #7030A0;
+    --purple-soft: #F0E6F6;
+    --purple-mid:  #d9b8ed;
+    --purple-dark: #521a78;
+    --plasma:      #E87B1E;
+    --plasma-soft: #FEF0E3;
+    --plasma-mid:  #F5C990;
+    --plasma-dark: #A84F05;
+    --charcoal:    #2D2D2D;
+    --text:        #2D2D2D;
+    --text2:       #6B7280;
+    --text3:       #9CA3AF;
+    --border:      #E5E7EB;
+    --border2:     #F3F4F6;
+    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
+    --max-w:       1400px;
+    --scale:       1.0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Gowun Batang', serif;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0.55rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: var(--max-w);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo { height: 38px; width: auto; flex-shrink: 0; }
+  .header-divider { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+  header h1 {
+    font-family: 'Google Sans', 'Gowun Batang', serif;
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--purple); letter-spacing: 0.02em; line-height: 1.2;
+  }
+  header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem; color: var(--text3);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;
+  }
+  .header-actions { margin-left: auto; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+
+  /* Lang toggle */
+  .lang-toggle { display: flex; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: var(--bg); }
+  .lang-btn {
+    padding: 3px 12px; border: none; background: transparent; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 500;
+    color: var(--text3); transition: all 0.2s;
+  }
+  .lang-btn.active-lang { background: var(--purple); color: #fff; }
+
+  /* Era filter */
+  .era-filter { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+  .era-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 20px;
+    color: var(--text2); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+    padding: 3px 12px; cursor: pointer; transition: all 0.18s;
+  }
+  .era-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
+  .era-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+  .toolbar-btn {
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg2); color: var(--text); padding: 3px 9px;
+    font-size: 0.62rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+    font-weight: 500; transition: all 0.15s;
+  }
+  .toolbar-btn:hover { border-color: var(--purple-mid); background: var(--purple-soft); color: var(--purple-dark); }
+  #scale-indicator { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text3); min-width: 32px; text-align: center; }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid; grid-template-columns: 270px 1fr;
+    height: calc(100vh - 58px); width: 100%; max-width: var(--max-w);
+  }
+
+  /* ── Sidebar ── */
+  .timeline-sidebar {
+    border-right: 1px solid var(--border); overflow-y: auto;
+    background: var(--bg2); scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent; display: flex; flex-direction: column;
+  }
+  .timeline-sidebar::-webkit-scrollbar { width: 4px; }
+  .timeline-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-section-label {
+    padding: 0.6rem 1.1rem 0.35rem; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--text3); border-bottom: 1px solid var(--border2);
+    position: sticky; top: 0; background: var(--bg2); z-index: 5;
+  }
+  .era-header {
+    position: sticky; top: 0; background: var(--bg2);
+    padding: 0.65rem 1rem 0.45rem; border-bottom: 1px solid var(--border2);
+    z-index: 5; display: flex; align-items: center; gap: 0.6rem;
+    cursor: pointer; user-select: none;
+  }
+  .era-header:hover { background: var(--bg); }
+  .era-label { font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; }
+  .era-line { flex: 1; height: 1px; background: var(--border); }
+  .era-range { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--text3); letter-spacing: 0.04em; }
+  .era-toggle {
+    flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--border2); display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: var(--text3); transition: background 0.15s, transform 0.22s;
+  }
+  .era-header.collapsed .era-toggle { transform: rotate(-90deg); }
+  .era-header:hover .era-toggle { background: var(--border); color: var(--text2); }
+  .era-cards { overflow: hidden; max-height: 2000px; transition: max-height 0.3s ease, opacity 0.25s ease; opacity: 1; }
+  .era-cards.collapsed { max-height: 0; opacity: 0; }
+
+  .sci-card {
+    padding: 0.75rem 1rem 0.75rem 1.1rem; border-bottom: 1px solid var(--border2);
+    cursor: pointer; position: relative; transition: background 0.15s;
+    display: flex; gap: 0.65rem; align-items: flex-start; border-left: 4px solid transparent;
+  }
+  .sci-card:hover { background: var(--bg); }
+  .sci-card.active { background: var(--purple-soft); border-left-color: var(--purple); }
+  .sci-card.placeholder { opacity: 0.45; cursor: default; }
+  .sci-card.placeholder:hover { background: transparent; }
+  .sci-year { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text3); min-width: 48px; padding-top: 2px; line-height: 1.4; }
+  .sci-info { flex: 1; min-width: 0; }
+  .sci-name { font-size: 0.83rem; font-weight: 700; color: var(--charcoal); line-height: 1.3; }
+  .sci-card.active .sci-name { color: var(--purple-dark); }
+  .sci-nation { font-size: 0.6rem; color: var(--text3); margin-top: 1px; font-family: 'Gowun Batang', serif; }
+  .sci-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+  .sci-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; padding: 1px 6px; border-radius: 8px; letter-spacing: 0.03em; }
+
+  /* ── Detail Panel ── */
+  .detail-panel { display: flex; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg); }
+  #detail { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  #detail::-webkit-scrollbar { width: 4px; }
+  #detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .detail-content { padding: 1.5rem; max-width: 880px; margin: 0 auto; }
+
+  /* Detail Empty */
+  .detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 1.2rem; color: var(--text3); }
+  .icon-ring { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--purple-mid); opacity: 0.4; }
+  .detail-empty p { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; }
+
+  /* Hero */
+  .detail-hero {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.4rem 1.6rem; margin-bottom: 1.1rem; box-shadow: var(--shadow);
+  }
+  .detail-era-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 0.5rem; display: inline-flex; align-items: center;
+    gap: 0.4rem; padding: 2px 9px; border-radius: 10px; font-weight: 500;
+  }
+  .detail-name {
+    font-family: 'Google Sans', 'Montserrat', sans-serif; font-size: calc(1.7rem * var(--scale));
+    font-weight: 800; line-height: 1.1; color: var(--purple); margin-bottom: 0.1rem; transition: font-size 0.15s ease-out;
+  }
+  .detail-name-kr {
+    font-family: 'Gowun Batang', serif; font-size: calc(0.9rem * var(--scale));
+    color: var(--text2); margin-bottom: 0.6rem; font-weight: 400; transition: font-size 0.15s ease-out;
+  }
+  .detail-meta {
+    display: flex; gap: 1.25rem; flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace; font-size: calc(0.62rem * var(--scale));
+    color: var(--text2); padding-top: 0.6rem; border-top: 1px solid var(--border2); transition: font-size 0.15s ease-out;
+  }
+
+  /* Model Showcase */
+  .model-showcase {
+    display: flex; justify-content: center; align-items: center;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.75rem; margin-bottom: 1.1rem; box-shadow: var(--shadow);
+  }
+  .model-img-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+  .model-img-wrapper img { max-width: 100%; max-height: 420px; object-fit: contain; border-radius: 8px; box-shadow: var(--shadow-md); }
+  .model-img-source { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text3); text-align: center; }
+  .img-zoom-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text3); letter-spacing: 0.06em; }
+
+  /* Quote */
+  .quote-block {
+    display: flex; gap: 14px; align-items: flex-start; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem;
+    margin-bottom: 1.1rem; box-shadow: var(--shadow);
+  }
+  .quote-badge {
+    flex: none; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--purple-soft); display: flex; align-items: center;
+    justify-content: center; font-size: 1rem; margin-top: 2px;
+  }
+  .quote-body { flex: 1; min-width: 0; }
+  .quote-text { font-family: 'Gowun Batang', serif; font-style: italic; font-size: calc(0.88rem * var(--scale)); color: var(--purple-dark); line-height: 1.78; transition: font-size 0.15s ease-out; }
+  .quote-attr { font-family: 'JetBrains Mono', monospace; font-size: calc(0.58rem * var(--scale)); color: var(--text3); margin-top: 0.4rem; letter-spacing: 0.06em; transition: font-size 0.15s ease-out; }
+
+  /* Bio */
+  .detail-bio {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.1rem 1.4rem; font-size: calc(0.88rem * var(--scale)); line-height: 1.85;
+    color: var(--text); margin-bottom: 1.1rem; box-shadow: var(--shadow); transition: font-size 0.15s ease-out;
+  }
+  .detail-bio p + p { margin-top: 0.8em; }
+
+  /* Section Titles */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--text3);
+    margin-top: 1.5rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.6rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Equations */
+  .eq-block {
+    background: var(--charcoal); border-radius: 8px; padding: 1.1rem 1.4rem; margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace; font-size: calc(0.9rem * var(--scale));
+    color: #FFD580; letter-spacing: 0.04em; overflow-x: auto; transition: font-size 0.15s ease-out;
+  }
+
+  /* Theory cards */
+  .theories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.7rem; margin-bottom: 1.1rem; }
+  .theory-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem;
+    transition: box-shadow 0.18s, border-color 0.18s; box-shadow: var(--shadow);
+  }
+  .theory-card:hover { box-shadow: var(--shadow-md); border-color: var(--purple-mid); }
+  .theory-year { font-family: 'JetBrains Mono', monospace; font-size: calc(0.58rem * var(--scale)); letter-spacing: 0.06em; margin-bottom: 0.3rem; color: var(--purple); font-weight: 500; transition: font-size 0.15s ease-out; }
+  .theory-name { font-size: calc(0.85rem * var(--scale)); font-weight: 700; color: var(--charcoal); margin-bottom: 0.3rem; line-height: 1.3; transition: font-size 0.15s ease-out; }
+  .theory-desc { font-size: calc(0.75rem * var(--scale)); color: var(--text2); line-height: 1.65; font-family: 'Gowun Batang', serif; transition: font-size 0.15s ease-out; }
+
+  /* Classroom box */
+  details.classroom-box {
+    background: #FFFDF0; border: 1px dashed #EEDF8B; border-radius: 12px;
+    padding: 1.1rem; margin-bottom: 1.1rem; cursor: pointer; transition: border 0.15s;
+  }
+  details.classroom-box[open] { border-style: solid; border-color: #D6C359; }
+  details.classroom-box summary { font-family: 'Gowun Batang', serif; font-size: 0.82rem; font-weight: 700; color: #8C730F; outline: none; user-select: none; }
+  .classroom-body { font-size: calc(0.76rem * var(--scale)); line-height: 1.72; color: #6B5B1E; margin-top: 0.65rem; cursor: default; transition: font-size 0.15s ease-out; }
+
+  /* Connections */
+  .conn-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .conn-chip {
+    background: var(--purple-soft); border: 1px solid var(--purple-mid); border-radius: 20px;
+    padding: 3px 12px; font-size: calc(0.74rem * var(--scale)); color: var(--purple-dark);
+    cursor: pointer; transition: all 0.15s; font-family: 'Gowun Batang', serif;
+  }
+  .conn-chip:hover { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+  /* Summary table */
+  .summary-matrix { width: 100%; border-collapse: collapse; background: var(--bg2); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 1.1rem; }
+  .summary-matrix th, .summary-matrix td { padding: 0.65rem 0.9rem; font-size: calc(0.76rem * var(--scale)); text-align: left; border-bottom: 1px solid var(--border); transition: font-size 0.15s ease-out; }
+  .summary-matrix th { background: var(--purple-soft); color: var(--purple-dark); font-weight: 700; font-family: 'Gowun Batang', serif; }
+
+  /* Sim card */
+  .sim-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.1rem; box-shadow: var(--shadow); }
+  .sim-card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+  .sim-badge {
+    background: var(--purple); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem; font-weight: 700; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+  }
+  .sim-title { font-family: 'Google Sans', 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: var(--charcoal); }
+  .sim-btn {
+    background: var(--purple); color: #fff; border: none; border-radius: 6px;
+    padding: 4px 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    font-weight: 700; cursor: pointer; transition: background 0.15s, transform 0.1s;
+  }
+  .sim-btn:hover { background: var(--purple-dark); transform: translateY(-1px); }
+
+  /* ── CCP Chamber Diagram (inline SVG canvas) ── */
+  .chamber-wrap {
+    background: #0d0d1a; border-radius: 12px; padding: 0; overflow: hidden;
+    margin-bottom: 1.1rem; box-shadow: 0 4px 20px rgba(112,48,160,0.2);
+    border: 1px solid var(--purple-mid);
+  }
+  .chamber-header {
+    background: linear-gradient(90deg, #1a0a2e 0%, #2d1456 100%);
+    padding: 0.75rem 1.2rem; display: flex; align-items: center; gap: 0.75rem;
+  }
+  .chamber-badge {
+    background: var(--purple); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.06em;
+  }
+  .chamber-title {
+    font-family: 'Google Sans', sans-serif; font-size: 0.92rem; font-weight: 700; color: #fff;
+  }
+  .chamber-canvas { width: 100%; display: block; background: #0d0d1a; }
+
+  /* Parameter panel */
+  .param-panel {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.1rem 1.4rem; margin-bottom: 1.1rem; box-shadow: var(--shadow);
+  }
+  .param-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+  .param-item {
+    background: var(--bg); border: 1px solid var(--border2); border-radius: 10px;
+    padding: 0.75rem 1rem;
+  }
+  .param-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.25rem; }
+  .param-value { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: var(--purple); }
+  .param-unit { font-size: 0.65rem; color: var(--text2); font-weight: 400; margin-left: 3px; }
+  .param-desc { font-size: 0.68rem; color: var(--text2); margin-top: 0.2rem; font-family: 'Gowun Batang', serif; }
+
+  /* Highlight callout */
+  .hl-callout {
+    border-left: 3px solid var(--purple); background: var(--purple-soft);
+    border-radius: 0 10px 10px 0; padding: 0.75rem 1rem; margin-bottom: 0.75rem;
+    font-size: 0.82rem; line-height: 1.72; color: var(--purple-dark);
+    font-family: 'Gowun Batang', serif;
+  }
+  .hl-callout.green { border-left-color: var(--green); background: var(--green-soft); color: var(--green-dark); }
+  .hl-callout.orange { border-left-color: var(--plasma); background: var(--plasma-soft); color: var(--plasma-dark); }
+
+  /* Process steps */
+  .process-steps { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.1rem; }
+  .step-item {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 0.8rem 1rem; box-shadow: var(--shadow);
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--purple); color: #fff;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 700; font-size: 0.85rem; color: var(--charcoal); margin-bottom: 0.2rem; }
+  .step-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.65; font-family: 'Gowun Batang', serif; }
+
+  /* Coming soon card */
+  .coming-soon {
+    background: var(--bg2); border: 2px dashed var(--border); border-radius: 14px;
+    padding: 3rem; text-align: center; margin-bottom: 1.1rem; color: var(--text3);
+  }
+  .coming-soon-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; }
+  .coming-soon-title { font-family: 'Google Sans', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text2); margin-bottom: 0.4rem; }
+  .coming-soon-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* RF Generator badge */
+  .asendia-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: linear-gradient(135deg, #1a0a2e, #2d1456);
+    border-radius: 8px; padding: 0.6rem 1.1rem; margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(112,48,160,0.3);
+  }
+  .asendia-badge-text { font-family: 'Google Sans', sans-serif; font-size: 0.78rem; font-weight: 700; color: #fff; }
+  .asendia-badge-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; color: rgba(255,255,255,0.6); margin-top: 1px; }
+
+  /* Deep learn accordion */
+  .deep-learn-wrap { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.1rem; overflow: hidden; box-shadow: var(--shadow); }
+  .deep-learn-header {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.9rem 1.2rem;
+    background: var(--bg2); cursor: pointer; user-select: none;
+  }
+  .deep-learn-header:hover { background: var(--bg); }
+  .deep-learn-header.open { border-bottom: 1px solid var(--border); background: var(--purple-soft); }
+  .deep-learn-icon { font-size: 1.1rem; }
+  .deep-learn-title { font-family: 'Google Sans', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--charcoal); flex: 1; }
+  .deep-learn-badge { background: var(--purple); color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; }
+  .deep-learn-chevron { font-size: 0.65rem; color: var(--text3); transition: transform 0.22s; }
+  .deep-learn-header.open .deep-learn-chevron { transform: rotate(180deg); }
+  .deep-learn-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; background: var(--bg); }
+  .deep-learn-body.open { max-height: 3000px; }
+  .deep-learn-inner { padding: 1.1rem 1.4rem; }
+  .dl-section { margin-bottom: 1rem; }
+  .dl-section-title { font-family: 'Google Sans', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.45rem; display: flex; align-items: center; gap: 0.5rem; }
+  .dl-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .dl-body { font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 0.82rem; line-height: 1.82; color: var(--text2); }
+  .dl-body p + p { margin-top: 0.65em; }
+  .dl-body b { color: var(--charcoal); }
+  .dl-eq { background: var(--charcoal); border-radius: 7px; padding: 0.7rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #FFD580; margin: 0.6rem 0; overflow-x: auto; letter-spacing: 0.04em; }
+  .dl-highlight { background: var(--purple-soft); border-left: 3px solid var(--purple); border-radius: 0 7px 7px 0; padding: 0.6rem 0.9rem; margin: 0.6rem 0; font-size: 0.80rem; line-height: 1.7; color: var(--purple-dark); font-family: 'Google Sans', sans-serif; }
+  .dl-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; margin: 0.6rem 0; border-radius: 6px; overflow: hidden; }
+  .dl-table th { background: var(--purple-soft); color: var(--purple-dark); padding: 5px 10px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border); }
+  .dl-table td { padding: 5px 10px; border-bottom: 1px solid var(--border2); color: var(--text2); }
+
+  /* Image popup */
+  #imgPopupOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 9999; align-items: center; justify-content: center; }
+  #imgPopupOverlay.open { display: flex; }
+  #imgPopupInner { position: relative; max-width: min(900px, 94vw); max-height: 90vh; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+  #imgPopupClose { position: absolute; top: -14px; right: -14px; width: 30px; height: 30px; border-radius: 50%; border: none; background: #fff; color: #333; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); z-index: 1; line-height: 1; }
+  #imgPopupImg { max-width: 100%; max-height: 80vh; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); object-fit: contain; }
+  #imgPopupCaption { color: rgba(255,255,255,0.7); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.06em; text-align: center; }
+
+  @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popupScale { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;text-decoration:none;">
+    <img class="header-logo"
+      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+      alt="Benedu Insight">
+  </a>
+  <div class="header-divider"></div>
+  <div class="header-title-block">
+    <h1 id="hTitle">Semiconductor Plasma Process</h1>
+    <p>MODULE 3 · Benedu Insight</p>
+  </div>
+  <div class="header-actions">
+    <div class="lang-toggle">
+      <button class="lang-btn active-lang" onclick="setLang('ko')" id="btnKo">KO</button>
+      <button class="lang-btn" onclick="setLang('en')" id="btnEn">EN</button>
+    </div>
+    <div class="era-filter">
+      <button class="era-btn active" id="eraAll" onclick="buildSidebar('all');setActive(this)">전체</button>
+      <button class="era-btn" id="eraCCP" onclick="buildSidebar('ccp');setActive(this)">CCP</button>
+      <button class="era-btn" id="eraICP" onclick="buildSidebar('icp');setActive(this)">ICP</button>
+      <button class="era-btn" id="eraRPS" onclick="buildSidebar('rps');setActive(this)">RPS</button>
+    </div>
+    <button class="toolbar-btn" onclick="changeScale(-0.1)">A−</button>
+    <span id="scale-indicator">100%</span>
+    <button class="toolbar-btn" onclick="changeScale(+0.1)">A+</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="timeline-sidebar" id="sidebar"></div>
+  <div class="detail-panel">
+    <div id="detail">
+      <div class="detail-empty">
+        <div class="icon-ring"></div>
+        <p id="emptyMsg">좌측 목차에서 강의 모듈을 선택하세요</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="imgPopupOverlay" onclick="closeImgPopup(event)">
+  <div id="imgPopupInner" onclick="event.stopPropagation()">
+    <button id="imgPopupClose" onclick="closeImgPopup()" title="닫기">✕</button>
+    <img id="imgPopupImg" src="" alt="">
+    <div id="imgPopupCaption"></div>
+  </div>
+</div>
+
+<script>
+let lang = 'ko';
+let currentEraFilter = 'all';
+let currentId = null;
+let currentScale = 1.0;
+
+// ─────────────────────────────────────────────
+//  UI TEXT
+// ─────────────────────────────────────────────
+const UI = {
+  ko: {
+    hTitle: 'Semiconductor Plasma Process',
+    eraAll: '전체', eraCCP: 'CCP 공정', eraICP: 'ICP 공정', eraRPS: 'Remote Plasma',
+    eraLabels: { ccp: 'CCP 플라즈마 공정', icp: 'ICP 플라즈마 공정', rps: 'Remote Plasma Source' },
+    eraRanges: { ccp: 'PE-CVD · Dry Etch · PVD', icp: 'High-Density Etch', rps: 'Microwave / ECR / ICP' },
+    eraNames:  { ccp: 'CCP (Capacitively Coupled Plasma)', icp: 'ICP (Inductively Coupled Plasma)', rps: 'Remote Plasma Source' },
+    sectionTheory: '핵심 개념 및 공정 원리',
+    sectionDiagram: '챔버 구조 다이어그램',
+    sectionParam: '공정 핵심 파라미터',
+    sectionProcess: '공정 시퀀스',
+    sectionSim: '인터랙티브 시뮬레이터',
+    sectionEq: '수식',
+    sectionNav: '모듈 네비게이션',
+    classroomLabel: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+    navGo: '바로가기', emptyMsg: '좌측 목차에서 강의 모듈을 선택하세요',
+    periodLabel: '⏰ 주제: ', tagLabel: '🔬 분류: ',
+  },
+  en: {
+    hTitle: 'Semiconductor Plasma Process',
+    eraAll: 'All', eraCCP: 'CCP', eraICP: 'ICP', eraRPS: 'Remote Plasma',
+    eraLabels: { ccp: 'CCP Plasma Process', icp: 'ICP Plasma Process', rps: 'Remote Plasma Source' },
+    eraRanges: { ccp: 'PE-CVD · Dry Etch · PVD', icp: 'High-Density Etch', rps: 'Microwave / ECR / ICP' },
+    eraNames:  { ccp: 'CCP (Capacitively Coupled Plasma)', icp: 'ICP (Inductively Coupled Plasma)', rps: 'Remote Plasma Source' },
+    sectionTheory: 'Key Concepts & Process Principles',
+    sectionDiagram: 'Chamber Structure Diagram',
+    sectionParam: 'Key Process Parameters',
+    sectionProcess: 'Process Sequence',
+    sectionSim: 'Interactive Simulator',
+    sectionEq: 'Equations',
+    sectionNav: 'Module Navigation',
+    classroomLabel: '🙋 Discussion & Self-Study Quiz (click to expand)',
+    navGo: 'Go to', emptyMsg: 'Select a module from the sidebar to begin',
+    periodLabel: '⏰ Topic: ', tagLabel: '🔬 Tags: ',
+  }
+};
+
+// ─────────────────────────────────────────────
+//  SLIDES DATA — KO
+// ─────────────────────────────────────────────
+const SLIDES_KO = [
+
+  // ── MODULE 3-1: CCP in PE-CVD ─────────────────────────────────
+  {
+    id: 'm31', chapter: 'MODULE 3-1', era: 'ccp',
+    name: 'CCP in PE-CVD',
+    nameKr: 'CCP in PE-CVD — 저온 박막 증착의 핵심',
+    period: 'PE-CVD 챔버 구조 · RF 역할 · 박막 증착 메커니즘',
+    tags: ['PE-CVD', 'CCP', '박막 증착', 'RF Generator', 'SiO₂', 'Si₃N₄'],
+    quote: 'PECVD는 열 대신 플라즈마를 에너지원으로 사용하여, Si 웨이퍼가 녹는 온도(1,687 K)의 1/5 이하에서도 고품질 유전체 박막을 증착할 수 있게 합니다.',
+    quoteAttr: '— 반도체 CVD 공정 기초 (Semiconductor CVD Process Fundamentals)',
+    bio: `<b>PE-CVD (Plasma-Enhanced Chemical Vapor Deposition)</b>는 CCP(Capacitively Coupled Plasma) 구조를 이용하여 반응 가스를 플라즈마 상태로 활성화시킨 뒤, 웨이퍼 표면에 박막을 증착하는 공정입니다.\n\n<b>왜 플라즈마가 필요한가?</b> 순수 열에너지(Thermal CVD)만으로 SiO₂나 Si₃N₄를 증착하려면 600~800°C 이상의 고온이 필요합니다. 이 온도는 이미 형성된 금속 배선층(Cu, Al)이나 저유전 물질(low-k dielectric)을 손상시킵니다. 플라즈마는 <b>전자 충돌(electron impact dissociation)</b>로 반응 가스를 라디칼과 이온으로 분해하여, 300~400°C의 저온에서도 충분한 화학 반응 에너지를 공급합니다.`,
+    showDiagram: 'pecvd',
+    theories: [
+      { year: '챔버 구조', name: 'CCP 전극 구성 — 평행판 구조', desc: 'RF 전극(상부/샤워헤드) + 접지 전극(하부/서셉터) 사이에 RF 전압 인가. 전극 간격 약 20~60mm. 용량성 결합으로 플라즈마 형성.' },
+      { year: '플라즈마 생성', name: 'Electron Impact Dissociation', desc: 'SiH₄ + e⁻ → SiH₃* + H· (radical) · SiH₄ + e⁻ → SiH₂ + H₂ + e⁻. RF 가속 전자가 전구체 분자의 화학 결합을 절단하여 라디칼 생성.' },
+      { year: '박막 형성', name: 'Surface Reaction & Growth', desc: '라디칼(SiH₃*, NH₂*, N*, H*)이 웨이퍼 표면에 흡착 → 열활성화 반응 → 박막 성장. 플라즈마 파워 → 라디칼 농도 → 증착 속도(Deposition Rate) 비례.' },
+      { year: 'RF 임피던스', name: 'Sheath & Self-Bias (DC Bias)', desc: '비대칭 전극면적 → DC self-bias 생성 → 이온 가속 → 막질(Film Density) 향상. VDC가 높을수록 이온 충격 에너지 증가. Power 증가 = VDC 증가 = 막 압축 응력 증가.' },
+    ],
+    showParams: 'pecvd',
+    showProcess: 'pecvd',
+    showDeepLearn: 'pecvd',
+    equations: [
+      'SiH_4 + 4N_2O \\xrightarrow{\\text{Plasma}} SiO_2 + 4N_2 + 2H_2O',
+      'SiH_4 + NH_3 \\xrightarrow{\\text{Plasma}} Si_3N_4 + H_2',
+    ],
+    classroom: `PE-CVD 공정 이해 점검:\n1. Thermal CVD와 PE-CVD의 증착 온도 차이(~600°C vs ~350°C)가 반도체 공정 순서(배선 형성 전/후)에 미치는 영향을 설명하세요.\n2. RF 파워를 높이면 증착 속도(deposition rate)와 막 응력(film stress)은 어떻게 변화합니까? 그 이유를 플라즈마 물리 관점에서 설명하세요.\n3. SiH₄와 N₂O를 사용하는 SiO₂ PE-CVD 반응에서, 플라즈마가 생성하는 주요 라디칼 종(species)은 무엇입니까?\n4. RF Generator의 출력 주파수가 13.56 MHz인 이유는 무엇입니까? (FCC/ITU ISM 대역 — 반도체 공정 표준)`,
+    connections: ['m32', 'm33', 'm34'],
+  },
+
+  // ── MODULE 3-2: CCP in Dry Etch ───────────────────────────────
+  {
+    id: 'm32', chapter: 'MODULE 3-2', era: 'ccp',
+    name: 'CCP in Dry Etch',
+    nameKr: 'CCP in Dry Etch — 이방성 식각의 원리',
+    period: 'CCP 건식 식각 챔버 · 이방성 · DC Bias',
+    tags: ['Dry Etch', 'CCP', '이방성 식각', 'DC Bias', 'CF₄', 'RIE'],
+    quote: '준비 중 — Coming Soon',
+    quoteAttr: '— Benedu Insight',
+    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
+    placeholder: true,
+    connections: ['m31', 'm33', 'm34'],
+  },
+
+  // ── MODULE 3-3: CCP in PVD (Sputter) ─────────────────────────
+  {
+    id: 'm33', chapter: 'MODULE 3-3', era: 'ccp',
+    name: 'CCP in PVD (Sputter)',
+    nameKr: 'CCP in PVD — 스퍼터링의 원리',
+    period: 'DC/RF Magnetron Sputter · 타깃 · 성막',
+    tags: ['PVD', 'Sputter', 'Magnetron', 'DC Sputter', 'RF Sputter'],
+    quote: '준비 중 — Coming Soon',
+    quoteAttr: '— Benedu Insight',
+    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
+    placeholder: true,
+    connections: ['m31', 'm32', 'm34'],
+  },
+
+  // ── MODULE 3-4: ICP in Dry Etch ───────────────────────────────
+  {
+    id: 'm34', chapter: 'MODULE 3-4', era: 'icp',
+    name: 'ICP in Dry Etch',
+    nameKr: 'ICP in Dry Etch — 고밀도 플라즈마 식각',
+    period: 'ICP 구조 · 고밀도 플라즈마 · 독립 바이어스 제어',
+    tags: ['ICP', 'High-Density Plasma', 'Dry Etch', 'Source Power', 'Bias Power'],
+    quote: '준비 중 — Coming Soon',
+    quoteAttr: '— Benedu Insight',
+    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
+    placeholder: true,
+    connections: ['m31', 'm32', 'm35'],
+  },
+
+  // ── MODULE 3-5: Remote Plasma Source ─────────────────────────
+  {
+    id: 'm35', chapter: 'MODULE 3-5', era: 'rps',
+    name: 'Remote Plasma Source',
+    nameKr: 'Remote Plasma Source — Microwave/ECR & ICP Type',
+    period: 'RPS 구조 · ECR · Microwave · 원거리 플라즈마 공급',
+    tags: ['RPS', 'Microwave', 'ECR', 'Remote Plasma', 'ICP Type'],
+    quote: '준비 중 — Coming Soon',
+    quoteAttr: '— Benedu Insight',
+    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
+    placeholder: true,
+    connections: ['m34'],
+  },
+];
+
+// ─────────────────────────────────────────────
+//  SLIDES DATA — EN  (동일 구조, 영문 텍스트)
+// ─────────────────────────────────────────────
+const SLIDES_EN = [
+  {
+    id: 'm31', chapter: 'MODULE 3-1', era: 'ccp',
+    name: 'CCP in PE-CVD',
+    nameKr: 'CCP in PE-CVD — Low-Temperature Thin Film Deposition',
+    period: 'PE-CVD Chamber · RF Role · Thin Film Deposition Mechanism',
+    tags: ['PE-CVD', 'CCP', 'Thin Film', 'RF Generator', 'SiO₂', 'Si₃N₄'],
+    quote: 'PECVD uses plasma instead of heat as the energy source, enabling high-quality dielectric film deposition well below the Si melting point — at temperatures one-fifth of those required by thermal CVD.',
+    quoteAttr: '— Semiconductor CVD Process Fundamentals',
+    bio: `<b>PE-CVD (Plasma-Enhanced Chemical Vapor Deposition)</b> activates precursor gases into a plasma state using a CCP (Capacitively Coupled Plasma) structure, then deposits a thin film on the wafer surface.\n\n<b>Why plasma?</b> Pure thermal CVD requires above 600–800°C to deposit SiO₂ or Si₃N₄ — high enough to damage metal interconnects (Cu, Al) and low-k dielectrics already formed. Plasma uses <b>electron impact dissociation</b> to break reactive gases into radicals and ions, supplying sufficient chemical reaction energy at just 300–400°C.`,
+    showDiagram: 'pecvd',
+    theories: [
+      { year: 'Chamber Structure', name: 'CCP Electrode Configuration — Parallel Plate', desc: 'RF voltage applied between RF electrode (upper/showerhead) and ground electrode (lower/susceptor). Gap ~20–60 mm. Plasma formed by capacitive coupling.' },
+      { year: 'Plasma Generation', name: 'Electron Impact Dissociation', desc: 'SiH₄ + e⁻ → SiH₃* + H· (radical) · SiH₄ + e⁻ → SiH₂ + H₂ + e⁻. RF-accelerated electrons cleave precursor bonds to generate radicals.' },
+      { year: 'Film Formation', name: 'Surface Reaction & Growth', desc: 'Radicals (SiH₃*, NH₂*, N*, H*) adsorb on wafer surface → thermally-activated reaction → film growth. Plasma power → radical density → deposition rate (proportional).' },
+      { year: 'RF Impedance', name: 'Sheath & DC Self-Bias', desc: 'Asymmetric electrode area → DC self-bias → ion acceleration → improved film density. Higher V_DC = more ion bombardment energy = higher compressive stress.' },
+    ],
+    showParams: 'pecvd',
+    showProcess: 'pecvd',
+    showDeepLearn: 'pecvd',
+    equations: [
+      'SiH_4 + 4N_2O \\xrightarrow{\\text{Plasma}} SiO_2 + 4N_2 + 2H_2O',
+      'SiH_4 + NH_3 \\xrightarrow{\\text{Plasma}} Si_3N_4 + H_2',
+    ],
+    classroom: `PE-CVD Process Comprehension Check:\n1. Explain how the temperature difference between Thermal CVD (~600°C) and PE-CVD (~350°C) affects the process order in semiconductor fabrication (before or after metal interconnect formation).\n2. How do deposition rate and film stress change when RF power is increased? Explain from a plasma physics perspective.\n3. In the SiO₂ PE-CVD reaction using SiH₄ and N₂O, what are the key radical species generated by the plasma?\n4. Why is 13.56 MHz the standard operating frequency for RF Generators used in semiconductor plasma processing? (FCC/ITU ISM band)`,
+    connections: ['m32', 'm33', 'm34'],
+  },
+  {
+    id: 'm32', chapter: 'MODULE 3-2', era: 'ccp', name: 'CCP in Dry Etch',
+    nameKr: 'CCP in Dry Etch — Anisotropic Etching', period: 'CCP Dry Etch · Anisotropic · DC Bias',
+    tags: ['Dry Etch', 'CCP', 'Anisotropic', 'DC Bias', 'CF₄', 'RIE'],
+    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
+    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m31', 'm33', 'm34'],
+  },
+  {
+    id: 'm33', chapter: 'MODULE 3-3', era: 'ccp', name: 'CCP in PVD (Sputter)',
+    nameKr: 'CCP in PVD — Sputtering Fundamentals', period: 'DC/RF Magnetron Sputter · Target · Film Growth',
+    tags: ['PVD', 'Sputter', 'Magnetron', 'DC Sputter', 'RF Sputter'],
+    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
+    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m31', 'm32', 'm34'],
+  },
+  {
+    id: 'm34', chapter: 'MODULE 3-4', era: 'icp', name: 'ICP in Dry Etch',
+    nameKr: 'ICP in Dry Etch — High-Density Plasma Etching', period: 'ICP Structure · High-Density Plasma · Independent Bias Control',
+    tags: ['ICP', 'High-Density Plasma', 'Dry Etch', 'Source Power', 'Bias Power'],
+    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
+    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m31', 'm32', 'm35'],
+  },
+  {
+    id: 'm35', chapter: 'MODULE 3-5', era: 'rps', name: 'Remote Plasma Source',
+    nameKr: 'Remote Plasma Source — Microwave/ECR & ICP Type', period: 'RPS Structure · ECR · Microwave · Remote Plasma Delivery',
+    tags: ['RPS', 'Microwave', 'ECR', 'Remote Plasma', 'ICP Type'],
+    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
+    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m34'],
+  },
+];
+
+function getSLIDES() { return lang === 'ko' ? SLIDES_KO : SLIDES_EN; }
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+function changeScale(delta) {
+  currentScale = Math.max(0.7, Math.min(1.4, currentScale + delta));
+  document.documentElement.style.setProperty('--scale', currentScale);
+  document.getElementById('scale-indicator').textContent = Math.round(currentScale * 100) + '%';
+}
+function setActive(btn) {
+  document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function openImgPopup(src, caption) {
+  const ov = document.getElementById('imgPopupOverlay');
+  document.getElementById('imgPopupImg').src = src;
+  document.getElementById('imgPopupImg').alt = caption || '';
+  document.getElementById('imgPopupCaption').textContent = caption || '';
+  ov.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeImgPopup(e) {
+  if (e && e.target === document.getElementById('imgPopupInner')) return;
+  document.getElementById('imgPopupOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImgPopup(); });
+function toggleDeepLearn(uid) {
+  const hdr = document.getElementById(uid + '_hdr');
+  const body = document.getElementById(uid + '_body');
+  if (!hdr || !body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  hdr.classList.toggle('open', !isOpen);
+}
+
+// ─────────────────────────────────────────────
+//  LANGUAGE TOGGLE
+// ─────────────────────────────────────────────
+function setLang(l) {
+  lang = l;
+  document.body.setAttribute('data-lang', l);
+  document.getElementById('btnKo').classList.toggle('active-lang', l === 'ko');
+  document.getElementById('btnEn').classList.toggle('active-lang', l === 'en');
+  const T = UI[lang];
+  document.getElementById('hTitle').textContent = T.hTitle;
+  document.getElementById('eraAll').textContent  = T.eraAll;
+  document.getElementById('eraCCP').textContent  = T.eraCCP;
+  document.getElementById('eraICP').textContent  = T.eraICP;
+  document.getElementById('eraRPS').textContent  = T.eraRPS;
+  buildSidebar(currentEraFilter);
+  if (currentId) {
+    const slide = getSLIDES().find(s => s.id === currentId);
+    if (slide) renderDetail(slide);
+  } else {
+    document.getElementById('detail').innerHTML =
+      `<div class="detail-empty"><div class="icon-ring"></div><p>${T.emptyMsg}</p></div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SIDEBAR
+// ─────────────────────────────────────────────
+const eraColors = {
+  ccp: { tag: '#7030A0', tagBg: '#F0E6F6', tagBorder: '#d9b8ed' },
+  icp: { tag: '#0F8C50', tagBg: '#E5F4EC', tagBorder: '#cbeadd' },
+  rps: { tag: '#1565C0', tagBg: '#E3F2FD', tagBorder: '#90CAF9' },
+};
+
+function buildSidebar(filter) {
+  currentEraFilter = filter;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '';
+  const T = UI[lang];
+  const SLIDES = getSLIDES();
+  const eras = ['ccp', 'icp', 'rps'];
+
+  eras.forEach(eraId => {
+    const slides = SLIDES.filter(s => s.era === eraId && (filter === 'all' || filter === eraId));
+    if (slides.length === 0) return;
+    const grp = document.createElement('div');
+    grp.className = 'era-group';
+    const hdr = document.createElement('div');
+    hdr.className = 'era-header';
+    const ec = eraColors[eraId];
+    hdr.innerHTML = `
+      <span class="era-label" style="color:${ec.tag}">${T.eraLabels[eraId]}</span>
+      <span class="era-line"></span>
+      <span class="era-range">${T.eraRanges[eraId]}</span>
+      <span class="era-toggle">▾</span>`;
+    grp.appendChild(hdr);
+    const cardsWrap = document.createElement('div');
+    cardsWrap.className = 'era-cards';
+    slides.forEach(slide => {
+      const card = document.createElement('div');
+      card.className = 'sci-card' + (currentId === slide.id ? ' active' : '') + (slide.placeholder ? ' placeholder' : '');
+      card.id = `card-${slide.id}`;
+      const tagHtml = slide.tags.slice(0,3).map(t =>
+        `<span class="sci-tag" style="background:${ec.tagBg};color:${ec.tag};border:1px solid ${ec.tagBorder}">${t}</span>`
+      ).join('');
+      card.innerHTML = `
+        <div class="sci-year">${slide.chapter}</div>
+        <div class="sci-info">
+          <div class="sci-name">${slide.nameKr}</div>
+          <div class="sci-nation">${slide.period}</div>
+          <div class="sci-tags">${tagHtml}</div>
+        </div>`;
+      if (!slide.placeholder) card.addEventListener('click', () => selectSlide(slide.id));
+      cardsWrap.appendChild(card);
+    });
+    hdr.addEventListener('click', () => {
+      const isCollapsed = cardsWrap.classList.toggle('collapsed');
+      hdr.classList.toggle('collapsed', isCollapsed);
+    });
+    grp.appendChild(cardsWrap);
+    sidebar.appendChild(grp);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  SELECT SLIDE
+// ─────────────────────────────────────────────
+function selectSlide(id) {
+  document.querySelectorAll('.sci-card').forEach(c => c.classList.remove('active'));
+  const SLIDES = getSLIDES();
+  const slide = SLIDES.find(s => s.id === id);
+  if (!slide || slide.placeholder) return;
+  currentId = id;
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    const wrap = card.closest('.era-cards');
+    if (wrap && wrap.classList.contains('collapsed')) {
+      wrap.classList.remove('collapsed');
+      wrap.previousElementSibling?.classList.remove('collapsed');
+    }
+    card.classList.add('active');
+    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  renderDetail(slide);
+}
+
+// ─────────────────────────────────────────────
+//  RENDER DETAIL
+// ─────────────────────────────────────────────
+function renderDetail(slide) {
+  const panel = document.getElementById('detail');
+  const T = UI[lang];
+  const isEn = lang === 'en';
+
+  const eraTagStyle = {
+    ccp: 'background:#F0E6F6;color:#521a78',
+    icp: 'background:#E5F4EC;color:#0a6b3d',
+    rps: 'background:#E3F2FD;color:#1565C0',
+  };
+
+  // Placeholder
+  if (slide.placeholder) {
+    panel.innerHTML = `
+      <div class="detail-content">
+        <div class="detail-hero">
+          <span class="detail-era-tag" style="${eraTagStyle[slide.era]}">${UI[lang].eraNames[slide.era]}</span>
+          <div class="detail-name">${slide.name}</div>
+          <div class="detail-name-kr">${slide.nameKr}</div>
+          <div class="detail-meta"><span>${T.periodLabel}${slide.period}</span></div>
+        </div>
+        <div class="coming-soon">
+          <div class="coming-soon-icon">🔧</div>
+          <div class="coming-soon-title">${isEn ? 'This module is under development' : '이 강의 모듈은 현재 개발 중입니다'}</div>
+          <div class="coming-soon-sub">${isEn ? 'Content will be published soon' : '콘텐츠가 곧 공개될 예정입니다'}</div>
+        </div>
+      </div>`;
+    panel.scrollTop = 0;
+    return;
+  }
+
+  // ── Quote ──
+  const quoteHtml = slide.quote ? `
+    <div class="quote-block">
+      <div class="quote-badge">❝</div>
+      <div class="quote-body">
+        <div class="quote-text">${slide.quote}</div>
+        <div class="quote-attr">${slide.quoteAttr}</div>
+      </div>
+    </div>` : '';
+
+  // ── Bio ──
+  const bioHtml = `
+    <div class="detail-bio">
+      ${(slide.bio || '').split('\n\n').map(p => `<p>${p.trim()}</p>`).join('')}
+    </div>`;
+
+  // ── Chamber Diagram ──
+  let diagramHtml = '';
+  if (slide.showDiagram === 'pecvd') {
+    diagramHtml = `
+      <div class="section-title">${T.sectionDiagram}</div>
+      <div class="chamber-wrap">
+        <div class="chamber-header">
+          <span class="chamber-badge">DIAGRAM</span>
+          <span class="chamber-title">${isEn ? 'CCP PE-CVD Chamber Structure' : 'CCP PE-CVD 챔버 구조'}</span>
+        </div>
+        ${buildPECVDDiagram(isEn)}
+      </div>`;
+  }
+
+  // ── Parameters ──
+  let paramHtml = '';
+  if (slide.showParams === 'pecvd') {
+    const params = isEn ? [
+      { label: 'RF Frequency', value: '13.56', unit: 'MHz', desc: 'FCC/ITU ISM band standard' },
+      { label: 'RF Power', value: '100–2000', unit: 'W', desc: 'Varies with chamber size & film type' },
+      { label: 'Process Pressure', value: '0.1–10', unit: 'Torr', desc: 'Determines mean free path & plasma density' },
+      { label: 'Process Temp.', value: '200–400', unit: '°C', desc: 'Lower than Thermal CVD by 300–400°C' },
+      { label: 'Deposition Rate', value: '50–500', unit: 'nm/min', desc: 'Controlled by RF power & gas flow' },
+      { label: 'Electrode Gap', value: '20–60', unit: 'mm', desc: 'Affects uniformity & sheath voltage' },
+    ] : [
+      { label: 'RF 주파수', value: '13.56', unit: 'MHz', desc: 'FCC/ITU ISM 대역 표준' },
+      { label: 'RF 파워', value: '100–2000', unit: 'W', desc: '챔버 크기 및 막 종류에 따라 변동' },
+      { label: '공정 압력', value: '0.1–10', unit: 'Torr', desc: '평균 자유 행정 및 플라즈마 밀도 결정' },
+      { label: '공정 온도', value: '200–400', unit: '°C', desc: 'Thermal CVD 대비 300–400°C 낮음' },
+      { label: '증착 속도', value: '50–500', unit: 'nm/min', desc: 'RF 파워 및 가스 유량으로 제어' },
+      { label: '전극 간격', value: '20–60', unit: 'mm', desc: '균일도 및 시스 전압에 영향' },
+    ];
+    paramHtml = `
+      <div class="section-title">${T.sectionParam}</div>
+      <div class="param-panel">
+        <div class="asendia-badge">
+          <div>
+            <div class="asendia-badge-text">RF Generator + RF Matcher (Power Delivery System)</div>
+            <div class="asendia-badge-sub">13.56 MHz · 50Ω Output · CW / Pulsed Mode</div>
+          </div>
+        </div>
+        <div class="param-grid">
+          ${params.map(p => `
+            <div class="param-item">
+              <div class="param-label">${p.label}</div>
+              <div class="param-value">${p.value}<span class="param-unit">${p.unit}</span></div>
+              <div class="param-desc">${p.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  // ── Process Steps ──
+  let processHtml = '';
+  if (slide.showProcess === 'pecvd') {
+    const steps = isEn ? [
+      { title: 'Chamber Purge & Pump-down', desc: 'Remove atmospheric air. Achieve base pressure ~10⁻⁶ Torr. Eliminate H₂O, O₂, and N₂ contamination sources.' },
+      { title: 'Gas Introduction & Stabilization', desc: 'Flow SiH₄ + N₂O (for SiO₂) or SiH₄ + NH₃ + N₂ (for Si₃N₄) through MFC. Stabilize chamber pressure (0.1–10 Torr).' },
+      { title: 'RF Power On — Plasma Ignition', desc: 'RF Generator output → Matcher tunes to 50Ω → RF power reaches electrodes → electron acceleration → electron impact ionization → plasma formed.' },
+      { title: 'Radical Generation & Deposition', desc: 'Electrons dissociate precursor molecules → radicals (SiH₃*, NH*, H*) → adsorb on wafer → surface reaction → SiO₂ / Si₃N₄ film growth.' },
+      { title: 'RF Off & Post-purge', desc: 'Plasma extinguished → residual gas purge → chamber vented → wafer transfer.' },
+    ] : [
+      { title: '챔버 퍼지 및 펌프다운', desc: '대기 공기 제거. 베이스 압력 ~10⁻⁶ Torr 달성. H₂O, O₂, N₂ 오염원 제거.' },
+      { title: '공정 가스 유입 및 압력 안정화', desc: 'MFC로 SiH₄ + N₂O (SiO₂용) 또는 SiH₄ + NH₃ + N₂ (Si₃N₄용) 유입. 챔버 압력 안정화 (0.1–10 Torr).' },
+      { title: 'RF 파워 인가 — 플라즈마 점화', desc: 'RF Generator 출력 → Matcher가 50Ω 정합 → RF 파워 전극 도달 → 전자 가속 → 전자 충돌 이온화 → 플라즈마 생성.' },
+      { title: '라디칼 생성 및 박막 증착', desc: '전자가 전구체 분자 해리 → 라디칼(SiH₃*, NH*, H*) 생성 → 웨이퍼 표면 흡착 → 표면 반응 → SiO₂ / Si₃N₄ 박막 성장.' },
+      { title: 'RF Off & 후처리 퍼지', desc: '플라즈마 소멸 → 잔류 가스 퍼지 → 챔버 벤트 → 웨이퍼 반출.' },
+    ];
+    processHtml = `
+      <div class="section-title">${T.sectionProcess}</div>
+      <div class="process-steps">
+        ${steps.map((s, i) => `
+          <div class="step-item">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-body">
+              <div class="step-title">${s.title}</div>
+              <div class="step-desc">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  // ── Theories ──
+  let theoriesHtml = '';
+  if (slide.theories) {
+    theoriesHtml = `
+      <div class="section-title">${T.sectionTheory}</div>
+      <div class="theories-grid">
+        ${slide.theories.map(t => `
+          <div class="theory-card">
+            <div class="theory-year">${t.year}</div>
+            <div class="theory-name">${t.name}</div>
+            <div class="theory-desc">${t.desc}</div>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  // ── Equations ──
+  let eqHtml = '';
+  if (slide.equations && slide.equations.length > 0) {
+    eqHtml = `<div class="section-title">${T.sectionEq}</div>`;
+    slide.equations.forEach(eq => { eqHtml += `<div class="eq-block">\\[${eq}\\]</div>`; });
+  }
+
+  // ── Deep Learn ──
+  let deepLearnHtml = '';
+  if (slide.showDeepLearn === 'pecvd') {
+    deepLearnHtml = buildPECVDDeepLearn(isEn, slide.id);
+  }
+
+  // ── Classroom ──
+  const classroomHtml = `
+    <details class="classroom-box">
+      <summary>${T.classroomLabel}</summary>
+      <div class="classroom-body">${(slide.classroom || '').replace(/\n/g, '<br>')}</div>
+    </details>`;
+
+  // ── Connections ──
+  const SLIDES = getSLIDES();
+  let connectionsHtml = '';
+  if (slide.connections && slide.connections.length > 0) {
+    connectionsHtml = slide.connections.map(cid => {
+      const target = SLIDES.find(s => s.id === cid);
+      if (!target) return '';
+      return `<span class="conn-chip" onclick="selectSlide('${target.id}')">${T.navGo}: ${target.nameKr}</span>`;
+    }).join('');
+  }
+
+  panel.innerHTML = `
+    <div class="detail-content">
+      <div class="detail-hero">
+        <span class="detail-era-tag" style="${eraTagStyle[slide.era]}">${UI[lang].eraNames[slide.era]}</span>
+        <div class="detail-name">${slide.name}</div>
+        <div class="detail-name-kr">${slide.nameKr}</div>
+        <div class="detail-meta">
+          <span>${T.periodLabel}${slide.period}</span>
+          <span>${T.tagLabel}${slide.tags.join(' · ')}</span>
+        </div>
+      </div>
+      ${quoteHtml}
+      ${bioHtml}
+      ${diagramHtml}
+      ${paramHtml}
+      ${processHtml}
+      ${theoriesHtml}
+      ${eqHtml}
+      ${deepLearnHtml}
+      ${classroomHtml}
+      ${connectionsHtml ? `<div class="section-title">${T.sectionNav}</div><div class="conn-list">${connectionsHtml}</div>` : ''}
+    </div>`;
+
+  panel.scrollTop = 0;
+
+  if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+    MathJax.typesetPromise([panel]).catch(err => console.log('MathJax: ' + err.message));
+  }
+}
+
+// ─────────────────────────────────────────────
+//  PE-CVD CHAMBER DIAGRAM
+//  canvas 태그만 반환 → drawPECVDCanvas()로 그리기
+// ─────────────────────────────────────────────
+function buildPECVDDiagram(isEn) {
+  window._pecvdLabels = isEn ? {
+    showerhead: 'Showerhead (RF Electrode)', susceptor: 'Susceptor (Grounded)',
+    wafer: 'Si Wafer', plasma: 'CCP Plasma', gap: 'Electrode Gap\n20\u201360 mm',
+    sheath: 'Sheath (Ion Accel.)', rfgen: 'RF Generator\n13.56 MHz',
+    matcher: 'RF Matcher\n(50\u03a9)', pump: 'Vacuum Pump',
+    gasIn: 'SiH\u2084 + N\u2082O / NH\u2083', dcbias: 'DC Self-Bias (V_DC)',
+    film: 'SiO\u2082 / Si\u2083N\u2084 Film Growth \u2193',
+  } : {
+    showerhead: '\uc0f4\uc6cc\ud5e4\ub4dc (RF \uc804\uadf9)', susceptor: '\uc11c\uc140\ud130 (\uc811\uc9c0)',
+    wafer: 'Si \uc6e8\uc774\ud37c', plasma: 'CCP \ud50c\ub77c\uc9c8\ub9c8',
+    gap: '\uc804\uadf9 \uac04\uaca9\n20\u201360 mm',
+    sheath: '\uc2dc\uc2a4 (\uc774\uc628 \uac00\uc18d)', rfgen: 'RF Generator\n13.56 MHz',
+    matcher: 'RF Matcher\n(50\u03a9)', pump: '\uc9c4\uacf5 \ud39c\ud504',
+    gasIn: 'SiH\u2084 + N\u2082O / NH\u2083', dcbias: 'DC \uc790\uae30 \ubc14\uc774\uc5b4\uc2a4 (V_DC)',
+    film: '\ubc15\ub9c9 \uc131\uc7a5 (SiO\u2082 / Si\u2083N\u2084) \u2193',
+  };
+  setTimeout(drawPECVDCanvas, 80);
+  return '<canvas id="pecvdCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
+}
+
+function drawPECVDCanvas() {
+  const canvas = document.getElementById('pecvdCanvas');
+  if (!canvas) return;
+  const labels = window._pecvdLabels || {};
+  const CW = 780, CH = 460;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = CW * dpr; canvas.height = CH * dpr;
+  canvas.style.height = Math.round(CH * (canvas.offsetWidth / CW)) + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = CW, H = CH;
+
+  ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(112,48,160,0.08)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  const cL=120, cR=660, cT=60, cB=370;
+  ctx.strokeStyle='rgba(180,120,255,0.4)'; ctx.lineWidth=2;
+  ctx.strokeRect(cL, cT, cR-cL, cB-cT);
+
+  const shY=60, shH=22;
+  const g1 = ctx.createLinearGradient(cL,shY,cR,shY+shH);
+  g1.addColorStop(0,'#4a1080'); g1.addColorStop(1,'#7030A0');
+  ctx.fillStyle=g1; ctx.fillRect(cL,shY,cR-cL,shH);
+  ctx.fillStyle='#0d0d1a';
+  for (let hx=cL+25; hx<cR-10; hx+=22) { ctx.beginPath(); ctx.arc(hx,shY+shH/2,3,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.showerhead||'', (cL+cR)/2, shY-8);
+
+  const plT=shY+shH, plB=300;
+  const pg=ctx.createRadialGradient((cL+cR)/2,(plT+plB)/2,30,(cL+cR)/2,(plT+plB)/2,200);
+  pg.addColorStop(0,'rgba(160,80,255,0.18)'); pg.addColorStop(0.5,'rgba(200,120,255,0.10)'); pg.addColorStop(1,'rgba(80,20,160,0.04)');
+  ctx.fillStyle=pg; ctx.fillRect(cL+2,plT,cR-cL-4,plB-plT);
+  [[250,140],[320,165],[400,130],[470,155],[340,200],[420,190],[290,220],[370,175],[450,210],[310,240],[490,145]].forEach(([px,py])=>{
+    const r=ctx.createRadialGradient(px,py,1,px,py,9);
+    r.addColorStop(0,'rgba(200,140,255,0.9)'); r.addColorStop(1,'rgba(160,80,255,0)');
+    ctx.fillStyle=r; ctx.beginPath(); ctx.arc(px,py,9,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle='rgba(200,160,255,0.75)'; ctx.font='italic bold 13px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.plasma||'', (cL+cR)/2, (plT+plB)/2+5);
+
+  ctx.strokeStyle='rgba(255,160,80,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(cL+2,plT+16); ctx.lineTo(cR-2,plT+16); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cL+2,plB-16); ctx.lineTo(cR-2,plB-16); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,160,80,0.7)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.sheath||'', cR+6, plT+20); ctx.fillText(labels.sheath||'', cR+6, plB-12);
+
+  const sucY=300, sucH=22;
+  const g2=ctx.createLinearGradient(cL,sucY,cR,sucY+sucH);
+  g2.addColorStop(0,'#1a3a1a'); g2.addColorStop(1,'#0F8C50');
+  ctx.fillStyle=g2; ctx.fillRect(cL,sucY,cR-cL,sucH);
+  ctx.fillStyle='#7fffb3'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.susceptor||'', (cL+cR)/2, sucY+15);
+
+  const wY=sucY-10;
+  ctx.fillStyle='#b8d4ff'; ctx.fillRect(cL+60,wY,cR-cL-120,10);
+  ctx.fillStyle='rgba(255,200,80,0.7)'; ctx.fillRect(cL+60,wY-5,cR-cL-120,5);
+  ctx.fillStyle='#FFD580'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.film||'', (cL+cR)/2, wY-9);
+  ctx.fillStyle='#b8d4ff'; ctx.font='bold 11px "Google Sans",sans-serif';
+  ctx.fillText(labels.wafer||'', (cL+cR)/2, wY+7);
+
+  const midX=cR+50;
+  ctx.strokeStyle='rgba(255,200,100,0.6)'; ctx.lineWidth=1; ctx.setLineDash([3,2]);
+  ctx.beginPath(); ctx.moveTo(midX,shY+shH); ctx.lineTo(midX,sucY); ctx.stroke(); ctx.setLineDash([]);
+  function arw(x,y,d){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-4,y+(d>0?-8:8)); ctx.lineTo(x+4,y+(d>0?-8:8)); ctx.closePath(); ctx.fill(); }
+  ctx.fillStyle='rgba(255,200,100,0.8)'; arw(midX,shY+shH,1); arw(midX,sucY,-1);
+  ctx.fillStyle='rgba(255,200,100,0.8)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  (labels.gap||'').split('\n').forEach((l,i)=>ctx.fillText(l, midX+7, (shY+shH+sucY)/2-6+i*13));
+
+  const mX=20,mY=140,mW=80,mH=50;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(mX,mY,mW,mH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(mX,mY,mW,mH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.matcher||'').split('\n').forEach((l,i)=>ctx.fillText(l,mX+mW/2,mY+18+i*13));
+
+  const rX=20,rY=220,rW=80,rH=55;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(rX,rY,rW,rH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(rX,rY,rW,rH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.rfgen||'').split('\n').forEach((l,i)=>ctx.fillText(l,rX+rW/2,rY+18+i*13));
+
+  ctx.strokeStyle='rgba(200,140,255,0.7)'; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(mX+mW,mY+mH/2); ctx.lineTo(cL,shY+shH/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rX+rW/2,rY); ctx.lineTo(mX+mW/2,mY+mH); ctx.stroke();
+
+  ctx.fillStyle='rgba(255,130,80,0.9)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.dcbias||'', (cL+cR)/2, cB+18);
+
+  ctx.fillStyle='rgba(100,200,255,0.8)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.gasIn||'', (cL+cR)/2, cT-12);
+  ctx.fillStyle='rgba(100,200,255,0.5)';
+  for (let ax=cL+60; ax<cR-40; ax+=80) { ctx.beginPath(); ctx.moveTo(ax,cT-5); ctx.lineTo(ax-4,cT+8); ctx.lineTo(ax+4,cT+8); ctx.closePath(); ctx.fill(); }
+
+  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.lineWidth=1.5;
+  ctx.strokeRect(cL+(cR-cL)/2-35,cB+28,70,28);
+  ctx.fillStyle='rgba(15,60,20,0.5)'; ctx.fillRect(cL+(cR-cL)/2-35,cB+28,70,28);
+  ctx.fillStyle='rgba(100,200,120,0.8)'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.pump||'', (cL+cR)/2, cB+46);
+  ctx.strokeStyle='rgba(100,180,100,0.5)';
+  ctx.beginPath(); ctx.moveTo((cL+cR)/2,cB); ctx.lineTo((cL+cR)/2,cB+28); ctx.stroke();
+}
+// ─────────────────────────────────────────────
+//  PE-CVD DEEP LEARN
+// ─────────────────────────────────────────────
+function buildPECVDDeepLearn(isEn, slideId) {
+  const uid = 'dlAccordion_' + slideId;
+
+  const DATA = {
+    ko: {
+      headerTitle: '심화학습 — CCP PE-CVD: 공정 원리 깊이 이해하기',
+      badge: '심화학습',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'RF 임피던스 정합과 플라즈마 생성',
+          body: `<p>PE-CVD 챔버에서 플라즈마를 생성·유지하려면 RF 파워를 효율적으로 챔버에 전달해야 합니다. 챔버 임피던스는 복소수(저항 + 리액턴스)로 표현되며, RF Generator의 출력 임피던스(50Ω)와 일치하지 않으면 <b>반사 전력(Reflected Power)</b>이 발생합니다.</p>
+<div class="dl-eq">Z_match: Z_chamber(복소수) → 50Ω
+Forward Power = Incident Power − Reflected Power
+반사 계수 Γ = (Z_L − Z_0) / (Z_L + Z_0)</div>
+<div class="dl-highlight">RF Matcher(L-network 방식)는 가변 커패시터(tune/load)를 자동 조정하여 반사 전력을 최소화하고 플라즈마에 최대 파워를 전달합니다.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'DC 자기 바이어스(Self-Bias)와 막질 제어',
+          body: `<p>CCP 챔버에서 RF 전극(샤워헤드)과 접지 전극(서셉터)의 면적이 다를 때, 플라즈마 전위는 RF 전극에 대해 더 양(+)으로 형성됩니다. 이로 인해 RF 전극 쪽에 음(−)의 DC 자기 바이어스(V_DC)가 발생합니다.</p>
+<table class="dl-table">
+  <thead><tr><th>RF 파워 ↑</th><th>V_DC ↑</th><th>이온 충격 에너지 ↑</th></tr></thead>
+  <tbody>
+    <tr><td>막 밀도(Film Density) ↑</td><td>압축 응력(Compressive Stress) ↑</td><td>TEOS, SiO₂ 막 품질 향상</td></tr>
+    <tr><td>증착 속도(DR) ↑</td><td>단계 피복성(Step Coverage) 감소</td><td>균일도(Uniformity) 조정 필요</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">반도체 공정에서는 막 응력이 웨이퍼 휨(Wafer Bow)에 직접 영향을 미치므로, RF 파워와 DC Bias의 균형이 중요합니다.</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'PE-CVD 주요 박막 종류 및 응용',
+          body: `<table class="dl-table">
+  <thead><tr><th>박막</th><th>공정 가스</th><th>응용</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td><b>SiO₂</b></td><td>SiH₄ + N₂O<br>TEOS + O₂</td><td>층간 절연막(ILD), 게이트 산화막 보호</td><td>300–400°C, 저응력</td></tr>
+    <tr><td><b>Si₃N₄</b></td><td>SiH₄ + NH₃ + N₂</td><td>패시베이션(Passivation), 스트레스 라이너</td><td>인장/압축 응력 제어 가능</td></tr>
+    <tr><td><b>a-Si:H</b></td><td>SiH₄ (+ H₂)</td><td>TFT 채널, 태양전지</td><td>H 함량으로 밴드갭 조절</td></tr>
+    <tr><td><b>SiON</b></td><td>SiH₄ + N₂O + NH₃</td><td>반사 방지막(ARC)</td><td>굴절률 n 조절 가능</td></tr>
+    <tr><td><b>low-k SiCOH</b></td><td>DEMS/OMCTS</td><td>Cu 배선 층간 절연(Advanced Node)</td><td>k < 2.5 목표</td></tr>
+  </tbody>
+</table>`
+        },
+        {
+          icon: '🏭',
+          title: 'PE-CVD 장비 공급사 및 RF Power Delivery System 연결',
+          body: `<table class="dl-table">
+  <thead><tr><th>장비사</th><th>대표 장비</th><th>주요 용도</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials (AMAT)</td><td>Producer, Precision 5000</td><td>SiO₂, Si₃N₄, low-k ILD</td></tr>
+    <tr><td>Lam Research</td><td>Vector, Altus</td><td>HDP-CVD, Flowfill SiO₂</td></tr>
+    <tr><td>ASM International</td><td>Polygon, Eagle</td><td>Si₃N₄ Spacer, SiO₂ Gap Fill</td></tr>
+    <tr><td>Wonik IPS</td><td>PRODIGY PE-CVD</td><td>Si₃N₄, SiO₂, a-Si</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">RF Generator와 RF Matcher(Power Delivery System)는 위 장비사 시스템에 탑재되어 챔버 내 CCP 플라즈마를 구동합니다. 장비사별로 전용 RF 공급사가 있으며, RF Power Delivery는 챔버 공정 성능에 직접적인 영향을 미칩니다.</div>`
+        },
+      ]
+    },
+    en: {
+      headerTitle: 'Deep Study — CCP PE-CVD: Process Principles in Depth',
+      badge: 'Deep Study',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'RF Impedance Matching & Plasma Generation',
+          body: `<p>To generate and sustain plasma in a PE-CVD chamber, RF power must be transferred efficiently. Chamber impedance is complex (resistance + reactance), and any mismatch with the RF Generator output impedance (50Ω) causes <b>Reflected Power</b>.</p>
+<div class="dl-eq">Z_match: Z_chamber(complex) → 50Ω
+Forward Power = Incident Power − Reflected Power
+Reflection coeff. Γ = (Z_L − Z_0) / (Z_L + Z_0)</div>
+<div class="dl-highlight">RF Matchers (L-network topology) use automatic variable capacitor (tune/load) adjustment to minimize reflected power and deliver maximum power to the plasma.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'DC Self-Bias and Film Quality Control',
+          body: `<p>When the RF electrode (showerhead) and the grounded electrode (susceptor) have unequal areas, the plasma potential becomes more positive relative to the RF electrode, inducing a negative DC self-bias (V_DC) on the RF electrode side.</p>
+<table class="dl-table">
+  <thead><tr><th>RF Power ↑</th><th>V_DC ↑</th><th>Ion Bombardment Energy ↑</th></tr></thead>
+  <tbody>
+    <tr><td>Film Density ↑</td><td>Compressive Stress ↑</td><td>TEOS, SiO₂ film quality improves</td></tr>
+    <tr><td>Deposition Rate ↑</td><td>Step Coverage ↓</td><td>Uniformity adjustment required</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">Film stress directly affects wafer bow in semiconductor manufacturing, making the balance between RF power and DC bias critical.</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'Key PE-CVD Film Types & Applications',
+          body: `<table class="dl-table">
+  <thead><tr><th>Film</th><th>Process Gas</th><th>Application</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><b>SiO₂</b></td><td>SiH₄ + N₂O<br>TEOS + O₂</td><td>ILD, gate oxide protection</td><td>300–400°C, low stress</td></tr>
+    <tr><td><b>Si₃N₄</b></td><td>SiH₄ + NH₃ + N₂</td><td>Passivation, stress liner</td><td>Tensile/compressive stress tunable</td></tr>
+    <tr><td><b>a-Si:H</b></td><td>SiH₄ (+ H₂)</td><td>TFT channel, solar cells</td><td>Bandgap tuned by H content</td></tr>
+    <tr><td><b>SiON</b></td><td>SiH₄ + N₂O + NH₃</td><td>ARC (Anti-Reflective Coating)</td><td>Refractive index n adjustable</td></tr>
+    <tr><td><b>low-k SiCOH</b></td><td>DEMS/OMCTS</td><td>Cu interconnect ILD (advanced node)</td><td>Target k &lt; 2.5</td></tr>
+  </tbody>
+</table>`
+        },
+        {
+          icon: '🏭',
+          title: 'PE-CVD Equipment Vendors & RF Power Delivery',
+          body: `<table class="dl-table">
+  <thead><tr><th>Vendor</th><th>Key Tool</th><th>Primary Use</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials</td><td>Producer, Precision 5000</td><td>SiO₂, Si₃N₄, low-k ILD</td></tr>
+    <tr><td>Lam Research</td><td>Vector, Altus</td><td>HDP-CVD, Flowfill SiO₂</td></tr>
+    <tr><td>ASM International</td><td>Polygon, Eagle</td><td>Si₃N₄ Spacer, SiO₂ Gap Fill</td></tr>
+    <tr><td>Wonik IPS</td><td>PRODIGY PE-CVD</td><td>Si₃N₄, SiO₂, a-Si</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">RF Generators and Matchers (Power Delivery Systems) are integrated into the above equipment systems to drive CCP plasma in the chamber. The RF power delivery subsystem directly influences plasma density, uniformity, and film quality.</div>`
+        },
+      ]
+    }
+  };
+
+  const d = DATA[isEn ? 'en' : 'ko'];
+  const sectionsHtml = d.sections.map(sec => `
+    <div class="dl-section">
+      <div class="dl-section-title">${sec.icon} ${sec.title}</div>
+      <div class="dl-body">${sec.body}</div>
+    </div>`).join('');
+
+  return `
+    <div class="deep-learn-wrap" id="${uid}">
+      <div class="deep-learn-header" onclick="toggleDeepLearn('${uid}')" id="${uid}_hdr">
+        <div class="deep-learn-icon">📚</div>
+        <div class="deep-learn-title">${d.headerTitle}</div>
+        <span class="deep-learn-badge">${d.badge}</span>
+        <span class="deep-learn-chevron">▼</span>
+      </div>
+      <div class="deep-learn-body" id="${uid}_body">
+        <div class="deep-learn-inner">${sectionsHtml}</div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  setLang('ko');
+  setTimeout(() => selectSlide('m31'), 150);
+});
+</script>
+
+</body>
+</html>

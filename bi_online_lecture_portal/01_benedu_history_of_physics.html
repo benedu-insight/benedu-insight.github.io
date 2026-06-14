@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>물리학의 역사 — Benedu Insight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<style>
+  :root {
+    --bg:          #F7F8FA;
+    --bg2:         #FFFFFF;
+    --bg3:         #F0E6F6;
+    --bg4:         #E5F4EC;
+    --green:       #0F8C50;
+    --green-soft:  #E5F4EC;
+    --green-mid:   #cbeadd;
+    --green-dark:  #0a6b3d;
+    --purple:      #7030A0;
+    --purple-soft: #F0E6F6;
+    --purple-mid:  #d9b8ed;
+    --purple-dark: #521a78;
+    --charcoal:    #2D2D2D;
+    --text:        #2D2D2D;
+    --text2:       #6B7280;
+    --text3:       #9CA3AF;
+    --border:      #E5E7EB;
+    --border2:     #F3F4F6;
+    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
+    --max-w:       1400px;
+    --scale:       1.0; /* 텍스트 크기 동적 배율 제어 변수 */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Gowun Batang', serif;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: var(--max-w);
+  }
+  .header-logo {
+    height: 52px;
+    width: auto;
+    flex-shrink: 0;
+  }
+  .header-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .header-title-block { flex: 1; min-width: 0; }
+  header h1 {
+    font-family: 'Gowun Batang', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--purple);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .era-filter {
+    margin-left: auto;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .era-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text2);
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.78rem;
+    padding: 4px 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .era-btn:hover {
+    border-color: var(--purple-mid);
+    color: var(--purple);
+    background: var(--purple-soft);
+  }
+  .era-btn.active {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: #fff;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: calc(100vh - 72px);
+    width: 100%;
+    max-width: var(--max-w);
+  }
+
+  /* ── Timeline Sidebar ── */
+  .timeline-sidebar {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    background: var(--bg2);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .timeline-sidebar::-webkit-scrollbar { width: 4px; }
+  .timeline-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .era-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg2);
+    padding: 0.75rem 1rem 0.5rem;
+    border-bottom: 1px solid var(--border2);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .era-label {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .era-line { flex: 1; height: 1px; background: var(--border); }
+  .era-range {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── 접기/펼치기 토글 ── */
+  .era-header {
+    cursor: pointer;
+    user-select: none;
+  }
+  .era-header:hover { background: var(--bg); }
+  .era-toggle {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: var(--text3);
+    transition: background 0.15s, transform 0.22s;
+  }
+  .era-header.collapsed .era-toggle {
+    transform: rotate(-90deg);
+  }
+  .era-header:hover .era-toggle {
+    background: var(--border);
+    color: var(--text2);
+  }
+  .era-cards {
+    overflow: hidden;
+    max-height: 2000px;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+    opacity: 1;
+  }
+  .era-cards.collapsed {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  /* Scientist card in sidebar */
+  .sci-card {
+    padding: 0.7rem 1rem 0.7rem 1.1rem;
+    border-bottom: 1px solid var(--border2);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    border-left: 3px solid transparent;
+  }
+  .sci-card:hover { background: var(--bg); }
+  .sci-card.active { background: var(--purple-soft); border-left-color: var(--purple); }
+
+  .sci-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text3);
+    min-width: 30px;
+    padding-top: 2px;
+    line-height: 1.4;
+  }
+  .sci-info { flex: 1; min-width: 0; }
+  .sci-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    line-height: 1.3;
+  }
+  .sci-card.active .sci-name { color: var(--purple-dark); }
+  .sci-nation {
+    font-size: 0.68rem;
+    color: var(--text3);
+    margin-top: 1px;
+    font-family: 'Gowun Batang', serif;
+  }
+  .sci-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+  }
+  .sci-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.56rem;
+    padding: 1px 6px;
+    border-radius: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Detail Panel Layout & Sticky Toolbar ── */
+  .detail-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  
+  /* Sticky Reading Toolbar */
+  .content-toolbar {
+    position: sticky;
+    top: 0;
+    background: rgba(247, 248, 250, 0.95);
+    backdrop-filter: blur(8px);
+    padding: 0.6rem 2.25rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.55rem;
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+  }
+  .toolbar-btn {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg2);
+    color: var(--text);
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .toolbar-btn:hover {
+    border-color: var(--purple-mid);
+    background: var(--purple-soft);
+    color: var(--purple-dark);
+  }
+  .toolbar-btn:active {
+    transform: scale(0.95);
+  }
+
+  #detail {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  #detail::-webkit-scrollbar { width: 4px; }
+  #detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .detail-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 1rem;
+    color: var(--text3);
+  }
+  .detail-empty .icon-ring {
+    width: 72px; height: 72px;
+    border: 10px solid var(--green-mid);
+    border-radius: 50%;
+  }
+  .detail-empty p {
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    font-family: 'Gowun Batang', serif;
+  }
+
+  .detail-content { padding: 2rem 2.25rem 4rem; max-width: 780px; }
+
+  /* Hero section with Dynamic Font-scaling support */
+  .detail-hero {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .detail-era-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+  .detail-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: calc(2rem * var(--scale));
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--purple);
+    margin-bottom: 0.15rem;
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-name-kr {
+    font-family: 'Gowun Batang', serif;
+    font-size: calc(1rem * var(--scale));
+    color: var(--text2);
+    margin-bottom: 0.75rem;
+    font-weight: 400;
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-meta {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.68rem * var(--scale));
+    color: var(--text2);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border2);
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Timeline bar */
+  .life-bar-wrap {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+  }
+  .life-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text3);
+    margin-bottom: 5px;
+  }
+  .life-bar {
+    position: relative;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  /* Quote */
+  .quote-block {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quote-badge {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+  .quote-body { flex: 1; min-width: 0; }
+  .quote-text {
+    font-family: 'Gowun Batang', serif;
+    font-style: italic;
+    font-size: calc(0.9rem * var(--scale));
+    color: var(--green-dark);
+    line-height: 1.78;
+    transition: font-size 0.15s ease-out;
+  }
+  .quote-attr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.6rem * var(--scale));
+    color: var(--text3);
+    margin-top: 0.45rem;
+    letter-spacing: 0.06em;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Bio */
+  .detail-bio {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    font-size: calc(0.9rem * var(--scale));
+    line-height: 1.9;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-bio p + p { margin-top: 0.85em; }
+
+  /* Section titles */
+  .section-title {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Equations */
+  .eq-block {
+    background: var(--charcoal);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.88rem * var(--scale));
+    color: #a8f5c8;
+    letter-spacing: 0.04em;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Theory cards */
+  .theories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .theory-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    transition: box-shadow 0.18s, border-color 0.18s;
+    box-shadow: var(--shadow);
+  }
+  .theory-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--purple-mid);
+  }
+  .theory-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.6rem * var(--scale));
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+    color: var(--green);
+    font-weight: 500;
+    transition: font-size 0.15s ease-out;
+  }
+  .theory-name {
+    font-size: calc(0.84rem * var(--scale));
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 0.35rem;
+    line-height: 1.3;
+    transition: font-size 0.15s ease-out;
+  }
+  .theory-desc {
+    font-size: calc(0.74rem * var(--scale));
+    color: var(--text2);
+    line-height: 1.65;
+    font-family: 'Gowun Batang', serif;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Connections */
+  .conn-list { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 2rem; }
+  .conn-chip {
+    background: var(--purple-soft);
+    border: 1px solid var(--purple-mid);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: calc(0.76rem * var(--scale));
+    color: var(--purple-dark);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Gowun Batang', serif;
+  }
+  .conn-chip:hover {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: #fff;
+  }
+  .conn-chip:disabled {
+    background: var(--border2);
+    border-color: var(--border);
+    color: var(--text3);
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; height: auto; }
+    header { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.6rem; }
+    .header-logo { height: 38px; }
+    .header-divider { display: none; }
+    header h1 { font-size: 1.15rem; }
+    .era-filter { width: 100%; }
+    .detail-content { padding: 1.25rem 1rem 3rem; }
+    .detail-name { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+<!-- 로고 클릭 시 베네두 인사이트 홈페이지로 새 창 이동 지원 -->
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; text-decoration: none;">
+    <img class="header-logo"
+      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_vertical.png"
+      alt="Benedu Insight"
+      style="cursor: pointer;">
+  </a>
+  <div class="header-divider"></div>
+  <div class="header-title-block">
+    <h1>물리학의 역사</h1>
+    <p>The Map of Physics — 과학자 일대기 &amp; 이론 탐구</p>
+  </div>
+  <div class="era-filter">
+    <button class="era-btn active" data-era="all">전체</button>
+    <button class="era-btn" data-era="ancient">고대·중세</button>
+    <button class="era-btn" data-era="classical">고전역학</button>
+    <button class="era-btn" data-era="modern">근대물리</button>
+    <button class="era-btn" data-era="quantum">양자혁명</button>
+    <button class="era-btn" data-era="contemp">현대물리</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="timeline-sidebar" id="sidebar"></div>
+  <div class="detail-panel">
+    <!-- Sticky Reading Toolbar for dynamic sizing -->
+    <div class="content-toolbar">
+      <span style="font-family: 'Gowun Batang', serif; font-size: 0.75rem; color: var(--text2); font-weight: bold; margin-right: auto; display: flex; align-items: center; gap: 5px;">
+        🔍 본문 글자 크기
+      </span>
+      <button class="toolbar-btn" onclick="adjustScale(-0.1)" title="작게">- 작게</button>
+      <span id="scale-indicator" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--purple); font-weight: bold; min-width: 45px; text-align: center;">100%</span>
+      <button class="toolbar-btn" onclick="adjustScale(0.1)" title="크게">+ 크게</button>
+      <button class="toolbar-btn" onclick="adjustScale(0)" title="기본 크기로 초기화" style="border-color: var(--purple-mid); color: var(--purple);">초기화</button>
+    </div>
+
+    <div id="detail">
+      <div class="detail-empty">
+        <div class="icon-ring"></div>
+        <p>과학자를 선택하세요</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCIENTISTS = [
+  {
+    id: 'aristotle',
+    name: 'Aristotle',
+    nameKr: '아리스토텔레스',
+    born: -384, died: -322,
+    birthYear: 'BC 384',
+    nation: '고대 그리스',
+    era: 'ancient',
+    field: '자연철학',
+    tags: ['역학', '우주론', '자연철학'],
+    color: '#8b6fcf',
+    quote: '자연은 진공을 혐오한다.',
+    quoteAttr: '— Aristotle, Physics',
+    bio: `아리스토텔레스는 고대 그리스의 철학자이자 최초의 체계적 자연과학자로, 플라톤의 제자이며 알렉산드로스 대왕의 스승이었습니다. 기원전 4세기, 리케이온(Lyceum)을 설립하고 백과사전적 지식 체계를 구축했습니다.
+
+    물리학 분야에서 그는 모든 물질이 4원소(흙·물·불·공기)로 이루어진다고 주장했으며, 운동의 원인과 결과에 대한 체계적 분류를 시도했습니다. 비록 갈릴레오와 뉴턴에 의해 많은 부분이 수정되었으나, 2000년 간 서양 과학의 근간이 된 패러다임을 제시했습니다.`,
+    theories: [
+      { year: 'BC 350', name: '4원소설', desc: '흙·물·불·공기가 만물의 구성 요소이며 제5원소 에테르가 천계를 채운다.' },
+      { year: 'BC 350', name: '자연운동과 강제운동', desc: '물체는 자신의 "자연적 위치"를 향해 운동하며, 외력이 없으면 운동이 멈춘다고 주장.' },
+      { year: 'BC 340', name: '지구중심설 (천동설)', desc: '지구가 우주의 중심이며, 천구(天球)에 붙은 행성이 완전한 원운동을 한다.' },
+      { year: 'BC 350', name: '연속적 공간론', desc: '진공(void)은 존재할 수 없다는 주장 — 물리학적 허무(vacuum)의 부정.' },
+    ],
+    connections: ['Archimedes', 'Ptolemy', 'Galileo Galilei'],
+    equations: []
+  },
+  {
+    id: 'archimedes',
+    name: 'Archimedes',
+    nameKr: '아르키메데스',
+    born: -287, died: -212,
+    birthYear: 'BC 287',
+    nation: '시라쿠사 (그ريس)',
+    era: 'ancient',
+    field: '수학·역학·유체',
+    tags: ['유체역학', '레버', '수학'],
+    color: '#8b6fcf',
+    quote: '유레카! (εὕρηκα) — 발견했다!',
+    quoteAttr: '— Archimedes, 목욕탕에서',
+    bio: `아르키메데스는 고대 최위대한 수학자이자 물리학자로 평가받습니다. 시칠리아 시라쿠사 출신으로 알렉산드리아에서 수학을 공부했으며, 고대 그리스 역학의 정수를 집대성했습니다.
+
+    목욕탕에서 부력의 원리를 발견했다는 일화는 세계적으로 유명합니다. 레버의 원리, 나선식 펌프(아르키메데스 스크류), 포물선의 넓이 계산 등 다양한 실용적·이론적 업적을 남겼으며, 제2차 포에니 전쟁 중 로마 군대에 대항한 방어 기계를 설계하기도 했습니다.`,
+    theories: [
+      { year: 'BC 250', name: '부력의 원리 (아르키메데스 원리)', desc: '유체 속 물체는 배제한 유체의 무게만큼 부력을 받는다. F_b = ρVg' },
+      { year: 'BC 260', name: '레버의 원리', desc: '지렛대로 임의의 무게를 들어올릴 수 있다 — "나에게 충분히 긴 지렛대를 주면 지구도 움직이겠다."' },
+      { year: 'BC 250', name: '중심(무게중심) 이론', desc: '불균일 형태의 물체에도 무게중심이 존재하며, 이를 수학적으로 구할 수 있다.' },
+      { year: 'BC 240', name: '원주율(π) 근사', desc: '정다각형 근사법으로 3.1408 < π < 3.1429 임을 증명 — 현대 수치해석의 원형.' },
+    ],
+    connections: ['Democritus', 'Aristotle', 'Newton', 'Pascal'],
+    equations: ['F_b = ρ · V · g', 'F₁·d₁ = F₂·d₂  (레버)']
+  },
+  {
+    id: 'pythagoras',
+    name: 'Pythagoras',
+    nameKr: '피타고라스',
+    born: -570, died: -495,
+    birthYear: 'BC 570',
+    nation: '고대 그리스 (사모스)',
+    era: 'ancient',
+    field: '수학·철학·음향학',
+    tags: ['피타고라스정리', '수학', '음향학'],
+    color: '#8b6fcf',
+    quote: '수(數)가 만물의 본질이다.',
+    quoteAttr: '— Pythagoras',
+    bio: `피타고라스는 고대 그리스의 수학자·철학자로, "피타고라스 학파"를 창설하여 수(數)가 우주의 근본 원리라는 사상을 정립했습니다. 직각삼각형의 세 변 사이의 관계를 일반적으로 증명한 피타고라스 정리는 오늘날에도 수학·물리학·공학의 가장 기초적인 도구입니다.
+
+    음향학 분야에서 현악기의 줄 길이와 음정의 관계를 수치화하여, 음의 화음이 정수비에 의해 결정된다는 사실을 발견했습니다. 이는 파동물리학의 원초적 탐구이자, 이후 파동방정식으로 이어지는 첫걸음입니다.`,
+    theories: [
+      { year: 'BC 530', name: '피타고라스 정리', desc: '직각삼각형에서 a² + b² = c² — 기하학·벡터·삼각법 전체의 기초.' },
+      { year: 'BC 530', name: '음악과 수의 관계 (음향학)', desc: '현의 길이 비가 간단한 정수비(1:2, 2:3)일 때 화음이 성립 — 파동 공명의 최초 수치화.' },
+      { year: 'BC 530', name: '수비론 (Numerology)', desc: '만물의 본질은 수이며, 우주의 질서는 수학적 관계로 설명된다.' },
+    ],
+    connections: ['Aristotle', 'Euclid', 'Galileo Galilei'],
+    equations: ['a² + b² = c²  (피타고라스 정리)']
+  },
+  {
+    id: 'euclid',
+    name: 'Euclid',
+    nameKr: '유클리드',
+    born: -325, died: -265,
+    birthYear: 'BC 325',
+    nation: '고대 그리스 (알렉산드리아)',
+    era: 'ancient',
+    field: '수학·기하학',
+    tags: ['기하학', '공리계', '수학'],
+    color: '#8b6fcf',
+    quote: '기하학에는 왕도(王道)가 없다.',
+    quoteAttr: '— Euclid (프톨레마이오스 왕에게)',
+    bio: `유클리드는 알렉산드리아에서 활동한 수학자로, 저서 『원론(Elements)』에서 5개의 공리로부터 출발해 465개의 명제를 순수한 논리적 연역으로 도출했습니다. 이는 인류 역사상 가장 성공적인 교과서로, 20세기 초까지 2000년 이상 수학 교육의 표준이었습니다.
+
+    유클리드 기하학이 정립한 평평한 공간(유클리드 공간)의 개념은 뉴턴 역학의 배경 공간으로 채택되었으며, 19세기 리만·로바체프스키의 비유클리드 기하학이 등장하기 전까지 유일한 공간 기술 체계였습니다. 아인슈타인의 일반상대성이론은 이 비유클리드 기하학 위에서 완성됩니다.`,
+    theories: [
+      { year: 'BC 300', name: '유클리드 기하학 (원론)', desc: '5개의 공리로부터 논리 연역만으로 기하학 전체를 구축 — 공리적 수학의 원형.' },
+      { year: 'BC 300', name: '평행선 공리', desc: '한 직선 밖의 점을 지나 그 직선에 평행한 직선은 오직 하나다 — 비유클리드 기하학 탄생의 씨앗.' },
+      { year: 'BC 300', name: '소수 무한성 증명', desc: '소수가 무한히 많음을 귀류법으로 증명 — 현대 정수론의 출발.' },
+    ],
+    connections: ['Pythagoras', 'Archimedes', 'Carl Friedrich Gauss', 'Isaac Newton'],
+    equations: []
+  },
+  {
+    id: 'democritus',
+    name: 'Democritus',
+    nameKr: '데모크리토스',
+    born: -460, died: -370,
+    birthYear: 'BC 460',
+    nation: '고대 그리스 (아브데라)',
+    era: 'ancient',
+    field: '자연철학·원자론',
+    tags: ['원자론', '자연철학', '유물론'],
+    color: '#8b6fcf',
+    quote: '관습상 달콤하고, 관습상 쓰다. 관습상 뜨겁고, 관습상 차갑다. 관습상 색이 있다. 그러나 실재는 원자와 허공뿐이다.',
+    quoteAttr: '— Democritus',
+    bio: `데모크리토스는 스승 레우키포스와 함께 고대 원자론(Atomism)을 정립한 그리스 철학자입니다. 만물은 더 이상 쪼갤 수 없는 최소 단위인 원자(ἄτομος, atomos)와 그것이 운동하는 빈 공간(허공, void)으로 구성된다고 주장했습니다.
+
+    아리스토텔레스와 달리 허공의 존재를 인정했고, 물질의 모든 성질은 원자의 형태·크기·배열·운동으로 설명된다고 보았습니다. 이 개념은 2000년 후 돌턴의 근대 원자론으로 부활했으며, 현대 물질 과학의 철학적 출발점으로 평가받습니다.`,
+    theories: [
+      { year: 'BC 430', name: '원자론 (Atomism)', desc: '만물은 더 이상 분할 불가능한 원자(atom)와 빈 허공으로 구성된다.' },
+      { year: 'BC 430', name: '허공(Void)의 존재', desc: '원자가 운동하는 텅 빈 공간이 실재한다 — 아리스토텔레스의 "자연은 진공을 혐오"에 반론.' },
+      { year: 'BC 420', name: '물질 성질의 원자론적 설명', desc: '맛·색·온도 등 감각적 성질은 원자의 형태와 배열에서 비롯된 관습적 개념이다.' },
+    ],
+    connections: ['Aristotle', 'Archimedes', 'John Dalton'],
+    equations: []
+  },
+  {
+    id: 'copernicus',
+    name: 'Nicolaus Copernicus',
+    nameKr: '니콜라우스 코페르니쿠스',
+    born: 1473, died: 1543,
+    birthYear: '1473',
+    nation: '폴란드',
+    era: 'classical',
+    field: '천문학',
+    tags: ['지동설', '천문학', '혁명'],
+    color: '#c9a84c',
+    quote: '태양은 세계의 중심에서 만물을 지배한다.',
+    quoteAttr: '— De Revolutionibus Orbium Coelestium (1543)',
+    bio: `코페르니쿠스는 폴란드의 성직자이자 천문학자로, 1543년 사망 직전 출판한 저서 『천체의 회전에 관하여』에서 지동설(太陽中心說)을 제창하여 과학혁명의 씨앗을 뿌렸습니다.
+
+    그의 이론은 단순히 태양과 지구의 위치를 바꾼 것이 아니라, 우주에서 인간의 위치에 대한 근본적 인식 전환을 요구했습니다. 이 "코페르니쿠스적 전환"은 이후 갈릴레이·케플러·뉴턴으로 이어지는 과학혁명의 출발점이 되었습니다.`,
+    theories: [
+      { year: '1514', name: '태양중심설 (지동설)', desc: '지구가 아닌 태양이 태양계의 중심이며, 지구는 태양 주위를 1년에 한 바퀴 공전한다.' },
+      { year: '1543', name: '지구의 자전', desc: '하루 24시간 주기의 천체 운동은 지구 자체의 자전으로 설명된다.' },
+      { year: '1543', name: '행성의 역행운동 설명', desc: '내행성(금성, 수성)과 외행성의 공전 속도 차이로 역행현상을 기하학적으로 설명.' },
+    ],
+    connections: ['Ptolemy', 'Tycho Brahe', 'Johannes Kepler', 'Galileo Galilei'],
+    equations: []
+  },
+  {
+    id: 'galileo',
+    name: 'Galileo Galilei',
+    nameKr: '갈릴레오 갈릴레이',
+    born: 1564, died: 1642,
+    birthYear: '1564',
+    nation: '이탈리아',
+    era: 'classical',
+    field: '역학·천문학',
+    tags: ['역학', '망원경', '낙하법칙', '관성'],
+    color: '#c9a84c',
+    quote: '그래도 지구는 돈다. (E pur si muove)',
+    quoteAttr: '— 종교재판 이후 전해지는 어록',
+    bio: `갈릴레오는 현대 과학의 아버지로 불리며, 실험과 수학적 기술을 통해 자연을 탐구하는 방법론을 확립했습니다. 피사 대학에서 의학을 공부하다 수학의 매력에 빠졌고, 파도바 대학 교수로 18년간 재직하며 주요 업적을 이뤘습니다.
+
+    1609년 망원경을 개량하여 목성의 위성 4개(갈릴레이 위성), 금성의 위상 변화, 달의 산악 지형을 발견했습니다. 이 관측들은 코페르니쿠스의 지동설을 강력하게 지지했으나 교황청과의 충돌을 야기했고, 1633년 종교재판에 회부되어 가택연금으로 여생을 보냈습니다.`,
+    theories: [
+      { year: '1589', name: '낙하의 법칙', desc: '질량에 관계없이 물체는 동일한 속도로 낙하한다 — 피사의 사탑 실험(전설)으로 유명.' },
+      { year: '1602', name: '진자의 등시성', desc: '진자의 주기는 진폭과 무관하고 길이에만 의존한다. T = 2π√(L/g)' },
+      { year: '1609', name: '관성의 원리', desc: '힘이 작용하지 않으면 물체는 등속 직선운동을 계속한다 — 뉴턴 제1법칙의 선구.' },
+      { year: '1609', name: '망원경 천문관측', desc: '굴절망원경을 개량(20배율)하여 목성 위성·금성 위상·태양 흑점·달 표면을 발견.' },
+      { year: '1632', name: '상대성 원리', desc: '등속운동하는 배의 선실 안에서는 정지·운동을 구분할 수 없다 — 갈릴레이 상대성.' },
+    ],
+    connections: ['Copernicus', 'Johannes Kepler', 'Isaac Newton'],
+    equations: ['h = ½gt²', 'T = 2π√(L/g)']
+  },
+  {
+    id: 'kepler',
+    name: 'Johannes Kepler',
+    nameKr: '요하네스 케플러',
+    born: 1571, died: 1630,
+    birthYear: '1571',
+    nation: '독일 (신성로마제국)',
+    era: 'classical',
+    field: '천문학·수학',
+    tags: ['행성운동', '케플러법칙', '타원궤도'],
+    color: '#c9a84c',
+    quote: '기하학은 창조 이전부터 존재했다.',
+    quoteAttr: '— Johannes Kepler',
+    bio: `케플러는 티코 브라헤의 방대한 천문 관측 데이터를 물려받아, 행성 궤도가 원이 아닌 타원임을 수학적으로 증명했습니다. 이는 2000년간 지속된 완전한 원 궤도 개념을 무너뜨린 혁명적 발견이었습니다.
+
+    케플러의 행성 운동 3법칙은 이후 뉴턴이 만유인력 법칙을 유도하는 핵심 근거가 되었으며, 뉴턴 스스로 "케플러의 법칙으로부터 역제곱 법칙을 유도했다"고 인정했습니다. 광학 분야에도 기여해 굴절 망원경의 원리를 개선했습니다.`,
+    theories: [
+      { year: '1609', name: '케플러 제1법칙 (타원궤도)', desc: '모든 행성은 태양을 한 초점으로 하는 타원 궤도를 그린다.' },
+      { year: '1609', name: '케플러 제2법칙 (면적속도)', desc: '태양과 행성을 잇는 직선은 같은 시간 동안 같은 넓이를 쓸고 지나간다.' },
+      { year: '1619', name: '케플러 제3법칙 (조화의 법칙)', desc: '공전 주기의 제곱은 궤도 장반경의 세제곱에 비례한다. T² ∝ a³' },
+    ],
+    connections: ['Tycho Brahe', 'Copernicus', 'Isaac Newton', 'Galileo Galilei'],
+    equations: ['T² ∝ a³', 'dA/dt = const']
+  },
+  {
+    id: 'descartes',
+    name: 'René Descartes',
+    nameKr: '르네 데카르트',
+    born: 1596, died: 1650,
+    birthYear: '1596',
+    nation: '프랑스',
+    era: 'classical',
+    field: '수학·철학·광학',
+    tags: ['좌표계', '해석기하학', '광학'],
+    color: '#0F8C50',
+    quote: '나는 생각한다, 고로 나는 존재한다. (Cogito, ergo sum)',
+    quoteAttr: '— René Descartes, Discourse on the Method (1637)',
+    bio: `데카르트는 프랑스의 철학자이자 수학자로, 1637년 직교 좌표계(데카르트 좌표계)를 고안하여 기하학적 도형을 수식으로 표현할 수 있게 했습니다. 이 해석기하학의 창시는 뉴턴과 라이프니츠의 미적분학 발전에 직접적인 토대가 되었습니다.
+
+    광학 분야에서는 빛의 굴절 법칙을 독립적으로 유도하고 무지개의 원리를 설명했으며, 관성의 개념을 뉴턴보다 앞서 기술했습니다. "방법서설"에서 제시한 연역적 방법론과 수학적 세계관은 이후 과학혁명의 철학적 기반이 되었습니다.`,
+    theories: [
+      { year: '1637', name: '데카르트 좌표계', desc: '평면·공간의 임의의 점을 수치(x, y, z)로 표현 — 해석기하학의 탄생, 물리 방정식 표현의 기초.' },
+      { year: '1637', name: '굴절 법칙 (독립 유도)', desc: '빛이 매질 경계면에서 꺾이는 각도의 관계(스넬 법칙)를 독립적으로 유도.' },
+      { year: '1644', name: '관성 원리 선구', desc: '운동하는 물체는 외력 없이 직선 운동을 계속한다 — 뉴턴 제1법칙의 철학적 전신.' },
+    ],
+    connections: ['Galileo Galilei', 'Isaac Newton', 'Gottfried Leibniz', 'Johannes Kepler'],
+    equations: ['(x, y) → 임의의 점 표현', 'n₁sinθ₁ = n₂sinθ₂  (굴절 법칙)']
+  },
+  {
+    id: 'lavoisier',
+    name: 'Antoine Lavoisier',
+    nameKr: '앙투안 라부아지에',
+    born: 1743, died: 1794,
+    birthYear: '1743',
+    nation: '프랑스',
+    era: 'classical',
+    field: '화학·열역학',
+    tags: ['질량보존', '연소이론', '원소명명'],
+    color: '#0F8C50',
+    quote: '자연에서 아무것도 창조되지 않으며, 아무것도 소멸되지 않는다.',
+    quoteAttr: '— Antoine Lavoisier',
+    bio: `라부아지에는 근대 화학의 아버지로 불리며, 1773년 정밀한 저울 실험을 통해 화학 반응 전후의 총 질량이 변하지 않는다는 질량 보존 법칙을 수립했습니다. 플로지스톤설을 타파하고 연소가 산소와의 결합임을 증명했으며, 수소·산소 등 원소의 명명 체계를 확립해 현대 화학의 언어를 만들었습니다.
+
+    열을 칼로릭(caloric)이라는 물질로 보는 한계가 있었으나, 열량계를 발명하고 에너지 보존 개념의 선구적 실험을 수행했습니다. 프랑스 혁명 중 세금 징수관 신분 때문에 단두대에서 처형되었으며, 수학자 라그랑주는 "그의 머리를 자르는 데는 한 순간이면 충분하지만, 그런 두뇌가 다시 나타나는 데는 100년도 부족하다"고 애도했습니다.`,
+    theories: [
+      { year: '1773', name: '질량 보존 법칙', desc: '화학 반응에서 반응물 총 질량 = 생성물 총 질량. 물질은 생성·소멸하지 않고 변환된다.' },
+      { year: '1777', name: '연소의 산소 이론', desc: '연소 is 플로지스톤 방출이 아니라 산소와의 화합 — 플로지스톤설을 실험으로 타파.' },
+      { year: '1789', name: '원소 명명 체계 확립', desc: '수소(Hydrogène), 산소(Oxygène) 등 33개 원소를 체계적으로 명명 — 현대 화학 언어의 기초.' },
+    ],
+    connections: ['John Dalton', 'Isaac Newton', 'Joseph Black'],
+    equations: ['m_반응물 = m_생성물  (질량 보존)', 'C + O₂ → CO₂  (연소의 본질)']
+  },
+  {
+    id: 'coulomb',
+    name: 'Charles-Augustin de Coulomb',
+    nameKr: '샤를 오귀스탱 드 쿨롱',
+    born: 1736, died: 1806,
+    birthYear: '1736',
+    nation: '프랑스',
+    era: 'classical',
+    field: '정전기학·정자기학',
+    tags: ['쿨롱법칙', '정전기', '전기력'],
+    color: '#c9a84c',
+    quote: '전기력은 거리의 제곱에 반비례하고 전하량의 곱에 비례한다.',
+    quoteAttr: '— Coulomb, Mémoires sur l\'électricité et le magnétisme (1785)',
+    bio: `쿨롱은 프랑스의 군사 엔지니어 출신 물리학자로, 비틀림저울(torsion balance)이라는 정밀 측정 장치를 직접 고안하여 전하 사이의 힘을 정량적으로 측정했습니다. 1785년 발표한 쿨롱의 법칙은 전기력이 뉴턴의 만유인력과 동일한 역제곱 형태를 가짐을 보여주어, 맥스웰 방정식 중 가우스 법칙의 직접적 전신이 되었습니다.
+
+    자기력에 대해서도 유사한 역제곱 법칙이 성립함을 실험으로 확인했으며, 마찰력 연구에도 공헌했습니다. 전하량의 SI 단위 쿨롱(C)은 그의 이름에서 유래합니다.`,
+    theories: [
+      { year: '1785', name: '쿨롱의 법칙', desc: '두 점전하 사이의 전기력은 전하량의 곱에 비례하고 거리의 제곱에 반비례한다.' },
+      { year: '1785', name: '자기력의 역제곱 법칙', desc: '자기 쌍극자 사이의 힘도 전기력과 유사하게 역제곱 법칙을 따른다.' },
+      { year: '1779', name: '마찰력 법칙', desc: '고체 마찰력은 접촉 면적과 무관하며 수직 항력에 비례한다 — 쿨롱 마찰 법칙.' },
+    ],
+    connections: ['Isaac Newton', 'Carl Friedrich Gauss', 'André-Marie Ampère', 'James Maxwell'],
+    equations: ['F = k·q₁q₂/r²', 'k = 1/(4πε₀) ≈ 8.99×10⁹ N·m²/C²']
+  },
+  {
+    id: 'gauss',
+    name: 'Carl Friedrich Gauss',
+    nameKr: '카를 프리드리히 가우스',
+    born: 1777, died: 1855,
+    birthYear: '1777',
+    nation: '독일',
+    era: 'classical',
+    field: '수학·전자기학·천문학',
+    tags: ['가우스법칙', '수학', '전자기'],
+    color: '#c9a84c',
+    quote: '수학은 과학의 여왕이며, 수론은 수학의 여왕이다.',
+    quoteAttr: '— Carl Friedrich Gauss',
+    bio: `가우스는 수학·물리학·천문학에 걸쳐 두루 탁월한 업적을 남긴 "수학의 왕자"입니다. 19세에 정17각형의 작도법을 증명하고, 최소제곱법·복소평면·비유클리드 기하학의 기초를 닦았습니다.
+
+    전자기학에서는 1835년 가우스 법칙을 수립했는데, 이는 맥스웰 방정식의 첫 번째 방정식(∇·E = ρ/ε₀)의 직접적 원형입니다. 빌헬름 베버와 함께 최초의 전신기를 제작하고 지구 자기장을 정밀 측정하기도 했습니다. SI 자기선속밀도 단위 가우스(G)는 그의 이름에서 유래합니다.`,
+    theories: [
+      { year: '1835', name: '가우스 법칙 (전기)', desc: '임의의 닫힌 면을 통과하는 전기선속은 내부 전하량에 비례한다. ∮E·dA = Q/ε₀' },
+      { year: '1835', name: '가우스 법칙 (자기)', desc: '자기 단극자(monopole)는 없으므로 닫힌 면의 자기선속은 항상 0이다. ∮B·dA = 0' },
+      { year: '1809', name: '최소제곱법', desc: '관측 오차를 최소화하는 최적 추정 방법 — 현대 통계학·데이터 분석의 기초.' },
+      { year: '1801', name: '세레스 궤도 예측', desc: '소행성 세레스의 관측 데이터로 궤도를 계산해 재발견 위치를 정확히 예측.' },
+    ],
+    connections: ['Charles-Augustin de Coulomb', 'André-Marie Ampère', 'James Maxwell', 'Wilhelm Weber'],
+    equations: ['∮E·dA = Q_enc/ε₀  (가우스 법칙)', '∮B·dA = 0  (자기 가우스 법칙)']
+  },
+  {
+    id: 'ampere',
+    name: 'André-Marie Ampère',
+    nameKr: '앙드레 마리 앙페르',
+    born: 1775, died: 1836,
+    birthYear: '1775',
+    nation: '프랑스',
+    era: 'classical',
+    field: '전자기학·전기역학',
+    tags: ['앙페르법칙', '전류', '전기역학'],
+    color: '#c9a84c',
+    quote: '전류가 흐르는 두 도선은 서로 힘을 미친다 — 전기와 자기는 하나다.',
+    quoteAttr: '— André-Marie Ampère, 1820',
+    bio: `앙페르는 외르스테드가 1820년 전류가 나침반을 움직인다는 것을 발견하자, 불과 수 주 만에 전류 사이의 힘을 수학적으로 정식화하여 전기역학(Electrodynamics)이라는 분야를 창시했습니다. 전류가 흐르는 두 도선이 서로 끌어당기거나 밀어내는 힘을 정량화한 앙페르 힘 법칙, 그리고 전류와 자기장의 관계를 기술하는 앙페르 순환 법칙은 맥스웰 방정식의 네 번째 방정식(∇×B = μ₀J)의 직접적 원형입니다.
+
+    패러데이·맥스웰로 이어지는 전자기학의 토대를 수학적으로 구축한 그의 공헌을 기려, 전류의 SI 단위는 앙페르(A)로 명명되었습니다.`,
+    theories: [
+      { year: '1820', name: '앙페르 힘 법칙', desc: '평행한 두 전류 도선 사이의 힘 — 같은 방향이면 인력, 반대 방향이면 척력.' },
+      { year: '1826', name: '앙페르 순환 법칙', desc: '닫힌 경로를 따른 자기장 적분은 경로를 통과하는 전류에 비례한다. ∮B·dl = μ₀I' },
+      { year: '1822', name: '전기역학 (Electrodynamics) 창시', desc: '전류·자기력·역학을 통합하는 수학적 전기역학 체계 수립 — "전기역학의 뉴턴"으로 불림.' },
+    ],
+    connections: ['Charles-Augustin de Coulomb', 'Carl Friedrich Gauss', 'Michael Faraday', 'James Maxwell', 'Hans Christian Ørsted'],
+    equations: ['∮B·dl = μ₀I_enc  (앙페르 법칙)', 'F/L = μ₀I₁I₂/(2πd)  (두 도선 간 힘)']
+  },
+  {
+    id: 'newton',
+    name: 'Isaac Newton',
+    nameKr: '아이작 뉴턴',
+    born: 1643, died: 1727,
+    birthYear: '1643',
+    nation: '영국',
+    era: 'classical',
+    field: '역학·광학·수학',
+    tags: ['만유인력', '운동법칙', '미적분', '광학'],
+    color: '#c9a84c',
+    quote: '내가 더 멀리 볼 수 있었다면, 그것은 거인들의 어깨 위에 서 있었기 때문이다.',
+    quoteAttr: '— Isaac Newton, 로버트 훅에게 보낸 편지 (1675)',
+    bio: `아이작 뉴턴은 역사상 가장 영향력 있는 과학자 중 한 명으로, 1666년 흑사병을 피해 고향 울즈소프로 내려간 기간("창의적 은둔기")에 미적분학, 만유인력, 빛의 스펙트럼 분산을 동시에 개념화했습니다.
+
+    1687년 출판한 『자연철학의 수학적 원리』(프린키피아)는 물리학의 패러다임을 완성한 역작으로, 3가지 운동법칙과 만유인력 법칙을 통해 지상과 천상의 운동을 단일 체계로 통합했습니다. 라이프니츠와 독립적으로 미적분학을 개발했으며, 반사망원경을 발명하고 빛을 프리즘으로 분해하여 색이 빛의 고유성질임을 밝혔습니다.`,
+    theories: [
+      { year: '1687', name: '뉴턴 제1법칙 (관성)', desc: '외력이 없으면 물체는 정지 상태 또는 등속 직선운동을 유지한다.' },
+      { year: '1687', name: '뉴턴 제2법칙 (가속도)', desc: '힘은 질량과 가속도의 곱이다. F = ma — 고전역학의 근간.' },
+      { year: '1687', name: '뉴턴 제3법칙 (작용-반작용)', desc: '모든 작용에는 크기가 같고 방향이 반대인 반작용이 있다.' },
+      { year: '1687', name: '만유인력 법칙', desc: '질량을 가진 모든 물체는 서로 끌어당기며, 힘은 거리의 제곱에 반비례한다.' },
+      { year: '1666', name: '빛의 분산 (색 이론)', desc: '백색광은 프리즘으로 7가지 색으로 분해된다 — 색은 빛의 고유 속성.' },
+      { year: '1666', name: '미적분학', desc: '유율법(Method of Fluxions) — 순간변화율과 면적계산을 통합하는 수학 언어.' },
+    ],
+    connections: ['Galileo Galilei', 'Johannes Kepler', 'Robert Hooke', 'Gottfried Leibniz', 'James Maxwell'],
+    equations: ['F = ma', 'F = Gm₁m₂/r²', 'F = -kx  (훅의 법칙)']
+  },
+  {
+    id: 'bernoulli',
+    name: 'Daniel Bernoulli',
+    nameKr: '다니엘 베르누이',
+    born: 1700, died: 1782,
+    birthYear: '1700',
+    nation: '스위스 / 네덜란드',
+    era: 'classical',
+    field: '유체역학·통계역학',
+    tags: ['베르누이원리', '유체역학', '기체운동론'],
+    color: '#c9a84c',
+    quote: '유체의 속도가 빠를수록 압력은 낮아진다.',
+    quoteAttr: '— Daniel Bernoulli, Hydrodynamica (1738)',
+    bio: `다니엘 베르누이는 수학자 가문(베르누이 가문)에서 태어나 유체역학의 기초를 확립한 물리학자입니다. 1738년 저서 『유체역학(Hydrodynamica)』에서 유체의 속도와 압력 사이의 역관계를 정식화했으며, 이것이 오늘날 비행기 날개 양력의 원리입니다.
+
+    또한 기체의 압력이 수많은 분자들의 충돌에서 비롯된다는 기체 분자 운동론의 선구적 아이디어를 제시했습니다. 이는 볼츠만의 통계역학보다 100년 앞선 통찰로, 에너지 보존 개념의 씨앗이기도 합니다.`,
+    theories: [
+      { year: '1738', name: '베르누이 원리', desc: '유체 속도 증가 시 압력 감소 — 비행기 양력, 유속 측정(피토관)의 원리. P + ½ρv² + ρgh = const' },
+      { year: '1738', name: '기체 분자 운동론 (선구)', desc: '기체 압력은 분자들의 벽면 충돌에서 비롯된다 — 통계역학의 초기 아이디어.' },
+    ],
+    connections: ['Isaac Newton', 'Leonhard Euler', 'Ludwig Boltzmann'],
+    equations: ['P + ½ρv² + ρgh = const  (베르누이 방정식)']
+  },
+  {
+    id: 'carnot',
+    name: 'Sadi Carnot',
+    nameKr: '사디 카르노',
+    born: 1796, died: 1832,
+    birthYear: '1796',
+    nation: '프랑스',
+    era: 'classical',
+    field: '열역학',
+    tags: ['열역학', '카르노기관', '엔트로피'],
+    color: '#c9a84c',
+    quote: '열기관의 효율은 작동 물질의 종류와 무관하고, 오직 온도차에만 의존한다.',
+    quoteAttr: '— Sadi Carnot, Réflexions sur la puissance motrice du feu (1824)',
+    bio: `카르노는 프랑스의 군사 공학자로, 36세의 짧은 생애 동안 단 한 편의 논문으로 열역학의 토대를 닦았습니다. 1824년 저서 『불의 동력에 관한 고찰』에서 이상적인 열기관(카르노 기관)을 제안하고, 어떤 열기관도 두 열원의 온도차만으로 결정되는 효율 상한을 넘을 수 없음을 증명했습니다.
+
+    이는 "영구기관은 불가능하다"는 열역학 제2법칙의 직접적 원형으로, 클라우지우스와 켈빈에 의해 수학적으로 정식화되었습니다. 카르노 자신은 칼로릭 이론(열이 물질)을 믿었지만, 그의 결론은 열역학 전체를 구조화하는 핵심 원리로 남았습니다.`,
+    theories: [
+      { year: '1824', name: '카르노 기관 (이상 열기관)', desc: '등온·단열 과정으로 이루어진 가역 순환 — 열기관 효율의 이론적 상한.' },
+      { year: '1824', name: '카르노 효율', desc: '열기관 최대 효율 η = 1 − T_cold/T_hot — 열역학 제2법칙의 원형.' },
+    ],
+    connections: ['Isaac Newton', 'Rudolf Clausius', 'Ludwig Boltzmann', 'James Maxwell'],
+    equations: ['η = 1 − T_C/T_H  (카르노 효율)', 'ΔS ≥ 0  (열역학 제2법칙)']
+  },
+  {
+    id: 'fraunhofer',
+    name: 'Joseph von Fraunhofer',
+    nameKr: '요제프 폰 프라운호퍼',
+    born: 1787, died: 1826,
+    birthYear: '1787',
+    nation: '독일 (바이에른)',
+    era: 'modern',
+    field: '광학·분광학',
+    tags: ['흡수스펙트럼', '분광학', '회절격자'],
+    color: '#7030A0',
+    quote: '빛을 분해하면 별의 성분이 보인다.',
+    quoteAttr: '— Joseph von Fraunhofer',
+    bio: `프라운호퍼는 독일의 광학 장인이자 물리학자로, 1814년 태양 스펙트럼을 세밀하게 분석하여 약 574개(후에 수백 개 추가)의 어두운 흡수선(프라운호퍼선)을 발견했습니다. 각 흡수선에 알파벳 기호를 붙여 체계적으로 분류했으며, 이 발견은 훗날 분젠과 키르히호프가 각 원소의 고유 스펙트럼을 연구하는 분광학의 직접적 기반이 되었습니다.
+
+    정밀 광학 유리 제조와 회절격자(diffraction grating) 제작 기술을 크게 발전시켜, 당대 최고 수준의 광학 기기를 생산했습니다. 가난한 유리 직공 출신으로 독학으로 성장한 그는 39세의 젊은 나이에 유리 연마 과정에서 흡입한 중금속 분진으로 사망했습니다.`,
+    theories: [
+      { year: '1814', name: '프라운호퍼 흡수선 발견', desc: '태양 스펙트럼 속 574개의 불연속 어두운 선 발견 — 분광학·천체물리학의 출발점.' },
+      { year: '1821', name: '회절격자 발명', desc: '미세한 슬릿을 촘촘히 새긴 격자로 빛을 정밀 분산 — 현대 분광기의 핵심 부품.' },
+      { year: '1814', name: '파장 측정 체계화', desc: '흡수선 위치로 빛의 파장을 정밀 측정 — 원소별 스펙트럼 지문 개념의 선구.' },
+    ],
+    connections: ['Thomas Young', 'Robert Bunsen', 'Gustav Kirchhoff', 'James Maxwell'],
+    equations: ['d·sinθ = mλ  (회절격자 조건)', 'λ_D = 589nm  (나트륨 D선)']
+  },
+  {
+    id: 'hamilton',
+    name: 'William Rowan Hamilton',
+    nameKr: '윌리엄 로언 해밀턴',
+    born: 1805, died: 1865,
+    birthYear: '1805',
+    nation: '아일랜드',
+    era: 'modern',
+    field: '수리물리학·수학',
+    tags: ['해밀토니안', '최소작용원리', '사원수'],
+    color: '#7030A0',
+    quote: '수학은 마음의 과학이다.',
+    quoteAttr: '— William Rowan Hamilton',
+    bio: `해밀턴은 아일랜드의 수학자이자 물리학자로, 고전역학을 에너지 함수(해밀토니안) 중심으로 재정식화하여 양자역학으로의 전환에 결정적 다리를 놓았습니다. 해밀턴 역학은 뉴턴의 힘 중심 기술 방식을 에너지(운동에너지 + 퍼텐셜 에너지)의 변분 원리로 대체했습니다.
+
+    자연 현상이 "최소 작용"을 따른다는 원리를 정교하게 수학화했으며, 이 해밀토니안 형식은 슈뢰딩거 방정식의 연산자 Ĥ로 그대로 계승됩니다. 또한 3차원 회전을 표현하는 사원수(quaternion)를 발명했는데, 이는 현대 컴퓨터 그래픽과 로봇공학에서 회전 표현의 표준 도구로 쓰입니다.`,
+    theories: [
+      { year: '1833', name: '해밀턴 역학', desc: '물리계를 해밀토니안 H = T + V로 기술 — 정준 방정식이 운동 법칙을 대체.' },
+      { year: '1834', name: '최소 작용의 원리', desc: '자연은 작용 S = ∫L dt를 극값으로 만드는 경로를 선택한다 — 물리 법칙의 통합 원리.' },
+      { year: '1843', name: '사원수 (Quaternion) 발명', desc: '3차원 회전을 4개의 수로 표현 — 현대 3D 그래픽·항법·로봇공학의 기초.' },
+    ],
+    connections: ['Isaac Newton', 'Joseph-Louis Lagrange', 'Erwin Schrödinger', 'Werner Heisenberg'],
+    equations: ['H = T + V  (해밀토니안)', 'dq/dt = ∂H/∂p,  dp/dt = −∂H/∂q', 'iℏ∂Ψ/∂t = ĤΨ  (슈뢰딩거 → 해밀토니안 계승)']
+  },
+  {
+    id: 'joule',
+    name: 'James Prescott Joule',
+    nameKr: '제임스 프레스콧 줄',
+    born: 1818, died: 1889,
+    birthYear: '1818',
+    nation: '영국',
+    era: 'modern',
+    field: '열역학·전자기학',
+    tags: ['열역학', '에너지보존', '줄의법칙'],
+    color: '#7030A0',
+    quote: '자연은 에너지를 낭비하지 않는다.',
+    quoteAttr: '— James Prescott Joule',
+    bio: `줄은 영국의 아마추어 물리학자이자 양조업자로, 정밀한 실험을 통해 열과 일이 서로 변환 가능하며 그 비율이 일정하다는 것을 증명하여 에너지 보존 법칙의 실험적 토대를 마련했습니다. 1843년 패들 휠(물을 젓는 장치)로 역학적 일을 열로 변환하는 실험에서 열의 일당량(1칼로리 ≈ 4.18줄)을 정밀 측정했습니다.
+
+    전류가 흐르는 도체에서 발생하는 열이 전류의 제곱과 저항의 곱에 비례한다는 줄의 법칙(줄 열)도 발견했습니다. 에너지의 SI 단위 줄(J)은 그의 이름에서 유래했으며, 켈빈 경과 함께 기체가 팽창할 때 온도 변화를 연구한 줄-톰슨 효과도 발견했습니다.`,
+    theories: [
+      { year: '1843', name: '열의 일당량 측정', desc: '역학적 일 → 열 변환 실험으로 1cal = 4.18J 정밀 측정 — 에너지 보존 법칙의 실험적 증명.' },
+      { year: '1841', name: '줄의 법칙 (줄 열)', desc: '도선에서 발생하는 열은 전류의 제곱과 저항의 곱에 비례한다. Q = I²Rt' },
+      { year: '1852', name: '줄-톰슨 효과', desc: '기체가 작은 구멍을 통해 팽창할 때 온도가 변하는 현상 — 냉장고·에어컨 원리의 기초.' },
+    ],
+    connections: ['William Thomson (Kelvin)', 'Hermann von Helmholtz', 'Rudolf Clausius', 'Michael Faraday'],
+    equations: ['Q = I²Rt  (줄 열)', 'W = Q  (일-열 등가)', '1 cal = 4.186 J']
+  },
+  {
+    id: 'kelvin',
+    name: 'William Thomson (Lord Kelvin)',
+    nameKr: '윌리엄 톰슨 (켈빈 경)',
+    born: 1824, died: 1907,
+    birthYear: '1824',
+    nation: '영국 (스코틀랜드)',
+    era: 'modern',
+    field: '열역학·전자기학',
+    tags: ['절대온도', '열역학제2법칙', '열역학'],
+    color: '#7030A0',
+    quote: '측정할 수 없으면 알 수 없다. 알 수 없으면 개선할 수 없다.',
+    quoteAttr: '— Lord Kelvin',
+    bio: `켈빈 경(윌리엄 톰슨)은 영국의 수리물리학자로, 열역학 제1·2법칙의 수학적 정립과 절대온도 체계 확립에 핵심적 기여를 했습니다. 1848년 이상 기체의 부피-온도 관계를 외삽하여 모든 열 운동이 멈추는 절대 영도(-273.15°C)를 이론적으로 제안하고 절대온도(켈빈, K) 척도를 창안했습니다.
+
+    클라우지우스와 독립적으로 열역학 제2법칙을 "열은 저절로 낮은 온도에서 높은 온도로 흐르지 않는다"는 방식으로 정술했습니다. 대서양 횡단 해저 전신 케이블 프로젝트를 성공시킨 공학자이기도 했으며, 전기의 SI 단위 켈빈(K)은 그의 이름에서 유래했습니다.`,
+    theories: [
+      { year: '1848', name: '절대온도 체계 (켈빈 척도)', desc: '절대 영도 0K = -273.15°C 정의 — 온도의 물리적 하한선 확립.' },
+      { year: '1851', name: '열역학 제2법칙 정술', desc: '열은 저절로 고온에서 저온으로만 흐른다 — 클라우지우스와 독립적으로 정식화.' },
+      { year: '1852', name: '줄-톰슨 효과', desc: '줄과 공동 연구 — 기체 단열 팽창 시의 온도 변화, 냉각 기술의 이론적 기초.' },
+    ],
+    connections: ['James Prescott Joule', 'Rudolf Clausius', 'James Maxwell', 'Michael Faraday'],
+    equations: ['T(K) = T(°C) + 273.15', 'dS ≥ δQ/T  (열역학 제2법칙)']
+  },
+  {
+    id: 'kirchhoff',
+    name: 'Gustav Kirchhoff',
+    nameKr: '구스타프 키르히호프',
+    born: 1824, died: 1887,
+    birthYear: '1824',
+    nation: '독일 (프로이센)',
+    era: 'modern',
+    field: '전기회로·분광학·열복사',
+    tags: ['키르히호프법칙', '분광학', '흑체복사'],
+    color: '#7030A0',
+    quote: '원소는 그 종류에 따른 고유한 빛의 지문을 가지고 있다.',
+    quoteAttr: '— Gustav Kirchhoff',
+    bio: `키르히호프는 독일의 물리학자로, 전기회로·분광학·열복사 세 분야에서 물리학의 역사를 바꾼 업적을 남겼습니다. 1845년 대학생 나이에 전기회로의 전류·전압 분배를 기술하는 키르히호프 전류·전압 법칙(KCL, KVL)을 발표했습니다.
+
+    1859년 분젠과 함께 분광기를 개발하여 원소마다 고유한 선스펙트럼을 가짐을 발견하고, 이를 이용해 태양 대기 중의 원소를 동정했습니다. 또한 흑체복사 개념을 정의하여, 플랑크가 1900년 양자론으로 해결하게 되는 흑체복사 문제를 최초로 체계화했습니다.`,
+    theories: [
+      { year: '1845', name: '키르히호프 전류 법칙 (KCL)', desc: '회로의 임의의 접합점에서 유입 전류의 합 = 유출 전류의 합. ΣI = 0' },
+      { year: '1845', name: '키르히호프 전압 법칙 (KVL)', desc: '임의의 폐회로에서 기전력의 합 = 전압 강하의 합. ΣV = 0' },
+      { year: '1859', name: '원소 선스펙트럼 동정', desc: '분젠과 공동 — 원소마다 고유한 방출·흡수 스펙트럼을 가짐을 증명, 세슘·루비듐 발견.' },
+      { year: '1860', name: '흑체복사 개념 정의', desc: '완전 흡수체(흑체)의 복사 스펙트럼은 온도에만 의존 — 플랑크 양자론의 출발점 제공.' },
+    ],
+    connections: ['Robert Bunsen', 'Joseph von Fraunhofer', 'Max Planck', 'James Maxwell'],
+    equations: ['ΣI = 0  (KCL)', 'ΣV = 0  (KVL)', 'E(ν,T) = f(ν/T)  (키르히호프 복사법칙)']
+  },
+  {
+    id: 'riemann',
+    name: 'Bernhard Riemann',
+    nameKr: '베른하르트 리만',
+    born: 1826, died: 1866,
+    birthYear: '1826',
+    nation: '독일',
+    era: 'modern',
+    field: '수학·수리물리학',
+    tags: ['비유클리드기하학', '리만기하학', '일반상대성'],
+    color: '#7030A0',
+    quote: '기하학의 가설들은 경험에 의해 검증되어야 한다.',
+    quoteAttr: '— Bernhard Riemann, 취임 강연 (1854)',
+    bio: `리만은 독일의 수학자로, 1854년 취임 강연 "기하학의 기초 가설에 대하여"에서 굽은 공간(곡률이 있는 다차원 공간)을 수학적으로 기술하는 리만 기하학을 창시했습니다. 유클리드 기하학이 성립하지 않는 공간, 즉 평행선이 만나거나 발산하는 곡면을 체계적으로 다루었습니다.
+
+    리만 기하학은 약 60년 후 아인슈타인이 일반 상대성 이론을 수식화하는 데 없어서는 안 될 수학적 언어가 되었습니다. 아인슈타인은 "리만 기하학이 없었다면 일반 상대성 이론은 불가능했다"고 직접 말했습니다. 39세의 짧은 생애에도 불구하고 리만 가설, 리만 적분, 리만 면 등 수학 전반에 걸쳐 혁명적인 업적을 남겼습니다.`,
+    theories: [
+      { year: '1854', name: '리만 기하학 (비유클리드)', desc: '곡률이 있는 n차원 공간을 계량텐서(g_μν)로 기술 — 일반 상대성 이론의 수학적 언어.' },
+      { year: '1859', name: '리만 가설', desc: '리만 제타함수의 비자명 영점은 모두 실수부 1/2 위에 있다 — 수학 최대 미해결 문제 중 하나.' },
+      { year: '1853', name: '리만 적분', desc: '함수의 적분을 구간 분할 극한으로 엄밀하게 정의 — 현대 해석학의 기초.' },
+    ],
+    connections: ['Carl Friedrich Gauss', 'Albert Einstein', 'Nikolai Lobachevsky', 'David Hilbert'],
+    equations: ['ds² = g_μν dx^μ dx^ν  (리만 계량)', 'R_μν − ½g_μν R = 8πG/c⁴ T_μν  (아인슈타인 방정식에 사용)']
+  },
+  {
+    id: 'mendeleev',
+    name: 'Dmitri Mendeleev',
+    nameKr: '드미트리 멘델레예프',
+    born: 1834, died: 1907,
+    birthYear: '1834',
+    nation: '러시아',
+    era: 'modern',
+    field: '화학·원자물리학',
+    tags: ['주기율표', '원소주기성', '원소예측'],
+    color: '#7030A0',
+    quote: '원소들을 원자량 순서로 배열하면 성질의 주기성이 나타난다.',
+    quoteAttr: '— Dmitri Mendeleev, 1869',
+    bio: `멘델레예프는 러시아의 화학자로, 1869년 당시 알려진 63개 원소를 원자량 순서로 배열하면 화학적 성질이 주기적으로 반복된다는 것을 발견하고 원소 주기율표를 완성했습니다. 단순히 원소를 분류한 것에 그치지 않고, 당시 아직 발견되지 않은 원소가 놓일 빈자리를 남겨두고 그 원소의 성질(원자량, 밀도, 화학적 특성)을 정확히 예측했습니다.
+
+    실제로 갈륨(1875), 스칸듐(1879), 게르마늄(1886)이 발견되어 멘델레예프의 예측을 놀랍도록 정확히 입증했습니다. 주기율표는 이후 보어의 원자 모형과 양자역학으로 완전히 설명되었으며, 원자번호 101번 원소는 그의 이름을 따 멘델레붐(Md)으로 명명되었습니다.`,
+    theories: [
+      { year: '1869', name: '원소 주기율표', desc: '원소를 원자량 순 배열 시 성질이 주기적으로 반복 — 63개 원소 분류 및 미발견 원소 예측.' },
+      { year: '1869', name: '주기 법칙', desc: '원소의 성질은 원자량의 주기적 함수다 — 보어 이후 원자번호 기반으로 재정립.' },
+    ],
+    connections: ['John Dalton', 'J.J. Thomson', 'Niels Bohr', 'Henry Moseley'],
+    equations: ['주기율: f(성질) = f(원자량)  → 현대: f(원자번호)']
+  },
+  {
+    id: 'young',
+    name: 'Thomas Young',
+    nameKr: '토마스 영',
+    born: 1773, died: 1829,
+    birthYear: '1773',
+    nation: '영국',
+    era: 'modern',
+    field: '광학·파동론·의학',
+    tags: ['이중슬릿', '빛의파동성', '광학'],
+    color: '#4ab3a8',
+    quote: '자연의 현상들은 모두 하나의 단순한 원리로부터 흘러나온다.',
+    quoteAttr: '— Thomas Young',
+    bio: `토마스 영은 영국의 의사이자 물리학자로, 1801년 이중슬릿 실험을 통해 빛이 파동임을 결정적으로 증명했습니다. 당시 뉴턴의 권위에 기반한 빛의 입자설이 지배적이었음에도 불구하고, 두 슬릿을 통과한 빛이 스크린에 간섭무늬(밝고 어두운 줄무늬)를 만든다는 것을 보여주며 파동설의 강력한 근거를 제시했습니다.
+
+    또한 색각 이론에서 눈이 세 가지 색(적·녹·청)을 기본으로 인식한다는 삼원색 이론(Young-Helmholtz 이론)을 제안했고, 이집트 상형문자 해독(로제타석 해독에 기여), 탄성 계수(영률, Young's Modulus) 정의 등 물리학·의학·언어학을 넘나드는 백과사전적 업적을 남겼습니다.`,
+    theories: [
+      { year: '1801', name: '이중슬릿 실험 (빛의 간섭)', desc: '두 슬릿을 통과한 빛이 간섭무늬를 만든다 — 빛의 파동성을 실험으로 최초 증명.' },
+      { year: '1801', name: '빛의 파장 측정', desc: '간섭무늬 간격으로 빛의 파장을 처음으로 정량적으로 측정 — 가시광선 400~700nm.' },
+      { year: '1807', name: '영률 (Young\'s Modulus)', desc: '고체의 탄성(응력/변형률)을 정의하는 재료역학의 핵심 물성값 E = σ/ε.' },
+      { year: '1802', name: '삼원색 시각 이론', desc: '망막은 적·녹·청 세 종류의 수용체로 색을 인식한다 — 훗날 헬름홀츠가 완성.' },
+    ],
+    connections: ['Isaac Newton', 'Augustin-Jean Fresnel', 'James Maxwell', 'Albert Einstein'],
+    equations: ['Δy = λL/d  (이중슬릿 간섭무늬 간격)', 'E = σ/ε  (영률)']
+  },
+  {
+    id: 'dalton',
+    name: 'John Dalton',
+    nameKr: '존 돌턴',
+    born: 1766, died: 1844,
+    birthYear: '1766',
+    nation: '영국',
+    era: 'modern',
+    field: '화학·원자론',
+    tags: ['근대원자론', '원소', '배수비례'],
+    color: '#4ab3a8',
+    quote: '원소들이 결합할 때, 그들은 항상 단순한 정수비로 결합한다.',
+    quoteAttr: '— John Dalton, A New System of Chemical Philosophy (1808)',
+    bio: `돌턴은 데모크리토스의 철학적 원자론을 2200년 만에 과학적·정량적 이론으로 부활시킨 근대 원자론의 창시자입니다. 원소들이 결합하는 질량 비율이 항상 간단한 정수비를 이룬다는 실험적 관찰(배수비례의 법칙)로부터, 원자가 특정 질량을 가진 불가분의 입자라는 결론을 이끌어냈습니다.
+
+    최초의 원소 원자량 표를 작성했으며, 이후 멘델레예프의 주기율표로 발전하는 토대를 마련했습니다. 또한 색맹 연구의 선구자로, 본인도 색맹이었기에 색맹(Daltonism)이라는 용어가 그의 이름에서 유래했습니다.`,
+    theories: [
+      { year: '1803', name: '근대 원자론', desc: '각 원소는 고유한 질량의 원자로 구성되며, 원자는 불생불멸·불분할이다.' },
+      { year: '1803', name: '배수비례의 법칙', desc: '두 원소가 여러 화합물을 만들 때, 한 원소의 일정량에 결합하는 다른 원소의 질량비는 간단한 정수비다.' },
+      { year: '1801', name: '돌턴의 분압 법칙', desc: '혼합 기체의 전체 압력은 각 성분 기체의 분압의 합이다.' },
+      { year: '1808', name: '최초 원자량 표', desc: '수소를 기준(1)으로 각 원소의 상대 원자량을 최초로 측정·정리.' },
+    ],
+    connections: ['Democritus', 'J.J. Thomson', 'Ernest Rutherford', 'Dmitri Mendeleev'],
+    equations: ['P_total = P₁ + P₂ + ··· (분압 법칙)', 'm₁/m₂ = 정수비  (배수비례)']
+  },
+  {
+    id: 'thomson',
+    name: 'J.J. Thomson',
+    nameKr: '조지프 존 톰슨',
+    born: 1856, died: 1940,
+    birthYear: '1856',
+    nation: '영국',
+    era: 'modern',
+    field: '원자물리학·전자 발견',
+    tags: ['전자발견', '원자모형', '음극선'],
+    color: '#4ab3a8',
+    quote: '원자는 더 작은 입자로 쪼개질 수 있다.',
+    quoteAttr: '— J.J. Thomson, 1897',
+    bio: `톰슨은 음극선관 실험을 통해 1897년 전자를 발견하여, 2500년간 유지되어 온 원자 불가분론을 무너뜨린 혁명적 발견을 이뤄냈습니다. 음극선이 전기장과 자기장에 의해 편향됨을 관측하고, 이 입자의 전하 대 질량 비(e/m)가 어떤 음극 재료를 써도 동일하다는 것으로 모든 물질에 공통된 기본 입자임을 증명했습니다.
+
+    원자 내부에 전자가 양전하 구름 속에 박혀 있다는 "건포도 푸딩 모형(Plum Pudding Model)"을 제안했습니다. 이 모형은 러더퍼드의 금박 실험으로 폐기되었지만, 원자의 내부 구조 탐구를 촉발한 결정적 계기가 되었습니다. 캐번디시 연구소장으로서 러더퍼드를 포함한 수많은 후학을 양성했으며 1906년 노벨물리학상을 수상했습니다.`,
+    theories: [
+      { year: '1897', name: '전자 발견', desc: '음극선이 음전하를 가진 입자(전자)의 흐름임을 증명 — 원자가 더 작은 입자로 이루어짐을 최초 확인.' },
+      { year: '1897', name: 'e/m 비 측정', desc: '전자의 전하 대 질량비(e/m ≈ 1.76×10¹¹ C/kg)를 전기·자기장 편향 실험으로 결정.' },
+      { year: '1904', name: '건포도 푸딩 원자 모형', desc: '전자가 양전하 구름(pudding) 속에 박힌(plum) 구조 — 러더퍼드 실험 전까지 표준 원자 모형.' },
+      { year: '1913', name: '동위원소 발견', desc: '질량 분석기로 네온이 두 종류의 동위원소(Ne-20, Ne-22)로 이루어짐을 발견.' },
+    ],
+    connections: ['John Dalton', 'Ernest Rutherford', 'Niels Bohr', 'Robert Millikan'],
+    equations: ['e/m = E/(B²R)  (전자 비전하)', 'qvB = mv²/r  (전자 원운동)']
+  },
+  {
+    id: 'hertz',
+    name: 'Heinrich Hertz',
+    nameKr: '하인리히 헤르츠',
+    born: 1857, died: 1894,
+    birthYear: '1857',
+    nation: '독일',
+    era: 'modern',
+    field: '전자기학·전파',
+    tags: ['전자기파', '전파실험', '광전효과'],
+    color: '#4ab3a8',
+    quote: '이 발견이 실용적으로 어떤 용도가 있을지 전혀 모르겠습니다.',
+    quoteAttr: '— Heinrich Hertz, 전파 발견 직후',
+    bio: `헤르츠는 맥스웰이 이론으로 예언한 전자기파를 1887년 실험실에서 처음으로 발생·검출함으로써, 맥스웰 방정식을 실험적으로 완전히 검증했습니다. 스파크 방전 장치(발진기)와 고리형 수신기를 이용해 전파를 발사하고 수신하는 데 성공했으며, 이 전파가 빛과 같은 속도로 전파되고 반사·굴절·편광되는 것을 확인했습니다.
+
+    또한 금속 표면에 자외선을 쬐었을 때 전자가 방출되는 광전효과(photoelectric effect)를 최초로 관찰했습니다. 이 현상은 나중에 아인슈타인이 광자론으로 설명하여 노벨상을 받게 됩니다. 안타깝게도 36세라는 젊은 나이에 뼈 질환으로 사망했습니다. 주파수의 SI 단위 헤르츠(Hz)는 그의 이름에서 유래합니다.`,
+    theories: [
+      { year: '1887', name: '전자기파(전파) 발생 및 검출', desc: '맥스웰의 이론 예언을 실험으로 최초 검증 — 라디오·TV·무선통신 기술의 출발점.' },
+      { year: '1887', name: '전파의 파동 성질 확인', desc: '전파가 반사·굴절·편광·간섭하며 빛의 속도로 전파됨을 증명.' },
+      { year: '1887', name: '광전효과 최초 관찰', desc: '자외선 조사 시 금속에서 전자가 방출되는 현상 발견 — 아인슈타인 광자론의 실험적 계기.' },
+    ],
+    connections: ['James Maxwell', 'Albert Einstein', 'Guglielmo Marconi', 'Oliver Lodge'],
+    equations: ['c = λf  (전파 파장-주파수 관계)', 'E_photon = hf  (아인슈타인의 광전효과 설명)']
+  },
+  {
+    id: 'doppler',
+    name: 'Christian Doppler',
+    nameKr: '크리스티안 도플러',
+    born: 1803, died: 1853,
+    birthYear: '1803',
+    nation: '오스트리아',
+    era: 'modern',
+    field: '파동물리학·광학',
+    tags: ['도플러효과', '파동', '음향학'],
+    color: '#4ab3a8',
+    quote: '음원이 가까워지면 소리가 높아지고, 멀어지면 낮아진다.',
+    quoteAttr: '— Christian Doppler, 1842',
+    bio: `도플러는 오스트리아의 수학자·물리학자로, 1842년 파원(波源)과 관측자의 상대 운동에 따라 관측되는 파동의 주파수가 달라진다는 도플러 효과를 이론적으로 발표했습니다. 파원이 가까워질수록 주파수가 높아지고(청색 편이), 멀어질수록 낮아진다(적색 편이)는 원리입니다.
+
+    도플러 효과는 음파뿐 아니라 빛(전자기파)에도 적용되어, 허블의 우주 팽창 발견, 레이더·초음파 의료 진단, 기상 레이더 등 현대 과학기술 전반에 광범위하게 활용됩니다.`,
+    theories: [
+      { year: '1842', name: '도플러 효과', desc: '파원과 관측자의 상대 운동에 따라 관측 주파수가 변한다. f = f₀(v±v_obs)/(v∓v_src)' },
+      { year: '1842', name: '빛의 적색·청색 편이 예언', desc: '별빛의 색이 별의 운동 방향에 따라 편이됨을 예측 — 우주론의 핵심 도구.' },
+    ],
+    connections: ['Thomas Young', 'James Maxwell', 'Edwin Hubble'],
+    equations: ['f_obs = f₀·(v + v_obs)/(v − v_src)']
+  },
+  {
+    id: 'helmholtz',
+    name: 'Hermann von Helmholtz',
+    nameKr: '헤르만 폰 헬름홀츠',
+    born: 1821, died: 1894,
+    birthYear: '1821',
+    nation: '독일',
+    era: 'modern',
+    field: '에너지보존·전자기학·생리학',
+    tags: ['에너지보존', '열역학', '전자기학'],
+    color: '#4ab3a8',
+    quote: '자연에서 에너지는 창조되거나 소멸되지 않는다. 단지 형태가 바뀔 뿐이다.',
+    quoteAttr: '— Hermann von Helmholtz, Über die Erhaltung der Kraft (1847)',
+    bio: `헬름홀츠는 물리학·생리학·수학에 걸쳐 탁월한 업적을 남긴 19세기 독일 과학의 거인입니다. 1847년 논문 『힘의 보존에 관하여』에서 운동·열·빛·전기·자기 등 모든 형태의 에너지가 상호 변환되며 총합은 보존된다는 에너지 보존 법칙을 수학적으로 정립했습니다.
+
+    전자기학에서는 맥스웰 방정식을 독일에 소개·보급하고 전자기 유도 현상을 독자적으로 연구했습니다. 또한 눈의 검안경을 발명하고, 신경 자극의 전도 속도를 최초로 측정하는 등 생리학에도 혁신을 일으켰습니다.`,
+    theories: [
+      { year: '1847', name: '에너지 보존 법칙', desc: '운동·열·빛·전기·자기는 모두 하나의 에너지로 상호 변환되며 총량은 보존된다.' },
+      { year: '1858', name: '와류 운동 정리', desc: '이상 유체에서 와류(소용돌이)는 생성·소멸되지 않는다 — 유체역학의 핵심 정리.' },
+      { year: '1882', name: '헬름홀츠 자유 에너지', desc: 'F = U − TS — 등온 조건에서 가용한 최대 일을 나타내는 열역학 포텐셜.' },
+    ],
+    connections: ['Michael Faraday', 'James Maxwell', 'Rudolf Clausius', 'Ludwig Boltzmann'],
+    equations: ['E_total = E_kinetic + E_potential + E_heat = const', 'F = U − TS  (헬름홀츠 자유에너지)']
+  },
+  {
+    id: 'clausius',
+    name: 'Rudolf Clausius',
+    nameKr: '루돌프 클라우지우스',
+    born: 1822, died: 1888,
+    birthYear: '1822',
+    nation: '독일 (프로이센)',
+    era: 'modern',
+    field: '열역학',
+    tags: ['열역학제2법칙', '엔트로피', '열역학'],
+    color: '#4ab3a8',
+    quote: '우주의 에너지는 일정하다. 우주의 엔트로피는 최대를 향해 증가한다.',
+    quoteAttr: '— Rudolf Clausius, 1865',
+    bio: `클라우지우스는 카르노의 직관적 열기관 이론을 엄밀한 수학으로 완성한 열역학의 건축가입니다. 1850년 열역학 제1법칙(에너지 보존)을 수학적으로 정식화했고, 1854~1865년에 걸쳐 열역학 제2법칙과 함께 엔트로피(entropy)라는 개념을 창안·명명했습니다.
+
+    "열은 저절로 차가운 곳에서 뜨거운 곳으로 흐르지 않는다"는 클라우지우스 부등식은 자연 과정의 비가역성을 수학적으로 표현하며, 볼츠만이 이를 통계역학으로 미시적으로 해석하는 데 결정적 토대가 되었습니다.`,
+    theories: [
+      { year: '1850', name: '열역학 제1법칙 정식화', desc: '내부에너지 변화 = 공급된 열 − 한 일. dU = δQ − δW' },
+      { year: '1854', name: '클라우지우스 부등식', desc: '비가역 과정에서 ∮δQ/T ≤ 0 — 열역학 제2법칙의 수학적 표현.' },
+      { year: '1865', name: '엔트로피 명명', desc: '상태함수 S(엔트로피)를 정의하고, 고립계에서 dS ≥ 0 임을 증명.' },
+    ],
+    connections: ['Sadi Carnot', 'Hermann von Helmholtz', 'Ludwig Boltzmann', 'James Maxwell'],
+    equations: ['dU = δQ − δW', 'dS = δQ_rev/T', '∮δQ/T ≤ 0  (클라우지우스 부등식)']
+  },
+  {
+    id: 'michelson',
+    name: 'Albert Michelson',
+    nameKr: '앨버트 마이컬슨',
+    born: 1852, died: 1931,
+    birthYear: '1852',
+    nation: '미국 (폴란드 출생)',
+    era: 'modern',
+    field: '광학·정밀측정',
+    tags: ['광속측정', '에테르부재', '간섭계'],
+    color: '#4ab3a8',
+    quote: '물리학의 중요한 근본 법칙과 사실들은 모두 발견되었다. 앞으로는 소수점 아래 자릿수를 채우는 일이 남았을 뿐이다.',
+    quoteAttr: '— Albert Michelson, 1894 (특수상대성이론 발견 11년 전)',
+    bio: `마이컬슨은 빛의 속도를 역대 가장 정밀하게 측정한 실험물리학자로, 1907년 미국인 최초로 노벨물리학상을 수상했습니다. 1887년 에드워드 몰리와 함께 수행한 마이컬슨-몰리 실험은 당시 빛의 매질로 여겨지던 에테르(aether)의 존재를 검증하려 했으나, 에테르의 부재와 광속의 방향 불변성을 실험적으로 확인했습니다.
+
+    이 "실패한 실험"의 결과는 아인슈타인 특수상대성이론의 핵심 실험적 근거가 되었으며, 20세기 물리학 혁명의 도화선이 되었습니다. 마이컬슨 간섭계는 오늘날 중력파 검출기(LIGO)의 기본 원리로 그대로 사용됩니다.`,
+    theories: [
+      { year: '1887', name: '마이컬슨-몰리 실험', desc: '에테르를 통한 지구 운동을 검출하려 했으나 결과는 null — 광속 불변성과 에테르 부재 실증.' },
+      { year: '1879', name: '광속 정밀 측정', desc: '회전 거울법으로 c = 299,853 km/s를 측정 — 당시 역대 가장 정밀한 광속값.' },
+      { year: '1881', name: '마이컬슨 간섭계 발명', desc: '빛의 간섭을 이용한 초정밀 길이·속도 측정 장치 — LIGO 중력파 검출의 원형.' },
+    ],
+    connections: ['Thomas Young', 'James Maxwell', 'Albert Einstein', 'Heinrich Hertz'],
+    equations: ['ΔL = L(v²/c²)  (에테르 이동 예측, 실험 결과 ΔL = 0)', 'c = 299,792,458 m/s']
+  },
+  {
+    id: 'faraday',
+    name: 'Michael Faraday',
+    nameKr: '마이클 패러데이',
+    born: 1791, died: 1867,
+    birthYear: '1791',
+    nation: '영국',
+    era: 'modern',
+    field: '전자기학',
+    tags: ['전자기유도', '전기장', '전기분해'],
+    color: '#4ab3a8',
+    quote: '어떤 사람도 배울 의지가 있는 한, 배울 수 없을 만큼 나이 든 것은 아니다.',
+    quoteAttr: '— Michael Faraday',
+    bio: `마이클 패러데이는 가난한 대장장이의 아들로 태어나 정규 교육을 거의 받지 못했지만, 왕립연구소의 험프리 데이비 경 실험실에서 독학으로 성장해 역대 최위대한 실험 물리학자가 되었습니다.
+
+    1831년 전자기 유도 현상을 발견한 것은 현대 전기문명의 기초가 된 혁명적 업적입니다. 발전기, 변압기, 전동기의 원리가 모두 패러데이의 발견에서 비롯됩니다. 수학적 훈련 부족을 보완하기 위해 "역선(力線)"이라는 직관적 시각적 개념을 창안했고, 이는 훗날 맥스웰이 전자기장 이론으로 수학화했습니다.`,
+    theories: [
+      { year: '1831', name: '전자기 유도 법칙', desc: '자기장의 변화는 전기장(기전력)을 유도한다. 발전기·변압기의 원리.' },
+      { year: '1833', name: '전기분해 법칙', desc: '전기분해로 석출되는 물질의 양은 통과한 전기량에 비례한다.' },
+      { year: '1845', name: '패러데이 효과 (자기광학)', desc: '자기장이 빛의 편광면을 회전시킨다 — 빛과 자기가 연관됨을 최초 증명.' },
+      { year: '1845', name: '반자성 발견', desc: '일부 물질이 자기장에 반발하는 현상 발견 — 반자성(diamagnetism).' },
+    ],
+    connections: ['James Maxwell', 'Isaac Newton', 'Humphry Davy'],
+    equations: ['ε = -dΦ_B/dt  (패러데이 법칙)', 'Q = nFm/M  (전기분해)']
+  },
+  {
+    id: 'maxwell',
+    name: 'James Clerk Maxwell',
+    nameKr: '제임스 클러크 맥스웰',
+    born: 1831, died: 1879,
+    birthYear: '1831',
+    nation: '스코틀랜드 / 영국',
+    era: 'modern',
+    field: '전자기학·통계역학',
+    tags: ['맥스웰방정식', '전자기파', '통계역학'],
+    color: '#4ab3a8',
+    quote: '물리적 현상에 대해 완전히 만족스러운 이해는 그것의 수학적 이론이 완성될 때 얻어진다.',
+    quoteAttr: '— James Clerk Maxwell',
+    bio: `맥스웰은 뉴턴 이후 가장 위대한 수학 물리학자로 평가받으며, 4개의 편미분 방정식(맥스웰 방정식)으로 전기·자기·빛을 단일 이론으로 통합했습니다. 1865년 『전자기장의 동역학적 이론』에서 전자기파의 속도가 빛의 속도와 일치함을 보이고, 빛이 전자기파임을 이론적으로 예언했습니다.
+
+    통계역학에서도 맥스웰-볼츠만 분포를 유도하여 열역학과 원자론을 연결했으며, 컬러 사진술, 제어이론(맥스웰의 도깨비), 토성 고리의 구조 분석 등 다양한 분야에 발자취를 남겼습니다. 아인슈타인은 자신의 작업실에 뉴턴, 패러데이와 함께 맥스웰의 사진을 걸어두었습니다.`,
+    theories: [
+      { year: '1865', name: '맥스웰 방정식 (4대 방정식)', desc: '전기장과 자기장의 생성·상호작용·전파를 기술하는 4개의 편미분 방정식 체계.' },
+      { year: '1865', name: '전자기파 이론', desc: '전자기파의 속도 c = 1/√(ε₀μ₀) ≈ 3×10⁸ m/s — 빛과 동일함을 예언.' },
+      { year: '1860', name: '맥스웰-볼츠만 분포', desc: '기체 분자의 속도 분포를 통계적으로 기술 — 통계역학의 토대.' },
+      { year: '1867', name: '맥스웰의 도깨비 (Maxwell\'s Demon)', desc: '정보와 열역학 제2법칙의 연관성을 제시한 사고실험 — 정보이론의 선구.' },
+    ],
+    connections: ['Michael Faraday', 'Isaac Newton', 'Ludwig Boltzmann', 'Albert Einstein', 'Heinrich Hertz'],
+    equations: ['∇·E = ρ/ε₀', '∇·B = 0', '∇×E = -∂B/∂t', '∇×B = μ₀J + μ₀ε₀∂E/∂t', 'c = 1/√(ε₀μ₀)']
+  },
+  {
+    id: 'boltzmann',
+    name: 'Ludwig Boltzmann',
+    nameKr: '루트비히 볼츠만',
+    born: 1844, died: 1906,
+    birthYear: '1844',
+    nation: '오스트리아',
+    era: 'modern',
+    field: '통계역학·열역학',
+    tags: ['통계역학', '엔트로피', '원자론'],
+    color: '#4ab3a8',
+    quote: 'S = k · log W',
+    quoteAttr: '— 볼츠만의 묘비명',
+    bio: `볼츠만은 원자론이 아직 논란이던 시대에, 열역학적 현상이 원자·분자의 통계적 운동으로 설명된다는 것을 수학적으로 증명했습니다. 당시 주류 과학계(특히 에른스트 마흐, 빌헬름 오스트발트)로부터 원자론에 근거한 자신의 이론이 거부당하자 극심한 우울증을 겪었고, 1906년 이탈리아 여행 중 스스로 생을 마감했습니다.
+
+    아이러니하게도 같은 해 아인슈타인이 브라운 운동 논문을 발표해 원자의 실재를 증명했고, 볼츠만의 이론은 완전히 정당화되었습니다. S = k log W 라는 간결한 수식은 그의 묘비에 새겨져 있으며, 우주의 근본 원리를 담고 있습니다.`,
+    theories: [
+      { year: '1872', name: 'H-정리와 엔트로피', desc: '가역과정에서 H-함수는 단조감소한다 — 비가역성과 시간의 화살 설명.' },
+      { year: '1877', name: '볼츠만 엔트로피 공식', desc: 'S = k·ln W — 엔트로피는 미시 상태의 수에 대한 로그. 통계역학의 핵심.' },
+      { year: '1868', name: '맥스웰-볼츠만 분포', desc: '평형 상태 기체의 속도 분포 — f(v) ∝ v²·exp(-mv²/2kT).' },
+    ],
+    connections: ['James Maxwell', 'Max Planck', 'Albert Einstein', 'Willard Gibbs'],
+    equations: ['S = k · ln W', 'f(v) ∝ v² exp(-mv²/2kT)']
+  },
+  {
+    id: 'minkowski',
+    name: 'Hermann Minkowski',
+    nameKr: '헤르만 민코프스키',
+    born: 1864, died: 1909,
+    birthYear: '1864',
+    nation: '독일 (리투아니아 출신)',
+    era: 'quantum',
+    field: '수리물리학·수학',
+    tags: ['4차원시공간', '특수상대성', '시공간기하학'],
+    color: '#0F8C50',
+    quote: '앞으로 공간 자체와 시간 자체는 그림자 속으로 사라질 것이다. 오직 둘의 결합만이 독립적 실재를 보존할 것이다.',
+    quoteAttr: '— Hermann Minkowski, 쾰른 강연 (1908)',
+    bio: `민코프스키는 아인슈타인의 스승이었던 수학자로, 1908년 아인슈타인의 특수 상대성 이론을 4차원 시공간(민코프스키 공간)의 기하학으로 재정식화했습니다. 시간을 세 번째 공간 축과 동등하게 취급하되 허수 단위 ict로 표현하는 방식은 특수 상대성 이론의 수학적 아름다움을 드러내고 계산을 비약적으로 간결하게 만들었습니다.
+
+    아인슈타인은 처음에 이 수학적 재정식화를 "불필요한 복잡성"이라 여겼으나, 곧 이것이 일반 상대성 이론으로 확장하는 데 필수적인 언어임을 깨달았습니다. 민코프스키는 아쉽게도 일반 상대성 이론의 완성을 보지 못하고 45세에 급성 맹장염으로 사망했습니다.`,
+    theories: [
+      { year: '1908', name: '민코프스키 시공간 (4차원)', desc: '시간과 공간을 하나의 4차원 다양체로 통합 — 특수 상대성 이론의 기하학적 정식화.' },
+      { year: '1908', name: '시공간 간격 불변량', desc: 'ds² = c²dt² − dx² − dy² − dz² — 모든 관성계에서 불변하는 시공간 거리.' },
+      { year: '1907', name: '4-벡터 형식론', desc: '에너지-운동량, 전류-전하를 4-벡터로 표현 — 상대론적 전자기학의 수학 언어.' },
+    ],
+    connections: ['Albert Einstein', 'Bernhard Riemann', 'Henri Poincaré'],
+    equations: ['ds² = c²dt² − dx² − dy² − dz²  (시공간 간격)', 'E² = (pc)² + (mc²)²']
+  },
+  {
+    id: 'noether',
+    name: 'Emmy Noether',
+    nameKr: '에미 뇨터',
+    born: 1882, died: 1935,
+    birthYear: '1882',
+    nation: '독일 / 미국',
+    era: 'quantum',
+    field: '수리물리학·수학',
+    tags: ['뇨터의정리', '대칭성', '보존법칙'],
+    color: '#0F8C50',
+    quote: '수학적 아름다움과 물리적 진리는 하나로 이어진다.',
+    quoteAttr: '— Emmy Noether',
+    bio: `뇨터는 20세기 가장 중요한 수학자 중 한 명으로, 1918년 발표한 "뇨터의 정리"는 물리학의 가장 심오한 통찰 중 하나입니다. 이 정리는 물리계의 모든 연속적 대칭성에 대응하는 보존량이 존재한다는 것을 수학적으로 증명합니다. 시간 이동 대칭 → 에너지 보존, 공간 이동 대칭 → 운동량 보존, 회전 대칭 → 각운동량 보존이 그 예입니다.
+
+    여성이라는 이유로 수십 년간 정식 교수직을 거부당했으며, 나치 집권 후 유대인이라는 이유로 독일에서 추방되어 미국으로 망명했습니다. 아인슈타인은 "뇨터는 역사상 가장 위대한 창조적 수학 천재"라고 추켜세웠습니다.`,
+    theories: [
+      { year: '1918', name: '뇨터의 정리', desc: '물리계의 연속적 대칭성 ↔ 보존 법칙의 일대일 대응 — 현대 물리학의 가장 심오한 원리.' },
+      { year: '1918', name: '대칭성과 보존량 연결', desc: '시간 대칭→에너지 보존, 공간 대칭→운동량 보존, 회전 대칭→각운동량 보존.' },
+    ],
+    connections: ['Albert Einstein', 'David Hilbert', 'Werner Heisenberg', 'Paul Dirac'],
+    equations: ['대칭성 G → 보존전류 j^μ: ∂_μj^μ = 0', 'Q = ∫j⁰d³x = const  (보존량)']
+  },
+  {
+    id: 'debroglie',
+    name: 'Louis de Broglie',
+    nameKr: '루이 드 브로이',
+    born: 1892, died: 1987,
+    birthYear: '1892',
+    nation: '프랑스',
+    era: 'quantum',
+    field: '양자역학',
+    tags: ['물질파', '파동-입자이중성', '드브로이파장'],
+    color: '#0F8C50',
+    quote: '빛이 파동이면서 입자라면, 입자도 파동이 아닐까?',
+    quoteAttr: '— Louis de Broglie, 박사논문 (1924)',
+    bio: `드 브로이는 프랑스의 귀족 출신 물리학자로, 1924년 박사 논문에서 "빛이 파동-입자 이중성을 가진다면, 전자와 같은 물질 입자도 파동의 성질을 가져야 한다"는 혁명적인 물질파 가설을 제시했습니다. 이 단 하나의 박사 논문으로 1929년 노벨 물리학상을 수상했습니다.
+
+    드 브로이의 물질파 개념은 슈뢰딩거가 파동 방정식을 수립하는 직접적인 동기가 되었으며, 데이비슨-거머 실험(1927)에서 전자의 회절 현상이 실험으로 확인됨으로써 입증되었습니다. 또한 보어 원자 모형에서 왜 전자 궤도가 불연속적인지를 물질파의 정상파 조건으로 자연스럽게 설명할 수 있게 되었습니다.`,
+    theories: [
+      { year: '1924', name: '물질파 가설', desc: '모든 물질 입자는 파장 λ = h/p를 가진 파동의 성질을 지닌다.' },
+      { year: '1924', name: '드 브로이 파장', desc: 'λ = h/mv — 전자·양성자·심지어 분자도 파동처럼 회절·간섭한다.' },
+      { year: '1924', name: '보어 궤도의 물질파 해석', desc: '전자 궤도 = 정상파 조건 nλ = 2πr — 양자화 조건을 자연스럽게 유도.' },
+    ],
+    connections: ['Niels Bohr', 'Erwin Schrödinger', 'Werner Heisenberg', 'Albert Einstein'],
+    equations: ['λ = h/p = h/mv  (드 브로이 파장)', 'nλ = 2πr  (보어 궤도 조건)']
+  },
+  {
+    id: 'pauli',
+    name: 'Wolfgang Pauli',
+    nameKr: '볼프강 파울리',
+    born: 1900, died: 1958,
+    birthYear: '1900',
+    nation: '오스트리아 / 스위스',
+    era: 'quantum',
+    field: '양자역학·입자물리학',
+    tags: ['배타원리', '스핀', '중성미자예언'],
+    color: '#0F8C50',
+    quote: '나쁜 이론이 아니라 아예 틀리지도 않은 이론이다! (Das ist nicht nur nicht richtig, es ist nicht einmal falsch!)',
+    quoteAttr: '— Wolfgang Pauli, 논리에 맞지 않는 논문에 대한 평',
+    bio: `파울리는 오스트리아 출신의 이론물리학자로, 양자역학의 수학적 체계 확립에 핵심적 기여를 했습니다. 1925년 파울리 배타 원리를 발표했는데, 이는 동일한 양자 상태에 두 개의 페르미온(반정수 스핀 입자)이 동시에 존재할 수 없다는 원리입니다. 이 원리는 원소 주기율표의 전자 배치, 물질의 안정성, 백색왜성이 붕괴하지 않는 이유 등을 설명합니다.
+
+    1930년에는 베타 붕괴 시 에너지와 운동량이 보존되지 않는 것처럼 보이는 문제를 해결하기 위해 중성미자(neutrino)의 존재를 예언했습니다. 당시 검출 불가능하다고 여겨졌으나 1956년 실험으로 확인되었습니다. 1945년 노벨물리학상을 수상했으며, "신의 채찍"이라는 별명으로 불릴 만큼 동료들의 오류를 날카롭게 지적하기로 유명했습니다.`,
+    theories: [
+      { year: '1925', name: '파울리 배타 원리', desc: '동일 양자계에서 두 페르미온은 같은 양자수 집합을 가질 수 없다 — 원자 전자 배치의 근거.' },
+      { year: '1925', name: '전자 스핀 개념 도입', desc: '전자의 네 번째 양자수로 스핀(±½)을 도입 — 원소 주기율 및 화학 결합의 기초.' },
+      { year: '1930', name: '중성미자 예언', desc: '베타 붕괴 에너지 결손을 설명하기 위해 질량이 없는 중성 입자 예언 — 1956년 실험 확인.' },
+    ],
+    connections: ['Werner Heisenberg', 'Niels Bohr', 'Erwin Schrödinger', 'Paul Dirac', 'Enrico Fermi'],
+    equations: ['n, l, m_l, m_s 모두 다른 전자만 공존 (배타원리)', 'β⁻ 붕괴: n → p + e⁻ + ν̄_e  (중성미자 포함)']
+  },
+  {
+    id: 'hubble',
+    name: 'Edwin Hubble',
+    nameKr: '에드윈 허블',
+    born: 1889, died: 1953,
+    birthYear: '1889',
+    nation: '미국',
+    era: 'quantum',
+    field: '천문학·우주론',
+    tags: ['우주팽창', '허블법칙', '은하분류'],
+    color: '#0F8C50',
+    quote: '우리는 팽창하는 우주의 중심부에 살고 있는 것이 아니라, 팽창하는 우주 어딘가에 살고 있다.',
+    quoteAttr: '— Edwin Hubble',
+    bio: `허블은 미국의 천문학자로, 1923년 안드로메다 성운이 우리 은하 밖의 별개 은하임을 증명하여 우주의 규모를 한순간에 수천 배 확장시켰습니다. 1929년에는 은하들의 후퇴 속도가 거리에 비례한다는 허블 법칙(v = H₀d)을 발표하여, 우주가 팽창하고 있음을 관측으로 확인했습니다.
+
+    이 발견은 아인슈타인이 "내 생애 최대의 실수"라 부른 우주상수(Λ)를 철회하게 만들었고, 빅뱅 이론의 직접적 관측 증거가 되었습니다. 허블의 관측 데이터를 외삽하면 우주의 나이를 역산할 수 있으며, 현재 허블 상수는 H₀ ≈ 70 km/s/Mpc으로 측정됩니다. 허블 우주망원경은 그의 이름에서 유래했습니다.`,
+    theories: [
+      { year: '1923', name: '안드로메다가 별개 은하임을 증명', desc: '안드로메다 내 세페이드 변광성으로 거리를 측정 — 우주의 규모가 은하 너머까지 확장됨을 확인.' },
+      { year: '1925', name: '은하 형태 분류 체계', desc: '은하를 타원·나선·불규칙 등으로 분류하는 허블 순열(Hubble Sequence) 확립.' },
+      { year: '1929', name: '허블 법칙 (우주 팽창)', desc: '은하의 후퇴 속도 v = H₀·d — 거리에 비례하여 후퇴하며, 우주가 팽창 중임을 증명.' },
+    ],
+    connections: ['Albert Einstein', 'Georges Lemaître', 'Vesto Slipher', 'Stephen Hawking'],
+    equations: ['v = H₀ · d  (허블 법칙)', 'H₀ ≈ 70 km/s/Mpc  (허블 상수)']
+  },
+  {
+    id: 'fermi',
+    name: 'Enrico Fermi',
+    nameKr: '엔리코 페르미',
+    born: 1001, died: 1954,
+    birthYear: '1901',
+    nation: '이탈리아 / 미국',
+    era: 'quantum',
+    field: '핵물리학·양자역학',
+    tags: ['약력', '핵분열', '페르미온'],
+    color: '#0F8C50',
+    quote: '만약 우리가 실수를 하지 않는다면, 우리는 충분히 어려운 문제에 도전하지 않는 것이다.',
+    quoteAttr: '— Enrico Fermi',
+    bio: `페르미는 이론과 실험 모두에서 탁월한 업적을 남긴 20세기 최후의 만능 물리학자입니다. 1926년 디랙과 독립적으로 페르미-디랙 통계를 개발하여 전자 등 반정수 스핀 입자의 거동을 기술했으며, 1933년 베타 붕괴를 4개의 기본 입자 상호작용(페르미 상호작용)으로 설명하는 약력 이론을 발표했습니다.
+
+    1942년 시카고 대학 스쿼시 코트 지하에서 세계 최초의 인공 핵분열 연쇄반응 실험(시카고 파일-1)을 성공시켰으며, 이는 맨해튼 프로젝트와 원자력 에너지 시대의 시작을 알렸습니다. 원자번호 100번 원소 페르뮴(Fm)과 페르미 연구소(Fermilab)가 그의 이름을 기리고 있습니다.`,
+    theories: [
+      { year: '1926', name: '페르미-디랙 통계', desc: '파울리 배타 원리를 따르는 페르미온(반정수 스핀 입자)의 통계 분포 — 금속 전자론의 기초.' },
+      { year: '1933', name: '베타 붕괴의 약력 이론', desc: 'n → p + e⁻ + ν̄ 반응을 4입자 상호작용으로 정식화 — 약한 핵력 이론의 시작.' },
+      { year: '1942', name: '최초 핵분열 연쇄반응', desc: '시카고 파일-1 — 세계 최초의 제어된 핵분열 연쇄반응 성공, 원자력 시대 개막.' },
+    ],
+    connections: ['Wolfgang Pauli', 'Paul Dirac', 'Werner Heisenberg', 'J. Robert Oppenheimer'],
+    equations: ['f(E) = 1/(e^((E−μ)/kT)+1)  (페르미-디랙 분포)', 'G_F/(ℏc)³ ≈ 1.17×10⁻⁵ GeV⁻²  (페르미 결합상수)']
+  },
+  {
+    id: 'chadwick',
+    name: 'James Chadwick',
+    nameKr: '제임스 채드윅',
+    born: 1891, died: 1974,
+    birthYear: '1891',
+    nation: '영국',
+    era: 'quantum',
+    field: '핵물리학',
+    tags: ['중성자발견', '원자핵', '핵물리학'],
+    color: '#0F8C50',
+    quote: '중성자의 발견은 원자핵의 구조를 이해하는 열쇠였다.',
+    quoteAttr: '— James Chadwick',
+    bio: `채드윅은 어니스트 러더퍼드의 제자로, 1932년 베릴륨에 알파입자를 충돌시키는 실험에서 발생하는 미지의 방사선이 전하를 갖지 않으면서 양성자와 비슷한 질량을 가진 입자, 즉 중성자임을 증명했습니다. 이 발견은 러더퍼드가 1920년에 예언했던 입자를 실험적으로 확인한 것입니다.
+
+    중성자의 발견은 원자핵이 양성자와 중성자로 구성된다는 현대적 핵 모형을 완성시켰고, 중성자가 전하를 갖지 않아 전기적 반발 없이 원자핵에 쉽게 침투할 수 있다는 특성 덕분에 핵분열 연구와 원자폭탄 개발의 핵심 열쇠가 되었습니다. 1935년 노벨물리학상을 수상했습니다.`,
+    theories: [
+      { year: '1932', name: '중성자 발견', desc: 'Be + α → C + n 실험으로 전하 없고 질량 ≈ 양성자인 중성자 증명 — 현대 핵 모형 완성.' },
+      { year: '1932', name: '핵 구성 모형 완성', desc: '원자핵 = 양성자 + 중성자 — 질량수, 동위원소, 핵반응의 체계적 이해 가능.' },
+    ],
+    connections: ['Ernest Rutherford', 'Niels Bohr', 'Enrico Fermi', 'Werner Heisenberg'],
+    equations: ['⁴He + ⁹Be → ¹²C + ¹n  (중성자 발견 반응)', 'A = Z + N  (질량수 = 양성자수 + 중성자수)']
+  },
+  {
+    id: 'planck',
+    name: 'Max Planck',
+    nameKr: '막스 플랑크',
+    born: 1858, died: 1947,
+    birthYear: '1858',
+    nation: '독일',
+    era: 'quantum',
+    field: '양자역학',
+    tags: ['양자', '흑체복사', '플랑크상수'],
+    color: '#e0735a',
+    quote: '과학은 한 번에 한 번의 장례식으로 발전한다.',
+    quoteAttr: '— Max Planck, Scientific Autobiography',
+    bio: `플랑크는 열복사(흑체복사)를 설명하려다 예상치 않게 양자(量子) 개념을 창안한 "마지못한 혁명가"였습니다. 고전 물리학으로는 설명이 불가능했던 "자외선 파국"(Ultraviolet Catastrophe) 문제를 해결하기 위해 1900년 에너지가 연속적이 아닌 불연속적 덩어리(quantum)로 방출된다는 가설을 제시했습니다.
+
+    처음에는 임시방편적 수학 트릭으로 여겼지만, 이 플랑크 상수 h는 물리학의 가장 근본적인 상수 중 하나가 되었습니다. 플랑크는 나치 시대 독일에서 원칙을 지키며 유대인 과학자들을 보호하려 했으나 아들이 히틀러 암살 음모에 연루되어 처형당하는 비극을 겪었습니다.`,
+    theories: [
+      { year: '1900', name: '플랑크 복사 법칙', desc: '흑체복사의 에너지 스펙트럼 공식 — 고전물리학의 자외선 파국 해결.' },
+      { year: '1900', name: '에너지 양자화', desc: '에너지는 연속적이지 않고 hν 단위로 불연속적으로 방출·흡수된다.' },
+    ],
+    connections: ['Ludwig Boltzmann', 'Albert Einstein', 'Niels Bohr', 'Wilhelm Wien'],
+    equations: ['E = hν', 'B(ν,T) = 2hν³/c² · 1/(e^(hν/kT)−1)']
+  },
+  {
+    id: 'einstein',
+    name: 'Albert Einstein',
+    nameKr: '알베르트 아인슈타인',
+    born: 1879, died: 1955,
+    birthYear: '1879',
+    nation: '독일 / 스위스 / 미국',
+    era: 'quantum',
+    field: '상대성이론·양자론',
+    tags: ['특수상대성', '일반상대성', '광전효과', 'E=mc²'],
+    color: '#e0735a',
+    quote: '상상력이 지식보다 중요하다.',
+    quoteAttr: '— Albert Einstein',
+    bio: `아인슈타인은 1905년 "기적의 해"(Annus Mirabilis)에 단 1년 동안 특수상대성이론, 광전효과, 브라운운동에 관한 논문을 발표해 물리학을 완전히 바꿔놓았습니다. 당시 그는 스위스 베른 특허청의 하급 심사관이었습니다.
+
+    1915년 발표한 일반상대성이론은 중력을 시공간의 곡률로 설명하는 혁명적 이론으로, 1919년 개기일식 때 영국 천문학자 에딩턴의 관측으로 검증되어 세계적 명성을 얻었습니다. 1921년 노벨물리학상은 상대성이론이 아닌 광전효과로 수상했습니다. 나치 집권 후 미국으로 망명했으며 원자폭탄 개발에 간접적으로 관여했고, 평생 핵무기 반대 운동에 참여했습니다.`,
+    theories: [
+      { year: '1905', name: '특수 상대성 이론', desc: '빛의 속도는 모든 관성계에서 동일하다. 시간팽창·길이수축·질량-에너지 등가.' },
+      { year: '1905', name: '광전효과 (광자론)', desc: '빛은 광자(photon)라는 입자처럼 행동한다 — 파동-입자 이중성의 출발점. 노벨상.' },
+      { year: '1905', name: '브라운 운동 설명', desc: '물 위의 꽃가루 불규칙 운동으로 원자·분자의 실재를 수학적으로 증명.' },
+      { year: '1915', name: '일반 상대성 이론', desc: '중력 = 시공간의 곡률. 질량이 시공간을 휘어지게 만든다.' },
+      { year: '1916', name: '유도 방출 이론', desc: '들뜬 원자가 동일 진동수 광자에 의해 유도 방출됨 — 레이저의 원리.' },
+      { year: '1935', name: 'EPR 역설', desc: '양자역학의 비국소성에 의문을 제기한 사고실험 — 양자 얽힘(entanglement) 논쟁의 시초.' },
+    ],
+    connections: ['Max Planck', 'Niels Bohr', 'Werner Heisenberg', 'Erwin Schrödinger', 'James Maxwell'],
+    equations: ['E = mc²', 'E² = (pc)² + (mc²)²', 'G_μν + Λg_μν = 8πG/c⁴ · T_μν']
+  },
+  {
+    id: 'bohr',
+    name: 'Niels Bohr',
+    nameKr: '닐스 보어',
+    born: 1885, died: 1962,
+    birthYear: '1885',
+    nation: '덴마크',
+    era: 'quantum',
+    field: '원자물리학',
+    tags: ['원자모형', '양자론', '코펜하겐해석'],
+    color: '#e0735a',
+    quote: '양자역학에 충격받지 않은 사람은 이해하지 못한 것이다.',
+    quoteAttr: '— Niels Bohr',
+    bio: `보어는 1913년 수소 원자의 선스펙트럼을 설명하는 원자 모형을 발표하여, 고전전자기학과 양자론을 결합한 획기적 이론을 제시했습니다. 전자가 특정 궤도에서만 안정적으로 존재하며 궤도 전환 시 빛을 방출·흡수한다는 개념은 원자물리학의 기초가 되었습니다.
+
+    1920년대 코펜하겐 연구소를 세계 양자물리학의 중심지로 만들어, 하이젠베르크·파울리·디랙 등 수많은 물리학자를 육성했습니다. "코펜하겐 해석"은 양자역학의 표준 해석으로, 측정 이전 입자의 상태는 중첩 상태이며 관측이 파동함수를 붕괴시킨다고 설명합니다. 아인슈타인과의 "신은 주사위를 던지지 않는다" 논쟁은 물리학 역사상 가장 유명한 사상 대결입니다.`,
+    theories: [
+      { year: '1913', name: '보어 원자 모형', desc: '전자는 불연속적인 에너지 궤도를 돌며, 궤도 전이 시 광자를 방출·흡수한다.' },
+      { year: '1913', name: '수소 스펙트럼 설명', desc: '발머·라이먼 계열 등 수소 선스펙트럼을 에너지 준위로 정확히 예측.' },
+      { year: '1920s', name: '코펜하겐 해석', desc: '관측 이전 입자는 파동함수 중첩 상태 — 측정 행위가 상태를 확정한다.' },
+      { year: '1928', name: '상보성 원리', desc: '빛(전자)은 파동과 입자의 성질을 동시에 가지나, 한 번에 하나의 성질만 관측된다.' },
+    ],
+    connections: ['Max Planck', 'Albert Einstein', 'Werner Heisenberg', 'Erwin Schrödinger', 'Wolfgang Pauli'],
+    equations: ['E_n = -13.6/n² eV', 'L = nℏ  (양자화 조건)', 'ΔE = hν  (에너지 전이)']
+  },
+  {
+    id: 'heisenberg',
+    name: 'Werner Heisenberg',
+    nameKr: '베르너 하이젠베르크',
+    born: 1901, died: 1976,
+    birthYear: '1901',
+    nation: '독일',
+    era: 'quantum',
+    field: '양자역학',
+    tags: ['불확정성원리', '행렬역학', '양자장론'],
+    color: '#e0735a',
+    quote: '우주는 우리가 생각하는 것보다 이상할 뿐만 아니라, 우리가 생각할 수 있는 것보다 이상하다.',
+    quoteAttr: '— Werner Heisenberg',
+    bio: `하이젠베르크는 24세에 행렬역학을 창안하고, 26세에 불확정성 원리를 발표한 양자역학의 핵심 건설자입니다. 보어의 코펜하겐 연구소에서 수련하며 슈뢰딩거와는 독립적으로 양자역학을 수학화했습니다.
+
+    불확정성 원리는 단순한 측정의 한계가 아니라 자연의 근본적 성질을 표현합니다. 위치와 운동량(또는 에너지와 시간)은 동시에 정밀하게 정의될 수 없으며, 이는 거시 세계에서 작동하는 결정론적 고전역학이 미시 세계에서 근본적으로 무너진다는 것을 의미합니다.`,
+    theories: [
+      { year: '1925', name: '행렬역학 (Matrix Mechanics)', desc: '물리량을 행렬로 표현하는 최초의 완전한 양자역학 수식화 — 슈뢰딩거의 파동역학과 등가.' },
+      { year: '1927', name: '불확정성 원리', desc: 'Δx·Δp ≥ ℏ/2 — 위치와 운동량을 동시에 정확히 알 수 없다. 자연의 근본 법칙.' },
+      { year: '1932', name: '핵력 이론', desc: '중성자-양성자 교환력으로 핵력을 설명 — 노벨물리학상(1932).' },
+    ],
+    connections: ['Niels Bohr', 'Erwin Schrödinger', 'Wolfgang Pauli', 'Max Born'],
+    equations: ['Δx · Δp ≥ ℏ/2', 'ΔE · Δt ≥ ℏ/2']
+  },
+  {
+    id: 'schrodinger',
+    name: 'Erwin Schrödinger',
+    nameKr: '에르빈 슈뢰딩거',
+    born: 1887, died: 1961,
+    birthYear: '1887',
+    nation: '오스트리아',
+    era: 'quantum',
+    field: '양자역학·생물물리',
+    tags: ['파동방정식', '양자역학', '고양이역설'],
+    color: '#e0735a',
+    quote: '의식이 없다면 물질도 없다.',
+    quoteAttr: '— Erwin Schrödinger',
+    bio: `슈뢰딩거는 드 브로이의 물질파 개념을 발전시켜 1926년 파동방정식을 유도했습니다. 하이젠베르크의 행렬역학과 독립적으로 개발되었으나, 수학적으로 등가임이 곧 증명되었습니다.
+
+    양자역학의 코펜하겐 해석에 불만을 품고 1935년 "슈뢰딩거의 고양이" 사고실험을 발표했습니다. 고양이가 독가스에 죽었는지 살았는지 관측 전까지 중첩 상태에 있다는 이 역설은 양자역학의 해석 문제를 생생하게 드러냅니다. 1944년 저서 『생명이란 무슨인가?』는 왓슨과 크릭의 DNA 이중나선 발견에 영감을 주었습니다.`,
+    theories: [
+      { year: '1926', name: '슈뢰딩거 방정식', desc: '양자계의 시간 발전을 기술하는 파동방정식 — 양자역학의 가장 기본 방정식.' },
+      { year: '1926', name: '파동역학 (Wave Mechanics)', desc: '물질파(드 브로이)를 수학화하여 원자 궤도를 확률 구름으로 기술.' },
+      { year: '1935', name: '슈뢰딩거의 고양이', desc: '거시적 중첩 상태의 역설 — 코펜하겐 해석의 한계를 드러내는 사고실험.' },
+    ],
+    connections: ['Werner Heisenberg', 'Niels Bohr', 'Louis de Broglie', 'Paul Dirac', 'Max Born'],
+    equations: ['iℏ ∂Ψ/∂t = ĤΨ', 'Ψ(x,t) = ψ(x)e^(-iEt/ℏ)']
+  },
+  {
+    id: 'dirac',
+    name: 'Paul Dirac',
+    nameKr: '폴 디랙',
+    born: 1002, died: 1984,
+    birthYear: '1902',
+    nation: '영국',
+    era: 'quantum',
+    field: '양자역학·양자장론',
+    tags: ['반물질', '디랙방정식', '양자장론'],
+    color: '#e0735a',
+    quote: '아름다운 방정식이 추한 실험보다 더 옳을 것이다.',
+    quoteAttr: '— Paul Dirac',
+    bio: `디랙은 수학적 아름다움을 물리 이론의 진리 기준으로 삼은 완벽주의적 이론물리학자입니다. 1928년 상대론적으로 불변인 양자역학 방정식(디랙 방정식)을 유도했고, 이 방정식의 해 중 하나가 전자의 반입자, 즉 양전자(positron)의 존재를 예언했습니다. 1932년 앤더슨의 실험이 양전자를 발견함으로써 반물질의 존재가 확인되었습니다.
+
+    또한 페르미-디랙 통계(반정수 스핀 입자의 통계 역학)를 창안했으며, 양자장론의 기초를 확립했습니다. 성격이 내성적이고 매우 과묵했으며, 말 수를 최소화하는 것으로 유명해 동료들 사이에서 "1 디랙 = 1시간에 1단어"라는 단위까지 만들어졌습니다.`,
+    theories: [
+      { year: '1928', name: '디랙 방정식', desc: '전자의 상대론적 양자역학 방정식 — 자동으로 전자의 스핀과 반물질을 예언.' },
+      { year: '1930', name: '반물질 예언', desc: '방정식의 음에너지 해가 양전자(반전자)의 존재를 예언 — 1932년 실험 확인.' },
+      { year: '1926', name: '페르미-디랙 통계', desc: '파울리 원리를 따르는 페르미온의 통계 분포 — 금속전도 이론의 기반.' },
+      { year: '1927', name: '양자장론 기초', desc: '전자기장의 양자화 — 광자의 방출·흡수를 장이론으로 기술.' },
+    ],
+    connections: ['Werner Heisenberg', 'Erwin Schrödinger', 'Wolfgang Pauli', 'Richard Feynman'],
+    equations: ['(iγᵘ∂_μ − m)ψ = 0  (디랙 방정식)', 'E² = (pc)² + (mc²)²']
+  },
+  {
+    id: 'feynman',
+    name: 'Richard Feynman',
+    nameKr: '리처드 파인만',
+    born: 1918, died: 1988,
+    birthYear: '1918',
+    nation: '미국',
+    era: 'contemp',
+    field: '양자전기역학',
+    tags: ['QED', '파인만도형', '경로적분', '나노기술'],
+    color: '#6ba3d6',
+    quote: '자연을 이해하려면 자연이 얼마나 이상한지를 기꺼이 받아들여야 한다.',
+    quoteAttr: '— Richard Feynman',
+    bio: `파인만은 20세기 후반 가장 영향력 있는 이론물리학자이자 탁월한 교육자였습니다. 맨해튼 프로젝트에 참여했으며, 전후 양자전기역학(QED)을 재규격화(renormalization)를 통해 수학적으로 완성하여 1965년 노벨물리학상을 수상했습니다.
+
+    파인만 다이어그램은 복잡한 입자 상호작용을 직관적 그림으로 표현하는 방법으로, 현대 입자물리학의 표준 언어가 되었습니다. 1959년 강연 "아래에는 공간이 많다(There's Plenty of Room at the Bottom)"는 나노기술의 개념을 최초로 제시한 선구적 연설이었습니다. 챌린저 우주왕복선 사고 조사위원회에서 O링 고장을 생생히 증명한 것도 유명합니다.`,
+    theories: [
+      { year: '1948', name: '양자전기역학 (QED)', desc: '전자와 광자의 상호작용을 무한대를 제거하는 재규격화로 완성 — 역대 가장 정밀한 물리 이론.' },
+      { year: '1948', name: '파인만 다이어그램', desc: '입자 상호작용을 시공간 그림으로 표현 — 섭동이론 계산의 직관적 도구.' },
+      { year: '1948', name: '경로 적분 (Path Integral)', desc: '양자역학에서 입자는 모든 가능한 경로를 동시에 취하며, 각 경로의 기여를 합산.' },
+      { year: '1959', name: '나노기술 개념 제안', desc: '"아래에는 공간이 많다" — 원자 수준 조작 가능성 예언, 나노기술의 출발점.' },
+    ],
+    connections: ['Paul Dirac', 'Julian Schwinger', 'Murray Gell-Mann', 'Hans Bethe'],
+    equations: ['S = ∫L dt  (작용)', 'Z = ∫Dφ e^(iS[φ]/ℏ)  (경로적분)']
+  },
+  {
+    id: 'curie',
+    name: 'Marie Curie',
+    nameKr: '마리 퀴리',
+    born: 1867, died: 1934,
+    birthYear: '1867',
+    nation: '폴란드 / 프랑스',
+    era: 'modern',
+    field: '방사능·원자물리학',
+    tags: ['방사능', '노벨상', '방사성원소'],
+    color: '#4ab3a8',
+    quote: '두려움을 갖지 마세요. 오히려 자신을 두렵게 하는 것을 이해하려 하세요.',
+    quoteAttr: '— Marie Curie',
+    bio: `마리 퀴리는 물리학(1903)과 화학(1911) 분야에서 노벨상을 수상한 역사상 최초이자 유일한 인물입니다. 폴란드 출신으로 파리에서 공부하며 최초 여성 박사학위자가 되었고, 방사능(radioactivity)이라는 용어를 창안했습니다.
+
+    남편 피에르 퀴리와 함께 라듐(Ra)과 폴로늄(Po)을 발견했으며, 방사능 연구를 통해 원자가 변환될 수 있음을 보여 고전적 원자 불변론을 뒤흔들었습니다. 제1차 세계대전 중 이동식 X선 차량(쁘띠 퀴리)을 운영해 부상병 진단을 도왔습니다. 방사성 물질에 장기간 노출된 결과 재생불량성 빈혈로 타계했습니다.`,
+    theories: [
+      { year: '1898', name: '방사능 (Radioactivity) 연구', desc: '우라늄 광석의 방사능이 우라늄 자체에서 비롯됨을 증명 — 원자 변환의 증거.' },
+      { year: '1898', name: '폴로늄 발견', desc: '고향 폴란드를 기려 명명한 새로운 방사성 원소 — 원소기호 Po (원자번호 84).' },
+      { year: '1898', name: '라듐 발견', desc: '우라늄보다 백만배 강한 방사능의 새 원소 라듐(Ra, 원자번호 88) 분리.' },
+    ],
+    connections: ['Henri Becquerel', 'Ernest Rutherford', 'Albert Einstein'],
+    equations: ['A = λN  (방사능)', 'N(t) = N₀ e^(-λt)  (방사성 붕괴)']
+  },
+  {
+    id: 'rutherford',
+    name: 'Ernest Rutherford',
+    nameKr: '어니스트 러더퍼드',
+    born: 1871, died: 1937,
+    birthYear: '1871',
+    nation: '뉴질랜드 / 영국',
+    era: 'modern',
+    field: '원자물리학·핵물리학',
+    tags: ['원자핵', '러더퍼드산란', '핵물리학'],
+    color: '#4ab3a8',
+    quote: '물리학이 모든 것이다; 나머지는 우표 수집에 불과하다.',
+    quoteAttr: '— Ernest Rutherford (전언)',
+    bio: `러더퍼드는 J.J. 톰슨의 제자로, 원자의 내부 구조를 실험적으로 밝힌 핵물리학의 아버지입니다. 1909년 가이거-마스든 금박 산란 실험에서 α 입자가 예상을 뒤엎고 크게 산란되는 것을 발견하고, 원자 중심에 작고 밀도 높은 핵(원자핵)이 있다는 행성형 원자 모형을 제안했습니다.
+
+    또한 최초의 인공 핵변환을 수행했고(질소를 산소로), 중성자의 존재를 예언했습니다(채드윅이 1932년 발견). 그의 연구실(캐번디시 연구소)에서는 노벨상 수상자 10명 이상이 배출되었습니다. 아이러니하게도, 노벨상은 물리학이 아닌 화학으로 수상했습니다.`,
+    theories: [
+      { year: '1911', name: '핵원자 모형 (러더퍼드 모형)', desc: '금박 산란 실험으로 원자 중심에 작고 밀도 높은 양전하 핵이 있음을 증명.' },
+      { year: '1899', name: 'α·β 방사선 분류', desc: '방사선을 투과력에 따라 알파(α)·베타(β) 두 종류로 분류 (후에 γ선 추가).' },
+      { year: '1919', name: '최초 인공 핵변환', desc: '¹⁴N + α → ¹⁷O + p — 원소가 인위적으로 변환 가능함을 최초 증명.' },
+    ],
+    connections: ['J.J. Thomson', 'Niels Bohr', 'Marie Curie', 'James Chadwick'],
+    equations: ['dΩ/dΩ = (Z₁Z₂e²/4T)² · 1/sin⁴(θ/2)  (러더퍼드 산란)']
+  },
+  {
+    id: 'hawking',
+    name: 'Stephen Hawking',
+    nameKr: '스티븐 호킹',
+    born: 1942, died: 2018,
+    birthYear: '1942',
+    nation: '영국',
+    era: 'contemp',
+    field: '우주론·블랙홀',
+    tags: ['블랙홀', '호킹복사', '빅뱅', '양자중력'],
+    color: '#6ba3d6',
+    quote: '지능이야말로 변화에 적응하는 능력이다.',
+    quoteAttr: '— Stephen Hawking',
+    bio: `호킹은 ALS(루게릭병)에 굴하지 않고 블랙홀 물리학과 우주론을 이끈 시대의 아이콘입니다. 21세에 ALS 진단을 받고 2년의 시한부 선고를 받았으나 이후 50년 이상 연구를 지속했습니다.
+
+    1974년 블랙홀이 완전히 검지 않다는 것, 즉 양자역학적 효과로 열복사(호킹 복사)를 방출하며 증발할 수 있다는 것을 이론적으로 예언했습니다. 이는 일반상대성이론และ 양자역학을 처음으로 통합한 성과로 평가받습니다. 저서 『시간의 역사』는 대중 과학서 중 가장 많이 팔린 책 중 하나입니다.`,
+    theories: [
+      { year: '1970', name: '블랙홀 면적 정리', desc: '고전적으로 블랙홀의 사건 지평면 면적은 절대 감소하지 않는다 (열역학 제2법칙과 유사).' },
+      { year: '1974', name: '호킹 복사 (Hawking Radiation)', desc: '블랙홀은 양자효과로 흑체복사를 방출하며 증발한다 — 일반상대성+양자역학의 첫 통합.' },
+      { year: '1983', name: '무경계 우주 가설', desc: '팽크로즈와 함께 — 우주의 시작이 경계 조건 없이 양자적으로 자발 생성되었다는 제안.' },
+    ],
+    connections: ['Roger Penrose', 'Jacob Bekenstein', 'Kip Thorne', 'Albert Einstein'],
+    equations: ['T_H = ℏc³/(8πGMk_B)  (호킹온도)', 'A = 16πG²M²/c⁴  (사건지평선 면적)']
+  }
+];
+
+// Build sidebar
+function buildSidebar(filter) {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '';
+
+  const eras = [
+    { id: 'ancient',   label: '고대·중세',    range: 'BC ~ 1500' },
+    { id: 'classical', label: '고전역학',      range: '1543 ~ 1800' },
+    { id: 'modern',    label: '근대물리',      range: '1800 ~ 1900' },
+    { id: 'quantum',   label: '양자혁명',      range: '1900 ~ 1950' },
+    { id: 'contemp',   label: '현대물리',      range: '1950 ~' },
+  ];
+
+  const eraColors = {
+    ancient:   { tag: '#7030A0', tagBg: '#F0E6F6', tagBorder: '#d9b8ed' },
+    classical: { tag: '#0F8C50', tagBg: '#E5F4EC', tagBorder: '#cbeadd' },
+    modern:    { tag: '#7030A0', tagBg: '#F0E6F6', tagBorder: '#d9b8ed' },
+    quantum:   { tag: '#0F8C50', tagBg: '#E5F4EC', tagBorder: '#cbeadd' },
+    contemp:   { tag: '#7030A0', tagBg: '#F0E6F6', tagBorder: '#d9b8ed' },
+  };
+
+  const eraLabelColors = {
+    ancient:   '#7030A0',
+    classical: '#0F8C50',
+    modern:    '#7030A0',
+    quantum:   '#0F8C50',
+    contemp:   '#7030A0',
+  };
+
+  eras.forEach(era => {
+    const scientists = SCIENTISTS
+      .filter(s => s.era === era.id && (filter === 'all' || filter === era.id))
+      .sort((a, b) => a.born - b.born);
+    if (scientists.length === 0) return;
+
+    const grp = document.createElement('div');
+    grp.className = 'era-group';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'era-header';
+    hdr.innerHTML = `
+      <span class="era-label" style="color:${eraLabelColors[era.id]}">${era.label}</span>
+      <span class="era-line"></span>
+      <span class="era-range">${era.range}</span>
+      <span class="era-toggle">▾</span>
+    `;
+    grp.appendChild(hdr);
+
+    // Cards container (collapsible)
+    const cardsWrap = document.createElement('div');
+    cardsWrap.className = 'era-cards';
+
+    const ec = eraColors[era.id];
+
+    scientists.forEach(sci => {
+      const card = document.createElement('div');
+      card.className = 'sci-card';
+      card.id = `card-${sci.id}`;
+
+      const tagHtml = sci.tags.slice(0,3).map(t =>
+        `<span class="sci-tag" style="background:${ec.tagBg};color:${ec.tag};border:1px solid ${ec.tagBorder}">${t}</span>`
+      ).join('');
+
+      card.innerHTML = `
+        <div class="sci-year">${sci.birthYear}</div>
+        <div class="sci-info">
+          <div class="sci-name">${sci.name}</div>
+          <div class="sci-nation">${sci.nameKr} · ${sci.nation}</div>
+          <div class="sci-tags">${tagHtml}</div>
+        </div>
+      `;
+      card.addEventListener('click', () => selectScientist(sci.id));
+      cardsWrap.appendChild(card);
+    });
+
+    // Toggle collapse
+    hdr.addEventListener('click', () => {
+      const isCollapsed = cardsWrap.classList.toggle('collapsed');
+      hdr.classList.toggle('collapsed', isCollapsed);
+    });
+
+    grp.appendChild(cardsWrap);
+    sidebar.appendChild(grp);
+  });
+}
+
+let currentId = null;
+
+function selectScientist(id) {
+  document.querySelectorAll('.sci-card').forEach(c => c.classList.remove('active'));
+  const sci = SCIENTISTS.find(s => s.id === id);
+  if (!sci) return;
+  currentId = id;
+
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    // 접혀 있으면 자동 펼치기
+    const wrap = card.closest('.era-cards');
+    if (wrap && wrap.classList.contains('collapsed')) {
+      wrap.classList.remove('collapsed');
+      wrap.previousElementSibling?.classList.remove('collapsed');
+    }
+    card.classList.add('active');
+    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  renderDetail(sci);
+}
+
+function renderDetail(sci) {
+  const panel = document.getElementById('detail');
+
+  const eraNames = {
+    ancient:   '고대·중세',
+    classical: '고전역학 시대',
+    modern:    '근대물리 시대',
+    quantum:   '양자혁명',
+    contemp:   '현대물리',
+  };
+
+  const eraTagStyle = {
+    ancient:   'background:#F0E6F6;color:#521a78',
+    classical: 'background:#E5F4EC;color:#0a6b3d',
+    modern:    'background:#F0E6F6;color:#521a78',
+    quantum:   'background:#E5F4EC;color:#0a6b3d',
+    contemp:   'background:#F0E6F6;color:#521a78',
+  };
+
+  const theoriesHtml = sci.theories.map(t => `
+    <div class="theory-card">
+      <div class="theory-year">${t.year}</div>
+      <div class="theory-name">${t.name}</div>
+      <div class="theory-desc">${t.desc}</div>
+    </div>
+  `).join('');
+
+  const equationsHtml = sci.equations.length
+    ? `<div class="section-title">핵심 수식</div>` +
+      sci.equations.map(eq => `<div class="eq-block">${eq}</div>`).join('') +
+      '<div style="margin-bottom:1.5rem"></div>'
+    : '';
+
+  const connectionsHtml = sci.connections.map(name => {
+    const linked = SCIENTISTS.find(s => s.name === name || s.nameKr === name);
+    if (linked) {
+      return `<button class="conn-chip" onclick="selectScientist('${linked.id}')">${name}</button>`;
+    }
+    return `<button class="conn-chip" disabled>${name}</button>`;
+  }).join('');
+
+  // Life timeline markers
+  const lifeSpan = sci.died - sci.born;
+  const markers = sci.theories.slice(0,5).map(t => {
+    const yr = parseInt(t.year.replace('BC ', '-').replace(/[^0-9\-]/g, '')) || sci.born;
+    const pct = lifeSpan > 0 ? Math.max(2, Math.min(98, (yr - sci.born) / lifeSpan * 100)) : 50;
+    return `<div style="position:absolute;left:${pct.toFixed(1)}%;top:-3px;width:2px;height:10px;background:#7030A0;border-radius:1px" title="${t.name}"></div>`;
+  }).join('');
+
+  const bornLabel = sci.born < 0 ? 'BC ' + Math.abs(sci.born) : sci.born;
+  const diedLabel = sci.died < 0 ? 'BC ' + Math.abs(sci.died) : sci.died;
+
+  panel.innerHTML = `
+    <div class="detail-content">
+      <div class="detail-hero">
+        <span class="detail-era-tag" style="${eraTagStyle[sci.era]}">${eraNames[sci.era]}</span>
+        <div class="detail-name">${sci.name}</div>
+        <div class="detail-name-kr">${sci.nameKr}</div>
+        <div class="detail-meta">
+          <span>📅 ${bornLabel} — ${diedLabel}</span>
+          <span>📍 ${sci.nation}</span>
+          <span>🔬 ${sci.field}</span>
+        </div>
+        <div class="life-bar-wrap">
+          <div class="life-bar-labels">
+            <span>${bornLabel}</span>
+            <span style="color:#7030A0;font-size:0.55rem;letter-spacing:0.08em">── 주요 업적 시점 ──</span>
+            <span>${diedLabel}</span>
+          </div>
+          <div class="life-bar">
+            <div style="position:absolute;inset:0;background:#E5F4EC;border-radius:2px"></div>
+            ${markers}
+          </div>
+        </div>
+      </div>
+
+      ${sci.quote ? `
+      <div class="quote-block">
+        <div class="quote-badge">❝</div>
+        <div class="quote-body">
+          <div class="quote-text">${sci.quote}</div>
+          <div class="quote-attr">${sci.quoteAttr}</div>
+        </div>
+      </div>` : ''}
+
+      <div class="detail-bio">${sci.bio.split('\n\n').map(p => `<p>${p.trim()}</p>`).join('')}</div>
+
+      ${equationsHtml}
+
+      <div class="section-title">주요 이론 &amp; 업적</div>
+      <div class="theories-grid">${theoriesHtml}</div>
+
+      ${sci.connections.length ? `
+      <div class="section-title">연관 과학자</div>
+      <div class="conn-list">${connectionsHtml}</div>
+      ` : ''}
+    </div>
+  `;
+  panel.scrollTop = 0;
+}
+
+// Global text scale control function
+let currentScale = 1.0;
+function adjustScale(amount) {
+  if (amount === 0) {
+    currentScale = 1.0;
+  } else {
+    // 글자 크기를 최소 0.8배에서 최대 1.5배까지 제한해 레이아웃 변형 방지
+    currentScale = Math.max(0.8, Math.min(1.5, currentScale + amount));
+  }
+  document.documentElement.style.setProperty('--scale', currentScale);
+  const scaleIndicator = document.getElementById('scale-indicator');
+  if (scaleIndicator) {
+    scaleIndicator.innerText = Math.round(currentScale * 100) + '%';
+  }
+}
+
+// Era filter buttons
+document.querySelectorAll('.era-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    buildSidebar(btn.dataset.era);
+    if (currentId) {
+      setTimeout(() => {
+        const card = document.getElementById(`card-${currentId}`);
+        if (card) card.classList.add('active');
+      }, 30);
+    }
+  });
+});
+
+// Init
+buildSidebar('all');
+setTimeout(() => selectScientist('aristotle'), 150);
+</script>
+</body>
+</html>

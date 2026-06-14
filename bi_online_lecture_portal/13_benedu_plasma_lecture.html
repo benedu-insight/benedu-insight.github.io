@@ -1,0 +1,3159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plasma Basics — Benedu Insight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style id="font-override">
+  /* EN mode: apply Google Sans to every text element */
+  body[data-lang="en"],
+  body[data-lang="en"] * {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  /* Keep monospace elements intact */
+  body[data-lang="en"] .eq-block,
+  body[data-lang="en"] .sci-year,
+  body[data-lang="en"] .detail-meta,
+  body[data-lang="en"] .theory-year,
+  body[data-lang="en"] .quote-attr,
+  body[data-lang="en"] .sim-label,
+  body[data-lang="en"] .sim-caption,
+  body[data-lang="en"] .sidebar-section-label,
+  body[data-lang="en"] .era-range,
+  body[data-lang="en"] .model-img-source,
+  body[data-lang="en"] .app-detail,
+  body[data-lang="en"] .phet-arrow,
+  body[data-lang="en"] .lang-btn,
+  body[data-lang="en"] .era-btn,
+  body[data-lang="en"] .toolbar-btn,
+  body[data-lang="en"] #scale-indicator,
+  body[data-lang="en"] .img-zoom-hint,
+  body[data-lang="en"] #imgPopupCaption,
+  body[data-lang="en"] .sim-badge,
+  body[data-lang="en"] code,
+  body[data-lang="en"] pre {
+    font-family: 'JetBrains Mono', 'Fira Mono', monospace !important;
+  }
+  /* Override Montserrat elements to Google Sans in EN mode */
+  body[data-lang="en"] .detail-name,
+  body[data-lang="en"] .sim-title,
+  body[data-lang="en"] .phet-title,
+  body[data-lang="en"] .state-name,
+  body[data-lang="en"] .app-name,
+  body[data-lang="en"] .theory-name,
+  body[data-lang="en"] .era-label,
+  body[data-lang="en"] h1,
+  body[data-lang="en"] h2,
+  body[data-lang="en"] h3 {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+</style>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    },
+    startup: {
+      ready: function () {
+        MathJax.startup.defaultReady();
+        const panel = document.getElementById('detail');
+        if (panel && window.MathJax.typesetPromise) {
+          MathJax.typesetPromise([panel]).catch(function (err) {
+            console.log('MathJax initial typeset failed: ' + err.message);
+          });
+        }
+      }
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+  :root {
+    --bg:          #F7F8FA;
+    --bg2:         #FFFFFF;
+    --bg3:         #F0E6F6;
+    --bg4:         #E5F4EC;
+    --green:       #0F8C50;
+    --green-soft:  #E5F4EC;
+    --green-mid:   #cbeadd;
+    --green-dark:  #0a6b3d;
+    --purple:      #7030A0;
+    --purple-soft: #F0E6F6;
+    --purple-mid:  #d9b8ed;
+    --purple-dark: #521a78;
+    /* 플라즈마 테마 전용 */
+    --plasma:       #E87B1E;
+    --plasma-soft:  #FEF0E3;
+    --plasma-mid:   #F5C990;
+    --plasma-dark:  #A84F05;
+    --charcoal:    #2D2D2D;
+    --text:        #2D2D2D;
+    --text2:       #6B7280;
+    --text3:       #9CA3AF;
+    --border:      #E5E7EB;
+    --border2:     #F3F4F6;
+    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
+    --max-w:       1400px;
+    --scale:       1.0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Gowun Batang', serif;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0.55rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: var(--max-w);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo {
+    height: 38px;
+    width: auto;
+    flex-shrink: 0;
+  }
+  .header-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Google Sans', 'Gowun Batang', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--plasma);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .header-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* Language Toggle */
+  .lang-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .lang-btn {
+    padding: 3px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: var(--text3);
+    transition: all 0.2s;
+  }
+  .lang-btn.active-lang {
+    background: var(--plasma);
+    color: #fff;
+  }
+
+  /* Module Filter */
+  .era-filter {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .era-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    padding: 3px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .era-btn:hover {
+    border-color: var(--plasma-mid);
+    color: var(--plasma);
+    background: var(--plasma-soft);
+  }
+  .era-btn.active {
+    background: var(--plasma);
+    border-color: var(--plasma);
+    color: #fff;
+  }
+
+  .toolbar-btn {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg2);
+    color: var(--text);
+    padding: 3px 9px;
+    font-size: 0.62rem;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .toolbar-btn:hover {
+    border-color: var(--plasma-mid);
+    background: var(--plasma-soft);
+    color: var(--plasma-dark);
+  }
+  #scale-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text3);
+    min-width: 32px;
+    text-align: center;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 270px 1fr;
+    height: calc(100vh - 58px);
+    width: 100%;
+    max-width: var(--max-w);
+  }
+
+  /* ── Sidebar ── */
+  .timeline-sidebar {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    background: var(--bg2);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    display: flex;
+    flex-direction: column;
+  }
+  .timeline-sidebar::-webkit-scrollbar { width: 4px; }
+  .timeline-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .sidebar-section-label {
+    padding: 0.6rem 1.1rem 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border2);
+    position: sticky;
+    top: 0;
+    background: var(--bg2);
+    z-index: 5;
+  }
+
+  .era-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg2);
+    padding: 0.65rem 1rem 0.45rem;
+    border-bottom: 1px solid var(--border2);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .era-header:hover { background: var(--bg); }
+  .era-label {
+    font-family: 'Google Sans', 'Gowun Batang', serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .era-line { flex: 1; height: 1px; background: var(--border); }
+  .era-range {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+  .era-toggle {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: var(--text3);
+    transition: background 0.15s, transform 0.22s;
+  }
+  .era-header.collapsed .era-toggle { transform: rotate(-90deg); }
+  .era-header:hover .era-toggle { background: var(--border); color: var(--text2); }
+  .era-cards {
+    overflow: hidden;
+    max-height: 2000px;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+    opacity: 1;
+  }
+  .era-cards.collapsed { max-height: 0; opacity: 0; }
+
+  .sci-card {
+    padding: 0.75rem 1rem 0.75rem 1.1rem;
+    border-bottom: 1px solid var(--border2);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    border-left: 4px solid transparent;
+  }
+  .sci-card:hover { background: var(--bg); }
+  .sci-card.active { background: var(--plasma-soft); border-left-color: var(--plasma); }
+  .sci-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text3);
+    min-width: 48px;
+    padding-top: 2px;
+    line-height: 1.4;
+  }
+  .sci-info { flex: 1; min-width: 0; }
+  .sci-name {
+    font-size: 0.83rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    line-height: 1.3;
+  }
+  .sci-card.active .sci-name { color: var(--plasma-dark); }
+  .sci-nation {
+    font-size: 0.6rem;
+    color: var(--text3);
+    margin-top: 1px;
+    font-family: 'Gowun Batang', serif;
+  }
+  .sci-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+  }
+  .sci-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    padding: 1px 6px;
+    border-radius: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Detail Panel ── */
+  .detail-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  #detail {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  #detail::-webkit-scrollbar { width: 4px; }
+  #detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .detail-content { padding: 1.5rem; max-width: 880px; margin: 0 auto; }
+
+  /* Hero */
+  .detail-hero {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1.1rem;
+    box-shadow: var(--shadow);
+  }
+  .detail-era-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .detail-name {
+    font-family: 'Google Sans', 'Montserrat', sans-serif;
+    font-size: calc(1.7rem * var(--scale));
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--plasma);
+    margin-bottom: 0.1rem;
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-name-kr {
+    font-family: 'Gowun Batang', serif;
+    font-size: calc(0.9rem * var(--scale));
+    color: var(--text2);
+    margin-bottom: 0.6rem;
+    font-weight: 400;
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-meta {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.62rem * var(--scale));
+    color: var(--text2);
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border2);
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Model / Image Showcase */
+  .model-showcase {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.1rem;
+    box-shadow: var(--shadow);
+  }
+  .model-img-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .model-img-wrapper img {
+    max-width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+  }
+  .model-img-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text3);
+    text-align: center;
+  }
+  .model-svg-wrapper { width: 280px; height: 280px; }
+
+  /* Quote */
+  .quote-block {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1.1rem;
+    box-shadow: var(--shadow);
+  }
+  .quote-badge {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--plasma-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+  .quote-body { flex: 1; min-width: 0; }
+  .quote-text {
+    font-family: 'Gowun Batang', serif;
+    font-style: italic;
+    font-size: calc(0.88rem * var(--scale));
+    color: var(--plasma-dark);
+    line-height: 1.78;
+    transition: font-size 0.15s ease-out;
+  }
+  .quote-attr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.58rem * var(--scale));
+    color: var(--text3);
+    margin-top: 0.4rem;
+    letter-spacing: 0.06em;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Bio */
+  .detail-bio {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.4rem;
+    font-size: calc(0.88rem * var(--scale));
+    line-height: 1.85;
+    color: var(--text);
+    margin-bottom: 1.1rem;
+    box-shadow: var(--shadow);
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-bio p + p { margin-top: 0.8em; }
+
+  /* Section Titles */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Equations */
+  .eq-block {
+    background: var(--charcoal);
+    border-radius: 8px;
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.9rem * var(--scale));
+    color: #FFD580;
+    letter-spacing: 0.04em;
+    overflow-x: auto;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Theory cards */
+  .theories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 0.7rem;
+    margin-bottom: 1.1rem;
+  }
+  .theory-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: box-shadow 0.18s, border-color 0.18s;
+    box-shadow: var(--shadow);
+  }
+  .theory-card:hover { box-shadow: var(--shadow-md); border-color: var(--plasma-mid); }
+  .theory-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.58rem * var(--scale));
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+    color: var(--plasma);
+    font-weight: 500;
+    transition: font-size 0.15s ease-out;
+  }
+  .theory-name {
+    font-size: calc(0.85rem * var(--scale));
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+    transition: font-size 0.15s ease-out;
+  }
+  .theory-desc {
+    font-size: calc(0.75rem * var(--scale));
+    color: var(--text2);
+    line-height: 1.65;
+    font-family: 'Gowun Batang', serif;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Classroom box */
+  details.classroom-box {
+    background: #FFFDF0;
+    border: 1px dashed #EEDF8B;
+    border-radius: 12px;
+    padding: 1.1rem;
+    margin-bottom: 1.1rem;
+    cursor: pointer;
+    transition: border 0.15s;
+  }
+  details.classroom-box[open] { border-style: solid; border-color: #D6C359; }
+  details.classroom-box summary {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #8C730F;
+    outline: none;
+    user-select: none;
+  }
+  .classroom-body {
+    font-size: calc(0.76rem * var(--scale));
+    line-height: 1.72;
+    color: #6B5B1E;
+    margin-top: 0.65rem;
+    cursor: default;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Summary Matrix */
+  .summary-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.1rem;
+  }
+  .summary-matrix th, .summary-matrix td {
+    padding: 0.65rem 0.9rem;
+    font-size: calc(0.76rem * var(--scale));
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    transition: font-size 0.15s ease-out;
+  }
+  .summary-matrix th {
+    background: var(--plasma-soft);
+    color: var(--plasma-dark);
+    font-weight: 700;
+    font-family: 'Gowun Batang', serif;
+  }
+
+  /* Connections */
+  .conn-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .conn-chip {
+    background: var(--plasma-soft);
+    border: 1px solid var(--plasma-mid);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: calc(0.74rem * var(--scale));
+    color: var(--plasma-dark);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Gowun Batang', serif;
+  }
+  .conn-chip:hover { background: var(--plasma); border-color: var(--plasma); color: #fff; }
+
+  /* Canvas simulation card */
+  .sim-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.1rem;
+    box-shadow: var(--shadow);
+  }
+  .sim-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+  .sim-badge {
+    background: var(--plasma);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .sim-title {
+    font-family: 'Google Sans', 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--charcoal);
+  }
+  .sim-canvas-wrap {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0a0a14;
+    position: relative;
+  }
+  .sim-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.65rem;
+    align-items: center;
+  }
+  .sim-btn {
+    background: var(--plasma);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .sim-btn:hover { background: var(--plasma-dark); transform: translateY(-1px); }
+  .sim-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--plasma);
+    color: var(--plasma);
+  }
+  .sim-btn.secondary:hover { background: var(--plasma-soft); }
+  .sim-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--text3);
+  }
+  .sim-caption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-align: center;
+    margin-top: 0.4rem;
+    line-height: 1.5;
+  }
+
+  /* PHET link card */
+  .phet-card {
+    background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+    border-radius: 12px;
+    padding: 1.1rem 1.4rem;
+    margin-bottom: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow-md);
+  }
+  .phet-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+  .phet-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+  .phet-text { flex: 1; }
+  .phet-title {
+    font-family: 'Google Sans', 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.2rem;
+  }
+  .phet-desc {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+  }
+  .phet-arrow {
+    color: rgba(255,255,255,0.6);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  /* States of Matter cards */
+  .states-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.65rem;
+    margin-bottom: 1.1rem;
+  }
+  .state-card {
+    border-radius: 12px;
+    padding: 1rem 0.75rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform 0.18s;
+  }
+  .state-card:hover { transform: translateY(-3px); }
+  .state-emoji { font-size: 2rem; margin-bottom: 0.4rem; }
+  .state-name {
+    font-family: 'Google Sans', 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
+  }
+  .state-desc {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.68rem;
+    line-height: 1.5;
+    color: var(--text2);
+  }
+
+  /* Application grid */
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 1.1rem;
+  }
+  .app-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 0.8rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .app-card:hover { border-color: var(--plasma-mid); box-shadow: var(--shadow-md); }
+  .app-icon { font-size: 1.6rem; margin-bottom: 0.35rem; }
+  .app-name {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 0.2rem;
+  }
+  .app-detail {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text3);
+    line-height: 1.45;
+  }
+
+  /* Welcome screen */
+  .detail-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 1rem;
+    padding: 3rem;
+    text-align: center;
+  }
+  .icon-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px dashed var(--plasma-mid);
+    position: relative;
+  }
+  .icon-ring::after {
+    content: '⚡';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.8rem;
+    color: var(--plasma);
+  }
+  .detail-empty p {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.88rem;
+    color: var(--text2);
+    max-width: 300px;
+    line-height: 1.7;
+  }
+
+  /* Responsive */
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+    header { padding: 0.5rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .header-logo { height: 34px; }
+    .header-divider { display: none; }
+    header h1 { font-size: 0.95rem; }
+    .era-filter { display: none; }
+    .detail-content { padding: 1rem 0.85rem 3rem; }
+    .detail-name { font-size: calc(1.4rem * var(--scale)); }
+    .states-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Image Popup / Lightbox ── */
+  .img-zoom-hint {
+    display: block;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text3);
+    margin-top: 0.35rem;
+    letter-spacing: 0.06em;
+  }
+  .zoomable-img {
+    cursor: zoom-in;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .zoomable-img:hover {
+    transform: scale(1.012);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  }
+  #imgPopupOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 9999;
+    cursor: zoom-out;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInOverlay 0.22s ease;
+  }
+  #imgPopupOverlay.open {
+    display: flex;
+  }
+  @keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  #imgPopupInner {
+    position: relative;
+    max-width: 94vw;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    animation: popupScale 0.22s cubic-bezier(0.16,1,0.3,1);
+  }
+  @keyframes popupScale {
+    from { transform: scale(0.88); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+  #imgPopupImg {
+    max-width: 94vw;
+    max-height: 86vh;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+    cursor: default;
+  }
+  #imgPopupCaption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+  #imgPopupClose {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    backdrop-filter: blur(4px);
+  }
+  #imgPopupClose:hover { background: rgba(255,255,255,0.3); }
+
+  /* ── Deep Learning Accordion ── */
+  .deep-learn-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 1.1rem;
+    box-shadow: var(--sh);
+    overflow: hidden;
+  }
+  .deep-learn-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+    user-select: none;
+    background: var(--bg2);
+    transition: background 0.15s;
+    border-bottom: 1px solid transparent;
+  }
+  .deep-learn-header:hover { background: var(--bg); }
+  .deep-learn-header.open  { border-bottom-color: var(--border); }
+  .deep-learn-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--plasma), #c9660f);
+    color: #fff;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Google Sans', sans-serif;
+    font-weight: 700;
+  }
+  .deep-learn-title {
+    flex: 1;
+    font-family: 'Google Sans', 'Gowun Batang', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--charcoal);
+  }
+  .deep-learn-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--plasma-soft);
+    color: var(--plasma-dark);
+    border: 1px solid var(--plasma-mid);
+    flex-shrink: 0;
+  }
+  .deep-learn-chevron {
+    color: var(--text3);
+    font-size: 0.75rem;
+    transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+    flex-shrink: 0;
+  }
+  .deep-learn-header.open .deep-learn-chevron { transform: rotate(180deg); }
+  .deep-learn-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .deep-learn-body.open { max-height: 4000px; }
+  .deep-learn-inner {
+    padding: 0;
+  }
+
+  /* ── Section within deep learn ── */
+  .dl-section {
+    padding: 1rem 1.2rem 0.8rem;
+    border-bottom: 1px solid var(--border2);
+  }
+  .dl-section:last-child { border-bottom: none; }
+  .dl-section-title {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--plasma-dark);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dl-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--plasma-mid);
+    opacity: 0.5;
+  }
+  .dl-body {
+    font-family: 'Google Sans', 'Gowun Batang', serif;
+    font-size: 0.82rem;
+    line-height: 1.82;
+    color: var(--text2);
+  }
+  .dl-body p + p { margin-top: 0.65em; }
+  .dl-body b { color: var(--charcoal); }
+  .dl-body ul {
+    padding-left: 1.2em;
+    margin: 0.4em 0;
+  }
+  .dl-body ul li { margin: 0.25em 0; }
+  .dl-eq {
+    background: var(--charcoal);
+    border-radius: 7px;
+    padding: 0.7rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #FFD580;
+    margin: 0.6rem 0;
+    overflow-x: auto;
+    letter-spacing: 0.04em;
+  }
+  .dl-highlight {
+    background: var(--plasma-soft);
+    border-left: 3px solid var(--plasma);
+    border-radius: 0 7px 7px 0;
+    padding: 0.6rem 0.9rem;
+    margin: 0.6rem 0;
+    font-size: 0.80rem;
+    line-height: 1.7;
+    color: var(--plasma-dark);
+    font-family: 'Google Sans', sans-serif;
+  }
+  .dl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    margin: 0.6rem 0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: var(--sh);
+  }
+  .dl-table th {
+    background: var(--plasma-soft);
+    color: var(--plasma-dark);
+    padding: 5px 10px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+  }
+  .dl-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .dl-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 0.62rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    margin: 2px 2px;
+  }
+  .dl-tag-green { background: #E8F5E9; color: #1B5E20; border: 1px solid #A5D6A7; }
+  .dl-tag-blue  { background: #E3F2FD; color: #0D47A1; border: 1px solid #90CAF9; }
+  .dl-tag-org   { background: var(--plasma-soft); color: var(--plasma-dark); border: 1px solid var(--plasma-mid); }
+
+  /* ── RF Plasma Popup ── */
+  #rfPopupOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    z-index: 9998;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInOverlay 0.2s ease;
+  }
+  #rfPopupOverlay.open { display: flex; }
+  #rfPopupBox {
+    background: #fff;
+    border-radius: 16px;
+    max-width: min(820px, 94vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem 2.2rem 1.8rem;
+    position: relative;
+    animation: popupScale 0.22s cubic-bezier(0.16,1,0.3,1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  #rfPopupClose {
+    position: absolute;
+    top: 14px; right: 16px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg3);
+    color: var(--text2);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.13s;
+    line-height: 1;
+  }
+  #rfPopupClose:hover { background: var(--border); }
+  .rfpop-title {
+    font-family: 'Google Sans','Segoe UI',sans-serif;
+    font-size: 1.15rem; font-weight: 700;
+    color: var(--plasma); margin-bottom: 0.25rem;
+    padding-right: 2rem;
+  }
+  .rfpop-subtitle {
+    font-family: 'JetBrains Mono',monospace;
+    font-size: 0.58rem; color: var(--text3);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 1.2rem;
+  }
+  .rfpop-section {
+    margin-bottom: 1.1rem;
+  }
+  .rfpop-section-title {
+    font-family: 'Google Sans','Segoe UI',sans-serif;
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 0.45rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .rfpop-section-title::after {
+    content:''; flex:1; height:1px; background:var(--border);
+  }
+  .rfpop-body {
+    font-family: 'Google Sans','Segoe UI',sans-serif;
+    font-size: 0.82rem; line-height: 1.78;
+    color: var(--text2);
+  }
+  .rfpop-body b { color: var(--charcoal); }
+  .rfpop-table {
+    width: 100%; border-collapse: collapse;
+    font-family: 'JetBrains Mono',monospace;
+    font-size: 0.72rem; margin: 0.6rem 0;
+  }
+  .rfpop-table th {
+    background: var(--plasma-soft); color: var(--plasma-dark);
+    padding: 5px 10px; text-align: left; font-weight: 700;
+    border-bottom: 1px solid var(--border);
+  }
+  .rfpop-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .rfpop-table tr:hover td { background: var(--bg); }
+  .rfpop-highlight {
+    background: linear-gradient(135deg, #FEF0E3, #FFF8F2);
+    border-left: 3px solid var(--plasma);
+    border-radius: 0 8px 8px 0;
+    padding: 0.65rem 1rem;
+    margin: 0.75rem 0;
+    font-family: 'Google Sans','Segoe UI',sans-serif;
+    font-size: 0.80rem; line-height: 1.7;
+    color: var(--plasma-dark);
+  }
+  .rfpop-eq {
+    background: var(--charcoal);
+    border-radius: 8px; padding: 0.7rem 1.1rem;
+    font-family: 'JetBrains Mono',monospace;
+    font-size: 0.8rem; color: #FFD580;
+    margin: 0.5rem 0; overflow-x: auto;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;text-decoration:none;">
+    <img class="header-logo"
+      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+      alt="Benedu Insight">
+  </a>
+  <div class="header-divider"></div>
+  <div class="header-title-block">
+    <h1 id="hTitle">Plasma Basics</h1>
+    <p>Plasma Basics · Benedu Insight</p>
+  </div>
+  <div class="header-actions">
+    <div class="lang-toggle">
+      <button class="lang-btn active-lang" onclick="setLang('ko')" id="btnKo">KO</button>
+      <button class="lang-btn" onclick="setLang('en')" id="btnEn">EN</button>
+    </div>
+    <div class="era-filter" id="eraFilter">
+      <button class="era-btn active" data-era="all" id="eraAll">전체</button>
+      <button class="era-btn" data-era="universe" id="eraUni">우주</button>
+      <button class="era-btn" data-era="electron" id="eraElec">전자</button>
+      <button class="era-btn" data-era="plasma" id="eraPlasma">플라즈마</button>
+      <button class="era-btn" data-era="high" id="eraHigh">고온</button>
+    </div>
+    <button class="toolbar-btn" onclick="adjustScale(-0.1)">A−</button>
+    <span id="scale-indicator">100%</span>
+    <button class="toolbar-btn" onclick="adjustScale(0.1)">A+</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="timeline-sidebar" id="sidebar"></div>
+  <div class="detail-panel">
+    <div id="detail">
+      <div class="detail-empty">
+        <div class="icon-ring"></div>
+        <p id="emptyMsg">좌측 목차에서 강의 모듈을 선택하세요</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let lang = 'ko';
+let currentEraFilter = 'all';
+let currentId = null;
+let currentScale = 1.0;
+
+// ─────────────────────────────────────────────
+//  UI 텍스트 / UI Text
+// ─────────────────────────────────────────────
+const UI = {
+  ko: {
+    hTitle: 'Plasma Basics',
+    eraAll: '전체', eraUni: '우주', eraElec: '전자에너지', eraPlasma: '플라즈마', eraHigh: '고온',
+    eraLabels: {
+      universe: '우주와 플라즈마',
+      electron: '전자에너지 변화',
+      plasma:   '플라즈마 정의 & 상태',
+      high:     '고온 플라즈마'
+    },
+    eraRanges: {
+      universe: '빅뱅 → 최초의 원자',
+      electron: '가전자 · 여기 · 이온화',
+      plasma:   '정의 · 물질의 4상태',
+      high:     '핵분열 · 핵융합 · 별'
+    },
+    eraNames: {
+      universe: '우주 탄생과 플라즈마 상태',
+      electron: '반도체 플라즈마를 위한 전자에너지 기초',
+      plasma:   '플라즈마의 정의 및 물질의 상태',
+      high:     '고온 플라즈마 — 핵분열 & 핵융합'
+    },
+    sectionTheory:  '핵심 개념 및 전개',
+    sectionMedia:   '참고 시각 자료',
+    sectionEq:      '수식',
+    sectionSim:     '인터랙티브 시뮬레이션',
+    sectionPHET:    'PhET 시뮬레이션 연결',
+    sectionStates:  '물질의 4가지 상태',
+    sectionApps:    '플라즈마 응용 사례',
+    sectionNav:     '강의 모듈 네비게이션',
+    classroomLabel: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+    navGo:          '바로가기',
+    emptyMsg:       '좌측 목차에서 강의 모듈을 선택하세요',
+    periodLabel:    '⏰ 주제: ',
+    tagLabel:       '🔬 분류: ',
+    matrixH: ['분류', '온도', '이온화도', '대표 예시', '특징'],
+    matrixRows: [
+      ['<strong>저온 플라즈마</strong><br><span style="font-size:0.7em;color:var(--text3)">Low Temperature</span>', '전자: ~1–10 eV<br>이온: ~0.03 eV (실온)', '0.001 – 10%', '반도체 공정, 형광등, 오존 발생기', '전자만 고에너지, 이온은 차갑다'],
+      ['<strong>열 플라즈마</strong><br><span style="font-size:0.7em;color:var(--text3)">Thermal Plasma</span>', '전자 ≈ 이온 ≈ 1–10 eV', '~ 100%', '아크 용접, 플라즈마 토치', '전자와 이온이 열평형 상태'],
+      ['<strong>고온 플라즈마</strong><br><span style="font-size:0.7em;color:var(--text3)">High Temperature</span>', '> 10 keV (1억 K↑)', '100%', '핵융합 장치(토카막), 태양 코어', '핵반응이 일어나는 극한 상태'],
+    ]
+  },
+  en: {
+    hTitle: 'Plasma Basics',
+    eraAll: 'All', eraUni: 'Universe', eraElec: 'Electron', eraPlasma: 'Plasma', eraHigh: 'High-Temp',
+    eraLabels: {
+      universe: 'Universe & Plasma',
+      electron: 'Electron Energy',
+      plasma:   'Plasma Definition & States',
+      high:     'High-Temperature Plasma'
+    },
+    eraRanges: {
+      universe: 'Big Bang → First Atoms',
+      electron: 'Valence · Excitation · Ionization',
+      plasma:   'Definition · 4 States of Matter',
+      high:     'Fission · Fusion · Stars'
+    },
+    eraNames: {
+      universe: 'The Birth of the Universe and Plasma',
+      electron: 'Electron Energy Basics for Semiconductor Plasma',
+      plasma:   'Definition of Plasma & States of Matter',
+      high:     'High-Temperature Plasma — Fission & Fusion'
+    },
+    sectionTheory:  'Key Concepts',
+    sectionMedia:   'Reference Visual',
+    sectionEq:      'Equations',
+    sectionSim:     'Interactive Simulation',
+    sectionPHET:    'PhET Simulation Link',
+    sectionStates:  '4 States of Matter',
+    sectionApps:    'Plasma Applications',
+    sectionNav:     'Lecture Navigation',
+    classroomLabel: '🙋 Discussion & Self-Study Quiz (click to expand)',
+    navGo:          'Go to',
+    emptyMsg:       'Select a module from the sidebar to begin',
+    periodLabel:    '⏰ Topic: ',
+    tagLabel:       '🔬 Tags: ',
+    matrixH: ['Category', 'Temperature', 'Ionization', 'Examples', 'Characteristics'],
+    matrixRows: [
+      ['<strong>Low-Temperature Plasma</strong><br><span style="font-size:0.7em;color:var(--text3)">저온 플라즈마</span>', 'Electrons: ~1–10 eV<br>Ions: ~0.03 eV (room temp)', '0.001 – 10%', 'Semiconductor process, fluorescent lamps, ozone generators', 'Electrons are hot; ions remain cold'],
+      ['<strong>Thermal Plasma</strong><br><span style="font-size:0.7em;color:var(--text3)">열 플라즈마</span>', 'Electrons ≈ Ions ≈ 1–10 eV', '~100%', 'Arc welding, plasma torch', 'Electrons and ions in thermal equilibrium'],
+      ['<strong>High-Temperature Plasma</strong><br><span style="font-size:0.7em;color:var(--text3)">고온 플라즈마</span>', '> 10 keV (100 million K+)', '100%', 'Tokamak fusion reactor, solar core', 'Extreme state enabling nuclear reactions'],
+    ]
+  }
+};
+
+// ─────────────────────────────────────────────
+//  SLIDES DATA
+// ─────────────────────────────────────────────
+const SLIDES_KO = [
+
+  // ── MODULE 0: 강의 개요 ──────────────────────
+  {
+    id: 'ch0', chapter: '개요', era: 'universe',
+    name: 'Plasma Lecture Overview',
+    nameKr: '플라즈마 강의 전체 개요',
+    period: '강의 구성 및 학습 목표',
+    tags: ['강의 개요', '학습 목표', '커리큘럼'],
+    quote: '플라즈마는 우주 가시 물질의 99%를 차지하지만, 우리는 지구에서 산소와 질소가 지배하는 드문 환경 속에 살고 있습니다.',
+    quoteAttr: '— 플라즈마 물리학 입문',
+    bio: `본 강의는 반도체 플라즈마 공정의 핵심인 저온 플라즈마(Low Temperature Plasma)를 이해하기 위한 기초 과정입니다.\n\n빅뱅 직후 우주의 플라즈마 상태에서 출발하여, 원자가전자의 에너지 변화(여기/이온화), 플라즈마의 정의, 물질의 4가지 상태를 거쳐 고온 플라즈마(핵분열/핵융합)까지 유기적으로 연결하여 강의합니다.\n\n<b>본 강의 이후 연결 심화 과정: CCP 플라즈마 공정, ICP 플라즈마, RF 임피던스 매칭</b>`,
+    theories: [
+      { year: 'MODULE 1', name: '우주와 플라즈마', desc: '빅뱅 이후 최초 3분 — 원자핵 탄생과 플라즈마 상태의 우주. 우주 역사 이미지를 활용한 직관적 이해.' },
+      { year: 'MODULE 2', name: '전자에너지 변화', desc: '가전자(Valence Electron) → 여기/탈여기 → 이온화/재결합. 수소 스펙트럼 시뮬레이션 연결.' },
+      { year: 'MODULE 3', name: '플라즈마의 정의', desc: '물질의 4번째 상태로서의 플라즈마 정의. 자연과 산업에서의 다양한 플라즈마 응용 사례.' },
+      { year: 'MODULE 4', name: '고온 플라즈마', desc: '핵분열 vs 핵융합, 별 내부의 플라즈마. E=mc² 의 실체적 의미.' }
+    ],
+    classroom: '예비 학습 점검:\n1. 원자의 기본 구조(핵 + 전자)를 설명할 수 있습니까?\n2. 에너지 준위(Energy Level)와 양자화(Quantization)의 개념을 간단히 설명해 보세요.\n3. RF 발생기(RF Generator)가 플라즈마를 만드는 데 왜 필요할지 추측해 보세요.',
+    equations: [],
+    connections: ['ch1', 'ch2-1', 'ch2-3', 'ch3']
+  },
+
+  // ── MODULE 1: 우주의 역사와 플라즈마 ─────────
+  {
+    id: 'ch1', chapter: 'MODULE 1', era: 'universe',
+    name: 'The Universe & Plasma',
+    nameKr: '우주의 역사와 플라즈마 — 빅뱅 직후 최초의 3분',
+    period: '빅뱅 ~ 38만 년 후',
+    tags: ['빅뱅', '최초의 원자핵', '우주 플라즈마', 'Big Bang Nucleosynthesis'],
+    quote: '빅뱅 이후 최초의 38만 년 동안 우주 전체는 빛조차 빠져나올 수 없는 뜨겁고 불투명한 플라즈마 상태였습니다.',
+    quoteAttr: '— 우주론 기초 (Cosmology Fundamentals)',
+    imageUrl: 'images/history_of_the_universe.png',
+    imageTitle: '우주의 역사 — From the Big Bang to Today',
+    imageSource: 'Source: NASA / ESA — The History of the Universe',
+    bio: `우주의 역사를 들여다보면, 플라즈마는 가장 근본적이고 오래된 물질 상태입니다.\n\n<b>빅뱅 후 1~3분(First Nuclei):</b> 양성자(수소핵)와 중성자가 결합하여 최초의 원자핵(수소와 헬륨)이 형성됩니다. 이 시기 우주는 극고온으로 전자가 원자핵에 귀속되지 않고 자유롭게 유동하는 완전한 플라즈마 상태였습니다.\n\n<b>빅뱅 후 38만 년(First Atoms):</b> 우주가 충분히 냉각되어 전자가 원자핵에 포획되고 최초의 중성 원자가 형성됩니다. 이 순간 빛이 자유롭게 이동할 수 있게 되었고(우주배경복사, CMB), 우주는 투명해졌습니다. 이것이 플라즈마가 끝나고 중성 기체 상태로 전이된 역사적 순간입니다.\n\n반도체 플라즈마 공정과의 연결: 저온 플라즈마 챔버에서도 동일한 원리가 작동합니다 — 전자가 원자와 분리되어 자유 전자와 이온이 공존하는 상태가 바로 플라즈마입니다.`,
+    theories: [
+      { year: '빅뱅 직후 10⁻³² 초', name: '급팽창 (Inflation)', desc: '빅뱅 직후 극히 짧은 시간에 우주가 지수함수적으로 팽창. 쿼크-글루온 플라즈마(QGP) 상태.' },
+      { year: '1~3분 후', name: 'Big Bang Nucleosynthesis', desc: '양성자 + 중성자 → 수소핵(¹H), 헬륨핵(⁴He), 리튬핵(⁷Li) 형성. 우주 = 불투명 플라즈마.' },
+      { year: '38만 년 후', name: '재결합 시대 (Recombination Era)', desc: '전자가 원자핵에 포획 → 최초의 중성 원자 탄생. 빛이 자유롭게 이동 → CMB(우주배경복사) 방출.' },
+      { year: '~2억 년 후', name: '최초의 별 (First Stars)', desc: '중력으로 수소 기체 구름이 수축 → 내부 고온·고압 → 핵융합 점화 → 별이 다시 플라즈마 공장이 됨.' },
+      { year: '현재 (138억 년)', name: '우주의 99%는 플라즈마', desc: '별, 성운, 성간물질, 태양풍 등 관측 가능한 우주 물질의 약 99%가 플라즈마 상태.' }
+    ],
+    classroom: '생각거리:\n1. 빅뱅 후 38만 년 동안 빛이 우주를 자유롭게 이동할 수 없었던 이유를 플라즈마의 특성(자유전자에 의한 광자 산란)과 연결하여 설명해 보세요.\n2. 우주배경복사(CMB)를 "우주가 플라즈마에서 기체로 전이하는 순간에 방출된 빛의 화석"이라고 부르는 이유는?\n3. 반도체 공정에서 RF 파워로 플라즈마를 만드는 행위는, 어떤 의미에서 우주 초기의 고에너지 상태를 작은 챔버 안에 재현하는 것과 유사합니다. 이 비유가 성립하는 이유를 에너지 관점에서 설명해 보세요.',
+    equations: [],
+    imageUrl2: 'images/plasma_condition_hor.png',
+    imageTitle2: 'Plasma Condition in the Early Universe & CMB Temperature',
+    imageSource2: 'Plasma condition: T\u1d62\u1d04\u2099 ≫ 13.6 eV (H ionization energy) · CMB: T\u1d04ₘ\u1d07 = 2.725 K',
+    connections: ['ch0', 'ch2-1', 'ch3']
+  },
+
+  // ── MODULE 2-1: 가전자 ──────────────────────
+  {
+    id: 'ch2-1', chapter: 'MODULE 2-1', era: 'electron',
+    name: 'Valence Electron',
+    nameKr: '원자가전자 — 화학 반응의 주인공',
+    period: '전자 에너지 구조 기초',
+    tags: ['Valence Electron', '원자가전자', '최외각전자', '전자 배치'],
+    quote: '화학의 모든 것은 원자가전자가 결정합니다. 원자의 반응성, 결합, 플라즈마에서의 이온화까지 — 모든 이야기는 최외각 전자에서 시작됩니다.',
+    quoteAttr: '— 원자 구조 & 화학 결합론',
+    bio: `<b>원자가전자(Valence Electron)</b>는 원자의 가장 바깥 전자껍질(최외각 전자껍질)에 위치한 전자로, 원자의 화학적 성질과 반응성을 결정하는 핵심 전자입니다.\n\n저온 플라즈마(반도체 공정에서 사용하는 플라즈마)에서는 이 원자가전자가 RF 전기장에서 에너지를 흡수하여 여기(Excitation) 또는 이온화(Ionization)를 일으킵니다. 즉, <b>반도체 플라즈마의 모든 물리 화학 과정은 원자가전자의 에너지 상태 변화로부터 출발합니다.</b>\n\n<b>주기율표와 원자가전자:</b> 같은 족(Group)의 원소들은 같은 수의 원자가전자를 가지며, 이로 인해 유사한 화학적 성질을 공유합니다 (예: 불활성 기체 — 8개(2개) → 완전한 최외각 껍질 → 이온화 어려움).`,
+    theories: [
+      { year: '최외각 전자껍질', name: '주양자수 n과 에너지 준위', desc: 'n=1(K껍질): 최대 2전자, n=2(L껍질): 최대 8전자, n=3(M껍질): 최대 18전자. 원자가전자는 가장 바깥 껍질의 전자.' },
+      { year: '화학 반응성', name: '옥텟 규칙 (Octet Rule)', desc: '원자는 최외각 껍질에 8개(또는 2개)의 전자를 채워 안정화하려는 경향. 이 과정에서 전자 이동/공유 발생.' },
+      { year: '반도체 관련', name: '실리콘(Si)의 원자가전자', desc: 'Si는 4개의 원자가전자(sp³ 혼성). 4개의 공유결합으로 다이아몬드 입방 구조 형성. 플라즈마 에칭의 타겟 원자.' },
+      { year: '불활성 기체', name: 'Ar, He의 원자가전자 — 플라즈마의 스퍼터 가스', desc: '아르곤(Ar): 원자가전자 8개(완전 껍질) → 극히 안정 → 화학적 불활성 → 물리적 스퍼터링 가스로 최적.' }
+    ],
+    showBohrSimulator: true,
+    classroom: '실리콘(Si) 플라즈마 에칭 연결 개념:\nRF 파워로 생성된 플라즈마 내 Ar⁺ 이온이 Si 표면을 충격(Physical Sputtering), 또는 F 라디칼(F*)이 Si의 원자가전자와 화학 결합하여 SiF₄ 휘발 화합물 형성(Chemical Etching).\n\n복습 질문: 다음 원소의 원자가전자 수를 말하고, 각각이 플라즈마에서 이온화되기 쉬운지 어려운지 예측해 보세요.\n→ F (플루오린), Ar (아르곤), Si (실리콘), O (산소)',
+    equations: [],
+    connections: ['ch0', 'ch2-2', 'ch2-3']
+  },
+
+  // ── MODULE 2-2: 여기/탈여기 ─────────────────
+  {
+    id: 'ch2-2', chapter: 'MODULE 2-2', era: 'electron',
+    name: 'Excitation & De-excitation',
+    nameKr: '여기 & 탈여기 — 빛의 탄생',
+    period: '전자 에너지 전이 및 광자 방출/흡수',
+    tags: ['Excitation', 'De-excitation', '여기', '수소 스펙트럼', 'Photon'],
+    quote: '전자가 높은 에너지 준위로 뛰어오르는 순간 여기(勵起)가 일어나고, 다시 낮은 준위로 내려오는 순간 그 에너지 차이만큼의 빛(광자)이 탄생합니다.',
+    quoteAttr: '— Niels Bohr (닐스 보어, 1913)',
+    imageUrl: 'images/hydrogen_atom_line_spectrum.png',
+    imageTitle: '수소 원자 선 스펙트럼 — Hydrogen Atom Line Spectrum',
+    imageSource: '전자 전이에 따른 에너지 준위별 스펙트럼 계열 (Lyman, Balmer, Paschen, Brackett, Pfund)',
+    showSpectrumCalc: true,
+    imageUrl3: 'images/photo_light_sources.jpeg',
+    imageTitle3: 'Semiconductor Lithography Light Sources: KrF, ArF, and EUV',
+    imageSource3: 'KrF(248nm) / ArF(193nm) Excimer Laser & EUV Plasma Source — 반도체 리소그래피 광원의 여기/탈여기 원리 응용',
+    bio: `<b>여기(Excitation):</b> 원자가전자가 외부에서 에너지(광자, 전자 충돌, 열)를 흡수하여 현재 에너지 준위보다 높은 준위로 전이하는 현상입니다. 이 상태는 불안정하므로 전자는 매우 짧은 시간(~10⁻⁸초) 내에 원래 준위로 돌아옵니다.\n\n<b>탈여기(De-excitation):</b> 여기된 전자가 낮은 에너지 준위로 전이하면서 두 준위의 에너지 차이(ΔE)에 해당하는 광자(Photon)를 방출합니다. 이것이 선 스펙트럼(Line Spectrum)의 기원입니다.\n\n<b>플라즈마와의 연결:</b> 저온 플라즈마에서 자유 전자가 원자와 충돌할 때 여기가 일어납니다. 플라즈마 챔버에서 발생하는 특유의 빛(글로우 방전, Glow Discharge)은 바로 이 탈여기 광자 방출의 결과입니다. OES(Optical Emission Spectroscopy)를 통해 플라즈마 내 원소를 실시간 모니터링하는 것도 이 원리를 활용합니다.`,
+    theories: [
+      { year: '에너지 흡수', name: 'Excitation (여기)', desc: '전자 + 광자(hν) → 전자가 높은 준위(n_f)로 전이. 또는 전자 충돌에 의한 충돌 여기(Collisional Excitation). 플라즈마에서는 후자가 지배적.' },
+      { year: '에너지 방출', name: 'De-excitation & Photon Emission (탈여기)', desc: '전자가 낮은 준위(n_f)로 전이 → ΔE = hν 의 광자 방출. 각 원소마다 고유한 파장의 빛 → 선 스펙트럼(원소 지문).' },
+      { year: '수소 스펙트럼', name: 'Lyman / Balmer / Paschen 계열', desc: 'n→1: Lyman(자외선), n→2: Balmer(가시광선, 수소 플라즈마의 붉은빛), n→3: Paschen(적외선).' },
+      { year: '반도체 응용', name: 'OES (Optical Emission Spectroscopy)', desc: '플라즈마 공정에서 탈여기 광자 파장을 분석하여 챔버 내 라디칼 종(Species) 실시간 모니터링. 에칭 엔드포인트 검출에 활용.' }
+    ],
+    showExcitationSim: true,
+    showPHET: true,
+    classroom: '수소 스펙트럼과 보어 모델 연결 복습:\n1. n=3에서 n=2로 전이할 때 방출되는 빛의 파장(Hα선)을 리드버그 공식으로 계산해 보세요. (R_H = 1.097 × 10⁷ m⁻¹)\n2. 플라즈마 챔버에서 CF₄ 가스를 사용할 때 OES에서 어떤 파장의 빛을 관찰할 수 있을지 예측해 보세요. (힌트: C, F 원자의 방출 스펙트럼)\n3. PhET 시뮬레이션에서 "보어 모델"을 선택하고 n=1~6 준위 사이의 전이를 관찰한 후, 어느 전이가 가시광선 영역에 해당하는지 확인해 보세요.',
+    equations: [],
+    connections: ['ch2-1', 'ch2-3', 'ch3']
+  },
+
+  // ── MODULE 2-3: 이온화 / 재결합 ────────────
+  {
+    id: 'ch2-3', chapter: 'MODULE 2-3', era: 'electron',
+    name: 'Ionization & Recombination',
+    nameKr: '이온화 & 재결합 — 플라즈마 생성의 핵심',
+    period: '이온화에너지, 전자 충돌 이온화',
+    tags: ['Ionization', '이온화', 'Recombination', '재결합', '이온화 에너지'],
+    quote: '전자가 원자로부터 완전히 탈출하는 순간 — 이온화. 그 전자가 이온으로 돌아오는 순간 — 재결합. 이 두 과정의 동적 평형이 플라즈마를 살아있게 합니다.',
+    quoteAttr: '— 플라즈마 물리학',
+    bio: `<b>이온화(Ionization):</b> 여기를 넘어서 전자가 원자핵의 속박으로부터 완전히 벗어나 자유 전자(Free Electron)가 되고, 원자는 양이온(Cation)이 되는 현상입니다. 이를 위해서는 <b>이온화 에너지(Ionization Energy)</b> 이상의 에너지가 공급되어야 합니다.\n\n<b>재결합(Recombination):</b> 자유 전자가 이온과 만나 다시 중성 원자로 돌아오는 반응입니다. 재결합 시 에너지(광자 또는 열)를 방출합니다.\n\n<b>플라즈마 내 동적 평형:</b> 저온 플라즈마에서는 RF 전기장이 지속적으로 에너지를 공급하여 이온화를 유지하고, 재결합과의 동적 평형 상태에서 플라즈마가 안정적으로 유지됩니다. RF 파워를 끄면 재결합이 이온화를 압도하여 플라즈마가 소멸합니다.`,
+    showIonizationSim: true,
+    theories: [
+      { year: '이온화 에너지', name: 'Ionization Energy (이온화 에너지)', desc: 'H: 13.6 eV, He: 24.6 eV, Ar: 15.76 eV, F: 17.42 eV, O: 13.62 eV. 반도체 공정 가스들의 이온화 에너지가 핵심 설계 파라미터.' },
+      { year: '이온화 메커니즘', name: 'Electron Impact Ionization (전자 충돌 이온화)', desc: '고에너지 전자가 중성 기체 원자/분자에 충돌 → 전자 방출 + 이온 생성. 저온 플라즈마의 주요 이온화 경로.' },
+      { year: '이온화 메커니즘 2', name: 'Photoionization (광 이온화)', desc: '고에너지 광자(UV/X선)가 원자에 충돌하여 전자를 방출. 대기 상층부 이온층(Ionosphere) 형성의 원인.' },
+      { year: '재결합', name: 'Three-body Recombination (3체 재결합)', desc: 'e⁻ + A⁺ + M → A + M*. 세 번째 입자(M)가 에너지와 운동량을 흡수하여 재결합 용이. 고밀도 플라즈마에서 지배적.' }
+    ],
+    classroom: '이온화 에너지와 반도체 공정 설계:\n1. 아르곤(Ar)의 이온화 에너지는 15.76 eV입니다. 실제 CCP 플라즈마에서 전자 에너지 분포(EEDF)의 평균값이 3~5 eV인데, 어떻게 이온화가 일어날 수 있을까요? (힌트: EEDF의 고에너지 테일)\n2. 이온화도(Ionization Degree) = n_ion/(n_ion + n_neutral)이 0.01% ~ 1% 수준인 저온 플라즈마에서도 플라즈마가 중요한 이유는?\n3. RF 파워를 2배 올리면 이온화도는 어떻게 변할지 예측해 보세요.',
+    equations: [],
+    imageUrl_eq: 'images/ionization_recombination.png',
+    imageTitle_eq: 'Understanding Plasma Physics: Fundamental Reactions & Equilibrium',
+    imageSource_eq: 'Electron Impact Ionization · Radiative Recombination · Plasma Density Equilibrium',
+    showRfPopup: true,
+    connections: ['ch2-2', 'ch3-def', 'ch3']
+  },
+
+  // ── MODULE 2-3b: 해리 (Dissociation) ─────────────
+  {
+    id: 'ch2-3b', chapter: 'MODULE 2-3b', era: 'electron',
+    name: 'Dissociation & Radical Generation',
+    nameKr: '해리(Dissociation) — 라디칼 생성과 반도체 공정',
+    period: '플라즈마 공정의 화학 반응 출발점',
+    tags: ['Dissociation', '해리', 'Radical', '라디칼', 'CF₄', 'SF₆'],
+    quote: '이온화가 플라즈마를 만든다면, 해리(Dissociation)는 플라즈마를 쓸모 있게 만듭니다. 라디칼 없이는 반도체 식각도, 증착도 없습니다.',
+    quoteAttr: '— 반도체 플라즈마 공정 기초',
+    bio: `<b>해리(Dissociation)</b>는 플라즈마 내 고에너지 전자가 중성 분자(예: CF₄, O₂)와 충돌하여 분자의 화학 결합을 끊고, 반응성이 매우 높은 <b>라디칼(Radical, ·)</b>과 이온을 생성하는 과정입니다.
+
+<b>왜 필수인가?</b> 반도체 식각·증착 공정에서 공급되는 가스(CF₄, SF₆, O₂ 등)는 그 자체로는 안정된 분자 상태입니다. 이 분자들이 웨이퍼 표면과 반응하려면 반드시 플라즈마 환경에서 <b>해리→라디칼 생성</b> 단계를 거쳐야 합니다.
+
+<b>라디칼(Radical)과 이온의 역할 차이:</b>
+• <b>라디칼(·)</b>: 전기적으로 중성, 등방성(isotropic) 화학 반응 — 언더컷 가능
+• <b>이온(⁺)</b>: 전기적으로 양전하, 쉬스에서 수직 가속 → 이방성(anisotropic) 물리적 식각
+두 메커니즘의 조합이 실제 공정 선택비(Selectivity)와 식각 프로파일을 결정합니다.`,
+    showDissocSim: true,
+    theories: [
+      { year: 'CF₄ — F 라디칼', name: 'CF₄ 해리 → F· 생성 (RIE/DRIE)', desc: 'e⁻ + CF₄ → CF₃· + F· + e⁻\nF· + Si → SiF₄↑ (휘발성, -86°C 비등점)\n반도체 Si 식각의 핵심 화학 반응.' },
+      { year: 'SF₆ — 고수율 F 라디칼', name: 'SF₆ 해리 (Bosch DRIE)', desc: 'e⁻ + SF₆ → SF₅· + F· + e⁻\n분자 1개당 최대 6개의 F 원자 공급\n딥 실리콘 트렌치(DRIE Bosch) 공정에 사용.' },
+      { year: 'O₂ — O 라디칼', name: 'O₂ 해리 (Ashing / 산화)', desc: 'e⁻ + O₂ → O· + O· + e⁻\nO· + 포토레지스트 → CO₂↑, H₂O↑ (Ashing)\nO· + Si → SiO₂ (게이트 산화막 성장).' },
+      { year: '결합에너지', name: '해리 에너지 임계값', desc: '분자마다 결합 에너지가 다름:\nN₂: 9.8 eV (강한 3중 결합) — 해리 어려움\nO₂: 5.1 eV — 중간\nCF₄: 5.6 eV — 중간\nSF₆: 3.7 eV — 낮음(해리 쉬움)' }
+    ],
+    classroom: `복습 질문:
+1. CF₄ 가스를 플라즈마 챔버에 공급했을 때, 전자 충돌에 의한 해리 반응식을 쓰고 생성되는 라디칼과 이온을 각각 적으세요.
+2. F 라디칼(F·)이 Si 웨이퍼 표면과 반응할 때 만들어지는 휘발성 생성물은 무엇이며, 왜 진공 펌프로 제거해야 하나요?
+3. Ar 가스는 해리가 일어나지 않습니다. 그렇다면 CCP 챔버에서 Ar 가스의 역할은 무엇인가요?`,
+    equations: [],
+    showRadicalDeepLearn: true,
+    connections: ['ch2-3', 'ch3-def', 'ch3-app']
+  },
+
+  // ── MODULE 3-def: 플라즈마 정의 ─────────────
+  {
+    id: 'ch3-def', chapter: 'MODULE 2-4', era: 'plasma',
+    name: 'Definition of Plasma',
+    nameKr: '플라즈마의 정의 — 물질의 제4상태',
+    period: '플라즈마 고유 특성과 분류',
+    tags: ['플라즈마 정의', 'Quasi-neutrality', '집단 거동', 'Debye Shielding'],
+    quote: '플라즈마는 단순한 이온화된 기체가 아닙니다. 자유 전하 입자들의 집단적 거동과 전기적 준중성이 공존하는 독특한 물질 상태입니다.',
+    quoteAttr: '— Irving Langmuir (어빙 랭뮤어, 1928)',
+    bio: `<b>플라즈마(Plasma)</b>라는 이름은 그리스어로 "형성된 것(formed thing)"을 의미하며, 1928년 Irving Langmuir가 이온화된 기체를 연구하면서 이 용어를 처음 사용했습니다.\n\n<b>플라즈마의 3가지 필수 조건:</b>\n① <b>준중성(Quasi-neutrality):</b> 전체적으로는 양이온과 전자의 수가 같아 전기적으로 중성을 유지. 단, 국소적(쉬스 영역)으로는 전하 불균형 가능.\n② <b>집단 거동(Collective Behavior):</b> 전하 입자들이 개별적으로 움직이지 않고 쿨롱 상호작용을 통해 집단적으로 반응. 데바이 차폐(Debye Shielding).\n③ <b>이온화(Ionization):</b> 기체 분자의 일부 또는 전체가 이온화된 상태.\n\n<b>단순 이온화 기체 vs 플라즈마:</b> 이온화도가 매우 낮더라도 데바이 반경 λD 내 입자수(λD &gt;&gt; 입자간 거리)와 집단 거동 조건을 만족하면 플라즈마로 분류합니다.`,
+    showDebyeSim: true,
+    showPlasmaFreqSim: true,
+    showPlasmaCondSim: true,
+    showDeepLearn: true,
+    theories: [
+      { year: 'Langmuir, 1928', name: '데바이 차폐 (Debye Shielding)', desc: '양전하 주변에 전자가 구름처럼 모여 전기장을 차폐. 차폐 거리 = 데바이 길이 λD. λD는 온도↑ → 증가, 밀도↑ → 감소.' },
+      { year: '플라즈마 파라미터', name: '플라즈마 주파수 (Plasma Frequency)', desc: 'ωp = √(n_e e²/ε₀ m_e). 전자 집단의 고유 진동 주파수. RF 발생기 주파수와 플라즈마 주파수의 관계가 공정 설계의 핵심.' },
+      { year: '쉬스 (Sheath)', name: 'Plasma Sheath — 반도체 공정의 핵심', desc: '플라즈마와 기판(벽) 사이의 얇은 전하 불균형 영역. 양이온이 쉬스를 통해 가속되어 기판에 충돌 → 에칭/스퍼터링의 근원.' },
+      { year: '플라즈마 분류', name: '온도에 따른 플라즈마 분류', desc: '저온 플라즈마(LTP): T_e≠T_ion, 반도체 공정에 사용. 열 플라즈마: T_e≈T_ion. 고온 플라즈마: 핵융합. 우주 플라즈마: 다양.' }
+    ],
+    classroom: '플라즈마 고유 특성 이해:\n1. 데바이 길이(Debye Length) λD가 공정 챔버 크기보다 훨씬 작아야 "플라즈마"라고 부를 수 있습니다. 이 조건이 왜 집단 거동을 보장하는지 설명해 보세요.\n2. CCP(Capacitively Coupled Plasma) 공정에서 RF 주파수(13.56 MHz)와 플라즈마 주파수(~수백 MHz ~ GHz)를 비교할 때, 이온과 전자의 운동 특성 차이를 설명해 보세요.\n3. Plasma Sheath가 없다면 반도체 에칭은 어떻게 달라질까요? (이방성/등방성 에칭 관련)',
+    equations: [],
+    imageUrl_param: 'images/plasma_condition_kr.png',
+    imageUrl_param_en: 'images/plasma_condition_en.png',
+    imageTitle_param: '플라즈마 파라메터 — 플라즈마 성립 3가지 조건',
+    imageSource_param: 'Debye Length · Electron Plasma Frequency · Plasma Condition (n_e λ_D³ ≫ 1)',
+    connections: ['ch2-3', 'ch3', 'ch3-app']
+  },
+
+  // ── MODULE 3: 물질의 4가지 상태 ───────────
+  {
+    id: 'ch3', chapter: 'MODULE 2-5', era: 'plasma',
+    name: '4 States of Matter',
+    nameKr: '물질의 4가지 상태 — 플라즈마는 제4의 상태',
+    period: '고체 → 액체 → 기체 → 플라즈마',
+    tags: ['물질의 상태', '플라즈마', 'States of Matter', '자연 플라즈마', '응용'],
+    quote: '에너지를 계속 가하면 고체는 녹아 액체가 되고, 증발하여 기체가 됩니다. 그리고 에너지를 더 가하면 기체의 원자는 전자를 잃고 플라즈마가 됩니다.',
+    quoteAttr: '— 플라즈마 물리학 기초',
+    bio: `물질의 상태는 에너지(온도, 압력)에 따라 달라집니다. 일반적으로 고체 → 액체 → 기체의 세 가지 상태를 알고 있지만, 에너지를 더 가하면 <b>플라즈마(제4의 상태)</b>로 전이합니다.\n\n<b>핵심 차이점:</b> 고체, 액체, 기체는 원자/분자 자체의 상태 변화이지만, 플라즈마는 원자가 전자와 이온으로 분리되는 근본적인 상태 변화입니다. 전기적 성질(도체), 자기장 응답, 집단 거동 등 완전히 새로운 물리적 특성이 나타납니다.`,
+    showStates: true,
+    showMatrix: true,
+    theories: [
+      { year: '자연의 플라즈마', name: '번개 (Lightning)', desc: '대기 전기 방전 → 공기 이온화 → 순간 플라즈마 채널. 온도 약 30,000 K. 태양 표면 온도(6,000 K)의 5배.' },
+      { year: '자연의 플라즈마', name: '오로라 (Aurora Borealis)', desc: '태양풍(Solar Wind)의 고에너지 전하 입자가 지구 자기장에 포획 → 대기 상층 원자 여기/탈여기 → 형광 방출.' },
+      { year: '일상의 응용', name: '형광등 & 네온사인', desc: '저압 방전 플라즈마. Hg 원자 여기 → 자외선 방출 → 형광체 변환. 네온사인: Ne 여기 → 특유의 붉은 빛.' },
+      { year: '반도체 응용', name: '드라이 에칭 & CVD (반도체 공정)', desc: 'CCP/ICP 플라즈마: RF 전기장으로 Ar, CF₄, O₂, SF₆ 등을 이온화하여 에칭, 증착, 표면 처리. 10nm 이하 패터닝의 핵심 기술.' }
+    ],
+    classroom: '물질의 4상태 비교 정리:\n1. 고체 → 액체 → 기체 → 플라즈마의 전이에서, 각 단계마다 변화하는 것(구조, 원자 간 결합, 전자 상태)을 비교하여 표로 정리해 보세요.\n2. 번개가 치는 순간의 온도가 태양 표면보다 높은 이유는? (열 플라즈마 vs 고온 플라즈마)\n3. 반도체 공정에서 "플라즈마"를 사용하는 이유가 단순히 고온 열처리로 대체될 수 없는 이유를 세 가지 이상 제시해 보세요.',
+    equations: [],
+    connections: ['ch3-def', 'ch3-app', 'ch4']
+  },
+
+  // ── MODULE 3-app: 응용사례 ──────────────────
+  {
+    id: 'ch3-app', chapter: 'MODULE 2-5 보충', era: 'plasma',
+    name: 'Plasma Applications',
+    nameKr: '플라즈마 응용 사례 — 자연 · 일상 · 반도체',
+    period: '저온 플라즈마 산업 응용',
+    tags: ['응용', '반도체', '자연 플라즈마', '의료', '환경'],
+    quote: '저온 플라즈마는 현대 문명의 조용한 엔진입니다 — 스마트폰 칩부터 형광등, 멸균 장치, 수질 정화 시스템까지.',
+    quoteAttr: '— 반도체 플라즈마 공정 입문',
+    bio: `플라즈마 기술은 우주의 가장 원시적인 물질 상태를 활용하여 인류의 가장 첨단 기술을 가능하게 합니다.\n\n<b>저온 플라즈마(LTP)의 산업적 중요성:</b> 저온 플라즈마는 이온은 실온 수준을 유지하면서 전자만 수 eV의 높은 에너지를 갖는 비평형 상태(Non-equilibrium state)입니다. 이 특성이 열에 약한 기판(반도체, 폴리머, 생체 조직)에도 플라즈마 처리를 가능하게 합니다.`,
+    showApplications: true,
+    theories: [
+      { year: '반도체 — 에칭', name: 'Plasma Dry Etching (플라즈마 건식 에칭)', desc: 'CCP/ICP 플라즈마로 Ar⁺, CF₃⁺ 이온 가속 → 수직 방향 이방성 에칭. 피처 크기 < 10nm 구현 가능. 습식 에칭 대체.' },
+      { year: '반도체 — 증착', name: 'PECVD (플라즈마 강화 CVD)', desc: '저온에서 SiO₂, Si₃N₄, 등 박막 증착. 기판 손상 없이 고품질 막질 구현. 600~800°C 열처리 대신 ~300°C에서 가능.' },
+      { year: '반도체 — 세정', name: 'Plasma Cleaning & Ashing', desc: 'O₂ 플라즈마로 포토레지스트(PR) 제거. H₂ 플라즈마로 산화막 환원. 패키징 전 표면 세정.' },
+      { year: '의료/환경', name: 'Cold Atmospheric Plasma (CAP)', desc: '상압 저온 플라즈마. 균 살멸, 암세포 사멸, 상처 치료 응용 연구. 수처리, 공기 정화에도 활용.' }
+    ],
+    classroom: 'ASENDIA RF 발생기 응용 연결:\nASENDIA의 APG-1013HGH RF Generator가 생성하는 13.56 MHz 전기장이 어떻게 플라즈마 챔버 내 Ar/CF₄ 혼합 가스를 이온화하여 실제 에칭 공정을 수행하는지, 이번 강의에서 배운 개념(전자 충돌 이온화, 쉬스 가속, 이방성 에칭)을 연결하여 설명해 보세요.',
+    equations: [],
+    imageUrl_app: 'images/plasma_app_kr.png',
+    imageUrl_app_en: 'images/plasma_app_en.png',
+    imageTitle_app: '플라즈마 응용 사례 — 플라즈마 기술이 만드는 더 나은 미래',
+    imageSource_app: '표면처리 · 연료개질 · 나노소재합성 · 살균멸균 · 의료바이오 · 농업 · 식품가공 · 핵융합 · 환경정화',
+    connections: ['ch3-def', 'ch3', 'ch4']
+  },
+
+  // ── MODULE 4: 고온 플라즈마 — 핵분열 ────────
+  {
+    id: 'ch4', chapter: 'MODULE 2-6', era: 'high',
+    name: 'High-Temperature Plasma',
+    nameKr: '고온 플라즈마 — 핵분열, 핵융합, 그리고 별',
+    period: '핵에너지 & 우주 별의 플라즈마',
+    tags: ['고온 플라즈마', '핵분열', '핵융합', 'E=mc²', '핵폭탄', '핵발전'],
+    quote: 'E=mc². 질량과 에너지는 하나입니다. 원자핵에 잠자고 있는 질량을 에너지로 전환하는 것이 인류가 불을 발견한 이후 가장 위대한 에너지 혁명입니다.',
+    quoteAttr: '— Albert Einstein, 1905 (특수상대성 이론)',
+    bio: `고온 플라즈마는 저온 플라즈마(반도체 공정)와는 근본적으로 다릅니다. 전자와 이온이 열평형에 도달하고, 온도가 수억 켈빈 이상에 이르러 원자핵 사이의 핵반응이 가능해집니다.\n\n<b>핵분열(Nuclear Fission):</b> 우라늄(²³⁵U)이나 플루토늄 같은 무거운 원자핵이 중성자와 충돌하여 두 개의 중간 크기 핵으로 쪼개지면서 막대한 에너지와 추가 중성자를 방출. 연쇄 반응 가능 → 원자폭탄, 원자력 발전소.\n\n<b>핵융합(Nuclear Fusion):</b> 수소 동위원소(중수소 ²H, 삼중수소 ³H)가 극고온·고압에서 충돌하여 헬륨 핵으로 합쳐지면서 에너지 방출. 태양의 에너지원. 토카막(Tokamak) 장치에서 플라즈마를 가두어 핵융합 실현 도전 중.`,
+    theories: [
+      { year: '1905, Einstein', name: 'E = mc² — 질량-에너지 등가 원리', desc: '정지 질량 m이 에너지 E로 전환될 수 있으며, 그 비율은 빛의 속도의 제곱(c² ≈ 9×10¹⁶ J/kg). 소량의 질량이 엄청난 에너지로 변환.' },
+      { year: '핵분열 (Fission)', name: 'U-235 핵분열 연쇄 반응', desc: 'n + ²³⁵U → Ba + Kr + 3n + 에너지(약 200 MeV). 방출된 3개의 중성자가 다시 U-235를 분열 → 연쇄 반응(Chain Reaction). 임계질량 초과 시 폭발.' },
+      { year: '핵융합 (Fusion)', name: 'D-T 핵융합 반응', desc: '²H + ³H → ⁴He + n + 17.6 MeV. 같은 질량 대비 핵분열의 4배 에너지. 방사성 폐기물 적음. 연료: 중수소(바닷물 무한 공급).' },
+      { year: '별의 플라즈마', name: '태양의 에너지원 — 양성자-양성자 연쇄반응', desc: '태양 코어 T ≈ 1.5×10⁷ K, 완전 이온화 플라즈마. 4개의 수소 핵(양성자)이 헬륨 핵 1개로 융합 → 질량 결손 → 태양 에너지. 매초 4×10⁹ kg의 질량 → 에너지.' }
+    ],
+    classroom: 'E=mc² 와 반도체 플라즈마 연결 생각거리:\n1. 핵분열에서 방출되는 200 MeV의 에너지와 반도체 공정 플라즈마에서 전자가 갖는 1~10 eV의 에너지를 비교해 보세요. (1 MeV = 10⁶ eV). 에너지 스케일의 차이가 왜 이렇게 큰 이유는?\n2. 토카막 핵융합 장치에서 플라즈마를 1억 K 이상으로 유지하기 위해 RF 파워와 자기장을 사용합니다. 반도체 CCP 챔버에서도 RF 파워로 플라즈마를 가두는 원리를 연결하여 설명해 보세요.\n3. "별은 인류가 아직 완전히 복제하지 못한 가장 위대한 플라즈마 기계"라는 관점에서, 핵융합 에너지의 가장 큰 공학적 도전 과제는 무엇입니까?',
+    equations: [],
+    imageUrl_mass: 'images/mass_energy_kr.png',
+    imageUrl_mass_en: 'images/mass_energy_en.png',
+    imageTitle_mass: '아인슈타인 에너지-질량 등가방정식 · 핵분열 · 핵융합',
+    imageSource_mass: 'E=mc² · 우라늄-235 핵분열 (200 MeV) · 수소 핵융합 (26.7 MeV)',
+    connections: ['ch3', 'ch3-app', 'ch0']
+  }
+];
+
+// ── SLIDES_EN — Full English content ──
+const SLIDES_EN = [
+  {
+    id: 'ch0', chapter: 'Overview', era: 'universe',
+    name: 'Plasma Lecture Overview',
+    nameKr: 'Lecture Curriculum & Learning Objectives',
+    period: 'Module structure and goals',
+    tags: ['Overview', 'Objectives', 'Curriculum'],
+    quote: 'Plasma makes up 99% of the visible matter in the universe — yet on Earth we live in a rare environment dominated by oxygen and nitrogen.',
+    quoteAttr: '— Introduction to Plasma Physics',
+    bio: `This lecture is a foundational course for understanding Low Temperature Plasma (LTP) — the core of semiconductor plasma processing.\n\nStarting from the plasma state of the early universe after the Big Bang, we progress through atomic valence electrons, excitation/ionization, the definition of plasma, and the four states of matter, all the way to high-temperature plasma (fission/fusion).\n\n<b>Advanced modules: CCP Plasma Processing, ICP Plasma, RF Impedance Matching</b>`,
+    theories: [
+      { year: 'MODULE 1', name: 'The Universe & Plasma', desc: 'The first 3 minutes after the Big Bang — nucleosynthesis and the plasma universe. Intuitive understanding via the Universe History image.' },
+      { year: 'MODULE 2', name: 'Electron Energy', desc: 'Valence Electron → Excitation/De-excitation → Ionization/Recombination. Linked to hydrogen spectrum simulation.' },
+      { year: 'MODULE 3', name: 'Definition of Plasma', desc: 'Plasma as the fourth state of matter. Diverse plasma applications in nature and industry.' },
+      { year: 'MODULE 4', name: 'High-Temperature Plasma', desc: 'Nuclear fission vs. fusion, plasma inside stars. The physical meaning of E=mc².' }
+    ],
+    classroom: `Pre-study check:\n1. Can you describe the basic structure of an atom (nucleus + electrons)?\n2. Briefly explain energy levels and quantization.\n3. Speculate on why an RF generator is needed to create plasma.`,
+    equations: [],
+    connections: ['ch1', 'ch2-1', 'ch2-3', 'ch3']
+  },
+  {
+    id: 'ch1', chapter: 'MODULE 1', era: 'universe',
+    name: 'The Universe & Plasma',
+    nameKr: 'History of the Universe — The First 3 Minutes After the Big Bang',
+    period: 'Big Bang ~ 380,000 years',
+    tags: ['Big Bang', 'First Nuclei', 'Cosmic Plasma', 'Nucleosynthesis'],
+    quote: 'For the first 380,000 years after the Big Bang, the entire universe was a hot, opaque plasma state — even light could not escape.',
+    quoteAttr: '— Cosmology Fundamentals',
+    imageUrl: 'images/history_of_the_universe.png',
+    imageTitle: 'The History of the Universe — From the Big Bang to Today',
+    imageSource: 'Source: NASA / ESA — The History of the Universe',
+    bio: `Looking at the history of the universe, plasma is the most fundamental and ancient state of matter.\n\n<b>1–3 Minutes After the Big Bang (First Nuclei):</b> Protons and neutrons combine to form the first atomic nuclei (hydrogen and helium). The universe was at extreme temperatures — electrons floated freely and were not yet bound to nuclei, making it a complete plasma state.\n\n<b>380,000 Years After the Big Bang (First Atoms):</b> The universe cooled enough for electrons to be captured by nuclei, forming the first neutral atoms. Light became free to travel (CMB), and the universe became transparent. This was the historic moment plasma transitioned to neutral gas.\n\nConnection to semiconductor plasma: The same principle applies in an LTP chamber — the state where electrons are separated from atoms and free electrons coexist with ions is precisely plasma.`,
+    theories: [
+      { year: '10⁻³² sec after Big Bang', name: 'Inflation', desc: 'The universe expanded exponentially in an extremely short time. Quark-Gluon Plasma (QGP) state.' },
+      { year: '1–3 min after', name: 'Big Bang Nucleosynthesis', desc: 'Proton + Neutron → ¹H, ⁴He, ⁷Li nuclei formed. Universe = opaque plasma.' },
+      { year: '380,000 years after', name: 'Recombination Era', desc: 'Electrons captured by nuclei → first neutral atoms born. Light travels freely → CMB released.' },
+      { year: '~200 million years after', name: 'First Stars', desc: 'Gravity collapses hydrogen gas clouds → high temperature/pressure → nuclear fusion ignites → stars become plasma factories.' },
+      { year: 'Present (13.8 billion years)', name: '99% of the Universe is Plasma', desc: 'Stars, nebulae, interstellar medium, solar wind — ~99% of observable universe matter is plasma.' }
+    ],
+    classroom: `Discussion questions:\n1. Explain why light could not travel freely for 380,000 years after the Big Bang, using plasma properties (photon scattering by free electrons).\n2. Why is the CMB called "a fossil of light released when the universe transitioned from plasma to gas"?\n3. Creating plasma with RF power in a semiconductor chamber is analogous to recreating the early universe's high-energy state in miniature. Explain this analogy from an energy perspective.`,
+    equations: [],
+    imageUrl2: 'images/plasma_condition_hor.png',
+    imageTitle2: 'Plasma Condition in the Early Universe & CMB Temperature',
+    imageSource2: 'Plasma condition: T_ion >> 13.6 eV (H ionization energy) · CMB: T = 2.725 K',
+    connections: ['ch0', 'ch2-1', 'ch3']
+  },
+  {
+    id: 'ch2-1', chapter: 'MODULE 2-1', era: 'electron',
+    name: 'Valence Electron',
+    nameKr: 'Valence Electron — The Actor in Chemical Reactions',
+    period: 'Basics of electron energy structure',
+    tags: ['Valence Electron', 'Outermost Shell', 'Electron Configuration'],
+    quote: 'Everything in chemistry is determined by valence electrons — reactivity, bonding, and ionization in plasma all begin with the outermost electron.',
+    quoteAttr: '— Atomic Structure & Chemical Bonding',
+    bio: `A <b>Valence Electron</b> is located in the outermost electron shell and determines the chemical properties and reactivity of the atom.\n\nIn low-temperature plasma, these valence electrons absorb energy from an RF electric field and cause <b>excitation</b> or <b>ionization</b>. All physicochemical processes in semiconductor plasma originate from changes in valence electron energy states.\n\n<b>Periodic Table & Valence Electrons:</b> Elements in the same group share the same number of valence electrons (e.g., noble gases have a complete outer shell → difficult to ionize).`,
+    theories: [
+      { year: 'Outermost shell', name: 'Principal Quantum Number n & Energy Levels', desc: 'n=1 (K-shell): max 2e, n=2 (L-shell): max 8e, n=3 (M-shell): max 18e. Valence electrons occupy the outermost shell.' },
+      { year: 'Chemical reactivity', name: 'Octet Rule', desc: 'Atoms gain stability by filling their outer shell with 8 electrons (or 2). This drives electron transfer or sharing.' },
+      { year: 'Semiconductor', name: 'Silicon (Si) Valence Electrons', desc: 'Si has 4 valence electrons (sp³). Forms a diamond cubic structure via 4 covalent bonds. Target atom in plasma etching.' },
+      { year: 'Noble gases', name: 'Ar & He — Sputter Gases in Plasma', desc: 'Argon (Ar): 8 valence electrons (complete shell) → chemically inert → ideal physical sputtering gas.' }
+    ],
+    showBohrSimulator: true,
+    classroom: `Si Plasma Etching connection:\nAr⁺ ions from RF power physically sputter the Si surface, or F radicals (F*) form volatile SiF₄ by bonding with Si valence electrons.\n\nReview: State the valence electron count and predict ionization ease in plasma for:\n→ F (Fluorine), Ar (Argon), Si (Silicon), O (Oxygen)`,
+    equations: [],
+    connections: ['ch0', 'ch2-2', 'ch2-3']
+  },
+  {
+    id: 'ch2-2', chapter: 'MODULE 2-2', era: 'electron',
+    name: 'Excitation & De-excitation',
+    nameKr: 'Excitation & De-excitation — The Birth of Light',
+    period: 'Electron energy transitions and photon emission/absorption',
+    tags: ['Excitation', 'De-excitation', 'Hydrogen Spectrum', 'Photon'],
+    quote: 'The moment an electron jumps to a higher energy level, excitation occurs. Falling back down, it emits a photon carrying exactly the energy difference.',
+    quoteAttr: '— Niels Bohr, 1913',
+    imageUrl: 'images/hydrogen_atom_line_spectrum.png',
+    imageTitle: 'Hydrogen Atom Line Spectrum',
+    imageSource: 'Spectral series by energy level transition: Lyman, Balmer, Paschen, Brackett, Pfund',
+    showSpectrumCalc: true,
+    imageUrl3: 'images/photo_light_sources.jpeg',
+    imageTitle3: 'Semiconductor Lithography Light Sources: KrF, ArF, and EUV',
+    imageSource3: 'KrF(248nm) / ArF(193nm) Excimer Laser & EUV Plasma Source — Real-world application of excitation/de-excitation in semiconductor lithography',
+    bio: `<b>Excitation:</b> A valence electron absorbs external energy and transitions to a higher energy level. This unstable state lasts only ~10⁻⁸ s before the electron returns.\n\n<b>De-excitation:</b> The excited electron transitions to a lower level, emitting a photon with energy ΔE. This is the origin of the line spectrum.\n\n<b>Connection to Plasma:</b> In LTP, excitation occurs when free electrons collide with atoms. The glow discharge seen in a plasma chamber is direct evidence of de-excitation photon emission. OES (Optical Emission Spectroscopy) uses this to monitor species in real time.`,
+    theories: [
+      { year: 'Energy absorption', name: 'Excitation', desc: 'Electron + photon (hν) → transition to higher level n_f. Or collisional excitation by electron impact — dominant in plasma.' },
+      { year: 'Energy emission', name: 'De-excitation & Photon Emission', desc: 'Electron drops to lower level → emits photon of ΔE = hν. Each element emits a unique wavelength → line spectrum (elemental fingerprint).' },
+      { year: 'Hydrogen spectrum', name: 'Lyman / Balmer / Paschen Series', desc: 'n→1: Lyman (UV), n→2: Balmer (visible, red glow), n→3: Paschen (near-infrared).' },
+      { year: 'Semiconductor', name: 'OES (Optical Emission Spectroscopy)', desc: 'Analyzes de-excitation photon wavelengths to monitor radical species in plasma. Used for etch endpoint detection.' }
+    ],
+    showExcitationSim: true,
+    showPHET: true,
+    classroom: `Bohr Model review:\n1. Calculate the wavelength for n=3 → n=2 (Hα line) using the Rydberg formula. (R_H = 1.097 × 10⁷ m⁻¹)\n2. With CF₄ gas in a plasma chamber, predict which OES wavelengths appear. (Hint: C and F emission spectra)\n3. In PhET, select "Bohr Model" and identify which transitions produce visible light.`,
+    equations: [],
+    connections: ['ch2-1', 'ch2-3', 'ch3']
+  },
+  {
+    id: 'ch2-3', chapter: 'MODULE 2-3', era: 'electron',
+    name: 'Ionization & Recombination',
+    nameKr: 'Ionization & Recombination — Core of Plasma Generation',
+    period: 'Ionization energy, electron impact ionization',
+    tags: ['Ionization', 'Recombination', 'Ionization Energy'],
+    quote: 'The moment an electron completely escapes its atom — ionization. The moment it returns — recombination. Their dynamic equilibrium keeps plasma alive.',
+    quoteAttr: '— Plasma Physics',
+    bio: `<b>Ionization:</b> Beyond excitation, the electron completely escapes the nucleus and becomes a free electron while the atom becomes a positive ion. This requires at least the <b>Ionization Energy</b>.\n\n<b>Recombination:</b> A free electron meets an ion and forms a neutral atom again, releasing energy.\n\n<b>Dynamic Equilibrium in Plasma:</b> The RF electric field continuously supplies energy to sustain ionization. Turning off RF power lets recombination dominate and the plasma extinguishes.`,
+    showIonizationSim: true,
+    theories: [
+      { year: 'Ionization energy', name: 'Ionization Energy Values', desc: 'H: 13.6 eV, He: 24.6 eV, Ar: 15.76 eV, F: 17.42 eV, O: 13.62 eV. Key design parameters for process gases.' },
+      { year: 'Mechanism', name: 'Electron Impact Ionization', desc: 'High-energy electrons collide with neutral atoms → electron ejection + ion. The primary ionization pathway in LTP.' },
+      { year: 'Mechanism 2', name: 'Photoionization', desc: 'High-energy photons (UV/X-ray) collide with atoms, ejecting electrons. Cause of ionosphere formation.' },
+      { year: 'Recombination', name: 'Three-body Recombination', desc: 'e⁻ + A⁺ + M → A + M*. A third particle absorbs momentum, facilitating recombination. Dominant in high-density plasma.' }
+    ],
+    classroom: `Ionization Energy & Process Design:\n1. Ar ionization energy is 15.76 eV, but mean electron energy in CCP plasma is 3–5 eV. How does ionization still occur? (Hint: high-energy tail of the EEDF)\n2. Why is LTP — with only 0.01%–1% ionization — still critically important?\n3. Predict how ionization degree changes if RF power is doubled.`,
+    equations: [],
+    imageUrl_eq: 'images/ionization_recombination.png',
+    imageTitle_eq: 'Understanding Plasma Physics: Fundamental Reactions & Equilibrium',
+    imageSource_eq: 'Electron Impact Ionization · Radiative Recombination · Plasma Density Equilibrium',
+    showRfPopup: true,
+    connections: ['ch2-2', 'ch3-def', 'ch3']
+  },
+  {
+    id: 'ch2-3b', chapter: 'MODULE 2-3b', era: 'electron',
+    name: 'Dissociation & Radical Generation',
+    nameKr: 'Dissociation — The Starting Point of Plasma Processing Chemistry',
+    period: 'Radical generation & semiconductor process chemistry',
+    tags: ['Dissociation', 'Radical', 'CF₄', 'SF₆', 'Etch Chemistry'],
+    quote: 'If ionization creates plasma, dissociation makes it useful. Without radicals, there is no etching, no deposition.',
+    quoteAttr: '— Semiconductor Plasma Processing Fundamentals',
+    bio: `<b>Dissociation</b> is the process by which high-energy electrons in a plasma collide with neutral molecules (e.g. CF₄, O₂) and break their chemical bonds, generating highly reactive <b>radicals (·)</b> and ions.\n\n<b>Why is it essential?</b> Process gases (CF₄, SF₆, O₂, etc.) are stable molecules in their ground state. For these molecules to react with the wafer surface, they must first undergo <b>dissociation → radical generation</b> in the plasma environment.\n\n<b>Radical vs. Ion — different roles:</b>\n• <b>Radical (·)</b>: electrically neutral, isotropic chemical reaction — can undercut\n• <b>Ion (⁺)</b>: positively charged, accelerated vertically through sheath → anisotropic physical etching\nThe combination of both mechanisms determines the selectivity and etch profile in real processes.`,
+    showDissocSim: true,
+    theories: [
+      { year: 'CF₄ — F radical', name: 'CF₄ Dissociation → F· (RIE/DRIE)', desc: 'e⁻ + CF₄ → CF₃· + F· + e⁻\nF· + Si → SiF₄↑ (volatile, bp -86°C)\nCore chemical reaction of Si dry etching.' },
+      { year: 'SF₆ — high F yield', name: 'SF₆ Dissociation (Bosch DRIE)', desc: 'e⁻ + SF₆ → SF₅· + F· + e⁻\nUp to 6 F atoms per molecule\nUsed in deep Si trench (DRIE Bosch) processes.' },
+      { year: 'O₂ — O radical', name: 'O₂ Dissociation (Ashing / Oxidation)', desc: 'e⁻ + O₂ → O· + O· + e⁻\nO· + photoresist → CO₂↑, H₂O↑ (ashing)\nO· + Si → SiO₂ (gate oxide growth).' },
+      { year: 'Bond energy', name: 'Dissociation Energy Threshold', desc: 'Bond energies differ by molecule:\nN₂: 9.8 eV (strong triple bond — hard to dissociate)\nO₂: 5.1 eV — moderate\nCF₄: 5.6 eV — moderate\nSF₆: 3.7 eV — low (easy to dissociate)' }
+    ],
+    classroom: `Review questions:\n1. Write the dissociation reaction of CF₄ by electron impact and identify the radicals and ions produced.\n2. What volatile product is formed when F radical (F·) reacts with a Si wafer surface, and why must it be removed by vacuum pump?\n3. Ar gas does not dissociate. What is the role of Ar gas in a CCP chamber?`,
+    showRadicalDeepLearn: true,
+    equations: [],
+    connections: ['ch2-3', 'ch3-def', 'ch3-app']
+  },
+  {
+    id: 'ch3-def', chapter: 'MODULE 2-4', era: 'plasma',
+    name: 'Definition of Plasma',
+    nameKr: 'Definition of Plasma — The Fourth State of Matter',
+    period: 'Intrinsic plasma properties and classification',
+    tags: ['Plasma Definition', 'Quasi-neutrality', 'Collective Behavior', 'Debye Shielding'],
+    quote: 'Plasma is not simply an ionized gas. It is a unique state where the collective behavior of free charged particles coexists with electrical quasi-neutrality.',
+    quoteAttr: '— Irving Langmuir, 1928',
+    bio: `The name <b>Plasma</b> comes from the Greek for "formed thing," first coined by Irving Langmuir in 1928.\n\n<b>Three essential conditions for plasma:</b>\n① <b>Quasi-neutrality:</b> Globally, equal numbers of positive ions and electrons maintain electrical neutrality. Local imbalance (e.g., in the sheath) is possible.\n② <b>Collective Behavior:</b> Charged particles respond collectively through Coulomb interactions. Debye Shielding.\n③ <b>Ionization:</b> Some or all gas molecules are ionized.\n\nEven at very low ionization degrees, if particles within the Debye radius satisfy the collective behavior condition, the state is classified as plasma.`,
+    showDebyeSim: true,
+    showPlasmaFreqSim: true,
+    showPlasmaCondSim: true,
+    showDeepLearn: true,
+    theories: [
+      { year: 'Langmuir, 1928', name: 'Debye Shielding', desc: 'Electrons cluster around positive charges, shielding the electric field. Shielding distance = Debye length λD. λD ↑ with temperature, ↓ with density.' },
+      { year: 'Plasma parameter', name: 'Plasma Frequency', desc: 'ωp = √(n_e e²/ε₀ m_e). Natural oscillation frequency of the electron collective. Relationship between RF frequency and plasma frequency is key to process design.' },
+      { year: 'Sheath', name: 'Plasma Sheath — Core of Semiconductor Processing', desc: 'Thin charge-imbalance region between plasma and substrate. Positive ions accelerate through the sheath → source of etching and sputtering.' },
+      { year: 'Classification', name: 'Plasma Classification by Temperature', desc: 'LTP: T_e ≠ T_ion, used in semiconductor processing. Thermal: T_e ≈ T_ion. High-Temp: fusion. Space plasma: varies.' }
+    ],
+    classroom: `Plasma properties:\n1. Why must Debye length (λD) be much smaller than the chamber size to qualify as "plasma"? Explain how this guarantees collective behavior.\n2. In CCP at 13.56 MHz RF, compare RF frequency with plasma frequency (~hundreds of MHz) and explain the difference in ion vs. electron motion.\n3. What would happen to semiconductor etching without a Plasma Sheath? (Anisotropic vs. isotropic etching)`,
+    equations: [],
+    imageUrl_param: 'images/plasma_condition_en.png',
+    imageUrl_param_en: 'images/plasma_condition_en.png',
+    imageTitle_param: 'Plasma Parameters — 3 Fundamental Conditions for Plasma Formation',
+    imageSource_param: 'Debye Length · Electron Plasma Frequency · Plasma Condition (n_e λ_D³ ≫ 1)',
+    connections: ['ch2-3', 'ch3', 'ch3-app']
+  },
+  {
+    id: 'ch3', chapter: 'MODULE 2-5', era: 'plasma',
+    name: '4 States of Matter',
+    nameKr: '4 States of Matter — Plasma as the 4th State',
+    period: 'Solid → Liquid → Gas → Plasma',
+    tags: ['States of Matter', 'Plasma', 'Natural Plasma', 'Applications'],
+    quote: 'Keep adding energy: solid melts to liquid, evaporates to gas. Add even more — atoms lose their electrons and become plasma.',
+    quoteAttr: '— Plasma Physics Fundamentals',
+    bio: `The state of matter changes with energy. Beyond the three familiar states (solid, liquid, gas), adding more energy causes transition to <b>plasma (the 4th state)</b>.\n\n<b>Key difference:</b> Solid, liquid, and gas are state changes of atoms/molecules. Plasma is a fundamental change where atoms separate into electrons and ions, producing entirely new properties: electrical conductivity, magnetic field response, and collective behavior.`,
+    showStates: true,
+    showMatrix: true,
+    theories: [
+      { year: 'Natural plasma', name: 'Lightning', desc: 'Atmospheric discharge → air ionization → instantaneous plasma channel. ~30,000 K — five times the sun\'s surface temperature.' },
+      { year: 'Natural plasma', name: 'Aurora Borealis', desc: 'Solar wind particles captured by Earth\'s magnetic field → excite upper atmosphere atoms → fluorescent emission.' },
+      { year: 'Everyday', name: 'Fluorescent Lamps & Neon Signs', desc: 'Low-pressure discharge plasma. Hg excitation → UV → phosphor conversion. Neon: Ne excitation → red glow.' },
+      { year: 'Semiconductor', name: 'Dry Etching & CVD', desc: 'CCP/ICP plasma ionizes Ar, CF₄, O₂, SF₆ etc. for etching, deposition, and surface treatment. Core technology for sub-10nm patterning.' }
+    ],
+    classroom: `4 states comparison:\n1. For each transition (solid→liquid→gas→plasma), summarize what changes (structure, bonds, electron state) in a table.\n2. Why is lightning hotter than the sun's surface? (Thermal plasma vs. high-temperature plasma)\n3. Give at least three reasons why plasma cannot simply be replaced by high-temperature thermal processing in semiconductor manufacturing.`,
+    equations: [],
+    connections: ['ch3-def', 'ch3-app', 'ch4']
+  },
+  {
+    id: 'ch3-app', chapter: 'MODULE 2-5 Supplement', era: 'plasma',
+    name: 'Plasma Applications',
+    nameKr: 'Plasma Applications — Nature · Daily Life · Semiconductors',
+    period: 'Industrial applications of low-temperature plasma',
+    tags: ['Applications', 'Semiconductor', 'Natural Plasma', 'Medical'],
+    quote: 'Low-temperature plasma is the silent engine of modern civilization — from smartphone chips to sterilization devices and water purification systems.',
+    quoteAttr: '— Introduction to Semiconductor Plasma Processing',
+    bio: `Plasma technology leverages the universe\'s most primitive matter state to enable humanity\'s most advanced technologies.\n\n<b>Industrial importance of LTP:</b> Low-temperature plasma is a non-equilibrium state — ions remain near room temperature while electrons carry several eV of energy. This enables plasma treatment of heat-sensitive substrates (semiconductors, polymers, biological tissue).`,
+    showApplications: true,
+    theories: [
+      { year: 'Semiconductor — Etching', name: 'Plasma Dry Etching', desc: 'CCP/ICP plasma accelerates Ar⁺, CF₃⁺ ions → vertical anisotropic etching. Features < 10nm. Replaces wet etching.' },
+      { year: 'Semiconductor — Deposition', name: 'PECVD', desc: 'Deposits SiO₂, Si₃N₄ thin films at low temperature (~300°C instead of 600–800°C thermal).' },
+      { year: 'Semiconductor — Cleaning', name: 'Plasma Cleaning & Ashing', desc: 'O₂ plasma removes photoresist. H₂ plasma reduces oxides. Surface cleaning prior to packaging.' },
+      { year: 'Medical / Environment', name: 'Cold Atmospheric Plasma (CAP)', desc: 'Atmospheric LTP for sterilization, cancer cell treatment, wound healing research, water purification, air cleaning.' }
+    ],
+    classroom: `Connecting to ASENDIA RF Generator:\nExplain how the 13.56 MHz field from an ASENDIA APG-1013HGH RF Generator ionizes Ar/CF₄ in a plasma chamber to perform etching — connecting: electron impact ionization, sheath acceleration, and anisotropic etching.`,
+    equations: [],
+    imageUrl_app: 'images/plasma_app_en.png',
+    imageUrl_app_en: 'images/plasma_app_en.png',
+    imageTitle_app: 'Plasma Applications — Plasma Technology for a Better Future',
+    imageSource_app: 'Surface Treatment · Fuel Modification · Nanomaterials · Sterilization · Medical & Bio · Agriculture · Food Processing · Fusion Research · Environmental Remediation',
+    connections: ['ch3-def', 'ch3', 'ch4']
+  },
+  {
+    id: 'ch4', chapter: 'MODULE 2-6', era: 'high',
+    name: 'High-Temperature Plasma',
+    nameKr: 'High-Temperature Plasma — Fission, Fusion & Stars',
+    period: 'Nuclear energy & plasma inside stars',
+    tags: ['High-Temp Plasma', 'Nuclear Fission', 'Nuclear Fusion', 'E=mc²', 'Stars'],
+    quote: 'E=mc². Mass and energy are one. Converting the mass locked inside atomic nuclei into energy is the greatest energy revolution since fire.',
+    quoteAttr: '— Albert Einstein, 1905',
+    bio: `High-temperature plasma differs fundamentally from LTP. Electrons and ions reach thermal equilibrium, and temperatures exceed hundreds of millions of Kelvin, enabling nuclear reactions.\n\n<b>Nuclear Fission:</b> Heavy nuclei (²³⁵U, Pu) struck by neutrons split into two mid-sized nuclei, releasing enormous energy and more neutrons. Chain reactions are possible → atomic bombs, nuclear power plants.\n\n<b>Nuclear Fusion:</b> Hydrogen isotopes (²H, ³H) merge into helium at extreme temperature/pressure, releasing energy. The sun's energy source. Tokamak devices attempt plasma confinement for controlled fusion.`,
+    theories: [
+      { year: 'Einstein, 1905', name: 'E = mc² — Mass-Energy Equivalence', desc: 'Rest mass m converts to energy E at a ratio of c² ≈ 9×10¹⁶ J/kg. A tiny mass converts to an enormous amount of energy.' },
+      { year: 'Fission', name: 'U-235 Chain Reaction', desc: 'n + ²³⁵U → Ba + Kr + 3n + ~200 MeV. Released neutrons trigger further fission → chain reaction. Explosion above critical mass.' },
+      { year: 'Fusion', name: 'D-T Fusion Reaction', desc: '²H + ³H → ⁴He + n + 17.6 MeV. 4× the energy density of fission. Less radioactive waste. Fuel: deuterium from seawater.' },
+      { year: 'Stellar plasma', name: 'Solar Energy — Proton-Proton Chain', desc: 'Solar core T ≈ 1.5×10⁷ K, fully ionized plasma. 4 protons fuse into helium → mass defect → solar energy. 4×10⁹ kg/s converted to energy.' }
+    ],
+    classroom: `E=mc² connecting to semiconductor plasma:\n1. Compare the 200 MeV from fission with the 1–10 eV of plasma electrons. (1 MeV = 10⁶ eV). Why is the energy scale so different?\n2. A tokamak uses RF power and magnets to confine plasma above 100 million K. Connect this to how a CCP chamber uses RF to confine plasma.\n3. "A star is the greatest plasma machine humanity has yet to replicate." What is the greatest engineering challenge of fusion energy?`,
+    equations: [],
+    imageUrl_mass: 'images/mass_energy_en.png',
+    imageUrl_mass_en: 'images/mass_energy_en.png',
+    imageTitle_mass: 'Einstein\'s Mass-Energy Equivalence · Nuclear Fission · Nuclear Fusion',
+    imageSource_mass: 'E=mc² · Uranium-235 Fission (~200 MeV) · Hydrogen Fusion (26.7 MeV)',
+    connections: ['ch3', 'ch3-app', 'ch0']
+  }
+];
+function getSLIDES() {
+  return lang === 'ko' ? SLIDES_KO : SLIDES_EN;
+}
+
+// ─────────────────────────────────────────────
+//  LANGUAGE TOGGLE
+// ─────────────────────────────────────────────
+function setLang(l) {
+  lang = l;
+  document.body.setAttribute('data-lang', l);
+  document.getElementById('btnKo').classList.toggle('active-lang', l === 'ko');
+  document.getElementById('btnEn').classList.toggle('active-lang', l === 'en');
+  const T = UI[lang];
+  document.getElementById('hTitle').textContent = T.hTitle;
+  document.getElementById('eraAll').textContent    = T.eraAll;
+  document.getElementById('eraUni').textContent    = T.eraUni;
+  document.getElementById('eraElec').textContent   = T.eraElec;
+  document.getElementById('eraPlasma').textContent = T.eraPlasma;
+  document.getElementById('eraHigh').textContent   = T.eraHigh;
+  buildSidebar(currentEraFilter);
+  if (currentId) {
+    const slide = getSLIDES().find(s => s.id === currentId);
+    if (slide) renderDetail(slide);
+  } else {
+    document.getElementById('detail').innerHTML = `<div class="detail-empty"><div class="icon-ring"></div><p>${T.emptyMsg}</p></div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  SIDEBAR BUILD
+// ─────────────────────────────────────────────
+const eraColors = {
+  universe: { tag: '#1565C0', tagBg: '#E3F2FD', tagBorder: '#90CAF9' },
+  electron: { tag: '#0F8C50', tagBg: '#E5F4EC', tagBorder: '#cbeadd' },
+  plasma:   { tag: '#E87B1E', tagBg: '#FEF0E3', tagBorder: '#F5C990' },
+  high:     { tag: '#B71C1C', tagBg: '#FFEBEE', tagBorder: '#EF9A9A' }
+};
+
+function buildSidebar(filter) {
+  currentEraFilter = filter;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '';
+  const T = UI[lang];
+  const SLIDES = getSLIDES();
+  const eras = ['universe', 'electron', 'plasma', 'high'];
+
+  eras.forEach(eraId => {
+    const slides = SLIDES.filter(s => s.era === eraId && (filter === 'all' || filter === eraId));
+    if (slides.length === 0) return;
+
+    const grp = document.createElement('div');
+    grp.className = 'era-group';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'era-header';
+    hdr.innerHTML = `
+      <span class="era-label" style="color:${eraColors[eraId].tag}">${T.eraLabels[eraId]}</span>
+      <span class="era-line"></span>
+      <span class="era-range">${T.eraRanges[eraId]}</span>
+      <span class="era-toggle">▾</span>
+    `;
+    grp.appendChild(hdr);
+
+    const cardsWrap = document.createElement('div');
+    cardsWrap.className = 'era-cards';
+    const ec = eraColors[eraId];
+
+    slides.forEach(slide => {
+      const card = document.createElement('div');
+      card.className = 'sci-card' + (currentId === slide.id ? ' active' : '');
+      card.id = `card-${slide.id}`;
+      const tagHtml = slide.tags.slice(0,3).map(t =>
+        `<span class="sci-tag" style="background:${ec.tagBg};color:${ec.tag};border:1px solid ${ec.tagBorder}">${t}</span>`
+      ).join('');
+      card.innerHTML = `
+        <div class="sci-year">${slide.chapter}</div>
+        <div class="sci-info">
+          <div class="sci-name">${slide.nameKr}</div>
+          <div class="sci-nation">${slide.period}</div>
+          <div class="sci-tags">${tagHtml}</div>
+        </div>
+      `;
+      card.addEventListener('click', () => selectSlide(slide.id));
+      cardsWrap.appendChild(card);
+    });
+
+    hdr.addEventListener('click', () => {
+      const isCollapsed = cardsWrap.classList.toggle('collapsed');
+      hdr.classList.toggle('collapsed', isCollapsed);
+    });
+
+    grp.appendChild(cardsWrap);
+    sidebar.appendChild(grp);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  SLIDE SELECTION
+// ─────────────────────────────────────────────
+function selectSlide(id) {
+  document.querySelectorAll('.sci-card').forEach(c => c.classList.remove('active'));
+  const SLIDES = getSLIDES();
+  const slide = SLIDES.find(s => s.id === id);
+  if (!slide) return;
+  currentId = id;
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    const wrap = card.closest('.era-cards');
+    if (wrap && wrap.classList.contains('collapsed')) {
+      wrap.classList.remove('collapsed');
+      wrap.previousElementSibling?.classList.remove('collapsed');
+    }
+    card.classList.add('active');
+    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  renderDetail(slide);
+}
+
+// ─────────────────────────────────────────────
+//  RENDER DETAIL
+// ─────────────────────────────────────────────
+function renderDetail(slide) {
+  const panel = document.getElementById('detail');
+  const T = UI[lang];
+
+  const eraTagStyle = {
+    universe: 'background:#E3F2FD;color:#1565C0',
+    electron: 'background:#E5F4EC;color:#0a6b3d',
+    plasma:   'background:#FEF0E3;color:#A84F05',
+    high:     'background:#FFEBEE;color:#B71C1C'
+  };
+
+  // ── Media (image or SVG) ──
+  let mediaHtml = '';
+  if (slide.imageUrl) {
+    const isWide = true;
+    mediaHtml = `
+      <div class="section-title">${slide.imageTitle || T.sectionMedia}</div>
+      <div class="model-showcase" style="cursor:pointer;" onclick="openImgPopup('${slide.imageUrl}', '${slide.imageTitle || ''}')">
+        <div class="model-img-wrapper">
+          <img src="${slide.imageUrl}" alt="${slide.imageTitle || ''}"
+            class="zoomable-img"
+            style="max-height:none;width:100%;object-fit:contain;border-radius:8px;"
+            onerror="this.onerror=null;this.style.display='none';">
+          <div class="model-img-source">${slide.imageSource || ''}</div>
+          <span class="img-zoom-hint">🔍 ${lang==='en'?'Click to enlarge':'클릭하면 크게 볼 수 있습니다'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Equations ──
+  let eqHtml = '';
+  if (slide.equations && slide.equations.length > 0) {
+    eqHtml = `<div class="section-title">${T.sectionEq}</div>`;
+    slide.equations.forEach(eq => {
+      eqHtml += `<div class="eq-block">\\[${eq}\\]</div>`;
+    });
+  }
+
+  // ── Equation image (imageUrl_eq) ──
+  let eqImgHtml = '';
+  if (slide.imageUrl_eq) {
+    eqImgHtml = `
+      <div class="section-title">${slide.imageTitle_eq || 'Equation Reference'}</div>
+      <div class="model-showcase" style="cursor:pointer;padding:0.75rem;"
+           onclick="openImgPopup('${slide.imageUrl_eq}', '${slide.imageTitle_eq || ''}')">
+        <div class="model-img-wrapper">
+          <img src="${slide.imageUrl_eq}" alt="${slide.imageTitle_eq || ''}"
+            class="zoomable-img"
+            style="max-height:none;width:100%;object-fit:contain;border-radius:8px;"
+            onerror="this.onerror=null;this.style.display='none';">
+          <div class="model-img-source">${slide.imageSource_eq || ''}</div>
+          <span class="img-zoom-hint">🔍 ${lang==='en'?'Click to enlarge':'클릭하면 크게 볼 수 있습니다'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── RF Plasma Why — popup button ──
+  let rfPopupBtn = '';
+  if (slide.showRfPopup) {
+    rfPopupBtn = `
+      <div style="margin-bottom:1.1rem;">
+        <button onclick="openRfPopup()" style="background:var(--plasma);border:none;border-radius:10px;color:#fff;font-family:'Google Sans','Segoe UI',sans-serif;font-size:0.82rem;font-weight:700;padding:10px 22px;cursor:pointer;box-shadow:0 3px 10px rgba(232,123,30,0.35);display:inline-flex;align-items:center;gap:8px;"
+          onmouseover="this.style.background='#c9660f'"
+          onmouseout="this.style.background='var(--plasma)'">
+          ⚡ ${lang==='en'
+            ? 'Why RF Plasma is Essential for Semiconductor Processing'
+            : '왜 RF 플라즈마가 반도체 공정에서 필수인가?'}
+          <span style="font-size:1rem;opacity:0.8">→</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // ── Application image (imageUrl_app) — lang-aware ──
+  let appImgHtml = '';
+  if (slide.imageUrl_app) {
+    const appUrl = (lang === 'en' && slide.imageUrl_app_en)
+      ? slide.imageUrl_app_en
+      : slide.imageUrl_app;
+    const appTitle = slide.imageTitle_app || 'Plasma Applications';
+    appImgHtml = `
+      <div class="section-title">${lang === 'en' ? 'Plasma Applications' : '플라즈마 응용 사례'}</div>
+      <div class="model-showcase" style="cursor:pointer;padding:0.75rem;"
+           onclick="openImgPopup('${appUrl}', '${appTitle}')">
+        <div class="model-img-wrapper">
+          <img src="${appUrl}" alt="${appTitle}"
+            class="zoomable-img"
+            style="max-height:none;width:100%;object-fit:contain;border-radius:8px;"
+            onerror="this.onerror=null;this.style.display='none';">
+          <div class="model-img-source">${slide.imageSource_app || ''}</div>
+          <span class="img-zoom-hint">🔍 ${lang==='en'?'Click to enlarge':'클릭하면 크게 볼 수 있습니다'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Mass-Energy image (imageUrl_mass) — lang-aware ──
+  let massImgHtml = '';
+  if (slide.imageUrl_mass) {
+    const massUrl = (lang === 'en' && slide.imageUrl_mass_en)
+      ? slide.imageUrl_mass_en
+      : slide.imageUrl_mass;
+    const massTitle = slide.imageTitle_mass || 'E = mc²';
+    massImgHtml = `
+      <div class="section-title">${lang === 'en'
+        ? 'Einstein\'s Mass-Energy Equivalence · Fission · Fusion'
+        : 'E=mc² · 핵분열 · 핵융합'}</div>
+      <div class="model-showcase" style="cursor:pointer;padding:0.75rem;"
+           onclick="openImgPopup('${massUrl}', '${massTitle}')">
+        <div class="model-img-wrapper">
+          <img src="${massUrl}" alt="${massTitle}"
+            class="zoomable-img"
+            style="max-height:none;width:100%;object-fit:contain;border-radius:8px;"
+            onerror="this.onerror=null;this.style.display='none';">
+          <div class="model-img-source">${slide.imageSource_mass || ''}</div>
+          <span class="img-zoom-hint">🔍 ${lang==='en'?'Click to enlarge':'클릭하면 크게 볼 수 있습니다'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Secondary Image (imageUrl2) ──
+  let mediaHtml2 = '';
+  if (slide.imageUrl2) {
+    mediaHtml2 = `
+      <div class="section-title">${slide.imageTitle2 || 'Reference Diagram'}</div>
+      <div class="model-showcase" style="cursor:pointer;padding:0.75rem;"
+           onclick="openImgPopup('${slide.imageUrl2}', '${slide.imageTitle2 || ''}')">
+        <div class="model-img-wrapper">
+          <img src="${slide.imageUrl2}" alt="${slide.imageTitle2 || ''}"
+            class="zoomable-img"
+            style="max-height:none;width:100%;object-fit:contain;border-radius:8px;"
+            onerror="this.onerror=null;this.style.display='none';">
+          <div class="model-img-source">${slide.imageSource2 || ''}</div>
+          <span class="img-zoom-hint">🔍 ${lang==='en'?'Click to enlarge':'클릭하면 크게 볼 수 있습니다'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Tertiary Image (imageUrl3) ──
+  let mediaHtml3 = '';
+  if (slide.imageUrl3) {
+    mediaHtml3 = `
+      <div class="section-title">${slide.imageTitle3 || 'Application Reference'}</div>
+      <div class="model-showcase" style="cursor:pointer;padding:0.75rem;"
+           onclick="openImgPopup('${slide.imageUrl3}', '${slide.imageTitle3 || ''}')">
+        <div class="model-img-wrapper">
+          <img src="${slide.imageUrl3}" alt="${slide.imageTitle3 || ''}"
+            class="zoomable-img"
+            style="max-height:none;width:100%;object-fit:contain;border-radius:8px;"
+            onerror="this.onerror=null;this.style.display='none';">
+          <div class="model-img-source">${slide.imageSource3 || ''}</div>
+          <span class="img-zoom-hint">🔍 ${lang==='en'?'Click to enlarge':'클릭하면 크게 볼 수 있습니다'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Theories ──
+  let theoriesHtml = '';
+  if (slide.theories) {
+    theoriesHtml = `
+      <div class="section-title">${T.sectionTheory}</div>
+      <div class="theories-grid">
+        ${slide.theories.map(t => `
+          <div class="theory-card">
+            <div class="theory-year">${t.year}</div>
+            <div class="theory-name">${t.name}</div>
+            <div class="theory-desc">${t.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // ── Excitation / De-excitation Simulator — iframe embed ──
+  let excitationSim = '';
+  if (slide.showExcitationSim) {
+    excitationSim = `
+      <div class="section-title">Interactive Simulator — Excitation & De-excitation</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">INTERACTIVE</span>
+          <span class="sim-title">Hydrogen Atom — Electron Transition Explorer</span>
+        </div>
+        <iframe
+          src="sims/excitation_sim.html"
+          id="excitationSimIframe"
+          width="100%"
+          height="360"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy"
+          title="Excitation & De-excitation Simulator">
+        </iframe>
+      </div>
+    `;
+  }
+
+  // ── PhET Simulation ──
+  let phetHtml = '';
+  if (slide.showPHET) {
+    phetHtml = `
+      <div class="section-title">${T.sectionPHET}</div>
+      <a href="https://phet.colorado.edu/sims/html/models-of-the-hydrogen-atom/latest/models-of-the-hydrogen-atom_all.html"
+         target="_blank" rel="noopener noreferrer" class="phet-card">
+        <div class="phet-icon">⚛️</div>
+        <div class="phet-text">
+          <div class="phet-title">PhET: Models of the Hydrogen Atom</div>
+          <div class="phet-desc">${lang==='en' ? 'Interactive hydrogen atom model & light spectrum simulation — Bohr model, transitions, photon emission' : '수소 원자 모델 & 빛 스펙트럼 인터랙티브 시뮬레이션 — 보어 모델, 전이, 광자 방출 직접 확인'}</div>
+        </div>
+        <div class="phet-arrow">↗</div>
+      </a>
+    `;
+  }
+
+  // ── 4 States of Matter ──
+  let statesHtml = '';
+  if (slide.showStates) {
+    const isEn = lang === 'en';
+    statesHtml = `
+      <div class="section-title">${T.sectionStates}</div>
+      <div class="states-grid">
+        <div class="state-card" style="background:linear-gradient(135deg,#E8EAF6,#C5CAE9);border-color:#9FA8DA;">
+          <div class="state-emoji">🧊</div>
+          <div class="state-name" style="color:#1A237E;">${isEn ? 'Solid' : '고체 (Solid)'}</div>
+          <div class="state-desc">${isEn ? 'Regular crystal structure<br>Only atomic vibration<br>Strong intermolecular forces' : '규칙적 결정 구조<br>원자 진동만 허용<br>강한 분자간 힘'}</div>
+        </div>
+        <div class="state-card" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:#90CAF9;">
+          <div class="state-emoji">💧</div>
+          <div class="state-name" style="color:#0D47A1;">${isEn ? 'Liquid' : '액체 (Liquid)'}</div>
+          <div class="state-desc">${isEn ? 'Mobile molecules<br>Fluid, flows freely<br>Fixed volume' : '이동 가능한 분자<br>유동성 있음<br>일정 부피 유지'}</div>
+        </div>
+        <div class="state-card" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:#A5D6A7;">
+          <div class="state-emoji">💨</div>
+          <div class="state-name" style="color:#1B5E20;">${isEn ? 'Gas' : '기체 (Gas)'}</div>
+          <div class="state-desc">${isEn ? 'Freely moving molecules<br>No fixed shape or volume<br>Neutral particles' : '자유 운동 분자<br>부피·형태 없음<br>중성 입자 상태'}</div>
+        </div>
+        <div class="state-card" style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-color:#FFCC80;box-shadow:0 0 12px rgba(232,123,30,0.25);">
+          <div class="state-emoji">🔥</div>
+          <div class="state-name" style="color:#E65100;">${isEn ? 'Plasma' : '플라즈마 (Plasma)'}</div>
+          <div class="state-desc">${isEn ? '<b>4th State of Matter</b><br>Ions + free electrons<br>Electrical behavior, light emission<br>99% of the universe' : '<b>제4의 상태</b><br>이온 + 자유전자<br>전기적 거동, 발광<br>우주의 99%'}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Plasma Classification Matrix ──
+  let matrixHtml = '';
+  if (slide.showMatrix) {
+    const rows = T.matrixRows.map(r => `<tr>${r.map((c,i) => `<td>${c}</td>`).join('')}</tr>`).join('');
+    matrixHtml = `
+      <div class="section-title">${lang === "en" ? "Plasma Classification Table" : "플라즈마 분류 비교표 — Plasma Classification"}</div>
+      <table class="summary-matrix">
+        <thead><tr>${T.matrixH.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  }
+
+  // ── Applications ──
+  let appsHtml = '';
+  if (slide.showApplications) {
+    appsHtml = `
+      <div class="section-title">${T.sectionApps}</div>
+      <div class="app-grid">
+        <div class="app-card">
+          <div class="app-icon">🌩️</div>
+          <div class="app-name">${lang==='en'?'Lightning':'번개'}</div>
+          <div class="app-detail">30,000 K<br>${lang==='en'?'Atmospheric discharge plasma':'대기 방전 플라즈마'}</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon">🌌</div>
+          <div class="app-name">${lang==='en'?'Aurora':'오로라'}</div>
+          <div class="app-detail">${lang==='en'?'Solar wind excitation<br>Upper atmosphere glow':'태양풍 여기<br>고층 대기 발광'}</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon">💡</div>
+          <div class="app-name">${lang==='en'?'Fluorescent Lamp':'형광등'}</div>
+          <div class="app-detail">${lang==='en'?'Low-pressure Hg plasma<br>UV → visible conversion':'저압 Hg 플라즈마<br>UV → 가시광 변환'}</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon">🔴</div>
+          <div class="app-name">${lang==='en'?'Neon Sign':'네온사인'}</div>
+          <div class="app-detail">${lang==='en'?'Ne excitation emission<br>De-excitation photon':'Ne 여기 방출<br>탈여기 발광 원리'}</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon">⚙️</div>
+          <div class="app-name">${lang==='en'?'Plasma Etching':'플라즈마 에칭'}</div>
+          <div class="app-detail">CCP / ICP<br>&lt; 10nm ${lang==='en'?'patterning':'패터닝'}</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon">🏭</div>
+          <div class="app-name">PECVD</div>
+          <div class="app-detail">${lang==='en'?'Low-temp thin film deposition<br>SiO₂, Si₃N₄':'저온 박막 증착<br>SiO₂, Si₃N₄'}</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon">🩺</div>
+          <div class="app-name">${lang==='en'?'Medical Plasma':'의료 플라즈마'}</div>
+          <div class="app-detail">${lang==='en'?'CAP sterilization<br>Wound healing research':'CAP 멸균<br>상처 치료 연구'}</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon">🌊</div>
+          <div class="app-name">${lang==='en'?'Water Treatment':'수처리'}</div>
+          <div class="app-detail">${lang==='en'?'Ozone generation<br>Water purification':'오존 발생<br>수질 정화'}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Bohr Model Simulator — iframe embed ──
+  let valenceSim = '';
+  if (slide.showBohrSimulator) {
+    valenceSim = `
+      <div class="section-title">Interactive Bohr Model Simulator — Valence Electrons in Semiconductor Elements</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">INTERACTIVE</span>
+          <span class="sim-title">Bohr Atomic Model — Electron Configuration Explorer</span>
+        </div>
+        <iframe
+          src="sims/bohr_sim.html"
+          id="bohrSimIframe"
+          width="100%"
+          height="380"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy"
+          title="Bohr Model Simulator">
+        </iframe>
+      </div>
+    `;
+  }
+
+  // ── Plasma Parameter image (imageUrl_param) — lang-aware ──
+  let paramImgHtml = '';
+  if (slide.imageUrl_param) {
+    const paramUrl = (lang === 'en' && slide.imageUrl_param_en)
+      ? slide.imageUrl_param_en
+      : slide.imageUrl_param;
+    const paramTitle = lang === 'en'
+      ? (slide.imageTitle_param || 'Plasma Parameters')
+      : (slide.imageTitle_param || '플라즈마 파라메터');
+    paramImgHtml = `
+      <div class="section-title">${lang === 'en' ? 'Plasma Parameters' : '플라즈마 파라메터'}</div>
+      <div class="model-showcase" style="cursor:pointer;padding:0.75rem;"
+           onclick="openImgPopup('${paramUrl}', '${paramTitle}')">
+        <div class="model-img-wrapper">
+          <img src="${paramUrl}" alt="${paramTitle}"
+            class="zoomable-img"
+            style="max-height:none;width:100%;object-fit:contain;border-radius:8px;"
+            onerror="this.onerror=null;this.style.display='none';">
+          <div class="model-img-source">${slide.imageSource_param || ''}</div>
+          <span class="img-zoom-hint">🔍 ${lang==='en'?'Click to enlarge':'클릭하면 크게 볼 수 있습니다'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Debye Length Simulator — iframe embed ──
+  let debyeSimHtml = '';
+  if (slide.showDebyeSim) {
+    debyeSimHtml = `
+      <div class="section-title">${lang==='en'
+        ? 'Interactive Simulator — Debye Shielding & Debye Length'
+        : '인터랙티브 시뮬레이터 — 데바이 차폐 & 데바이 길이'}</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">INTERACTIVE</span>
+          <span class="sim-title">${lang==='en'
+            ? 'Debye Length λ_D — Shielding · Potential · Parametric'
+            : 'Debye Length λ_D — 차폐 · 전위 감쇠 · 파라메트릭'}</span>
+        </div>
+        <iframe
+          src="sims/debye_sim.html"
+          id="debeyeSimIframe"
+          width="100%"
+          height="420"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy"
+          title="Debye Length Simulator">
+        </iframe>
+      </div>
+    `;
+  }
+
+  // ── Dissociation & Radical Simulator — iframe embed ──
+  let dissocSimHtml = '';
+  if (slide.showDissocSim) {
+    dissocSimHtml = `
+      <div class="section-title">${lang==='en'
+        ? 'Interactive Simulator — Dissociation & Radical Generation'
+        : '인터랙티브 시뮬레이터 — 해리(Dissociation) & 라디칼 생성'}</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">INTERACTIVE</span>
+          <span class="sim-title">${lang==='en'
+            ? 'Plasma Dissociation — CF₄ / SF₆ / O₂ / H₂ / N₂ / Ar'
+            : '플라즈마 해리 — CF₄ / SF₆ / O₂ / H₂ / N₂ / Ar'}</span>
+        </div>
+        <iframe src="sims/dissociation_sim.html" width="100%" height="580"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy" title="Dissociation & Radical Simulator"></iframe>
+      </div>
+    `;
+  }
+
+  // ── Electron Plasma Frequency Simulator — iframe embed ──
+  let plasmaFreqSimHtml = '';
+  if (slide.showPlasmaFreqSim) {
+    plasmaFreqSimHtml = `
+      <div class="section-title">${lang==='en'
+        ? '② Interactive Simulator — Electron Plasma Frequency ω_pe'
+        : '② 인터랙티브 시뮬레이터 — 전자 플라즈마 주파수 ω_pe'}</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">INTERACTIVE</span>
+          <span class="sim-title">${lang==='en'
+            ? 'ω_pe = √(nₑe²/ε₀mₑ) — Oscillation · Dispersion · Parametric'
+            : 'ω_pe = √(nₑe²/ε₀mₑ) — 진동 · 분산 · 파라메트릭'}</span>
+        </div>
+        <iframe src="sims/plasma_freq_sim.html" width="100%" height="400"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy" title="Electron Plasma Frequency Simulator"></iframe>
+      </div>
+    `;
+  }
+
+  // ── Plasma Condition Simulator — iframe embed ──
+  let plasmaCondSimHtml = '';
+  if (slide.showPlasmaCondSim) {
+    plasmaCondSimHtml = `
+      <div class="section-title">${lang==='en'
+        ? '③ Interactive Simulator — Plasma Condition  nₑ λ_D³ ≫ 1'
+        : '③ 인터랙티브 시뮬레이터 — 플라즈마 조건 nₑ λ_D³ ≫ 1'}</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">INTERACTIVE</span>
+          <span class="sim-title">${lang==='en'
+            ? 'Debye Sphere — Electron Count N_D · Condition Map · Parametric'
+            : 'Debye 구 — 전자 수 N_D · 조건 지도 · 파라메트릭'}</span>
+        </div>
+        <iframe src="sims/plasma_condition_sim.html" width="100%" height="400"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy" title="Plasma Condition Simulator"></iframe>
+      </div>
+    `;
+  }
+
+  // ── Radical Applications Deep Learn (ch2-3b) ──
+  let radicalDeepLearnHtml = '';
+  if (slide.showRadicalDeepLearn) {
+    const RDL = {
+      ko: {
+        headerTitle: '심화학습 — 라디칼의 세계: 반도체를 넘어서',
+        badge: '심화학습',
+        intro: '플라즈마로 생성된 라디칼(ROS/RNS: 활성산소·질소종)은 반도체 공정에 국한되지 않습니다. 낮은 온도에서 화학적으로 선택적으로 반응하는 특성 덕분에 의료, 뷰티, 식품, 환경 등 거의 모든 산업에서 혁신 기술의 핵심으로 부상하고 있습니다.',
+        sections: [
+          {
+            icon: '🏥',
+            color: '#1565C0',
+            title: '의료 · 바이오 (Medical & Biomedical)',
+            rows: [
+              { area: '상처 치료 (Wound Healing)', radical: 'OH·, O·, NO·', mechanism: 'ROS가 세균 세포막을 파괴 → 살균 + 세포 이동 촉진 → 상처 재상피화 가속', app: 'CAP(Cold Atmospheric Plasma) 기기를 직접 상처에 조사. 만성 당뇨 궤양, 수술 후 감염 치료.' },
+              { area: '암 치료 (Cancer Therapy)', radical: 'OH·, O₂⁻·, H₂O₂', mechanism: '고농도 ROS → 암세포 미토콘드리아 손상 → 선택적 세포 사멸 (정상 세포 내성 보유)', app: '피부 흑색종, 두경부암 임상 연구 진행 중. PAM(Plasma Activated Medium)으로 간접 처리.' },
+              { area: '의료기기 멸균 (Sterilization)', radical: 'O·, OH·, UV', mechanism: '라디칼이 세균·바이러스 DNA 손상 + 단백질 산화 → 99.99% 사멸', app: '열에 약한 내시경, 이식 기기 저온 멸균. 기존 EO가스 대비 잔류 독성 없음.' },
+            ]
+          },
+          {
+            icon: '💆',
+            color: '#7B1FA2',
+            title: '뷰티 · 피부과 (Cosmetics & Dermatology)',
+            rows: [
+              { area: '여드름 치료 (Acne)', radical: 'OH·, O·, RONS', mechanism: 'P. acnes 세균 선택적 사멸 + 항염 효과. 99.9% 살균율. 항생제 내성 없음.', app: 'Plasma Pen 기기. 민감성 피부·10대 여드름 비침습 치료.' },
+              { area: '노화 방지 (Anti-aging)', radical: 'NO·, H₂O₂ (저농도)', mechanism: '저농도 ROS → 섬유아세포 자극 → 콜라겐·엘라스틴 합성 증가 → 피부 탄력 개선', app: 'Perricone MD Cold Plasma Plus+ 제품군. 피부과 시술 보조.' },
+              { area: '상처·흉터 개선', radical: 'OH·, O·', mechanism: '표피 세포 증식 촉진 + 신혈관 형성 → 재상피화 속도 향상', app: '수술 후 흉터 회복, 레이저 시술 후 피부 재생 보조.' },
+            ]
+          },
+          {
+            icon: '🥗',
+            color: '#1B5E20',
+            title: '식품 · 농업 (Food & Agriculture)',
+            rows: [
+              { area: '비열 살균 (Non-thermal Sterilization)', radical: 'O·, OH·, O₃', mechanism: '식품 표면 세균·곰팡이 사멸. 열처리 없이 영양소·색·향 보존.', app: '신선 채소·과일 세척, 포장재 멸균. 기존 차아염소산 대체.' },
+              { area: '농약 분해 (Pesticide Degradation)', radical: 'OH·, O·, UV', mechanism: 'OH 라디칼이 유기인계·네오니코티노이드 농약의 C-H·C-O 결합 산화 → 무독성 분해', app: '수확 후 잔류 농약 제거. EU 식품 안전 기준 충족 연구 진행 중.' },
+              { area: '종자 발아 촉진 (Seed Germination)', radical: 'O·, NO·', mechanism: '종자 표면 소독 + 지베렐린 유사 신호 활성화 → 발아율·발아 속도 향상', app: '트리티케일, 밀, 콩 종자 처리. 발아율 20~40% 향상 보고.' },
+            ]
+          },
+          {
+            icon: '🌊',
+            color: '#00695C',
+            title: '환경 · 에너지 (Environment & Energy)',
+            rows: [
+              { area: '수처리 (Water Treatment)', radical: 'OH·, O·, O₃', mechanism: 'OH 라디칼 — 산화력 OH·(2.8 eV) > O₃(2.1 eV) > Cl₂(1.4 eV). 신흥 오염물질(항생제, 미세플라스틱 유도체) 분해.', app: 'PAW(Plasma Activated Water) 기술. 수처리 비용 절감 연구.' },
+              { area: '공기 정화 (Air Purification)', radical: 'O·, OH·, N₂*', mechanism: 'VOCs(휘발성 유기화합물), 바이러스, 악취 분자 산화 분해. SARS-CoV-2 99% 이상 비활성화 보고.', app: '공기청정기, 에어컨, 수술실 공기 멸균. 포름알데히드 분해.' },
+            ]
+          },
+          {
+            icon: '🔗',
+            color: '#E87B1E',
+            title: '반도체 ↔ 비반도체 공통 원리',
+            body: `모든 응용 분야에서 라디칼이 작동하는 핵심 원리는 동일합니다:\n\n① <b>선택적 반응성</b>: 라디칼은 특정 화학 결합(C-H, C-O, Si-Si, DNA 염기 등)과만 반응 → 원하는 물질만 표적 가능\n② <b>비열적(Non-thermal)</b>: 이온·기체는 실온 유지 → 열에 약한 기판(웨이퍼, 피부, 식품) 손상 없음\n③ <b>단기 수명</b>: 라디칼 수명 마이크로초~밀리초 → 반응 후 즉시 소멸 → 잔류 독성 없음\n④ <b>제어 가능</b>: RF 파워, 가스 종류, 압력으로 라디칼 종류와 농도 정밀 제어`
+          }
+        ]
+      },
+      en: {
+        headerTitle: 'Deep Study — Radicals Beyond Semiconductors: Industrial Applications',
+        badge: 'Deep Study',
+        intro: 'Plasma-generated radicals (ROS/RNS: Reactive Oxygen & Nitrogen Species) are not limited to semiconductor processing. Thanks to their ability to react chemically and selectively at low temperatures, they are emerging as a core technology across medicine, beauty, food, and environmental industries.',
+        sections: [
+          {
+            icon: '🏥',
+            color: '#1565C0',
+            title: 'Medical & Biomedical',
+            rows: [
+              { area: 'Wound Healing', radical: 'OH·, O·, NO·', mechanism: 'ROS disrupts bacterial cell membranes → sterilization + promotes cell migration → accelerated re-epithelialization', app: 'CAP (Cold Atmospheric Plasma) devices applied directly to wounds. Chronic diabetic ulcers, post-surgical infections.' },
+              { area: 'Cancer Therapy', radical: 'OH·, O₂⁻·, H₂O₂', mechanism: 'High ROS → mitochondrial damage in cancer cells → selective apoptosis (normal cells retain resistance)', app: 'Clinical trials for skin melanoma, head and neck cancers. Indirect treatment via PAM (Plasma Activated Medium).' },
+              { area: 'Medical Device Sterilization', radical: 'O·, OH·, UV', mechanism: 'Radicals damage bacterial/viral DNA and oxidize proteins → 99.99% inactivation', app: 'Low-temperature sterilization of heat-sensitive endoscopes and implants. No toxic residue vs. EO gas.' },
+            ]
+          },
+          {
+            icon: '💆',
+            color: '#7B1FA2',
+            title: 'Cosmetics & Dermatology',
+            rows: [
+              { area: 'Acne Treatment', radical: 'OH·, O·, RONS', mechanism: 'Selective inactivation of P. acnes + anti-inflammatory effects. 99.9% sterilization. No antibiotic resistance.', app: 'Plasma Pen devices. Non-invasive treatment for sensitive skin and teenage acne.' },
+              { area: 'Anti-aging', radical: 'NO·, H₂O₂ (low dose)', mechanism: 'Low-dose ROS stimulates fibroblasts → increased collagen & elastin synthesis → improved skin elasticity', app: 'Perricone MD Cold Plasma Plus+ product line. Adjunct to dermatological procedures.' },
+              { area: 'Scar & Wound Recovery', radical: 'OH·, O·', mechanism: 'Promotes epidermal cell proliferation + angiogenesis → faster re-epithelialization rate', app: 'Post-surgical scar recovery, skin regeneration after laser treatments.' },
+            ]
+          },
+          {
+            icon: '🥗',
+            color: '#1B5E20',
+            title: 'Food & Agriculture',
+            rows: [
+              { area: 'Non-thermal Sterilization', radical: 'O·, OH·, O₃', mechanism: 'Inactivates bacteria and fungi on food surfaces without heat — preserves nutrients, color, and aroma.', app: 'Fresh produce washing, packaging sterilization. Replacement for chlorine-based methods.' },
+              { area: 'Pesticide Degradation', radical: 'OH·, O·, UV', mechanism: 'OH radicals oxidize C-H and C-O bonds of organophosphate and neonicotinoid pesticides → non-toxic breakdown.', app: 'Post-harvest residue removal. Research ongoing toward EU food safety compliance.' },
+              { area: 'Seed Germination Enhancement', radical: 'O·, NO·', mechanism: 'Surface sterilization + gibberellin-like signal activation → improved germination rate and speed.', app: 'Triticale, wheat, soybean seed treatment. Germination rate improvements of 20–40% reported.' },
+            ]
+          },
+          {
+            icon: '🌊',
+            color: '#00695C',
+            title: 'Environment & Energy',
+            rows: [
+              { area: 'Water Treatment', radical: 'OH·, O·, O₃', mechanism: 'OH radical oxidation power: OH·(2.8 eV) > O₃(2.1 eV) > Cl₂(1.4 eV). Degrades emerging contaminants (antibiotics, microplastic derivatives).', app: 'PAW (Plasma Activated Water) technology. Cost-reduction research for water treatment.' },
+              { area: 'Air Purification', radical: 'O·, OH·, N₂*', mechanism: 'Oxidative decomposition of VOCs, viruses, and odor molecules. >99% SARS-CoV-2 inactivation reported.', app: 'Air purifiers, HVAC systems, surgical suite air sterilization. Formaldehyde decomposition.' },
+            ]
+          },
+          {
+            icon: '🔗',
+            color: '#E87B1E',
+            title: 'Common Principles: Semiconductor ↔ Other Industries',
+            body: `The same core principles apply across all radical applications:\n\n① <b>Selective reactivity</b>: Radicals react only with specific bonds (C-H, C-O, Si-Si, DNA bases) → precise targeting\n② <b>Non-thermal</b>: Ions and gas remain near room temperature → no damage to heat-sensitive substrates (wafers, skin, food)\n③ <b>Short lifetime</b>: Radical lifespan of microseconds to milliseconds → immediate disappearance after reaction → no residual toxicity\n④ <b>Controllable</b>: Radical type and concentration precisely tunable via RF power, gas species, and pressure`
+          }
+        ]
+      }
+    };
+
+    const rd = RDL[lang] || RDL.ko;
+    const uid2 = 'rdlAccordion_' + slide.id;
+
+    // Build section HTML
+    const colMap = { '#1565C0':'#E3F2FD', '#7B1FA2':'#F3E5F5', '#1B5E20':'#E8F5E9', '#00695C':'#E0F2F1', '#E87B1E':'#FEF0E3' };
+
+    const sectHtml = rd.sections.map(sec => {
+      let inner = '';
+      if (sec.rows) {
+        const rows = sec.rows.map(r => `
+          <tr>
+            <td style="font-weight:600;color:${sec.color};min-width:90px">${r.area}</td>
+            <td style="color:#C62828;font-family:'JetBrains Mono',monospace;font-size:0.65rem">${r.radical}</td>
+            <td>${r.mechanism}</td>
+            <td style="color:#1B5E20;font-style:italic;font-size:0.72rem">${r.app}</td>
+          </tr>`).join('');
+        inner = `<div style="overflow-x:auto;">
+          <table class="dl-table" style="min-width:540px">
+            <thead><tr>
+              <th style="background:${colMap[sec.color]||'#FEF0E3'};color:${sec.color}">${lang==='en'?'Application Area':'응용 분야'}</th>
+              <th style="background:${colMap[sec.color]||'#FEF0E3'};color:${sec.color}">${lang==='en'?'Key Radicals':'핵심 라디칼'}</th>
+              <th style="background:${colMap[sec.color]||'#FEF0E3'};color:${sec.color}">${lang==='en'?'Mechanism':'작용 메커니즘'}</th>
+              <th style="background:${colMap[sec.color]||'#FEF0E3'};color:${sec.color}">${lang==='en'?'Application':'적용 사례'}</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+      } else if (sec.body) {
+        inner = `<div class="dl-body">${sec.body.replace(/\n/g,'<br>')}</div>`;
+      }
+      return `
+        <div class="dl-section">
+          <div class="dl-section-title" style="color:${sec.color}">${sec.icon} ${sec.title}</div>
+          ${inner}
+        </div>`;
+    }).join('');
+
+    radicalDeepLearnHtml = `
+      <div class="deep-learn-wrap" id="${uid2}">
+        <div class="deep-learn-header" onclick="toggleDeepLearn('${uid2}')" id="${uid2}_hdr">
+          <div class="deep-learn-icon" style="background:linear-gradient(135deg,#C62828,#880E4F)">⚗️</div>
+          <div class="deep-learn-title">${rd.headerTitle}</div>
+          <span class="deep-learn-badge">${rd.badge}</span>
+          <span class="deep-learn-chevron">▼</span>
+        </div>
+        <div class="deep-learn-body" id="${uid2}_body">
+          <div class="deep-learn-inner">
+            <div class="dl-section">
+              <div class="dl-body" style="color:var(--text2)">${rd.intro}</div>
+            </div>
+            ${sectHtml}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Deep Learning Accordion (ch3-def plasma conditions) ──
+  let deepLearnHtml = '';
+  if (slide.showDeepLearn) {
+    const DL = {
+      ko: {
+        headerTitle: '심화학습 — 플라즈마 성립 3가지 조건 완전 정복',
+        badge: '심화학습',
+        sections: [
+          {
+            icon: '🌌',
+            title: '플라즈마란 무엇인가',
+            body: `<p>플라즈마는 흔히 <b>제4의 물질 상태(Fourth State of Matter)</b>라고 불립니다.</p>
+<p>고체, 액체, 기체와 달리 플라즈마는 다음 입자들이 함께 존재하는 상태입니다.</p>
+<p>🔴 <b>양이온 (Positive Ion)</b> &nbsp; 🔵 <b>자유전자 (Free Electron)</b> &nbsp; ⚪ <b>중성 입자 (Neutral Particle)</b></p>
+<div class="dl-highlight">자유전자가 존재하기 때문에 플라즈마는 전기를 전도하고, 전자기장에 반응하며, <b>집단적인 거동(Collective Behavior)</b>을 나타냅니다.</div>`
+          },
+          {
+            icon: '📏',
+            title: '① 데바이 길이 (Debye Length)',
+            body: `<div class="dl-eq">λ_D = √( ε₀ k_B T_e / n_e e² )</div>
+<p><b>물리적 의미:</b> 플라즈마가 전기장을 차폐(Screening)할 수 있는 거리입니다.</p>
+<p>플라즈마 내부에 양전하 하나를 넣으면, 주변의 전자들이 몰려와 양전하를 둘러싸며 전기장을 약하게 만듭니다. 일정 거리(= λ_D) 이상에서는 전기장의 영향이 거의 없어집니다.</p>
+<table class="dl-table">
+  <thead><tr><th>파라미터 변화</th><th>결과</th><th>이유</th></tr></thead>
+  <tbody>
+    <tr><td>T_e ↑ (전자온도 증가)</td><td>λ_D ↑</td><td>전자가 빠르게 움직여 차폐가 어려워짐</td></tr>
+    <tr><td>n_e ↑ (전자밀도 증가)</td><td>λ_D ↓</td><td>차폐 참여 전자가 많아져 쉽게 상쇄</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">λ_D는 플라즈마의 공간적 특성 거리입니다. λ_D ≪ 챔버 크기 일 때만 진정한 플라즈마로 볼 수 있습니다.</div>`
+          },
+          {
+            icon: '🔄',
+            title: '② 전자 플라즈마 주파수 (Electron Plasma Frequency)',
+            body: `<div class="dl-eq">ω_pe = √( n_e e² / ε₀ m_e )</div>
+<p><b>물리적 의미:</b> 전자들이 집단적으로 진동하는 고유 주파수입니다.</p>
+<p>전자 구름을 한쪽으로 살짝 밀면, 전기력이 발생해 원래 위치로 되돌아가려 합니다. 그런데 전자는 질량이 있어 원래 위치를 지나쳐 버립니다. 이 왕복 운동이 바로 플라즈마 주파수로 진동합니다.</p>
+<div class="dl-highlight">RF 발생기 주파수(13.56 MHz)는 ω_pe보다 훨씬 낮습니다. 이 덕분에 전자들이 RF 전기장을 충분히 따라갈 수 있어 효과적인 이온화가 일어납니다.</div>
+<table class="dl-table">
+  <thead><tr><th>장비</th><th>플라즈마 주파수 범위</th></tr></thead>
+  <tbody>
+    <tr><td>ICP Etcher</td><td>수 GHz</td></tr>
+    <tr><td>CCP Plasma</td><td>MHz ~ GHz</td></tr>
+    <tr><td>고밀도 플라즈마</td><td>수 GHz</td></tr>
+  </tbody>
+</table>`
+          },
+          {
+            icon: '👥',
+            title: '③ 플라즈마 성립 조건 (Plasma Criterion)',
+            body: `<div class="dl-eq">n_e · λ_D³ ≫ 1  (= N_D ≫ 1)</div>
+<p><b>물리적 의미:</b> 데바이 구(Debye Sphere) 안에 충분히 많은 전자가 존재해야 한다는 조건입니다.</p>
+<p>반경 λ_D의 구 부피 V_D = (4/3)π λ_D³ 안에 있는 전자 수 N_D = n_e × V_D 가 1보다 훨씬 커야 플라즈마로 볼 수 있습니다.</p>
+<table class="dl-table">
+  <thead><tr><th>상황</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td>N_D ≈ 1 (전자 거의 없음)</td><td>개별 입자 효과만 존재, 집단 거동 없음 → 플라즈마 ✗</td></tr>
+    <tr><td>N_D ≫ 1 (전자 매우 많음)</td><td>집단적 현상(Collective Behavior) 발현 → 플라즈마 ✓</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">이 세 조건이 동시에 만족될 때만 기체는 플라즈마(Plasma) 상태로 거동합니다.</div>`
+          },
+          {
+            icon: '🏭',
+            title: '반도체 ICP Etcher 실제 수치',
+            body: `<table class="dl-table">
+  <thead><tr><th>항목</th><th>값</th></tr></thead>
+  <tbody>
+    <tr><td>압력</td><td>10 mTorr</td></tr>
+    <tr><td>전자 밀도</td><td>10¹¹ ~ 10¹² cm⁻³</td></tr>
+    <tr><td>전자 온도</td><td>2 ~ 5 eV</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>물성</th><th>대표값</th></tr></thead>
+  <tbody>
+    <tr><td>Debye Length</td><td>0.1 ~ 0.5 mm</td></tr>
+    <tr><td>Plasma Frequency</td><td>수 GHz</td></tr>
+    <tr><td>Debye Sphere 내 전자 수</td><td>10⁴ ~ 10⁷</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">이 값들은 플라즈마 조건을 매우 잘 만족합니다. ✅</div>
+<p style="margin-top:0.6em">
+  <span class="dl-tag dl-tag-green">λ_D ≪ 챔버 크기</span>
+  <span class="dl-tag dl-tag-blue">ω_pe ≫ ω_RF</span>
+  <span class="dl-tag dl-tag-org">N_D ≫ 1</span>
+</p>`
+          },
+        ]
+      },
+      en: {
+        headerTitle: 'Deep Study — 3 Fundamental Conditions for Plasma Formation',
+        badge: 'Deep Study',
+        sections: [
+          {
+            icon: '🌌',
+            title: 'What is Plasma?',
+            body: `<p>Plasma is often called the <b>4th State of Matter</b>.</p>
+<p>Unlike solids, liquids, and gases, plasma contains: 🔴 <b>Positive Ions</b> &nbsp; 🔵 <b>Free Electrons</b> &nbsp; ⚪ <b>Neutral Particles</b></p>
+<div class="dl-highlight">Because free electrons and ions coexist, plasma can <b>conduct electricity</b>, respond to electromagnetic fields, and exhibit <b>collective behavior</b>.</div>`
+          },
+          {
+            icon: '📏',
+            title: '① Debye Length (λ_D)',
+            body: `<div class="dl-eq">λ_D = √( ε₀ k_B T_e / n_e e² )</div>
+<p><b>Physical meaning:</b> The distance over which a plasma can shield an electric field.</p>
+<p>A positive charge inserted into plasma attracts surrounding electrons. These electrons cluster around it, weakening the electric field. Beyond the Debye Length, the field becomes nearly undetectable.</p>
+<table class="dl-table">
+  <thead><tr><th>Parameter</th><th>Effect on λ_D</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td>T_e ↑ (higher temperature)</td><td>λ_D ↑</td><td>Faster electrons weaken shielding</td></tr>
+    <tr><td>n_e ↑ (higher density)</td><td>λ_D ↓</td><td>More electrons → stronger shielding</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">λ_D is the characteristic spatial scale of plasma. True plasma requires λ_D ≪ chamber size.</div>`
+          },
+          {
+            icon: '🔄',
+            title: '② Electron Plasma Frequency (ω_pe)',
+            body: `<div class="dl-eq">ω_pe = √( n_e e² / ε₀ m_e )</div>
+<p><b>Physical meaning:</b> The natural frequency of collective electron oscillations.</p>
+<p>Shift an electron cloud slightly — the electrostatic restoring force pulls it back. Due to inertia, electrons overshoot the equilibrium position. This back-and-forth motion is the plasma oscillation at ω_pe.</p>
+<div class="dl-highlight">RF generator frequency (13.56 MHz) ≪ ω_pe. Electrons can easily follow the RF field, enabling effective ionization.</div>
+<table class="dl-table">
+  <thead><tr><th>Equipment</th><th>Typical Plasma Frequency</th></tr></thead>
+  <tbody>
+    <tr><td>ICP Etcher</td><td>Several GHz</td></tr>
+    <tr><td>CCP Plasma</td><td>MHz ~ GHz</td></tr>
+    <tr><td>High-density Plasma</td><td>Several GHz</td></tr>
+  </tbody>
+</table>`
+          },
+          {
+            icon: '👥',
+            title: '③ Plasma Criterion  n_e λ_D³ ≫ 1',
+            body: `<div class="dl-eq">N_D = n_e · (4/3)π λ_D³  ≫ 1</div>
+<p><b>Physical meaning:</b> A Debye sphere must contain many electrons to produce collective behavior.</p>
+<table class="dl-table">
+  <thead><tr><th>Situation</th><th>Result</th></tr></thead>
+  <tbody>
+    <tr><td>N_D ≈ 1 (few electrons)</td><td>Only individual particle effects → No collective behavior → Not plasma ✗</td></tr>
+    <tr><td>N_D ≫ 1 (many electrons)</td><td>Collective behavior emerges → Plasma ✓</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">All three conditions must be satisfied simultaneously for a gas to behave as plasma.</div>`
+          },
+          {
+            icon: '🏭',
+            title: 'Semiconductor ICP Etcher — Real Numbers',
+            body: `<table class="dl-table">
+  <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Pressure</td><td>10 mTorr</td></tr>
+    <tr><td>Electron Density</td><td>10¹¹ ~ 10¹² cm⁻³</td></tr>
+    <tr><td>Electron Temperature</td><td>2 ~ 5 eV</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>Property</th><th>Typical Value</th></tr></thead>
+  <tbody>
+    <tr><td>Debye Length</td><td>0.1 ~ 0.5 mm</td></tr>
+    <tr><td>Plasma Frequency</td><td>GHz range</td></tr>
+    <tr><td>Electrons per Debye Sphere</td><td>10⁴ ~ 10⁷</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">These values satisfy all plasma criteria. ✅</div>
+<p style="margin-top:0.6em">
+  <span class="dl-tag dl-tag-green">λ_D ≪ chamber size</span>
+  <span class="dl-tag dl-tag-blue">ω_pe ≫ ω_RF</span>
+  <span class="dl-tag dl-tag-org">N_D ≫ 1</span>
+</p>`
+          },
+        ]
+      }
+    };
+
+    const dlData = DL[lang] || DL.ko;
+    const sectionsHtml = dlData.sections.map((sec, idx) => `
+      <div class="dl-section">
+        <div class="dl-section-title">${sec.icon} ${sec.title}</div>
+        <div class="dl-body">${sec.body}</div>
+      </div>
+    `).join('');
+
+    const uid = 'dlAccordion_' + slide.id;
+    deepLearnHtml = `
+      <div class="deep-learn-wrap" id="${uid}">
+        <div class="deep-learn-header" onclick="toggleDeepLearn('${uid}')" id="${uid}_hdr">
+          <div class="deep-learn-icon">📚</div>
+          <div class="deep-learn-title">${dlData.headerTitle}</div>
+          <span class="deep-learn-badge">${dlData.badge}</span>
+          <span class="deep-learn-chevron">▼</span>
+        </div>
+        <div class="deep-learn-body" id="${uid}_body">
+          <div class="deep-learn-inner">${sectionsHtml}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Ionization & Recombination Simulator — iframe embed ──
+  let ionizSim = '';
+  if (slide.showIonizationSim) {
+    ionizSim = `
+      <div class="section-title">${lang==='en' ? 'Interactive Simulator — Ionization & Recombination' : '인터랙티브 시뮬레이터 — 이온화 & 재결합'}</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">INTERACTIVE</span>
+          <span class="sim-title">${lang==='en' ? 'Ionization & Radiative Recombination — RF Plasma' : '이온화 & 방사 재결합 — RF 플라즈마'}</span>
+        </div>
+        <iframe
+          src="sims/ionization_sim.html"
+          id="ionizationSimIframe"
+          width="100%"
+          height="400"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy"
+          title="Ionization & Recombination Simulator">
+        </iframe>
+      </div>
+    `;
+  }
+
+
+  // ── Hydrogen Spectrum Calculator — iframe embed ──
+  let spectrumCalcHtml = '';
+  if (slide.showSpectrumCalc) {
+    spectrumCalcHtml = `
+      <div class="section-title">Hydrogen Spectrum Calculator</div>
+      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
+        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
+          <span class="sim-badge">CALCULATOR</span>
+          <span class="sim-title">Bohr Model — Transition Energy & Wavelength</span>
+        </div>
+        <iframe
+          src="sims/hydrogen_spectrum_calc.html"
+          id="spectrumCalcIframe"
+          width="100%"
+          height="380"
+          style="border:none;display:block;border-radius:0 0 12px 12px;"
+          loading="lazy"
+          title="Hydrogen Spectrum Calculator">
+        </iframe>
+      </div>
+    `;
+  }
+
+  // ── Classroom ──
+  const classroomHtml = `
+    <details class="classroom-box">
+      <summary>${T.classroomLabel}</summary>
+      <div class="classroom-body">${(slide.classroom || '').replace(/\n/g, '<br>')}</div>
+    </details>
+  `;
+
+  // ── Connections ──
+  const SLIDES = getSLIDES();
+  let connectionsHtml = '';
+  if (slide.connections && slide.connections.length > 0) {
+    connectionsHtml = slide.connections.map(cid => {
+      const target = SLIDES.find(s => s.id === cid);
+      if (!target) return '';
+      return `<span class="conn-chip" onclick="selectSlide('${target.id}')">${T.navGo}: ${target.nameKr}</span>`;
+    }).join('');
+  }
+
+  panel.innerHTML = `
+    <div class="detail-content">
+      <div class="detail-hero">
+        <span class="detail-era-tag" style="${eraTagStyle[slide.era]}">${UI[lang].eraNames[slide.era]}</span>
+        <div class="detail-name">${slide.name}</div>
+        <div class="detail-name-kr">${slide.nameKr}</div>
+        <div class="detail-meta">
+          <span>${T.periodLabel}${slide.period}</span>
+          <span>${T.tagLabel}${slide.tags.join(' · ')}</span>
+        </div>
+      </div>
+
+      ${slide.quote ? `
+      <div class="quote-block">
+        <div class="quote-badge">❝</div>
+        <div class="quote-body">
+          <div class="quote-text">${slide.quote}</div>
+          <div class="quote-attr">${slide.quoteAttr}</div>
+        </div>
+      </div>` : ''}
+
+      <div class="detail-bio">
+        ${(slide.bio || '').split('\n\n').map(p => `<p>${p.trim()}</p>`).join('')}
+      </div>
+
+      ${valenceSim}
+      ${dissocSimHtml}
+      ${radicalDeepLearnHtml}
+      ${paramImgHtml}
+      ${debyeSimHtml}
+      ${plasmaFreqSimHtml}
+      ${plasmaCondSimHtml}
+      ${eqHtml}
+      ${eqImgHtml}
+      ${rfPopupBtn}
+      ${mediaHtml2}
+      ${excitationSim}
+      ${phetHtml}
+      ${theoriesHtml}
+      ${mediaHtml}
+      ${spectrumCalcHtml}
+      ${mediaHtml3}
+      ${ionizSim}
+      ${statesHtml}
+      ${matrixHtml}
+      ${appImgHtml}
+      ${appsHtml}
+      ${massImgHtml}
+      ${deepLearnHtml}
+      ${classroomHtml}
+
+      ${connectionsHtml ? `
+        <div class="section-title">${T.sectionNav}</div>
+        <div class="conn-list">${connectionsHtml}</div>
+      ` : ''}
+    </div>
+  `;
+
+  panel.scrollTop = 0;
+
+  // MathJax
+  if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+    MathJax.typesetPromise([panel]).catch(err => console.log('MathJax: ' + err.message));
+  }
+
+  // Run simulations after render
+
+}
+
+// ─────────────────────────────────────────────
+//  IMAGE POPUP (Lightbox)
+// ─────────────────────────────────────────────
+function openImgPopup(src, caption) {
+  const overlay = document.getElementById('imgPopupOverlay');
+  const img     = document.getElementById('imgPopupImg');
+  const cap     = document.getElementById('imgPopupCaption');
+  img.src = src;
+  img.alt = caption || '';
+  cap.textContent = caption || '';
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeImgPopup(e) {
+  if (e && e.target === document.getElementById('imgPopupInner')) return;
+  document.getElementById('imgPopupOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeImgPopup();
+});
+
+
+// ─────────────────────────────────────────────
+//  DEEP LEARN ACCORDION
+// ─────────────────────────────────────────────
+function toggleDeepLearn(uid) {
+  const hdr  = document.getElementById(uid + '_hdr');
+  const body = document.getElementById(uid + '_body');
+  if (!hdr || !body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  hdr.classList.toggle('open', !isOpen);
+}
+
+// ─────────────────────────────────────────────
+//  RF PLASMA WHY-POPUP  (language-aware)
+// ─────────────────────────────────────────────
+const RF_POPUP_CONTENT = {
+  ko: {
+    title:    '왜 RF 플라즈마가 반도체 공정에서 필수인가?',
+    subtitle: 'Why RF Plasma is Essential for Semiconductor Processing',
+    s1_title: '핵심 문제 — The Core Problem',
+    s1_body:  '열에너지로 Ar을 이온화하려면 <b>최소 수만 K</b>의 온도가 필요합니다. 변환 공식: <b>1 eV = 11,604 K</b>',
+    s1_table_head: ['Element','Ionization Energy','Equivalent Temp.','Si melting point'],
+    s1_hi:    '💡 열에너지로 이온화에 필요한 온도(&gt;150,000 K)는 Si 웨이퍼 녹는점(1,687 K)의 <b>100배 이상</b>입니다. 열 이온화 방식으로는 반도체 기판이 즉시 손상됩니다.',
+    s2_title: 'RF 플라즈마의 해결책 — Non-Equilibrium State',
+    s2_body:  'RF 전기장은 <b>전자만</b> 가속시킵니다. 전자는 이온 질량의 1/73,000에 불과하기 때문에 13.56 MHz RF에서 순식간에 수 eV의 운동에너지를 얻습니다. 반면 무거운 이온과 중성 원자는 RF 주파수를 따라가지 못하고 실온에 머뭅니다.',
+    s2_hi:    '⚡ 플라즈마 안에 <b>두 가지 온도가 공존</b>합니다.<br>전자만 뜨겁고 → 이온화 가능, 이온·기체는 차갑고 → 기판 안전.<br>이것이 <b>비평형 저온 플라즈마(Non-equilibrium LTP)</b>의 핵심입니다.',
+    s3_title: 'EEDF 테일 효과 — Why Low RF Power Still Works',
+    s3_body:  '전자 에너지 분포(EEDF)는 Maxwell-Boltzmann 분포를 따릅니다. 평균 에너지가 3~5 eV여도 <b>고에너지 테일(high-energy tail)</b>의 소수 전자가 이온화를 담당합니다. 마치 실온에서도 물 분자 일부가 증발하는 것과 같은 원리입니다.',
+    s4_title: '반도체 공정에서의 직접 응용',
+    s4_body:  '<b>CCP (Capacitively Coupled Plasma)</b>: 13.56 MHz RF → Ar, CF₄, O₂ 이온화 → 에칭<br><b>ICP (Inductively Coupled Plasma)</b>: 고밀도 플라즈마 → 고속 에칭, CVD<br><b>ASENDIA APG-1013HGH</b>: 13.56 MHz RF Generator → 챔버 내 플라즈마 생성 및 유지',
+  },
+  en: {
+    title:    'Why RF Plasma is Essential for Semiconductor Processing',
+    subtitle: 'Non-Equilibrium Low-Temperature Plasma (LTP) — The Key Concept',
+    s1_title: 'The Core Problem — Thermal Ionization Temperatures',
+    s1_body:  'To ionize Ar using thermal energy alone, temperatures of <b>tens of thousands of Kelvin</b> are required. Conversion: <b>1 eV = 11,604 K</b>',
+    s1_table_head: ['Element','Ionization Energy','Equivalent Temp.','Si melting point'],
+    s1_hi:    '💡 The temperature required for thermal ionization (&gt;150,000 K) is <b>over 100×</b> the melting point of a Si wafer (1,687 K). Thermal ionization would instantly destroy the semiconductor substrate.',
+    s2_title: 'The RF Plasma Solution — Non-Equilibrium State',
+    s2_body:  'The RF electric field accelerates <b>only electrons</b>. Because an electron weighs only 1/73,000 of an ion, it gains several eV of kinetic energy almost instantly at 13.56 MHz. Heavy ions and neutral atoms cannot follow the RF frequency and remain near room temperature.',
+    s2_hi:    '⚡ <b>Two temperatures coexist</b> inside the plasma:<br>Electrons are hot → ionization occurs. Ions/gas stay cold → substrate stays safe.<br>This is the essence of <b>Non-equilibrium Low-Temperature Plasma (LTP)</b>.',
+    s3_title: 'EEDF Tail Effect — Why Low RF Power Still Ionizes',
+    s3_body:  'The electron energy distribution (EEDF) follows a Maxwell-Boltzmann distribution. Even when the mean energy is only 3–5 eV, <b>high-energy tail electrons</b> are responsible for ionization. It is the same principle by which some water molecules evaporate even at room temperature.',
+    s4_title: 'Direct Application in Semiconductor Processing',
+    s4_body:  '<b>CCP (Capacitively Coupled Plasma)</b>: 13.56 MHz RF → ionizes Ar, CF₄, O₂ → etching<br><b>ICP (Inductively Coupled Plasma)</b>: high-density plasma → fast etching, CVD<br><b>ASENDIA APG-1013HGH</b>: 13.56 MHz RF Generator → generates and sustains plasma in the chamber',
+  }
+};
+
+function buildRfPopupHTML(t) {
+  const tableRows = [
+    ['H',  '13.60 eV', '~157,800 K'],
+    ['Ar', '15.76 eV', '~182,800 K'],
+    ['F',  '17.42 eV', '~202,100 K'],
+    ['He', '24.59 eV', '~285,200 K'],
+  ];
+  const thead = t.s1_table_head.map(h => `<th>${h}</th>`).join('');
+  const tbody = tableRows.map((r, i) =>
+    `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td>` +
+    (i === 0 ? `<td rowspan="4" style="color:#C62828;font-weight:700;vertical-align:middle;text-align:center">1,687 K<br><span style="font-size:0.65rem;color:#888">Si MELTS</span></td>` : '') +
+    `</tr>`
+  ).join('');
+
+  return `
+    <div class="rfpop-title">${t.title}</div>
+    <div class="rfpop-subtitle">${t.subtitle}</div>
+
+    <div class="rfpop-section">
+      <div class="rfpop-section-title">${t.s1_title}</div>
+      <div class="rfpop-body">${t.s1_body}</div>
+      <table class="rfpop-table">
+        <thead><tr>${thead}</tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>
+      <div class="rfpop-highlight">${t.s1_hi}</div>
+    </div>
+
+    <div class="rfpop-section">
+      <div class="rfpop-section-title">${t.s2_title}</div>
+      <div class="rfpop-body">${t.s2_body}</div>
+      <div class="rfpop-eq">T_electron  ≈  1 – 10 eV  (11,600 – 116,000 K)  →  ionization ✓
+T_ion/gas   ≈  0.025 eV  (≈ 300 K, room temp)    →  substrate SAFE ✓</div>
+      <div class="rfpop-highlight">${t.s2_hi}</div>
+    </div>
+
+    <div class="rfpop-section">
+      <div class="rfpop-section-title">${t.s3_title}</div>
+      <div class="rfpop-body">${t.s3_body}</div>
+      <div class="rfpop-eq">EEDF tail electrons  (E &gt; E_ionization)  →  e⁻ + A  →  A⁺ + 2e⁻
+Average e⁻ energy = 3–5 eV  &lt;&lt;  Ar IE = 15.76 eV  (but tail exists!)</div>
+    </div>
+
+    <div class="rfpop-section">
+      <div class="rfpop-section-title">${t.s4_title}</div>
+      <div class="rfpop-body">${t.s4_body}</div>
+    </div>
+  `;
+}
+
+function openRfPopup() {
+  const t = RF_POPUP_CONTENT[lang] || RF_POPUP_CONTENT.ko;
+  document.getElementById('rfPopupContent').innerHTML = buildRfPopupHTML(t);
+  document.getElementById('rfPopupOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeRfPopup(e) {
+  if (e && e.target === document.getElementById('rfPopupBox')) return;
+  document.getElementById('rfPopupOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeRfPopup();
+});
+
+// ─────────────────────────────────────────────
+//  INIT — page load
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  setLang('ko');
+  setTimeout(() => selectSlide('ch0'), 150);
+});
+
+</script>
+
+<!-- Image Lightbox Popup -->
+<div id="imgPopupOverlay" onclick="closeImgPopup(event)">
+  <div id="imgPopupInner" onclick="event.stopPropagation()">
+    <button id="imgPopupClose" onclick="closeImgPopup()" title="닫기 / Close">✕</button>
+    <img id="imgPopupImg" src="" alt="">
+    <div id="imgPopupCaption"></div>
+  </div>
+</div>
+
+
+<!-- RF Plasma Why-Popup -->
+<div id="rfPopupOverlay" onclick="closeRfPopup(event)">
+  <div id="rfPopupBox" onclick="event.stopPropagation()">
+    <button id="rfPopupClose" onclick="closeRfPopup()" title="Close">✕</button>
+    <div id="rfPopupContent"><!-- dynamically filled by openRfPopup() --></div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benedu Insight — Plasma School Portal</title>
+  
+  <!-- Favicon Integration -->
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+
+  <!-- Font Imports -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Montserrat:wght@300;400;500;700;800&family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ─────────────────────────────────────────────────────────────────────────
+       DESIGN TOKENS & SYSTEM VARIABLES (LIGHT MODE DEFAULT)
+       ───────────────────────────────────────────────────────────────────────── */
+    :root {
+      --font-main: 'Google Sans', 'Segoe UI', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-title: 'Google Sans', 'Segoe UI', system-ui, sans-serif; /* English Google Sans Default */
+      
+      /* Pure White & Premium Soft Gray Theme */
+      --color-bg-dark: #F3F4F6;       /* Clean cool light gray background */
+      --color-bg-card: rgba(255, 255, 255, 0.9); /* Solid premium card white */
+      --color-bg-sidebar: #FFFFFF;    /* Pure white sidebar */
+      --color-border: rgba(0, 0, 0, 0.08); /* Sophisticated subtle dark line */
+      
+      --color-class1: #10B981;       /* Emerald: Plasma & Semi Process */
+      --color-class1-glow: rgba(16, 185, 129, 0.15);
+      --color-class2: #8B5CF6;       /* Violet: Electromagnetics & RF */
+      --color-class2-glow: rgba(139, 92, 246, 0.15);
+      
+      --color-text-primary: #1F2937;  /* Deep charcoal for maximum readability */
+      --color-text-muted: #4B5563;    /* Medium charcoal for subtext */
+      --color-active-bg: rgba(0, 0, 0, 0.03); /* Soft subtle active grey */
+      
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --scale: 1;
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       BASE RESETS & SCROLLBARS
+       ───────────────────────────────────────────────────────────────────────── */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main) !important;
+    }
+
+    /* Keep monospaced typography for code snippets and tags */
+    code, pre, .module-num, .card-badge, .secure-badge, .btn-text-lang, .notebook-title, .notebook-status, .sidebar-label {
+      font-family: var(--font-mono) !important;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--color-bg-dark);
+      color: var(--color-text-primary);
+      overflow-x: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.12);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.24);
+    }
+
+    /* ─────────────────────────────────────────────────────────────────────────
+       PORTAL SPLASH / ENTRANCE VIEW
+       ───────────────────────────────────────────────────────────────────────── */
+    #portal-splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('./images/portal_bg.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #FFFFFF; /* Fallback */
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      overflow-y: auto;
+    }
+
+    #portal-splash.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.05);
+    }
+
+    /* Ambient Plasma Particles background (Disabled to let the beautiful background image shine) */
+    .plasma-glow-bg {
+      display: none;
+    }
+
+    .plasma-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.06;
+      animation: floatOrb 18s infinite ease-in-out alternate;
+    }
+
+    .plasma-orb.one {
+      width: 450px;
+      height: 450px;
+      background: var(--color-class1);
+      top: -10%;
+      left: 10%;
+    }
+
+    .plasma-orb.two {
+      width: 550px;
+      height: 550px;
+      background: var(--color-class2);
+      bottom: -10%;
+      right: 10%;
+      animation-delay: -5s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(60px, 40px) scale(1.2); }
+    }
+
+    /* Portal Branding */
+    .portal-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 0.8s ease;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .logo-img {
+      height: 60px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
+    }
+
+    .portal-subtitle {
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 4px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      margin-top: 0.75rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .portal-subtitle::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 25%;
+      width: 50%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,0,0,0.15), transparent);
+    }
+
+    /* ── STREAMING_CHUNK:Creating class card metrics... ── */
+    /* Cards Grid */
+    .portal-grid {
+      display: flex;
+      gap: 2.5rem;
+      max-width: 1100px;
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 2rem;
+      z-index: 10;
+    }
+
+    .class-card {
+      background: var(--color-bg-card);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 480px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Class 1 Specifics - Full Colored Borders (Request 1) */
+    .class-card.c1 {
+      border: 2px solid rgba(16, 185, 129, 0.25);
+    }
+    .class-card.c1:hover {
+      border-color: var(--color-class1);
+      box-shadow: 0 16px 40px var(--color-class1-glow);
+      transform: translateY(-5px);
+    }
+
+    /* Class 2 Specifics - Full Colored Borders (Request 1) */
+    .class-card.c2 {
+      border: 2px solid rgba(139, 92, 246, 0.25);
+    }
+    .class-card.c2:hover {
+      border-color: var(--color-class2);
+      box-shadow: 0 16px 40px var(--color-class2-glow);
+      transform: translateY(-5px);
+    }
+
+    .card-badge {
+      align-self: flex-start;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 30px;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .c1 .card-badge {
+      background: rgba(16, 185, 129, 0.1);
+      color: #047857;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .c2 .card-badge {
+      background: rgba(139, 92, 246, 0.1);
+      color: #6D28D9;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .card-title {
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+      color: var(--color-text-primary);
+      transition: var(--transition-smooth);
+    }
+
+    .c1:hover .card-title { color: #047857; }
+    .c2:hover .card-title { color: #6D28D9; }
+
+    .card-description {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      flex-grow: 1;
+    }
+
+    /* Syllabus Preview List */
+    .syllabus-preview {
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      padding-top: 1.25rem;
+    }
+
+    .syllabus-preview-header {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .syllabus-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .syllabus-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--color-text-primary);
+    }
+
+    .syllabus-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .c1 .syllabus-item svg { fill: var(--color-class1); }
+    .c2 .syllabus-item svg { fill: var(--color-class2); }
+
+    /* Floating Global Controls on Portal */
+    .portal-options {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+      display: flex;
+      gap: 12px;
+      z-index: 1010;
+    }
+
+    .btn-icon {
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-primary);
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .btn-icon:hover {
+      background: #F3F4F6;
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-text-lang {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .btn-text-lang:hover {
+      background: #F3F4F6;
+    }
+
+    /* ── STREAMING_CHUNK:Building the classroom main workspace... ── */
+    /* ─────────────────────────────────────────────────────────────────────────
+       CLASSROOM WORKSPACE VIEW
+       ───────────────────────────────────────────────────────────────────────── */
+    #classroom-view {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #classroom-view.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Left Sidebar Styling */
+    #sidebar {
+      width: 320px;
+      background: var(--color-bg-sidebar);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+    }
+
+    #sidebar.collapsed {
+      margin-left: -320px;
+    }
+
+    /* Sidebar Branding Header */
+    .sidebar-brand {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-brand-inner {
+      display: flex;
+      align-items: center;
+    }
+
+    .sidebar-logo-img {
+      height: 24px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    /* Class Information / Selector Header */
+    .active-class-info {
+      padding: 1.25rem 1.5rem;
+      background: rgba(0, 0, 0, 0.01);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .class-indicator {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-block;
+      margin-bottom: 6px;
+      color: var(--color-text-muted);
+    }
+
+    .class-title-text {
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--color-text-primary);
+    }
+
+    /* ── STREAMING_CHUNK:Structuring sidebar navigation... ── */
+    /* Lecture Module List Container */
+    .lecture-list-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 1rem 0;
+    }
+
+    .sidebar-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--color-text-muted);
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .lecture-items-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 0.75rem;
+    }
+
+    .lecture-item-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      transition: var(--transition-smooth);
+    }
+
+    .lecture-item-btn:hover {
+      background: rgba(0, 0, 0, 0.02);
+      color: var(--color-text-primary);
+    }
+
+    .lecture-item-btn.active {
+      color: var(--color-text-primary);
+      background: var(--color-active-bg);
+      border-color: var(--color-border);
+    }
+
+    .class1-active .lecture-item-btn.active {
+      border-left: 3.5px solid var(--color-class1);
+    }
+
+    .class2-active .lecture-item-btn.active {
+      border-left: 3.5px solid var(--color-class2);
+    }
+
+    .module-num {
+      font-size: 0.7rem;
+      background: rgba(0, 0, 0, 0.04);
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      color: var(--color-text-primary);
+    }
+
+    .lecture-item-btn.active .module-num {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .lecture-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      flex-grow: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Completion Tick */
+    .checkbox-container {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      flex-shrink: 0;
+    }
+
+    .checkbox-container.checked {
+      background-color: var(--color-class1);
+      border-color: var(--color-class1);
+    }
+
+    .class2-active .checkbox-container.checked {
+      background-color: var(--color-class2);
+      border-color: var(--color-class2);
+    }
+
+    .checkbox-container svg {
+      width: 10px;
+      height: 10px;
+      fill: none;
+      stroke: white;
+      stroke-width: 3px;
+      display: none;
+    }
+
+    .checkbox-container.checked svg {
+      display: block;
+    }
+
+    /* Scratch Notebook Drawer in Sidebar */
+    .notebook-container {
+      border-top: 1px solid var(--color-border);
+      padding: 1.25rem;
+      background: rgba(0, 0, 0, 0.01);
+    }
+
+    .notebook-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .notebook-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .notebook-status {
+      font-size: 0.65rem;
+      color: var(--color-class1);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .notebook-status.saved {
+      opacity: 1;
+    }
+
+    .notebook-textarea {
+      width: 100%;
+      height: 90px;
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      color: var(--color-text-primary);
+      font-size: 0.8rem;
+      padding: 8px;
+      resize: none;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .notebook-textarea:focus {
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Sidebar Footer Exit options */
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      flex-grow: 1;
+      background: #F3F4F6;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      font-weight: 500;
+      font-size: 0.8rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-secondary:hover {
+      background: #E5E7EB;
+      color: var(--color-text-primary);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* ── STREAMING_CHUNK:Designing secure frame container... ── */
+    /* ─────────────────────────────────────────────────────────────────────────
+       SECURE SECURED CANVAS VIEWER (OCCUPIES 90%+ VIEWPORT)
+       ───────────────────────────────────────────────────────────────────────── */
+    #lecture-canvas {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      background: #ECEFF1;
+      position: relative;
+    }
+
+    /* Secure Top Control Panel */
+    .canvas-control-bar {
+      height: 54px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.25rem;
+      z-index: 99;
+    }
+
+    .control-left, .control-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lecture-breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .breadcrumb-class {
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .breadcrumb-divider {
+      color: rgba(0, 0, 0, 0.15);
+    }
+
+    .breadcrumb-lecture {
+      color: var(--color-text-primary);
+      font-weight: 700;
+    }
+
+    .secure-badge {
+      font-size: 0.65rem;
+      font-weight: 500;
+      background: rgba(16, 185, 129, 0.08);
+      color: #047857;
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .secure-badge svg {
+      width: 10px;
+      height: 10px;
+      fill: #047857;
+    }
+
+    /* Massive Frame Viewport */
+    .frame-container {
+      flex-grow: 1;
+      position: relative;
+      background: #F3F4F6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #lecture-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #FFFFFF; /* High contrast default for white-background slides */
+      transition: opacity 0.3s ease;
+    }
+
+    /* Fallback and Loader inside Canvas */
+    .canvas-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .canvas-loader.active {
+      opacity: 1;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0,0,0,0.05);
+      border-top-color: var(--color-class1);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .class2-active .spinner {
+      border-top-color: var(--color-class2);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    /* Offline/Load Error Banner */
+    .error-banner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #FFFFFF;
+      border: 1px solid #FCA5A5;
+      border-radius: 12px;
+      padding: 2.5rem;
+      width: 90%;
+      max-width: 550px;
+      text-align: center;
+      z-index: 15;
+      display: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .error-banner svg {
+      width: 48px;
+      height: 48px;
+      fill: #EF4444;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 0.75rem;
+      color: #EF4444;
+    }
+
+    .error-desc {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .error-desc code {
+      background: #F3F4F6;
+      color: #EF4444;
+      padding: 2px 6px;
+      border-radius: 4px;
+      display: block;
+      margin-top: 8px;
+    }
+
+    /* UI Responsive Adaptation */
+    @media (max-width: 968px) {
+      .portal-grid {
+        flex-direction: column;
+        align-items: center;
+      }
+      .class-card {
+        width: 100%;
+        max-width: 500px;
+      }
+      #sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        transform: translateX(0);
+      }
+      #sidebar.collapsed {
+        transform: translateX(-320px);
+        margin-left: 0;
+      }
+    }
+
+    /* ── STREAMING_CHUNK:Styling the portal footer... ── */
+    .portal-main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      width: 100%;
+      z-index: 10;
+    }
+
+    .portal-footer {
+      width: 100%;
+      max-width: 1100px;
+      margin-top: auto;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      text-align: center;
+      z-index: 10;
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+    }
+
+    .portal-footer a {
+      color: var(--color-text-muted);
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    .portal-footer a:hover {
+      color: #1F2937;
+    }
+
+    .footer-separator {
+      margin: 0 8px;
+      color: rgba(0, 0, 0, 0.1);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-mono) !important;
+      font-size: 0.75rem;
+    }
+
+    .copyright {
+      font-family: var(--font-mono) !important;
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+    }
+
+    /* Animation Keyframes */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── STREAMING_CHUNK:Injecting Gowun Batang for Korean typography support... ── */
+    /* Korean Mode Typography Override (Request 3) */
+    body[data-lang="ko"] * {
+      font-family: 'Gowun Batang', 'Georgia', serif !important;
+    }
+    body[data-lang="ko"] code, 
+    body[data-lang="ko"] pre, 
+    body[data-lang="ko"] .module-num, 
+    body[data-lang="ko"] .card-badge, 
+    body[data-lang="ko"] .secure-badge, 
+    body[data-lang="ko"] .btn-text-lang, 
+    body[data-lang="ko"] .notebook-title, 
+    body[data-lang="ko"] .notebook-status, 
+    body[data-lang="ko"] .sidebar-label {
+      font-family: var(--font-mono) !important;
+    }
+  </style>
+</head>
+<body data-lang="en">
+
+  <!-- ─────────────────────────────────────────────────────────────────────────
+       SECURE PORTAL ENTRY SCREEN (SPLASH)
+       ───────────────────────────────────────────────────────────────────────── -->
+  <div id="portal-splash">
+    
+    <!-- Ambient glowing visual background elements -->
+    <div class="plasma-glow-bg">
+      <div class="plasma-orb one"></div>
+      <div class="plasma-orb two"></div>
+    </div>
+
+    <!-- ── STREAMING_CHUNK:Structuring main wrapper... ── -->
+    <div class="portal-main-content">
+      <!-- Entrance Header & Branding (Updated with official horizontal image-logo) -->
+      <header class="portal-header">
+        <div class="logo-container">
+          <img class="logo-img" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight Logo">
+        </div>
+        <!-- Updated subtitle to include RF Transmission Theory (Request 2) -->
+        <div class="portal-subtitle" id="portal-sub-text">Plasma School for Semiconductor & RF Transmission Theory</div>
+      </header>
+
+      <!-- Class Cards Matrix -->
+      <div class="portal-grid">
+        
+        <!-- CLASS 01 CARD -->
+        <div class="class-card c1" onclick="enterClassroom(1)">
+          <span class="card-badge">CLASS-01</span>
+          <h2 class="card-title" id="lbl-c1-title">Semiconductor Plasma Process & Application</h2>
+          <p class="card-description" id="lbl-c1-desc">
+            Master the fundamentals of semiconductor processing. Dive deep into atomic theories, essential chemistry bonding, physical gas discharge, and industrial process applications.
+          </p>
+          <div class="syllabus-preview">
+            <div class="syllabus-preview-header">
+              <span id="lbl-c1-curric">Core Modules</span>
+              <span id="lbl-c1-count">6 Lectures</span>
+            </div>
+            <ul class="syllabus-items">
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>History of Physics (Reference)</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>History of Atomic Theory</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Basic Chemistry & Chemical Bonds</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Plasma Basics & Key Mechanics</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span id="lbl-c1-m4-title">Electromagnetics & Maxwell's Equations</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Semiconductor Plasma Process</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- CLASS 02 CARD -->
+        <div class="class-card c2" onclick="enterClassroom(2)">
+          <span class="card-badge">CLASS-02</span>
+          <h2 class="card-title" id="lbl-c2-title">RF Power Transmission Theory for Plasma Formation</h2>
+          <p class="card-description" id="lbl-c2-desc">
+            Acquire professional theoretical knowledge of RF engineering. Learn electromagnetics foundations, Maxwell's key equations, and advanced RF power transmission, load matching mechanics.
+          </p>
+          <div class="syllabus-preview">
+            <div class="syllabus-preview-header">
+              <span id="lbl-c2-curric">Core Modules</span>
+              <span id="lbl-c2-count">3 Lectures</span>
+            </div>
+            <ul class="syllabus-items">
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Electromagnetics & Maxwell's Equations</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Fundamentals of Plasma Physics Basics</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>RF Matchers & Power Delivery Systems</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── STREAMING_CHUNK:Appending global footer info... ── -->
+    <footer class="portal-footer">
+      <div class="footer-links">
+        <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer">Homepage</a>
+        <span class="footer-separator">|</span>
+        <a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a>
+      </div>
+      <div class="copyright">
+        © 2026 Benedu Insight. All rights reserved.
+      </div>
+    </footer>
+
+    <!-- Entrance Options & Branding Controls -->
+    <div class="portal-options">
+      <button class="btn-text-lang" onclick="toggleLanguage()" id="portal-lang-btn">KO</button>
+    </div>
+  </div>
+
+
+  <!-- ─────────────────────────────────────────────────────────────────────────
+       INTEGRATED CLASSROOM DASHBOARD
+       ───────────────────────────────────────────────────────────────────────── -->
+  <div id="classroom-view">
+    
+    <!-- Sidebar Navigation Controls -->
+    <aside id="sidebar">
+      
+      <!-- Brand Top Section (Updated with scaled logo image) -->
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-inner">
+          <img class="sidebar-logo-img" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight Logo">
+        </div>
+        <!-- Language Switcher -->
+        <button class="btn-text-lang" onclick="toggleLanguage()" id="side-lang-btn" style="padding: 4px 8px; font-size:0.75rem;">KO</button>
+      </div>
+
+      <!-- Current selected class banner -->
+      <div class="active-class-info">
+        <span class="class-indicator" id="sidebar-indicator">Class 01</span>
+        <div class="class-title-text" id="sidebar-class-title">Semiconductor Plasma Process</div>
+      </div>
+
+      <!-- Lecture module list -->
+      <div class="lecture-list-container">
+        <span class="sidebar-label" id="lbl-syllabus">Syllabus Curriculum</span>
+        <ul class="lecture-items-list" id="lecture-list-ul">
+          <!-- Dynamic insertion of items via JS -->
+        </ul>
+      </div>
+
+      <!-- Live Auto-Save Lecture Notebook inside Sidebar -->
+      <div class="notebook-container">
+        <div class="notebook-header">
+          <span class="notebook-title" id="lbl-notebook">Lecture Notebook</span>
+          <span class="notebook-status" id="notebook-status-badge">Saved</span>
+        </div>
+        <textarea 
+          class="notebook-textarea" 
+          id="student-notepad" 
+          placeholder="Take your active study notes for this module here..."
+          oninput="saveLectureNotes()"></textarea>
+      </div>
+
+      <!-- Bottom controls / Portal switcher -->
+      <div class="sidebar-footer">
+        <button class="btn-secondary" onclick="exitToPortal()">
+          <!-- SVG Home Icon -->
+          <svg style="width: 15px; height: 15px;" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span id="lbl-btn-portal">Exit Portal</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- SECURE MAIN CANVAS AREA (Hides URLs, occupies 90%+ room) -->
+    <main id="lecture-canvas">
+      
+      <!-- Interactive Sandbox Control Bar -->
+      <header class="canvas-control-bar">
+        
+        <div class="control-left">
+          <!-- Sidebar Toggle Hamburger -->
+          <button class="btn-icon" onclick="toggleSidebar()" title="Toggle Sidebar">
+            <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </button>
+          
+          <!-- Breadcrumb locator -->
+          <div class="lecture-breadcrumbs">
+            <span class="breadcrumb-class" id="bread-class">Class 01</span>
+            <span class="breadcrumb-divider">/</span>
+            <span class="breadcrumb-lecture" id="bread-lecture">History of Atomic Theory</span>
+          </div>
+        </div>
+
+        <div class="control-right">
+          <!-- Secure Mode Active Badge -->
+          <div class="secure-badge" id="lbl-secure">
+            <svg viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm-2 5c0-1.1.9-2 2-2s2 .9 2 2v3h-4V7zm2 8c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/></svg>
+            SANDBOX FRAME ACTIVE
+          </div>
+
+          <!-- Reload Inside Iframe Button -->
+          <button class="btn-icon" onclick="reloadLectureFrame()" title="Reload Lesson">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path fill="currentColor" d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          </button>
+
+          <!-- Toggle Native Fullscreen Button -->
+          <button class="btn-icon" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Frame Viewport -->
+      <div class="frame-container">
+        
+        <!-- Live Sandboxed Frame loading files locally/remotely -->
+        <iframe 
+          id="lecture-frame" 
+          src="about:blank"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+
+        <!-- Active Spinner Overlay -->
+        <div class="canvas-loader" id="frame-spinner">
+          <div class="spinner"></div>
+          <div class="loader-text" id="lbl-loading">SECURELY LOADING MODULE...</div>
+        </div>
+
+        <!-- Sleek Error / Not Found Fallback Panel -->
+        <div class="error-banner" id="error-alert">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          <h4 class="error-title" id="err-title">Lecture File Not Found</h4>
+          <p class="error-desc" id="err-desc">
+            The requested lecture file is not detected at the relative path. Ensure that your uploaded lecture HTML file is stored in the same directory as this portal file.
+            <code id="error-file-code">file_name_placeholder.html</code>
+          </p>
+          <button class="btn-secondary" style="margin: 0 auto; display: inline-flex;" onclick="closeErrorAlert()">
+            <span id="err-dismiss">Continue Anyway</span>
+          </button>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────────
+       DATA STRUCTURES & PLATFORM CONTROLLERS
+       ───────────────────────────────────────────────────────────────────────── -->
+  <script>
+    // ─────────────────────────────────────────────
+    // Localized Translation Content (Request 2 Updates)
+    // ─────────────────────────────────────────────
+    const TRANSLATIONS = {
+      en: {
+        portalSub: "Plasma School for Semiconductor & RF Transmission Theory",
+        c1Title: "Semiconductor Plasma Process & Application",
+        c1Desc: "Master the fundamentals of semiconductor processing. Dive deep into atomic theories, essential chemistry bonding, physical gas discharge, and industrial process applications.",
+        c1Curric: "Core Modules",
+        c1Count: "6 Lectures",
+        c2Title: "RF Power Transmission Theory for Plasma Formation",
+        c2Desc: "Acquire professional theoretical knowledge of RF engineering. Learn electromagnetics foundations, Maxwell's key equations, and advanced RF power transmission, load matching mechanics.",
+        c2Curric: "Core Modules",
+        c2Count: "3 Lectures",
+        secureBadge: "SECURE SANDBOX ACTIVE",
+        loadingText: "SECURELY DEPLOYING LESSON...",
+        lblSyllabus: "Course Modules",
+        lblNotebook: "Lesson Notes",
+        lblPortal: "Main Portal",
+        errTitle: "Lecture Slide File Pending",
+        errDesc: "The platform cannot locate the specified local HTML file at the current folder location. Make sure the following file is saved together with this index portal:",
+        errDismiss: "Dismiss and view Frame container",
+        notePlaceholder: "Write and save your key takeaways or study notes for this module..."
+      },
+      ko: {
+        portalSub: "반도체 및 RF 전송 이론 플라즈마 스쿨",
+        c1Title: "CLASS-01 반도체 플라즈마 공정 및 어플리케이션",
+        c1Desc: "반도체 전공정 및 기상의 가스 방전 기초 지식을 습득합니다. 역사적 원자론, 화학적 결합 기초 개념, 물리적 플라즈마 방전 제어 및 산업 핵심 증착/식각 장비 어플리케이션을 파헤칩니다.",
+        c1Curric: "교육 커리큘럼",
+        c1Count: "6개 강좌",
+        c2Title: "CLASS-02 플라즈마 형성을 위한 RF 전력전송 이론",
+        c2Desc: "플라즈마를 발생시키기 위한 고주파(RF) 전원 및 정합공학 개념을 체계적으로 섭취합니다. 기초 전자기학, 맥스웰 방정식, 고주파 송전선로 이론과 부하 매칭 원리를 완벽하게 분석합니다.",
+        c2Curric: "교육 커리큘럼",
+        c2Count: "3개 강좌",
+        secureBadge: "보안 샌드박스 프레임 작동 중",
+        loadingText: "보안 강의 페이지를 생성 중입니다...",
+        lblSyllabus: "강의 커리큘럼 리스트",
+        lblNotebook: "실시간 학습 오토노트",
+        lblPortal: "플랫폼 메인 입구",
+        errTitle: "교육 강의 파일 감지 불가",
+        errDesc: "상대경로 내에 지정된 강의 교안 HTML 파일이 발견되지 않았습니다. 포탈 파일과 동일한 디렉토리(폴더)에 아래의 파일을 위치해 주시기 바랍니다:",
+        errDismiss: "경고창 닫고 프레임 유지",
+        notePlaceholder: "본 강의 모듈에 대한 나만의 중요 요약 정리 또는 실시간 핵심 노트를 기록하세요..."
+      }
+    };
+
+    // ─────────────────────────────────────────────
+    // Lecture Modules Data Mapping (New naming layout)
+    // ─────────────────────────────────────────────
+    const CLASS_DATA = {
+      1: {
+        titleEn: "Semiconductor Plasma Process & Application",
+        titleKo: "CLASS-01 반도체 플라즈마 공정 및 어플리케이션",
+        indicator: "CLASS 01",
+        colorClass: "class1-active",
+        lectures: [
+          {
+            id: "history-physics",
+            isRef: true,
+            titleEn: "History of Physics",
+            titleKo: "물리학의 역사 (History of Physics)",
+            file: "01_benedu_history_of_physics.html",
+            duration: "30m"
+          },
+          {
+            id: "atomic-theory",
+            titleEn: "History of Atomic Theory",
+            titleKo: "원자론의 역사 (Atomic Theory)",
+            file: "11_benedu_hisory_of_atomic_theory.html",
+            duration: "45m"
+          },
+          {
+            id: "chem-bonding",
+            titleEn: "Chemistry Basics & Chemical Bonds",
+            titleKo: "기초 화학 및 결합 원리",
+            file: "12_benedu_chem_course.html",
+            duration: "50m"
+          },
+          {
+            id: "plasma-basics",
+            titleEn: "Fundamentals of Plasma Basics",
+            titleKo: "플라즈마 상태 및 방전 물리",
+            file: "13_benedu_plasma_lecture.html",
+            duration: "60m"
+          },
+          {
+            id: "maxwell-equations-c1",
+            titleEn: "Electromagnetics & Maxwell's Equations",
+            titleKo: "맥스웰 방정식과 전자기학 기초",
+            file: "14_benedu_maxwell_equation.html",
+            duration: "60m"
+          },
+          {
+            id: "plasma-semi-process",
+            titleEn: "Semiconductor Plasma Processes",
+            titleKo: "반도체 플라즈마 공정 및 응용",
+            file: "15_benedu_plasma_semi_lecture_v1.html",
+            duration: "75m"
+          }
+        ]
+      },
+      2: {
+        titleEn: "RF Power Transmission Theory for Plasma Formation",
+        titleKo: "CLASS-02 플라즈마 형성을 위한 RF 전력전송 이론",
+        indicator: "CLASS 02",
+        colorClass: "class2-active",
+        lectures: [
+          {
+            id: "maxwell-equations",
+            titleEn: "Electromagnetics & Maxwell's Equations",
+            titleKo: "전자기 전송 및 맥스웰 방정식",
+            file: "21_benedu_maxwell_equation.html",
+            duration: "60m"
+          },
+          {
+            id: "rf-plasma-basics",
+            titleEn: "Fundamentals of Plasma Physics Basics",
+            titleKo: "플라즈마 기초 물리학",
+            file: "22_benedu_plasma_lecture.html",
+            duration: "60m"
+          },
+          {
+            id: "rf-matchers",
+            titleEn: "RF Matchers & Power Delivery Systems",
+            titleKo: "RF 매칭 및 전력 공급 시스템",
+            file: "23_benedu_plasma_semi_lecture_v1.html",
+            duration: "75m"
+          }
+        ]
+      }
+    };
+
+    // ─────────────────────────────────────────────
+    // Global Application State
+    // ─────────────────────────────────────────────
+    let currentLang = 'en';
+    let currentClassId = null;
+    let currentLectureIndex = 0;
+    
+    const iframe = document.getElementById('lecture-frame');
+    const spinner = document.getElementById('frame-spinner');
+    const errorAlert = document.getElementById('error-alert');
+
+    // ─────────────────────────────────────────────
+    // Setup & Page Load Initialization
+    // ─────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      // Get preferred language from localStorage
+      const savedLang = localStorage.getItem('benedu_pref_lang');
+      if (savedLang) {
+        currentLang = savedLang;
+      }
+      applyTranslations();
+      
+      // Hook up iframe state listeners
+      iframe.addEventListener('load', () => {
+        spinner.classList.remove('active');
+      });
+      
+      // Auto save monitor for the notepad
+      document.getElementById('student-notepad').placeholder = TRANSLATIONS[currentLang].notePlaceholder;
+    });
+
+    // ─────────────────────────────────────────────
+    // Switch Portal Language Core Logic
+    // ─────────────────────────────────────────────
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      localStorage.setItem('benedu_pref_lang', currentLang);
+      applyTranslations();
+      
+      // Re-render sidebar if actively in classroom
+      if (currentClassId) {
+        renderSidebarLectures();
+      }
+    }
+
+    // ── STREAMING_CHUNK:Handling entrance transitions... ──
+    function applyTranslations() {
+      document.body.setAttribute('data-lang', currentLang);
+      const T = TRANSLATIONS[currentLang];
+      
+      // Apply translation to all elements
+      document.getElementById('portal-sub-text').innerText = T.portalSub;
+      document.getElementById('lbl-c1-title').innerText = T.c1Title;
+      document.getElementById('lbl-c1-desc').innerText = T.c1Desc;
+      document.getElementById('lbl-c1-curric').innerText = T.c1Curric;
+      document.getElementById('lbl-c1-count').innerText = T.c1Count;
+      document.getElementById('lbl-c2-title').innerText = T.c2Title;
+      document.getElementById('lbl-c2-desc').innerText = T.c2Desc;
+      document.getElementById('lbl-c2-curric').innerText = T.c2Curric;
+      document.getElementById('lbl-c2-count').innerText = T.c2Count;
+      
+      document.getElementById('portal-lang-btn').innerText = currentLang === 'en' ? 'KO' : 'EN';
+      document.getElementById('side-lang-btn').innerText = currentLang === 'en' ? 'KO' : 'EN';
+      
+      document.getElementById('lbl-syllabus').innerText = T.lblSyllabus;
+      document.getElementById('lbl-notebook').innerText = T.lblNotebook;
+      document.getElementById('lbl-btn-portal').innerText = T.lblPortal;
+      document.getElementById('lbl-loading').innerText = T.loadingText;
+      document.getElementById('student-notepad').placeholder = T.notePlaceholder;
+      
+      // Class 1 Module 4 customized translated label for preview
+      document.getElementById('lbl-c1-m4-title').innerText = currentLang === 'en' ? 'Electromagnetics & Maxwell\'s Equations' : '맥스웰 방정식과 전자기학 기초';
+
+      // Header control indicators
+      document.getElementById('lbl-secure').innerHTML = `
+        <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:currentColor;margin-right:4px;"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm-2 5c0-1.1.9-2 2-2s2 .9 2 2v3h-4V7zm2 8c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/></svg>
+        ${T.secureBadge}
+      `;
+      
+      // Error dialogue translations
+      document.getElementById('err-title').innerText = T.errTitle;
+      document.getElementById('err-desc').innerHTML = `
+        ${T.errDesc}
+        <code id="error-file-code">${getCurrentActiveLectureFile()}</code>
+      `;
+      document.getElementById('err-dismiss').innerText = T.errDismiss;
+    }
+
+    // ─────────────────────────────────────────────
+    // Entrance Transition Controller
+    // ─────────────────────────────────────────────
+    function enterClassroom(classId) {
+      currentClassId = classId;
+      currentLectureIndex = 0;
+      
+      const config = CLASS_DATA[classId];
+      
+      // Reset active class classlists on container
+      const container = document.getElementById('classroom-view');
+      container.className = 'active ' + config.colorClass;
+      
+      // Update sidebar headers
+      document.getElementById('sidebar-indicator').innerText = config.indicator;
+      document.getElementById('sidebar-class-title').innerText = currentLang === 'en' ? config.titleEn : config.titleKo;
+      document.getElementById('bread-class').innerText = config.indicator;
+
+      // Animation out portal landing
+      document.getElementById('portal-splash').classList.add('hidden');
+      
+      // Render Syllabus Items
+      renderSidebarLectures();
+      
+      // Deploy primary lecture
+      selectLecture(0);
+    }
+
+    // ── STREAMING_CHUNK:Managing sidebar navigation... ──
+    function exitToPortal() {
+      // Halt whatever is in the iframe to optimize memory and silence audio
+      iframe.src = "about:blank";
+      
+      // Slide/Fade Portal into view
+      document.getElementById('portal-splash').classList.remove('hidden');
+      document.getElementById('classroom-view').classList.remove('active');
+      currentClassId = null;
+    }
+
+    // ─────────────────────────────────────────────
+    // Classroom Sidebar Navigation Renderer
+    // ─────────────────────────────────────────────
+    function renderSidebarLectures() {
+      const config = CLASS_DATA[currentClassId];
+      const listContainer = document.getElementById('lecture-list-ul');
+      listContainer.innerHTML = '';
+      
+      let moduleCounter = 0;
+      
+      config.lectures.forEach((lecture, index) => {
+        const itemLi = document.createElement('li');
+        
+        // Progress complete check
+        const isCompleted = getLectureCompletionStatus(lecture.id);
+        const activeClass = (index === currentLectureIndex) ? 'active' : '';
+        
+        // Calculate custom badge (REF or M1..M5)
+        let badgeLabel = "";
+        if (lecture.isRef) {
+          badgeLabel = "REF";
+        } else {
+          moduleCounter++;
+          badgeLabel = `M${moduleCounter}`;
+        }
+        
+        itemLi.innerHTML = `
+          <div class="lecture-item-btn ${activeClass}" id="btn-lec-${index}" onclick="selectLecture(${index})">
+            <span class="module-num">${badgeLabel}</span>
+            <span class="lecture-title" title="${currentLang === 'en' ? lecture.titleEn : lecture.titleKo}">
+              ${currentLang === 'en' ? lecture.titleEn : lecture.titleKo}
+            </span>
+            <div class="checkbox-container ${isCompleted ? 'checked' : ''}" 
+                 onclick="toggleLectureProgress(event, '${lecture.id}', this)"
+                 title="Mark as Completed">
+              <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+          </div>
+        `;
+        listContainer.appendChild(itemLi);
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // Frame Core Loading Logic (90%+ Screen Area)
+    // ─────────────────────────────────────────────
+    function selectLecture(index) {
+      currentLectureIndex = index;
+      const lecture = CLASS_DATA[currentClassId].lectures[index];
+      
+      // Update navigation button active statuses
+      document.querySelectorAll('.lecture-item-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === index);
+      });
+      
+      // Update upper controls and breadcrumbs
+      document.getElementById('bread-lecture').innerText = currentLang === 'en' ? lecture.titleEn : lecture.titleKo;
+      
+      // Reset layout overlays
+      closeErrorAlert();
+      spinner.classList.add('active');
+      
+      // Try setting relative iframe source URL (e.g. "./1_benedu_history_...")
+      // If deployed in same environment, it launches immediately without trace in top address bar!
+      iframe.src = `./${lecture.file}`;
+
+      // Load Saved Lecture Notebook state
+      loadLectureNotes();
+
+      // Sandbox Fallback Detection: Ensure we alert gracefully if the file isn't found locally.
+      // Since it's inside an iframe, direct file-presence checks from the parent can sometimes trigger CORS.
+      // We implement a light validation timer. If it loads nothing/error in direct local setups, students know why.
+      checkLocalFileAvailability(lecture.file);
+    }
+
+    // ── STREAMING_CHUNK:Setting up localStorage mechanics... ──
+    function reloadLectureFrame() {
+      spinner.classList.add('active');
+      const prevSrc = iframe.src;
+      iframe.src = "about:blank";
+      setTimeout(() => {
+        iframe.src = prevSrc;
+      }, 50);
+    }
+
+    function getCurrentActiveLectureFile() {
+      if (!currentClassId) return "none";
+      return CLASS_DATA[currentClassId].lectures[currentLectureIndex].file;
+    }
+
+    // ─────────────────────────────────────────────
+    // Layout Controls (Toggle Sidebar for 100% Canvas Mode)
+    // ─────────────────────────────────────────────
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn(`Fullscreen activation failed: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // ─────────────────────────────────────────────
+    // Local Storage Systems (Completion & Custom Notes)
+    // ─────────────────────────────────────────────
+    function getLectureCompletionStatus(lectureId) {
+      const list = JSON.parse(localStorage.getItem('benedu_completed_lectures') || '{}');
+      return !!list[lectureId];
+    }
+
+    function toggleLectureProgress(event, lectureId, element) {
+      event.stopPropagation(); // prevent triggering parent lecture selection click
+      const list = JSON.parse(localStorage.getItem('benedu_completed_lectures') || '{}');
+      
+      const newStatus = !list[lectureId];
+      list[lectureId] = newStatus;
+      localStorage.setItem('benedu_completed_lectures', JSON.stringify(list));
+      
+      element.classList.toggle('checked', newStatus);
+    }
+
+    // Auto-saved Notebook Handler
+    function saveLectureNotes() {
+      if (!currentClassId) return;
+      const lecture = CLASS_DATA[currentClassId].lectures[currentLectureIndex];
+      const text = document.getElementById('student-notepad').value;
+      
+      localStorage.setItem(`benedu_notes_${lecture.id}`, text);
+      
+      // Trigger short "Saved" indicator highlight
+      const badge = document.getElementById('notebook-status-badge');
+      badge.classList.add('saved');
+      setTimeout(() => {
+        badge.classList.remove('saved');
+      }, 1000);
+    }
+
+    function loadLectureNotes() {
+      if (!currentClassId) return;
+      const lecture = CLASS_DATA[currentClassId].lectures[currentLectureIndex];
+      const savedText = localStorage.getItem(`benedu_notes_${lecture.id}`) || '';
+      document.getElementById('student-notepad').value = savedText;
+    }
+
+    // ─────────────────────────────────────────────
+    // Smart Sandbox Diagnostics Tool
+    // ─────────────────────────────────────────────
+    function checkLocalFileAvailability(fileName) {
+      // Checks whether the local file exists using a quick, silent asynchronous fetch.
+      // If it throws or returns 404/0 (for offline local protocol files), we show a helpful manual deployment instruction.
+      fetch(`./${fileName}`, { method: 'HEAD' })
+        .then(response => {
+          // Local protocol requests ('file://') often return status 0 upon success.
+          if (response.status === 404) {
+            triggerErrorAlert(fileName);
+          }
+        })
+        .catch(err => {
+          // If we run on a server and it CORS blocks or fails, we let the default frame handles it.
+          // If it throws a specific network rejection and the iframe fails to load completely:
+          setTimeout(() => {
+            try {
+              // Test if we can read frame content or check status
+              if (!iframe.contentWindow || iframe.contentWindow.location.href === "about:blank") {
+                // If it remains completely blank/unloaded after 2 seconds, raise warning banner
+                triggerErrorAlert(fileName);
+              }
+            } catch (e) {
+              // Frame exists but loaded cross-origin or blocked, this is normal behavior for active frames!
+            }
+          }, 2500);
+        });
+    }
+
+    function triggerErrorAlert(fileName) {
+      document.getElementById('error-file-code').innerText = fileName;
+      errorAlert.style.display = 'block';
+    }
+
+    function closeErrorAlert() {
+      errorAlert.style.display = 'none';
+    }
+  </script>
+</body>
+</html>

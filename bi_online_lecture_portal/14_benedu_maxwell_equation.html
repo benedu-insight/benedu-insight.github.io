@@ -1,0 +1,3107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maxwell's Equations — Benedu Insight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style id="font-override">
+  /* EN 모드: 모든 요소에 Google Sans 적용 */
+  body[data-lang="en"],
+  body[data-lang="en"] * {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  /* 모노스페이스 요소는 그대로 유지 */
+  body[data-lang="en"] header p,
+  body[data-lang="en"] .lang-btn,
+  body[data-lang="en"] .era-btn,
+  body[data-lang="en"] .toolbar-btn,
+  body[data-lang="en"] #scale-indicator,
+  body[data-lang="en"] .era-range,
+  body[data-lang="en"] .sci-year,
+  body[data-lang="en"] .sci-tag,
+  body[data-lang="en"] .detail-era-tag,
+  body[data-lang="en"] .detail-meta,
+  body[data-lang="en"] .model-img-source,
+  body[data-lang="en"] .quote-attr,
+  body[data-lang="en"] .section-title,
+  body[data-lang="en"] .eq-block,
+  body[data-lang="en"] .theory-year,
+  body[data-lang="en"] .sim-slider-label,
+  body[data-lang="en"] code,
+  body[data-lang="en"] pre {
+    font-family: 'JetBrains Mono', 'Fira Mono', monospace !important;
+  }
+  /* Montserrat 제목류는 Google Sans로 통일 */
+  body[data-lang="en"] header h1,
+  body[data-lang="en"] .detail-name,
+  body[data-lang="en"] .theory-name,
+  body[data-lang="en"] .era-label,
+  body[data-lang="en"] h1,
+  body[data-lang="en"] h2,
+  body[data-lang="en"] h3 {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+</style>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+
+<!-- MathJax Formula Engine with Safe Loading Config -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    },
+    startup: {
+      ready: function () {
+        MathJax.startup.defaultReady();
+        const panel = document.getElementById('detail');
+        if (panel && window.MathJax.typesetPromise) {
+          MathJax.typesetPromise([panel]).catch(function (err) {
+            console.log('MathJax initial typeset failed: ' + err.message);
+          });
+        }
+      }
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+  :root {
+    --bg:          #F7F8FA;
+    --bg2:         #FFFFFF;
+    --bg3:         #F0E6F6;
+    --bg4:         #E5F4EC;
+    --green:       #0F8C50;
+    --green-soft:  #E5F4EC;
+    --green-mid:   #cbeadd;
+    --green-dark:  #0a6b3d;
+    --purple:      #2D3748; /* Sophisticated Slate Blue for Electromagnetics theme */
+    --purple-brand:#7030A0; /* Signature Brand Purple */
+    --purple-soft: #F0E6F6;
+    --purple-mid:  #d9b8ed;
+    --purple-dark: #521a78;
+    --blue-em:     #2B6CB0; /* Electric blue accent */
+    --blue-soft:   #EBF8FF;
+    --blue-mid:    #90CDF4;
+    --blue-dark:   #2B6CB0;
+    --charcoal:    #2D2D2D;
+    --text:        #2D2D2D;
+    --text2:       #6B7280;
+    --text3:       #9CA3AF;
+    --border:      #E5E7EB;
+    --border2:     #F3F4F6;
+    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
+    --max-w:       1400px;
+    --scale:       1.0; /* Dynamic text size scaling factor */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Gowun Batang', serif;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: var(--max-w);
+  }
+  .header-logo {
+    height: 52px;
+    width: auto;
+    flex-shrink: 0;
+  }
+  .header-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .header-title-block { flex: 1; min-width: 0; }
+  header h1 {
+    font-family: 'Google Sans', 'Gowun Batang', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--purple-brand);
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .era-filter {
+    margin-left: auto;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  /* Language Toggle */
+  .lang-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .lang-btn {
+    padding: 3px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: var(--text3);
+    transition: all 0.2s;
+  }
+  .lang-btn.active-lang {
+    background: var(--purple-brand);
+    color: #fff;
+  }
+  .era-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text2);
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.78rem;
+    padding: 4px 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .era-btn:hover {
+    border-color: var(--purple-mid);
+    color: var(--purple-brand);
+    background: var(--purple-soft);
+  }
+  .era-btn.active {
+    background: var(--purple-brand);
+    border-color: var(--purple-brand);
+    color: #fff;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: calc(100vh - 72px);
+    width: 100%;
+    max-width: var(--max-w);
+  }
+
+  /* ── Timeline Sidebar ── */
+  .timeline-sidebar {
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    background: var(--bg2);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .timeline-sidebar::-webkit-scrollbar { width: 4px; }
+  .timeline-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .era-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg2);
+    padding: 0.75rem 1rem 0.5rem;
+    border-bottom: 1px solid var(--border2);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .era-header:hover { background: var(--bg); }
+  .era-label {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .era-line { flex: 1; height: 1px; background: var(--border); }
+  .era-range {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+  }
+  .era-toggle {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: var(--text3);
+    transition: background 0.15s, transform 0.22s;
+  }
+  .era-header.collapsed .era-toggle {
+    transform: rotate(-90deg);
+  }
+  .era-header:hover .era-toggle {
+    background: var(--border);
+    color: var(--text2);
+  }
+  .era-cards {
+    overflow: hidden;
+    max-height: 2000px;
+    transition: max-height 0.3s ease, opacity 0.25s ease;
+    opacity: 1;
+  }
+  .era-cards.collapsed {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  /* Lecture Card in Sidebar */
+  .sci-card {
+    padding: 0.75rem 1rem 0.75rem 1.1rem;
+    border-bottom: 1px solid var(--border2);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+    display: flex;
+    gap: 0.7rem;
+    align-items: flex-start;
+    border-left: 3px solid transparent;
+  }
+  .sci-card:hover { background: var(--bg); }
+  .sci-card.active { background: var(--purple-soft); border-left-color: var(--purple-brand); }
+
+  .sci-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--text3);
+    min-width: 48px;
+    padding-top: 2px;
+    line-height: 1.4;
+  }
+  .sci-info { flex: 1; min-width: 0; }
+  .sci-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    line-height: 1.3;
+  }
+  .sci-card.active .sci-name { color: var(--purple-dark); }
+  .sci-nation {
+    font-size: 0.68rem;
+    color: var(--text3);
+    margin-top: 1px;
+    font-family: 'Gowun Batang', serif;
+  }
+  .sci-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 4px;
+  }
+  .sci-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.54rem;
+    padding: 1px 6px;
+    border-radius: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Detail Panel & Scroll Wrapper ── */
+  .detail-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  
+  /* Sticky Reading Toolbar */
+  .content-toolbar {
+    position: sticky;
+    top: 0;
+    background: rgba(247, 248, 250, 0.95);
+    backdrop-filter: blur(8px);
+    padding: 0.6rem 2.25rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.55rem;
+    border-bottom: 1px solid var(--border);
+    z-index: 10;
+  }
+  .toolbar-btn {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg2);
+    color: var(--text);
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .toolbar-btn:hover {
+    border-color: var(--purple-mid);
+    background: var(--purple-soft);
+    color: var(--purple-dark);
+  }
+  .toolbar-btn:active {
+    transform: scale(0.95);
+  }
+
+  #detail {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  #detail::-webkit-scrollbar { width: 4px; }
+  #detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .detail-content { padding: 2.25rem; max-width: 860px; margin: 0 auto; }
+
+  /* Hero slide card */
+  .detail-hero {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .detail-era-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+  .detail-name {
+    font-family: 'Google Sans', 'Montserrat', sans-serif;
+    font-size: calc(1.8rem * var(--scale));
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--purple-brand);
+    margin-bottom: 0.15rem;
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-name-kr {
+    font-family: 'Gowun Batang', serif;
+    font-size: calc(1rem * var(--scale));
+    color: var(--text2);
+    margin-bottom: 0.75rem;
+    font-weight: 400;
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-meta {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.68rem * var(--scale));
+    color: var(--text2);
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border2);
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Model Graphic Showcase */
+  .model-showcase {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .model-svg-wrapper {
+    width: 100%;
+    max-width: 600px;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Sim style enhancements */
+  .sim-container {
+    width: 100%;
+    background: #FAFAFA;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  .sim-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: #FFF;
+    border-radius: 6px;
+    border: 1px solid #E5E7EB;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+  .sim-slider-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: bold;
+    color: var(--purple-brand);
+  }
+  .sim-tab-btns {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .sim-tab-btn {
+    flex: 1;
+    padding: 8px;
+    background: #E5E7EB;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.78rem;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  .sim-tab-btn.active {
+    background: var(--purple-brand);
+    color: #FFF;
+  }
+
+  /* Quote Box */
+  .quote-block {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .quote-badge {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+  .quote-body { flex: 1; min-width: 0; }
+  .quote-text {
+    font-family: 'Gowun Batang', serif;
+    font-style: italic;
+    font-size: calc(0.9rem * var(--scale));
+    color: var(--green-dark);
+    line-height: 1.78;
+    transition: font-size 0.15s ease-out;
+  }
+  .quote-attr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.6rem * var(--scale));
+    color: var(--text3);
+    margin-top: 0.45rem;
+    letter-spacing: 0.06em;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Detailed Lecture notes */
+  .detail-bio {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    font-size: calc(0.9rem * var(--scale));
+    line-height: 1.9;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: font-size 0.15s ease-out;
+  }
+  .detail-bio p + p { margin-top: 0.85em; }
+
+  /* Section Titles */
+  .section-title {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-top: 2rem;
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Equations container */
+  .eq-block {
+    background: var(--charcoal);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.95rem * var(--scale));
+    color: #a8f5c8;
+    letter-spacing: 0.04em;
+    overflow-x: auto;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* Grid details card */
+  .theories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .theory-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem;
+    transition: box-shadow 0.18s, border-color 0.18s;
+    box-shadow: var(--shadow);
+  }
+  .theory-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--purple-mid);
+  }
+  .theory-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: calc(0.6rem * var(--scale));
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+    color: var(--blue-dark);
+    font-weight: 500;
+    transition: font-size 0.15s ease-out;
+  }
+  .theory-name {
+    font-size: calc(0.88rem * var(--scale));
+    font-weight: 700;
+    color: var(--charcoal);
+    margin-bottom: 0.35rem;
+    line-height: 1.3;
+    transition: font-size 0.15s ease-out;
+  }
+  .theory-desc {
+    font-size: calc(0.76rem * var(--scale));
+    color: var(--text2);
+    line-height: 1.65;
+    font-family: 'Gowun Batang', serif;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* ── Collapsible Classroom Box ── */
+  details.classroom-box {
+    background: #FFFDF0;
+    border: 1px dashed #EEDF8B;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: border 0.15s;
+  }
+  details.classroom-box[open] {
+    border-style: solid;
+    border-color: #D6C359;
+  }
+  details.classroom-box summary {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8C730F;
+    outline: none;
+    user-select: none;
+  }
+  .classroom-body {
+    font-size: calc(0.78rem * var(--scale));
+    line-height: 1.7;
+    color: #6B5B1E;
+    margin-top: 0.75rem;
+    cursor: default;
+    transition: font-size 0.15s ease-out;
+  }
+
+  /* ── Interactive ELECTROMAGNETIC MODELS Dashboard ── */
+  .overview-container {
+    background: #EAEBED;
+    border-radius: 16px;
+    padding: 2.25rem 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .overview-grid {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .overview-card {
+    flex: 1;
+    min-width: 155px;
+    max-width: 185px;
+    background: #FFF;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 250px;
+    box-shadow: var(--shadow);
+  }
+  .overview-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--purple-mid);
+  }
+  .overview-card-tag {
+    background: #90CDF4;
+    color: #2D3748;
+    font-size: 0.54rem;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 4px;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Summary Matrix Styles (Special Module) */
+  .summary-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+  }
+  .summary-matrix th, .summary-matrix td {
+    padding: 0.75rem 1rem;
+    font-size: calc(0.78rem * var(--scale));
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    transition: font-size 0.15s ease-out;
+  }
+  .summary-matrix th {
+    background: var(--purple-soft);
+    color: var(--purple-dark);
+    font-weight: 700;
+    font-family: 'Gowun Batang', serif;
+  }
+
+  /* Connections (Next Chapter Navigation) */
+  .conn-list { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 2rem; }
+  .conn-chip {
+    background: var(--purple-soft);
+    border: 1px solid var(--purple-mid);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: calc(0.76rem * var(--scale));
+    color: var(--purple-dark);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Gowun Batang', serif;
+  }
+  .conn-chip:hover {
+    background: var(--purple-brand);
+    border-color: var(--purple-brand);
+    color: #fff;
+  }
+
+  /* Model Image Formatting and Fit Rules */
+  .model-img-wrapper img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+    header { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.6rem; }
+    .header-logo { height: 38px; }
+    .header-divider { display: none; }
+    header h1 { font-size: 1.15rem; }
+    .era-filter { width: 100%; justify-content: flex-start; }
+    .detail-content { padding: 1.25rem 1rem 3rem; }
+    .detail-name { font-size: 1.5rem; }
+    .model-svg-wrapper { width: 220px; height: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <!-- 로고 클릭 시 베네두 인사이트 홈페이지로 새 창 이동 지원 -->
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; text-decoration: none;">
+    <img class="header-logo"
+      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_vertical.png"
+      alt="Benedu Insight"
+      style="cursor: pointer;">
+  </a>
+  <div class="header-divider"></div>
+  <div class="header-title-block">
+    <h1 id="hTitle">Maxwell's Equations &amp; Plasma Engineering</h1>
+    <p id="hSubtitle">Student Study Guide — A guidebook to the physical foundations of semiconductor plasma equipment (CCP/ICP)</p>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active-lang" onclick="setLang('ko')" id="btnKo">KO</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btnEn">EN</button>
+  </div>
+  <div class="era-filter" id="eraFilter">
+    <button class="era-btn active" data-era="all" id="eraAll">전체 목차</button>
+    <button class="era-btn" data-era="electrostatics" id="eraElec">정전·정자기학</button>
+    <button class="era-btn" data-era="dynamics" id="eraDyn">시변 전자기학</button>
+    <button class="era-btn" data-era="synthesis" id="eraSyn">전자기파 &amp; 통합</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="timeline-sidebar" id="sidebar"></div>
+  <div class="detail-panel">
+    <!-- Sticky Reading Toolbar for dynamic sizing -->
+    <div class="content-toolbar">
+      <span id="fontSizeLabel" style="font-family: 'Gowun Batang', serif; font-size: 0.75rem; color: var(--text2); font-weight: bold; margin-right: auto; display: flex; align-items: center; gap: 5px;">
+        🔍 본문 글자 크기
+      </span>
+      <button class="toolbar-btn" onclick="adjustScale(-0.1)" id="btnScaleDown" title="작게">- 작게</button>
+      <span id="scale-indicator" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--purple-brand); font-weight: bold; min-width: 45px; text-align: center;">100%</span>
+      <button class="toolbar-btn" onclick="adjustScale(0.1)" id="btnScaleUp" title="크게">+ 크게</button>
+      <button class="toolbar-btn" onclick="adjustScale(0)" id="btnScaleReset" title="기본 크기로 초기화" style="border-color: var(--purple-mid); color: var(--purple-brand);">초기화</button>
+    </div>
+    
+    <div id="detail">
+      <div class="detail-empty">
+        <div class="icon-ring"></div>
+        <p id="emptyMsg">연대표에서 교안 목차를 선택해 탐색해 보세요</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ─────────────────────────────────────────────
+//  LANGUAGE STATE
+// ─────────────────────────────────────────────
+let lang = 'ko';
+let currentEraFilter = 'all';
+
+// ─────────────────────────────────────────────
+//  UI 텍스트 / UI Text
+// ─────────────────────────────────────────────
+const UI = {
+  ko: {
+    hTitle: 'Maxwell\'s Equations &amp; Plasma Engineering',
+    hSubtitle: 'Student Study Guide — 반도체 플라즈마 장비(CCP/ICP)의 물리적 초석을 다지는 가이드북',
+    eraAll: '전체 목차', eraElec: '정전·정자기학', eraDyn: '시변 전자기학', eraSyn: '전자기파 & 통합',
+    eraLabels: {
+      electrostatics: '정전·정자기학',
+      dynamics:       '시변 전자기학',
+      synthesis:      '전자기파 & 통합'
+    },
+    eraRanges: {
+      electrostatics: '기초 정전자기',
+      dynamics:       '실증 동역 전자기',
+      synthesis:      '현대 통합 파동학'
+    },
+    eraNames: {
+      electrostatics: '정전기학 및 기초 정자기학 영역 (Electrostatics & Magnetostatics)',
+      dynamics:       '시간 변화에 따른 상호작용 전자기력 (Electrodynamics)',
+      synthesis:      '현대 전자기장과 광속 통합 스케일 (Electromagnetic Waves & Synthesis)'
+    },
+    sectionTheory:   '주요 학설 및 물리적 전개',
+    sectionEq:       '수식',
+    sectionMatrix:   '맥스웰 4대 방정식 핵심 정량 비교표 (반도체/플라즈마 응용 연계)',
+    sectionOverview: '4대 전자기 방정식 핵심 인터랙티브 보드',
+    sectionRef:      '참고 시각 자료',
+    sectionSVG:      '시각 이미지 그래픽 분석',
+    sectionNav:      '강의 모듈 네비게이션',
+    classroomLabel:  '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+    navGo:           '바로가기',
+    emptyMsg:        '연대표에서 교안 목차를 선택해 탐색해 보세요',
+    periodLabel:     '⏰ 성격: ',
+    tagLabel:        '🧪 분류 태그: ',
+    sourceLabel:     '출처: ',
+    fontSizeLabel:   '🔍 본문 글자 크기',
+    btnScaleDown:    '- 작게',
+    btnScaleUp:      '+ 크게',
+    btnScaleReset:   '초기화',
+    matrixH: ['방정식 이름', '미분형 (Differential)', '적분형 (Integral)', '반도체 플라즈마 장비 적용 분야 (Semiconductor/Plasma App)'],
+    matrixRows: [
+      ['<strong>가우스 전기장 법칙<br>(Gauss\'s Law for Electricity)</strong>', '$\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}$', '$\\oint_S \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0}$', '**CCP (용량성 결합 플라즈마)** 쉬스(Sheath) 공간 이온 축전 및 비등방성 이온 가속 식각 제어.'],
+      ['<strong>가우스 자기장 법칙<br>(Gauss\'s Law for Magnetism)</strong>', '$\\nabla \\cdot \\mathbf{B} = 0$', '$\\oint_S \\mathbf{B} \\cdot d\\mathbf{A} = 0$', '**Magnetron Sputtering (마그네트론 스퍼터)** 영구자석 폐루프 형성에 의한 국소 2차 전자 가둠 트랩 설계.'],
+      ['<strong>패러데이 전자기 유도 법칙<br>(Faraday\'s Law of Induction)</strong>', '$\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$', '$\\oint_C \\mathbf{E} \\cdot d\\mathbf{s} = -\\frac{d\\Phi_B}{dt}$', '**ICP (유도결합 플라즈마)** 안테나 시변 교류 자기장을 통한 고강도 소용돌이 유도 결합 전계 방전.'],
+      ['<strong>암페어-맥스웰 법칙<br>(Ampere-Maxwell Law)</strong>', '$\\nabla \\times \\mathbf{B} = \\mu_0 \\left( \\mathbf{J} + \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t} \\right)$', '$\\oint_C \\mathbf{B} \\cdot d\\mathbf{s} = \\mu_0 \\left( I_{\\text{enc}} + \\varepsilon_0 \\frac{d\\Phi_E}{dt} \\right)$', 'ICP 구동 중 **E-to-H 방전 모드 변이 (Transition)** 시의 유전체 분극 변위 전류 자력선 분포 제어.']
+    ],
+    overviewTitle: 'MAXWELL\'S EQUATIONS',
+    overviewCards: {
+      gaussE: { name: 'Gauss\'s Law (Electric)', sub: '가우스 전기장 (CCP)' },
+      gaussB: { name: 'Gauss\'s Law (Magnetic)', sub: '가우스 자기장 (Confinement)' },
+      faraday: { name: 'Faraday\'s Law', sub: '패러데이 유도 (ICP)' },
+      ampere: { name: 'Ampere-Maxwell Law', sub: '암페어-맥스웰 (E-to-H)' }
+    },
+    // Chapter-specific simulator UI text
+    gauss: {
+      sectionTitle: '가우스 전기장 법칙 &amp; CCP 쉬스 인터랙티브 물리 연구소',
+      tabClassic: '가우스 법칙 기본 증명',
+      tabCcp: 'CCP 반도체 플라즈마 쉬스 응용',
+      chargeLabel: '알짜 고립 전하량 (Q_enc):',
+      fieldToggle: '전기력선 보기',
+      voltageLabel: 'RF 인가 전압 (쉬스 전압):',
+      ccpNote: '(가우스 전기장 적분량 및 Ion 가속도 폭 증가)',
+      formulaPrefix: '수식 실시간 연산: ',
+      ccpCanvasText: '가우스 법칙에 의한 양이온 공간전하 쉬스 고전압 전계 가속'
+    },
+    mag: {
+      sectionTitle: 'Gauss\'s Law for Magnetism (가우스 자기장 법칙)',
+      tabClassic: '가우스 자기장 법칙 기본 증명',
+      tabConfinement: '마그네트론 스퍼터 가둠 응용',
+      angleLabel: '자기장 경사각 (θ):',
+      strengthLabel: '자기장 세기 (B):',
+      confLabel: '마그네틱 가둠 밀도 (Confinement):',
+      formulaPrefix: '수식 실시간 연산: ',
+      fluxNote: '💡 유입량 = 유출량으로 총합은 항상 0!',
+      confCanvasText: '마그네트론 타겟 배면 자석에 의한 고주파 아치 가둠 상태'
+    },
+    faraday: {
+      sectionTitle: '패러데이 전자기 유도 &amp; ICP 플라즈마 방전 인터랙티브 시뮬레이션',
+      tabLab: '시뮬레이션',
+      tabIcp: 'ICP 반도체 장비 유도성 결합 방전',
+      labHint: '💡 위 프레임 내부의 PhET 대화형 가동 시뮬레이터를 활용해 다양한 코일 루프 및 유도선속 성질을 직접 탐구해보세요!',
+      freqLabel: 'RF 안테나 주파수 (RF Freq):',
+      freqNote: '(교류 자속 변화율 $d\\Phi_B/dt$ 및 소용돌이 유도전계 제어)',
+      sourcePrefix: '출처: ',
+      eIndCanvasText: '유도결합성 원형 전기장 유도 (E_ind)'
+    },
+    ampere: {
+      sectionTitle: '암페어-맥스웰 법칙 &amp; ICP 변위 전류 인터랙티브 시뮬레이션',
+      tabLab: '시뮬레이션',
+      tabTransition: 'ICP 챔버 E-to-H 모드 양자 전이',
+      labHint: '💡 위 프레임 내부의 PhET 대화형 가동 시뮬레이터를 활용해 변위 전류에 의한 자기 유도 조건들을 탐구해보세요!',
+      powerLabel: 'RF 인가 전력 (RF Power):',
+      sourcePrefix: '출처: ',
+      initialPhase: 'ICP RF 전류 사이클 진폭 (AC Phase) = 0.00',
+      phasePrefix: 'ICP RF 전류 사이클 진폭 (AC Phase) = ',
+      hysteresisCaption: 'ICP 챔버 실시간 전력 파워 수치 및 이력(Hysteresis) 전이 곡선',
+      modeEmode: 'Capacitive E-mode (약방전)',
+      modeEmodeBadge: 'Capacitive E-mode (용량성 약방전)',
+      modeHmodeBadge: 'Inductive H-mode (유도성 강방전)',
+      icpStatusCanvasText: 'ICP 챔버 실시간 전력 상태',
+      hysteresisCurveText: '모드 변이 이력 곡선'
+    }
+  },
+  en: {
+    hTitle: 'Maxwell\'s Equations &amp; Plasma Engineering',
+    hSubtitle: 'Student Study Guide — A guidebook to the physical foundations of semiconductor plasma equipment (CCP/ICP)',
+    eraAll: 'All Chapters', eraElec: 'Electro·Magnetostatics', eraDyn: 'Electrodynamics', eraSyn: 'EM Waves & Unification',
+    eraLabels: {
+      electrostatics: 'Electro·Magnetostatics',
+      dynamics:       'Electrodynamics',
+      synthesis:      'EM Waves & Unification'
+    },
+    eraRanges: {
+      electrostatics: 'Foundations',
+      dynamics:       'Time-Varying Fields',
+      synthesis:      'Modern Synthesis'
+    },
+    eraNames: {
+      electrostatics: 'Electrostatics & Magnetostatics',
+      dynamics:       'Electrodynamics — Time-Varying Interactions',
+      synthesis:      'Electromagnetic Waves & Synthesis'
+    },
+    sectionTheory:   'Key Concepts & Derivations',
+    sectionEq:       'Equations',
+    sectionMatrix:   'Maxwell\'s Four Equations — Comprehensive Comparison Table (Semiconductor/Plasma Applications)',
+    sectionOverview: 'Interactive Board — The Four Electromagnetic Equations',
+    sectionRef:      'Reference Visual',
+    sectionSVG:      'Visual Diagram Analysis',
+    sectionNav:      'Lecture Navigation',
+    classroomLabel:  '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+    navGo:           'Go to',
+    emptyMsg:        'Select a chapter from the sidebar to begin',
+    periodLabel:     '⏰ Topic: ',
+    tagLabel:        '🔬 Tags: ',
+    sourceLabel:     'Source: ',
+    fontSizeLabel:   '🔍 Text Size',
+    btnScaleDown:    '- Smaller',
+    btnScaleUp:      '+ Larger',
+    btnScaleReset:   'Reset',
+    matrixH: ['Equation', 'Differential Form', 'Integral Form', 'Semiconductor/Plasma Application'],
+    matrixRows: [
+      ['<strong>Gauss\'s Law for Electricity</strong>', '$\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}$', '$\\oint_S \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0}$', 'Controls ion accumulation in the **CCP (Capacitively Coupled Plasma)** sheath and anisotropic ion-accelerated etching.'],
+      ['<strong>Gauss\'s Law for Magnetism</strong>', '$\\nabla \\cdot \\mathbf{B} = 0$', '$\\oint_S \\mathbf{B} \\cdot d\\mathbf{A} = 0$', 'Governs the design of local secondary-electron confinement traps formed by closed permanent-magnet loops in **Magnetron Sputtering**.'],
+      ['<strong>Faraday\'s Law of Induction</strong>', '$\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$', '$\\oint_C \\mathbf{E} \\cdot d\\mathbf{s} = -\\frac{d\\Phi_B}{dt}$', 'Drives the intense, swirling induced-field discharge from a time-varying antenna field in **ICP (Inductively Coupled Plasma)**.'],
+      ['<strong>Ampere-Maxwell Law</strong>', '$\\nabla \\times \\mathbf{B} = \\mu_0 \\left( \\mathbf{J} + \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t} \\right)$', '$\\oint_C \\mathbf{B} \\cdot d\\mathbf{s} = \\mu_0 \\left( I_{\\text{enc}} + \\varepsilon_0 \\frac{d\\Phi_E}{dt} \\right)$', 'Controls the displacement-current-driven magnetic field distribution during the **E-to-H mode transition** in ICP operation.']
+    ],
+    overviewTitle: 'MAXWELL\'S EQUATIONS',
+    overviewCards: {
+      gaussE: { name: 'Gauss\'s Law (Electric)', sub: 'Gauss — Electric (CCP)' },
+      gaussB: { name: 'Gauss\'s Law (Magnetic)', sub: 'Gauss — Magnetic (Confinement)' },
+      faraday: { name: 'Faraday\'s Law', sub: 'Faraday Induction (ICP)' },
+      ampere: { name: 'Ampere-Maxwell Law', sub: 'Ampere-Maxwell (E-to-H)' }
+    },
+    // Chapter-specific simulator UI text
+    gauss: {
+      sectionTitle: 'Gauss\'s Law for Electricity &amp; CCP Sheath Interactive Lab',
+      tabClassic: 'Gauss\'s Law — Basic Proof',
+      tabCcp: 'CCP Semiconductor Plasma Sheath Application',
+      chargeLabel: 'Net Enclosed Charge (Q_enc):',
+      fieldToggle: 'Show field lines',
+      voltageLabel: 'Applied RF Voltage (Sheath Voltage):',
+      ccpNote: '(Increases Gauss field integral and ion acceleration)',
+      formulaPrefix: 'Live formula: ',
+      ccpCanvasText: 'Sheath field accelerates positive-ion space charge per Gauss\'s Law'
+    },
+    mag: {
+      sectionTitle: 'Gauss\'s Law for Magnetism',
+      tabClassic: 'Gauss\'s Law for Magnetism — Basic Proof',
+      tabConfinement: 'Magnetron Sputtering Confinement Application',
+      angleLabel: 'Field Angle (θ):',
+      strengthLabel: 'Field Strength (B):',
+      confLabel: 'Magnetic Confinement Density:',
+      formulaPrefix: 'Live formula: ',
+      fluxNote: '💡 Inflow = Outflow, so the total is always 0!',
+      confCanvasText: 'Arched confinement field from magnets behind the magnetron target'
+    },
+    faraday: {
+      sectionTitle: 'Faraday\'s Law of Induction &amp; ICP Plasma Discharge Interactive Simulation',
+      tabLab: 'Simulation',
+      tabIcp: 'ICP Inductive Coupling Discharge',
+      labHint: '💡 Use the interactive PhET simulator above to explore coil loops and induced flux properties directly!',
+      freqLabel: 'RF Antenna Frequency:',
+      freqNote: '(Controls the rate of flux change $d\\Phi_B/dt$ and the swirling induced field)',
+      sourcePrefix: 'Source: ',
+      eIndCanvasText: 'Inductively coupled circular induced field (E_ind)'
+    },
+    ampere: {
+      sectionTitle: 'Ampere-Maxwell Law &amp; ICP Displacement Current Interactive Simulation',
+      tabLab: 'Simulation',
+      tabTransition: 'ICP Chamber E-to-H Mode Transition',
+      labHint: '💡 Use the interactive PhET simulator above to explore the magnetic induction conditions created by displacement current!',
+      powerLabel: 'Applied RF Power:',
+      sourcePrefix: 'Source: ',
+      initialPhase: 'ICP RF Current Cycle Amplitude (AC Phase) = 0.00',
+      phasePrefix: 'ICP RF Current Cycle Amplitude (AC Phase) = ',
+      hysteresisCaption: 'Real-time ICP chamber RF power and hysteresis transition curve',
+      modeEmode: 'Capacitive E-mode (weak)',
+      modeEmodeBadge: 'Capacitive E-mode (weak discharge)',
+      modeHmodeBadge: 'Inductive H-mode (strong discharge)',
+      icpStatusCanvasText: 'Real-Time ICP Chamber Power State',
+      hysteresisCurveText: 'Mode transition hysteresis curve'
+    }
+  }
+};
+
+function getSLIDES() {
+  return lang === 'ko' ? SLIDES_KO : SLIDES_EN;
+}
+
+// ==================== LANGUAGE TOGGLE ====================
+function setLang(l) {
+  lang = l;
+  document.body.setAttribute('data-lang', l);
+  document.getElementById('btnKo').classList.toggle('active-lang', l === 'ko');
+  document.getElementById('btnEn').classList.toggle('active-lang', l === 'en');
+  const T = UI[lang];
+  document.getElementById('hTitle').innerHTML = T.hTitle;
+  document.getElementById('hSubtitle').innerHTML = T.hSubtitle;
+  document.getElementById('eraAll').textContent  = T.eraAll;
+  document.getElementById('eraElec').textContent = T.eraElec;
+  document.getElementById('eraDyn').textContent  = T.eraDyn;
+  document.getElementById('eraSyn').textContent  = T.eraSyn;
+  document.getElementById('fontSizeLabel').textContent = T.fontSizeLabel;
+  document.getElementById('btnScaleDown').textContent = T.btnScaleDown;
+  document.getElementById('btnScaleUp').textContent = T.btnScaleUp;
+  document.getElementById('btnScaleReset').textContent = T.btnScaleReset;
+  buildSidebar(currentEraFilter);
+  if (currentId) {
+    const slide = getSLIDES().find(s => s.id === currentId);
+    if (slide) renderDetail(slide);
+  } else {
+    document.getElementById('detail').innerHTML = `<div class="detail-empty"><div class="icon-ring"></div><p id="emptyMsg">${T.emptyMsg}</p></div>`;
+  }
+}
+
+const SLIDES_KO = [
+  {
+    id: 'ch0',
+    chapter: 'Overview',
+    name: 'Unified Maxwell\'s Equations & Plasma Engineering',
+    nameKr: '맥스웰 방정식과 반도체 플라즈마 공학',
+    period: '반도체 플라즈마 장비(CCP & ICP)의 이론적 초석',
+    era: 'electrostatics',
+    tags: ['한눈에 보기', '요약 대시보드', 'CCP & ICP 이론'],
+    color: '#0F8C50',
+    quote: 'One scientific epoch ended and another began with James Clerk Maxwell. (맥스웰과 함께 한 과학 이론의 시대가 저물고 새로운 전기 전자기장의 시대가 열렸다.)',
+    quoteAttr: '— Albert Einstein (알베르트 아인슈타인)',
+    svg: '', 
+    isOverview: true,
+    bio: `본 대시보드는 반도체 제조 고집적 미세 공정의 절대적 기반이 되는 **Maxwell's Equations (맥스웰의 4대 방정식)**과 **Semiconductor Plasma Equipment (반도체 플라즈마 장비)**의 구동 원리를 유기적으로 융합한 연계 학습 가이드입니다.
+
+    고속 반도체 집적회로 패터닝을 위한 건식 식각 (Dry Etching) 및 박막 증착 (PECVD) 공정에서 사용되는 플라즈마 방전 장비는 전력을 가하는 물리적 구조에 따라 크게 두 가지 전자기 기둥으로 분류되며, 이는 맥스웰 법칙을 근간으로 작동합니다.
+
+    1) **CCP (Capacitively Coupled Plasma, 용량성 결합 플라즈마)**: 평행 전극에 고주파 전압을 인가하여 강한 전기장을 만들고 이로 전자를 가속해 방전시킵니다. 전하 보존과 이온 쉬스(Sheath) 전계는 **Gauss's Law (가우스 전기장 법칙)**을 정량적 뼈대로 삼습니다.
+    2) **ICP (Inductively Coupled Plasma, 유도결합 플라즈마)**: 챔버 외곽 안테나 코일에 RF 전류를 흘려 시변 자기장을 유도하고, 이에 따라 발생한 소용돌이 전기장으로 방전을 유도합니다. 이는 **Faraday's Law (패러데이 법칙)** 및 **Ampere-Maxwell Law (암페어-맥스웰 법칙)**에 직접 지배받습니다.`,
+    classroom: {
+      title: '🙋‍♂️ 이 교재의 효과적인 자기주도 학습 활용법',
+      body: '반도체 플라즈마 식각 한계를 극복하려는 소자 엔지니어와 예비 공정 전문가들에게 전자기학 수식은 단순 기하학을 넘어 장비 임피던스 설계의 정량 도구입니다. 각 단원을 선택하여 가우스 법칙 기반의 CCP 쉬스(Sheath) 가동 시뮬레이션, 패러데이 전력 유도에 의한 ICP 방전(PhET 스타일 줌 인터랙티브 랩) 및 E-to-H 모드 양자 변이(Hysteresis) 그래프를 입체적으로 작동시켜 보며 물리적 통찰을 획득하세요.'
+    },
+    equations: [],
+    connections: ['가우스 전기장', '가우스 자기장']
+  },
+  {
+    id: 'ch1',
+    chapter: 'Chapter 1',
+    name: 'Gauss\'s Law & CCP Sheath Dynamics',
+    nameKr: '가우스 전기장 법칙과 CCP 쉬스 형성 원리',
+    period: '맥스웰 제1방정식 (용량성 결합 플라즈마의 전계 기틀)',
+    era: 'electrostatics',
+    tags: ['전기장 발산', '쉬스 전계', '용량성 CCP'],
+    color: '#3182CE',
+    quote: 'The net electric flux through any closed surface is equal to the enclosed net charge divided by permittivity. (임의의 닫힌 곡면을 관통하는 알짜 전기선속은 그 내부에 고립된 전하량에 비례한다.)',
+    quoteAttr: '— Carl Friedrich Gauss (칼 프리드리히 가우스)',
+    isGaussSim: true,
+    bio: `맥스웰 제1방정식인 **Gauss's Law for Electricity (가우스 전기장 법칙)**은 공간 내 양전하와 음전하의 불균등 분포가 유도해 내는 **Electric Field (전기장)**의 **Divergence (발산)** 비율을 결정하는 대법칙입니다.
+
+    반도체 핵심 전극 구조인 **CCP (Capacitively Coupled Plasma, 용량성 결합 플라즈마)** 장비에서 이 법칙은 웨이퍼 타격을 결정짓는 **Sheath (쉬스, Space Charge Layer)** 물리 현상을 전적으로 규정합니다. 
+
+    기상 상태에서 전극에 강한 RF 고전압이 인가되면, 가볍고 빠른 자유 전자는 벽면 전극으로 빠르게 탈출하는 반면, 상대적으로 무겁고 느린 양이온($Ar^+$ 등)은 전극 근처에 조밀한 공간 양전하 밀도($\rho = e n_i$)를 형성하게 됩니다. 가우스 법칙에 의해 이 양이온 공간 대전층에서 웨이퍼를 향해 내리꽂히는 막강한 직진성 **Sheath Electric Field (쉬스 전기장)**이 유도되며, 이 전기장을 타고 양이온이 가속 타격하여 평행한 미세 수직 채널을 파내려 가는 **Anisotropic Etching (비등방성 식각)** 공정이 완벽히 구현됩니다.`,
+    theories: [
+      { year: '수학적 정의', name: '미분형 (Differential Form)', desc: '공간 상 임의 지점 전하 밀도($\\rho$)와 전기장 발산량의 비율 정의: $\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}$' },
+      { year: '공간적 정의', name: '적분형 (Integral Form)', desc: '폐곡면 가우스 표면 전체를 뚫고 나가는 알짜 전기선속 적분량과 내부 고립 알짜 전하의 비례: $\\oint_S \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0}$' },
+      { year: 'CCP 응용', name: 'CCP Sheath 전계 유도', desc: '쉬스 영역에서의 전하 밀도 편차를 공간 적분하여, 웨이퍼 수직 충격(Ion Bombardment) 에너지를 정밀 차트화하는 Poisson 방정식의 물리적 기초.' }
+    ],
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기: CCP 장비에서 가우스 법칙에 입각하여 가해 준 전하 밀도가 높을수록(예: RF 전압과 가스 압력이 증가해 이온 밀도가 급증할수록) 쉬스 영역 내부의 전기장 경사도와 쉬스의 두께($d_s$)는 어떻게 가우스 수치상 변화하게 되는지 쿨롱력 및 공간 전계 적분 관계식을 기반으로 고찰해 봅시다.'
+    },
+    equations: [
+      '\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0} \\quad \\text{(Differential Form)}',
+      '\\oint_S \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0} \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['개요 한눈에', '가우스 자기장']
+  },
+  {
+    id: 'ch2',
+    chapter: 'Chapter 2',
+    name: 'Gauss\'s Law for Magnetism & Plasma Confinement',
+    nameKr: '가우스 자기장 법칙과 자기적 플라즈마 가둠',
+    period: '맥스웰 제2방정식 (자기 홀극 부재 법칙 & 스퍼터링 공정)',
+    era: 'electrostatics',
+    tags: ['자기장 발산 Zero', '자기 홀극 부재', '스퍼터링 가둠'],
+    color: '#0F8C50',
+    quote: 'There are no isolated magnetic poles; magnetic field lines must form continuous closed loops. (우주 상에 독단적인 자기 홀극은 존재하지 않으며, 자기력선은 유입된 만큼 유출되어 항상 완전한 폐루프 회로를 이룬다.)',
+    quoteAttr: '— 자기장 가우스 법칙의 근본 진리',
+    isMagnetismSim: true,
+    svg: ``, // Dynamically replaced by the interactive simulation panel
+    bio: `맥스웰 제2방정식은 자연계에 홀로 독립된 단일 **Magnetic Monopole (자기 홀극)**은 실재할 수 없으며, 모든 자기력선은 시작과 끝이 완전히 이어지는 폐쇄 궤적을 갖는다는 **Gauss's Law for Magnetism (가우스 자기장 법칙)**입니다.
+
+    이 법칙은 반도체 배선 금속을 물리 증착하는 **Magnetron Sputtering (마그네트론 스퍼터링)** 플라즈마 장비 설계의 최상위 구동 기둥입니다. 
+
+    기판 증착 효율을 높이기 위해 타겟 음극 배면에 영구자석을 배열하면, 가우스 자기장 법칙에 따라 가속 방출된 N극 자속이 공간 상에서 완벽한 아치형 **Closed Loop (폐루프)**를 그리며 인근 S극으로 회귀합니다. 이 아치형 자기장은 플라즈마 내부의 전하 입자인 전자를 도망가지 못하게 하는 강력한 **Magnetic Confinement (자기적 가둠)** 트랩을 형성합니다. 전자는 자이로 반지름(Larmor Radius)을 궤적 삼아 고속 회전 및 왕복 진동하며 기체 원자와 끊임없이 추가 2차 이온화를 가속시킵니다. 이 덕택에 극저압 상태에서도 극도로 촘촘한 고 density 플라즈마가 전극 부근에 가두어져 스퍼터링 금속 박막 증착 속도가 기하급수적으로 폭등합니다.`,
+    theories: [
+      { year: '수학적 정의', name: '미분형 (Differential Form)', desc: '공간 상 임의의 점 영역에서 들어오고 나가는 자속 발산의 정량적 대수 합은 언제나 제로이다: $\\nabla \\cdot \\mathbf{B} = 0$' },
+      { year: '공간적 정의', name: '적분형 (Integral Form)', desc: '임의 형상의 폐곡면 가우스면을 가로질러 출입하는 정지 알짜 자기선속 편차는 없다: $\\oint_S \\mathbf{B} \\cdot d\\mathbf{A} = 0$' },
+      { year: '스퍼터링 응용', name: 'Magnetron Target Confinement', desc: '이탈하는 전자를 아치형 닫힌 자기장에 국소 결속(E x B Drift)시켜, 타겟 표면 부근 아르곤 이온 밀도를 비약적으로 상승시키는 공정 원천 공식.' }
+    ],
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기: 가우스 자기장 법칙에 기초해 볼 때, 스퍼터링 챔버 내부에서 영구자석의 중심(N극) 바로 위 수직선 지점과 자석 사이의 아치 꼭대기 지점 중 전자가 가장 안정적으로 결속(Trapped)되어 고밀도 플라즈마 발광(Glow)이 일어나는 국소 위치는 어디이며 가우스 물리 법칙에 명시된 자기선속 벡터 분기 관점에서 이를 설명하십시오.'
+    },
+    equations: [
+      '\\nabla \\cdot \\mathbf{B} = 0 \\quad \\text{(Differential Form)}',
+      '\\oint_S \\mathbf{B} \\cdot d\\mathbf{A} = 0 \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['가우스 전기장', '패러데이 전자기 유도']
+  },
+  {
+    id: 'ch3',
+    chapter: 'Chapter 3',
+    name: 'Faraday\'s Law & Inductive Plasma Coupling',
+    nameKr: '패러데이 전자기 유도 법칙과 ICP 유도 전계 형성',
+    period: '맥스웰 제3방정식 (유도결합 플라즈마 ICP의 핵심 방전 원리)',
+    era: 'dynamics',
+    tags: ['시변 자기장', '맴돌이 전기장', '유도 ICP 방전'],
+    color: '#7030A0',
+    quote: 'An electromotive force is induced in a conductor by any change in the magnetic flux linking it. (시간 변화를 겪는 자기선속은 그 주변에 스스로 소용돌이쳐 회전하는 유도 기전력 전계를 창출한다.)',
+    quoteAttr: '— Michael Faraday (마이클 패러데이)',
+    isFaradaySim: true,
+    bio: `맥스웰 제3방정식인 **Faraday's Law of Induction (패러데이 전자기 유도 법칙)**은 시간 가변성 **Magnetic Field (자기장)**의 요동이 공간 상에 **Curl (회전)**하는 형태의 비보존성 **Induced Electric Field (유도 전기장)**을 창조해 낸다는 고전 물리 대칭의 완성입니다.
+
+    이 물리 법칙은 반도체 초미세 에칭 가공의 최강자인 **ICP (Inductively Coupled Plasma, 유도결합 플라즈마)** 장비의 **Inductive Plasma Coupling (유도성 플라즈마 결합)** 방전 메커니즘을 전적으로 관장합니다.
+
+    챔버 외벽 쿼츠 가스 돔 바깥에 나선형으로 감긴 RF 안테나 코일에 수 MHz of 교류 전류가 인가되면, 안테나 코일 중심축을 관통하는 고속 왕복 교류 자기장($\\frac{\\partial\\mathbf{B}}{\\partial t}$)이 형성됩니다. 패러데이 법칙에 의해 이 시변 자기장은 챔버 내벽 유전체 윈도우 바로 안쪽에 코일 주위를 동심원 형태로 끊임없이 회전하며 소용돌이치는 유도 전기장($\\mathbf{E}_{ind}$)을 형성시킵니다. 이 유도 전기장은 플라즈마 내부의 자유 전자들을 원운동 경로 상에서 수십 eV 수준으로 무섭게 회전 가속시킵니다. 가속된 전자들은 전하 교환 및 아르곤 기체 분자를 격렬히 전리 충돌시키며 전극 오염 없이도 대량의 양이온을 함유한 **High-Density Plasma (고밀도 플라즈마)** 상태를 영구 지속해 냅니다.`,
+    theories: [
+      { year: '수학적 정의', name: '미분형 (Differential Form)', desc: '공간 국소 시변 자기장 변화율이 자발적 유도 전기장 회전 소용돌이 강도를 발생시킴: $\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$' },
+      { year: '공간적 정의', name: '적분형 (Integral Form)', desc: '닫힌 폐경로를 따르는 전기장의 선적분(기전력)은 폐경로 단면적 관통 총 자기선속 변화율에 비례 감쇄한다: $\\oint_C \\mathbf{E} \\cdot d\\mathbf{s} = -\\frac{d\\Phi_B}{dt}$' },
+      { year: 'ICP 구동 원리', name: 'Inductor Antennas', desc: '직접 전극 노출이 없어 메탈 스퍼터링 오염 물질 유입을 원천 차단하며 기판 식각 속도를 100배 이상 제어하는 유도 에너지 결합 회로 구축 of 원천 공식.' }
+    ],
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기: 아래 탑재된 PhET 대화형 가동 시뮬레이터를 조작하여, 바석 마그네트를 솔레노이드 코일에 집어넣고 완전히 정지시켰을 때 아날로그 바늘의 유도 전위가 왜 곧바로 영(0)으로 수렴하는지 패러데이 시간 변화율 유도항($d\\Phi_B/dt$)과 연계하여 정성적으로 설명하십시오.'
+    },
+    equations: [
+      '\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t} \\quad \\text{(Differential Form)}',
+      '\\oint_C \\mathbf{E} \\cdot d\\mathbf{s} = -\\frac{d\\Phi_B}{dt} \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['가우스 자기장', '암페어-맥스웰 법칙']
+  },
+  {
+    id: 'ch4',
+    chapter: 'Chapter 4',
+    name: 'Ampere-Maxwell Law & ICP H-mode Transition',
+    nameKr: '암페어-맥스웰 법칙과 ICP 방전 모드 변이 원리',
+    period: '맥스웰 제4방정식 (유도전류와 변위전류 결합 및 ICP 모드 변이)',
+    era: 'dynamics',
+    tags: ['변위 전류', 'E-to-H 모드 변이', '고밀도 ICP 방전'],
+    color: '#0F8C50',
+    quote: 'Magnetic fields are produced both by conduction currents and by time-varying electric fields. (도선 속 양자화 전하의 흐름 뿐만 아니라, 시간에 따라 요동치는 변위 전기장의 교란 역시 공간 상에 유효한 자기력을 동반 생성한다.)',
+    quoteAttr: '— James Clerk Maxwell (제임스 클러크 맥스웰)',
+    isAmpereSim: true,
+    bio: `맥스웰 제4방정식은 앙페르가 정의했던 전하 전도 전류($\mathbf{J}$) 외에, 절연체 내부와 진공의 빈 공간에서 교전기장의 떨림이 마치 실제 전류와 같이 공간 자기장을 형성하는 효과인 **Displacement Current (변위 전류)** 항을 최초로 추가한 전자기 대완성 **Ampere-Maxwell Law (암페어-맥스웰 법칙)**입니다.
+
+    반도체 식각 공정 핵심 장비인 ICP 챔버 구동 시 이 암페어-맥스웰 법칙은 장비 운전 상태의 물리적 차원을 바꾸는 극적인 특이 전이 현상인 **E-to-H Mode Transition (E-to-H 방전 모드 변이)**을 정밀 조율합니다.
+
+    안테나 코일에 RF 교류 전원을 주입하는 초기 단계에서는, 코일 양단 간 수백 Volts에 달하는 강한 RF 전압 강하가 quartz 유전체 창을 통과하는 격렬한 시변 변위 전기장(Displacement Current) 성분을 먼저 유도하여 용량성 전위 분포 상태인 **E-mode (용량성 방전 모드, Capacitive mode)**로 플라즈마가 어둡고 흐리게 점화됩니다. 그러나 RF 인가 전력을 특정 threshold 이상으로 증강하면, 격렬한 RF 전도 전류 루프에 의한 순수 유도 결합 거동이 플라즈마 매질 전도도를 폭증시킵니다. 이에 따라 교전자기력에 의한 유도 유효 H-전계가 내부 방전 에너지를 장악하며 고성능 유도 결합성 **H-mode (유도성 방전 모드, Inductive mode)**로 비약 전이합니다. 이 모드 변이를 기점으로 챔버 내부의 플라즈마 밀도가 무려 100~1,000배 가량 비등하게 솟구치며 반도체 고집적 수직 식각을 가공할 수 있는 고효율 상용 운전 상태에 도달하게 됩니다.`,
+    theories: [
+      { year: '수학적 정의', name: '미분형 (Differential Form)', desc: '공간 상의 자기장 회전(Curl) 강도는 전하 이동 전류밀도와 시변 전기장 변위전류밀도의 정량적 합에 비례: $\\nabla \\times \\mathbf{B} = \\mu_0 \\left( \\mathbf{J} + \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t} \\right)$' },
+      { year: '공간적 정의', name: '적분형 (Integral Form)', desc: '폐루프선 선적분 경계 자기력의 크기는 관통하는 알짜 전도전류량과 변위전류량의 대수적 총합과 일치: $\\oint_C \\mathbf{B} \\cdot d\\mathbf{s} = \\mu_0 \\left( I_{\\text{enc}} + \\varepsilon_0 \\frac{d\\Phi_E}{dt} \\right)$' },
+      { year: 'ICP 모드 변이', name: 'E-to-H Mode Hysteresis', desc: 'Capacitive 파동 결합에서 Inductive 유도 루프 결합으로 이행할 때 발생하는 전하밀도 및 전력 전달 임피던스의 비선형 이력 곡선 설계 기초식.' }
+    ],
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기: 암페어-맥스웰 법칙에 비추어 볼 때, 쿼츠 윈도우 유전체를 감싸 안은 인덕터 안테나 코일 주변에서 Displacement Current($\\varepsilon_0 \\partial\\mathbf{E}/\\partial t$)에 의해 초기에 켜지는 E-mode의 플라즈마 상태가 ICP 장비 운전 중 정상 고성능 H-mode로 넘어가는 시점에 챔버 임피던스(RF Impedance) 매칭 부조화가 일어나는 원인을 변위전류 및 가속 유도 전도 전류의 생성 비율 변화를 근거로 서술해 보십시오.'
+    },
+    equations: [
+      '\\nabla \\times \\mathbf{B} = \\mu_0 \\left( \\mathbf{J} + \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t} \\right) \\quad \\text{(Differential Form)}',
+      '\\oint_C \\mathbf{B} \\cdot d\\mathbf{s} = \\mu_0 \\left( I_{\\text{enc}} + \\varepsilon_0 \\frac{d\\Phi_E}{dt} \\right) \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['패러데이 전자기 유도', '참고: 전자기 파동방정식']
+  },
+  {
+    id: 'ch5',
+    chapter: 'Chapter 5',
+    name: 'EM Wave Propagation & Plasma Cutoff',
+    nameKr: '전자기 파동방정식과 플라즈마 내 차단 진동수 물리',
+    period: '맥스웰 이론이 유도해 낸 우주의 핵심 파동 공식과 반도체 진단 기술',
+    era: 'synthesis',
+    tags: ['파동 방정식', '광속 상수', '플라즈마 차단 주파수'],
+    color: '#E53E3E',
+    quote: 'Electromagnetic waves travel through empty space at a speed defined solely by electric and magnetic properties of medium. (빛과 전자기 전파는 매질 고유의 분극 및 투자 상수에 의해 유도되어 우주 공간을 시공 적분하며 영구 이동한다.)',
+    quoteAttr: '— James Clerk Maxwell (제임스 클러크 맥스웰)',
+    imageUrl: 'images/electromagnetic_wave_propagation.png',
+    imageTitle: '전기자기파의 전송 (Electromagnetic Wave Propagation)',
+    imageSource: '로컬 이미지 (images/electromagnetic_wave_propagation.png)',
+    bio: `맥스웰 4대 방정식의 최종 융합 결과로 도출된 **Electromagnetic Wave Equation (전자기 파동 방정식)**은 아무런 매질이 부재한 진공 우주 속에서도 전기장과 자기장이 상호 시변 유도를 연쇄 교환하며 빛의 속도($c = 1/\\sqrt{\\mu_0\\varepsilon_0}$)로 끝없이 자가 파동 전파해 나가는 정량적 대우주 정합성의 증명입니다.
+
+    하지만 이 빛과 고주파가 전하 이온 및 자유 전자로 구성된 도전성 가스 매질인 **Plasma (플라즈마)** 영역으로 투사되면, 그 전파 양상은 플라즈마 고유 물리량인 **Plasma Frequency (플라즈마 진동수, $\\omega_p$)**에 의해 전격 제어당하는 특이 물리 현상으로 전이합니다.
+
+    입사된 무선 RF 파동의 교류 주파수가 플라즈마 내부 전자들의 고유 진동 속도($\\omega_p$)보다 작으면, 내부에 충전된 전하 구름들이 파동 전계에 발맞추어 이동 분극 분산을 가속화함으로써 전기장을 상쇄 차단시켜 거울처럼 외부로 완전히 반사(Cutoff)시켜 버립니다. 반도체 공정 분야에서는 이 신비로운 차단 현상을 정밀 역이용하여, 비파괴 무선 탐침을 챔버 속에 통과시켜 플라즈마의 알짜 전하 density를 고주파 스펙트럼 차단 구간 분석으로 거울 매핑하듯 무손실 진단해 내는 **Cutoff Probe (차단 프로브)** 시스템을 현업에 핵심 가동시키고 있습니다.`,
+    theories: [
+      { year: '수학적 증명', name: '전기장 파동방정식 유도', desc: '진공 속 맥스웰 미분 연쇄 결과에 따른 고유 전자기 전파 파동 방정식 공식 유도: $\\nabla^2 \\mathbf{E} = \\mu_0 \\varepsilon_0 \\frac{\\partial^2 \\mathbf{E}}{\\partial t^2}$' },
+      { year: '플라즈마 적용', name: 'Plasma Cutoff 진동수 결정', desc: '플라즈마 밀도 $n_e$에 비례하는 고유 분극 한계 진동수 유도 공식: $\\omega_p = \\sqrt{\\frac{n_e e^2}{\\varepsilon_0 m_e}}$' },
+      { year: '반도체 실무', name: 'Ellipsometry & Diagnostics', desc: '웨이퍼 건식 가공 챔버 내부의 공정 환경 안정성을 위해 타원 광학 및 차단 반사 진동수 공식으로 이온 밀도를 실시간 원격 진단.' }
+    ],
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기: 플라즈마 차단 진동수($\\omega_p$) 공식에 기반할 때, 차세대 초고집적 소형 메모리 소자를 식각하기 위해 챔버 전하 농도($n_e$)를 10배 높였다면, 플라즈마 밀도를 비파괴 계측 진단하기 위해 투과 인가시키는 전자기 프로브 신호의 측정 RF 주파수 대역 한계치는 기존 대비 어떻게 변동되어야 가공 플라즈마 영역을 뚫고 지나가 계측 분석에 성공할 수 있을지 설명해 보세요.'
+    },
+    equations: [
+      '\\nabla^2 \\mathbf{E} = \\mu_0 \\varepsilon_0 \\frac{\\partial^2 \\mathbf{E}}{\\partial t^2} \\quad \\text{and} \\quad \\omega_p = \\sqrt{\\frac{n_e e^2}{\\varepsilon_0 m_e}} \\quad \\text{(플라즈마 진동수)}',
+      'n_{\\text{medium}} = \\sqrt{1 - \\frac{\\omega_p^2}{\\omega^2}} \\quad \\text{(플라즈마 굴절률)}'
+    ],
+    connections: ['암페어-맥스웰 법칙', '참고: 전자기 유일론의 수립과 헤르츠의 위대한 증명']
+  },
+  {
+    id: 'ch6',
+    chapter: 'Chapter 6',
+    name: 'James Clerk Maxwell & Unified Field Theory',
+    nameKr: '제임스 클러크 맥스웰과 통일장 이론',
+    period: '근대 전자기물리의 완성자이자 현대 양자 이론의 문지기',
+    era: 'synthesis',
+    tags: ['맥스웰 전기학', '전자기 일원론', '통일장 기틀'],
+    color: '#7030A0',
+    quote: 'James Clerk Maxwell\'s unification of electricity and magnetism represents one of the greatest leaps forward in the history of human thought.',
+    quoteAttr: '— 리처드 파인만 (Richard Feynman, 1918 - 1988)',
+    imageUrl: 'images/second_unfication.png',
+    imageTitle: '전기와 자기의 통합',
+    imageSource: '로컬 이미지 (images/second_unfication.png)',
+    bio: `스코틀랜드의 천재 물리학자이자 수학자인 <b>제임스 클러크 맥스웰(James Clerk Maxwell)</b>은 갈가리 조각나 서로 다른 현상으로 다루어지던 고전 전자기 발견물들을 완벽하게 정합 정리하여 현대적인 기초 물리학 혁명을 엮어내었습니다.
+
+    그는 1865년 기념비적인 저서인 <i>'전자기장의 역학적 이론(A Dynamical Theory of the Electromagnetic Field)'</i>를 통해 인류 최초로 우주에서 에너지가 힘의 매개를 따라 공간 매질 전체로 전파되어 나가는 '장(Field)'이라는 근대 혁신적 시각을 이식했습니다.
+
+    이 위대한 통일은 훗날 알베르트 아인슈타인의 상대성 이론을 싹트게 하는 강력한 시발점이자 지주가 되었으며, 게다가 강한 상호작용 및 약한 상호작용을 통합하려는 현대 입자 물리학의 **Unified Field Theory (통일장 이론)**에 전구체적인 이정표를 던졌습니다. 인류 물리학사는 뉴턴 역학의 첫 단추 아래에서 도약하여 맥스웰의 전자기장을 거침으로써, 마침내 현대의 양자 세계 대변동을 맞이할 수 있었습니다.`,
+    theories: [
+      { year: '1865', name: '전자기장 이론 공식 발표', desc: '역학적 에테르 모델 대신, 에너지 전달 경로로서 공간에 독자 실재하는 "장(Field)" 개념 도입.' },
+      { year: '1873', name: '전자기론 Treatise 출간', desc: '사후 물리학자들이 맥스웰 방정식을 4대 벡터 형태로 단순화할 수 있는 강력한 수학적 수학 대계 정립.' },
+      { year: '1879', name: '지적 유산의 영속성', desc: '그의 업적은 고전물리가 마주한 전자기 붕괴 한계(원자 궤도 파국 등)를 명확히 고증함으로써 보어 등 현대 양자역학계로 이행하는 결정적 징검다리를 제공.' }
+    ],
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기: 맥스웰이 주창한 "장(Field)"이라는 개념이 물리학에서 왜 패러다임적 대대도약으로 평가받을까요? 뉴턴의 "원격 작용" 즉 매개 시간 지연 없이 서로 당기는 만유인력 기조에서 탈피하여 에너지 밀도와 전파 지연 시간이 공간 상에 유효하게 존재한다는 논리를 근거 삼아 논해 봅시다.'
+    },
+    equations: [
+      '\\text{Optics } (\\text{광학}) \\quad \\longleftrightarrow \\quad \\text{ Electricity } (\\text{전기}) \\quad \\longleftrightarrow \\quad \\text{ Magnetism } (\\text{자기})'
+    ],
+    connections: ['참고: 전자기 유일론의 수립과 헤르츠의 위대한 증명', '종합 분석 비교표']
+  },
+  {
+    id: 'ch6_ref',
+    chapter: '참고',
+    name: 'The Great Unification & Hertz\'s Experimental Proof',
+    nameKr: '참고: 전자기 유일론의 수립과 헤르츠의 위대한 증명',
+    period: '1865년 ~ 1888년',
+    era: 'synthesis',
+    tags: ['맥스웰의 대통합', '헤르츠 불꽃 실험', '빛의 본질 규명'],
+    color: '#7030A0',
+    quote: 'The demonstration of electromagnetic waves by Hertz is one of the most brilliant achievements of science. (헤르츠에 의한 전자기파의 존재 증명은 과학사에서 가장 영광스럽고도 눈부신 성취이다.)',
+    quoteAttr: '— 헤르만 폰 헬름홀츠 (Hermann von Helmholtz)',
+    imageUrl: 'images/hertz_experiment.png',
+    imageTitle: '헤르츠의 전자기파 불꽃 방전 실험 장치 전경',
+    imageSource: '출처: phy.cam.ac.uk',
+    bio: `**맥스웰의 이론적 대통합 (Theoretical Unification)**
+    맥스웰 이전의 근대 과학계에서 전기와 자기는 완전히 조각난 개별 현상으로 여겨졌습니다. 쿨롱, 앙페르, 가우스, 패러데이 등이 이룩한 발견은 각자의 영역에서 훌륭했으나, 전체를 아우르는 수학적 연결고리가 결여되어 있었습니다. 맥스웰은 이들의 흩어진 정량 이론들을 통합하는 지적인 결합에 도전했습니다. 
+    특히 그는 정적 전류만을 상상했던 **Ampere's Law (암페어 법칙)**의 전하 보존 모순을 해결하고자 시간에 따라 극성 변화를 겪는 교전기장의 누적 효과인 **Displacement Current (변위 전류)** 개념을 대칭적 요소로 주입했습니다. 이 완벽한 대수적 결합 과정에서 전하가 부재한 진공 상태에서도 자가 증폭하며 영구적으로 퍼져나가는 **Electromagnetic Wave (전자기파)**의 이론적 실체인 **Wave Equation (파동 방정식)**이 우아하게 유도되었습니다.
+
+    **독일의 국가적 도전과 회의론 (German Skeptical Challenge)**
+    그러나 맥스웰의 발표 초기, 대륙 유럽(특히 독일 and 프랑스)의 물리학계는 이 혁명적 장 이론을 극도로 냉대했습니다. 당시 물리학의 지배적 기조는 매질 가치 없이 진공을 가로질러 힘이 즉각 전달된다는 뉴턴 식 **Action-at-a-distance (원격 작용)** 역학이었기 때문입니다. 이에 따라 독일 베를린 아카데미(Berlin Academy)는 맥스웰 이론의 타당성(특히 유전체 분극 변위전류가 가상의 자력을 만드는지 여부)을 실험으로 명백히 입증하거나, 역으로 그 모순적 오류를 과학적으로 정확히 폭로하는 학자에게 거액의 상금과 훈장을 수여하기로 선포하며 국가적 차원의 실험 레이스를 제안했습니다. 이 지적 결투는 당대 독일 물리학계의 최고 거장인 **Hermann von Helmholtz (헤르만 폰 헬름홀츠)**에 의해 공식 기조로 정립되었습니다.
+
+    **헤르츠의 역사적 불꽃 실험 실증 (Hertz's Experimental Proof)**
+    우수한 학자 하인리히 헤르츠(Heinrich Hertz)는 1887~1888년 독일 카를스루에 연구실에서 인류 역사상 가장 아름다운 불꽃 갭(Spark-gap) 동조 실험 장치를 제작하여 도전을 개시했습니다. 
+    송신기 구체 갭에 고전압 방전을 유도하자, 보이지 않는 무선의 전하 파동이 우주 공간 매질을 전파로 가르며 날아가 수 미터 떨어진 고리 모양의 단절 수신기 루프에 정확히 동기화된 미세 불꽃을 유도 점화시키는 기적을 일궈냈습니다. 헤르츠는 이 보이지 않는 전자기 유도 진동의 속도가 맥스웰의 수학적 연산과 완벽히 일치하는 **Speed of Light (광속)**임을 정밀 증명하였으며, 전자기파가 빛처럼 완전한 반사(Reflection), 굴절(Refraction), 그리고 **Polarization (편광)** 현상을 나타냄을 명백하게 실험 관측으로 고증해 보였습니다. 이 역사적 순간에 "빛은 스스로 자가 전도하는 전자기파의 일종"이라는 우주 진리가 마침내 실증 확정되었으며, 고전 물리학은 맥스웰 수식의 철저한 승리 하에 새로운 차원의 시대로 완전히 도약했습니다.`,
+    theories: [
+      { year: '1865년', name: 'Maxwell의 전자기 통합설 발표', desc: '쿨롱, 앙페르, 패러데이 법칙을 4대 벡터 미적분 방정식으로 동조 통합하고 진공 속 전자기 전파 속도가 광속과 일치함을 유도.' },
+      { year: '1879년', name: '베를린 아카데미 국가 공모전', desc: '맥스웰 주창한 변위 전류의 자기 유도 작용의 물리적 실재를 입증하거나 혹은 오류를 정밀 폭로하라는 대륙 물리학의 국가적 대결 제안.' },
+      { year: '1887~1888년', name: 'Hertz의 Spark-Gap 대실증 완료', desc: '전기 불꽃 갭 방전과 루프 안테나 동조 공진으로 전자기파 방출 및 속도, 굴절, 편광을 완벽 증명하여 맥스웰 전자기 일원론 최종 확정.' }
+    ],
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기: 헤르츠의 대실증 이전에 독일 물리학계가 영구적으로 신뢰했던 "Action-at-a-distance (원격 작용)" 역학과 맥스웰이 수립한 "Field (장)" 전파 이론의 가장 결정적인 차이점을, "에너지 전달 상의 시간 지연(Time Delay)" 측면과 결부하여 헤르츠의 전파 속도 측정 결과를 기초 삼아 정성적으로 서술하십시오.'
+    },
+    equations: [
+      'v = \\lambda \\nu = c \\quad \\text{and} \\quad c = \\frac{1}{\\sqrt{\\mu_0 \\varepsilon_0}} \\approx 3 \\times 10^8 \\text{ m/s}'
+    ],
+    connections: ['제임스 클러크 맥스웰', '종합 분석 비교표']
+  },
+  {
+    id: 'ch7',
+    chapter: 'Chapter 7',
+    name: 'Comprehensive Summary Matrix',
+    nameKr: '전자기 법칙 종합 비교 분석표',
+    period: '맥스웰 4대 방정식 계통 정리',
+    era: 'synthesis',
+    tags: ['한눈에 보기', '요약표', '수강 점검'],
+    color: '#0F8C50',
+    quote: '위대한 물리 법칙들이 지닌 심미성은 불완전해 보이는 복잡한 현상 속에서 극치에 도달한 수학적 대칭미를 포착하는 데 있다.',
+    quoteAttr: '— Benedu Insight Electromagnetics Series',
+    isMatrix: true, 
+    bio: `본 종합 요약 슬라이드에서는 가우스 전기장 법칙부터 시변 앙페르-맥스웰 전자기 결합 수식까지의 전 과정적 핵심 물리량을 종합 대비 분석합니다.
+
+    각 방정식이 돌파해 낸 고유 물리 공헌과 다른 전자기 변량들과의 연쇄적인 상관 관계를 체계화함으로써, 현대 노광 장비 설계 및 RF 고주파 통신 수치 제어 등을 설계하는 종합적 엔지니어링 혜안을 획득할 수 있습니다.`,
+    classroom: {
+      title: '🙋‍♂️ 생각거리 및 자기주도 복습 퀴즈 (클릭하여 열기)',
+      body: '스스로 답해보기:<br>1. 맥스웰이 새롭게 유도 추가한 "변위 전류(Displacement Current)" 항이 없을 때, 고성능 반도체 캐패시터 및 DRAM 디바이스의 시변 누설 임피던스 분석 모델링에서 어떠한 계산적 오차와 해석적 불합리성이 도출되는지 서술하십시오.<br>2. 패러데이 법칙과 암페어-맥스웰 법칙의 대칭성 형태에서 빛이 매질이 필요 없이 진공 상태에서도 자가 유도로 스스로 번갈아 생성되며 먼 공간으로 날아가는 기하학적 파동 전달 과정을 묘사해 보십시오.'
+    },
+    equations: [],
+    connections: ['개요 한눈에', '가우스 전기장']
+  }
+];
+
+const SLIDES_EN = [
+  {
+    id: 'ch0',
+    chapter: 'Overview',
+    name: 'Unified Maxwell\'s Equations & Plasma Engineering',
+    nameKr: 'Maxwell\'s Equations and Semiconductor Plasma Engineering',
+    period: 'Theoretical Foundations of Semiconductor Plasma Equipment (CCP & ICP)',
+    era: 'electrostatics',
+    tags: ['Overview', 'Summary Dashboard', 'CCP & ICP Theory'],
+    color: '#0F8C50',
+    quote: 'One scientific epoch ended and another began with James Clerk Maxwell.',
+    quoteAttr: '— Albert Einstein',
+    svg: '',
+    isOverview: true,
+    bio: `This dashboard is an integrated learning guide that organically connects **Maxwell's Equations**, the absolute foundation of advanced semiconductor patterning, with the operating principles of **Semiconductor Plasma Equipment**.
+
+    Plasma discharge equipment used for dry etching and thin-film deposition (PECVD) in semiconductor integration is broadly classified into two electromagnetic families based on how power is delivered, and both operate on the basis of Maxwell's laws.
+
+    1) **CCP (Capacitively Coupled Plasma)**: A high-frequency voltage is applied across parallel electrodes to create a strong electric field that accelerates electrons and sustains the discharge. Charge conservation and the ion sheath electric field are quantitatively governed by **Gauss's Law**.
+    2) **ICP (Inductively Coupled Plasma)**: An RF current flows through an antenna coil outside the chamber, inducing a time-varying magnetic field that, in turn, produces a swirling electric field that sustains the discharge. This is governed directly by **Faraday's Law** and the **Ampere-Maxwell Law**.`,
+    classroom: {
+      title: '🙋‍♂️ How to Use This Guide for Self-Directed Learning',
+      body: 'For device engineers and aspiring process specialists working to overcome the limits of semiconductor plasma etching, electromagnetic equations are more than abstract geometry — they are quantitative tools for designing equipment impedance. Select each chapter to interact with the Gauss\'s-Law-based CCP sheath simulation, the Faraday-induction-driven ICP discharge lab (a PhET-style interactive zoom lab), and the E-to-H mode transition (hysteresis) graph, gaining physical insight in three dimensions.'
+    },
+    equations: [],
+    connections: ['Gauss\'s Law for Electricity', 'Gauss\'s Law for Magnetism']
+  },
+  {
+    id: 'ch1',
+    chapter: 'Chapter 1',
+    name: 'Gauss\'s Law & CCP Sheath Dynamics',
+    nameKr: 'Gauss\'s Law for Electricity and the Formation of the CCP Sheath',
+    period: 'Maxwell\'s 1st Equation (The Electric Field Foundation of Capacitively Coupled Plasma)',
+    era: 'electrostatics',
+    tags: ['Electric Field Divergence', 'Sheath Field', 'Capacitive CCP'],
+    color: '#3182CE',
+    quote: 'The net electric flux through any closed surface is equal to the enclosed net charge divided by permittivity.',
+    quoteAttr: '— Carl Friedrich Gauss',
+    isGaussSim: true,
+    bio: `Maxwell's 1st equation, **Gauss's Law for Electricity**, is the fundamental law that determines the **Divergence** of the **Electric Field** produced by an uneven distribution of positive and negative charge in space.
+
+    In **CCP (Capacitively Coupled Plasma)** equipment — the core electrode structure in semiconductor processing — this law entirely governs the physics of the **Sheath (Space Charge Layer)**, which ultimately determines how the wafer is bombarded.
+
+    When a strong RF voltage is applied to the electrodes in a gas, the light, fast free electrons quickly escape toward the wall electrodes, while the comparatively heavy, slow positive ions (such as $Ar^+$) accumulate near the electrode, forming a dense space charge density ($\\rho = e n_i$). By Gauss's Law, this layer of positive space charge induces a powerful, directional **Sheath Electric Field** pointing straight down toward the wafer. Positive ions accelerated along this field bombard the surface, carving out fine, parallel vertical channels — the process known as **Anisotropic Etching**.`,
+    theories: [
+      { year: 'Mathematical Definition', name: 'Differential Form', desc: 'Defines the relationship between the local charge density ($\\rho$) at any point in space and the divergence of the electric field: $\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}$' },
+      { year: 'Spatial Definition', name: 'Integral Form', desc: 'States the proportionality between the net electric flux through a closed Gaussian surface and the enclosed net charge: $\\oint_S \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0}$' },
+      { year: 'CCP Application', name: 'Deriving the CCP Sheath Field', desc: 'The physical basis of the Poisson equation, which integrates the charge density variation across the sheath region to precisely chart the ion bombardment energy delivered to the wafer.' }
+    ],
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it: In CCP equipment, based on Gauss\'s Law, how do the electric field gradient inside the sheath and the sheath thickness ($d_s$) change as the applied charge density increases (for example, as RF voltage and gas pressure rise and ion density surges)? Examine this using the relationships between Coulomb force and the spatial integral of the electric field.'
+    },
+    equations: [
+      '\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0} \\quad \\text{(Differential Form)}',
+      '\\oint_S \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0} \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['Overview', 'Gauss\'s Law for Magnetism']
+  },
+  {
+    id: 'ch2',
+    chapter: 'Chapter 2',
+    name: 'Gauss\'s Law for Magnetism & Plasma Confinement',
+    nameKr: 'Gauss\'s Law for Magnetism and Magnetic Plasma Confinement',
+    period: 'Maxwell\'s 2nd Equation (The Absence of Magnetic Monopoles & the Sputtering Process)',
+    era: 'electrostatics',
+    tags: ['Zero Magnetic Divergence', 'No Magnetic Monopoles', 'Sputtering Confinement'],
+    color: '#0F8C50',
+    quote: 'There are no isolated magnetic poles; magnetic field lines must form continuous closed loops.',
+    quoteAttr: '— The Fundamental Truth of Gauss\'s Law for Magnetism',
+    isMagnetismSim: true,
+    svg: ``, // Dynamically replaced by the interactive simulation panel
+    bio: `Maxwell's 2nd equation, **Gauss's Law for Magnetism**, states that an isolated single **Magnetic Monopole** cannot exist in nature, and that every magnetic field line must form a completely closed loop with no beginning or end.
+
+    This law is the top-level driving principle in the design of **Magnetron Sputtering** plasma equipment, used to physically deposit metal interconnects in semiconductors.
+
+    To increase deposition efficiency, permanent magnets are arranged behind the target cathode. By Gauss's Law for Magnetism, the magnetic flux accelerated out of the N pole must trace a perfect arched **Closed Loop** through space and return to a nearby S pole. This arched magnetic field forms a powerful **Magnetic Confinement** trap that prevents electrons inside the plasma from escaping. Electrons spiral and oscillate along their gyro-radius (Larmor radius), continuously driving additional secondary ionization of gas atoms. As a result, an extremely dense, high-density plasma is confined near the electrode even at very low pressure, causing the sputtering deposition rate of the metal thin film to rise exponentially.`,
+    theories: [
+      { year: 'Mathematical Definition', name: 'Differential Form', desc: 'The net algebraic sum of magnetic flux entering and leaving any point in space is always zero: $\\nabla \\cdot \\mathbf{B} = 0$' },
+      { year: 'Spatial Definition', name: 'Integral Form', desc: 'There is no net magnetic flux passing through any closed Gaussian surface, regardless of its shape: $\\oint_S \\mathbf{B} \\cdot d\\mathbf{A} = 0$' },
+      { year: 'Sputtering Application', name: 'Magnetron Target Confinement', desc: 'The source formula for the process: escaping electrons are locally confined by the closed arched magnetic field (via E × B drift), dramatically increasing the argon ion density near the target surface.' }
+    ],
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it: Based on Gauss\'s Law for Magnetism, inside a sputtering chamber, which location is most stable for trapping electrons and producing intense, high-density plasma glow — the point directly above the center (N pole) of the permanent magnet, or the apex of the arch between magnets? Explain your answer in terms of the divergence of the magnetic flux vector as required by Gauss\'s Law.'
+    },
+    equations: [
+      '\\nabla \\cdot \\mathbf{B} = 0 \\quad \\text{(Differential Form)}',
+      '\\oint_S \\mathbf{B} \\cdot d\\mathbf{A} = 0 \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['Gauss\'s Law for Electricity', 'Faraday\'s Law of Induction']
+  },
+  {
+    id: 'ch3',
+    chapter: 'Chapter 3',
+    name: 'Faraday\'s Law & Inductive Plasma Coupling',
+    nameKr: 'Faraday\'s Law of Induction and the Formation of the ICP Induced Electric Field',
+    period: 'Maxwell\'s 3rd Equation (The Core Discharge Principle of Inductively Coupled Plasma)',
+    era: 'dynamics',
+    tags: ['Time-Varying Magnetic Field', 'Eddy Electric Field', 'Inductive ICP Discharge'],
+    color: '#7030A0',
+    quote: 'An electromotive force is induced in a conductor by any change in the magnetic flux linking it.',
+    quoteAttr: '— Michael Faraday',
+    isFaradaySim: true,
+    bio: `Maxwell's 3rd equation, **Faraday's Law of Induction**, completes a classical physical symmetry: a fluctuating, time-varying **Magnetic Field** creates a non-conservative **Induced Electric Field** that takes the form of a **Curl** in space.
+
+    This physical law entirely governs the **Inductive Plasma Coupling** discharge mechanism of **ICP (Inductively Coupled Plasma)** equipment — the dominant technology for ultra-fine semiconductor etching.
+
+    When an alternating current of several MHz is applied to an RF antenna coil wound spirally around the outside of the chamber's quartz dome, a fast, oscillating AC magnetic field ($\\frac{\\partial\\mathbf{B}}{\\partial t}$) forms along the axis through the center of the coil. By Faraday's Law, this time-varying magnetic field generates a continuously swirling **Induced Electric Field** ($\\mathbf{E}_{ind}$) that circles concentrically around the coil, just inside the dielectric chamber wall. This induced electric field violently accelerates free electrons in the plasma along circular paths to energies of tens of eV. The accelerated electrons undergo charge exchange and intense ionizing collisions with argon gas molecules, sustaining a **High-Density Plasma** rich in positive ions — without any electrode contamination.`,
+    theories: [
+      { year: 'Mathematical Definition', name: 'Differential Form', desc: 'The local rate of change of a time-varying magnetic field spontaneously generates a swirling, induced electric field: $\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$' },
+      { year: 'Spatial Definition', name: 'Integral Form', desc: 'The line integral (electromotive force) of the electric field around a closed loop is proportional to the rate of change of the total magnetic flux through the loop\'s cross-section: $\\oint_C \\mathbf{E} \\cdot d\\mathbf{s} = -\\frac{d\\Phi_B}{dt}$' },
+      { year: 'ICP Driving Principle', name: 'Inductor Antennas', desc: 'The source formula for building an inductive energy-coupling circuit that has no direct electrode exposure — eliminating metal-sputtering contamination at its source while controlling the substrate etch rate over a range of more than 100×.' }
+    ],
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it: Using the interactive PhET simulator embedded below, when you insert a bar magnet into the solenoid coil and bring it to a complete stop, why does the induced potential on the analog meter immediately converge to zero? Explain this qualitatively in terms of Faraday\'s time-derivative induction term ($d\\Phi_B/dt$).'
+    },
+    equations: [
+      '\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t} \\quad \\text{(Differential Form)}',
+      '\\oint_C \\mathbf{E} \\cdot d\\mathbf{s} = -\\frac{d\\Phi_B}{dt} \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['Gauss\'s Law for Magnetism', 'Ampere-Maxwell Law']
+  },
+  {
+    id: 'ch4',
+    chapter: 'Chapter 4',
+    name: 'Ampere-Maxwell Law & ICP H-mode Transition',
+    nameKr: 'The Ampere-Maxwell Law and the ICP Discharge Mode Transition',
+    period: 'Maxwell\'s 4th Equation (Coupling of Conduction and Displacement Current & the ICP Mode Transition)',
+    era: 'dynamics',
+    tags: ['Displacement Current', 'E-to-H Mode Transition', 'High-Density ICP Discharge'],
+    color: '#0F8C50',
+    quote: 'Magnetic fields are produced both by conduction currents and by time-varying electric fields.',
+    quoteAttr: '— James Clerk Maxwell',
+    isAmpereSim: true,
+    bio: `Maxwell's 4th equation is the **Ampere-Maxwell Law**, the great unification of electromagnetism. In addition to the conduction current ($\\mathbf{J}$) that Ampere originally defined, Maxwell introduced for the first time the **Displacement Current** term — the effect by which a fluctuating electric field inside an insulator or in empty vacuum generates a magnetic field, just as a real current would.
+
+    When driving an ICP chamber — a core piece of semiconductor etching equipment — this Ampere-Maxwell Law precisely governs the **E-to-H Mode Transition**, a dramatic discontinuous change in the equipment's operating regime.
+
+    In the initial stage, when RF AC power is fed into the antenna coil, a strong RF voltage drop of hundreds of volts across the coil first induces a violent, time-varying displacement electric field through the quartz dielectric window. This ignites the plasma faintly and dimly in a capacitive potential distribution called **E-mode (Capacitive Mode)**. However, once the applied RF power exceeds a certain threshold, the purely inductive coupling behavior driven by an intense RF conduction current loop causes the plasma's medium conductivity to surge. As a result, the induced effective H-field generated by the alternating electromagnetic force takes over the internal discharge energy, and the plasma abruptly transitions into the high-performance, inductively coupled **H-mode (Inductive Mode)**. At this transition point, the plasma density inside the chamber jumps by a factor of roughly 100 to 1,000, reaching the high-efficiency operating regime required for high-aspect-ratio vertical etching in advanced semiconductor devices.`,
+    theories: [
+      { year: 'Mathematical Definition', name: 'Differential Form', desc: 'The curl of the magnetic field in space is proportional to the sum of the conduction current density and the displacement current density of the time-varying electric field: $\\nabla \\times \\mathbf{B} = \\mu_0 \\left( \\mathbf{J} + \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t} \\right)$' },
+      { year: 'Spatial Definition', name: 'Integral Form', desc: 'The line integral of the magnetic field around a closed loop equals the sum of the enclosed conduction current and displacement current: $\\oint_C \\mathbf{B} \\cdot d\\mathbf{s} = \\mu_0 \\left( I_{\\text{enc}} + \\varepsilon_0 \\frac{d\\Phi_E}{dt} \\right)$' },
+      { year: 'ICP Mode Transition', name: 'E-to-H Mode Hysteresis', desc: 'The foundational design equation for the nonlinear hysteresis curve of charge density and power-transfer impedance that occurs during the transition from capacitive wave coupling to inductive loop coupling.' }
+    ],
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it: In light of the Ampere-Maxwell Law, around the inductor antenna coil wrapped over the quartz dielectric window, an E-mode plasma is initially ignited via the displacement current ($\\varepsilon_0 \\partial\\mathbf{E}/\\partial t$). Describe, based on the changing rates of generation of displacement current and accelerated induced conduction current, why an RF impedance matching mismatch occurs at the moment the ICP equipment transitions from E-mode into the stable, high-performance H-mode.'
+    },
+    equations: [
+      '\\nabla \\times \\mathbf{B} = \\mu_0 \\left( \\mathbf{J} + \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t} \\right) \\quad \\text{(Differential Form)}',
+      '\\oint_C \\mathbf{B} \\cdot d\\mathbf{s} = \\mu_0 \\left( I_{\\text{enc}} + \\varepsilon_0 \\frac{d\\Phi_E}{dt} \\right) \\quad \\text{(Integral Form)}'
+    ],
+    connections: ['Faraday\'s Law of Induction', 'The Electromagnetic Wave Equation']
+  },
+  {
+    id: 'ch5',
+    chapter: 'Chapter 5',
+    name: 'EM Wave Propagation & Plasma Cutoff',
+    nameKr: 'The Electromagnetic Wave Equation and Cutoff Frequency Physics in Plasma',
+    period: 'The Core Wave Equation of the Universe Derived from Maxwell\'s Theory, and Semiconductor Diagnostics',
+    era: 'synthesis',
+    tags: ['Wave Equation', 'Speed of Light Constant', 'Plasma Cutoff Frequency'],
+    color: '#E53E3E',
+    quote: 'Electromagnetic waves travel through empty space at a speed defined solely by electric and magnetic properties of medium.',
+    quoteAttr: '— James Clerk Maxwell',
+    imageUrl: 'images/electromagnetic_wave_propagation.png',
+    imageTitle: 'Electromagnetic Wave Propagation',
+    imageSource: 'Local image (images/electromagnetic_wave_propagation.png)',
+    bio: `As the final synthesis of Maxwell's four equations, the **Electromagnetic Wave Equation** demonstrates a profound cosmic consistency: even in a vacuum with no medium whatsoever, the electric and magnetic fields continuously and mutually induce one another, propagating endlessly as a self-sustaining wave at the speed of light ($c = 1/\\sqrt{\\mu_0\\varepsilon_0}$).
+
+    However, when this light or high-frequency wave is projected into **Plasma** — a conductive gas medium composed of charged ions and free electrons — its propagation behavior comes under the direct control of a quantity intrinsic to the plasma: the **Plasma Frequency** ($\\omega_p$).
+
+    If the AC frequency of an incident RF wave is lower than the natural oscillation frequency of the plasma's electrons ($\\omega_p$), the charge clouds inside the plasma accelerate their polarization in step with the wave's electric field, canceling and blocking it — reflecting it back out like a mirror (cutoff). In semiconductor processing, this curious cutoff phenomenon is precisely exploited in reverse: a non-destructive wireless probe is passed through the chamber, and the plasma's net charge density is diagnosed losslessly by analyzing the cutoff region of the high-frequency spectrum — a technique known as the **Cutoff Probe** system, which is in active use in industry today.`,
+    theories: [
+      { year: 'Mathematical Proof', name: 'Deriving the Electric Field Wave Equation', desc: 'The derivation of the intrinsic electromagnetic propagation wave equation, obtained from the chain of differential operations on Maxwell\'s equations in vacuum: $\\nabla^2 \\mathbf{E} = \\mu_0 \\varepsilon_0 \\frac{\\partial^2 \\mathbf{E}}{\\partial t^2}$' },
+      { year: 'Plasma Application', name: 'Determining the Plasma Cutoff Frequency', desc: 'The formula for the intrinsic polarization cutoff frequency, proportional to the plasma density $n_e$: $\\omega_p = \\sqrt{\\frac{n_e e^2}{\\varepsilon_0 m_e}}$' },
+      { year: 'Semiconductor Practice', name: 'Ellipsometry & Diagnostics', desc: 'Real-time, remote diagnosis of ion density using ellipsometric optics and the cutoff-reflection-frequency formula, to ensure process environment stability inside the wafer dry-processing chamber.' }
+    ],
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it: Based on the plasma cutoff frequency ($\\omega_p$) formula, suppose the chamber\'s charge density ($n_e$) is increased tenfold in order to etch next-generation, ultra-high-density memory devices. How would the RF frequency limit of the electromagnetic probe signal — used for non-destructive measurement of the plasma density — need to change compared to before, in order to successfully penetrate the plasma region for diagnostic analysis? Explain your reasoning.'
+    },
+    equations: [
+      '\\nabla^2 \\mathbf{E} = \\mu_0 \\varepsilon_0 \\frac{\\partial^2 \\mathbf{E}}{\\partial t^2} \\quad \\text{and} \\quad \\omega_p = \\sqrt{\\frac{n_e e^2}{\\varepsilon_0 m_e}} \\quad \\text{(Plasma Frequency)}',
+      'n_{\\text{medium}} = \\sqrt{1 - \\frac{\\omega_p^2}{\\omega^2}} \\quad \\text{(Plasma Refractive Index)}'
+    ],
+    connections: ['Ampere-Maxwell Law', 'Reference: The Great Unification & Hertz\'s Experimental Proof']
+  },
+  {
+    id: 'ch6',
+    chapter: 'Chapter 6',
+    name: 'James Clerk Maxwell & Unified Field Theory',
+    nameKr: 'James Clerk Maxwell and Unified Field Theory',
+    period: 'The Architect of Modern Electromagnetism and Gatekeeper to Modern Quantum Theory',
+    era: 'synthesis',
+    tags: ['Maxwellian Electromagnetism', 'Electromagnetic Unification', 'Foundations of Unified Field Theory'],
+    color: '#7030A0',
+    quote: 'James Clerk Maxwell\'s unification of electricity and magnetism represents one of the greatest leaps forward in the history of human thought.',
+    quoteAttr: '— Richard Feynman (1918 – 1988)',
+    imageUrl: 'images/second_unfication.png',
+    imageTitle: 'The Unification of Electricity and Magnetism',
+    imageSource: 'Local image (images/second_unfication.png)',
+    bio: `The brilliant Scottish physicist and mathematician <b>James Clerk Maxwell</b> perfectly synthesized the previously fragmented discoveries of classical electromagnetism, weaving them together into a revolution in modern fundamental physics.
+
+    In his landmark 1865 work, <i>"A Dynamical Theory of the Electromagnetic Field,"</i> he introduced humanity's first modern, revolutionary concept of the "Field" — energy propagating through the medium of space itself, mediated by force.
+
+    This great unification later became a powerful starting point and pillar for Albert Einstein's theory of relativity, and it also laid an early milestone toward the **Unified Field Theory** of modern particle physics, which seeks to unify the strong and weak interactions. By building on the first steps of Newtonian mechanics and passing through Maxwell's electromagnetic field, the history of physics was finally able to arrive at the great transformation of the modern quantum world.`,
+    theories: [
+      { year: '1865', name: 'Publication of the Electromagnetic Field Theory', desc: 'Introduced the concept of the "Field" as an independent entity existing in space, serving as the pathway for energy transfer, in place of the mechanical ether model.' },
+      { year: '1873', name: 'Publication of the "Treatise on Electricity and Magnetism"', desc: 'Established the powerful mathematical framework that later physicists would use to simplify Maxwell\'s equations into their four-vector form.' },
+      { year: '1879', name: 'The Enduring Legacy', desc: 'By clearly demonstrating the limits of classical physics regarding electromagnetic collapse (such as the catastrophic decay of atomic orbits), his work provided a decisive stepping stone toward modern quantum mechanics, paving the way for Bohr and others.' }
+    ],
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it: Why is Maxwell\'s concept of the "Field" considered such a paradigm-shifting leap in physics? Discuss this by contrasting it with Newton\'s "action-at-a-distance" gravitational framework — where attraction occurs instantly with no mediating time delay — and by considering how energy density and propagation delay become physically real quantities that exist in space.'
+    },
+    equations: [
+      '\\text{Optics} \\quad \\longleftrightarrow \\quad \\text{Electricity} \\quad \\longleftrightarrow \\quad \\text{Magnetism}'
+    ],
+    connections: ['Reference: The Great Unification & Hertz\'s Experimental Proof', 'Comprehensive Summary Matrix']
+  },
+  {
+    id: 'ch6_ref',
+    chapter: 'Reference',
+    name: 'The Great Unification & Hertz\'s Experimental Proof',
+    nameKr: 'Reference: The Great Unification & Hertz\'s Experimental Proof of Electromagnetism',
+    period: '1865 – 1888',
+    era: 'synthesis',
+    tags: ['Maxwell\'s Great Unification', 'Hertz\'s Spark-Gap Experiment', 'The Nature of Light Revealed'],
+    color: '#7030A0',
+    quote: 'The demonstration of electromagnetic waves by Hertz is one of the most brilliant achievements of science.',
+    quoteAttr: '— Hermann von Helmholtz',
+    imageUrl: 'images/hertz_experiment.png',
+    imageTitle: 'A View of Hertz\'s Spark-Gap Experimental Apparatus for Electromagnetic Waves',
+    imageSource: 'Source: phy.cam.ac.uk',
+    bio: `**Maxwell's Theoretical Unification**
+    Before Maxwell, electricity and magnetism were regarded in modern science as entirely separate phenomena. The discoveries of Coulomb, Ampere, Gauss, Faraday, and others were each excellent in their own domain, but lacked an overarching mathematical connection. Maxwell took on the intellectual challenge of unifying these scattered quantitative theories.
+    In particular, he resolved a charge-conservation contradiction in **Ampere's Law** — which had only accounted for steady currents — by introducing, as a symmetric term, the cumulative effect of a time-varying electric field: the **Displacement Current**. Through this elegant algebraic unification, the **Wave Equation** emerged naturally — the theoretical embodiment of a self-amplifying **Electromagnetic Wave** that propagates endlessly even through a vacuum devoid of charge.
+
+    **German Skepticism and the National Challenge**
+    However, when Maxwell's theory was first published, physicists on the European continent — especially in Germany and France — received this revolutionary field theory with extreme skepticism. At the time, the dominant framework in physics was Newton's **action-at-a-distance** mechanics, in which forces were transmitted instantaneously across a vacuum with no need for a medium. Accordingly, the Berlin Academy in Germany proposed a national-scale experimental race: a substantial prize and honor would be awarded to whoever could either experimentally and definitively prove the validity of Maxwell's theory — particularly whether the displacement current from dielectric polarization actually produced a magnetic effect — or, conversely, scientifically expose its contradictions and errors. This intellectual duel was formally established under the leadership of **Hermann von Helmholtz**, the foremost master of German physics at the time.
+
+    **Hertz's Historic Spark-Gap Proof**
+    The brilliant scholar Heinrich Hertz took up the challenge between 1887 and 1888 in his laboratory in Karlsruhe, Germany, building what may be history's most elegant spark-gap resonance apparatus.
+    When a high-voltage discharge was induced across the spherical gap of the transmitter, an invisible wireless wave of charge propagated through the medium of space and, several meters away, ignited a tiny, precisely synchronized spark in the gap of a separate ring-shaped receiver loop. Hertz precisely demonstrated that the speed of this invisible electromagnetic induction oscillation matched exactly the **Speed of Light** as calculated from Maxwell's mathematics, and through experimental observation he clearly verified that electromagnetic waves exhibit complete **Reflection**, **Refraction**, and **Polarization**, just as light does. In this historic moment, the cosmic truth that "light is itself a form of self-propagating electromagnetic wave" was finally confirmed experimentally, and classical physics took a complete leap into a new era under the decisive triumph of Maxwell's equations.`,
+    theories: [
+      { year: '1865', name: 'Publication of Maxwell\'s Theory of Electromagnetic Unification', desc: 'Synchronously unified the laws of Coulomb, Ampere, and Faraday into the four-vector differential and integral equations, deriving that the propagation speed of electromagnetic waves in vacuum matches the speed of light.' },
+      { year: '1879', name: 'The Berlin Academy\'s National Prize Competition', desc: 'A national-scale challenge to continental physics: experimentally prove the physical reality of the magnetic induction effect of Maxwell\'s proposed displacement current, or precisely expose its error.' },
+      { year: '1887–1888', name: 'Hertz Completes the Spark-Gap Proof', desc: 'Through spark-gap discharge and resonant coupling with a loop antenna, demonstrated the emission, speed, refraction, and polarization of electromagnetic waves — finally confirming Maxwell\'s unification of electromagnetism.' }
+    ],
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it: Before Hertz\'s definitive proof, German physicists firmly trusted the "action-at-a-distance" framework. Describe, qualitatively, the most decisive difference between that framework and Maxwell\'s "Field" propagation theory, in terms of the "time delay" in energy transfer — using Hertz\'s measurement of the propagation speed as your basis.'
+    },
+    equations: [
+      'v = \\lambda \\nu = c \\quad \\text{and} \\quad c = \\frac{1}{\\sqrt{\\mu_0 \\varepsilon_0}} \\approx 3 \\times 10^8 \\text{ m/s}'
+    ],
+    connections: ['James Clerk Maxwell', 'Comprehensive Summary Matrix']
+  },
+  {
+    id: 'ch7',
+    chapter: 'Chapter 7',
+    name: 'Comprehensive Summary Matrix',
+    nameKr: 'Comprehensive Comparison Table of Electromagnetic Laws',
+    period: 'A Systematic Review of Maxwell\'s Four Equations',
+    era: 'synthesis',
+    tags: ['Overview', 'Summary Table', 'Course Checkpoint'],
+    color: '#0F8C50',
+    quote: 'The beauty of great physical laws lies in capturing, at the height of mathematical symmetry, the underlying order within phenomena that at first appear hopelessly complex.',
+    quoteAttr: '— Benedu Insight Electromagnetics Series',
+    isMatrix: true,
+    bio: `This comprehensive summary slide compares, side by side, the key physical quantities spanning the entire arc from Gauss's Law for Electricity to the time-varying Ampere-Maxwell coupling equation.
+
+    By systematizing the unique physical contribution of each equation and its chain of relationships with the other electromagnetic quantities, you can gain a comprehensive engineering perspective applicable to designing modern lithography equipment, RF high-frequency communications, and numerical control systems.`,
+    classroom: {
+      title: '🙋 Discussion Questions & Self-Study Quiz (click to expand)',
+      body: 'Think about it:<br>1. Without Maxwell\'s newly derived "Displacement Current" term, describe what computational errors and analytical inconsistencies would arise when modeling the time-varying leakage impedance of high-performance semiconductor capacitors and DRAM devices.<br>2. From the symmetry between Faraday\'s Law and the Ampere-Maxwell Law, describe the geometric process by which light can propagate through a vacuum — with no medium required — by alternately and self-sustainingly inducing electric and magnetic fields as it travels through space.'
+    },
+    equations: [],
+    connections: ['Overview', 'Gauss\'s Law (Electricity)']
+  }
+];
+
+// Build timeline navigation in sidebar
+function buildSidebar(filter) {
+  currentEraFilter = filter;
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '';
+  const T = UI[lang];
+  const SLIDES = getSLIDES();
+
+  const eras = [
+    { id: 'electrostatics', label: T.eraLabels.electrostatics, range: T.eraRanges.electrostatics },
+    { id: 'dynamics',       label: T.eraLabels.dynamics,       range: T.eraRanges.dynamics },
+    { id: 'synthesis',      label: T.eraLabels.synthesis,      range: T.eraRanges.synthesis }
+  ];
+
+  const eraColors = {
+    electrostatics: { tag: '#3182CE', tagBg: '#EBF8FF', tagBorder: '#bee3f8' },
+    dynamics:       { tag: '#7030A0', tagBg: '#F0E6F6', tagBorder: '#d9b8ed' },
+    synthesis:      { tag: '#E53E3E', tagBg: '#FFF5F5', tagBorder: '#fed7d7' }
+  };
+
+  eras.forEach(era => {
+    const slides = SLIDES
+      .filter(s => s.era === era.id && (filter === 'all' || filter === s.era))
+      .sort((a, b) => {
+        // ch6_ref가 ch6 바로 뒤에 오도록 고정 배치 정렬 보정
+        const order = { 'ch0':1, 'ch1':2, 'ch2':3, 'ch3':4, 'ch4':5, 'ch5':6, 'ch6':7, 'ch6_ref':8, 'ch7':9 };
+        return (order[a.id] || 99) - (order[b.id] || 99);
+      });
+
+    if (slides.length === 0) return;
+
+    const grp = document.createElement('div');
+    grp.className = 'era-group';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'era-header';
+    hdr.innerHTML = `
+      <span class="era-label" style="color:${eraColors[era.id].tag}">${era.label}</span>
+      <span class="era-line"></span>
+      <span class="era-range" style="font-size:0.55rem;">${era.range}</span>
+      <span class="era-toggle">▾</span>
+    `;
+    grp.appendChild(hdr);
+
+    const cardsWrap = document.createElement('div');
+    cardsWrap.className = 'era-cards';
+
+    const ec = eraColors[era.id];
+
+    slides.forEach(slide => {
+      const card = document.createElement('div');
+      card.className = 'sci-card';
+      card.id = `card-${slide.id}`;
+
+      const tagHtml = slide.tags.map(t =>
+        `<span class="sci-tag" style="background:${ec.tagBg};color:${ec.tag};border:1px solid ${ec.tagBorder}">${t}</span>`
+      ).join('');
+
+      card.innerHTML = `
+        <div class="sci-year">${slide.chapter}</div>
+        <div class="sci-info">
+          <div class="sci-name" style="font-size:0.83rem">${slide.nameKr}</div>
+          <div class="sci-nation" style="font-size:0.62rem">${slide.period}</div>
+          <div class="sci-tags">${tagHtml}</div>
+        </div>
+      `;
+      card.addEventListener('click', () => selectSlide(slide.id));
+      cardsWrap.appendChild(card);
+    });
+
+    hdr.addEventListener('click', () => {
+      const isCollapsed = cardsWrap.classList.toggle('collapsed');
+      hdr.classList.toggle('collapsed', isCollapsed);
+    });
+
+    grp.appendChild(cardsWrap);
+    sidebar.appendChild(grp);
+  });
+}
+
+let currentId = null;
+
+function selectSlide(id) {
+  document.querySelectorAll('.sci-card').forEach(c => c.classList.remove('active'));
+  const slide = getSLIDES().find(s => s.id === id);
+  if (!slide) return;
+  currentId = id;
+
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    const wrap = card.closest('.era-cards');
+    if (wrap && wrap.classList.contains('collapsed')) {
+      wrap.classList.remove('collapsed');
+      wrap.previousElementSibling?.classList.remove('collapsed');
+    }
+    card.classList.add('active');
+    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  renderDetail(slide);
+}
+
+function renderDetail(slide) {
+  const panel = document.getElementById('detail');
+  const T = UI[lang];
+
+  const eraNames = T.eraNames;
+
+  const eraTagStyle = {
+    electrostatics: 'background:#EBF8FF;color:#2B6CB0',
+    dynamics:       'background:#F0E6F6;color:#521a78',
+    synthesis:      'background:#FFF5F5;color:#9B2C2C'
+  };
+
+  // 1. Build Center content details or Matrix based on chapter type
+  let centerContentHtml = '';
+  if (slide.isMatrix) {
+    centerContentHtml = `
+      <div class="section-title">${T.sectionMatrix}</div>
+      <table class="summary-matrix">
+        <thead>
+          <tr>
+            ${T.matrixH.map(h => `<th>${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${T.matrixRows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  } else if (slide.isOverview) {
+    centerContentHtml = `
+      <div class="section-title">${T.sectionOverview}</div>
+      <div class="overview-container">
+        <h2 style="font-family: 'Montserrat', sans-serif; font-size: 2.1rem; font-weight: 800; color: #1E1E1E; margin-bottom: 2rem; letter-spacing: 0.05em;">${T.overviewTitle}</h2>
+        <div class="overview-grid">
+          <!-- Gauss Elec -->
+          <div class="overview-card" onclick="selectSlide('ch1')">
+            <div style="width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+              <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <circle cx="50" cy="50" r="38" fill="rgba(144, 205, 244, 0.4)" stroke="#3182CE" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <circle cx="50" cy="50" r="8" fill="#E53E3E"/>
+                <path d="M 50 42 L 50 15" stroke="#3182CE" stroke-width="1.5"/>
+                <path d="M 50 58 L 50 85" stroke="#3182CE" stroke-width="1.5"/>
+                <path d="M 42 50 L 15 50" stroke="#3182CE" stroke-width="1.5"/>
+                <path d="M 58 50 L 85 50" stroke="#3182CE" stroke-width="1.5"/>
+                <polygon points="50,11 46,17 54,17" fill="#3182CE"/>
+                <polygon points="50,89 46,83 54,83" fill="#3182CE"/>
+                <polygon points="11,50 17,46 17,54" fill="#3182CE"/>
+                <polygon points="89,50 83,46 83,54" fill="#3182CE"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussE.name}</div>
+              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussE.sub}</div>
+            </div>
+            <div class="overview-card-tag">$$\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}$$</div>
+          </div>
+
+          <!-- Gauss Mag -->
+          <div class="overview-card" onclick="selectSlide('ch2')">
+            <div style="width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+              <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <path d="M 25 50 C 25 30, 45 35, 55 30 C 65 25, 75 35, 75 55 C 75 70, 55 60, 45 65 C 35 70, 25 70, 25 50 Z" fill="rgba(129, 230, 217, 0.4)" stroke="#0F8C50" stroke-width="1.5"/>
+                <line x1="-5" y1="85" x2="85" y2="-5" stroke="#2B6CB0" stroke-width="1" />
+                <line x1="15" y1="105" x2="105" y2="15" stroke="#2B6CB0" stroke-width="1" />
+              </svg>
+            </div>
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussB.name}</div>
+              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussB.sub}</div>
+            </div>
+            <div class="overview-card-tag">$$\\nabla \\cdot \\mathbf{B} = 0$$</div>
+          </div>
+
+          <!-- Faraday -->
+          <div class="overview-card" onclick="selectSlide('ch3')">
+            <div style="width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+              <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <line x1="50" y1="50" x2="50" y2="15" stroke="#E53E3E" stroke-width="3.5"/>
+                <polygon points="50,11 45,18 55,18" fill="#E53E3E"/>
+                <circle cx="50" cy="50" r="32" fill="none" stroke="#7030A0" stroke-width="2.5"/>
+                <polygon points="18,50 15,44 21,44" fill="#7030A0" transform="rotate(45, 50, 50)"/>
+                <polygon points="18,50 15,44 21,44" fill="#7030A0" transform="rotate(180, 50, 50)"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.faraday.name}</div>
+              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.faraday.sub}</div>
+            </div>
+            <div class="overview-card-tag">$$\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$$</div>
+          </div>
+
+          <!-- Ampere Maxwell -->
+          <div class="overview-card" onclick="selectSlide('ch4')">
+            <div style="width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+              <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <line x1="28" y1="28" x2="28" y2="72" stroke="#2D2D2D" stroke-width="4"/>
+                <line x1="72" y1="28" x2="72" y2="72" stroke="#2D2D2D" stroke-width="4"/>
+                <line x1="32" y1="50" x2="68" y2="50" stroke="#E53E3E" stroke-width="2" stroke-dasharray="2 1"/>
+                <ellipse cx="50" cy="50" rx="14" ry="28" fill="none" stroke="#0F8C50" stroke-width="2"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.ampere.name}</div>
+              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.ampere.sub}</div>
+            </div>
+            <div class="overview-card-tag" style="font-size:0.43rem">$$\\nabla \\times \\mathbf{B} = \\mu_0(\\mathbf{J} + \\varepsilon_0 \\partial\\mathbf{E}/\\partial t)$$</div>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    centerContentHtml = `
+      <div class="section-title">${T.sectionTheory}</div>
+      <div class="theories-grid">
+        ${slide.theories.map(t => `
+          <div class="theory-card">
+            <div class="theory-year">${t.year}</div>
+            <div class="theory-name">${t.name}</div>
+            <div class="theory-desc">${t.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // 2. MathJax Delimiters Wrapping with Double Backslashes
+  const equationsHtml = slide.equations && slide.equations.length
+    ? `<div class="section-title">${T.sectionEq}</div>` +
+      slide.equations.map(eq => `<div class="eq-block">$$\n${eq}\n$$</div>`).join('') +
+      '<div style="margin-bottom:1.5rem"></div>'
+    : '';
+
+  const connectionsHtml = slide.connections.map(name => {
+    const SLIDES = getSLIDES();
+    const linked = SLIDES.find(s => s.nameKr.includes(name) || name.includes(s.chapter) || s.nameKr.startsWith(name) || (s.connections && s.connections.includes(name)) || name === s.name || s.name.includes(name));
+    if (linked) {
+      return `<button class="conn-chip" onclick="selectSlide('${linked.id}')">${name} ${T.navGo}</button>`;
+    }
+    return `<button class="conn-chip" disabled>${name}</button>`;
+  }).join('');
+
+  // 3. Lecturer classroom guidelines wrapped inside clickable details block (Re-styled for Students)
+  const collapsibleClassroomHtml = `
+    <details class="classroom-box">
+      <summary class="classroom-title">${T.classroomLabel}</summary>
+      <div class="classroom-body">
+        ${slide.classroom.body.replace(/\\n/g, '<br>')}
+      </div>
+    </details>
+  `;
+
+  // Dynamically determine media showcase HTML (Addresses image display and title context)
+  let mediaShowcaseHtml = '';
+  if (slide.id === 'ch1') {
+    // Gauss's Law with actual image fe93cb style interactive SVG container
+    mediaShowcaseHtml = `
+      <div class="section-title">${T.gauss.sectionTitle}</div>
+      <div class="model-showcase">
+        <div class="sim-tab-btns">
+          <button class="sim-tab-btn active" id="gauss-tab-classic" onclick="setGaussTab('classic')">${T.gauss.tabClassic}</button>
+          <button class="sim-tab-btn" id="gauss-tab-ccp" onclick="setGaussTab('ccp')">${T.gauss.tabCcp}</button>
+        </div>
+        <div class="model-svg-wrapper" id="gauss-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:10px; width:100% !important; height: auto !important; min-height: 360px;">
+          <canvas id="gauss-sim-canvas" width="600" height="340" style="max-width:100%; height:auto;"></canvas>
+        </div>
+        <div class="sim-container">
+          <div class="sim-controls" id="gauss-controls-classic">
+            <span class="sim-slider-label">${T.gauss.chargeLabel}</span>
+            <input type="range" id="gauss-charge-slider" min="-10" max="10" value="6" step="1" oninput="updateGaussSimulation()">
+            <span id="gauss-charge-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--blue-dark)">+6 nC</span>
+            
+            <label style="margin-left:auto; display:flex; align-items:center; gap:5px; font-weight:bold; font-size:0.8rem">
+              <input type="checkbox" id="gauss-field-toggle" checked onchange="updateGaussSimulation()">
+              ${T.gauss.fieldToggle}
+            </label>
+          </div>
+          <div class="sim-controls" id="gauss-controls-ccp" style="display:none;">
+            <span class="sim-slider-label">${T.gauss.voltageLabel}</span>
+            <input type="range" id="ccp-voltage-slider" min="100" max="1000" value="250" step="50" oninput="updateGaussSimulation()">
+            <span id="ccp-voltage-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:#E53E3E">250 V</span>
+            <div style="font-size:0.75rem; color:var(--text2); margin-left:10px;">${T.gauss.ccpNote}</div>
+          </div>
+          <div id="gauss-formula-dynamic" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
+            ${T.gauss.formulaPrefix}$$\Phi = \oint_S \mathbf{E} \cdot d\\mathbf{A} = +6.0 \times 10^2 \text{ N}\cdot\text{m}^2/\text{C}$$
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (slide.id === 'ch2') {
+    // Gauss's Law for Magnetism - Updated with same interactive features as Chapter 1
+    mediaShowcaseHtml = `
+      <div class="section-title">${T.mag.sectionTitle}</div>
+      <div class="model-showcase">
+        <div class="sim-tab-btns">
+          <button class="sim-tab-btn active" id="mag-tab-classic" onclick="setMagTab('classic')">${T.mag.tabClassic}</button>
+          <button class="sim-tab-btn" id="mag-tab-confinement" onclick="setMagTab('confinement')">${T.mag.tabConfinement}</button>
+        </div>
+        <div class="model-svg-wrapper" id="mag-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:10px; width:100% !important; height: auto !important; min-height: 360px;">
+          <canvas id="mag-sim-canvas" width="600" height="340" style="max-width:100%; height:auto;"></canvas>
+        </div>
+        <div class="sim-container">
+          <div class="sim-controls" id="mag-controls-classic">
+            <span class="sim-slider-label">${T.mag.angleLabel}</span>
+            <input type="range" id="mag-angle-slider" min="0" max="360" value="45" step="5" oninput="updateMagSimulation()">
+            <span id="mag-angle-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--blue-dark)">45°</span>
+
+            <span class="sim-slider-label" style="margin-left: 20px;">${T.mag.strengthLabel}</span>
+            <input type="range" id="mag-strength-slider" min="1" max="10" value="5" step="1" oninput="updateMagSimulation()">
+            <span id="mag-strength-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--green)">5 T</span>
+          </div>
+          <div class="sim-controls" id="mag-controls-confinement" style="display:none;">
+            <span class="sim-slider-label">${T.mag.confLabel}</span>
+            <input type="range" id="mag-conf-slider" min="1" max="5" value="3" step="1" oninput="updateMagSimulation()">
+            <span id="mag-conf-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:#E53E3E">Level 3</span>
+          </div>
+          <div id="mag-formula-dynamic" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
+            ${T.mag.formulaPrefix}$$\Phi_B = \oint_S \mathbf{B} \cdot d\mathbf{A} = 0 \text{ Wb}$$
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (slide.id === 'ch3') {
+    // Faraday with interactive laboratory (PhET Electromagnetic Lab Style)
+    mediaShowcaseHtml = `
+      <div class="section-title">${T.faraday.sectionTitle}</div>
+      <div class="model-showcase" style="flex-direction: column;">
+        <div class="sim-tab-btns">
+          <button class="sim-tab-btn active" id="faraday-tab-lab" onclick="setFaradayTab('lab')">${T.faraday.tabLab}</button>
+          <button class="sim-tab-btn" id="faraday-tab-icp" onclick="setFaradayTab('icp')">${T.faraday.tabIcp}</button>
+        </div>
+        <div class="model-svg-wrapper" id="faraday-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:0; width:100% !important; height:480px !important; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+          <!-- Real PhET Electromagnetic Lab Embedded Iframe -->
+          <iframe id="faraday-phet-iframe" src="https://phet.colorado.edu/sims/html/faradays-electromagnetic-lab/latest/faradays-electromagnetic-lab_all.html" style="width:100%; height:100%; border:none; display:block;" allowfullscreen></iframe>
+          <canvas id="faraday-sim-canvas" width="600" height="340" style="max-width:100%; height:auto; cursor:grab; display:none; margin:auto;"></canvas>
+        </div>
+        <div class="sim-container">
+          <div class="sim-controls" id="faraday-controls-lab">
+            <span style="font-weight:bold; color:var(--text); font-size:0.8rem;">${T.faraday.labHint}</span>
+          </div>
+          <div class="sim-controls" id="faraday-controls-icp" style="display:none;">
+            <span class="sim-slider-label">${T.faraday.freqLabel}</span>
+            <input type="range" id="icp-freq-slider" min="1" max="15" value="13" step="1">
+            <span id="icp-freq-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--purple-brand)">13.56 MHz</span>
+            <div style="font-size:0.72rem; color:var(--text2); margin-left:10px;">${T.faraday.freqNote}</div>
+          </div>
+          <div id="faraday-voltage-indicator" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
+            ${T.faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple-brand); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (slide.id === 'ch4') {
+    // Ampere-Maxwell with BOTH E-to-H mode transition AND PhET Electromagnetic Lab Simulator
+    mediaShowcaseHtml = `
+      <div class="section-title">${T.ampere.sectionTitle}</div>
+      <div class="model-showcase" style="flex-direction: column;">
+        <div class="sim-tab-btns">
+          <button class="sim-tab-btn active" id="ampere-tab-lab" onclick="setAmpereTab('lab')">${T.ampere.tabLab}</button>
+          <button class="sim-tab-btn" id="ampere-tab-transition" onclick="setAmpereTab('transition')">${T.ampere.tabTransition}</button>
+        </div>
+        <div class="model-svg-wrapper" id="ampere-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:0; width:100% !important; height: 480px; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+          <!-- Real PhET Electromagnetic Lab Embedded Iframe for ch4 -->
+          <iframe id="ampere-phet-iframe" src="https://phet.colorado.edu/sims/html/faradays-electromagnetic-lab/latest/faradays-electromagnetic-lab_all.html" style="width:100%; height:100%; border:none; display:block;" allowfullscreen></iframe>
+          <canvas id="ampere-sim-canvas" width="600" height="340" style="max-width:100%; height:auto; display:none; margin:auto;"></canvas>
+        </div>
+        <div class="sim-container">
+          <div class="sim-controls" id="ampere-controls-lab">
+            <span style="font-weight:bold; color:var(--text); font-size:0.8rem;">${T.ampere.labHint}</span>
+          </div>
+          <div class="sim-controls" id="ampere-controls-transition" style="display:none;">
+            <span class="sim-slider-label">${T.ampere.powerLabel}</span>
+            <input type="range" id="icp-power-slider" min="0" max="500" value="60" step="10" oninput="updateAmpereSimulation()">
+            <span id="icp-power-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:#E53E3E">60 W</span>
+            <span id="icp-mode-badge" style="background:#EBF8FF; color:#2B6CB0; font-weight:bold; padding:3px 10px; border-radius:12px; margin-left:auto; font-size:0.75rem;">${T.ampere.modeEmode}</span>
+          </div>
+          <div id="ampere-caption-indicator" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
+            ${T.ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple-brand); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (slide.imageUrl) {
+    const isWideInfographic = slide.imageUrl.includes('hertz_experiment.png');
+    const isSquareImage = slide.imageUrl.includes('second_unfication.png');
+    
+    let imgStyle = 'max-height: 320px; object-fit: cover; border-radius: 8px;';
+    if (isWideInfographic) {
+      imgStyle = 'max-height: none; width: 100%; object-fit: contain; border-radius: 8px;';
+    } else if (isSquareImage) {
+      imgStyle = 'max-height: 480px; width: 100%; max-width: 480px; object-fit: contain; border-radius: 8px;';
+    } else if (slide.imageUrl.includes('electromagnetic_wave_propagation.png')) {
+      imgStyle = 'max-height: 415px; width: 100%; max-width: 716px; object-fit: contain; border-radius: 8px;';
+    }
+
+    mediaShowcaseHtml = `
+      <div class="section-title">${slide.imageTitle || T.sectionRef}</div>
+      <div class="model-showcase">
+        <div class="model-img-wrapper">
+          <img src="${slide.imageUrl}" alt="${slide.imageTitle || T.sectionRef}" style="${imgStyle}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/2d2d2d?text=Image+Load+Failed';">
+          <div class="model-img-source" style="margin-top:0.5rem; font-family:'JetBrains Mono'; font-size:0.65rem; color:var(--text3); text-align:center;">${T.sourceLabel}${slide.imageSource || ''}</div>
+        </div>
+      </div>
+    `;
+  } else if (slide.svg) {
+    mediaShowcaseHtml = `
+      <div class="section-title">${T.sectionSVG}</div>
+      <div class="model-showcase">
+        <div class="model-svg-wrapper">
+          ${slide.svg}
+        </div>
+      </div>
+    `;
+  }
+
+  panel.innerHTML = `
+    <div class="detail-content">
+      <div class="detail-hero">
+        <span class="detail-era-tag" style="${eraTagStyle[slide.era]}">${eraNames[slide.era]}</span>
+        <div class="detail-name">${slide.name}</div>
+        <div class="detail-name-kr">${slide.nameKr}</div>
+        <div class="detail-meta">
+          <span>${T.periodLabel}${slide.period}</span>
+          <span>${T.tagLabel}${slide.tags.join(' · ')}</span>
+        </div>
+      </div>
+
+      ${mediaShowcaseHtml}
+
+      ${slide.quote ? `
+      <div class="quote-block">
+        <div class="quote-badge">❝</div>
+        <div class="quote-body">
+          <div class="quote-text">${slide.quote}</div>
+          <div class="quote-attr">${slide.quoteAttr}</div>
+        </div>
+      </div>` : ''}
+
+      <div class="detail-bio">
+        ${slide.bio.split('\n\n').map(p => `<p>${p.trim()}</p>`).join('')}
+      </div>
+
+      ${equationsHtml}
+
+      ${centerContentHtml}
+
+      ${collapsibleClassroomHtml}
+
+      ${slide.connections.length ? `
+      <div class="section-title">${T.sectionNav}</div>
+      <div class="conn-list">${connectionsHtml}</div>
+      ` : ''}
+    </div>
+  `;
+  panel.scrollTop = 0;
+
+  // 4. Trigger MathJax typeset on dynamically populated HTML
+  if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+    MathJax.typesetPromise([panel]).catch(function (err) {
+      console.log('MathJax typeset failed: ' + err.message);
+    });
+  }
+
+  // 5. Trigger Simulations Initializers
+  if (slide.id === 'ch1') {
+    setTimeout(initGaussSimulation, 80);
+  } else if (slide.id === 'ch2') {
+    setTimeout(initMagSimulation, 80);
+  } else if (slide.id === 'ch3') {
+    setTimeout(initFaradaySimulation, 80);
+  } else if (slide.id === 'ch4') {
+    setTimeout(initAmpereMaxwellSimulation, 80);
+  }
+}
+
+// ── Interactive Gauss Simulator (Chapter 1) ──
+let gaussTab = 'classic';
+let gaussCanvas = null, gaussCtx = null;
+function setGaussTab(tab) {
+  gaussTab = tab;
+  document.getElementById('gauss-tab-classic').classList.toggle('active', tab === 'classic');
+  document.getElementById('gauss-tab-ccp').classList.toggle('active', tab === 'ccp');
+  document.getElementById('gauss-controls-classic').style.display = tab === 'classic' ? 'flex' : 'none';
+  document.getElementById('gauss-controls-ccp').style.display = tab === 'ccp' ? 'flex' : 'none';
+  updateGaussSimulation();
+}
+
+function initGaussSimulation() {
+  gaussCanvas = document.getElementById('gauss-sim-canvas');
+  if (!gaussCanvas) return;
+  gaussCtx = gaussCanvas.getContext('2d');
+  updateGaussSimulation();
+}
+
+function updateGaussSimulation() {
+  if (!gaussCanvas || !gaussCtx) return;
+  const ctx = gaussCtx;
+  const w = gaussCanvas.width;
+  const h = gaussCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const chargeSlider = document.getElementById('gauss-charge-slider');
+  const chargeValText = document.getElementById('gauss-charge-val');
+  const showFieldsCheckbox = document.getElementById('gauss-field-toggle');
+  
+  const qVal = chargeSlider ? parseInt(chargeSlider.value) : 6;
+  const showFields = showFieldsCheckbox ? showFieldsCheckbox.checked : true;
+
+  if (chargeValText) {
+    chargeValText.innerText = (qVal >= 0 ? '+' : '') + qVal + ' nC';
+    chargeValText.style.color = qVal >= 0 ? '#E53E3E' : '#2B6CB0';
+  }
+
+  // Dynamic formula update
+  const formulaDiv = document.getElementById('gauss-formula-dynamic');
+  if (formulaDiv) {
+    const fluxVal = (qVal * 1.13).toFixed(2);
+    const signChar = qVal >= 0 ? '+' : '';
+    formulaDiv.innerHTML = `${UI[lang].gauss.formulaPrefix}$$\\Phi = \\oint_S \\mathbf{E} \\cdot d\\mathbf{A} = \\frac{Q_{\\text{enc}}}{\\varepsilon_0} = ${signChar}${fluxVal} \\times 10^2 \\text{ N}\\cdot\\text{m}^2/\\text{C}$$`;
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      MathJax.typesetPromise([formulaDiv]);
+    }
+  }
+
+  if (gaussTab === 'classic') {
+    // ── Classic Gauss Law diagram matching image_fe93cb.png ──
+    const cx = 220;
+    const cy = 170;
+    const r = 90;
+
+    // Draw Title border
+    ctx.strokeStyle = '#2D2D2D';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(cx - 70, 15, 140, 30);
+    ctx.font = 'bold 15px Montserrat, sans-serif';
+    ctx.fillStyle = '#2D2D2D';
+    ctx.textAlign = 'center';
+    ctx.fillText("Gauss's Law", cx, 35);
+
+    // Light blue Gaussian Surface fill
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fillStyle = 'rgba(144, 205, 244, 0.4)';
+    ctx.fill();
+    ctx.strokeStyle = '#3182CE';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Central positive/negative charge badge
+    ctx.beginPath();
+    ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
+    ctx.fillStyle = qVal >= 0 ? '#E53E3E' : '#2B6CB0';
+    ctx.fill();
+    ctx.font = 'bold 12px Montserrat';
+    ctx.fillStyle = '#FFF';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(qVal >= 0 ? '+' : '-', cx, cy);
+    ctx.textBaseline = 'alphabetic';
+
+    // Label: "Charge" & "Gaussian surface"
+    ctx.font = '12px Gowun Batang, serif';
+    ctx.fillStyle = '#2D2D2D';
+    ctx.fillText("Charge", cx - 40, cy - 15);
+    ctx.fillText("Gaussian", cx - 45, cy + 45);
+    ctx.fillText("surface", cx - 45, cy + 60);
+
+    // Draw radial field lines (E) if checked
+    const lineCount = Math.min(24, Math.abs(qVal) * 2);
+    if (showFields && lineCount > 0) {
+      ctx.strokeStyle = qVal >= 0 ? '#E53E3E' : '#2B6CB0';
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < lineCount; i++) {
+        const angle = (i * 2 * Math.PI) / lineCount;
+        const startR = 15;
+        const endR = 140;
+        const sx = cx + Math.cos(angle) * startR;
+        const sy = cy + Math.sin(angle) * startR;
+        const ex = cx + Math.cos(angle) * endR;
+        const ey = cy + Math.sin(angle) * endR;
+
+        // Draw line
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(ex, ey);
+        ctx.stroke();
+
+        // Draw arrowheads based on polarity
+        ctx.fillStyle = qVal >= 0 ? '#E53E3E' : '#2B6CB0';
+        const arrowAngle = qVal >= 0 ? angle : angle + Math.PI;
+        const arrowR = qVal >= 0 ? endR : startR + 10;
+        const ax = cx + Math.cos(angle) * arrowR;
+        const ay = cy + Math.sin(angle) * arrowR;
+
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(ax - 6 * Math.cos(arrowAngle - 0.3), ay - 6 * Math.sin(arrowAngle - 0.3));
+        ctx.lineTo(ax - 6 * Math.cos(arrowAngle + 0.3), ay - 6 * Math.sin(arrowAngle + 0.3));
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.font = '11px JetBrains Mono';
+      ctx.fillStyle = qVal >= 0 ? '#E53E3E' : '#2B6CB0';
+      ctx.fillText("Electric field lines", cx + 60, cy - 100);
+    }
+
+    // Draw Curved Surface patch (dS) with vectors E & dS at angle 45 degrees
+    const patchAngle = -Math.PI / 4; // 45 deg upper right
+    const px = cx + Math.cos(patchAngle) * r;
+    const py = cy + Math.sin(patchAngle) * r;
+
+    // Draw curved blue surface segment
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, patchAngle - 0.15, patchAngle + 0.15);
+    ctx.strokeStyle = '#2B6CB0';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    // Fill surface representation
+    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.fillStyle = '#2D3748';
+    ctx.fillText("ds", px - 15, py + 12);
+
+    // Vector dS (always outward, normal)
+    const dsLen = 35;
+    const dsx = px + Math.cos(patchAngle) * dsLen;
+    const dsy = py + Math.sin(patchAngle) * dsLen;
+    ctx.strokeStyle = '#2D2D2D';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(dsx, dsy);
+    ctx.stroke();
+    // dS arrow head
+    ctx.fillStyle = '#2D2D2D';
+    ctx.beginPath();
+    ctx.moveTo(dsx, dsy);
+    ctx.lineTo(dsx - 5 * Math.cos(patchAngle - 0.3), dsy - 5 * Math.sin(patchAngle - 0.3));
+    ctx.lineTo(dsx - 5 * Math.cos(patchAngle + 0.3), dsy - 5 * Math.sin(patchAngle + 0.3));
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillText("ds", dsx + 5, dsy + 2);
+
+    // Vector E (outward if positive, inward if negative)
+    const eLen = Math.abs(qVal) * 5;
+    if (eLen > 0) {
+      const eAngle = qVal >= 0 ? patchAngle : patchAngle + Math.PI;
+      const ex = px + Math.cos(patchAngle) * (qVal >= 0 ? eLen : -eLen);
+      const ey = py + Math.sin(patchAngle) * (qVal >= 0 ? eLen : -eLen);
+
+      ctx.strokeStyle = '#E53E3E';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+      // E arrow head
+      ctx.fillStyle = '#E53E3E';
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      const arrDir = qVal >= 0 ? patchAngle : patchAngle + Math.PI;
+      ctx.lineTo(ex - 6 * Math.cos(arrDir - 0.35), ey - 6 * Math.sin(arrDir - 0.35));
+      ctx.lineTo(ex - 6 * Math.cos(arrDir + 0.35), ey - 6 * Math.sin(arrDir + 0.35));
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillText("E", ex + 5, ey - 5);
+    }
+
+    // Right-side formulas matching image_fe93cb.png
+    const rx = cx + 200;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#2D2D2D';
+    ctx.font = 'bold 16px Montserrat, sans-serif';
+    ctx.fillText("Φ ∝ Q_enc", rx, 90);
+    ctx.font = 'bold 18px Montserrat, sans-serif';
+    ctx.fillText("Φ = ∮ E · ds = Q_enc / ε_0", rx, 130);
+
+    ctx.font = '12px Gowun Batang, sans-serif';
+    ctx.fillText("Φ  : Electric flux", rx, 175);
+    ctx.fillText("E  : Electric field", rx, 200);
+    ctx.fillText("ds : Infinitesimal surface area", rx, 225);
+    ctx.fillText("Q_enc : Charge enclosed", rx, 250);
+    ctx.fillText("ε_0 : Permittivity of air/vacuum", rx, 275);
+
+  } else {
+    // ── CCP Semiconductor Chamber Application View ──
+    const vSlider = document.getElementById('ccp-voltage-slider');
+    const vValue = vSlider ? parseInt(vSlider.value) : 250;
+
+    // Draw parallel plates chamber
+    ctx.fillStyle = '#1A202C';
+    ctx.fillRect(40, 40, 520, 260); // dark chamber
+
+    // Top electrode (RF plate)
+    ctx.fillStyle = '#718096';
+    ctx.fillRect(80, 55, 440, 15);
+    ctx.fillStyle = '#E53E3E';
+    ctx.font = 'bold 10px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText("RF ELECTRODE (TOP PLATE)", 300, 50);
+
+    // Bottom electrode (Wafer chuck)
+    ctx.fillStyle = '#4A5568';
+    ctx.fillRect(80, 250, 440, 25);
+    // Wafer on top of bottom electrode
+    ctx.fillStyle = '#1A365D';
+    ctx.fillRect(120, 244, 360, 6);
+    ctx.fillStyle = '#319795';
+    ctx.font = 'bold 10px Montserrat';
+    ctx.fillText("WAFER SUBSTRATE", 300, 240);
+
+    // Draw plasma bulk (glow) in center
+    const sheathH = Math.max(10, Math.min(60, 15 + vValue / 15));
+    const plasmaTop = 70 + sheathH;
+    const plasmaBottom = 244 - sheathH;
+
+    // Glowing plasma gradient
+    const plasmaGrad = ctx.createLinearGradient(0, plasmaTop, 0, plasmaBottom);
+    plasmaGrad.addColorStop(0, 'rgba(129, 230, 217, 0.15)');
+    plasmaGrad.addColorStop(0.2, 'rgba(159, 122, 234, 0.65)');
+    plasmaGrad.addColorStop(0.5, 'rgba(111, 76, 186, 0.8)');
+    plasmaGrad.addColorStop(0.8, 'rgba(159, 122, 234, 0.65)');
+    plasmaGrad.addColorStop(1, 'rgba(129, 230, 217, 0.15)');
+
+    ctx.fillStyle = plasmaGrad;
+    ctx.fillRect(80, plasmaTop, 440, plasmaBottom - plasmaTop);
+    ctx.font = 'bold 13px Montserrat';
+    ctx.fillStyle = '#E2E8F0';
+    ctx.fillText("PLASMA BULK (HIGH DENSITY)", 300, (plasmaTop + plasmaBottom) / 2);
+
+    // Draw Dark Sheaths
+    ctx.fillStyle = 'rgba(45, 55, 72, 0.45)';
+    ctx.fillRect(80, 70, 440, sheathH); // top sheath
+    ctx.fillRect(80, plasmaBottom, 440, sheathH); // bottom sheath
+
+    ctx.fillStyle = '#A0AEC0';
+    ctx.font = 'italic 10px Gowun Batang';
+    ctx.fillText(`Top Sheath (${Math.round(sheathH)}nm)`, 300, 70 + sheathH/2 + 3);
+    ctx.fillText(`Bottom Space-Charge Sheath (${Math.round(sheathH)}nm)`, 300, plasmaBottom + sheathH/2 + 3);
+
+    // Draw electric field vectors in the bottom sheath (Gauss's law accelerator)
+    ctx.strokeStyle = '#FEEBC8';
+    ctx.lineWidth = 1.5;
+    ctx.fillStyle = '#FEEBC8';
+    for (let x = 130; x < 480; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, plasmaBottom);
+      ctx.lineTo(x, 240);
+      ctx.stroke();
+      // Arrow
+      ctx.beginPath();
+      ctx.moveTo(x, 240);
+      ctx.lineTo(x - 3, 234);
+      ctx.lineTo(x + 3, 234);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Accelerating argon ions (Ar+) striking the wafer
+    ctx.fillStyle = '#90CDF4';
+    for (let i = 0; i < 5; i++) {
+      const ionX = 150 + i * 70;
+      const ionY = plasmaBottom + (Math.sin(Date.now() / 200 + i) * 0.5 + 0.5) * sheathH;
+      ctx.beginPath();
+      ctx.arc(ionX, ionY, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillStyle = '#1A202C';
+      ctx.font = 'bold 8px Montserrat';
+      ctx.fillText("+", ionX, ionY + 3);
+      ctx.fillStyle = '#90CDF4';
+      ctx.font = 'bold 9px JetBrains Mono';
+      ctx.fillText("Ar+", ionX + 12, ionY + 3);
+    }
+    ctx.fillStyle = '#E53E3E';
+    ctx.font = lang === 'en' ? '11px Google Sans, sans-serif' : '11px Gowun Batang';
+    ctx.fillText(UI[lang].gauss.ccpCanvasText, 300, 290);
+  }
+}
+
+// ── Interactive Gauss Simulator for Magnetism (Chapter 2) ──
+let magTab = 'classic';
+let magCanvas = null, magCtx = null;
+function setMagTab(tab) {
+  magTab = tab;
+  document.getElementById('mag-tab-classic').classList.toggle('active', tab === 'classic');
+  document.getElementById('mag-tab-confinement').classList.toggle('active', tab === 'confinement');
+  document.getElementById('mag-controls-classic').style.display = tab === 'classic' ? 'flex' : 'none';
+  document.getElementById('mag-controls-confinement').style.display = tab === 'confinement' ? 'flex' : 'none';
+  updateMagSimulation();
+}
+
+function initMagSimulation() {
+  magCanvas = document.getElementById('mag-sim-canvas');
+  if (!magCanvas) return;
+  magCtx = magCanvas.getContext('2d');
+  updateMagSimulation();
+}
+
+function updateMagSimulation() {
+  if (!magCanvas || !magCtx) return;
+  const ctx = magCtx;
+  const w = magCanvas.width;
+  const h = magCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const angleSlider = document.getElementById('mag-angle-slider');
+  const strengthSlider = document.getElementById('mag-strength-slider');
+  const confSlider = document.getElementById('mag-conf-slider');
+
+  const angleValText = document.getElementById('mag-angle-val');
+  const strengthValText = document.getElementById('mag-strength-val');
+  const confValText = document.getElementById('mag-conf-val');
+
+  const angleDeg = angleSlider ? parseInt(angleSlider.value) : 45;
+  const bStrength = strengthSlider ? parseInt(strengthSlider.value) : 5;
+  const confLevel = confSlider ? parseInt(confSlider.value) : 3;
+
+  if (angleValText) angleValText.innerText = angleDeg + '°';
+  if (strengthValText) strengthValText.innerText = bStrength + ' T';
+  if (confValText) confValText.innerText = 'Level ' + confLevel;
+
+  const rad = (angleDeg * Math.PI) / 180;
+
+  if (magTab === 'classic') {
+    // ── Classic Gauss Law for Magnetism dynamic demo ──
+    const cx = 220;
+    const cy = 170;
+    const r = 90;
+
+    // Draw magnetic field lines passing completely through S
+    ctx.strokeStyle = 'rgba(43, 108, 176, 0.55)';
+    ctx.lineWidth = 1 + bStrength * 0.15;
+    
+    const numLines = 14;
+    const lineSpacing = 32;
+    const dx = Math.cos(rad);
+    const dy = Math.sin(rad);
+
+    for (let i = -numLines/2; i <= numLines/2; i++) {
+      const perpX = -dy * i * lineSpacing;
+      const perpY = dx * i * lineSpacing;
+      
+      const length = 520;
+      const sx = cx + perpX - dx * length / 2;
+      const sy = cy + perpY - dy * length / 2;
+      const ex = cx + perpX + dx * length / 2;
+      const ey = cy + perpY + dy * length / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+
+      // Draw arrowheads dynamically along lines
+      const mx = cx + perpX;
+      const my = cy + perpY;
+      ctx.fillStyle = '#2B6CB0';
+      ctx.beginPath();
+      ctx.moveTo(mx, my);
+      ctx.lineTo(mx - 8 * Math.cos(rad - 0.35), my - 8 * Math.sin(rad - 0.35));
+      ctx.lineTo(mx - 8 * Math.cos(rad + 0.35), my - 8 * Math.sin(rad + 0.35));
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Draw the closed irregular Gaussian surface S
+    ctx.beginPath();
+    ctx.moveTo(cx - 70, cy + 10);
+    ctx.bezierCurveTo(cx - 70, cy - 50, cx - 10, cy - 40, cx + 20, cy - 50);
+    ctx.bezierCurveTo(cx + 80, cy - 60, cx + 110, cy - 40, cx + 110, cy + 10);
+    ctx.bezierCurveTo(cx + 110, cy + 50, cx + 50, cy + 30, cx + 10, cy + 50);
+    ctx.bezierCurveTo(cx - 30, cy + 60, cx - 70, cy + 50, cx - 70, cy + 10);
+    ctx.closePath();
+
+    ctx.fillStyle = 'rgba(129, 230, 217, 0.4)';
+    ctx.fill();
+    ctx.strokeStyle = '#0F8C50';
+    ctx.lineWidth = 2.2;
+    ctx.stroke();
+
+    // S surface tag
+    ctx.font = 'bold 15px Montserrat';
+    ctx.fillStyle = '#0F8C50';
+    ctx.fillText("S", cx + 80, cy + 40);
+
+    // Draw custom patch ΔS
+    const px = cx + 10;
+    const py = cy - 43;
+
+    ctx.fillStyle = '#48BB78';
+    ctx.strokeStyle = '#2D3748';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px - 10, py - 3);
+    ctx.lineTo(px + 10, py - 4);
+    ctx.lineTo(px + 8, py + 4);
+    ctx.lineTo(px - 12, py + 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.fillStyle = '#2D2D2D';
+    ctx.fillText("ΔS", px - 8, py + 16);
+
+    // Normal vector n-hat at patch
+    const ny = -35;
+    ctx.strokeStyle = '#2D2D2D';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(px, py + ny);
+    ctx.stroke();
+
+    ctx.fillStyle = '#2D2D2D';
+    ctx.beginPath();
+    ctx.moveTo(px, py + ny);
+    ctx.lineTo(px - 4, py + ny + 6);
+    ctx.lineTo(px + 4, py + ny + 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillText("n̂", px + 8, py + ny + 8);
+
+    // Angle theta indicators
+    ctx.strokeStyle = '#E53E3E';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(px, py, 18, -Math.PI / 2, rad);
+    ctx.stroke();
+    ctx.fillStyle = '#E53E3E';
+    ctx.fillText("θ", px + 12, py - 18);
+
+    // Formula indicator update
+    const formulaDiv = document.getElementById('mag-formula-dynamic');
+    if (formulaDiv) {
+      formulaDiv.innerHTML = `${UI[lang].mag.formulaPrefix}$$\\oint_S \\mathbf{B} \\cdot d\\mathbf{A} = \\iint_{\\text{in}} \\mathbf{B} \\cdot d\\mathbf{A} + \\iint_{\\text{out}} \\mathbf{B} \\cdot d\\mathbf{A} = -\\Phi_{\\text{in}} + \\Phi_{\\text{out}} = 0 \\text{ Wb}$$`;
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise([formulaDiv]);
+      }
+    }
+
+    // Right-side dynamic details panel
+    const rx = cx + 200;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#2D2D2D';
+    ctx.font = 'bold 15px Montserrat, sans-serif';
+    ctx.fillText("Φ_B = ∮ B · dS = 0", rx, 90);
+    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.fillStyle = '#4A5568';
+    ctx.fillText("No Magnetic Monopoles Found", rx, 115);
+
+    ctx.font = lang === 'en' ? '12px Google Sans, sans-serif' : '12px Gowun Batang, sans-serif';
+    ctx.fillStyle = '#2D2D2D';
+    ctx.fillText("Φ_B : Magnetic flux (Wb)", rx, 160);
+    ctx.fillText("B   : Magnetic field (Tesla)", rx, 185);
+    ctx.fillText("dS  : Area vector patch (normal n̂)", rx, 210);
+    ctx.fillText("θ   : Angle between B and n̂", rx, 235);
+    ctx.font = lang === 'en' ? 'bold 11px Google Sans, sans-serif' : 'bold 11px Gowun Batang';
+    ctx.fillStyle = '#0F8C50';
+    ctx.fillText(UI[lang].mag.fluxNote, rx, 270);
+  } else {
+    // ── Confinement (Magnetron sputtering) simulation ──
+    ctx.fillStyle = '#1A202C';
+    ctx.fillRect(40, 40, 520, 260);
+
+    // Back-plate
+    ctx.fillStyle = '#718096';
+    ctx.fillRect(80, 240, 440, 20);
+
+    // Targets: Center N, Sides S
+    ctx.fillStyle = '#E53E3E'; // N-magnet
+    ctx.fillRect(270, 250, 60, 10);
+    ctx.fillStyle = '#FFF';
+    ctx.font = 'bold 9px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText("N", 300, 258);
+
+    ctx.fillStyle = '#2B6CB0'; // S-magnets
+    ctx.fillRect(150, 250, 50, 10);
+    ctx.fillRect(400, 250, 50, 10);
+    ctx.fillStyle = '#FFF';
+    ctx.fillText("S", 175, 258);
+    ctx.fillText("S", 425, 258);
+
+    // Sputtering target on top of backing plate
+    ctx.fillStyle = '#A0AEC0';
+    ctx.fillRect(100, 235, 400, 5);
+
+    // Curved Magnetic Field Loops (B-field lines)
+    ctx.strokeStyle = 'rgba(72, 187, 120, 0.75)';
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([4, 3]);
+
+    // Left arch
+    ctx.beginPath();
+    ctx.arc(237.5, 250, 62.5, Math.PI, 2 * Math.PI, true);
+    ctx.stroke();
+
+    // Right arch
+    ctx.beginPath();
+    ctx.arc(362.5, 250, 62.5, Math.PI, 2 * Math.PI, true);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    // Glow representation
+    const glowAlpha = 0.15 + confLevel * 0.12;
+    const plasmaGlowL = ctx.createRadialGradient(237.5, 210, 5, 237.5, 210, 60);
+    plasmaGlowL.addColorStop(0, `rgba(159, 122, 234, ${glowAlpha})`);
+    plasmaGlowL.addColorStop(1, 'rgba(159, 122, 234, 0)');
+    ctx.fillStyle = plasmaGlowL;
+    ctx.beginPath();
+    ctx.arc(237.5, 210, 65, 0, 2 * Math.PI);
+    ctx.fill();
+
+    const plasmaGlowR = ctx.createRadialGradient(362.5, 210, 5, 362.5, 210, 60);
+    plasmaGlowR.addColorStop(0, `rgba(159, 122, 234, ${glowAlpha})`);
+    plasmaGlowR.addColorStop(1, 'rgba(159, 122, 234, 0)');
+    ctx.fillStyle = plasmaGlowR;
+    ctx.beginPath();
+    ctx.arc(362.5, 210, 65, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Circulating trapped electrons
+    ctx.fillStyle = '#FBBF24';
+    const numElectrons = confLevel * 6;
+    const time = Date.now() * 0.003;
+    for (let i = 0; i < numElectrons; i++) {
+      const angleL = Math.PI + (i / numElectrons) * Math.PI + (time % Math.PI);
+      const exL = 237.5 + 62.5 * Math.cos(angleL);
+      const eyL = 250 + 62.5 * Math.sin(angleL);
+      ctx.beginPath();
+      ctx.arc(exL, eyL, 3, 0, 2 * Math.PI);
+      ctx.fill();
+
+      const angleR = Math.PI + (i / numElectrons) * Math.PI - (time % Math.PI);
+      const exR = 362.5 + 62.5 * Math.cos(angleR);
+      const eyR = 250 + 62.5 * Math.sin(angleR);
+      ctx.beginPath();
+      ctx.arc(exR, eyR, 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#FFF';
+    ctx.font = lang === 'en' ? 'bold 11px Google Sans, sans-serif' : 'bold 11px Gowun Batang';
+    ctx.textAlign = 'center';
+    ctx.fillText(UI[lang].mag.confCanvasText, 300, 285);
+  }
+}
+
+// ── Interactive Faraday PhET Simulator (Chapter 3) ──
+let faradayTab = 'lab'; // Declared globally to fix ReferenceError
+let faradayCanvas = null, faradayCtx = null; // Declared globally
+let magnetX = 80, magnetY = 170;
+let isDraggingMagnet = false;
+let dragOffsetX = 0, dragOffsetY = 0;
+let prevMagnetX = 80;
+let smoothedEMF = 0;
+
+function setFaradayTab(tab) {
+  faradayTab = tab;
+  
+  const tabLab = document.getElementById('faraday-tab-lab');
+  const tabIcp = document.getElementById('faraday-tab-icp');
+  const controlsLab = document.getElementById('faraday-controls-lab');
+  const controlsIcp = document.getElementById('faraday-controls-icp');
+  const iframeEl = document.getElementById('faraday-phet-iframe');
+  const canvasEl = document.getElementById('faraday-sim-canvas');
+  const indicatorEl = document.getElementById('faraday-voltage-indicator');
+
+  if (tabLab) tabLab.classList.toggle('active', tab === 'lab');
+  if (tabIcp) tabIcp.classList.toggle('active', tab === 'icp');
+
+  if (tab === 'lab') {
+    if (controlsLab) controlsLab.style.display = 'flex';
+    if (controlsIcp) controlsIcp.style.display = 'none';
+    if (iframeEl) iframeEl.style.display = 'block';
+    if (canvasEl) canvasEl.style.display = 'none';
+    if (indicatorEl) {
+      indicatorEl.innerHTML = `${UI[lang].faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple-brand); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
+    }
+  } else {
+    if (controlsLab) controlsLab.style.display = 'none';
+    if (controlsIcp) controlsIcp.style.display = 'flex';
+    if (iframeEl) iframeEl.style.display = 'none';
+    if (canvasEl) canvasEl.style.display = 'block';
+    if (indicatorEl) {
+      indicatorEl.innerHTML = UI[lang].ampere.initialPhase;
+    }
+  }
+}
+
+function initFaradaySimulation() {
+  faradayCanvas = document.getElementById('faraday-sim-canvas');
+  if (!faradayCanvas) return;
+  faradayCtx = faradayCanvas.getContext('2d');
+
+  // Set initial tab state safely using globally defined faradayTab
+  setFaradayTab(faradayTab);
+
+  function tick() {
+    if (faradayCanvas && faradayCtx) {
+      updateFaradaySimulation();
+      requestAnimationFrame(tick);
+    }
+  }
+  tick();
+}
+
+function updateFaradaySimulation() {
+  if (!faradayCanvas || !faradayCtx) return;
+  if (faradayTab === 'lab') return; // Canvas is hidden under PhET simulation tab, no need to update
+
+  const ctx = faradayCtx;
+  const w = faradayCanvas.width;
+  const h = faradayCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // ── Mode B: Semiconductor ICP Reactor Chamber simulation ──
+  const fSlider = document.getElementById('icp-freq-slider');
+  const fValue = fSlider ? parseInt(fSlider.value) : 13;
+
+  if (fSlider && document.getElementById('icp-freq-val')) {
+    document.getElementById('icp-freq-val').innerText = fValue + '.56 MHz';
+  }
+
+  const acTime = Date.now() * 0.002 * fValue;
+  const currentPhase = Math.sin(acTime);
+
+  const vText = document.getElementById('faraday-voltage-indicator');
+  if (vText && faradayTab === 'icp') {
+    vText.innerText = `${UI[lang].ampere.phasePrefix}${currentPhase.toFixed(2)}`;
+  }
+
+  // Draw ICP Chamber outline
+  ctx.fillStyle = '#1A202C';
+  ctx.fillRect(40, 40, 520, 260);
+
+  ctx.fillStyle = '#E2E8F0';
+  ctx.fillRect(100, 60, 400, 10);
+  ctx.fillStyle = '#A0AEC0';
+  ctx.font = 'bold 9px Montserrat';
+  ctx.textAlign = 'center';
+  ctx.fillText("DILECTRIC QUARTZ WINDOW", 300, 55);
+
+  ctx.fillStyle = '#DD6B20';
+  ctx.beginPath();
+  ctx.arc(160, 50, 8, 0, 2*Math.PI);
+  ctx.arc(230, 50, 8, 0, 2*Math.PI);
+  ctx.arc(370, 50, 8, 0, 2*Math.PI);
+  ctx.arc(440, 50, 8, 0, 2*Math.PI);
+  ctx.fill();
+
+  ctx.fillStyle = '#FFF';
+  ctx.font = 'bold 9px Montserrat';
+  const signA = currentPhase >= 0 ? '+' : '-';
+  const signB = currentPhase >= 0 ? '-' : '+';
+  ctx.fillText(signA, 160, 53);
+  ctx.fillText(signB, 230, 53);
+  ctx.fillText(signA, 370, 53);
+  ctx.fillText(signB, 440, 53);
+
+  ctx.strokeStyle = 'rgba(72, 187, 120, 0.7)';
+  ctx.lineWidth = 2 * Math.abs(currentPhase);
+  ctx.setLineDash([4, 2]);
+
+  ctx.beginPath();
+  ctx.ellipse(195, 110, 25, 45, 0, 0, 2*Math.PI);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(405, 110, 25, 45, 0, 0, 2*Math.PI);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  const ionDensityFactor = Math.abs(currentPhase);
+  const plasmaGlow = ctx.createRadialGradient(300, 160, 10, 300, 160, 120);
+  plasmaGlow.addColorStop(0, `rgba(159, 122, 234, ${0.45 + ionDensityFactor * 0.35})`);
+  plasmaGlow.addColorStop(0.6, `rgba(107, 70, 193, ${0.3 + ionDensityFactor * 0.2})`);
+  plasmaGlow.addColorStop(1, 'rgba(159, 122, 234, 0)');
+
+  ctx.fillStyle = plasmaGlow;
+  ctx.beginPath();
+  ctx.arc(300, 160, 120, 0, 2*Math.PI);
+  ctx.fill();
+
+  ctx.strokeStyle = '#E53E3E';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.ellipse(300, 140, 110, 25, 0, 0, 2*Math.PI);
+  ctx.stroke();
+
+  ctx.fillStyle = '#E53E3E';
+  const arrowPhaseX = 300 + 110 * Math.cos(acTime);
+  const arrowPhaseY = 140 + 25 * Math.sin(acTime);
+  ctx.beginPath();
+  ctx.arc(arrowPhaseX, arrowPhaseY, 6, 0, 2*Math.PI);
+  ctx.fill();
+
+  ctx.font = lang === 'en' ? 'bold 11px Google Sans, sans-serif' : 'bold 11px Gowun Batang';
+  ctx.fillStyle = '#FFF';
+  ctx.fillText(UI[lang].faraday.eIndCanvasText, 300, 135);
+
+  ctx.fillStyle = '#4A5568';
+  ctx.fillRect(140, 250, 320, 20);
+  ctx.fillStyle = '#1A365D';
+  ctx.fillRect(170, 244, 260, 6);
+  ctx.font = 'bold 9px Montserrat';
+  ctx.fillStyle = '#E2E8F0';
+  ctx.fillText("HIGH DENSITY ICP PLASMA WAFER", 300, 262);
+}
+
+// ── Interactive Ampere-Maxwell Tab Logic & Hysteresis Simulator (Chapter 4) ──
+let ampereTab = 'lab';
+let ampereCanvas = null, ampereCtx = null; // Declared globally
+function setAmpereTab(tab) {
+  ampereTab = tab;
+  const tabLab = document.getElementById('ampere-tab-lab');
+  const tabTrans = document.getElementById('ampere-tab-transition');
+  const controlsLab = document.getElementById('ampere-controls-lab');
+  const controlsTrans = document.getElementById('ampere-controls-transition');
+  const iframeEl = document.getElementById('ampere-phet-iframe');
+  const canvasEl = document.getElementById('ampere-sim-canvas');
+  const captionEl = document.getElementById('ampere-caption-indicator');
+
+  if (tabLab) tabLab.classList.toggle('active', tab === 'lab');
+  if (tabTrans) tabTrans.classList.toggle('active', tab === 'transition');
+
+  if (tab === 'lab') {
+    if (controlsLab) controlsLab.style.display = 'flex';
+    if (controlsTrans) controlsTrans.style.display = 'none';
+    if (iframeEl) iframeEl.style.display = 'block';
+    if (canvasEl) canvasEl.style.display = 'none';
+    if (captionEl) {
+      captionEl.innerHTML = `${UI[lang].ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple-brand); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
+    }
+  } else {
+    if (controlsLab) controlsLab.style.display = 'none';
+    if (controlsTrans) controlsTrans.style.display = 'flex';
+    if (iframeEl) iframeEl.style.display = 'none';
+    if (canvasEl) canvasEl.style.display = 'block';
+    if (captionEl) {
+      captionEl.innerHTML = UI[lang].ampere.hysteresisCaption;
+    }
+    updateAmpereSimulation();
+  }
+}
+
+function initAmpereMaxwellSimulation() {
+  ampereCanvas = document.getElementById('ampere-sim-canvas');
+  if (!ampereCanvas) return;
+  ampereCtx = ampereCanvas.getContext('2d');
+  setAmpereTab(ampereTab);
+}
+
+function updateAmpereSimulation() {
+  if (!ampereCanvas || !ampereCtx || ampereTab !== 'transition') return;
+  const ctx = ampereCtx;
+  const w = ampereCanvas.width;
+  const h = ampereCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  const powerSlider = document.getElementById('icp-power-slider');
+  const powerValText = document.getElementById('icp-power-val');
+  const modeBadge = document.getElementById('icp-mode-badge');
+
+  const pVal = powerSlider ? parseInt(powerSlider.value) : 60;
+  if (powerValText) {
+    powerValText.innerText = pVal + ' W';
+  }
+
+  const isHmode = pVal >= 150;
+  if (modeBadge) {
+    modeBadge.innerText = isHmode ? UI[lang].ampere.modeHmodeBadge : UI[lang].ampere.modeEmodeBadge;
+    modeBadge.style.background = isHmode ? "#FFF5F5" : "#EBF8FF";
+    modeBadge.style.color = isHmode ? "#9B2C2C" : "#2B6CB0";
+  }
+
+  // Draw ICP chamber layout
+  ctx.fillStyle = '#1A202C';
+  ctx.fillRect(20, 20, 320, 240);
+
+  // Top quartz window & RF coil
+  ctx.fillStyle = '#E2E8F0';
+  ctx.fillRect(50, 40, 260, 8);
+  ctx.fillStyle = '#DD6B20';
+  ctx.beginPath();
+  ctx.arc(80, 32, 6, 0, 2*Math.PI);
+  ctx.arc(130, 32, 6, 0, 2*Math.PI);
+  ctx.arc(230, 32, 6, 0, 2*Math.PI);
+  ctx.arc(280, 32, 6, 0, 2*Math.PI);
+  ctx.fill();
+
+  // Glow render
+  if (pVal > 0) {
+    const plasmaY = 130;
+    const ionDensity = isHmode ? (pVal / 500) : (pVal / 300);
+    const plasmaGlow = ctx.createRadialGradient(180, plasmaY, 10, 180, plasmaY, isHmode ? 110 : 60);
+    plasmaGlow.addColorStop(0, isHmode ? `rgba(159, 122, 234, ${0.4 + ionDensity * 0.5})` : `rgba(226, 190, 255, ${0.15 + ionDensity * 0.25})`);
+    plasmaGlow.addColorStop(0.6, isHmode ? `rgba(107, 70, 193, ${0.25 + ionDensity * 0.3})` : `rgba(226, 190, 255, 0.05)`);
+    plasmaGlow.addColorStop(1, 'rgba(159, 122, 234, 0)');
+    ctx.fillStyle = plasmaGlow;
+    ctx.beginPath();
+    ctx.arc(180, plasmaY, isHmode ? 110 : 60, 0, 2*Math.PI);
+    ctx.fill();
+
+    // Capacitive E-fields (vertical, dim) in E-mode
+    if (!isHmode) {
+      ctx.strokeStyle = 'rgba(144, 205, 244, 0.45)';
+      ctx.lineWidth = 1;
+      for (let x = 70; x < 300; x += 30) {
+        ctx.beginPath();
+        ctx.moveTo(x, 48);
+        ctx.lineTo(x, 100);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#90CDF4';
+      ctx.font = 'bold 8px Montserrat';
+      ctx.fillText("Capacitive E-Field (Dim Glow)", 180, 80);
+    } else {
+      // Inductive H-mode magnetic loop and toroidal currents
+      ctx.strokeStyle = 'rgba(72, 187, 120, 0.65)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(100, 50, 160, 110);
+      ctx.fillStyle = '#48BB78';
+      ctx.font = 'bold 8px Montserrat';
+      ctx.fillText("Induced Magnetic Loops (H-field)", 180, 65);
+
+      // Sizzling bright center
+      ctx.fillStyle = '#E53E3E';
+      ctx.beginPath();
+      ctx.ellipse(180, 120, 70, 15, 0, 0, 2*Math.PI);
+      ctx.stroke();
+      ctx.fillText("HIGH DENSITY INDUCTIVE RING", 180, 115);
+    }
+  }
+
+  ctx.fillStyle = '#FFF';
+  ctx.font = lang === 'en' ? 'bold 10px Google Sans, sans-serif' : 'bold 10px Gowun Batang';
+  ctx.textAlign = 'center';
+  ctx.fillText(UI[lang].ampere.icpStatusCanvasText, 180, 250);
+
+  // Draw Hysteresis curve plot on the right
+  const px = 370, py = 50;
+  const pw = 200, ph = 210;
+  
+  // Grid background
+  ctx.fillStyle = '#F7F8FA';
+  ctx.fillRect(px, py, pw, ph);
+  ctx.strokeStyle = '#E5E7EB';
+  ctx.lineWidth = 1;
+  for (let gy = py; gy <= py + ph; gy += 30) {
+    ctx.beginPath();
+    ctx.moveTo(px, gy);
+    ctx.lineTo(px + pw, gy);
+    ctx.stroke();
+  }
+  for (let gx = px; gx <= px + pw; gx += 40) {
+    ctx.beginPath();
+    ctx.moveTo(gx, py);
+    ctx.lineTo(gx, py + ph);
+    ctx.stroke();
+  }
+
+  // Draw Hysteresis trace
+  ctx.strokeStyle = '#A0AEC0';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(px, py + ph - 20);
+  ctx.lineTo(px + 60, py + ph - 30);
+  ctx.lineTo(px + 60, py + 50);
+  ctx.lineTo(px + pw, py + 20);
+  ctx.stroke();
+
+  // Draw current operating point dot
+  const dotX = px + (pVal / 500) * pw;
+  let dotY = py + ph - 20;
+  if (isHmode) {
+    dotY = py + 50 - ((pVal - 150) / 350) * 30;
+  } else {
+    dotY = py + ph - 20 - (pVal / 150) * 10;
+  }
+
+  ctx.fillStyle = isHmode ? '#E53E3E' : '#2B6CB0';
+  ctx.beginPath();
+  ctx.arc(dotX, dotY, 6, 0, 2*Math.PI);
+  ctx.fill();
+
+  // Axis arrows and labels
+  ctx.strokeStyle = '#2D2D2D';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(px, py + ph);
+  ctx.lineTo(px + pw + 5, py + ph);
+  ctx.moveTo(px, py + ph);
+  ctx.lineTo(px, py - 5);
+  ctx.stroke();
+
+  ctx.fillStyle = '#2D2D2D';
+  ctx.font = 'bold 8px Montserrat';
+  ctx.fillText("RF Power (W)", px + pw - 20, py + ph + 12);
+  
+  ctx.save();
+  ctx.translate(px - 10, py + 80);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText("Plasma Density (n_e)", 0, 0);
+  ctx.restore();
+
+  ctx.font = lang === 'en' ? 'bold 9px Google Sans, sans-serif' : 'bold 9px Gowun Batang';
+  ctx.fillText(UI[lang].ampere.hysteresisCurveText, px + pw/2, py - 10);
+}
+
+// Global text scale control function
+let currentScale = 1.0;
+function adjustScale(amount) {
+  if (amount === 0) {
+    currentScale = 1.0;
+  } else {
+    currentScale = Math.max(0.8, Math.min(1.5, currentScale + amount));
+  }
+  document.documentElement.style.setProperty('--scale', currentScale);
+  const scaleIndicator = document.getElementById('scale-indicator');
+  if (scaleIndicator) {
+    scaleIndicator.innerText = Math.round(currentScale * 100) + '%';
+  }
+}
+
+// Filter button logic
+document.querySelectorAll('.era-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.era-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    buildSidebar(btn.dataset.era);
+    if (currentId) {
+      setTimeout(() => {
+        const card = document.getElementById(`card-${currentId}`);
+        if (card) card.classList.add('active');
+      }, 30);
+    }
+  });
+});
+
+// App Initiation
+document.body.setAttribute('data-lang', 'ko'); // 초기 언어 설정 (KO)
+buildSidebar('all');
+setTimeout(() => selectSlide('ch0'), 150);
+</script>
+</body>
+</html>
