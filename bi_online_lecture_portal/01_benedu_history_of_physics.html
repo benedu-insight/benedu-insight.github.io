@@ -6,8 +6,44 @@
 <title>물리학의 역사 — Benedu Insight</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<style id="font-override">
+  /* EN 모드: 모든 요소에 Google Sans 적용 */
+  body[data-lang="en"],
+  body[data-lang="en"] * {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  /* 모노스페이스 요소는 그대로 유지 */
+  body[data-lang="en"] header p,
+  body[data-lang="en"] .lang-btn,
+  body[data-lang="en"] .era-btn,
+  body[data-lang="en"] .toolbar-btn,
+  body[data-lang="en"] #scale-indicator,
+  body[data-lang="en"] .era-range,
+  body[data-lang="en"] .sci-year,
+  body[data-lang="en"] .sci-tag,
+  body[data-lang="en"] .detail-era-tag,
+  body[data-lang="en"] .detail-meta,
+  body[data-lang="en"] .quote-attr,
+  body[data-lang="en"] .section-title,
+  body[data-lang="en"] .eq-block,
+  body[data-lang="en"] .theory-year,
+  body[data-lang="en"] code,
+  body[data-lang="en"] pre {
+    font-family: 'JetBrains Mono', 'Fira Mono', monospace !important;
+  }
+  /* Montserrat 제목류는 Google Sans로 통일 */
+  body[data-lang="en"] header h1,
+  body[data-lang="en"] .detail-name,
+  body[data-lang="en"] .theory-name,
+  body[data-lang="en"] .era-label,
+  body[data-lang="en"] h1,
+  body[data-lang="en"] h2,
+  body[data-lang="en"] h3 {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+</style>
 <style>
   :root {
     --bg:          #F7F8FA;
@@ -73,7 +109,7 @@
   }
   .header-title-block { flex: 1; min-width: 0; }
   header h1 {
-    font-family: 'Gowun Batang', serif;
+    font-family: 'Google Sans', 'Gowun Batang', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--purple);
@@ -87,6 +123,28 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-top: 2px;
+  }
+  .lang-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .lang-btn {
+    padding: 3px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: var(--text3);
+    transition: all 0.2s;
+  }
+  .lang-btn.active-lang {
+    background: var(--purple);
+    color: #fff;
   }
   .era-filter {
     margin-left: auto;
@@ -349,7 +407,7 @@
     font-weight: 500;
   }
   .detail-name {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Google Sans', 'Montserrat', sans-serif;
     font-size: calc(2rem * var(--scale));
     font-weight: 800;
     line-height: 1.1;
@@ -580,16 +638,20 @@
   </a>
   <div class="header-divider"></div>
   <div class="header-title-block">
-    <h1>물리학의 역사</h1>
-    <p>The Map of Physics — 과학자 일대기 &amp; 이론 탐구</p>
+    <h1 id="hTitle">물리학의 역사</h1>
+    <p id="hSubtitle">The Map of Physics — 과학자 일대기 &amp; 이론 탐구</p>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active-lang" onclick="setLang('ko')" id="btnKo">KO</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btnEn">EN</button>
   </div>
   <div class="era-filter">
-    <button class="era-btn active" data-era="all">전체</button>
-    <button class="era-btn" data-era="ancient">고대·중세</button>
-    <button class="era-btn" data-era="classical">고전역학</button>
-    <button class="era-btn" data-era="modern">근대물리</button>
-    <button class="era-btn" data-era="quantum">양자혁명</button>
-    <button class="era-btn" data-era="contemp">현대물리</button>
+    <button class="era-btn active" data-era="all" id="eraAll">전체</button>
+    <button class="era-btn" data-era="ancient" id="eraAncient">고대·중세</button>
+    <button class="era-btn" data-era="classical" id="eraClassical">고전역학</button>
+    <button class="era-btn" data-era="modern" id="eraModern">근대물리</button>
+    <button class="era-btn" data-era="quantum" id="eraQuantum">양자혁명</button>
+    <button class="era-btn" data-era="contemp" id="eraContemp">현대물리</button>
   </div>
 </header>
 
@@ -598,26 +660,147 @@
   <div class="detail-panel">
     <!-- Sticky Reading Toolbar for dynamic sizing -->
     <div class="content-toolbar">
-      <span style="font-family: 'Gowun Batang', serif; font-size: 0.75rem; color: var(--text2); font-weight: bold; margin-right: auto; display: flex; align-items: center; gap: 5px;">
+      <span id="fontSizeLabel" style="font-family: 'Gowun Batang', serif; font-size: 0.75rem; color: var(--text2); font-weight: bold; margin-right: auto; display: flex; align-items: center; gap: 5px;">
         🔍 본문 글자 크기
       </span>
-      <button class="toolbar-btn" onclick="adjustScale(-0.1)" title="작게">- 작게</button>
+      <button class="toolbar-btn" onclick="adjustScale(-0.1)" id="btnScaleDown" title="작게">- 작게</button>
       <span id="scale-indicator" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--purple); font-weight: bold; min-width: 45px; text-align: center;">100%</span>
-      <button class="toolbar-btn" onclick="adjustScale(0.1)" title="크게">+ 크게</button>
-      <button class="toolbar-btn" onclick="adjustScale(0)" title="기본 크기로 초기화" style="border-color: var(--purple-mid); color: var(--purple);">초기화</button>
+      <button class="toolbar-btn" onclick="adjustScale(0.1)" id="btnScaleUp" title="크게">+ 크게</button>
+      <button class="toolbar-btn" onclick="adjustScale(0)" id="btnScaleReset" title="기본 크기로 초기화" style="border-color: var(--purple-mid); color: var(--purple);">초기화</button>
     </div>
 
     <div id="detail">
       <div class="detail-empty">
         <div class="icon-ring"></div>
-        <p>과학자를 선택하세요</p>
+        <p id="emptyMsg">과학자를 선택하세요</p>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-const SCIENTISTS = [
+let lang = 'ko';
+let currentEraFilter = 'all';
+
+//  UI 텍스트 / UI Text
+const UI = {
+  ko: {
+    hTitle: '물리학의 역사',
+    hSubtitle: 'The Map of Physics — 과학자 일대기 & 이론 탐구',
+    eraAll: '전체', eraAncient: '고대·중세', eraClassical: '고전역학', eraModern: '근대물리', eraQuantum: '양자혁명', eraContemp: '현대물리',
+    eraLabels: {
+      ancient:   '고대·중세',
+      classical: '고전역학',
+      modern:    '근대물리',
+      quantum:   '양자혁명',
+      contemp:   '현대물리',
+    },
+    eraRanges: {
+      ancient:   'BC ~ 1500',
+      classical: '1543 ~ 1800',
+      modern:    '1800 ~ 1900',
+      quantum:   '1900 ~ 1950',
+      contemp:   '1950 ~',
+    },
+    eraNames: {
+      ancient:   '고대·중세',
+      classical: '고전역학 시대',
+      modern:    '근대물리 시대',
+      quantum:   '양자혁명',
+      contemp:   '현대물리',
+    },
+    sectionEq:          '핵심 수식',
+    sectionTheory:      '주요 이론 &amp; 업적',
+    sectionConnections: '연관 과학자',
+    lifeBarLabel:       '── 주요 업적 시점 ──',
+    emptyMsg:           '과학자를 선택하세요',
+    fontSizeLabel:      '🔍 본문 글자 크기',
+    btnScaleDown:       '- 작게',
+    btnScaleUp:         '+ 크게',
+    btnScaleReset:      '초기화',
+  },
+  en: {
+    hTitle: 'The History of Physics',
+    hSubtitle: 'The Map of Physics — Scientist Biographies &amp; Theory Exploration',
+    eraAll: 'All', eraAncient: 'Ancient·Medieval', eraClassical: 'Classical Mechanics', eraModern: 'Modern Physics', eraQuantum: 'Quantum Revolution', eraContemp: 'Contemporary Physics',
+    eraLabels: {
+      ancient:   'Ancient · Medieval',
+      classical: 'Classical Mechanics',
+      modern:    'Modern Physics',
+      quantum:   'Quantum Revolution',
+      contemp:   'Contemporary Physics',
+    },
+    eraRanges: {
+      ancient:   'BC ~ 1500',
+      classical: '1543 ~ 1800',
+      modern:    '1800 ~ 1900',
+      quantum:   '1900 ~ 1950',
+      contemp:   '1950 ~',
+    },
+    eraNames: {
+      ancient:   'Ancient · Medieval',
+      classical: 'Classical Mechanics Era',
+      modern:    'Modern Physics Era',
+      quantum:   'Quantum Revolution',
+      contemp:   'Contemporary Physics',
+    },
+    sectionEq:          'Key Equations',
+    sectionTheory:      'Key Theories &amp; Achievements',
+    sectionConnections: 'Related Scientists',
+    lifeBarLabel:       '── Key Milestones ──',
+    emptyMsg:           'Select a scientist',
+    fontSizeLabel:      '🔍 Text Size',
+    btnScaleDown:       '- Smaller',
+    btnScaleUp:         '+ Larger',
+    btnScaleReset:      'Reset',
+  }
+};
+
+function getSCIENTISTS() {
+  return lang === 'ko' ? SCIENTISTS_KO : SCIENTISTS_EN;
+}
+
+function setLang(l) {
+  lang = l;
+  document.body.setAttribute('data-lang', l);
+  document.getElementById('btnKo').classList.toggle('active-lang', l === 'ko');
+  document.getElementById('btnEn').classList.toggle('active-lang', l === 'en');
+
+  const T = UI[l];
+  document.getElementById('hTitle').textContent = T.hTitle;
+  document.getElementById('hSubtitle').innerHTML = T.hSubtitle;
+  document.getElementById('eraAll').textContent = T.eraAll;
+  document.getElementById('eraAncient').textContent = T.eraAncient;
+  document.getElementById('eraClassical').textContent = T.eraClassical;
+  document.getElementById('eraModern').textContent = T.eraModern;
+  document.getElementById('eraQuantum').textContent = T.eraQuantum;
+  document.getElementById('eraContemp').textContent = T.eraContemp;
+  document.getElementById('fontSizeLabel').innerHTML = T.fontSizeLabel;
+  document.getElementById('btnScaleDown').textContent = T.btnScaleDown;
+  document.getElementById('btnScaleUp').textContent = T.btnScaleUp;
+  document.getElementById('btnScaleReset').textContent = T.btnScaleReset;
+  const emptyMsgEl = document.getElementById('emptyMsg');
+  if (emptyMsgEl) emptyMsgEl.textContent = T.emptyMsg;
+
+  buildSidebar(currentEraFilter);
+  if (currentId) {
+    const sci = getSCIENTISTS().find(s => s.id === currentId);
+    if (sci) {
+      renderDetail(sci);
+      const card = document.getElementById(`card-${currentId}`);
+      if (card) card.classList.add('active');
+    }
+  } else {
+    document.getElementById('detail').innerHTML = `
+      <div class="detail-empty">
+        <div class="icon-ring"></div>
+        <p id="emptyMsg">${T.emptyMsg}</p>
+      </div>
+    `;
+  }
+}
+
+const SCIENTISTS_KO = [
   {
     id: 'aristotle',
     name: 'Aristotle',
@@ -1857,17 +2040,1259 @@ const SCIENTISTS = [
   }
 ];
 
+const SCIENTISTS_EN = [
+  {
+    id: 'aristotle',
+    name: 'Aristotle',
+    nameKr: 'Aristotle',
+    born: -384, died: -322,
+    birthYear: 'BC 384',
+    nation: 'Ancient Greece',
+    era: 'ancient',
+    field: 'Natural Philosophy',
+    tags: ['Mechanics', 'Cosmology', 'Natural Philosophy'],
+    color: '#8b6fcf',
+    quote: 'Nature abhors a vacuum.',
+    quoteAttr: '— Aristotle, Physics',
+    bio: `Aristotle was an ancient Greek philosopher and the first systematic natural scientist — a student of Plato and tutor to Alexander the Great. In the 4th century BC he founded the Lyceum and built an encyclopedic system of knowledge.
+
+    In physics, he held that all matter is composed of four elements (earth, water, fire, and air) and attempted a systematic classification of the causes and effects of motion. Although much of his work was later overturned by Galileo and Newton, he set out a paradigm that underpinned Western science for 2,000 years.`,
+    theories: [
+      { year: 'BC 350', name: 'Theory of the Four Elements', desc: 'Earth, water, fire, and air are the constituents of all things, with a fifth element, aether, filling the heavens.' },
+      { year: 'BC 350', name: 'Natural and Forced Motion', desc: 'Argued that objects move toward their "natural place," and that motion ceases without an external force.' },
+      { year: 'BC 340', name: 'Geocentrism', desc: 'The Earth is the center of the universe, with planets fixed to celestial spheres undergoing perfect circular motion.' },
+      { year: 'BC 350', name: 'Plenum Theory of Space', desc: 'Argued that a vacuum (void) cannot exist — a denial of physical nothingness.' },
+    ],
+    connections: ['Archimedes', 'Ptolemy', 'Galileo Galilei'],
+    equations: []
+  },
+  {
+    id: 'archimedes',
+    name: 'Archimedes',
+    nameKr: 'Archimedes',
+    born: -287, died: -212,
+    birthYear: 'BC 287',
+    nation: 'Syracuse, Greece',
+    era: 'ancient',
+    field: 'Mathematics, Mechanics & Fluids',
+    tags: ['Fluid Mechanics', 'Levers', 'Mathematics'],
+    color: '#8b6fcf',
+    quote: 'Eureka! (εὕρηκα) — I have found it!',
+    quoteAttr: '— Archimedes, in the bath',
+    bio: `Archimedes is regarded as the greatest mathematician and physicist of antiquity. Born in Syracuse, Sicily, and educated in Alexandria, he brought ancient Greek mechanics to its highest refinement.
+
+    The story of his discovery of the principle of buoyancy in the bath is famous worldwide. He left behind a wide range of practical and theoretical achievements — the principle of the lever, the spiral pump (Archimedes' screw), and the calculation of the area under a parabola — and even designed defensive war machines used against the Roman army during the Second Punic War.`,
+    theories: [
+      { year: 'BC 250', name: 'Principle of Buoyancy (Archimedes\' Principle)', desc: 'An object submerged in a fluid experiences an upward force equal to the weight of the displaced fluid. F_b = ρVg' },
+      { year: 'BC 260', name: 'Principle of the Lever', desc: 'Any weight can be lifted with a lever — "Give me a lever long enough, and I shall move the Earth."' },
+      { year: 'BC 250', name: 'Theory of Centers of Gravity', desc: 'Even irregularly shaped objects have a center of gravity, which can be determined mathematically.' },
+      { year: 'BC 240', name: 'Approximation of Pi (π)', desc: 'Proved 3.1408 < π < 3.1429 using the method of inscribed and circumscribed polygons — a prototype of modern numerical analysis.' },
+    ],
+    connections: ['Democritus', 'Aristotle', 'Newton', 'Pascal'],
+    equations: ['F_b = ρ · V · g', 'F₁·d₁ = F₂·d₂  (lever)']
+  },
+  {
+    id: 'pythagoras',
+    name: 'Pythagoras',
+    nameKr: 'Pythagoras',
+    born: -570, died: -495,
+    birthYear: 'BC 570',
+    nation: 'Ancient Greece (Samos)',
+    era: 'ancient',
+    field: 'Mathematics, Philosophy & Acoustics',
+    tags: ['Pythagorean Theorem', 'Mathematics', 'Acoustics'],
+    color: '#8b6fcf',
+    quote: 'Number is the essence of all things.',
+    quoteAttr: '— Pythagoras',
+    bio: `Pythagoras was an ancient Greek mathematician and philosopher who founded the "Pythagorean School" and established the idea that number is the fundamental principle of the universe. The Pythagorean theorem, a general proof of the relationship between the three sides of a right triangle, remains one of the most basic tools in mathematics, physics, and engineering today.
+
+    In acoustics, he quantified the relationship between the length of a string and the pitch it produces, discovering that musical harmony is determined by simple integer ratios. This was an early exploration of wave physics — a first step on the path that would eventually lead to the wave equation.`,
+    theories: [
+      { year: 'BC 530', name: 'Pythagorean Theorem', desc: 'In a right triangle, a² + b² = c² — the foundation of geometry, vectors, and trigonometry.' },
+      { year: 'BC 530', name: 'The Relationship Between Music and Number (Acoustics)', desc: 'Harmony arises when the ratio of string lengths is a simple integer ratio (1:2, 2:3) — the first quantification of wave resonance.' },
+      { year: 'BC 530', name: 'Numerology', desc: 'The essence of all things is number, and the order of the universe can be explained through mathematical relationships.' },
+    ],
+    connections: ['Aristotle', 'Euclid', 'Galileo Galilei'],
+    equations: ['a² + b² = c²  (Pythagorean theorem)']
+  },
+  {
+    id: 'euclid',
+    name: 'Euclid',
+    nameKr: 'Euclid',
+    born: -325, died: -265,
+    birthYear: 'BC 325',
+    nation: 'Ancient Greece (Alexandria)',
+    era: 'ancient',
+    field: 'Mathematics & Geometry',
+    tags: ['Geometry', 'Axiomatic Systems', 'Mathematics'],
+    color: '#8b6fcf',
+    quote: 'There is no royal road to geometry.',
+    quoteAttr: '— Euclid (to King Ptolemy)',
+    bio: `Euclid was a mathematician active in Alexandria whose work the Elements derived 465 propositions through pure logical deduction from just five axioms. It is the most successful textbook in human history, remaining the standard for mathematics education for over 2,000 years, into the early 20th century.
+
+    The concept of flat space (Euclidean space) established by Euclidean geometry was adopted as the background space of Newtonian mechanics, and it remained the only framework for describing space until the non-Euclidean geometries of Riemann and Lobachevsky emerged in the 19th century. Einstein's general theory of relativity was ultimately built upon that non-Euclidean geometry.`,
+    theories: [
+      { year: 'BC 300', name: 'Euclidean Geometry (The Elements)', desc: 'Built the whole of geometry through pure logical deduction from five axioms — the prototype of axiomatic mathematics.' },
+      { year: 'BC 300', name: 'The Parallel Postulate', desc: 'Through a point not on a given line, there is exactly one line parallel to it — the seed from which non-Euclidean geometry would later grow.' },
+      { year: 'BC 300', name: 'Proof of the Infinitude of Primes', desc: 'Proved by contradiction that there are infinitely many prime numbers — the starting point of modern number theory.' },
+    ],
+    connections: ['Pythagoras', 'Archimedes', 'Carl Friedrich Gauss', 'Isaac Newton'],
+    equations: []
+  },
+  {
+    id: 'democritus',
+    name: 'Democritus',
+    nameKr: 'Democritus',
+    born: -460, died: -370,
+    birthYear: 'BC 460',
+    nation: 'Ancient Greece (Abdera)',
+    era: 'ancient',
+    field: 'Natural Philosophy & Atomism',
+    tags: ['Atomism', 'Natural Philosophy', 'Materialism'],
+    color: '#8b6fcf',
+    quote: 'By convention sweet, by convention bitter; by convention hot, by convention cold; by convention color — but in reality, only atoms and void.',
+    quoteAttr: '— Democritus',
+    bio: `Democritus, together with his teacher Leucippus, established ancient atomism. He argued that all things are composed of indivisible minimal units called atoms (ἄτομος, atomos) and the empty space (void) through which they move.
+
+    Unlike Aristotle, he accepted the existence of a void, and held that every property of matter could be explained by the shape, size, arrangement, and motion of atoms. This idea was revived 2,000 years later as Dalton's modern atomic theory, and is regarded as the philosophical starting point of modern materials science.`,
+    theories: [
+      { year: 'BC 430', name: 'Atomism', desc: 'All things are composed of indivisible atoms and empty void.' },
+      { year: 'BC 430', name: 'The Existence of the Void', desc: 'Argued that the empty space through which atoms move is real — a direct rebuttal of Aristotle\'s "nature abhors a vacuum."' },
+      { year: 'BC 420', name: 'An Atomistic Explanation of Material Properties', desc: 'Sensory properties such as taste, color, and temperature are conventional concepts arising from the shape and arrangement of atoms.' },
+    ],
+    connections: ['Aristotle', 'Archimedes', 'John Dalton'],
+    equations: []
+  },
+  {
+    id: 'copernicus',
+    name: 'Nicolaus Copernicus',
+    nameKr: 'Nicolaus Copernicus',
+    born: 1473, died: 1543,
+    birthYear: '1473',
+    nation: 'Poland',
+    era: 'classical',
+    field: 'Astronomy',
+    tags: ['Heliocentrism', 'Astronomy', 'Revolution'],
+    color: '#c9a84c',
+    quote: 'The Sun, sitting at the center of the world, governs all things.',
+    quoteAttr: '— De Revolutionibus Orbium Coelestium (1543)',
+    bio: `Copernicus was a Polish cleric and astronomer who, in his book On the Revolutions of the Heavenly Spheres — published just before his death in 1543 — proposed heliocentrism, planting the seed of the Scientific Revolution.
+
+    His theory did more than simply swap the positions of the Sun and Earth; it demanded a fundamental shift in how humanity understood its place in the universe. This "Copernican Revolution" became the starting point of the Scientific Revolution that would continue through Galileo, Kepler, and Newton.`,
+    theories: [
+      { year: '1514', name: 'Heliocentrism', desc: 'The Sun, not the Earth, is the center of the solar system, and the Earth orbits the Sun once a year.' },
+      { year: '1543', name: 'The Rotation of the Earth', desc: 'The daily 24-hour cycle of celestial motion is explained by the Earth\'s own rotation.' },
+      { year: '1543', name: 'Explanation of Planetary Retrograde Motion', desc: 'Explained retrograde motion geometrically, in terms of the differing orbital speeds of inner and outer planets.' },
+    ],
+    connections: ['Ptolemy', 'Tycho Brahe', 'Johannes Kepler', 'Galileo Galilei'],
+    equations: []
+  },
+  {
+    id: 'galileo',
+    name: 'Galileo Galilei',
+    nameKr: 'Galileo Galilei',
+    born: 1564, died: 1642,
+    birthYear: '1564',
+    nation: 'Italy',
+    era: 'classical',
+    field: 'Mechanics & Astronomy',
+    tags: ['Mechanics', 'Telescope', 'Law of Falling Bodies', 'Inertia'],
+    color: '#c9a84c',
+    quote: 'And yet it moves. (E pur si muove)',
+    quoteAttr: '— Attributed remark following the Inquisition',
+    bio: `Galileo is known as the father of modern science, establishing the methodology of investigating nature through experiment and mathematical description. He studied medicine at the University of Pisa before falling under the spell of mathematics, and achieved his major work during 18 years as a professor at the University of Padua.
+
+    In 1609 he improved the telescope and discovered Jupiter's four largest moons (the Galilean moons), the phases of Venus, and the mountainous terrain of the Moon. These observations strongly supported Copernican heliocentrism but brought him into conflict with the Church; in 1633 he was tried by the Inquisition and spent the rest of his life under house arrest.`,
+    theories: [
+      { year: '1589', name: 'Law of Falling Bodies', desc: 'Objects fall at the same rate regardless of mass — famous for the (legendary) Leaning Tower of Pisa experiment.' },
+      { year: '1602', name: 'Isochronism of the Pendulum', desc: 'The period of a pendulum is independent of amplitude and depends only on its length. T = 2π√(L/g)' },
+      { year: '1609', name: 'The Principle of Inertia', desc: 'In the absence of a force, an object continues in uniform straight-line motion — a precursor to Newton\'s first law.' },
+      { year: '1609', name: 'Telescopic Astronomical Observations', desc: 'Improved the refracting telescope to 20x magnification, discovering Jupiter\'s moons, the phases of Venus, sunspots, and the Moon\'s surface.' },
+      { year: '1632', name: 'The Principle of Relativity', desc: 'Inside the cabin of a ship moving at constant velocity, rest and motion cannot be distinguished — Galilean relativity.' },
+    ],
+    connections: ['Copernicus', 'Johannes Kepler', 'Isaac Newton'],
+    equations: ['h = ½gt²', 'T = 2π√(L/g)']
+  },
+  {
+    id: 'kepler',
+    name: 'Johannes Kepler',
+    nameKr: 'Johannes Kepler',
+    born: 1571, died: 1630,
+    birthYear: '1571',
+    nation: 'Germany (Holy Roman Empire)',
+    era: 'classical',
+    field: 'Astronomy & Mathematics',
+    tags: ['Planetary Motion', 'Kepler\'s Laws', 'Elliptical Orbits'],
+    color: '#c9a84c',
+    quote: 'Geometry existed before the Creation.',
+    quoteAttr: '— Johannes Kepler',
+    bio: `Kepler inherited Tycho Brahe's vast trove of astronomical observations and used it to mathematically prove that planetary orbits are ellipses, not circles. This was a revolutionary discovery that overturned 2,000 years of belief in perfect circular orbits.
+
+    Kepler's three laws of planetary motion later became the key evidence Newton used to derive the law of universal gravitation; Newton himself acknowledged that he had "derived the inverse-square law from Kepler's laws." Kepler also contributed to optics, improving the design of refracting telescopes.`,
+    theories: [
+      { year: '1609', name: 'Kepler\'s First Law (Elliptical Orbits)', desc: 'Every planet moves in an ellipse with the Sun at one focus.' },
+      { year: '1609', name: 'Kepler\'s Second Law (Equal Areas)', desc: 'A line connecting the Sun and a planet sweeps out equal areas in equal times.' },
+      { year: '1619', name: 'Kepler\'s Third Law (Harmonic Law)', desc: 'The square of the orbital period is proportional to the cube of the semi-major axis. T² ∝ a³' },
+    ],
+    connections: ['Tycho Brahe', 'Copernicus', 'Isaac Newton', 'Galileo Galilei'],
+    equations: ['T² ∝ a³', 'dA/dt = const']
+  },
+  {
+    id: 'descartes',
+    name: 'René Descartes',
+    nameKr: 'René Descartes',
+    born: 1596, died: 1650,
+    birthYear: '1596',
+    nation: 'France',
+    era: 'classical',
+    field: 'Mathematics, Philosophy & Optics',
+    tags: ['Coordinate System', 'Analytic Geometry', 'Optics'],
+    color: '#0F8C50',
+    quote: 'I think, therefore I am. (Cogito, ergo sum)',
+    quoteAttr: '— René Descartes, Discourse on the Method (1637)',
+    bio: `Descartes was a French philosopher and mathematician who, in 1637, devised the rectangular coordinate system (Cartesian coordinates), making it possible to represent geometric shapes with equations. This founding of analytic geometry directly laid the groundwork for Newton's and Leibniz's development of calculus.
+
+    In optics, he independently derived the law of refraction and explained the principle behind the rainbow, and he described the concept of inertia before Newton. The deductive methodology and mathematical worldview he set out in the Discourse on the Method became a philosophical foundation for the Scientific Revolution that followed.`,
+    theories: [
+      { year: '1637', name: 'The Cartesian Coordinate System', desc: 'Represents any point in a plane or space with numbers (x, y, z) — the birth of analytic geometry, foundational to expressing physical equations.' },
+      { year: '1637', name: 'The Law of Refraction (Independent Derivation)', desc: 'Independently derived the relationship governing the angle at which light bends at the boundary between media (Snell\'s law).' },
+      { year: '1644', name: 'Early Statement of the Principle of Inertia', desc: 'A moving object continues in straight-line motion without an external force — a philosophical precursor to Newton\'s first law.' },
+    ],
+    connections: ['Galileo Galilei', 'Isaac Newton', 'Gottfried Leibniz', 'Johannes Kepler'],
+    equations: ['(x, y) → represents any point', 'n₁sinθ₁ = n₂sinθ₂  (law of refraction)']
+  },
+  {
+    id: 'lavoisier',
+    name: 'Antoine Lavoisier',
+    nameKr: 'Antoine Lavoisier',
+    born: 1743, died: 1794,
+    birthYear: '1743',
+    nation: 'France',
+    era: 'classical',
+    field: 'Chemistry & Thermodynamics',
+    tags: ['Conservation of Mass', 'Combustion Theory', 'Element Naming'],
+    color: '#0F8C50',
+    quote: 'Nothing is created, and nothing is destroyed.',
+    quoteAttr: '— Antoine Lavoisier',
+    bio: `Lavoisier, known as the father of modern chemistry, used precise balance experiments in 1773 to establish the law of conservation of mass — that the total mass before and after a chemical reaction remains unchanged. He overturned phlogiston theory by proving that combustion is a combination with oxygen, and established a naming system for elements such as hydrogen and oxygen, creating the language of modern chemistry.
+
+    He was limited by his belief that heat was a substance called "caloric," but he invented the calorimeter and carried out pioneering experiments toward the concept of energy conservation. He was executed by guillotine during the French Revolution because of his role as a tax collector; the mathematician Lagrange mourned, "It took only a moment to cut off that head, and a hundred years may not produce another like it."`,
+    theories: [
+      { year: '1773', name: 'Law of Conservation of Mass', desc: 'In a chemical reaction, the total mass of reactants equals the total mass of products — matter is transformed, not created or destroyed.' },
+      { year: '1777', name: 'The Oxygen Theory of Combustion', desc: 'Combustion is not the release of phlogiston but a chemical combination with oxygen — phlogiston theory overturned by experiment.' },
+      { year: '1789', name: 'Establishing a System for Naming Elements', desc: 'Systematically named 33 elements, including hydrogen (Hydrogène) and oxygen (Oxygène) — the foundation of the language of modern chemistry.' },
+    ],
+    connections: ['John Dalton', 'Isaac Newton', 'Joseph Black'],
+    equations: ['m_reactants = m_products  (conservation of mass)', 'C + O₂ → CO₂  (the nature of combustion)']
+  },
+  {
+    id: 'coulomb',
+    name: 'Charles-Augustin de Coulomb',
+    nameKr: 'Charles-Augustin de Coulomb',
+    born: 1736, died: 1806,
+    birthYear: '1736',
+    nation: 'France',
+    era: 'classical',
+    field: 'Electrostatics & Magnetostatics',
+    tags: ['Coulomb\'s Law', 'Electrostatics', 'Electric Force'],
+    color: '#c9a84c',
+    quote: 'The electric force is inversely proportional to the square of the distance and proportional to the product of the charges.',
+    quoteAttr: '— Coulomb, Mémoires sur l\'électricité et le magnétisme (1785)',
+    bio: `Coulomb was a French military engineer turned physicist who devised his own precision measuring instrument — the torsion balance — to quantitatively measure the force between charges. His law, published in 1785, showed that the electric force has the same inverse-square form as Newton's universal gravitation, making it the direct precursor of Gauss's Law among Maxwell's equations.
+
+    He also confirmed experimentally that a similar inverse-square law holds for magnetic forces, and contributed to the study of friction. The SI unit of electric charge, the coulomb (C), is named after him.`,
+    theories: [
+      { year: '1785', name: 'Coulomb\'s Law', desc: 'The electric force between two point charges is proportional to the product of the charges and inversely proportional to the square of the distance between them.' },
+      { year: '1785', name: 'The Inverse-Square Law for Magnetic Force', desc: 'Confirmed experimentally that the force between magnetic dipoles also follows an inverse-square law, similar to electric force.' },
+      { year: '1779', name: 'Laws of Friction', desc: 'The friction force on a solid surface is independent of contact area and proportional to the normal force — Coulomb friction.' },
+    ],
+    connections: ['Isaac Newton', 'Carl Friedrich Gauss', 'André-Marie Ampère', 'James Maxwell'],
+    equations: ['F = k·q₁q₂/r²', 'k = 1/(4πε₀) ≈ 8.99×10⁹ N·m²/C²']
+  },
+  {
+    id: 'gauss',
+    name: 'Carl Friedrich Gauss',
+    nameKr: 'Carl Friedrich Gauss',
+    born: 1777, died: 1855,
+    birthYear: '1777',
+    nation: 'Germany',
+    era: 'classical',
+    field: 'Mathematics, Electromagnetism & Astronomy',
+    tags: ['Gauss\'s Law', 'Mathematics', 'Electromagnetism'],
+    color: '#c9a84c',
+    quote: 'Mathematics is the queen of the sciences, and number theory is the queen of mathematics.',
+    quoteAttr: '— Carl Friedrich Gauss',
+    bio: `Gauss, the "Prince of Mathematics," left towering achievements spanning mathematics, physics, and astronomy. At 19 he proved the constructibility of the regular 17-gon, and he laid the foundations of the method of least squares, the complex plane, and non-Euclidean geometry.
+
+    In electromagnetism, he established Gauss's Law in 1835, the direct prototype of the first of Maxwell's equations (∇·E = ρ/ε₀). Together with Wilhelm Weber, he built one of the first electric telegraphs and made precise measurements of the Earth's magnetic field. The SI unit of magnetic flux density, the gauss (G), is named after him.`,
+    theories: [
+      { year: '1835', name: 'Gauss\'s Law (Electric)', desc: 'The electric flux through any closed surface is proportional to the enclosed charge. ∮E·dA = Q/ε₀' },
+      { year: '1835', name: 'Gauss\'s Law (Magnetic)', desc: 'Since magnetic monopoles do not exist, the magnetic flux through any closed surface is always zero. ∮B·dA = 0' },
+      { year: '1809', name: 'The Method of Least Squares', desc: 'An optimal estimation method that minimizes observational error — the foundation of modern statistics and data analysis.' },
+      { year: '1801', name: 'Predicting the Orbit of Ceres', desc: 'Calculated the orbit of the asteroid Ceres from observational data and accurately predicted where it would be rediscovered.' },
+    ],
+    connections: ['Charles-Augustin de Coulomb', 'André-Marie Ampère', 'James Maxwell', 'Wilhelm Weber'],
+    equations: ['∮E·dA = Q_enc/ε₀  (Gauss\'s Law)', '∮B·dA = 0  (Gauss\'s Law for Magnetism)']
+  },
+  {
+    id: 'ampere',
+    name: 'André-Marie Ampère',
+    nameKr: 'André-Marie Ampère',
+    born: 1775, died: 1836,
+    birthYear: '1775',
+    nation: 'France',
+    era: 'classical',
+    field: 'Electromagnetism & Electrodynamics',
+    tags: ['Ampère\'s Law', 'Electric Current', 'Electrodynamics'],
+    color: '#c9a84c',
+    quote: 'Two current-carrying wires exert forces on each other — electricity and magnetism are one.',
+    quoteAttr: '— André-Marie Ampère, 1820',
+    bio: `When Ørsted discovered in 1820 that an electric current deflects a compass needle, Ampère mathematically formalized the force between currents within just a few weeks, founding the field of electrodynamics. His force law, quantifying the attraction or repulsion between two current-carrying wires, and his circuital law, describing the relationship between current and magnetic field, became the direct prototype of the fourth of Maxwell's equations (∇×B = μ₀J).
+
+    In recognition of his contribution to mathematically building the foundations of electromagnetism that Faraday and Maxwell would later extend, the SI unit of electric current was named the ampere (A).`,
+    theories: [
+      { year: '1820', name: 'Ampère\'s Force Law', desc: 'The force between two parallel current-carrying wires — attractive if the currents flow in the same direction, repulsive if opposite.' },
+      { year: '1826', name: 'Ampère\'s Circuital Law', desc: 'The line integral of the magnetic field around a closed loop is proportional to the enclosed current. ∮B·dl = μ₀I' },
+      { year: '1822', name: 'Founding Electrodynamics', desc: 'Established a mathematical framework unifying current, magnetic force, and mechanics — earning him the nickname "the Newton of electricity."' },
+    ],
+    connections: ['Charles-Augustin de Coulomb', 'Carl Friedrich Gauss', 'Michael Faraday', 'James Maxwell', 'Hans Christian Ørsted'],
+    equations: ['∮B·dl = μ₀I_enc  (Ampère\'s Law)', 'F/L = μ₀I₁I₂/(2πd)  (force between two wires)']
+  },
+  {
+    id: 'newton',
+    name: 'Isaac Newton',
+    nameKr: 'Isaac Newton',
+    born: 1643, died: 1727,
+    birthYear: '1643',
+    nation: 'England',
+    era: 'classical',
+    field: 'Mechanics, Optics & Mathematics',
+    tags: ['Universal Gravitation', 'Laws of Motion', 'Calculus', 'Optics'],
+    color: '#c9a84c',
+    quote: 'If I have seen further, it is by standing on the shoulders of giants.',
+    quoteAttr: '— Isaac Newton, letter to Robert Hooke (1675)',
+    bio: `Isaac Newton was one of the most influential scientists in history. During the period he spent at his childhood home of Woolsthorpe to escape the plague in 1666 — his "year of wonders" — he simultaneously conceived calculus, universal gravitation, and the dispersion of light into a spectrum.
+
+    His 1687 Mathematical Principles of Natural Philosophy (the Principia) completed a paradigm for physics, unifying terrestrial and celestial motion into a single system through three laws of motion and the law of universal gravitation. He developed calculus independently of Leibniz, invented the reflecting telescope, and showed by passing light through a prism that color is an intrinsic property of light.`,
+    theories: [
+      { year: '1687', name: "Newton's First Law (Inertia)", desc: 'In the absence of an external force, an object remains at rest or in uniform straight-line motion.' },
+      { year: '1687', name: "Newton's Second Law (Acceleration)", desc: 'Force equals mass times acceleration. F = ma — the foundation of classical mechanics.' },
+      { year: '1687', name: "Newton's Third Law (Action-Reaction)", desc: 'For every action there is an equal and opposite reaction.' },
+      { year: '1687', name: 'The Law of Universal Gravitation', desc: 'Every object with mass attracts every other; the force is inversely proportional to the square of the distance between them.' },
+      { year: '1666', name: 'Dispersion of Light (Theory of Color)', desc: 'White light splits into seven colors through a prism — color is an intrinsic property of light.' },
+      { year: '1666', name: 'Calculus', desc: 'The Method of Fluxions — a mathematical language unifying instantaneous rates of change and the calculation of areas.' },
+    ],
+    connections: ['Galileo Galilei', 'Johannes Kepler', 'Robert Hooke', 'Gottfried Leibniz', 'James Maxwell'],
+    equations: ['F = ma', 'F = Gm₁m₂/r²', 'F = -kx  (Hooke\'s law)']
+  },
+  {
+    id: 'bernoulli',
+    name: 'Daniel Bernoulli',
+    nameKr: 'Daniel Bernoulli',
+    born: 1700, died: 1782,
+    birthYear: '1700',
+    nation: 'Switzerland / Netherlands',
+    era: 'classical',
+    field: 'Fluid Mechanics & Statistical Mechanics',
+    tags: ['Bernoulli\'s Principle', 'Fluid Mechanics', 'Kinetic Theory of Gases'],
+    color: '#c9a84c',
+    quote: 'The faster a fluid moves, the lower its pressure.',
+    quoteAttr: '— Daniel Bernoulli, Hydrodynamica (1738)',
+    bio: `Daniel Bernoulli, born into the famous Bernoulli family of mathematicians, was the physicist who established the foundations of fluid mechanics. In his 1738 book Hydrodynamica, he formalized the inverse relationship between a fluid's speed and its pressure — the very principle behind the lift generated by an aircraft wing.
+
+    He also put forward a pioneering idea of the kinetic theory of gases, proposing that gas pressure arises from the countless collisions of molecules. This insight predated Boltzmann's statistical mechanics by a century and contains the seed of the concept of energy conservation.`,
+    theories: [
+      { year: '1738', name: "Bernoulli's Principle", desc: 'An increase in fluid speed is accompanied by a decrease in pressure — the principle behind aircraft lift and flow measurement (Pitot tube). P + ½ρv² + ρgh = const' },
+      { year: '1738', name: 'Kinetic Theory of Gases (Precursor)', desc: 'Gas pressure arises from molecular collisions with container walls — an early idea of statistical mechanics.' },
+    ],
+    connections: ['Isaac Newton', 'Leonhard Euler', 'Ludwig Boltzmann'],
+    equations: ['P + ½ρv² + ρgh = const  (Bernoulli\'s equation)']
+  },
+  {
+    id: 'carnot',
+    name: 'Sadi Carnot',
+    nameKr: 'Sadi Carnot',
+    born: 1796, died: 1832,
+    birthYear: '1796',
+    nation: 'France',
+    era: 'classical',
+    field: 'Thermodynamics',
+    tags: ['Thermodynamics', 'Carnot Engine', 'Entropy'],
+    color: '#c9a84c',
+    quote: 'The efficiency of a heat engine is independent of the working substance and depends only on the temperature difference.',
+    quoteAttr: '— Sadi Carnot, Reflections on the Motive Power of Fire (1824)',
+    bio: `Carnot was a French military engineer who, in his short 36-year life, laid the foundations of thermodynamics in a single paper. In his 1824 book Reflections on the Motive Power of Fire, he proposed an idealized heat engine (the Carnot engine) and proved that no heat engine can exceed an efficiency limit determined solely by the temperature difference between two heat reservoirs.
+
+    This is the direct prototype of the second law of thermodynamics — that "perpetual motion machines are impossible" — later formalized mathematically by Clausius and Kelvin. Although Carnot himself believed in caloric theory (that heat was a substance), his conclusion remained a core principle structuring all of thermodynamics.`,
+    theories: [
+      { year: '1824', name: 'The Carnot Engine (Ideal Heat Engine)', desc: 'A reversible cycle composed of isothermal and adiabatic processes — the theoretical upper limit on heat engine efficiency.' },
+      { year: '1824', name: 'Carnot Efficiency', desc: 'The maximum efficiency of a heat engine, η = 1 − T_cold/T_hot — the prototype of the second law of thermodynamics.' },
+    ],
+    connections: ['Isaac Newton', 'Rudolf Clausius', 'Ludwig Boltzmann', 'James Maxwell'],
+    equations: ['η = 1 − T_C/T_H  (Carnot efficiency)', 'ΔS ≥ 0  (second law of thermodynamics)']
+  },
+  {
+    id: 'fraunhofer',
+    name: 'Joseph von Fraunhofer',
+    nameKr: 'Joseph von Fraunhofer',
+    born: 1787, died: 1826,
+    birthYear: '1787',
+    nation: 'Germany (Bavaria)',
+    era: 'modern',
+    field: 'Optics & Spectroscopy',
+    tags: ['Absorption Spectrum', 'Spectroscopy', 'Diffraction Grating'],
+    color: '#7030A0',
+    quote: 'Break light apart, and you see the composition of the stars.',
+    quoteAttr: '— Joseph von Fraunhofer',
+    bio: `Fraunhofer was a German optical craftsman and physicist who, in 1814, meticulously analyzed the solar spectrum and discovered around 574 dark absorption lines (later expanded to hundreds more), now called Fraunhofer lines. He systematically classified each absorption line with an alphabetical label, and this discovery later became the direct foundation for the spectroscopy that Bunsen and Kirchhoff used to study the unique spectra of each element.
+
+    He greatly advanced precision optical glass manufacturing and diffraction grating technology, producing some of the finest optical instruments of his era. Born into poverty as a glassworker's apprentice and largely self-taught, he died at the young age of 39 from heavy-metal dust inhaled during glass polishing.`,
+    theories: [
+      { year: '1814', name: 'Discovery of the Fraunhofer Absorption Lines', desc: 'Discovered 574 discrete dark lines in the solar spectrum — the starting point of spectroscopy and astrophysics.' },
+      { year: '1821', name: 'Invention of the Diffraction Grating', desc: 'A grating with finely ruled, closely spaced slits that precisely disperses light — the core component of modern spectrometers.' },
+      { year: '1814', name: 'Systematizing Wavelength Measurement', desc: 'Used the positions of absorption lines to precisely measure the wavelength of light — a precursor to the concept of an elemental spectral fingerprint.' },
+    ],
+    connections: ['Thomas Young', 'Robert Bunsen', 'Gustav Kirchhoff', 'James Maxwell'],
+    equations: ['d·sinθ = mλ  (diffraction grating condition)', 'λ_D = 589nm  (sodium D-line)']
+  },
+  {
+    id: 'hamilton',
+    name: 'William Rowan Hamilton',
+    nameKr: 'William Rowan Hamilton',
+    born: 1805, died: 1865,
+    birthYear: '1805',
+    nation: 'Ireland',
+    era: 'modern',
+    field: 'Mathematical Physics & Mathematics',
+    tags: ['Hamiltonian', 'Principle of Least Action', 'Quaternions'],
+    color: '#7030A0',
+    quote: 'Mathematics is the science of the mind.',
+    quoteAttr: '— William Rowan Hamilton',
+    bio: `Hamilton was an Irish mathematician and physicist who reformulated classical mechanics around an energy function — the Hamiltonian — building a decisive bridge to quantum mechanics. Hamiltonian mechanics replaced Newton's force-centered description with a variational principle based on energy (kinetic plus potential).
+
+    He elegantly mathematized the idea that natural phenomena follow a "principle of least action," and this Hamiltonian formalism was directly inherited by the operator Ĥ in the Schrödinger equation. He also invented the quaternion, a way of representing 3D rotations, which remains the standard tool for representing rotation in modern computer graphics and robotics.`,
+    theories: [
+      { year: '1833', name: 'Hamiltonian Mechanics', desc: 'Describes a physical system via the Hamiltonian H = T + V — canonical equations replace force-based laws of motion.' },
+      { year: '1834', name: 'The Principle of Least Action', desc: 'Nature chooses the path that makes the action S = ∫L dt stationary — a unifying principle for physical laws.' },
+      { year: '1843', name: 'Invention of the Quaternion', desc: 'Represents 3D rotations with four numbers — foundational to modern 3D graphics, navigation, and robotics.' },
+    ],
+    connections: ['Isaac Newton', 'Joseph-Louis Lagrange', 'Erwin Schrödinger', 'Werner Heisenberg'],
+    equations: ['H = T + V  (Hamiltonian)', 'dq/dt = ∂H/∂p,  dp/dt = −∂H/∂q', 'iℏ∂Ψ/∂t = ĤΨ  (inherited by the Schrödinger equation)']
+  },
+  {
+    id: 'joule',
+    name: 'James Prescott Joule',
+    nameKr: 'James Prescott Joule',
+    born: 1818, died: 1889,
+    birthYear: '1818',
+    nation: 'England',
+    era: 'modern',
+    field: 'Thermodynamics & Electromagnetism',
+    tags: ['Thermodynamics', 'Conservation of Energy', "Joule's Law"],
+    color: '#7030A0',
+    quote: 'Nature does not waste energy.',
+    quoteAttr: '— James Prescott Joule',
+    bio: `Joule was an English amateur physicist and brewer whose meticulous experiments proved that heat and work are mutually convertible at a constant ratio, laying the experimental foundation for the law of conservation of energy. In his 1843 paddle-wheel experiment, he converted mechanical work into heat and precisely measured the mechanical equivalent of heat (1 calorie ≈ 4.18 joules).
+
+    He also discovered Joule's law (Joule heating): the heat generated in a conductor is proportional to the square of the current and the resistance. The SI unit of energy, the joule (J), is named after him, and together with Lord Kelvin he discovered the Joule-Thomson effect, the change in a gas's temperature upon expansion.`,
+    theories: [
+      { year: '1843', name: 'Measuring the Mechanical Equivalent of Heat', desc: 'Precisely measured 1 cal = 4.18 J through experiments converting mechanical work into heat — experimental proof of the conservation of energy.' },
+      { year: '1841', name: "Joule's Law (Joule Heating)", desc: 'The heat generated in a wire is proportional to the square of the current and the resistance. Q = I²Rt' },
+      { year: '1852', name: 'The Joule-Thomson Effect', desc: 'The phenomenon in which a gas changes temperature as it expands through a small opening — the basic principle behind refrigerators and air conditioners.' },
+    ],
+    connections: ['William Thomson (Kelvin)', 'Hermann von Helmholtz', 'Rudolf Clausius', 'Michael Faraday'],
+    equations: ['Q = I²Rt  (Joule heating)', 'W = Q  (work-heat equivalence)', '1 cal = 4.186 J']
+  },
+  {
+    id: 'kelvin',
+    name: 'William Thomson (Lord Kelvin)',
+    nameKr: 'William Thomson (Lord Kelvin)',
+    born: 1824, died: 1907,
+    birthYear: '1824',
+    nation: 'United Kingdom (Scotland)',
+    era: 'modern',
+    field: 'Thermodynamics & Electromagnetism',
+    tags: ['Absolute Temperature', 'Second Law of Thermodynamics', 'Thermodynamics'],
+    color: '#7030A0',
+    quote: 'If you cannot measure it, you cannot know it. If you cannot know it, you cannot improve it.',
+    quoteAttr: '— Lord Kelvin',
+    bio: `Lord Kelvin (William Thomson) was a British mathematical physicist who made key contributions to the mathematical formulation of the first and second laws of thermodynamics and to establishing the absolute temperature scale. In 1848, by extrapolating the volume-temperature relationship of an ideal gas, he theoretically proposed an absolute zero (-273.15°C) at which all thermal motion ceases, and devised the absolute temperature (kelvin, K) scale.
+
+    Independently of Clausius, he formulated the second law of thermodynamics in the form that "heat does not spontaneously flow from a lower to a higher temperature." He was also an engineer who made the transatlantic telegraph cable project a success, and the SI unit of temperature, the kelvin (K), is named after him.`,
+    theories: [
+      { year: '1848', name: 'The Absolute Temperature Scale (Kelvin Scale)', desc: 'Defined absolute zero as 0K = -273.15°C — establishing a physical lower bound on temperature.' },
+      { year: '1851', name: 'Statement of the Second Law of Thermodynamics', desc: 'Heat flows spontaneously only from hot to cold — formulated independently of Clausius.' },
+      { year: '1852', name: 'The Joule-Thomson Effect', desc: 'Joint work with Joule — the temperature change of a gas under adiabatic expansion, the theoretical basis of cooling technology.' },
+    ],
+    connections: ['James Prescott Joule', 'Rudolf Clausius', 'James Maxwell', 'Michael Faraday'],
+    equations: ['T(K) = T(°C) + 273.15', 'dS ≥ δQ/T  (second law of thermodynamics)']
+  },
+  {
+    id: 'kirchhoff',
+    name: 'Gustav Kirchhoff',
+    nameKr: 'Gustav Kirchhoff',
+    born: 1824, died: 1887,
+    birthYear: '1824',
+    nation: 'Germany (Prussia)',
+    era: 'modern',
+    field: 'Electrical Circuits, Spectroscopy, Thermal Radiation',
+    tags: ['Kirchhoff\'s Laws', 'Spectroscopy', 'Blackbody Radiation'],
+    color: '#7030A0',
+    quote: 'Every element carries its own unique fingerprint of light.',
+    quoteAttr: '— Gustav Kirchhoff',
+    bio: `Kirchhoff was a German physicist whose work transformed the history of physics across three fields: electrical circuits, spectroscopy, and thermal radiation. In 1845, while still a university student, he published Kirchhoff's Current and Voltage Laws (KCL, KVL), which describe how current and voltage are distributed in electrical circuits.
+
+    In 1859, together with Bunsen, he developed the spectroscope and discovered that every element produces its own unique line spectrum. Using this technique, he identified the elements present in the Sun's atmosphere. He also defined the concept of blackbody radiation, becoming the first to systematically frame the blackbody radiation problem that Planck would later resolve with quantum theory in 1900.`,
+    theories: [
+      { year: '1845', name: "Kirchhoff's Current Law (KCL)", desc: 'At any junction in a circuit, the sum of currents flowing in equals the sum of currents flowing out. ΣI = 0' },
+      { year: '1845', name: "Kirchhoff's Voltage Law (KVL)", desc: 'Around any closed loop in a circuit, the sum of electromotive forces equals the sum of voltage drops. ΣV = 0' },
+      { year: '1859', name: 'Identification of Elemental Line Spectra', desc: 'With Bunsen — proved that each element has a unique emission/absorption spectrum, leading to the discovery of cesium and rubidium.' },
+      { year: '1860', name: 'Definition of Blackbody Radiation', desc: "The radiation spectrum of a perfect absorber (blackbody) depends only on temperature — the starting point for Planck's quantum theory." },
+    ],
+    connections: ['Robert Bunsen', 'Joseph von Fraunhofer', 'Max Planck', 'James Maxwell'],
+    equations: ['ΣI = 0  (KCL)', 'ΣV = 0  (KVL)', 'E(ν,T) = f(ν/T)  (Kirchhoff\'s Law of Radiation)']
+  },
+  {
+    id: 'riemann',
+    name: 'Bernhard Riemann',
+    nameKr: 'Bernhard Riemann',
+    born: 1826, died: 1866,
+    birthYear: '1826',
+    nation: 'Germany',
+    era: 'modern',
+    field: 'Mathematics, Mathematical Physics',
+    tags: ['Non-Euclidean Geometry', 'Riemannian Geometry', 'General Relativity'],
+    color: '#7030A0',
+    quote: 'The hypotheses of geometry must be verified by experience.',
+    quoteAttr: '— Bernhard Riemann, Inaugural Lecture (1854)',
+    bio: `Riemann was a German mathematician who, in his 1854 inaugural lecture "On the Hypotheses Which Lie at the Foundation of Geometry," founded Riemannian geometry — a mathematical framework for describing curved space (multidimensional space with curvature). He systematically treated spaces where Euclidean geometry breaks down, such as curved surfaces where parallel lines converge or diverge.
+
+    Roughly sixty years later, Riemannian geometry became the indispensable mathematical language Einstein needed to formulate general relativity. Einstein himself remarked that general relativity would have been impossible without Riemannian geometry. Despite his short life of only 39 years, Riemann left revolutionary contributions across mathematics, including the Riemann Hypothesis, the Riemann integral, and Riemann surfaces.`,
+    theories: [
+      { year: '1854', name: 'Riemannian Geometry (Non-Euclidean)', desc: 'Describes an n-dimensional curved space using the metric tensor (g_μν) — the mathematical language of general relativity.' },
+      { year: '1859', name: 'The Riemann Hypothesis', desc: 'All non-trivial zeros of the Riemann zeta function lie on the line with real part 1/2 — one of the greatest unsolved problems in mathematics.' },
+      { year: '1853', name: 'The Riemann Integral', desc: 'Rigorously defines the integral of a function as the limit of partitioned sums — a foundation of modern analysis.' },
+    ],
+    connections: ['Carl Friedrich Gauss', 'Albert Einstein', 'Nikolai Lobachevsky', 'David Hilbert'],
+    equations: ['ds² = g_μν dx^μ dx^ν  (Riemannian Metric)', 'R_μν − ½g_μν R = 8πG/c⁴ T_μν  (used in the Einstein Field Equations)']
+  },
+  {
+    id: 'mendeleev',
+    name: 'Dmitri Mendeleev',
+    nameKr: 'Dmitri Mendeleev',
+    born: 1834, died: 1907,
+    birthYear: '1834',
+    nation: 'Russia',
+    era: 'modern',
+    field: 'Chemistry, Atomic Physics',
+    tags: ['Periodic Table', 'Periodicity of Elements', 'Element Prediction'],
+    color: '#7030A0',
+    quote: 'Arrange the elements by atomic weight, and a periodicity of their properties emerges.',
+    quoteAttr: '— Dmitri Mendeleev, 1869',
+    bio: `Mendeleev was a Russian chemist who, in 1869, arranged the 63 elements known at the time by atomic weight and discovered that their chemical properties repeated periodically, completing the periodic table of elements. He did more than simply classify the elements — he left gaps for elements not yet discovered and accurately predicted their properties, including atomic weight, density, and chemical behavior.
+
+    His predictions were remarkably confirmed by the subsequent discoveries of gallium (1875), scandium (1879), and germanium (1886). The periodic table was later fully explained by Bohr's atomic model and quantum mechanics, and element 101 was named mendelevium (Md) in his honor.`,
+    theories: [
+      { year: '1869', name: 'The Periodic Table of Elements', desc: 'When elements are arranged by atomic weight, their properties repeat periodically — classified 63 elements and predicted undiscovered ones.' },
+      { year: '1869', name: 'The Periodic Law', desc: "The properties of elements are a periodic function of atomic weight — later reestablished on the basis of atomic number after Bohr." },
+    ],
+    connections: ['John Dalton', 'J.J. Thomson', 'Niels Bohr', 'Henry Moseley'],
+    equations: ['Periodicity: f(properties) = f(atomic weight) → modern: f(atomic number)']
+  },
+  {
+    id: 'young',
+    name: 'Thomas Young',
+    nameKr: 'Thomas Young',
+    born: 1773, died: 1829,
+    birthYear: '1773',
+    nation: 'United Kingdom',
+    era: 'modern',
+    field: 'Optics, Wave Theory, Medicine',
+    tags: ['Double-Slit Experiment', 'Wave Nature of Light', 'Optics'],
+    color: '#4ab3a8',
+    quote: 'All the phenomena of nature flow from a single, simple principle.',
+    quoteAttr: '— Thomas Young',
+    bio: `Thomas Young was a British physician and physicist who, in 1801, decisively proved that light is a wave through his double-slit experiment. Despite the dominance of Newton's particle theory of light, backed by his immense authority, Young showed that light passing through two slits produced interference patterns — alternating bright and dark fringes — on a screen, providing powerful evidence for the wave theory.
+
+    He also proposed the trichromatic theory of color vision (later developed into the Young-Helmholtz theory), suggesting that the eye perceives color based on three primary colors — red, green, and blue. His encyclopedic achievements spanned physics, medicine, and linguistics, including contributions to deciphering Egyptian hieroglyphs (including the Rosetta Stone) and defining the elastic modulus known as Young's Modulus.`,
+    theories: [
+      { year: '1801', name: 'The Double-Slit Experiment (Interference of Light)', desc: 'Light passing through two slits produces interference fringes — the first experimental proof of the wave nature of light.' },
+      { year: '1801', name: 'Measurement of the Wavelength of Light', desc: 'First quantitative measurement of the wavelength of light using the spacing of interference fringes — visible light spans roughly 400-700 nm.' },
+      { year: '1807', name: "Young's Modulus", desc: 'A core material property in mechanics that defines the elasticity (stress/strain) of a solid: E = σ/ε.' },
+      { year: '1802', name: 'The Trichromatic Theory of Color Vision', desc: 'The retina perceives color through three types of receptors — red, green, and blue — later completed by Helmholtz.' },
+    ],
+    connections: ['Isaac Newton', 'Augustin-Jean Fresnel', 'James Maxwell', 'Albert Einstein'],
+    equations: ['Δy = λL/d  (Double-Slit Interference Fringe Spacing)', 'E = σ/ε  (Young\'s Modulus)']
+  },
+  {
+    id: 'dalton',
+    name: 'John Dalton',
+    nameKr: 'John Dalton',
+    born: 1766, died: 1844,
+    birthYear: '1766',
+    nation: 'United Kingdom',
+    era: 'modern',
+    field: 'Chemistry, Atomic Theory',
+    tags: ['Modern Atomic Theory', 'Elements', 'Law of Multiple Proportions'],
+    color: '#4ab3a8',
+    quote: 'When elements combine, they always do so in simple, fixed ratios.',
+    quoteAttr: '— John Dalton, A New System of Chemical Philosophy (1808)',
+    bio: `Dalton was the founder of modern atomic theory, reviving Democritus's philosophical atomism as a scientific, quantitative theory some 2,200 years later. From the experimental observation that elements always combine in simple whole-number mass ratios (the Law of Multiple Proportions), he concluded that atoms are indivisible particles with a characteristic mass.
+
+    He compiled the first table of atomic weights for the elements, laying the foundation for what would later become Mendeleev's periodic table. He was also a pioneer in the study of color blindness — being color blind himself, the term "Daltonism" for color blindness derives from his name.`,
+    theories: [
+      { year: '1803', name: 'Modern Atomic Theory', desc: 'Each element consists of atoms of a characteristic mass; atoms are eternal and indivisible.' },
+      { year: '1803', name: 'The Law of Multiple Proportions', desc: 'When two elements form multiple compounds, the masses of one element that combine with a fixed mass of the other are in simple whole-number ratios.' },
+      { year: '1801', name: "Dalton's Law of Partial Pressures", desc: 'The total pressure of a gas mixture equals the sum of the partial pressures of its component gases.' },
+      { year: '1808', name: 'The First Table of Atomic Weights', desc: 'First measurement and tabulation of the relative atomic weights of elements, using hydrogen as the reference (=1).' },
+    ],
+    connections: ['Democritus', 'J.J. Thomson', 'Ernest Rutherford', 'Dmitri Mendeleev'],
+    equations: ['P_total = P₁ + P₂ + ··· (Law of Partial Pressures)', 'm₁/m₂ = whole-number ratio (Law of Multiple Proportions)']
+  },
+  {
+    id: 'thomson',
+    name: 'J.J. Thomson',
+    nameKr: 'J.J. Thomson',
+    born: 1856, died: 1940,
+    birthYear: '1856',
+    nation: 'United Kingdom',
+    era: 'modern',
+    field: 'Atomic Physics, Discovery of the Electron',
+    tags: ['Discovery of the Electron', 'Atomic Model', 'Cathode Rays'],
+    color: '#4ab3a8',
+    quote: 'The atom can be broken down into still smaller particles.',
+    quoteAttr: '— J.J. Thomson, 1897',
+    bio: `Through experiments with cathode ray tubes, Thomson discovered the electron in 1897 — a revolutionary discovery that overturned 2,500 years of belief in the indivisibility of the atom. He observed that cathode rays were deflected by electric and magnetic fields, and showed that the charge-to-mass ratio (e/m) of this particle was identical regardless of the cathode material, proving it was a fundamental particle common to all matter.
+
+    He proposed the "Plum Pudding Model," in which electrons were embedded within a sphere of positive charge. Though this model was later overturned by Rutherford's gold foil experiment, it was a decisive catalyst for exploring the internal structure of the atom. As director of the Cavendish Laboratory, he mentored numerous successors, including Rutherford, and was awarded the Nobel Prize in Physics in 1906.`,
+    theories: [
+      { year: '1897', name: 'Discovery of the Electron', desc: 'Proved that cathode rays are a stream of negatively charged particles (electrons) — first confirmation that atoms consist of smaller particles.' },
+      { year: '1897', name: 'Measurement of the e/m Ratio', desc: 'Determined the charge-to-mass ratio of the electron (e/m ≈ 1.76×10¹¹ C/kg) through deflection experiments in electric and magnetic fields.' },
+      { year: '1904', name: 'The Plum Pudding Atomic Model', desc: 'Electrons embedded (plums) within a cloud of positive charge (pudding) — the standard atomic model before Rutherford\'s experiment.' },
+      { year: '1913', name: 'Discovery of Isotopes', desc: 'Used a mass spectrometer to discover that neon consists of two isotopes (Ne-20 and Ne-22).' },
+    ],
+    connections: ['John Dalton', 'Ernest Rutherford', 'Niels Bohr', 'Robert Millikan'],
+    equations: ['e/m = E/(B²R)  (Electron Charge-to-Mass Ratio)', 'qvB = mv²/r  (Electron Circular Motion)']
+  },
+  {
+    id: 'hertz',
+    name: 'Heinrich Hertz',
+    nameKr: 'Heinrich Hertz',
+    born: 1857, died: 1894,
+    birthYear: '1857',
+    nation: 'Germany',
+    era: 'modern',
+    field: 'Electromagnetism, Radio Waves',
+    tags: ['Electromagnetic Waves', 'Radio Wave Experiments', 'Photoelectric Effect'],
+    color: '#4ab3a8',
+    quote: "I do not think that the wireless waves I have discovered will have any practical application.",
+    quoteAttr: '— Heinrich Hertz, shortly after discovering radio waves',
+    bio: `Hertz fully experimentally verified Maxwell's equations by being the first to generate and detect, in 1887, the electromagnetic waves that Maxwell's theory had predicted. Using a spark-gap oscillator and a loop receiver, he succeeded in transmitting and receiving radio waves, confirming that they propagated at the speed of light and exhibited reflection, refraction, and polarization just like visible light.
+
+    He was also the first to observe the photoelectric effect — the emission of electrons from a metal surface when illuminated by ultraviolet light. This phenomenon would later be explained by Einstein's photon theory, for which Einstein won the Nobel Prize. Tragically, Hertz died of a bone disease at the young age of 36. The SI unit of frequency, the hertz (Hz), is named in his honor.`,
+    theories: [
+      { year: '1887', name: 'Generation and Detection of Electromagnetic Waves', desc: "First experimental verification of Maxwell's theoretical prediction — the starting point for radio, television, and wireless communication technology." },
+      { year: '1887', name: 'Confirmation of the Wave Nature of Radio Waves', desc: 'Demonstrated that radio waves reflect, refract, polarize, interfere, and propagate at the speed of light.' },
+      { year: '1887', name: 'First Observation of the Photoelectric Effect', desc: "Discovered that electrons are emitted from a metal when irradiated with ultraviolet light — the experimental trigger for Einstein's photon theory." },
+    ],
+    connections: ['James Maxwell', 'Albert Einstein', 'Guglielmo Marconi', 'Oliver Lodge'],
+    equations: ['c = λf  (Radio Wave Wavelength-Frequency Relation)', "E_photon = hf  (Einstein's Explanation of the Photoelectric Effect)"]
+  },
+  {
+    id: 'doppler',
+    name: 'Christian Doppler',
+    nameKr: 'Christian Doppler',
+    born: 1803, died: 1853,
+    birthYear: '1803',
+    nation: 'Austria',
+    era: 'modern',
+    field: 'Wave Physics, Optics',
+    tags: ['Doppler Effect', 'Waves', 'Acoustics'],
+    color: '#4ab3a8',
+    quote: 'As a sound source approaches, the pitch rises; as it recedes, the pitch falls.',
+    quoteAttr: '— Christian Doppler, 1842',
+    bio: `Doppler was an Austrian mathematician and physicist who, in 1842, theoretically proposed the Doppler effect — the principle that the observed frequency of a wave changes depending on the relative motion between the source and the observer. As the source approaches, the observed frequency increases (a blueshift); as it recedes, the frequency decreases (a redshift).
+
+    The Doppler effect applies not only to sound waves but also to light (electromagnetic waves), and is now used extensively across modern science and technology — from Hubble's discovery of the expanding universe to radar, ultrasound medical diagnostics, and weather radar.`,
+    theories: [
+      { year: '1842', name: 'The Doppler Effect', desc: 'The observed frequency of a wave changes depending on the relative motion of the source and observer. f = f₀(v±v_obs)/(v∓v_src)' },
+      { year: '1842', name: 'Prediction of the Redshift and Blueshift of Light', desc: "Predicted that the color of starlight would shift depending on a star's direction of motion — a fundamental tool of cosmology." },
+    ],
+    connections: ['Thomas Young', 'James Maxwell', 'Edwin Hubble'],
+    equations: ['f_obs = f₀·(v + v_obs)/(v − v_src)']
+  },
+  {
+    id: 'helmholtz',
+    name: 'Hermann von Helmholtz',
+    nameKr: 'Hermann von Helmholtz',
+    born: 1821, died: 1894,
+    birthYear: '1821',
+    nation: 'Germany',
+    era: 'modern',
+    field: 'Conservation of Energy, Electromagnetism, Physiology',
+    tags: ['Conservation of Energy', 'Thermodynamics', 'Electromagnetism'],
+    color: '#4ab3a8',
+    quote: 'In nature, energy is neither created nor destroyed — only transformed.',
+    quoteAttr: '— Hermann von Helmholtz, Über die Erhaltung der Kraft (1847)',
+    bio: `Helmholtz was a towering figure of 19th-century German science, with outstanding contributions spanning physics, physiology, and mathematics. In his 1847 paper "On the Conservation of Force," he mathematically established the law of conservation of energy — the principle that all forms of energy, including motion, heat, light, electricity, and magnetism, can be converted into one another while their total sum remains conserved.
+
+    In electromagnetism, he introduced and popularized Maxwell's equations in Germany and independently studied electromagnetic induction phenomena. He also revolutionized physiology by inventing the ophthalmoscope and being the first to measure the conduction velocity of nerve impulses.`,
+    theories: [
+      { year: '1847', name: 'The Law of Conservation of Energy', desc: 'Motion, heat, light, electricity, and magnetism are all interconvertible forms of a single energy whose total quantity is conserved.' },
+      { year: '1858', name: "Helmholtz's Vortex Theorems", desc: 'In an ideal fluid, vortices can neither be created nor destroyed — a foundational theorem of fluid dynamics.' },
+      { year: '1882', name: 'Helmholtz Free Energy', desc: 'F = U − TS — the thermodynamic potential representing the maximum work obtainable under isothermal conditions.' },
+    ],
+    connections: ['Michael Faraday', 'James Maxwell', 'Rudolf Clausius', 'Ludwig Boltzmann'],
+    equations: ['E_total = E_kinetic + E_potential + E_heat = const', 'F = U − TS  (Helmholtz Free Energy)']
+  },
+  {
+    id: 'clausius',
+    name: 'Rudolf Clausius',
+    nameKr: 'Rudolf Clausius',
+    born: 1822, died: 1888,
+    birthYear: '1822',
+    nation: 'Germany (Prussia)',
+    era: 'modern',
+    field: 'Thermodynamics',
+    tags: ['Second Law of Thermodynamics', 'Entropy', 'Thermodynamics'],
+    color: '#4ab3a8',
+    quote: 'The energy of the universe is constant. The entropy of the universe tends to a maximum.',
+    quoteAttr: '— Rudolf Clausius, 1865',
+    bio: `Clausius was the architect who transformed Carnot's intuitive theory of heat engines into rigorous mathematics. In 1850, he mathematically formalized the first law of thermodynamics (conservation of energy), and between 1854 and 1865, he created and named the concept of entropy alongside the second law of thermodynamics.
+
+    The Clausius inequality — "heat does not spontaneously flow from a colder body to a hotter one" — mathematically expresses the irreversibility of natural processes, and became the crucial foundation upon which Boltzmann would later build a microscopic, statistical-mechanical interpretation.`,
+    theories: [
+      { year: '1850', name: 'Formalization of the First Law of Thermodynamics', desc: 'Change in internal energy = heat supplied − work done. dU = δQ − δW' },
+      { year: '1854', name: 'The Clausius Inequality', desc: 'For an irreversible process, ∮δQ/T ≤ 0 — the mathematical expression of the second law of thermodynamics.' },
+      { year: '1865', name: 'Naming of Entropy', desc: 'Defined the state function S (entropy) and proved that dS ≥ 0 for an isolated system.' },
+    ],
+    connections: ['Sadi Carnot', 'Hermann von Helmholtz', 'Ludwig Boltzmann', 'James Maxwell'],
+    equations: ['dU = δQ − δW', 'dS = δQ_rev/T', '∮δQ/T ≤ 0  (Clausius Inequality)']
+  },
+  {
+    id: 'michelson',
+    name: 'Albert Michelson',
+    nameKr: 'Albert Michelson',
+    born: 1852, died: 1931,
+    birthYear: '1852',
+    nation: 'United States (born in Poland)',
+    era: 'modern',
+    field: 'Optics, Precision Measurement',
+    tags: ['Speed of Light Measurement', 'Absence of Aether', 'Interferometer'],
+    color: '#4ab3a8',
+    quote: 'The more important fundamental laws and facts of physical science have all been discovered, and these are now so firmly established that the possibility of their ever being supplanted in consequence of new discoveries is exceedingly remote.',
+    quoteAttr: '— Albert Michelson, 1894 (11 years before the discovery of special relativity)',
+    bio: `Michelson was an experimental physicist who measured the speed of light with unprecedented precision, becoming in 1907 the first American to win the Nobel Prize in Physics. The Michelson-Morley experiment, conducted with Edward Morley in 1887, set out to detect the aether — then believed to be the medium through which light propagated — but instead experimentally confirmed the absence of the aether and the constancy of the speed of light regardless of direction.
+
+    The results of this "failed experiment" became the central experimental basis for Einstein's special relativity and lit the fuse for the 20th-century revolution in physics. The Michelson interferometer remains the fundamental principle behind today's gravitational wave detectors (LIGO).`,
+    theories: [
+      { year: '1887', name: 'The Michelson-Morley Experiment', desc: "Attempted to detect Earth's motion through the aether, but the result was null — experimentally demonstrated the constancy of the speed of light and the absence of the aether." },
+      { year: '1879', name: 'Precision Measurement of the Speed of Light', desc: 'Measured c = 299,853 km/s using the rotating mirror method — the most precise value of the speed of light at the time.' },
+      { year: '1881', name: 'Invention of the Michelson Interferometer', desc: 'An ultra-precise device for measuring length and velocity using light interference — the prototype for LIGO gravitational wave detection.' },
+    ],
+    connections: ['Thomas Young', 'James Maxwell', 'Albert Einstein', 'Heinrich Hertz'],
+    equations: ['ΔL = L(v²/c²)  (predicted aether shift; experimental result ΔL = 0)', 'c = 299,792,458 m/s']
+  },
+  {
+    id: 'faraday',
+    name: 'Michael Faraday',
+    nameKr: 'Michael Faraday',
+    born: 1791, died: 1867,
+    birthYear: '1791',
+    nation: 'United Kingdom',
+    era: 'modern',
+    field: 'Electromagnetism',
+    tags: ['Electromagnetic Induction', 'Electric Field', 'Electrolysis'],
+    color: '#4ab3a8',
+    quote: 'Nobody who has the will to learn is too old to learn.',
+    quoteAttr: '— Michael Faraday',
+    bio: `Michael Faraday was born the son of a poor blacksmith and received almost no formal education, yet he rose through self-study in the laboratory of Sir Humphry Davy at the Royal Institution to become one of the greatest experimental physicists in history.
+
+    His discovery of electromagnetic induction in 1831 was a revolutionary achievement that became the foundation of modern electrical civilization — the principles behind generators, transformers, and electric motors all stem from Faraday's discovery. To compensate for his lack of mathematical training, he created the intuitive, visual concept of "lines of force," which Maxwell would later mathematize into the theory of the electromagnetic field.`,
+    theories: [
+      { year: '1831', name: 'The Law of Electromagnetic Induction', desc: 'A changing magnetic field induces an electric field (electromotive force) — the principle behind generators and transformers.' },
+      { year: '1833', name: "Faraday's Laws of Electrolysis", desc: 'The amount of substance deposited by electrolysis is proportional to the quantity of electric charge passed.' },
+      { year: '1845', name: 'The Faraday Effect (Magneto-Optics)', desc: 'A magnetic field rotates the plane of polarization of light — the first proof of a connection between light and magnetism.' },
+      { year: '1845', name: 'Discovery of Diamagnetism', desc: 'Discovered that some materials are repelled by a magnetic field — diamagnetism.' },
+    ],
+    connections: ['James Maxwell', 'Isaac Newton', 'Humphry Davy'],
+    equations: ['ε = -dΦ_B/dt  (Faraday\'s Law)', 'Q = nFm/M  (Electrolysis)']
+  },
+  {
+    id: 'maxwell',
+    name: 'James Clerk Maxwell',
+    nameKr: 'James Clerk Maxwell',
+    born: 1831, died: 1879,
+    birthYear: '1831',
+    nation: 'Scotland / United Kingdom',
+    era: 'modern',
+    field: 'Electromagnetism, Statistical Mechanics',
+    tags: ["Maxwell's Equations", 'Electromagnetic Waves', 'Statistical Mechanics'],
+    color: '#4ab3a8',
+    quote: 'The true logic of this world is the calculus of probabilities.',
+    quoteAttr: '— James Clerk Maxwell',
+    bio: `Maxwell is regarded as the greatest mathematical physicist since Newton, unifying electricity, magnetism, and light into a single theory through four partial differential equations — Maxwell's equations. In his 1865 paper "A Dynamical Theory of the Electromagnetic Field," he showed that the speed of electromagnetic waves matched the speed of light, theoretically predicting that light itself is an electromagnetic wave.
+
+    In statistical mechanics, he derived the Maxwell-Boltzmann distribution, connecting thermodynamics to atomic theory, and left his mark on fields ranging from color photography to control theory (Maxwell's demon) to the structural analysis of Saturn's rings. Einstein kept a photograph of Maxwell on his study wall alongside those of Newton and Faraday.`,
+    theories: [
+      { year: '1865', name: "Maxwell's Equations (The Four Equations)", desc: 'A system of four partial differential equations describing the generation, interaction, and propagation of electric and magnetic fields.' },
+      { year: '1865', name: 'The Theory of Electromagnetic Waves', desc: 'Predicted the speed of electromagnetic waves as c = 1/√(ε₀μ₀) ≈ 3×10⁸ m/s — identical to the speed of light.' },
+      { year: '1860', name: 'The Maxwell-Boltzmann Distribution', desc: 'A statistical description of the velocity distribution of gas molecules — a foundation of statistical mechanics.' },
+      { year: '1867', name: "Maxwell's Demon", desc: 'A thought experiment linking information and the second law of thermodynamics — a precursor to information theory.' },
+    ],
+    connections: ['Michael Faraday', 'Isaac Newton', 'Ludwig Boltzmann', 'Albert Einstein', 'Heinrich Hertz'],
+    equations: ['∇·E = ρ/ε₀', '∇·B = 0', '∇×E = -∂B/∂t', '∇×B = μ₀J + μ₀ε₀∂E/∂t', 'c = 1/√(ε₀μ₀)']
+  },
+  {
+    id: 'boltzmann',
+    name: 'Ludwig Boltzmann',
+    nameKr: 'Ludwig Boltzmann',
+    born: 1844, died: 1906,
+    birthYear: '1844',
+    nation: 'Austria',
+    era: 'modern',
+    field: 'Statistical Mechanics, Thermodynamics',
+    tags: ['Statistical Mechanics', 'Entropy', 'Atomic Theory'],
+    color: '#4ab3a8',
+    quote: 'S = k · log W',
+    quoteAttr: "— Inscribed on Boltzmann's tombstone",
+    bio: `At a time when atomic theory was still controversial, Boltzmann mathematically proved that thermodynamic phenomena could be explained by the statistical motion of atoms and molecules. When his atomistic theories were rejected by the scientific mainstream of the time — particularly Ernst Mach and Wilhelm Ostwald — he suffered severe depression and took his own life while traveling in Italy in 1906.
+
+    Ironically, that same year Einstein published his paper on Brownian motion, proving the physical reality of atoms and fully vindicating Boltzmann's theory. The concise formula S = k log W, inscribed on his tombstone, encapsulates a fundamental principle of the universe.`,
+    theories: [
+      { year: '1872', name: 'The H-Theorem and Entropy', desc: 'In a reversible process, the H-function decreases monotonically — explains irreversibility and the arrow of time.' },
+      { year: '1877', name: "Boltzmann's Entropy Formula", desc: 'S = k·ln W — entropy is the logarithm of the number of microscopic states. A cornerstone of statistical mechanics.' },
+      { year: '1868', name: 'The Maxwell-Boltzmann Distribution', desc: 'The velocity distribution of a gas at equilibrium — f(v) ∝ v²·exp(-mv²/2kT).' },
+    ],
+    connections: ['James Maxwell', 'Max Planck', 'Albert Einstein', 'Willard Gibbs'],
+    equations: ['S = k · ln W', 'f(v) ∝ v² exp(-mv²/2kT)']
+  },
+  {
+    id: 'minkowski',
+    name: 'Hermann Minkowski',
+    nameKr: 'Hermann Minkowski',
+    born: 1864, died: 1909,
+    birthYear: '1864',
+    nation: 'Germany (born in Lithuania)',
+    era: 'quantum',
+    field: 'Mathematical Physics, Mathematics',
+    tags: ['Four-Dimensional Spacetime', 'Special Relativity', 'Spacetime Geometry'],
+    color: '#0F8C50',
+    quote: 'Henceforth space by itself, and time by itself, are doomed to fade away into mere shadows, and only a kind of union of the two will preserve an independent reality.',
+    quoteAttr: '— Hermann Minkowski, Cologne Lecture (1908)',
+    bio: `Minkowski, a mathematician who had once taught Einstein, reformulated Einstein's special relativity in 1908 as the geometry of four-dimensional spacetime — now known as Minkowski space. By treating time as a fourth axis on equal footing with the three spatial axes, expressed through the imaginary unit ict, he revealed the mathematical elegance of special relativity and dramatically simplified its calculations.
+
+    Einstein initially dismissed this mathematical reformulation as "superfluous learnedness," but soon recognized it as the essential language needed to extend his theory to general relativity. Tragically, Minkowski did not live to see the completion of general relativity, dying of acute appendicitis at the age of 45.`,
+    theories: [
+      { year: '1908', name: 'Minkowski Spacetime (Four Dimensions)', desc: 'Unifies time and space into a single four-dimensional manifold — the geometric formulation of special relativity.' },
+      { year: '1908', name: 'The Invariant Spacetime Interval', desc: 'ds² = c²dt² − dx² − dy² − dz² — a spacetime distance that is invariant in all inertial frames.' },
+      { year: '1907', name: 'Four-Vector Formalism', desc: 'Expresses energy-momentum and current-charge as four-vectors — the mathematical language of relativistic electromagnetism.' },
+    ],
+    connections: ['Albert Einstein', 'Bernhard Riemann', 'Henri Poincaré'],
+    equations: ['ds² = c²dt² − dx² − dy² − dz²  (Spacetime Interval)', 'E² = (pc)² + (mc²)²']
+  },
+  {
+    id: 'noether',
+    name: 'Emmy Noether',
+    nameKr: 'Emmy Noether',
+    born: 1882, died: 1935,
+    birthYear: '1882',
+    nation: 'Germany / United States',
+    era: 'quantum',
+    field: 'Mathematical Physics, Mathematics',
+    tags: ["Noether's Theorem", 'Symmetry', 'Conservation Laws'],
+    color: '#0F8C50',
+    quote: 'Mathematical beauty and physical truth are one and the same.',
+    quoteAttr: '— Emmy Noether',
+    bio: `Noether was one of the most important mathematicians of the 20th century, and her 1918 result — Noether's theorem — is one of the most profound insights in physics. The theorem mathematically proves that every continuous symmetry of a physical system corresponds to a conserved quantity: time-translation symmetry corresponds to conservation of energy, spatial-translation symmetry to conservation of momentum, and rotational symmetry to conservation of angular momentum.
+
+    Despite this, she was denied a formal professorship for decades simply because she was a woman, and after the Nazis came to power, she was expelled from Germany for being Jewish and emigrated to the United States. Einstein praised her as "the most significant creative mathematical genius thus far produced."`,
+    theories: [
+      { year: '1918', name: "Noether's Theorem", desc: 'A one-to-one correspondence between continuous symmetries of a physical system and conservation laws — one of the most profound principles in modern physics.' },
+      { year: '1918', name: 'Linking Symmetry to Conserved Quantities', desc: 'Time symmetry → conservation of energy; spatial symmetry → conservation of momentum; rotational symmetry → conservation of angular momentum.' },
+    ],
+    connections: ['Albert Einstein', 'David Hilbert', 'Werner Heisenberg', 'Paul Dirac'],
+    equations: ['Symmetry G → conserved current j^μ: ∂_μj^μ = 0', 'Q = ∫j⁰d³x = const  (conserved quantity)']
+  },
+  {
+    id: 'debroglie',
+    name: 'Louis de Broglie',
+    nameKr: 'Louis de Broglie',
+    born: 1892, died: 1987,
+    birthYear: '1892',
+    nation: 'France',
+    era: 'quantum',
+    field: 'Quantum Mechanics',
+    tags: ['Matter Waves', 'Wave-Particle Duality', 'De Broglie Wavelength'],
+    color: '#0F8C50',
+    quote: 'If light, which was long believed to be a wave, turns out to also be a particle, should not particles also exhibit wave-like behavior?',
+    quoteAttr: "— Louis de Broglie, doctoral thesis (1924)",
+    bio: `De Broglie, a physicist from a French aristocratic family, proposed in his 1924 doctoral thesis the revolutionary matter-wave hypothesis: if light exhibits wave-particle duality, then material particles such as electrons must also possess wave-like properties. This single doctoral thesis earned him the Nobel Prize in Physics in 1929.
+
+    De Broglie's concept of matter waves directly motivated Schrödinger to formulate his wave equation, and was experimentally confirmed by the observation of electron diffraction in the Davisson-Germer experiment (1927). It also naturally explained why electron orbits in the Bohr atomic model were discrete, as a standing-wave condition for matter waves.`,
+    theories: [
+      { year: '1924', name: 'The Matter Wave Hypothesis', desc: 'Every material particle possesses wave-like properties with wavelength λ = h/p.' },
+      { year: '1924', name: 'The De Broglie Wavelength', desc: 'λ = h/mv — electrons, protons, and even molecules diffract and interfere like waves.' },
+      { year: '1924', name: 'Matter-Wave Interpretation of Bohr Orbits', desc: 'Electron orbit = standing wave condition nλ = 2πr — naturally derives the quantization condition.' },
+    ],
+    connections: ['Niels Bohr', 'Erwin Schrödinger', 'Werner Heisenberg', 'Albert Einstein'],
+    equations: ['λ = h/p = h/mv  (De Broglie Wavelength)', 'nλ = 2πr  (Bohr Orbit Condition)']
+  },
+  {
+    id: 'pauli',
+    name: 'Wolfgang Pauli',
+    nameKr: 'Wolfgang Pauli',
+    born: 1900, died: 1958,
+    birthYear: '1900',
+    nation: 'Austria / Switzerland',
+    era: 'quantum',
+    field: 'Quantum Mechanics, Particle Physics',
+    tags: ['Exclusion Principle', 'Spin', 'Neutrino Prediction'],
+    color: '#0F8C50',
+    quote: "This isn't right. This isn't even wrong.",
+    quoteAttr: '— Wolfgang Pauli, on a paper that made no logical sense',
+    bio: `Pauli was an Austrian-born theoretical physicist whose contributions were central to establishing the mathematical framework of quantum mechanics. In 1925, he published the Pauli Exclusion Principle, which states that no two fermions (particles with half-integer spin) can occupy the same quantum state simultaneously. This principle explains the electron configurations of the periodic table, the stability of matter, and why white dwarf stars do not collapse.
+
+    In 1930, to resolve the apparent violation of energy and momentum conservation in beta decay, he predicted the existence of the neutrino — a particle then thought to be undetectable, but confirmed experimentally in 1956. He won the Nobel Prize in Physics in 1945, and was nicknamed "the scourge of God" for his famously sharp criticism of his colleagues' errors.`,
+    theories: [
+      { year: '1925', name: 'The Pauli Exclusion Principle', desc: 'No two fermions in the same quantum system can share the same set of quantum numbers — the basis of atomic electron configurations.' },
+      { year: '1925', name: 'Introduction of Electron Spin', desc: 'Introduced spin (±½) as a fourth quantum number for the electron — fundamental to the periodic table and chemical bonding.' },
+      { year: '1930', name: 'Prediction of the Neutrino', desc: 'Predicted a massless neutral particle to account for the missing energy in beta decay — confirmed experimentally in 1956.' },
+    ],
+    connections: ['Werner Heisenberg', 'Niels Bohr', 'Erwin Schrödinger', 'Paul Dirac', 'Enrico Fermi'],
+    equations: ['Only electrons with distinct n, l, m_l, m_s coexist (Exclusion Principle)', 'β⁻ decay: n → p + e⁻ + ν̄_e  (includes the neutrino)']
+  },
+  {
+    id: 'hubble',
+    name: 'Edwin Hubble',
+    nameKr: 'Edwin Hubble',
+    born: 1889, died: 1953,
+    birthYear: '1889',
+    nation: 'United States',
+    era: 'quantum',
+    field: 'Astronomy, Cosmology',
+    tags: ['Expanding Universe', "Hubble's Law", 'Galaxy Classification'],
+    color: '#0F8C50',
+    quote: 'We do not live at the center of an expanding universe — we live somewhere within an expanding universe.',
+    quoteAttr: '— Edwin Hubble',
+    bio: `Hubble was an American astronomer who, in 1923, proved that the Andromeda Nebula was a separate galaxy lying outside our own Milky Way, instantly expanding the known scale of the universe by thousands of times. In 1929, he published Hubble's Law (v = H₀d) — that the recession velocity of galaxies is proportional to their distance — providing observational confirmation that the universe is expanding.
+
+    This discovery led Einstein to abandon the cosmological constant (Λ), which he later called "my greatest blunder," and became direct observational evidence for the Big Bang theory. Extrapolating Hubble's observational data allows the age of the universe to be calculated; today, the Hubble constant is measured at roughly H₀ ≈ 70 km/s/Mpc. The Hubble Space Telescope is named in his honor.`,
+    theories: [
+      { year: '1923', name: 'Proof that Andromeda is a Separate Galaxy', desc: 'Measured the distance to Andromeda using Cepheid variable stars — confirmed that the scale of the universe extends far beyond our own galaxy.' },
+      { year: '1925', name: 'The Hubble Sequence of Galaxy Classification', desc: 'Established a system classifying galaxies as elliptical, spiral, or irregular.' },
+      { year: '1929', name: "Hubble's Law (The Expanding Universe)", desc: 'Galaxy recession velocity v = H₀·d — galaxies recede in proportion to their distance, proving the universe is expanding.' },
+    ],
+    connections: ['Albert Einstein', 'Georges Lemaître', 'Vesto Slipher', 'Stephen Hawking'],
+    equations: ["v = H₀ · d  (Hubble's Law)", 'H₀ ≈ 70 km/s/Mpc  (Hubble Constant)']
+  },
+  {
+    id: 'fermi',
+    name: 'Enrico Fermi',
+    nameKr: 'Enrico Fermi',
+    born: 1901, died: 1954,
+    birthYear: '1901',
+    nation: 'Italy / United States',
+    era: 'quantum',
+    field: 'Nuclear Physics, Quantum Mechanics',
+    tags: ['Weak Force', 'Nuclear Fission', 'Fermions'],
+    color: '#0F8C50',
+    quote: "If we never make mistakes, we are not taking on problems that are difficult enough.",
+    quoteAttr: '— Enrico Fermi',
+    bio: `Fermi was one of the last truly all-around physicists of the 20th century, achieving outstanding results in both theory and experiment. In 1926, independently of Dirac, he developed Fermi-Dirac statistics to describe the behavior of half-integer-spin particles such as electrons, and in 1933 he published a theory of the weak force describing beta decay as a four-fermion interaction (the Fermi interaction).
+
+    In 1942, beneath the squash courts of the University of Chicago, he achieved the world's first artificial self-sustaining nuclear fission chain reaction (Chicago Pile-1), marking the beginning of the Manhattan Project and the nuclear age. Element 100, fermium (Fm), and Fermilab are both named in his honor.`,
+    theories: [
+      { year: '1926', name: 'Fermi-Dirac Statistics', desc: 'The statistical distribution governing fermions (half-integer-spin particles) obeying the Pauli exclusion principle — the foundation of the electron theory of metals.' },
+      { year: '1933', name: 'The Weak Force Theory of Beta Decay', desc: 'Formulated the reaction n → p + e⁻ + ν̄ as a four-particle interaction — the beginning of the theory of the weak nuclear force.' },
+      { year: '1942', name: 'The First Nuclear Fission Chain Reaction', desc: 'Chicago Pile-1 — the world\'s first controlled nuclear fission chain reaction, ushering in the nuclear age.' },
+    ],
+    connections: ['Wolfgang Pauli', 'Paul Dirac', 'Werner Heisenberg', 'J. Robert Oppenheimer'],
+    equations: ['f(E) = 1/(e^((E−μ)/kT)+1)  (Fermi-Dirac Distribution)', 'G_F/(ℏc)³ ≈ 1.17×10⁻⁵ GeV⁻²  (Fermi Coupling Constant)']
+  },
+  {
+    id: 'chadwick',
+    name: 'James Chadwick',
+    nameKr: 'James Chadwick',
+    born: 1891, died: 1974,
+    birthYear: '1891',
+    nation: 'United Kingdom',
+    era: 'quantum',
+    field: 'Nuclear Physics',
+    tags: ['Discovery of the Neutron', 'Atomic Nucleus', 'Nuclear Physics'],
+    color: '#0F8C50',
+    quote: 'The discovery of the neutron was the key to understanding the structure of the atomic nucleus.',
+    quoteAttr: '— James Chadwick',
+    bio: `Chadwick, a student of Ernest Rutherford, proved in 1932 that the unidentified radiation produced when alpha particles struck beryllium was a particle with no electric charge and a mass similar to the proton — the neutron. This discovery experimentally confirmed the particle that Rutherford had predicted back in 1920.
+
+    The discovery of the neutron completed the modern model of the atomic nucleus as composed of protons and neutrons. Because the neutron carries no charge, it can penetrate the nucleus without electrical repulsion, making it a key tool for nuclear fission research and the development of the atomic bomb. Chadwick was awarded the Nobel Prize in Physics in 1935.`,
+    theories: [
+      { year: '1932', name: 'Discovery of the Neutron', desc: 'The reaction Be + α → C + n demonstrated a neutral particle with mass ≈ that of the proton — completed the modern nuclear model.' },
+      { year: '1932', name: 'Completion of the Nuclear Composition Model', desc: 'Atomic nucleus = protons + neutrons — enabled a systematic understanding of mass number, isotopes, and nuclear reactions.' },
+    ],
+    connections: ['Ernest Rutherford', 'Niels Bohr', 'Enrico Fermi', 'Werner Heisenberg'],
+    equations: ['⁴He + ⁹Be → ¹²C + ¹n  (the reaction that revealed the neutron)', 'A = Z + N  (mass number = protons + neutrons)']
+  },
+  {
+    id: 'planck',
+    name: 'Max Planck',
+    nameKr: 'Max Planck',
+    born: 1858, died: 1947,
+    birthYear: '1858',
+    nation: 'Germany',
+    era: 'quantum',
+    field: 'Quantum Mechanics',
+    tags: ['Quantum', 'Blackbody Radiation', "Planck's Constant"],
+    color: '#e0735a',
+    quote: 'A new scientific truth does not triumph by convincing its opponents, but rather because its opponents eventually die.',
+    quoteAttr: '— Max Planck, Scientific Autobiography',
+    bio: `Planck was a "reluctant revolutionary" who, while trying to explain thermal (blackbody) radiation, unexpectedly created the concept of the quantum. To resolve the "ultraviolet catastrophe" — a problem that classical physics could not explain — he proposed in 1900 that energy is emitted not continuously, but in discrete packets called quanta.
+
+    He initially regarded this as nothing more than a convenient mathematical trick, but the resulting Planck constant, h, became one of the most fundamental constants in physics. During the Nazi era in Germany, Planck attempted to uphold his principles and protect Jewish scientists, but suffered the tragedy of seeing his son executed for involvement in a plot to assassinate Hitler.`,
+    theories: [
+      { year: '1900', name: "Planck's Law of Radiation", desc: 'A formula for the energy spectrum of blackbody radiation — resolved the ultraviolet catastrophe of classical physics.' },
+      { year: '1900', name: 'Quantization of Energy', desc: 'Energy is not emitted or absorbed continuously, but in discrete units of hν.' },
+    ],
+    connections: ['Ludwig Boltzmann', 'Albert Einstein', 'Niels Bohr', 'Wilhelm Wien'],
+    equations: ['E = hν', 'B(ν,T) = 2hν³/c² · 1/(e^(hν/kT)−1)']
+  },
+  {
+    id: 'einstein',
+    name: 'Albert Einstein',
+    nameKr: 'Albert Einstein',
+    born: 1879, died: 1955,
+    birthYear: '1879',
+    nation: 'Germany / Switzerland / United States',
+    era: 'quantum',
+    field: 'Relativity, Quantum Theory',
+    tags: ['Special Relativity', 'General Relativity', 'Photoelectric Effect', 'E=mc²'],
+    color: '#e0735a',
+    quote: 'Imagination is more important than knowledge.',
+    quoteAttr: '— Albert Einstein',
+    bio: `In 1905, his "miracle year" (Annus Mirabilis), Einstein published papers on special relativity, the photoelectric effect, and Brownian motion within a single year, completely transforming physics. At the time, he was a junior examiner at the Swiss patent office in Bern.
+
+    His 1915 general theory of relativity was a revolutionary theory describing gravity as the curvature of spacetime, and was confirmed by British astronomer Eddington's observations during the 1919 solar eclipse, earning Einstein worldwide fame. His 1921 Nobel Prize in Physics was awarded not for relativity but for the photoelectric effect. After the Nazis came to power, he emigrated to the United States, was indirectly involved in the development of the atomic bomb, and spent the rest of his life campaigning against nuclear weapons.`,
+    theories: [
+      { year: '1905', name: 'Special Relativity', desc: 'The speed of light is the same in all inertial frames. Implies time dilation, length contraction, and mass-energy equivalence.' },
+      { year: '1905', name: 'The Photoelectric Effect (Photon Theory)', desc: 'Light behaves as particles called photons — the starting point for wave-particle duality. Earned the Nobel Prize.' },
+      { year: '1905', name: 'Explanation of Brownian Motion', desc: 'Mathematically proved the physical existence of atoms and molecules from the erratic motion of pollen grains on water.' },
+      { year: '1915', name: 'General Relativity', desc: 'Gravity = the curvature of spacetime. Mass causes spacetime to bend.' },
+      { year: '1916', name: 'The Theory of Stimulated Emission', desc: 'An excited atom can be stimulated to emit a photon of the same frequency — the principle behind the laser.' },
+      { year: '1935', name: 'The EPR Paradox', desc: 'A thought experiment questioning the non-locality of quantum mechanics — the origin of the debate over quantum entanglement.' },
+    ],
+    connections: ['Max Planck', 'Niels Bohr', 'Werner Heisenberg', 'Erwin Schrödinger', 'James Maxwell'],
+    equations: ['E = mc²', 'E² = (pc)² + (mc²)²', 'G_μν + Λg_μν = 8πG/c⁴ · T_μν']
+  },
+  {
+    id: 'bohr',
+    name: 'Niels Bohr',
+    nameKr: 'Niels Bohr',
+    born: 1885, died: 1962,
+    birthYear: '1885',
+    nation: 'Denmark',
+    era: 'quantum',
+    field: 'Atomic Physics',
+    tags: ['Atomic Model', 'Quantum Theory', 'Copenhagen Interpretation'],
+    color: '#e0735a',
+    quote: 'Anyone who is not shocked by quantum theory has not understood it.',
+    quoteAttr: '— Niels Bohr',
+    bio: `In 1913, Bohr published an atomic model that explained the line spectrum of hydrogen, presenting a groundbreaking theory that combined classical electromagnetism with quantum theory. His concept that electrons exist stably only in specific orbits, and emit or absorb light when transitioning between orbits, became foundational to atomic physics.
+
+    In the 1920s, he made the Copenhagen Institute the world center of quantum physics, training a host of physicists including Heisenberg, Pauli, and Dirac. The "Copenhagen interpretation" — the standard interpretation of quantum mechanics — holds that a particle exists in a superposition of states before measurement, and that observation causes the wavefunction to collapse. His debate with Einstein over "God does not play dice" is one of the most famous intellectual confrontations in the history of physics.`,
+    theories: [
+      { year: '1913', name: 'The Bohr Atomic Model', desc: 'Electrons orbit in discrete energy levels, emitting or absorbing photons when transitioning between orbits.' },
+      { year: '1913', name: 'Explanation of the Hydrogen Spectrum', desc: 'Accurately predicted the hydrogen line spectra, including the Balmer and Lyman series, in terms of energy levels.' },
+      { year: '1920s', name: 'The Copenhagen Interpretation', desc: 'Before observation, a particle exists in a superposition of the wavefunction — the act of measurement determines the state.' },
+      { year: '1928', name: 'The Principle of Complementarity', desc: 'Light (or electrons) possess both wave and particle properties, but only one can be observed at a time.' },
+    ],
+    connections: ['Max Planck', 'Albert Einstein', 'Werner Heisenberg', 'Erwin Schrödinger', 'Wolfgang Pauli'],
+    equations: ['E_n = -13.6/n² eV', 'L = nℏ  (Quantization Condition)', 'ΔE = hν  (Energy Transition)']
+  },
+  {
+    id: 'heisenberg',
+    name: 'Werner Heisenberg',
+    nameKr: 'Werner Heisenberg',
+    born: 1901, died: 1976,
+    birthYear: '1901',
+    nation: 'Germany',
+    era: 'quantum',
+    field: 'Quantum Mechanics',
+    tags: ['Uncertainty Principle', 'Matrix Mechanics', 'Quantum Field Theory'],
+    color: '#e0735a',
+    quote: 'Not only is the Universe stranger than we think, it is stranger than we can think.',
+    quoteAttr: '— Werner Heisenberg',
+    bio: `Heisenberg was a central architect of quantum mechanics, creating matrix mechanics at age 24 and publishing the uncertainty principle at age 26. Trained at Bohr's Copenhagen Institute, he mathematized quantum mechanics independently of Schrödinger.
+
+    The uncertainty principle is not merely a limitation of measurement but expresses a fundamental property of nature. Position and momentum (or energy and time) cannot both be precisely defined at the same time, meaning that the deterministic classical mechanics that governs the macroscopic world fundamentally breaks down in the microscopic world.`,
+    theories: [
+      { year: '1925', name: 'Matrix Mechanics', desc: "The first complete formulation of quantum mechanics, representing physical quantities as matrices — mathematically equivalent to Schrödinger's wave mechanics." },
+      { year: '1927', name: 'The Uncertainty Principle', desc: 'Δx·Δp ≥ ℏ/2 — position and momentum cannot both be known precisely at the same time. A fundamental law of nature.' },
+      { year: '1932', name: 'The Theory of Nuclear Forces', desc: 'Explained the nuclear force as a neutron-proton exchange force — awarded the Nobel Prize in Physics (1932).' },
+    ],
+    connections: ['Niels Bohr', 'Erwin Schrödinger', 'Wolfgang Pauli', 'Max Born'],
+    equations: ['Δx · Δp ≥ ℏ/2', 'ΔE · Δt ≥ ℏ/2']
+  },
+  {
+    id: 'schrodinger',
+    name: 'Erwin Schrödinger',
+    nameKr: 'Erwin Schrödinger',
+    born: 1887, died: 1961,
+    birthYear: '1887',
+    nation: 'Austria',
+    era: 'quantum',
+    field: 'Quantum Mechanics, Biophysics',
+    tags: ['Wave Equation', 'Quantum Mechanics', 'Cat Paradox'],
+    color: '#e0735a',
+    quote: 'The total number of minds in the universe is one.',
+    quoteAttr: '— Erwin Schrödinger',
+    bio: `Schrödinger developed de Broglie's concept of matter waves and, in 1926, derived the wave equation. It was developed independently of Heisenberg's matrix mechanics, but the two were soon proven to be mathematically equivalent.
+
+    Dissatisfied with the Copenhagen interpretation of quantum mechanics, he proposed the "Schrödinger's cat" thought experiment in 1935. This paradox — in which a cat is in a superposition of being both alive and dead until observed — vividly exposes the interpretational problems of quantum mechanics. His 1944 book "What Is Life?" inspired Watson and Crick's discovery of the DNA double helix.`,
+    theories: [
+      { year: '1926', name: 'The Schrödinger Equation', desc: 'A wave equation describing the time evolution of a quantum system — the most fundamental equation in quantum mechanics.' },
+      { year: '1926', name: 'Wave Mechanics', desc: "Mathematized de Broglie's matter waves, describing atomic orbits as probability clouds." },
+      { year: '1935', name: "Schrödinger's Cat", desc: 'A paradox of macroscopic superposition — a thought experiment exposing the limits of the Copenhagen interpretation.' },
+    ],
+    connections: ['Werner Heisenberg', 'Niels Bohr', 'Louis de Broglie', 'Paul Dirac', 'Max Born'],
+    equations: ['iℏ ∂Ψ/∂t = ĤΨ', 'Ψ(x,t) = ψ(x)e^(-iEt/ℏ)']
+  },
+  {
+    id: 'dirac',
+    name: 'Paul Dirac',
+    nameKr: 'Paul Dirac',
+    born: 1902, died: 1984,
+    birthYear: '1902',
+    nation: 'United Kingdom',
+    era: 'quantum',
+    field: 'Quantum Mechanics, Quantum Field Theory',
+    tags: ['Antimatter', 'Dirac Equation', 'Quantum Field Theory'],
+    color: '#e0735a',
+    quote: 'A theory with mathematical beauty is more likely to be correct than an ugly theory that fits some experimental data.',
+    quoteAttr: '— Paul Dirac',
+    bio: `Dirac was a perfectionist theoretical physicist who treated mathematical beauty as a criterion of physical truth. In 1928, he derived a relativistically invariant quantum mechanical equation — the Dirac equation — one of whose solutions predicted the existence of the electron's antiparticle, the positron. The existence of antimatter was confirmed when Anderson experimentally discovered the positron in 1932.
+
+    He also created Fermi-Dirac statistics (the statistical mechanics of half-integer-spin particles) and helped establish the foundations of quantum field theory. Famously introverted and taciturn, his extreme economy of speech led colleagues to jokingly define a unit, "one Dirac," as one word per hour.`,
+    theories: [
+      { year: '1928', name: 'The Dirac Equation', desc: 'A relativistic quantum mechanical equation for the electron — automatically predicts electron spin and antimatter.' },
+      { year: '1930', name: 'The Prediction of Antimatter', desc: "The equation's negative-energy solutions predicted the existence of the positron (anti-electron) — confirmed experimentally in 1932." },
+      { year: '1926', name: 'Fermi-Dirac Statistics', desc: 'The statistical distribution of fermions obeying the Pauli principle — the foundation of the theory of metallic conduction.' },
+      { year: '1927', name: 'Foundations of Quantum Field Theory', desc: 'Quantization of the electromagnetic field — describing the emission and absorption of photons through field theory.' },
+    ],
+    connections: ['Werner Heisenberg', 'Erwin Schrödinger', 'Wolfgang Pauli', 'Richard Feynman'],
+    equations: ['(iγᵘ∂_μ − m)ψ = 0  (Dirac Equation)', 'E² = (pc)² + (mc²)²']
+  },
+  {
+    id: 'feynman',
+    name: 'Richard Feynman',
+    nameKr: 'Richard Feynman',
+    born: 1918, died: 1988,
+    birthYear: '1918',
+    nation: 'United States',
+    era: 'contemp',
+    field: 'Quantum Electrodynamics',
+    tags: ['QED', 'Feynman Diagrams', 'Path Integral', 'Nanotechnology'],
+    color: '#6ba3d6',
+    quote: 'If you want to understand nature, you must be willing to accept how strange it is.',
+    quoteAttr: '— Richard Feynman',
+    bio: `Feynman was the most influential theoretical physicist of the late 20th century and an outstanding educator. He worked on the Manhattan Project, and after the war completed quantum electrodynamics (QED) mathematically through renormalization, earning him the Nobel Prize in Physics in 1965.
+
+    Feynman diagrams — an intuitive pictorial method for representing complex particle interactions — became the standard language of modern particle physics. His 1959 lecture "There's Plenty of Room at the Bottom" was a pioneering talk that first introduced the concept of nanotechnology. He is also famous for vividly demonstrating the failure of the O-ring during the Challenger disaster investigation.`,
+    theories: [
+      { year: '1948', name: 'Quantum Electrodynamics (QED)', desc: 'Completed the theory of electron-photon interactions through renormalization, which removes infinities — the most precisely tested theory in physics.' },
+      { year: '1948', name: 'Feynman Diagrams', desc: 'Represents particle interactions as spacetime diagrams — an intuitive tool for perturbation theory calculations.' },
+      { year: '1948', name: 'The Path Integral', desc: 'In quantum mechanics, a particle takes all possible paths simultaneously, with each path contributing to the total.' },
+      { year: '1959', name: 'The Concept of Nanotechnology', desc: '"There\'s Plenty of Room at the Bottom" — predicted the possibility of atomic-scale manipulation, the starting point of nanotechnology.' },
+    ],
+    connections: ['Paul Dirac', 'Julian Schwinger', 'Murray Gell-Mann', 'Hans Bethe'],
+    equations: ['S = ∫L dt  (Action)', 'Z = ∫Dφ e^(iS[φ]/ℏ)  (Path Integral)']
+  },
+  {
+    id: 'curie',
+    name: 'Marie Curie',
+    nameKr: 'Marie Curie',
+    born: 1867, died: 1934,
+    birthYear: '1867',
+    nation: 'Poland / France',
+    era: 'modern',
+    field: 'Radioactivity, Atomic Physics',
+    tags: ['Radioactivity', 'Nobel Prize', 'Radioactive Elements'],
+    color: '#4ab3a8',
+    quote: 'Nothing in life is to be feared, it is only to be understood.',
+    quoteAttr: '— Marie Curie',
+    bio: `Marie Curie is the first and only person in history to win Nobel Prizes in two different sciences — physics (1903) and chemistry (1911). Born in Poland, she became the first woman to earn a doctorate while studying in Paris, and coined the term "radioactivity."
+
+    Together with her husband Pierre Curie, she discovered the elements radium (Ra) and polonium (Po), and her research on radioactivity showed that atoms could be transformed — overturning the classical belief in the immutability of the atom. During World War I, she operated mobile X-ray vehicles (nicknamed "Little Curies") to help diagnose wounded soldiers. She died of aplastic anemia caused by prolonged exposure to radioactive materials.`,
+    theories: [
+      { year: '1898', name: 'Research on Radioactivity', desc: 'Proved that the radioactivity of uranium ore originated from uranium itself — evidence of atomic transformation.' },
+      { year: '1898', name: 'Discovery of Polonium', desc: 'A new radioactive element named in honor of her native Poland — symbol Po (atomic number 84).' },
+      { year: '1898', name: 'Discovery of Radium', desc: 'Isolated radium (Ra, atomic number 88), a new element with radioactivity a million times stronger than uranium.' },
+    ],
+    connections: ['Henri Becquerel', 'Ernest Rutherford', 'Albert Einstein'],
+    equations: ['A = λN  (Activity)', 'N(t) = N₀ e^(-λt)  (Radioactive Decay)']
+  },
+  {
+    id: 'rutherford',
+    name: 'Ernest Rutherford',
+    nameKr: 'Ernest Rutherford',
+    born: 1871, died: 1937,
+    birthYear: '1871',
+    nation: 'New Zealand / United Kingdom',
+    era: 'modern',
+    field: 'Atomic Physics, Nuclear Physics',
+    tags: ['Atomic Nucleus', 'Rutherford Scattering', 'Nuclear Physics'],
+    color: '#4ab3a8',
+    quote: 'All science is either physics or stamp collecting.',
+    quoteAttr: '— attributed to Ernest Rutherford',
+    bio: `Rutherford, a student of J.J. Thomson, was the father of nuclear physics, experimentally revealing the internal structure of the atom. In the 1909 Geiger-Marsden gold foil experiment, he discovered that alpha particles were scattered through unexpectedly large angles, leading him to propose a planetary model of the atom with a small, dense nucleus at its center.
+
+    He also performed the first artificial nuclear transmutation (converting nitrogen into oxygen) and predicted the existence of the neutron (discovered by Chadwick in 1932). More than ten Nobel laureates emerged from his laboratory, the Cavendish Laboratory. Ironically, Rutherford himself won his Nobel Prize in chemistry rather than physics.`,
+    theories: [
+      { year: '1911', name: 'The Nuclear Atomic Model (Rutherford Model)', desc: 'The gold foil scattering experiment proved that the atom has a small, dense, positively charged nucleus at its center.' },
+      { year: '1899', name: 'Classification of Alpha and Beta Radiation', desc: 'Classified radiation into alpha (α) and beta (β) types based on penetrating power (gamma rays were added later).' },
+      { year: '1919', name: 'The First Artificial Nuclear Transmutation', desc: '¹⁴N + α → ¹⁷O + p — the first proof that elements can be artificially transformed.' },
+    ],
+    connections: ['J.J. Thomson', 'Niels Bohr', 'Marie Curie', 'James Chadwick'],
+    equations: ['dσ/dΩ = (Z₁Z₂e²/4T)² · 1/sin⁴(θ/2)  (Rutherford Scattering)']
+  },
+  {
+    id: 'hawking',
+    name: 'Stephen Hawking',
+    nameKr: 'Stephen Hawking',
+    born: 1942, died: 2018,
+    birthYear: '1942',
+    nation: 'United Kingdom',
+    era: 'contemp',
+    field: 'Cosmology, Black Holes',
+    tags: ['Black Holes', 'Hawking Radiation', 'Big Bang', 'Quantum Gravity'],
+    color: '#6ba3d6',
+    quote: 'Intelligence is the ability to adapt to change.',
+    quoteAttr: '— Stephen Hawking',
+    bio: `Hawking was an icon of his era who, undeterred by ALS (Lou Gehrig's disease), led the way in black hole physics and cosmology. He was diagnosed with ALS at age 21 and given two years to live, yet continued his research for more than 50 years afterward.
+
+    In 1974, he theoretically predicted that black holes are not entirely black — that through quantum mechanical effects they emit thermal radiation (Hawking radiation) and can eventually evaporate. This achievement is regarded as the first to unify general relativity and quantum mechanics. His book "A Brief History of Time" is one of the best-selling popular science books ever published.`,
+    theories: [
+      { year: '1970', name: 'The Black Hole Area Theorem', desc: "Classically, the area of a black hole's event horizon can never decrease (analogous to the second law of thermodynamics)." },
+      { year: '1974', name: 'Hawking Radiation', desc: 'A black hole emits blackbody radiation through quantum effects and evaporates — the first unification of general relativity and quantum mechanics.' },
+      { year: '1983', name: 'The No-Boundary Proposal', desc: 'With Penrose — proposed that the beginning of the universe arose spontaneously through quantum processes, without boundary conditions.' },
+    ],
+    connections: ['Roger Penrose', 'Jacob Bekenstein', 'Kip Thorne', 'Albert Einstein'],
+    equations: ['T_H = ℏc³/(8πGMk_B)  (Hawking Temperature)', 'A = 16πG²M²/c⁴  (Event Horizon Area)']
+  }
+];
+
 // Build sidebar
 function buildSidebar(filter) {
+  currentEraFilter = filter;
+  const T = UI[lang];
   const sidebar = document.getElementById('sidebar');
   sidebar.innerHTML = '';
 
   const eras = [
-    { id: 'ancient',   label: '고대·중세',    range: 'BC ~ 1500' },
-    { id: 'classical', label: '고전역학',      range: '1543 ~ 1800' },
-    { id: 'modern',    label: '근대물리',      range: '1800 ~ 1900' },
-    { id: 'quantum',   label: '양자혁명',      range: '1900 ~ 1950' },
-    { id: 'contemp',   label: '현대물리',      range: '1950 ~' },
+    { id: 'ancient',   label: T.eraLabels.ancient,   range: T.eraRanges.ancient },
+    { id: 'classical', label: T.eraLabels.classical, range: T.eraRanges.classical },
+    { id: 'modern',    label: T.eraLabels.modern,    range: T.eraRanges.modern },
+    { id: 'quantum',   label: T.eraLabels.quantum,   range: T.eraRanges.quantum },
+    { id: 'contemp',   label: T.eraLabels.contemp,   range: T.eraRanges.contemp },
   ];
 
   const eraColors = {
@@ -1885,6 +3310,8 @@ function buildSidebar(filter) {
     quantum:   '#0F8C50',
     contemp:   '#7030A0',
   };
+
+  const SCIENTISTS = getSCIENTISTS();
 
   eras.forEach(era => {
     const scientists = SCIENTISTS
@@ -1947,7 +3374,7 @@ let currentId = null;
 
 function selectScientist(id) {
   document.querySelectorAll('.sci-card').forEach(c => c.classList.remove('active'));
-  const sci = SCIENTISTS.find(s => s.id === id);
+  const sci = getSCIENTISTS().find(s => s.id === id);
   if (!sci) return;
   currentId = id;
 
@@ -1967,14 +3394,9 @@ function selectScientist(id) {
 
 function renderDetail(sci) {
   const panel = document.getElementById('detail');
+  const T = UI[lang];
 
-  const eraNames = {
-    ancient:   '고대·중세',
-    classical: '고전역학 시대',
-    modern:    '근대물리 시대',
-    quantum:   '양자혁명',
-    contemp:   '현대물리',
-  };
+  const eraNames = T.eraNames;
 
   const eraTagStyle = {
     ancient:   'background:#F0E6F6;color:#521a78',
@@ -1993,13 +3415,13 @@ function renderDetail(sci) {
   `).join('');
 
   const equationsHtml = sci.equations.length
-    ? `<div class="section-title">핵심 수식</div>` +
+    ? `<div class="section-title">${T.sectionEq}</div>` +
       sci.equations.map(eq => `<div class="eq-block">${eq}</div>`).join('') +
       '<div style="margin-bottom:1.5rem"></div>'
     : '';
 
   const connectionsHtml = sci.connections.map(name => {
-    const linked = SCIENTISTS.find(s => s.name === name || s.nameKr === name);
+    const linked = getSCIENTISTS().find(s => s.name === name || s.nameKr === name);
     if (linked) {
       return `<button class="conn-chip" onclick="selectScientist('${linked.id}')">${name}</button>`;
     }
@@ -2031,7 +3453,7 @@ function renderDetail(sci) {
         <div class="life-bar-wrap">
           <div class="life-bar-labels">
             <span>${bornLabel}</span>
-            <span style="color:#7030A0;font-size:0.55rem;letter-spacing:0.08em">── 주요 업적 시점 ──</span>
+            <span style="color:#7030A0;font-size:0.55rem;letter-spacing:0.08em">${T.lifeBarLabel}</span>
             <span>${diedLabel}</span>
           </div>
           <div class="life-bar">
@@ -2054,11 +3476,11 @@ function renderDetail(sci) {
 
       ${equationsHtml}
 
-      <div class="section-title">주요 이론 &amp; 업적</div>
+      <div class="section-title">${T.sectionTheory}</div>
       <div class="theories-grid">${theoriesHtml}</div>
 
       ${sci.connections.length ? `
-      <div class="section-title">연관 과학자</div>
+      <div class="section-title">${T.sectionConnections}</div>
       <div class="conn-list">${connectionsHtml}</div>
       ` : ''}
     </div>
@@ -2098,6 +3520,7 @@ document.querySelectorAll('.era-btn').forEach(btn => {
 });
 
 // Init
+document.body.setAttribute('data-lang', 'ko'); // 초기 언어 설정 (KO)
 buildSidebar('all');
 setTimeout(() => selectScientist('aristotle'), 150);
 </script>
