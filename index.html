@@ -85,34 +85,87 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Google Fonts Preconnect & Google Sans Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
     <!-- Pretendard Variable -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" />
 
+    <style>
+        /* ─────────────────────────────────────────────
+           THEME VARIABLE CONFIGURATIONS (Unified CSS Variables)
+           ───────────────────────────────────────────── */
+        :root {
+            /* Light Mode Default */
+            --color-bg-page: #F7F8FA;
+            --color-bg-card: #FFFFFF;
+            --color-brand-purple: #7030A0;
+            --color-brand-purple-deep: #5C2685;
+            --color-brand-purple-darker: #4A1F6B;
+            --color-brand-green: #0F8C50;
+            --color-brand-green-deep: #0B6E3D;
+            --color-brand-charcoal: #2D2D2D;
+            --color-soft-purple: #F0E6F6;
+            --color-soft-green: #E5F4EC;
+            --color-soft-purple-border: #E2D0EE;
+            --color-soft-green-border: #CBEADD;
+            --color-border-subtle: #F3F4F6;
+            --color-border-default: #E5E7EB;
+            --color-text-muted: #6B7280;
+            --color-text-subtle: #9CA3AF;
+            --color-glass-bg: rgba(255, 255, 255, 0.78);
+        }
+
+        .dark {
+            /* Dark Mode Overrides */
+            --color-bg-page: #0B0B12;
+            --color-bg-card: #15151E;
+            --color-brand-purple: #B98AE0;
+            --color-brand-purple-deep: #9D6BC6;
+            --color-brand-purple-darker: #7A4DA3;
+            --color-brand-green: #34D399;
+            --color-brand-green-deep: #1FA876;
+            --color-brand-charcoal: #ECECF1;
+            --color-soft-purple: #241531;
+            --color-soft-green: #0E2A1F;
+            --color-soft-purple-border: #3D2454;
+            --color-soft-green-border: #1B4A35;
+            --color-border-subtle: #1F1F2A;
+            --color-border-default: #2A2A37;
+            --color-text-muted: #A1A1AA;
+            --color-text-subtle: #71717A;
+            --color-glass-bg: rgba(15, 15, 25, 0.78);
+        }
+    </style>
+
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        'bg-page': '#F7F8FA',
-                        'bg-card': '#FFFFFF',
-                        'brand-purple': '#7030A0',
-                        'brand-purple-deep': '#5C2685',
-                        'brand-purple-darker': '#4A1F6B',
-                        'brand-green': '#0F8C50',
-                        'brand-green-deep': '#0B6E3D',
-                        'brand-charcoal': '#2D2D2D',
-                        'soft-purple': '#F0E6F6',
-                        'soft-green': '#E5F4EC',
-                        'soft-purple-border': '#E2D0EE',
-                        'soft-green-border': '#CBEADD',
-                        'border-subtle': '#F3F4F6',
-                        'border-default': '#E5E7EB',
-                        'text-muted': '#6B7280',
-                        'text-subtle': '#9CA3AF',
+                        'bg-page': 'var(--color-bg-page)',
+                        'bg-card': 'var(--color-bg-card)',
+                        'brand-purple': 'var(--color-brand-purple)',
+                        'brand-purple-deep': 'var(--color-brand-purple-deep)',
+                        'brand-purple-darker': 'var(--color-brand-purple-darker)',
+                        'brand-green': 'var(--color-brand-green)',
+                        'brand-green-deep': 'var(--color-brand-green-deep)',
+                        'brand-charcoal': 'var(--color-brand-charcoal)',
+                        'soft-purple': 'var(--color-soft-purple)',
+                        'soft-green': 'var(--color-soft-green)',
+                        'soft-purple-border': 'var(--color-soft-purple-border)',
+                        'soft-green-border': 'var(--color-soft-green-border)',
+                        'border-subtle': 'var(--color-border-subtle)',
+                        'border-default': 'var(--color-border-default)',
+                        'text-muted': 'var(--color-text-muted)',
+                        'text-subtle': 'var(--color-text-subtle)',
                         'accent-gold': '#F2C94C',
                     },
                     fontFamily: {
-                        sans: ['Pretendard Variable', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Segoe UI', 'sans-serif'],
+                        sans: ['Google Sans', 'Pretendard Variable', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Segoe UI', 'sans-serif'],
                     },
                     boxShadow: {
                         'whisper': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
@@ -138,12 +191,13 @@
     <style>
         html { scroll-behavior: smooth; }
         body {
-            font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-            background-color: #F7F8FA;
-            color: #2D2D2D;
+            font-family: 'Google Sans', 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            background-color: var(--color-bg-page);
+            color: var(--color-brand-charcoal);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             font-feature-settings: "ss06" on;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Hero typography */
@@ -210,57 +264,65 @@
             box-shadow: 0 12px 24px -8px rgba(0,0,0,0.08), 0 4px 8px -4px rgba(0,0,0,0.04);
             transform: translateY(-4px);
         }
+        .dark .card-hover:hover {
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.55), 0 4px 8px -4px rgba(0,0,0,0.4);
+            border-color: rgba(185, 138, 224, 0.35);
+        }
 
         /* Button */
         .btn-primary {
-            background: #7030A0;
+            background: var(--color-brand-purple-deep);
             color: #fff;
             transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
         }
-        .btn-primary:hover { background: #5C2685; box-shadow: 0 6px 16px -4px rgba(112, 48, 160, 0.35); }
-        .btn-primary:active { background: #4A1F6B; transform: translateY(1px); }
+        .btn-primary:hover { 
+            background: var(--color-brand-purple); 
+            box-shadow: 0 6px 16px -4px rgba(112, 48, 160, 0.35); 
+        }
+        .btn-primary:active { background: var(--color-brand-purple-darker); transform: translateY(1px); }
         .btn-primary:focus { outline: none; box-shadow: 0 0 0 3px rgba(112, 48, 160, 0.25); }
 
         .btn-outline {
             background: transparent;
-            color: #2D2D2D;
-            border: 1px solid #E5E7EB;
+            color: var(--color-brand-charcoal);
+            border: 1px solid var(--color-border-default);
             transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
-        .btn-outline:hover { background: #fff; border-color: #7030A0; color: #7030A0; }
+        .btn-outline:hover { background: var(--color-bg-card); border-color: var(--color-brand-purple); color: var(--color-brand-purple); }
 
         /* Glass nav */
         .nav-glass {
-            background: rgba(255, 255, 255, 0.78);
+            background: var(--color-glass-bg);
             backdrop-filter: saturate(180%) blur(14px);
             -webkit-backdrop-filter: saturate(180%) blur(14px);
+            transition: background-color 0.3s ease;
         }
 
         /* Hero ring composition */
         .ring-green {
-            border: 28px solid #0F8C50;
+            border: 28px solid var(--color-brand-green);
             border-radius: 9999px;
         }
         .ring-purple {
-            border: 14px solid #7030A0;
+            border: 14px solid var(--color-brand-purple);
             border-radius: 9999px;
         }
 
         /* Form inputs */
         .input-base {
             width: 100%;
-            background: #FFFFFF;
-            border: 1px solid #E5E7EB;
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border-default);
             border-radius: 12px;
             padding: 14px 16px;
             font-size: 15px;
-            color: #2D2D2D;
+            color: var(--color-brand-charcoal);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-        .input-base::placeholder { color: #9CA3AF; }
+        .input-base::placeholder { color: var(--color-text-subtle); }
         .input-base:focus {
             outline: none;
-            border-color: #7030A0;
+            border-color: var(--color-brand-purple);
             box-shadow: 0 0 0 3px rgba(112, 48, 160, 0.18);
         }
 
@@ -282,7 +344,7 @@
         /* Subtle gradient divider */
         .brand-stripe {
             height: 4px;
-            background: linear-gradient(90deg, #0F8C50 0%, #0F8C50 50%, #7030A0 50%, #7030A0 100%);
+            background: linear-gradient(90deg, var(--color-brand-green) 0%, var(--color-brand-green) 50%, var(--color-brand-purple) 50%, var(--color-brand-purple) 100%);
         }
 
         /* Marquee for stats */
@@ -311,7 +373,7 @@
         }
 
         /* Selection */
-        ::selection { background: #F0E6F6; color: #7030A0; }
+        ::selection { background: var(--color-soft-purple); color: var(--color-brand-purple); }
 
         /* ─────────────────────────────────────────────
            Brand Mark Animation (ver 2.0 · simplified)
@@ -338,7 +400,7 @@
         }
         .brand-circle-stroke {
             fill: none;
-            stroke: #0F8C50;
+            stroke: var(--color-brand-green);
             stroke-width: 22;
             stroke-linecap: round;
             stroke-dasharray: 1005;
@@ -367,16 +429,30 @@
                 <a href="#curriculum" class="text-[15px] font-medium text-brand-charcoal hover:text-brand-purple transition-colors">Curriculum</a>
                 <a href="#method" class="text-[15px] font-medium text-brand-charcoal hover:text-brand-purple transition-colors">Method</a>
                 <a href="#instructor" class="text-[15px] font-medium text-brand-charcoal hover:text-brand-purple transition-colors">Instructor</a>
-                <a href="index_d.html" class="text-text-muted hover:text-brand-purple transition-colors p-1.5 -my-1.5 rounded-full" aria-label="다크 모드로 전환" title="다크 모드">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                
+                <!-- Online Lecture Portal Link (LMS) -->
+                <a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="text-[15px] font-bold text-brand-purple hover:text-brand-purple-deep transition-all duration-200 inline-flex items-center gap-1 bg-soft-purple px-3 py-1 rounded-full border border-soft-purple-border" title="온라인 교육 포탈 바로가기">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-purple animate-pulse"></span>
+                    Portal ↗
                 </a>
+
+                <!-- Unified Theme Switcher Button -->
+                <button id="themeToggle" class="text-text-muted hover:text-brand-purple transition-colors p-1.5 -my-1.5 rounded-full" aria-label="화면 테마 토글" title="화면 테마 토글">
+                    <!-- Svg icon dynamically injected via script -->
+                </button>
+
                 <a href="#contact" class="btn-primary px-5 py-2.5 rounded-full text-[15px] font-semibold">강의 문의하기</a>
             </div>
 
             <div class="lg:hidden flex items-center gap-1">
-                <a href="index_d.html" class="text-brand-charcoal p-2" aria-label="다크 모드로 전환" title="다크 모드">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <!-- Portal Link Mobile Quick Access -->
+                <a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="text-[13px] font-bold text-brand-purple px-2 py-1 bg-soft-purple border border-soft-purple-border rounded-full inline-flex items-center gap-1">
+                    Portal ↗
                 </a>
+                <!-- Mobile Theme Toggle -->
+                <button id="mobileThemeToggle" class="text-brand-charcoal p-2" aria-label="화면 테마 토글" title="화면 테마 토글">
+                    <!-- Svg icon dynamically injected via script -->
+                </button>
                 <button id="menuToggle" class="text-brand-charcoal p-2" aria-label="Open menu">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
                 </button>
@@ -391,9 +467,8 @@
                 <a href="#curriculum" class="text-[15px] font-medium py-2">Curriculum</a>
                 <a href="#method"     class="text-[15px] font-medium py-2">Method</a>
                 <a href="#instructor" class="text-[15px] font-medium py-2">Instructor</a>
-                <a href="index_d.html" class="text-[15px] font-medium py-2 inline-flex items-center gap-2 text-text-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                    다크 모드
+                <a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="text-[15px] font-bold text-brand-purple py-2 inline-flex items-center gap-2">
+                    Online Lecture Portal ↗
                 </a>
                 <a href="#contact" class="btn-primary text-center px-5 py-3 rounded-full text-[15px] font-semibold mt-2">강의 문의하기</a>
             </div>
@@ -406,18 +481,19 @@
     <header id="home" class="relative pt-[152px] md:pt-[176px] pb-24 md:pb-32 overflow-hidden">
         <!-- Background ornaments -->
         <div class="absolute inset-0 -z-10 pointer-events-none">
-            <div class="absolute top-32 -right-24 w-[480px] h-[480px] rounded-full opacity-[0.06]" style="background: radial-gradient(closest-side, #7030A0 0%, transparent 70%);"></div>
-            <div class="absolute -bottom-24 -left-32 w-[520px] h-[520px] rounded-full opacity-[0.05]" style="background: radial-gradient(closest-side, #0F8C50 0%, transparent 70%);"></div>
+            <div class="absolute top-32 -right-24 w-[480px] h-[480px] rounded-full opacity-[0.06]" style="background: radial-gradient(closest-side, var(--color-brand-purple) 0%, transparent 70%);"></div>
+            <div class="absolute -bottom-24 -left-32 w-[520px] h-[520px] rounded-full opacity-[0.05]" style="background: radial-gradient(closest-side, var(--color-brand-green) 0%, transparent 70%);"></div>
         </div>
 
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                 <!-- Left -->
                 <div class="lg:col-span-7 reveal">
-                    <span class="eyebrow inline-flex items-center gap-2 bg-soft-purple text-brand-purple px-3.5 py-1.5 rounded-full">
-                        <span class="w-1.5 h-1.5 rounded-full bg-brand-purple"></span>
-                        Plasma School · Semiconductor & RF
-                    </span>
+                    <!-- Prominent Interactive Portal Promo Eyebrow -->
+                    <a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="eyebrow inline-flex items-center gap-2 bg-soft-purple hover:bg-brand-purple/20 text-brand-purple px-3.5 py-1.5 rounded-full transition-all duration-200" title="가상 실습실 강의 포탈로 이동">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-purple animate-pulse"></span>
+                        Online Lecture Portal Open! ↗
+                    </a>
 
                     <h1 class="display-xl mt-6 text-brand-charcoal">
                         비어 있는 자리에<br>
@@ -477,7 +553,7 @@
     <!-- =========================================== -->
     <!-- TRUST / CLIENT BAND                         -->
     <!-- =========================================== -->
-    <section class="py-12 bg-white border-y border-border-subtle">
+    <section class="py-12 bg-bg-card border-y border-border-subtle transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-6 lg:px-10">
             <p class="text-center text-[13px] text-text-muted eyebrow mb-6">Trusted teaching footprint</p>
             <div class="flex flex-wrap justify-center items-center gap-x-10 gap-y-4 text-text-muted">
@@ -498,7 +574,7 @@
     <section id="philosophy" class="py-24 md:py-32">
         <div class="max-w-6xl mx-auto px-6 lg:px-10">
             <div class="reveal">
-                <div class="bg-soft-purple border border-soft-purple-border rounded-4xl p-10 md:p-16 text-center">
+                <div class="bg-soft-purple border border-soft-purple-border rounded-4xl p-10 md:p-16 text-center transition-colors duration-300">
                     <span class="eyebrow text-brand-purple">Our Core Philosophy</span>
                     <h2 class="display-md mt-5 text-brand-charcoal">
                         나무가 아닌 <span class="text-brand-purple">숲</span>을,<br class="md:hidden">
@@ -516,7 +592,7 @@
     <!-- =========================================== -->
     <!-- STRENGTHS                                   -->
     <!-- =========================================== -->
-    <section id="strengths" class="py-24 md:py-32 bg-white">
+    <section id="strengths" class="py-24 md:py-32 bg-bg-card transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
             <div class="max-w-3xl mb-16 reveal">
                 <span class="eyebrow text-brand-green">Why Benedu Insight</span>
@@ -528,7 +604,7 @@
 
             <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
                 <!-- Card 1 -->
-                <article class="reveal bg-bg-page border border-border-subtle rounded-4xl p-8 lg:p-10 card-hover">
+                <article class="reveal bg-bg-page border border-border-subtle rounded-4xl p-8 lg:p-10 card-hover transition-all duration-300">
                     <div class="w-12 h-12 rounded-2xl bg-soft-green flex items-center justify-center mb-7">
                         <svg class="w-6 h-6 text-brand-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
@@ -543,7 +619,7 @@
                 </article>
 
                 <!-- Card 2 -->
-                <article class="reveal bg-bg-page border border-border-subtle rounded-4xl p-8 lg:p-10 card-hover">
+                <article class="reveal bg-bg-page border border-border-subtle rounded-4xl p-8 lg:p-10 card-hover transition-all duration-300">
                     <div class="w-12 h-12 rounded-2xl bg-soft-purple flex items-center justify-center mb-7">
                         <svg class="w-6 h-6 text-brand-purple" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                     </div>
@@ -558,7 +634,7 @@
                 </article>
 
                 <!-- Card 3 -->
-                <article class="reveal bg-bg-page border border-border-subtle rounded-4xl p-8 lg:p-10 card-hover">
+                <article class="reveal bg-bg-page border border-border-subtle rounded-4xl p-8 lg:p-10 card-hover transition-all duration-300">
                     <div class="w-12 h-12 rounded-2xl bg-soft-green flex items-center justify-center mb-7">
                         <svg class="w-6 h-6 text-brand-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12c4-6 14-6 18 0"/><path d="M3 12c4 6 14 6 18 0"/></svg>
                     </div>
@@ -586,13 +662,18 @@
                     <span class="eyebrow text-brand-purple">Curriculum</span>
                     <h2 class="display-lg mt-4 text-brand-charcoal">엔지니어를 위한<br>두 개의 핵심 클래스</h2>
                 </div>
-                <p class="text-[15px] leading-[1.65] text-text-muted lg:max-w-sm">
-                    고객사 직무 특성에 맞춰 클래스-1, 클래스-2를 선택적으로 운영합니다. 디바이스 제조사·장비사는 두 클래스 모두를, 부품·소재사는 클래스-1을 권장합니다.
-                </p>
+                <div class="lg:max-w-md">
+                    <p class="text-[15px] leading-[1.65] text-text-muted mb-4">
+                        고객사 직무 특성에 맞춰 클래스-1, 클래스-2를 선택적으로 운영합니다. 디바이스 제조사·장비사는 두 클래스 모두를, 부품·소재사는 클래스-1을 권장합니다.
+                    </p>
+                    <a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="text-[14px] font-bold text-brand-purple hover:underline inline-flex items-center gap-1">
+                        🚀 실시간 오토노트 탑재 온라인 체험판 강의 포탈 바로가기 ↗
+                    </a>
+                </div>
             </div>
 
             <!-- Class 1 -->
-            <article class="reveal bg-white rounded-4xl border border-border-subtle shadow-whisper overflow-hidden mb-8">
+            <article class="reveal bg-bg-card rounded-4xl border border-border-subtle shadow-whisper overflow-hidden mb-8 transition-colors duration-300">
                 <div class="grid lg:grid-cols-12">
                     <!-- Side header -->
                     <div class="lg:col-span-4 p-8 lg:p-12 bg-soft-green/40 border-b lg:border-b-0 lg:border-r border-soft-green-border">
@@ -602,55 +683,62 @@
                         </div>
                         <h3 class="display-md text-brand-charcoal">반도체 플라즈마 공정 및 어플리케이션</h3>
                         <p class="mt-5 text-[15px] leading-[1.7] text-brand-charcoal/80">
-                            플라즈마의 물리학적 생성 원리부터 CVD·Dry Etch·PVD 공정의 적용 메커니즘까지 — 시각화 자료 기반으로 본질을 꿰뚫는 4단계 심화 과정.
+                            플라즈마의 물리학적 생성 원리부터 CVD·Dry Etch·PVD 공정의 적용 메커니즘까지 — 수소 원자 오비탈 계산기 및 8의 법칙 시각 도안이 탑재된 가상 실습형 온라인 렉처 시스템과 함께 본질을 꿰뚫습니다.
                         </p>
                         <div class="mt-7 flex flex-wrap gap-2">
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">CCP</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">ICP</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">CVD</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Dry Etch</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">PVD · RPS</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">CCP</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">ICP</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">CVD</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Dry Etch</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">PVD · RPS</span>
                         </div>
                     </div>
 
                     <!-- Phases -->
-                    <div class="lg:col-span-8 p-8 lg:p-12">
+                    <div class="lg:col-span-8 p-8 lg:p-12 flex flex-col justify-between">
                         <ol class="space-y-7">
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-green text-brand-green font-bold flex items-center justify-center text-[15px]">01</div>
                                 <div>
-                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">기초 물성과 거시적 이해</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">빅뱅과 고온 플라즈마로 풀어내는 본질, 양자역학적 원자 거동(Excitation·Ionization), 화학 결합과 라디칼.</p>
+                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">기초 물성과 거시적 이해 (M1 ~ M3)</h4>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">빅뱅과 고온 플라즈마로 풀어내는 본질, 양자역학적 원자 역사(Excitation·Ionization), 화학 결합과 라디칼 원리.</p>
                                 </div>
                             </li>
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-green text-brand-green font-bold flex items-center justify-center text-[15px]">02</div>
                                 <div>
-                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">CCP 기반 증착(CVD) 메커니즘</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">맥스웰 방정식·가우스 법칙의 시각적 이해, CCP 플라즈마 생성과 라디칼 반응 기반 SiO₂ 박막 증착 모델링.</p>
+                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">맥스웰 방정식과 전자기학 기초 (M4)</h4>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">맥스웰 방정식과 가우스 전기장 법칙의 입체적 해독, 전자기 파동의 챔버 통과 전계 분포 해석.</p>
                                 </div>
                             </li>
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-green text-brand-green font-bold flex items-center justify-center text-[15px]">03</div>
                                 <div>
-                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">Dry Etch 공정 내 플라즈마 제어 동역학</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">CCP·ICP 차이, 패러데이·암페어 법칙 적용, 비대칭 전극 구조의 DC Bias 형성과 이온 에너지 제어 심화.</p>
+                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">CCP / ICP 기반 증착 및 식각 메커니즘 (M5)</h4>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">CCP/ICP 결합 형태의 차이, 패러데이 유도, 비대칭 전극 구조의 DC Bias 형성과 수직 이온 에너지 제어 심화.</p>
                                 </div>
                             </li>
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-green text-brand-green font-bold flex items-center justify-center text-[15px]">04</div>
                                 <div>
-                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">차세대 플라즈마 응용 기술</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">금속막 증착(PVD), 세정·PR Ashing을 위한 Remote Plasma System(RPS) 적용 사례 분석.</p>
+                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">차세대 반도체 플라즈마 응용</h4>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">금속막 증착(PVD), 세정 및 PR Ashing 기술을 가동하기 위한 원격 플라즈마 시스템(RPS) 최적화 실무.</p>
                                 </div>
                             </li>
                         </ol>
+
+                        <!-- Call-To-Action to Portal -->
+                        <div class="mt-8 pt-6 border-t border-border-subtle flex justify-end">
+                            <a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-soft-green hover:bg-brand-green/20 text-brand-green border border-soft-green-border px-5 py-3 rounded-full text-[14px] font-semibold transition-all duration-200">
+                                실시간 시뮬레이터 장착 온라인 강의실 입장 (Class-01) ↗
+                            </a>
+                        </div>
                     </div>
                 </div>
             </article>
 
             <!-- Class 2 -->
-            <article class="reveal bg-white rounded-4xl border border-border-subtle shadow-whisper overflow-hidden">
+            <article class="reveal bg-bg-card rounded-4xl border border-border-subtle shadow-whisper overflow-hidden transition-colors duration-300">
                 <div class="grid lg:grid-cols-12">
                     <div class="lg:col-span-4 p-8 lg:p-12 bg-soft-purple/40 border-b lg:border-b-0 lg:border-r border-soft-purple-border">
                         <div class="flex items-center gap-3 mb-6">
@@ -659,55 +747,62 @@
                         </div>
                         <h3 class="display-md text-brand-charcoal">플라즈마 형성을 위한 RF 전력전송 이론</h3>
                         <p class="mt-5 text-[15px] leading-[1.7] text-brand-charcoal/80">
-                            안정적인 플라즈마 형성과 정밀 제어를 위한 전자기파(RF) 전송 이론과 매칭 네트워크 실무 최적화. 디바이스·장비 제조사 엔지니어를 위한 심화 과정.
+                            안정적인 플라즈마 형성과 정밀 제어를 위한 전자기파(RF) 전송 이론과 매칭 네트워크 실무 최적화. 맥스웰 4대 전자기 방정식 툴, E-to-H 모드 Hysteresis 전이 그래프 분석 툴을 갖춘 전용 시각화 교재를 제공합니다.
                         </p>
                         <div class="mt-7 flex flex-wrap gap-2">
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Standing Wave</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Impedance</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Matching Topologies</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">FDC</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">RF Generator</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Standing Wave</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Impedance</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">Matching Topologies</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">FDC</span>
+                            <span class="text-[12px] font-semibold bg-bg-page text-brand-charcoal px-3 py-1.5 rounded-full border border-border-default">RF Generator</span>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-8 p-8 lg:p-12">
+                    <div class="lg:col-span-8 p-8 lg:p-12 flex flex-col justify-between">
                         <ol class="space-y-7">
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-purple text-brand-purple font-bold flex items-center justify-center text-[15px]">01</div>
                                 <div>
-                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">전자기파와 파동 에너지의 이해</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">빛과 전자파의 특성, 반도체 산업 내 주파수 활용 영역, 정재파(Standing Wave) 기반 파동 에너지 전달 원리.</p>
+                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">전자기 전송 및 맥스웰 방정식 (M1)</h4>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">전기와 자기의 대통합, 빛과 전자기파 파동 특성, 정재파(Standing Wave) 이론 기반 파동 에너지 전달 원천 해석.</p>
                                 </div>
                             </li>
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-purple text-brand-purple font-bold flex items-center justify-center text-[15px]">02</div>
                                 <div>
-                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">최대 전력 전송과 전기적 포텐셜</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">V·I·R의 본질적 재개념화, 임피던스·위상차의 오일러 공식 기반 수리적·물리적 통합 해석.</p>
+                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">플라즈마 기초 물리학 (M2)</h4>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">가전자 껍질 에너지, 충돌 여기 및 가스 이온화 메커니즘, 챔버 내 임피던스 위상차의 수학적·기하학적 통합 해석.</p>
                                 </div>
                             </li>
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-purple text-brand-purple font-bold flex items-center justify-center text-[15px]">03</div>
                                 <div>
-                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">공진 회로와 RF Matching Network 최적화</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">RLC 소자의 전기적 특성, L-type Matching 회로 설계를 통한 최대 전력 전송 원리 구현.</p>
+                                    <h4 class="text-[17px] font-semibold text-brand-charcoal">RF 매칭 및 전력 공급 시스템 (M3)</h4>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">RLC 공진 회로의 이해, 자동 가변 가동 L-type Matching 회로 설계를 통한 전하 50Ω 최대 전력 전송 정합 원리.</p>
                                 </div>
                             </li>
                             <li class="grid grid-cols-[44px_1fr] gap-5">
                                 <div class="phase-num w-11 h-11 rounded-2xl bg-soft-purple text-brand-purple font-bold flex items-center justify-center text-[15px]">04</div>
                                 <div>
                                     <h4 class="text-[17px] font-semibold text-brand-charcoal">현장 데이터 기반 RF 시스템 진단</h4>
-                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">RF Generator 아키텍처, FDC 파라미터(Tune·Load position·Vrms 등) 활용 설비 이상 진단·분석.</p>
+                                    <p class="mt-1.5 text-[14.5px] leading-[1.65] text-text-muted">RF Generator 아키텍처, FDC 파라미터(Tune·Load position·Vrms 등) 변동 수치를 활용한 공정 설비 이상 진단·분석.</p>
                                 </div>
                             </li>
                         </ol>
+
+                        <!-- Call-To-Action to Portal -->
+                        <div class="mt-8 pt-6 border-t border-border-subtle flex justify-end">
+                            <a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-soft-purple hover:bg-brand-purple/20 text-brand-purple border border-soft-purple-border px-5 py-3 rounded-full text-[14px] font-semibold transition-all duration-200">
+                                전자기 전송 & RF 정합 온라인 강의실 입장 (Class-02) ↗
+                            </a>
+                        </div>
                     </div>
                 </div>
             </article>
 
             <!-- Special Class -->
             <div class="mt-8 reveal">
-                <div class="bg-white border border-border-subtle rounded-4xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div class="bg-bg-card border border-border-subtle rounded-4xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 transition-colors duration-300">
                     <div class="flex items-start gap-5">
                         <div class="w-12 h-12 rounded-2xl bg-soft-green flex items-center justify-center flex-shrink-0">
                             <svg class="w-6 h-6 text-brand-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6"/><path d="M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 0 3 3 6 3s6-3 6-3v-5"/></svg>
@@ -727,7 +822,7 @@
     <!-- =========================================== -->
     <!-- TEACHING METHOD                             -->
     <!-- =========================================== -->
-    <section id="method" class="py-24 md:py-32 bg-white">
+    <section id="method" class="py-24 md:py-32 bg-bg-card transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-6 lg:px-10">
 
             <div class="grid lg:grid-cols-12 gap-12 items-start">
@@ -754,7 +849,7 @@
                 </div>
 
                 <div class="lg:col-span-7 space-y-5">
-                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover">
+                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover transition-all duration-300">
                         <div class="flex items-baseline gap-4 mb-3">
                             <span class="phase-num text-[14px] font-semibold text-brand-purple">01</span>
                             <h3 class="text-[20px] font-semibold text-brand-charcoal">추상적 이론의 직관적 시각화</h3>
@@ -763,13 +858,13 @@
                             복잡한 양자역학·전자기학·파동 이론을 수식 암기로 접근하지 않습니다. PHET 인터랙티브 시뮬레이션, Cosmos·빛의 물리학 다큐멘터리, Eugene Khutoryansky의 3D 시각화를 결합해 미시 세계의 물리 현상을 머릿속에 형상화합니다.
                         </p>
                         <div class="mt-5 flex flex-wrap gap-2">
-                            <span class="text-[12px] font-semibold bg-white text-brand-purple px-3 py-1.5 rounded-full border border-soft-purple-border">PHET Simulation</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-purple px-3 py-1.5 rounded-full border border-soft-purple-border">Documentary</span>
-                            <span class="text-[12px] font-semibold bg-white text-brand-purple px-3 py-1.5 rounded-full border border-soft-purple-border">3D Visualization</span>
+                            <span class="text-[12px] font-semibold bg-bg-card text-brand-purple px-3 py-1.5 rounded-full border border-soft-purple-border">PHET Simulation</span>
+                            <span class="text-[12px] font-semibold bg-bg-card text-brand-purple px-3 py-1.5 rounded-full border border-soft-purple-border">Documentary</span>
+                            <span class="text-[12px] font-semibold bg-bg-card text-brand-purple px-3 py-1.5 rounded-full border border-soft-purple-border">3D Visualization</span>
                         </div>
                     </article>
 
-                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover">
+                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover transition-all duration-300">
                         <div class="flex items-baseline gap-4 mb-3">
                             <span class="phase-num text-[14px] font-semibold text-brand-purple">02</span>
                             <h3 class="text-[20px] font-semibold text-brand-charcoal">지식의 재개념화 · 패러다임 전환</h3>
@@ -779,7 +874,7 @@
                         </p>
                     </article>
 
-                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover">
+                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover transition-all duration-300">
                         <div class="flex items-baseline gap-4 mb-3">
                             <span class="phase-num text-[14px] font-semibold text-brand-purple">03</span>
                             <h3 class="text-[20px] font-semibold text-brand-charcoal">이론과 현장 실무의 완벽한 동기화</h3>
@@ -789,7 +884,7 @@
                         </p>
                     </article>
 
-                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover">
+                    <article class="reveal bg-bg-page border border-border-subtle rounded-3xl p-8 card-hover transition-all duration-300">
                         <div class="flex items-baseline gap-4 mb-3">
                             <span class="phase-num text-[14px] font-semibold text-brand-purple">04</span>
                             <h3 class="text-[20px] font-semibold text-brand-charcoal">학습자 맞춤형 모듈식 설계</h3>
@@ -821,7 +916,7 @@
                     </div>
 
                     <!-- Quote card -->
-                    <div class="mt-8 bg-soft-green border border-soft-green-border rounded-3xl p-7">
+                    <div class="mt-8 bg-soft-green border border-soft-green-border rounded-3xl p-7 transition-colors duration-300">
                         <svg class="w-7 h-7 text-brand-green opacity-60" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M9 7H6a3 3 0 00-3 3v3a3 3 0 003 3h.5v3l4-3H10V10a3 3 0 00-1-2.45V7zm9 0h-3a3 3 0 00-3 3v3a3 3 0 003 3h.5v3l4-3H19V10a3 3 0 00-1-2.45V7z"/></svg>
                         <p class="mt-4 text-[16px] leading-[1.7] text-brand-charcoal">
                             "시각화된 자료를 바탕으로 어려운 물리 이론을 명쾌하게 풀어내는 통찰. 20년 이상의 실무 데이터와 120회 이상의 교육 경험으로, 엔지니어의 눈높이에서 가장 직관적으로 전달합니다."
@@ -849,7 +944,7 @@
                     <div class="mt-10">
                         <h4 class="text-[14px] font-semibold text-text-muted eyebrow mb-5">Professional Experience</h4>
                         <div class="space-y-5">
-                            <div class="bg-white border border-border-subtle rounded-2xl p-5 flex items-start gap-4">
+                            <div class="bg-bg-card border border-border-subtle rounded-2xl p-5 flex items-start gap-4 transition-colors duration-300">
                                 <div class="w-2 h-2 rounded-full bg-brand-purple mt-2.5 flex-shrink-0"></div>
                                 <div class="flex-1">
                                     <div class="flex flex-wrap items-baseline gap-x-3">
@@ -859,7 +954,7 @@
                                     <p class="text-[14px] text-text-muted mt-1">반도체 플라즈마 공정 및 RF 전력전송 교육·컨설팅</p>
                                 </div>
                             </div>
-                            <div class="bg-white border border-border-subtle rounded-2xl p-5 flex items-start gap-4">
+                            <div class="bg-bg-card border border-border-subtle rounded-2xl p-5 flex items-start gap-4 transition-colors duration-300">
                                 <div class="w-2 h-2 rounded-full bg-brand-green mt-2.5 flex-shrink-0"></div>
                                 <div class="flex-1">
                                     <div class="flex flex-wrap items-baseline gap-x-3">
@@ -869,7 +964,7 @@
                                     <p class="text-[14px] text-text-muted mt-1">RF개발, 어플리케이션, 제조운영, 마케팅</p>
                                 </div>
                             </div>
-                            <div class="bg-white border border-border-subtle rounded-2xl p-5 flex items-start gap-4">
+                            <div class="bg-bg-card border border-border-subtle rounded-2xl p-5 flex items-start gap-4 transition-colors duration-300">
                                 <div class="w-2 h-2 rounded-full bg-brand-green mt-2.5 flex-shrink-0"></div>
                                 <div class="flex-1">
                                     <div class="flex flex-wrap items-baseline gap-x-3">
@@ -884,12 +979,12 @@
 
                     <!-- Education -->
                     <div class="mt-10 grid sm:grid-cols-2 gap-5">
-                        <div class="bg-white border border-border-subtle rounded-2xl p-5">
+                        <div class="bg-bg-card border border-border-subtle rounded-2xl p-5 transition-colors duration-300">
                             <h4 class="text-[13px] font-semibold text-text-muted eyebrow mb-3">Education</h4>
                             <p class="text-[15px] font-semibold text-brand-charcoal">광운대학교 전자공학과</p>
                             <p class="text-[14px] text-text-muted mt-1">1991 — 1997 · 학사</p>
                         </div>
-                        <div class="bg-white border border-border-subtle rounded-2xl p-5">
+                        <div class="bg-bg-card border border-border-subtle rounded-2xl p-5 transition-colors duration-300">
                             <h4 class="text-[13px] font-semibold text-text-muted eyebrow mb-3">Teaching Footprint</h4>
                             <p class="text-[15px] font-semibold text-brand-charcoal">120회 이상 누적 출강</p>
                             <p class="text-[14px] text-text-muted mt-1">온·오프라인 강의 실적</p>
@@ -908,7 +1003,7 @@
                     <p class="text-[14px] text-text-muted">총 120회 이상의 풍부한 온·오프라인 강의 경력</p>
                 </div>
 
-                <div class="bg-white border border-border-subtle rounded-4xl overflow-hidden shadow-whisper">
+                <div class="bg-bg-card border border-border-subtle rounded-4xl overflow-hidden shadow-whisper transition-colors duration-300">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead>
@@ -955,7 +1050,7 @@
     <!-- =========================================== -->
     <!-- CONTACT                                     -->
     <!-- =========================================== -->
-    <section id="contact" class="py-24 md:py-32 bg-white">
+    <section id="contact" class="py-24 md:py-32 bg-bg-card transition-colors duration-300">
         <div class="max-w-6xl mx-auto px-6 lg:px-10">
             <div class="grid lg:grid-cols-12 gap-10 lg:gap-16">
                 <!-- Left info -->
@@ -963,7 +1058,7 @@
                     <span class="eyebrow text-brand-purple">Inquire</span>
                     <h2 class="display-lg mt-4 text-brand-charcoal">강의 · 컨설팅<br>문의하기</h2>
                     <p class="mt-6 text-[16px] leading-[1.7] text-text-muted">
-                        귀사의 비즈니스 상황과 엔지니어 수준에 최적화된 맞춤형 커리큘럼을 제안해 드립니다. 대표강사가 직접 검토 후 회신드립니다.
+                        귀사의 비즈니스 상황 and 엔지니어 수준에 최적화된 맞춤형 커리큘럼을 제안해 드립니다. 대표강사가 직접 검토 후 회신드립니다.
                     </p>
 
                     <div class="mt-10 space-y-5">
@@ -1027,19 +1122,28 @@
                                 </div>
                             </div>
                             <div>
-                                <label for="classType" class="block text-[13px] font-semibold text-brand-charcoal mb-2">관심 클래스</label>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <label class="flex items-center gap-2.5 bg-white border border-border-default rounded-xl px-4 py-3 cursor-pointer has-[:checked]:border-brand-purple has-[:checked]:bg-soft-purple/30 transition-all">
-                                        <input type="checkbox" name="class" value="class-1" class="accent-brand-purple">
-                                        <span class="text-[14px] font-medium">Class-01 · 플라즈마</span>
+                                <label class="block text-[13px] font-semibold text-brand-charcoal mb-2">관심 클래스</label>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <label class="flex items-start gap-2.5 bg-bg-card border border-border-default rounded-xl px-4 py-3 cursor-pointer has-[:checked]:border-brand-purple has-[:checked]:bg-soft-purple/30 transition-all">
+                                        <input type="checkbox" name="class" value="class-1" class="mt-1 accent-brand-purple flex-shrink-0">
+                                        <span class="text-[13.5px] font-medium leading-[1.4]">
+                                            Class 01 : 반도체 플라즈마 응용
+                                            <span class="text-[11.5px] text-text-muted font-normal block mt-0.5">(Plasma Application for Semiconductor)</span>
+                                        </span>
                                     </label>
-                                    <label class="flex items-center gap-2.5 bg-white border border-border-default rounded-xl px-4 py-3 cursor-pointer has-[:checked]:border-brand-purple has-[:checked]:bg-soft-purple/30 transition-all">
-                                        <input type="checkbox" name="class" value="class-2" class="accent-brand-purple">
-                                        <span class="text-[14px] font-medium">Class-02 · RF</span>
+                                    <label class="flex items-start gap-2.5 bg-bg-card border border-border-default rounded-xl px-4 py-3 cursor-pointer has-[:checked]:border-brand-purple has-[:checked]:bg-soft-purple/30 transition-all">
+                                        <input type="checkbox" name="class" value="class-2" class="mt-1 accent-brand-purple flex-shrink-0">
+                                        <span class="text-[13.5px] font-medium leading-[1.4]">
+                                            Class 02 : 플라즈마 형성을 위한 RF 전력전송 이론
+                                            <span class="text-[11.5px] text-text-muted font-normal block mt-0.5">(RF Transmission Theory for Semiconductor Plasma Application)</span>
+                                        </span>
                                     </label>
-                                    <label class="flex items-center gap-2.5 bg-white border border-border-default rounded-xl px-4 py-3 cursor-pointer has-[:checked]:border-brand-purple has-[:checked]:bg-soft-purple/30 transition-all">
-                                        <input type="checkbox" name="class" value="custom" class="accent-brand-purple">
-                                        <span class="text-[14px] font-medium">맞춤형 컨설팅</span>
+                                    <label class="flex items-start gap-2.5 bg-bg-card border border-border-default rounded-xl px-4 py-3 cursor-pointer has-[:checked]:border-brand-purple has-[:checked]:bg-soft-purple/30 transition-all">
+                                        <input type="checkbox" name="class" value="custom" class="mt-1 accent-brand-purple flex-shrink-0">
+                                        <span class="text-[13.5px] font-medium leading-[1.4]">
+                                            맞춤형 컨설팅
+                                            <span class="text-[11.5px] text-text-muted font-normal block mt-0.5">(Custom Consulting / Advisory)</span>
+                                        </span>
                                     </label>
                                 </div>
                             </div>
@@ -1069,13 +1173,13 @@
     <!-- =========================================== -->
     <!-- FOOTER                                      -->
     <!-- =========================================== -->
-    <footer class="bg-brand-charcoal text-white">
+    <footer class="bg-bg-card text-brand-charcoal border-t border-border-subtle transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-6 lg:px-10 py-16 lg:py-20">
             <div class="grid lg:grid-cols-12 gap-12">
                 <div class="lg:col-span-5">
-                    <img src="logo_png/benedu_insight_logo_EN_horizontal.png"
-                         alt="Benedu Insight" class="h-9 mb-7 brightness-0 invert opacity-90">
-                    <p class="text-[15px] leading-[1.7] text-white/60 max-w-md">
+                    <img id="footerLogo" src="logo_png/benedu_insight_logo_EN_horizontal.png"
+                         alt="Benedu Insight" class="h-9 mb-7 opacity-90 transition-all duration-300">
+                    <p class="text-[15px] leading-[1.7] text-text-muted max-w-md">
                         Plasma School for Semiconductor & RF Technology.<br>
                         20년 이상의 현장 데이터 기반의 엔지니어 교육·컨설팅 솔루션.
                     </p>
@@ -1083,8 +1187,8 @@
                 </div>
 
                 <div class="lg:col-span-3">
-                    <h5 class="text-[13px] font-semibold eyebrow text-white/50 mb-5">Contact</h5>
-                    <ul class="space-y-3 text-[14px] text-white/80">
+                    <h5 class="text-[13px] font-semibold eyebrow text-text-subtle mb-5">Contact</h5>
+                    <ul class="space-y-3 text-[14px] text-text-muted">
                         <li><span class="text-brand-green font-semibold mr-2">T</span> 010-2376-3891</li>
                         <li><span class="text-brand-green font-semibold mr-2">E</span> benedu.insight@gmail.com</li>
                         <li class="flex"><span class="text-brand-green font-semibold mr-2">A</span> <span>경기도 오산시 오산로 132번길 10,<br>207-1104 (18143)</span></li>
@@ -1092,31 +1196,31 @@
                 </div>
 
                 <div class="lg:col-span-2">
-                    <h5 class="text-[13px] font-semibold eyebrow text-white/50 mb-5">Sitemap</h5>
-                    <ul class="space-y-3 text-[14px] text-white/80">
-                        <li><a href="#philosophy" class="hover:text-white transition-colors">Philosophy</a></li>
-                        <li><a href="#strengths" class="hover:text-white transition-colors">Specialties</a></li>
-                        <li><a href="#curriculum" class="hover:text-white transition-colors">Curriculum</a></li>
-                        <li><a href="#instructor" class="hover:text-white transition-colors">Instructor</a></li>
+                    <h5 class="text-[13px] font-semibold eyebrow text-text-subtle mb-5">Sitemap</h5>
+                    <ul class="space-y-3 text-[14px] text-text-muted">
+                        <li><a href="#philosophy" class="hover:text-brand-purple transition-colors">Philosophy</a></li>
+                        <li><a href="#strengths" class="hover:text-brand-purple transition-colors">Specialties</a></li>
+                        <li><a href="#curriculum" class="hover:text-brand-purple transition-colors">Curriculum</a></li>
+                        <li><a href="#instructor" class="hover:text-brand-purple transition-colors">Instructor</a></li>
                     </ul>
                 </div>
 
                 <div class="lg:col-span-2">
-                    <h5 class="text-[13px] font-semibold eyebrow text-white/50 mb-5">Resources</h5>
-                    <ul class="space-y-3 text-[14px] text-white/80">
-                        <li><a href="#contact" class="hover:text-white transition-colors">강의 문의</a></li>
-                        <li><a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" class="hover:text-white transition-colors inline-flex items-center gap-1">Web ↗</a></li>
+                    <h5 class="text-[13px] font-semibold eyebrow text-text-subtle mb-5">Resources</h5>
+                    <ul class="space-y-3 text-[14px] text-text-muted">
+                        <li><a href="#contact" class="hover:text-brand-purple transition-colors">강의 문의</a></li>
+                        <li><a href="https://benedu-insight.github.io/bi_online_lecture_portal/index.html" target="_blank" rel="noopener" class="hover:text-brand-purple transition-colors inline-flex items-center gap-1">LMS Portal ↗</a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="mt-14 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-y-1 gap-x-4 text-[13px] text-white/40">
+            <div class="mt-14 pt-8 border-t border-border-subtle flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-y-1 gap-x-4 text-[13px] text-text-subtle">
                     <p>© 2026 Benedu Insight. All rights reserved.</p>
-                    <span class="hidden sm:inline text-white/20">·</span>
+                    <span class="hidden sm:inline text-border-default">·</span>
                     <p>사업자등록번호 304-28-11591</p>
                 </div>
-                <p class="text-[13px] text-white/40">Designed with clarity · Pretendard typeface</p>
+                <p class="text-[13px] text-text-subtle">Designed with clarity · Pretendard typeface</p>
             </div>
         </div>
     </footer>
@@ -1125,7 +1229,7 @@
     <!-- SUCCESS MODAL                               -->
     <!-- =========================================== -->
     <div id="successModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm px-6">
-        <div class="bg-white rounded-4xl p-10 max-w-md w-full text-center shadow-modal">
+        <div class="bg-bg-card rounded-4xl p-10 max-w-md w-full text-center shadow-modal transition-colors duration-300">
             <div class="w-16 h-16 bg-soft-green text-brand-green rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -1142,6 +1246,45 @@
     <!-- SCRIPTS                                     -->
     <!-- =========================================== -->
     <script>
+        // Theme Switcher Engine (Variable Scoped Coupling)
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const mobileThemeToggleBtn = document.getElementById('mobileThemeToggle');
+        const htmlElement = document.documentElement;
+        const footerLogo = document.getElementById('footerLogo');
+
+        // SVG Vectors for Switcher
+        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                htmlElement.classList.add('dark');
+                htmlElement.style.colorScheme = 'dark';
+                if (themeToggleBtn) themeToggleBtn.innerHTML = sunIcon;
+                if (mobileThemeToggleBtn) mobileThemeToggleBtn.innerHTML = sunIcon;
+                if (footerLogo) footerLogo.style.filter = 'brightness(0) invert(1)';
+            } else {
+                htmlElement.classList.remove('dark');
+                htmlElement.style.colorScheme = 'light';
+                if (themeToggleBtn) themeToggleBtn.innerHTML = moonIcon;
+                if (mobileThemeToggleBtn) mobileThemeToggleBtn.innerHTML = moonIcon;
+                if (footerLogo) footerLogo.style.filter = 'none';
+            }
+        }
+
+        // Initialize state
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(currentTheme);
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme);
+            applyTheme(currentTheme);
+        }
+
+        if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+        if (mobileThemeToggleBtn) mobileThemeToggleBtn.addEventListener('click', toggleTheme);
+
         // Mobile menu
         const menuToggle = document.getElementById('menuToggle');
         const mobileMenu = document.getElementById('mobileMenu');
