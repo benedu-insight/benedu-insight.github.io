@@ -12,7 +12,6 @@
   body[data-lang="en"], body[data-lang="en"] * {
     font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
   }
-  body[data-lang="en"] .eq-block,
   body[data-lang="en"] .sci-year,
   body[data-lang="en"] .detail-meta,
   body[data-lang="en"] .theory-year,
@@ -259,6 +258,11 @@
   .model-img-wrapper img { max-width: 100%; max-height: 420px; object-fit: contain; border-radius: 8px; box-shadow: var(--shadow-md); }
   .model-img-source { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text3); text-align: center; }
   .img-zoom-hint { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text3); letter-spacing: 0.06em; }
+  .popup-link {
+    color: var(--green-dark); font-weight: 700; text-decoration: underline;
+    text-decoration-style: dotted; cursor: pointer; white-space: nowrap;
+  }
+  .popup-link:hover { color: var(--green); }
 
   /* Quote */
   .quote-block {
@@ -294,8 +298,11 @@
   /* Equations */
   .eq-block {
     background: var(--charcoal); border-radius: 8px; padding: 1.1rem 1.4rem; margin-bottom: 0.5rem;
-    font-family: 'JetBrains Mono', monospace; font-size: calc(0.9rem * var(--scale));
+    font-family: 'Google Sans', sans-serif; font-size: calc(0.9rem * var(--scale));
     color: #FFD580; letter-spacing: 0.04em; overflow-x: auto; transition: font-size 0.15s ease-out;
+  }
+  .eq-block, .eq-block mjx-container, .eq-block mjx-container * {
+    font-family: 'Google Sans', sans-serif !important;
   }
 
   /* Theory cards */
@@ -714,13 +721,29 @@ const SLIDES_KO = [
   {
     id: 'm34', chapter: 'Chapter 4', era: 'icp',
     name: 'ICP in Dry Etch',
-    nameKr: 'ICP in Dry Etch — 고밀도 플라즈마 식각',
-    period: 'ICP 구조 · 고밀도 플라즈마 · 독립 바이어스 제어',
-    tags: ['ICP', 'High-Density Plasma', 'Dry Etch', 'Source Power', 'Bias Power'],
-    quote: '준비 중 — Coming Soon',
-    quoteAttr: '— Benedu Insight',
-    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
-    placeholder: true,
+    nameKr: 'ICP in Dry Etch — 고밀도 플라즈마와 독립 바이어스 제어',
+    period: 'ICP 챔버 구조 · Source/Bias RF 분리 · 고밀도 플라즈마 · Al BEOL 식각',
+    tags: ['ICP', 'Dry Etch', 'Al', 'BCl₃/Cl₂/Ar', 'Source/Bias RF', 'BEOL'],
+    quote: 'CCP는 하나의 RF로 플라즈마 밀도와 이온 에너지를 동시에 결정해야 했습니다. ICP는 이 둘을 Source RF와 Bias RF, 두 개의 독립적인 손잡이로 분리합니다 — 이것이 ICP가 CCP를 능가하는 핵심입니다.',
+    quoteAttr: '— 반도체 ICP 식각 공정 기초 (Semiconductor ICP Etch Process Fundamentals)',
+    bio: `<b>ICP (Inductively Coupled Plasma) Dry Etch</b>는 챔버 위쪽의 <b>Coil(Antenna)</b>에 흐르는 Source RF 전류가 만드는 변동 B-field로 플라즈마 전체 부피에 회전 E-field를 유도(Faraday's Law)하여, Chapter 1~3의 CCP보다 훨씬 높은 밀도(10¹¹–10¹² cm⁻³)의 플라즈마를 형성하는 식각 방식입니다.\n\n<b>왜 "독립 제어"가 핵심인가?</b> Chapter 2의 CCP 식각은 하나의 RF가 ① 플라즈마를 생성하고 ② 동시에 비대칭 전극을 통해 V_DC(이온 에너지)를 결정했습니다 — 두 가지를 한 손잡이로 조절해야 했습니다. ICP는 <b>Coil에 인가되는 Source RF</b>(플라즈마 밀도 결정)와, <b>Wafer Chuck에 Blocking Capacitor를 통해 별도로 인가되는 Bias RF</b>(V_DC·이온 에너지 결정)를 분리합니다. Source RF만 있을 때 Chuck는 단순히 접지/Floating 표면이 되어 V_DC ≈ −수~20V(Floating Potential) 수준에 불과하지만, Bias RF를 추가하면 V_DC가 −10~−100V로 독립적으로 형성됩니다. 이번 챕터의 시뮬레이터는 <b>BCl₃/Cl₂/Ar 플라즈마로 BEOL Al 배선을 식각</b>하는 과정을 다루며, Al + Cl 화학이 SiO₂ + F 화학과 어떻게 다른지도 함께 살펴봅니다.`,
+    showDiagram: 'icp',
+    theories: [
+      { year: '챔버 구조', name: 'ICP 전극 구성 — Coil(Source) + Chuck(Bias), 두 개의 독립 RF 회로', desc: 'Coil(Antenna)은 챔버 위 Y₂O₃ 코팅 Al₂O₃ Dielectric Window 위에 위치하며 Source RF(13.56MHz)로 구동. 그 사이의 Faraday Shield는 B-field는 통과시키되 Coil의 정전 결합(Capacitive Coupling)은 차단. Wafer Chuck는 별도의 Bias RF(13.56MHz)를 Blocking Capacitor로 인가받음 — Chapter 1~3의 단일 CCP 회로와 근본적으로 다른 구조.' },
+      { year: '플라즈마 생성', name: 'Inductive Coupling — H-mode 고밀도 플라즈마', desc: 'Coil의 AC 전류 → 변동 B-field → (Faraday 법칙, ∇×E=−∂B/∂t) 플라즈마 부피 전체에 회전 E-field 유도 → 전자가 부피 전체에서 가속·충돌. CCP(E-mode, 시스 표면에서만 가속, nₑ~10⁸–10¹⁰)와 달리 ICP(H-mode)는 nₑ~10¹¹–10¹² cm⁻³, 해리율 >80%에 도달.' },
+      { year: '독립 바이어스 제어', name: 'Source RF vs Bias RF — "두 개의 손잡이"', desc: 'Source RF는 플라즈마 밀도(라디칼·이온 생성량)를 결정하고 Bias RF는 V_DC(이온 에너지)를 결정 — 서로 거의 독립적으로 작동. CCP에서는 RF 파워 하나로 이 둘을 동시에 조절해야 했던 것과 대비. ICP의 V_DC(−10~−100V)는 CCP(−200~−500V)보다 작은데, 이는 ICP의 높은 플라즈마 밀도가 이미 충분한 이온 플럭스를 제공하므로 Bias는 "방향성 부여" 정도의 적은 에너지만 추가하면 되기 때문.' },
+      { year: '식각 메커니즘', name: 'Al + Cl 화학 — SiO₂ + F와의 차이', desc: 'Al(s) + 3Cl· → AlCl₃↑ (휘발성). SiO₂+F·와 달리 Al+Cl 화학은 <b>이온 충격 없이도 자발적으로 빠르게 진행</b> — Al–Cl 결합 형성이 열역학적으로 유리하고 AlCl₃가 휘발성이기 때문. BCl₃는 Cl·를 공급하면서, 동시에 Al 표면의 자연 산화막(Al₂O₃)을 환원·게터링하여 Cl·가 신선한 Al에 도달하게 함. 이온은 주로 방향성(이방성) 부여 및 산화막 돌파(breakthrough) 역할.' },
+    ],
+    showParams: 'icp',
+    showProcess: 'icp',
+    showDeepLearn: 'icp',
+    showContext: 'icp',
+    showSim: 'icp',
+    equations: [
+      'Al(s) + 3Cl\\cdot \\xrightarrow{\\text{Plasma}} AlCl_3 \\uparrow',
+      'V_{DC,ICP} \\approx -10 \\text{ to } -100\\,V \\;\\; (\\text{Bias RF}) \\quad \\ll \\quad V_{DC,CCP} \\approx -200 \\text{ to } -500\\,V \\;\\; (A_g/A_p)',
+    ],
+    classroom: `ICP in Dry Etch 공정 이해 점검:\n1. Chapter 2(CCP Etch)와 Chapter 4(ICP Etch) 모두 V_DC로 이온을 가속하지만, V_DC를 만드는 메커니즘과 그 크기가 어떻게 다른지 설명하세요.\n2. "Source RF만 있고 Bias RF가 없는 ICP"에서 Chuck의 전위는 왜 −수~20V의 Floating Potential에 불과합니까?\n3. Al + 3Cl· → AlCl₃ 반응이 SiO₂ + 4F· → SiF₄ 반응과 비교하여 "이온 충격 없이도 자발적으로 진행"되는 이유는 무엇입니까?\n4. BCl₃가 Cl₂/Ar과 함께 사용되는 이유 두 가지(Cl· 공급 외)를 설명하세요.\n5. ICP의 Source RF·Bias RF "독립 제어"가 실제 공정 레시피 설계에서 어떤 실용적 장점을 제공합니까?`,
     connections: ['m31', 'm32', 'm35'],
   },
 
@@ -728,14 +751,30 @@ const SLIDES_KO = [
   {
     id: 'm35', chapter: 'Chapter 5', era: 'rps',
     name: 'Remote Plasma Source',
-    nameKr: 'Remote Plasma Source — Microwave/ECR & ICP Type',
-    period: 'RPS 구조 · ECR · Microwave · 원거리 플라즈마 공급',
-    tags: ['RPS', 'Microwave', 'ECR', 'Remote Plasma', 'ICP Type'],
-    quote: '준비 중 — Coming Soon',
-    quoteAttr: '— Benedu Insight',
-    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
-    placeholder: true,
-    connections: ['m34'],
+    nameKr: 'Remote Plasma Source — 라디칼만 보내는 플라즈마',
+    period: 'Toroidal TCP 구조 · O₂ → O· · PR Ashing & Chamber Cleaning · No Ion, No Bias',
+    tags: ['RPS', 'TCP', 'Ashing', 'O₂/NF₃', 'Radical Only', 'No V_DC'],
+    quote: 'Chapter 1~4는 모두 "플라즈마가 웨이퍼를 둘러싸는" 구조였습니다. RPS는 플라즈마를 챔버 밖에 가두고, 라디칼만 골라서 웨이퍼로 보냅니다 — 이온도, V_DC도, Sheath도 없습니다. 의도적인 부재(absence)가 설계의 핵심입니다.',
+    quoteAttr: '— 반도체 RPS 공정 기초 (Remote Plasma Source Process Fundamentals)',
+    bio: `<b>Remote Plasma Source (RPS)</b>는 챔버 <b>바깥</b>의 닫힌 토로이달(toroidal) 석영 튜브 안에서만 플라즈마를 생성하고, 하전 입자(이온·전자)는 Downstream Duct를 지나며 재결합으로 소멸시킨 뒤, <b>중성 라디칼(O·)만</b> 공정 챔버로 보내는 방식입니다.\n\n<b>왜 "분리"가 핵심인가?</b> Chapter 1~4의 CCP/ICP는 모두 플라즈마가 웨이퍼를 직접 둘러싸며, V_DC(0~−500V)로 이온을 가속해 막을 깎거나(Sputter), 식각하거나(Etch), 다지는(Densification) 작업을 했습니다. RPS는 이 모든 것을 <b>의도적으로 제거</b>합니다 — 토로이드 안에서만 플라즈마가 존재하고, 공정 챔버는 완전히 접지되어 RF도 Sheath도 V_DC도 없습니다. Duct를 지나는 동안 이온·전자는 벽에서 마이크로초~밀리초 단위로 재결합하여 사라지지만, 중성 라디칼(O·)은 훨씬 적은 손실로 살아남아 웨이퍼에 도달합니다. 이번 챕터의 시뮬레이터는 <b>O₂ → O·</b> 화학으로 <b>PR Ashing(잔류 포토레지스트 제거)</b>을 수행하는 과정을 다루며, 동일한 RPS가 <b>Chamber Plasma Cleaning</b>(NF₃ 기반)에도 사용된다는 점을 함께 살펴봅니다.`,
+    showDiagram: 'rps',
+    theories: [
+      { year: '챔버 구조', name: 'Toroidal TCP — 변압기 결합형 플라즈마', desc: '닫힌 루프의 석영 토로이드 + 분리형 페라이트 코어 + 1차 코일(AC Source, 보통 400kHz). 코일의 AC 전류 → 페라이트를 통한 변동 자기 플럭스 → 토로이드 내부 플라즈마 루프(변압기의 2차측)에 순환 E-field 유도. RPS에는 Matcher나 Bias 전원이 없음 — 이온을 웨이퍼로 가속할 일이 처음부터 없기 때문.' },
+      { year: '플라즈마 생성', name: 'O₂ Dissociation — 토로이드 내부에 한정', desc: 'e⁻ + O₂ → 2O· (해리, 주 생성물) 및 e⁻ + O₂ → O₂⁺ + 2e⁻ (이온화). 동작 압력 0.5–5 Torr(Chapter 1~4보다 훨씬 높음)에서 전자-중성 충돌 빈도가 높아, 높은 Tₑ 없이도 높은 해리율을 얻음. 플라즈마는 토로이드 내부에만 존재 — 공정 챔버에는 Glow도 이온화도 없음.' },
+      { year: 'Downstream Transport', name: 'Duct = 하전 입자 필터', desc: 'O₂⁺ + e⁻ → O₂ (또는 → 2O) 형태의 이온-전자 재결합이 Duct 벽에서 마이크로초~밀리초 단위로 일어남 — Duct를 통과하는 가스 이송 시간보다 훨씬 짧음. 중성 라디칼 O·의 재결합/손실률은 훨씬 낮아 대부분 챔버까지 생존. 결과적으로 Duct가 "이온/전자는 거르고 라디칼만 통과시키는 필터" 역할을 함.' },
+      { year: '반응 메커니즘', name: 'O· + PR(CₓHᵥ) → CO₂↑ + H₂O↑ — 등방적 Ashing', desc: '공정 챔버에는 플라즈마·Sheath·전기장이 없음 — Showerhead는 CCP와 형태는 비슷하지만 RF가 없는 단순 가스 분배판. O· 라디칼은 확산·열운동만으로 PR 표면에 도달해 화학적으로 산화(O·+CₓHᵥ→CO₂+H₂O, 휘발성). 이온 가속이 없으므로 방향성이 없는 등방적(top-down, uniform) 제거 — Chapter 2/4의 이방성 식각과 정반대 목표.' },
+    ],
+    showParams: 'rps',
+    showProcess: 'rps',
+    showDeepLearn: 'rps',
+    showContext: 'rps',
+    showSim: 'rps',
+    equations: [
+      'e^- + O_2 \\rightarrow 2O\\cdot \\quad (\\text{dissociation, dominant})',
+      'O\\cdot + C_xH_y \\,(\\text{PR}) \\xrightarrow{\\text{Remote Plasma}} CO_2 \\uparrow + H_2O \\uparrow',
+    ],
+    classroom: `Remote Plasma Source 공정 이해 점검:\n1. Chapter 1~4(CCP/ICP)와 Chapter 5(RPS)의 가장 근본적인 구조적 차이는 무엇이며, 그 차이가 V_DC·Sheath·이온 충격의 존재 여부에 어떤 영향을 미칩니까?\n2. Downstream Duct가 "이온/전자는 재결합으로 제거하고 라디칼만 통과시키는 필터" 역할을 할 수 있는 이유를 재결합 시간 척도 관점에서 설명하세요.\n3. RPS에는 왜 Matcher와 Bias 전원이 존재하지 않습니까? Chapter 4(ICP)의 "Source RF + Bias RF" 구조와 비교하세요.\n4. O· + CₓHᵥ → CO₂ + H₂O 반응이 "등방적(Isotropic)"인 이유는 무엇이며, 이것이 PR Ashing에 적합한 이유는 무엇입니까?\n5. 동일한 RPS 플랫폼이 PR Ashing(O₂ 기반)과 Chamber Plasma Cleaning(NF₃ 기반)에 모두 사용될 수 있는 이유는 무엇입니까?`,
+    connections: ['m31', 'm32', 'm34'],
   },
 ];
 
@@ -827,17 +866,57 @@ const SLIDES_EN = [
   },
   {
     id: 'm34', chapter: 'Chapter 4', era: 'icp', name: 'ICP in Dry Etch',
-    nameKr: 'ICP in Dry Etch — High-Density Plasma Etching', period: 'ICP Structure · High-Density Plasma · Independent Bias Control',
-    tags: ['ICP', 'High-Density Plasma', 'Dry Etch', 'Source Power', 'Bias Power'],
-    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
-    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m31', 'm32', 'm35'],
+    nameKr: 'ICP in Dry Etch — High-Density Plasma & Independent Bias Control',
+    period: 'ICP Chamber Structure · Separate Source/Bias RF · High-Density Plasma · Al BEOL Etch',
+    tags: ['ICP', 'Dry Etch', 'Al', 'BCl₃/Cl₂/Ar', 'Source/Bias RF', 'BEOL'],
+    quote: 'CCP had to use a single RF supply to set both plasma density and ion energy at once. ICP splits these into two independent knobs — Source RF and Bias RF. This is the core advantage of ICP over CCP.',
+    quoteAttr: '— Semiconductor ICP Etch Process Fundamentals',
+    bio: `<b>ICP (Inductively Coupled Plasma) Dry Etch</b> uses Source RF current flowing through a <b>Coil (Antenna)</b> above the chamber. The resulting oscillating B-field induces a rotating E-field throughout the entire plasma volume (Faraday's Law), producing a much denser plasma (10¹¹–10¹² cm⁻³) than the CCP chambers in Chapters 1–3.\n\n<b>Why does "independent control" matter?</b> In Chapter 2's CCP etch, a single RF supply both ① generated the plasma and ② set V_DC (ion energy) via the asymmetric electrodes — one knob controlling two things. ICP separates these: <b>Source RF on the Coil</b> sets plasma density, while a separate <b>Bias RF, delivered to the Wafer Chuck through its own Blocking Capacitor</b>, sets V_DC and ion energy. With Source RF alone, the chuck is just a grounded/floating surface and V_DC sits at only a few to ~20 V (the floating potential); adding Bias RF independently produces V_DC ≈ −10 to −100 V. This chapter's simulator models <b>etching BEOL Al interconnects with a BCl₃/Cl₂/Ar plasma</b>, and contrasts the Al + Cl chemistry with the SiO₂ + F chemistry from Chapter 2.`,
+    showDiagram: 'icp',
+    theories: [
+      { year: 'Chamber Structure', name: 'ICP Configuration — Coil (Source) + Chuck (Bias), Two Independent RF Circuits', desc: 'The coil (antenna) sits above a Y₂O₃-coated Al₂O₃ dielectric window, driven by Source RF (13.56 MHz). A Faraday shield between them passes the B-field while blocking the coil\'s capacitive coupling to the plasma. The wafer chuck receives a separate Bias RF (13.56 MHz) through a blocking capacitor — fundamentally different from the single CCP circuit in Chapters 1–3.' },
+      { year: 'Plasma Generation', name: 'Inductive Coupling — H-mode High-Density Plasma', desc: 'AC current in the coil → oscillating B-field → (Faraday\'s law, ∇×E=−∂B/∂t) a rotating E-field induced throughout the plasma volume → electrons accelerate and collide everywhere in that volume. Unlike CCP (E-mode, acceleration only at the sheath, nₑ~10⁸–10¹⁰), ICP (H-mode) reaches nₑ~10¹¹–10¹² cm⁻³ and >80% dissociation.' },
+      { year: 'Independent Bias Control', name: 'Source RF vs. Bias RF — "Two Knobs"', desc: 'Source RF sets plasma density (radical/ion generation); Bias RF sets V_DC (ion energy) — largely independently. In CCP, a single RF power setting had to control both at once. ICP\'s V_DC (−10 to −100 V) is smaller than CCP\'s (−200 to −500 V) because ICP\'s high plasma density already supplies abundant ion flux — Bias only needs to add modest energy for directionality.' },
+      { year: 'Etch Mechanism', name: 'Al + Cl Chemistry — Contrast with SiO₂ + F', desc: 'Al(s) + 3Cl· → AlCl₃↑ (volatile). Unlike SiO₂ + F·, Al + Cl chemistry <b>proceeds spontaneously and quickly even without ion bombardment</b> — Al–Cl bond formation is thermodynamically favorable and AlCl₃ is volatile. BCl₃ supplies Cl· while also reducing/gettering the native Al₂O₃ oxide layer so Cl· can reach fresh Al. Ions mainly provide directionality (anisotropy) and oxide breakthrough.' },
+    ],
+    showParams: 'icp',
+    showProcess: 'icp',
+    showDeepLearn: 'icp',
+    showContext: 'icp',
+    showSim: 'icp',
+    equations: [
+      'Al(s) + 3Cl\\cdot \\xrightarrow{\\text{Plasma}} AlCl_3 \\uparrow',
+      'V_{DC,ICP} \\approx -10 \\text{ to } -100\\,V \\;\\; (\\text{Bias RF}) \\quad \\ll \\quad V_{DC,CCP} \\approx -200 \\text{ to } -500\\,V \\;\\; (A_g/A_p)',
+    ],
+    classroom: `ICP in Dry Etch Process Comprehension Check:\n1. Both Chapter 2 (CCP Etch) and Chapter 4 (ICP Etch) use V_DC to accelerate ions, but how do the mechanisms that produce V_DC — and its magnitude — differ?\n2. In an ICP with Source RF only (no Bias RF), why does the chuck potential sit at only a few to ~20 V (the floating potential)?\n3. Why does Al + 3Cl· → AlCl₃ proceed "spontaneously even without ion bombardment," compared with SiO₂ + 4F· → SiF₄?\n4. Name two reasons BCl₃ is used alongside Cl₂/Ar (beyond simply supplying Cl·).\n5. What practical advantage does ICP's "independent control" of Source RF and Bias RF provide when designing a real process recipe?`,
+    connections: ['m31', 'm32', 'm35'],
   },
   {
     id: 'm35', chapter: 'Chapter 5', era: 'rps', name: 'Remote Plasma Source',
-    nameKr: 'Remote Plasma Source — Microwave/ECR & ICP Type', period: 'RPS Structure · ECR · Microwave · Remote Plasma Delivery',
-    tags: ['RPS', 'Microwave', 'ECR', 'Remote Plasma', 'ICP Type'],
-    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
-    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m34'],
+    nameKr: 'Remote Plasma Source — Radicals Only, By Design',
+    period: 'Toroidal TCP Structure · O₂ → O· · PR Ashing & Chamber Cleaning · No Ions, No Bias',
+    tags: ['RPS', 'TCP', 'Ashing', 'O₂/NF₃', 'Radical Only', 'No V_DC'],
+    quote: 'Chapters 1–4 all placed the plasma directly around the wafer. RPS confines the plasma outside the chamber and sends only radicals to the wafer — no ions, no V_DC, no sheath. That deliberate absence is the entire design.',
+    quoteAttr: '— Remote Plasma Source Process Fundamentals',
+    bio: `A <b>Remote Plasma Source (RPS)</b> generates plasma only inside a closed toroidal quartz tube <b>outside</b> the process chamber. Charged species (ions and electrons) recombine away in the downstream duct, and only <b>neutral radicals (O·)</b> reach the process chamber.\n\n<b>Why does "separation" matter?</b> The CCP/ICP chambers in Chapters 1–4 all surrounded the wafer directly with plasma, using V_DC (0 to −500 V) to accelerate ions for sputtering, etching, or densification. RPS <b>deliberately removes all of that</b>: plasma exists only inside the toroid, and the process chamber is fully grounded — no RF, no sheath, no V_DC. As the gas transits the duct, ions and electrons recombine on the walls within microseconds to milliseconds, while neutral O· radicals survive with much lower loss and reach the wafer. This chapter's simulator models <b>PR ashing</b> (removing residual photoresist) via <b>O₂ → O·</b> chemistry, and also looks at how the same RPS platform is used for <b>chamber plasma cleaning</b> (NF₃-based).`,
+    showDiagram: 'rps',
+    theories: [
+      { year: 'Chamber Structure', name: 'Toroidal TCP — Transformer-Coupled Plasma', desc: 'A closed-loop quartz toroid + split ferrite core + primary coil (AC source, typically 400 kHz). AC current in the coil → oscillating magnetic flux through the ferrite → induced circulating E-field in the toroid\'s plasma loop (the transformer\'s secondary). RPS has no matcher and no bias supply — there was never any intent to accelerate ions toward a wafer.' },
+      { year: 'Plasma Generation', name: 'O₂ Dissociation — Confined Inside the Toroid', desc: 'e⁻ + O₂ → 2O· (dissociation, dominant product) and e⁻ + O₂ → O₂⁺ + 2e⁻ (ionization). At 0.5–5 Torr (far higher than Chapters 1–4), the electron-neutral collision rate is high enough to achieve high dissociation without needing high Tₑ. Plasma exists only inside the toroid — no glow, no ionization in the process chamber.' },
+      { year: 'Downstream Transport', name: 'The Duct as a Charged-Species Filter', desc: 'Ion-electron recombination (O₂⁺ + e⁻ → O₂ or → 2O) occurs on the duct walls within microseconds to milliseconds — far faster than the gas transit time through the duct. Neutral O· radicals recombine/are lost at a much lower rate and mostly survive to the chamber. The duct effectively "filters out ions/electrons while passing radicals."' },
+      { year: 'Reaction Mechanism', name: 'O· + PR (CₓHᵥ) → CO₂↑ + H₂O↑ — Isotropic Ashing', desc: 'The process chamber has no plasma, sheath, or electric field. The showerhead looks geometrically similar to a CCP showerhead but carries no RF — it\'s a passive gas distribution plate. O· radicals reach the PR surface by diffusion and thermal motion alone and chemically oxidize it (O·+CₓHᵥ→CO₂+H₂O, volatile). With no ion acceleration, removal is isotropic (top-down, uniform) — the opposite goal from the anisotropic etching in Chapters 2 and 4.' },
+    ],
+    showParams: 'rps',
+    showProcess: 'rps',
+    showDeepLearn: 'rps',
+    showContext: 'rps',
+    showSim: 'rps',
+    equations: [
+      'e^- + O_2 \\rightarrow 2O\\cdot \\quad (\\text{dissociation, dominant})',
+      'O\\cdot + C_xH_y \\,(\\text{PR}) \\xrightarrow{\\text{Remote Plasma}} CO_2 \\uparrow + H_2O \\uparrow',
+    ],
+    classroom: `Remote Plasma Source Process Comprehension Check:\n1. What is the most fundamental structural difference between Chapters 1–4 (CCP/ICP) and Chapter 5 (RPS), and how does it affect the presence of V_DC, sheath, and ion bombardment?\n2. Explain, in terms of recombination timescales, why the downstream duct can act as "a filter that removes ions/electrons via recombination while passing radicals."\n3. Why does RPS have no matcher and no bias supply? Compare with Chapter 4's "Source RF + Bias RF" structure.\n4. Why is the O· + CₓHᵥ → CO₂ + H₂O reaction "isotropic," and why does that suit PR ashing?\n5. Why can the same RPS platform be used for both PR ashing (O₂-based) and chamber plasma cleaning (NF₃-based)?`,
+    connections: ['m31', 'm32', 'm34'],
   },
 ];
 
@@ -1110,6 +1189,56 @@ function renderDetail(slide) {
         <div class="context-caption">${ctx.cap}</div>
         <div class="context-foot"><span class="img-zoom-hint">${ctx.hint}</span></div>
       </div>`;
+  } else if (slide.showContext === 'icp') {
+    const ctx = isEn ? {
+      label: 'CONTEXT', title: 'ICP Aluminum Etch — Patterning Al Interconnects (BEOL)',
+      img: 'images/icp_metal_etching.png',
+      cap: `Before running the simulator, locate the Al layer we are about to etch on the process flow above. ICP Al etch is used in <b>BEOL (Back-End-Of-Line)</b> to pattern the deposited Al metal layer into interconnect lines and vias: after Al deposition and lithography/patterning, <b>ICP Al etch</b> (step 3) removes the exposed Al via Cl-based chemistry (BCl₃/Cl₂/Ar) while the photoresist mask protects the lines, followed by resist strip and post-clean. The result is high etch rate, near-vertical sidewalls, and good selectivity to the underlying SiO₂ — exactly the anisotropic, high-density-plasma behavior this chapter's simulator models.<br><br>The same ICP platform is also widely used for <b>polysilicon (poly) gate etch</b> — defining the transistor gate electrode and related poly structures (poly resistors, dummy gates) with similarly high anisotropy and selectivity to the gate oxide/hard mask. <span class="popup-link" onclick="openImgPopup('images/icp_poly_etching.png', 'ICP Poly Etch — Major Process Applications')">See where ICP poly etch is used ↗</span>`,
+      hint: 'Click image to enlarge ↗'
+    } : {
+      label: 'CONTEXT', title: 'ICP Al Etch — Al 배선(BEOL) 패터닝',
+      img: 'images/icp_metal_etching.png',
+      cap: `시뮬레이터를 실행하기 전에, 위 공정 흐름도에서 우리가 식각하려는 Al 층이 어디에 위치하는지 먼저 확인합니다. ICP Al Etch는 <b>BEOL(Back-End-Of-Line)</b>에서 증착된 Al 금속층을 배선(Interconnect)과 Via 형태로 패터닝하는 데 사용됩니다 — Al 증착과 리소그래피/패터닝 이후, <b>ICP Al Etch</b>(③단계)가 Cl 계열 화학(BCl₃/Cl₂/Ar)으로 노출된 Al을 제거하고 PR 마스크가 배선을 보호하며, 이후 Resist Strip과 Post Clean이 이어집니다. 결과적으로 높은 식각 속도, 거의 수직인 측벽, SiO₂에 대한 높은 선택비를 얻습니다 — 이번 챕터 시뮬레이터가 다루는 이방성·고밀도 플라즈마 거동과 정확히 일치합니다.<br><br>동일한 ICP 플랫폼은 <b>Polysilicon(Poly) Gate Etch</b>에도 널리 사용됩니다 — 트랜지스터 게이트 전극 및 관련 Poly 구조(Poly Resistor, Dummy Gate 등)를 게이트 산화막/하드마스크에 대한 높은 선택비와 이방성으로 정의합니다. <span class="popup-link" onclick="openImgPopup('images/icp_poly_etching.png', 'ICP Poly Etch — Major Process Applications')">ICP Poly Etch가 사용되는 부분 보기 ↗</span>`,
+      hint: '클릭하면 확대됩니다 ↗'
+    };
+    contextHtml = `
+      <div class="section-title">${T.sectionContext}</div>
+      <div class="context-wrap">
+        <div class="context-header">
+          <span class="context-badge">${ctx.label}</span>
+          <span class="context-title">${ctx.title}</span>
+        </div>
+        <div class="context-img-frame" onclick="openImgPopup('${ctx.img}', '${ctx.title}')">
+          <img src="${ctx.img}" alt="${ctx.title}" loading="lazy">
+        </div>
+        <div class="context-caption">${ctx.cap}</div>
+        <div class="context-foot"><span class="img-zoom-hint">${ctx.hint}</span></div>
+      </div>`;
+  } else if (slide.showContext === 'rps') {
+    const ctx = isEn ? {
+      label: 'CONTEXT', title: 'Why Use a Remote Plasma Source? — PR Ashing & Chamber Plasma Cleaning',
+      img: 'images/ashing_cleaning.png',
+      cap: `Before running the simulator, look at the two main jobs an RPS does, shown above. <b>① PR Ashing (Post-Etch Residue Removal)</b> — after the main etch step (Chapter 2 or 4), an RPS strips the remaining photoresist and Cl-based byproducts (AlCl_x, SiCl_x) so the wafer is clean for the next step, with minimal damage to the underlying low-k, Cu, or high-κ structures. <b>② Chamber Plasma Cleaning</b> — the same RPS, switched to an NF₃-based recipe, periodically removes polymer and metal/Cl residue that builds up on chamber walls, the showerhead, the ESC, and electrodes, restoring process stability without opening the chamber. In both cases, the key is the same: <b>radicals only, no ions</b> — this chapter's simulator focuses on the O₂ → O· PR-ashing case, which uses the identical toroidal-RPS hardware as the NF₃ cleaning mode.`,
+      hint: 'Click image to enlarge ↗'
+    } : {
+      label: 'CONTEXT', title: 'Remote Plasma Source는 왜 사용할까? — PR Ashing & Chamber Plasma Cleaning',
+      img: 'images/ashing_cleaning.png',
+      cap: `시뮬레이터를 실행하기 전에, 위 그림에서 RPS의 두 가지 주요 역할을 확인합니다. <b>① PR Ashing (식각 후 잔류물 제거)</b> — 주 식각 공정(Chapter 2 또는 4) 이후, RPS는 남은 포토레지스트와 Cl 계열 부산물(AlCl_x, SiCl_x)을 제거하여 다음 단계를 위해 웨이퍼를 깨끗하게 만들며, 하부의 Low-k, Cu, High-κ 구조에 대한 손상을 최소화합니다. <b>② Chamber Plasma Cleaning</b> — 동일한 RPS를 NF₃ 기반 레시피로 전환하여, 챔버 벽·샤워헤드·ESC·전극에 축적된 폴리머 및 금속/Cl 잔류물을 주기적으로 제거함으로써 챔버를 열지 않고도 공정 안정성을 회복합니다. 두 경우 모두 핵심은 동일합니다 — <b>라디칼만, 이온은 없음</b>. 이번 챕터의 시뮬레이터는 O₂ → O· PR Ashing 케이스를 다루며, 이는 NF₃ Cleaning 모드와 동일한 토로이달 RPS 하드웨어를 사용합니다.`,
+      hint: '클릭하면 확대됩니다 ↗'
+    };
+    contextHtml = `
+      <div class="section-title">${T.sectionContext}</div>
+      <div class="context-wrap">
+        <div class="context-header">
+          <span class="context-badge">${ctx.label}</span>
+          <span class="context-title">${ctx.title}</span>
+        </div>
+        <div class="context-img-frame" onclick="openImgPopup('${ctx.img}', '${ctx.title}')">
+          <img src="${ctx.img}" alt="${ctx.title}" loading="lazy">
+        </div>
+        <div class="context-caption">${ctx.cap}</div>
+        <div class="context-foot"><span class="img-zoom-hint">${ctx.hint}</span></div>
+      </div>`;
   }
 
   // ── Chamber Diagram ──
@@ -1144,9 +1273,29 @@ function renderDetail(slide) {
         </div>
         ${buildPVDDiagram(isEn)}
       </div>`;
+  } else if (slide.showDiagram === 'icp') {
+    diagramHtml = `
+      <div class="section-title">${T.sectionDiagram}</div>
+      <div class="chamber-wrap">
+        <div class="chamber-header">
+          <span class="chamber-badge">DIAGRAM</span>
+          <span class="chamber-title">${isEn ? 'ICP Chamber Structure — Coil (Source RF) + Chuck (Bias RF)' : 'ICP 챔버 구조 — Coil(Source RF) + Chuck(Bias RF)'}</span>
+        </div>
+        ${buildICPDiagram(isEn)}
+      </div>`;
+  } else if (slide.showDiagram === 'rps') {
+    diagramHtml = `
+      <div class="section-title">${T.sectionDiagram}</div>
+      <div class="chamber-wrap">
+        <div class="chamber-header">
+          <span class="chamber-badge">DIAGRAM</span>
+          <span class="chamber-title">${isEn ? 'Remote Plasma Source — Toroidal TCP + Downstream Chamber' : 'Remote Plasma Source — Toroidal TCP + Downstream 챔버'}</span>
+        </div>
+        ${buildRPSDiagram(isEn)}
+      </div>`;
   }
 
-  // ── Interactive Simulator (CCP Oxide PE-CVD / Dry Etch / PVD Sputter) ──
+  // ── Interactive Simulator (CCP Oxide PE-CVD / Dry Etch / PVD Sputter / ICP Al Etch / RPS Ashing) ──
   let simEmbedHtml = '';
   if (slide.showSim === 'pecvd') {
     simEmbedHtml = `
@@ -1185,6 +1334,32 @@ function renderDetail(slide) {
         <iframe class="sim-embed-frame" src="sims/ccp_pvd_al.html" title="CCP PVD Sputter Simulator" loading="lazy"></iframe>
         <div class="sim-embed-foot">
           <a href="sims/ccp_pvd_al.html" target="_blank" rel="noopener">${isEn ? 'Open simulator in new tab ↗' : '새 탭에서 시뮬레이터 열기 ↗'}</a>
+        </div>
+      </div>`;
+  } else if (slide.showSim === 'icp') {
+    simEmbedHtml = `
+      <div class="section-title">${T.sectionSim}</div>
+      <div class="sim-embed-wrap">
+        <div class="sim-embed-header">
+          <span class="sim-embed-badge">SIMULATOR</span>
+          <span class="sim-embed-title">${isEn ? 'ICP: Al RIE Lab (BCl₃/Cl₂/Ar)' : 'ICP: Al RIE 실험실 (BCl₃/Cl₂/Ar)'}</span>
+        </div>
+        <iframe class="sim-embed-frame" src="sims/icp_al_etch.html" title="ICP Aluminum Etch Simulator" loading="lazy"></iframe>
+        <div class="sim-embed-foot">
+          <a href="sims/icp_al_etch.html" target="_blank" rel="noopener">${isEn ? 'Open simulator in new tab ↗' : '새 탭에서 시뮬레이터 열기 ↗'}</a>
+        </div>
+      </div>`;
+  } else if (slide.showSim === 'rps') {
+    simEmbedHtml = `
+      <div class="section-title">${T.sectionSim}</div>
+      <div class="sim-embed-wrap">
+        <div class="sim-embed-header">
+          <span class="sim-embed-badge">SIMULATOR</span>
+          <span class="sim-embed-title">${isEn ? 'RPS: O₂ → O· PR Ashing Lab' : 'RPS: O₂ → O· PR Ashing 실험실'}</span>
+        </div>
+        <iframe class="sim-embed-frame" src="sims/remote_plasma.html" title="Remote Plasma Source Ashing Simulator" loading="lazy"></iframe>
+        <div class="sim-embed-foot">
+          <a href="sims/remote_plasma.html" target="_blank" rel="noopener">${isEn ? 'Open simulator in new tab ↗' : '새 탭에서 시뮬레이터 열기 ↗'}</a>
         </div>
       </div>`;
   }
@@ -1293,6 +1468,84 @@ function renderDetail(slide) {
             </div>`).join('')}
         </div>
       </div>`;
+  } else if (slide.showParams === 'icp') {
+    const params = isEn ? [
+      { label: 'Source RF (Coil)', value: '13.56', unit: 'MHz', desc: 'Sets plasma density (H-mode), independently of bias' },
+      { label: 'Source RF Power', value: '500–1500', unit: 'W', desc: 'Higher → denser plasma, more radicals/ions' },
+      { label: 'Bias RF (Chuck)', value: '13.56', unit: 'MHz', desc: 'Independent supply via Blocking Capacitor' },
+      { label: 'Bias RF Power', value: '100–300', unit: 'W', desc: 'Sets V_DC / ion energy, nearly independent of density' },
+      { label: 'DC Self-Bias (V_DC)', value: '-10 to -100', unit: 'V', desc: 'Far smaller than CCP\'s -200 to -500 V' },
+      { label: 'Process Pressure', value: '1–5', unit: 'mTorr', desc: 'ICP sustains discharge at lower pressure than CCP' },
+      { label: 'Gas Ratio (BCl₃:Cl₂:Ar/O₂)', value: 'recipe-dependent', unit: '', desc: 'Oxide gettering, Cl· supply, dilution/passivation' },
+      { label: 'Etch Rate (Al)', value: '700–1000', unit: 'nm/min', desc: 'High etch rate from high-density plasma' },
+      { label: 'Selectivity (Al:SiO₂)', value: '50:1–70:1', unit: '', desc: 'Strong selectivity to underlying ILD' },
+    ] : [
+      { label: 'Source RF (Coil)', value: '13.56', unit: 'MHz', desc: '플라즈마 밀도(H-mode) 결정, Bias와 독립' },
+      { label: 'Source RF 파워', value: '500–1500', unit: 'W', desc: '높을수록 플라즈마 밀도·라디칼/이온 증가' },
+      { label: 'Bias RF (Chuck)', value: '13.56', unit: 'MHz', desc: 'Blocking Capacitor를 통한 별도 전원' },
+      { label: 'Bias RF 파워', value: '100–300', unit: 'W', desc: 'V_DC/이온 에너지 결정, 밀도와 거의 독립' },
+      { label: 'DC Self-Bias (V_DC)', value: '-10 ~ -100', unit: 'V', desc: 'CCP의 -200~-500V보다 훨씬 작음' },
+      { label: '공정 압력', value: '1–5', unit: 'mTorr', desc: 'ICP는 CCP보다 낮은 압력에서도 방전 유지' },
+      { label: '가스 비율 (BCl₃:Cl₂:Ar/O₂)', value: '레시피 의존', unit: '', desc: '산화막 게터링, Cl· 공급, 희석/Passivation' },
+      { label: '식각 속도 (Al)', value: '700–1000', unit: 'nm/min', desc: '고밀도 플라즈마로 높은 식각 속도' },
+      { label: '선택비 (Al:SiO₂)', value: '50:1–70:1', unit: '', desc: '하부 ILD에 대한 강한 선택비' },
+    ];
+    paramHtml = `
+      <div class="section-title">${T.sectionParam}</div>
+      <div class="param-panel">
+        <div class="asendia-badge">
+          <div>
+            <div class="asendia-badge-text">Source RF Generator/Matcher + Bias RF Generator/Matcher (Two Independent Power Delivery Systems)</div>
+            <div class="asendia-badge-sub">Both 13.56 MHz · Source → Coil (density) · Bias → Chuck via C_block (V_DC/ion energy)</div>
+          </div>
+        </div>
+        <div class="param-grid">
+          ${params.map(p => `
+            <div class="param-item">
+              <div class="param-label">${p.label}</div>
+              <div class="param-value">${p.value}<span class="param-unit">${p.unit}</span></div>
+              <div class="param-desc">${p.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  } else if (slide.showParams === 'rps') {
+    const params = isEn ? [
+      { label: 'AC Source Frequency', value: '400 kHz', unit: '', desc: 'Drives the primary coil; 13.56 MHz or 2.45 GHz (microwave) variants also exist' },
+      { label: 'Process Pressure', value: '0.5–5', unit: 'Torr', desc: '100–1000× higher than ICP/CCP etch — favors dissociation, not directionality' },
+      { label: 'V_DC at Wafer', value: '0 (none)', unit: 'V', desc: 'Chamber fully grounded — no RF, no sheath at the wafer' },
+      { label: 'Ion Energy at Wafer', value: '~0', unit: 'eV', desc: 'Ions/electrons recombine in the duct before arrival' },
+      { label: 'Wafer Temperature', value: '150–300', unit: '°C', desc: 'Thermally assists ashing reaction rate' },
+      { label: 'Ashing Rate', value: '0.5–5', unit: 'µm/min', desc: 'Purely chemical/thermal — no ion-assisted acceleration' },
+      { label: 'Selectivity (PR:underlayer)', value: '>100:1', unit: '', desc: 'No ion-driven damage to low-k/Cu/high-κ' },
+      { label: 'Gas (Ashing / Cleaning)', value: 'O₂(/Ar/He) / NF₃(/Ar/H₂/He)', unit: '', desc: 'Same RPS hardware, different recipe' },
+    ] : [
+      { label: 'AC Source 주파수', value: '400 kHz', unit: '', desc: '1차 코일 구동; 13.56 MHz 또는 2.45 GHz(Microwave) 변형도 존재' },
+      { label: '공정 압력', value: '0.5–5', unit: 'Torr', desc: 'ICP/CCP 식각보다 100–1000배 높음 — 방향성 대신 해리율 우선' },
+      { label: '웨이퍼 V_DC', value: '0 (없음)', unit: 'V', desc: '챔버 완전 접지 — 웨이퍼 위 RF·Sheath 없음' },
+      { label: '웨이퍼 이온 에너지', value: '~0', unit: 'eV', desc: 'Duct에서 이온/전자가 재결합되어 도달 전 소멸' },
+      { label: '웨이퍼 온도', value: '150–300', unit: '°C', desc: 'Ashing 반응 속도를 열적으로 보조' },
+      { label: 'Ashing Rate', value: '0.5–5', unit: 'µm/min', desc: '순수 화학적/열적 — 이온 가속 없음' },
+      { label: '선택비 (PR:하부막)', value: '>100:1', unit: '', desc: 'Low-k/Cu/High-κ에 이온 손상 없음' },
+      { label: '가스 (Ashing / Cleaning)', value: 'O₂(/Ar/He) / NF₃(/Ar/H₂/He)', unit: '', desc: '동일 RPS 하드웨어, 레시피만 변경' },
+    ];
+    paramHtml = `
+      <div class="section-title">${T.sectionParam}</div>
+      <div class="param-panel">
+        <div class="asendia-badge">
+          <div>
+            <div class="asendia-badge-text">AC Source (Single Circuit — No Matcher, No Bias Supply)</div>
+            <div class="asendia-badge-sub">Drives primary coil only · No RF ever reaches the wafer chuck</div>
+          </div>
+        </div>
+        <div class="param-grid">
+          ${params.map(p => `
+            <div class="param-item">
+              <div class="param-label">${p.label}</div>
+              <div class="param-value">${p.value}<span class="param-unit">${p.unit}</span></div>
+              <div class="param-desc">${p.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
   }
   let processHtml = '';
   if (slide.showProcess === 'pecvd') {
@@ -1377,7 +1630,64 @@ function renderDetail(slide) {
             </div>
           </div>`).join('')}
       </div>`;
+  } else if (slide.showProcess === 'icp') {
+    const steps = isEn ? [
+      { title: 'Chamber Pump-down & Wafer Load', desc: 'Evacuate to base pressure, load Al-coated, PR-patterned wafer onto the chuck with backside He cooling. Set process pressure (1–5 mTorr) — ICP sustains discharge even at this low end.' },
+      { title: 'Gas Introduction (Side Injection)', desc: 'BCl₃ : Cl₂ : Ar(/O₂) merge into a common header and enter through a single side-wall nozzle (top is occupied by the coil/window).' },
+      { title: 'Source RF On — Inductive Ignition', desc: 'Source RF (13.56 MHz) drives the coil → oscillating B-field through the dielectric window → induced rotating E-field throughout the plasma volume (H-mode) → high-density plasma (nₑ ~10¹¹–10¹² cm⁻³), >80% dissociation of BCl₃/Cl₂.' },
+      { title: 'Source-Only State — Floating Potential', desc: 'With Source RF alone, the chuck is just a grounded/floating surface: V_DC ≈ −few to −20 V (V_f). Ion bombardment is weak and nearly isotropic — not yet anisotropic.' },
+      { title: 'Bias RF On — Independent V_DC Control', desc: 'A separate Bias RF (13.56 MHz) is applied to the chuck through its own blocking capacitor → V_DC settles at −10 to −100 V, independently of plasma density. This adds the directionality needed for anisotropic etch.' },
+      { title: 'Al + Cl Etch & By-product Pump-out', desc: 'Cl· (from Cl₂) spontaneously etches Al: Al + 3Cl· → AlCl₃↑. BCl₃ getters native Al₂O₃ so Cl· reaches fresh Al. Ions (accelerated by V_DC) add anisotropy and assist oxide breakthrough. Volatile AlCl₃ is pumped away.' },
+    ] : [
+      { title: '챔버 펌프다운 및 웨이퍼 로딩', desc: '베이스 압력까지 배기 후, Al 증착·PR 패턴된 웨이퍼를 Chuck에 로딩하고 후면 He 냉각 가동. 공정 압력(1–5 mTorr) 설정 — ICP는 이 낮은 압력에서도 방전 유지 가능.' },
+      { title: '가스 유입 (측벽 단일 노즐)', desc: 'BCl₃ : Cl₂ : Ar(/O₂)이 공통 헤더로 합류 후 측벽의 단일 노즐을 통해 챔버에 유입 (상부는 Coil/Window가 차지).' },
+      { title: 'Source RF On — 유도 결합 점화', desc: 'Source RF(13.56MHz)가 Coil을 구동 → Dielectric Window를 통과하는 변동 B-field → 플라즈마 부피 전체에 회전 E-field 유도(H-mode) → 고밀도 플라즈마(nₑ ~10¹¹–10¹² cm⁻³), BCl₃/Cl₂ 해리율 >80%.' },
+      { title: 'Source 단독 상태 — Floating Potential', desc: 'Source RF만 있을 때 Chuck는 접지/Floating 표면일 뿐: V_DC ≈ −수~−20V (V_f). 이온 충격이 약하고 거의 등방성(Isotropic) — 아직 이방성 식각은 아님.' },
+      { title: 'Bias RF On — 독립적 V_DC 제어', desc: '별도의 Bias RF(13.56MHz)가 자체 Blocking Capacitor를 통해 Chuck에 인가 → V_DC가 플라즈마 밀도와 무관하게 −10~−100V로 안정화. 이방성 식각에 필요한 방향성이 추가됨.' },
+      { title: 'Al + Cl 식각 및 부산물 배기', desc: 'Cl₂에서 나온 Cl·이 Al을 자발적으로 식각: Al + 3Cl· → AlCl₃↑. BCl₃는 자연 산화막(Al₂O₃)을 게터링하여 Cl·가 신선한 Al에 도달하게 함. V_DC로 가속된 이온은 이방성을 부여하고 산화막 Breakthrough를 보조. 휘발성 AlCl₃는 펌프로 배기.' },
+    ];
+    processHtml = `
+      <div class="section-title">${T.sectionProcess}</div>
+      <div class="process-steps">
+        ${steps.map((s, i) => `
+          <div class="step-item">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-body">
+              <div class="step-title">${s.title}</div>
+              <div class="step-desc">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } else if (slide.showProcess === 'rps') {
+    const steps = isEn ? [
+      { title: 'Wafer Load & Chamber Pump-down', desc: 'Load PR-patterned wafer onto a grounded, heated chuck (150–300°C) in the process chamber — no RF, no matcher anywhere near the wafer. Evacuate to base pressure.' },
+      { title: 'O₂ Fill into the Toroid', desc: 'O₂ (with optional Ar/He dilution) flows into the closed toroidal quartz tube. Set RPS pressure to 0.5–5 Torr — far higher than ICP/CCP, favoring electron-neutral collisions over directionality.' },
+      { title: 'AC Source On — Transformer-Coupled Ignition', desc: 'AC current (typ. 400 kHz) in the primary coil → oscillating flux through the split ferrite core → induced circulating E-field in the toroidal loop (TCP) → e⁻ + O₂ → 2O· (dominant) and e⁻ + O₂ → O₂⁺ + 2e⁻.' },
+      { title: 'Downstream Transport — Recombination Filter', desc: 'The O₂/O·/O₂⁺/e⁻ mixture exits the toroid through the duct. O₂⁺ + e⁻ → O₂ (or 2O) recombination on the duct walls occurs in µs–ms — much faster than transit time. Neutral O· survives with far less loss.' },
+      { title: 'Radical Arrival — No Plasma, No Sheath', desc: 'O₂ + O· pass through a passive, RF-free showerhead into the reaction zone. No glow, no ionization, no E-field — O· reaches the PR surface purely by diffusion and thermal motion.' },
+      { title: 'Isotropic Ashing & Pump-out', desc: 'O· + CₓHᵥ (PR) → CO₂↑ + H₂O↑, assisted by the heated chuck. Removal is uniform top-down (isotropic) — no directionality needed. Volatile by-products are pumped away by the process-chamber pump.' },
+    ] : [
+      { title: '웨이퍼 로딩 및 챔버 펌프다운', desc: 'PR이 패턴된 웨이퍼를 접지되고 가열된(150–300°C) Chuck에 로딩 — 웨이퍼 주변에는 RF나 Matcher가 전혀 없음. 베이스 압력까지 배기.' },
+      { title: 'O₂를 토로이드에 충전', desc: 'O₂(필요 시 Ar/He 희석)를 닫힌 토로이달 석영 튜브에 유입. RPS 압력을 0.5–5 Torr로 설정 — ICP/CCP보다 훨씬 높아 방향성보다 전자-중성 충돌(해리)에 유리.' },
+      { title: 'AC Source On — 변압기 결합형 점화', desc: '1차 코일에 AC 전류(보통 400kHz) → 분리형 페라이트 코어를 통한 변동 플럭스 → 토로이달 루프에 순환 E-field 유도(TCP) → e⁻ + O₂ → 2O·(주 생성물) 및 e⁻ + O₂ → O₂⁺ + 2e⁻.' },
+      { title: 'Downstream Transport — 재결합 필터', desc: 'O₂/O·/O₂⁺/e⁻ 혼합물이 Duct를 통해 토로이드를 빠져나감. Duct 벽에서 O₂⁺ + e⁻ → O₂(또는 2O) 재결합이 µs~ms 단위로 발생 — 이송 시간보다 훨씬 빠름. 중성 O·는 훨씬 적은 손실로 생존.' },
+      { title: '라디칼 도달 — 플라즈마·Sheath 없음', desc: 'O₂ + O·가 RF 없는 passive 샤워헤드를 통해 반응 영역으로 진입. Glow·이온화·전기장 없음 — O·는 순수히 확산과 열운동으로 PR 표면에 도달.' },
+      { title: '등방적 Ashing 및 배기', desc: 'O· + CₓHᵥ(PR) → CO₂↑ + H₂O↑, 가열된 Chuck가 반응을 보조. 제거는 균일한 Top-down(등방적) — 방향성 불필요. 휘발성 부산물은 공정 챔버 펌프로 배기.' },
+    ];
+    processHtml = `
+      <div class="section-title">${T.sectionProcess}</div>
+      <div class="process-steps">
+        ${steps.map((s, i) => `
+          <div class="step-item">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-body">
+              <div class="step-title">${s.title}</div>
+              <div class="step-desc">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
   }
+
   let theoriesHtml = '';
   if (slide.theories) {
     theoriesHtml = `
@@ -1407,6 +1717,10 @@ function renderDetail(slide) {
     deepLearnHtml = buildEtchDeepLearn(isEn, slide.id);
   } else if (slide.showDeepLearn === 'pvd') {
     deepLearnHtml = buildPVDDeepLearn(isEn, slide.id);
+  } else if (slide.showDeepLearn === 'icp') {
+    deepLearnHtml = buildICPDeepLearn(isEn, slide.id);
+  } else if (slide.showDeepLearn === 'rps') {
+    deepLearnHtml = buildRPSDeepLearn(isEn, slide.id);
   }
 
   // ── Classroom ──
@@ -1916,6 +2230,383 @@ function drawPVDCanvas() {
 }
 
 // ─────────────────────────────────────────────
+//  ICP (INDUCTIVELY COUPLED PLASMA) CHAMBER DIAGRAM
+// ─────────────────────────────────────────────
+function buildICPDiagram(isEn) {
+  window._icpLabels = isEn ? {
+    coil: 'Coil (Antenna) \u2014 Source RF', fshield: 'Faraday Shield',
+    window: 'Dielectric Window (Y\u2082O\u2083-coated Al\u2082O\u2083)',
+    plasma: 'BCl\u2083/Cl\u2082/Ar Plasma (H-mode, n\u2091~10\u00b9\u00b9\u201310\u00b9\u00b2)',
+    sheathTop: 'Thin Sheath (uncontrolled, V_f)', sheathBot: 'Bias-RF-Controlled Sheath',
+    wafer: 'Al Wafer + PR Mask', chuck: 'Wafer Chuck',
+    srcgen: 'Source RF Gen.\n13.56 MHz', srcmat: 'Source\nMatcher (50\u03a9)',
+    biasgen: 'Bias RF Gen.\n13.56 MHz', biasmat: 'Bias\nMatcher (50\u03a9)',
+    cblock: 'C_block', pump: 'Turbo + Dry Pump',
+    gasIn: 'BCl\u2083 + Cl\u2082 + Ar (side)', dcbias: 'V_DC \u2248 \u221210 to \u2212100 V (Bias RF, independent)',
+    etch: 'Anisotropic Al Etch \u2191 (AlCl\u2083 \u2191)', ions: 'Ion Flux (V_DC-assisted)',
+    bfield: 'B-field (induced)',
+  } : {
+    coil: 'Coil (Antenna) \u2014 Source RF', fshield: 'Faraday Shield',
+    window: 'Dielectric Window (Y\u2082O\u2083 Al\u2082O\u2083)',
+    plasma: 'BCl\u2083/Cl\u2082/Ar \ud50c\ub77c\uc998\ub9c8 (H-mode, n\u2091~10\u00b9\u00b9\u201310\u00b9\u00b2)',
+    sheathTop: '\uc18c\uc2a4 (\ubcc4\ub2e8 \uc81c\uc5b4 \uc5c6\uc74c, V_f)', sheathBot: 'Bias RF\ub85c \uc81c\uc5b4\ub418\ub294 \uc18c\uc2a4',
+    wafer: 'Al \uc6e8\uc774\ud37c + PR \ub9c8\uc2a4\ud0b9', chuck: '\uc6e8\uc774\ud37c \ucf5e',
+    srcgen: 'Source RF Gen.\n13.56 MHz', srcmat: 'Source\nMatcher (50\u03a9)',
+    biasgen: 'Bias RF Gen.\n13.56 MHz', biasmat: 'Bias\nMatcher (50\u03a9)',
+    cblock: 'C_block', pump: '\ud130\ubcf4 + \ub2e4\ub860 \ud39c\ud504',
+    gasIn: 'BCl\u2083 + Cl\u2082 + Ar (\uc20c\uba74)', dcbias: 'V_DC \u2248 \u221210 ~ \u2212100 V (Bias RF, \ub3c5\ub9bd)',
+    etch: '\uc774\ubc29\uc131 Al \uc2dd\uac01 \u2191 (AlCl\u2083 \u2191)', ions: '이온 플럭스 (V_DC 도움)',
+    bfield: 'B-field (\uc720\ub3c4)',
+  };
+  setTimeout(drawICPCanvas, 80);
+  return '<canvas id="icpCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
+}
+
+function drawICPCanvas() {
+  const canvas = document.getElementById('icpCanvas');
+  if (!canvas) return;
+  const labels = window._icpLabels || {};
+  const CW = 780, CH = 500;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = CW * dpr; canvas.height = CH * dpr;
+  canvas.style.height = Math.round(CH * (canvas.offsetWidth / CW)) + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = CW, H = CH;
+
+  ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(112,48,160,0.08)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  const cL=120, cR=660, cT=100, cB=410;
+  ctx.strokeStyle='rgba(180,120,255,0.4)'; ctx.lineWidth=2;
+  ctx.strokeRect(cL, cT, cR-cL, cB-cT);
+
+  // ── Coil (Antenna) — planar spiral above the window ──
+  const coilY=40, coilH=28;
+  ctx.strokeStyle='#FFD580'; ctx.lineWidth=3;
+  for (let i=0;i<5;i++) {
+    const x0=cL+30+i*((cR-cL-60)/5), x1=x0+((cR-cL-60)/5)-10;
+    ctx.beginPath();
+    ctx.moveTo(x0,coilY+coilH); ctx.lineTo(x0,coilY); ctx.lineTo(x1,coilY); ctx.lineTo(x1,coilY+coilH);
+    ctx.stroke();
+  }
+  ctx.fillStyle='#FFD580'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.coil||'', (cL+cR)/2, coilY-8);
+
+  // induced B-field arrows (down through window into chamber)
+  ctx.strokeStyle='rgba(255,213,128,0.5)'; ctx.fillStyle='rgba(255,213,128,0.5)';
+  for (let bx=cL+50; bx<cR-30; bx+=90) {
+    ctx.lineWidth=1.5; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(bx,coilY+coilH+2); ctx.lineTo(bx,cT-4); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(bx,cT-2); ctx.lineTo(bx-4,cT-9); ctx.lineTo(bx+4,cT-9); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle='rgba(255,213,128,0.7)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.bfield||'', cR+6, (coilY+coilH+cT)/2);
+
+  // ── Faraday Shield (slotted, between coil and window) ──
+  const fsY=coilY+coilH+8, fsH=4;
+  ctx.fillStyle='rgba(160,160,180,0.7)';
+  for (let sx=cL; sx<cR; sx+=18) { ctx.fillRect(sx, fsY, 12, fsH); }
+  ctx.fillStyle='rgba(200,200,215,0.85)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.fshield||'', cR+6, fsY+fsH+2);
+
+  // ── Dielectric Window (Y2O3-coated Al2O3, top wall) ──
+  const winY=cT-14, winH=14;
+  const g1 = ctx.createLinearGradient(cL,winY,cR,winY+winH);
+  g1.addColorStop(0,'#3a3a4a'); g1.addColorStop(1,'#5a5a70');
+  ctx.fillStyle=g1; ctx.fillRect(cL,winY,cR-cL,winH);
+  ctx.fillStyle='rgba(210,210,225,0.85)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.window||'', (cL+cR)/2, winY+winH+10);
+
+  // ── Thin top sheath (uncontrolled, floating potential) ──
+  const tSheathY=cT, tSheathH=6;
+  ctx.fillStyle='rgba(120,120,140,0.18)';
+  ctx.fillRect(cL+2, tSheathY, cR-cL-4, tSheathH);
+  ctx.fillStyle='rgba(160,160,180,0.6)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.sheathTop||'', cR+6, tSheathY+tSheathH+8);
+
+  // ── Bulk H-mode plasma (large, distributed glow) ──
+  const plT=tSheathY+tSheathH+4, plB=320;
+  const pg=ctx.createRadialGradient((cL+cR)/2,(plT+plB)/2,40,(cL+cR)/2,(plT+plB)/2,260);
+  pg.addColorStop(0,'rgba(255,150,200,0.22)'); pg.addColorStop(0.4,'rgba(180,120,255,0.16)'); pg.addColorStop(1,'rgba(80,20,160,0.04)');
+  ctx.fillStyle=pg; ctx.fillRect(cL+2,plT,cR-cL-4,plB-plT);
+  // densely distributed glow points (H-mode: volumetric)
+  const glowPts=[];
+  for (let gx=cL+40; gx<cR-30; gx+=42) for (let gy=plT+15; gy<plB-15; gy+=38) glowPts.push([gx+ (Math.random()*10-5), gy+(Math.random()*10-5)]);
+  glowPts.forEach(([px,py])=>{
+    const r=ctx.createRadialGradient(px,py,1,px,py,8);
+    r.addColorStop(0,'rgba(255,170,210,0.7)'); r.addColorStop(1,'rgba(160,80,255,0)');
+    ctx.fillStyle=r; ctx.beginPath(); ctx.arc(px,py,8,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle='rgba(230,170,255,0.85)'; ctx.font='italic bold 12px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.plasma||'', (cL+cR)/2, (plT+plB)/2+5);
+
+  // ── Bottom sheath (Bias-RF controlled, variable) ──
+  const bSheathY=plB, bSheathH=26;
+  ctx.fillStyle='rgba(255,130,80,0.14)';
+  ctx.fillRect(cL+2, bSheathY, cR-cL-4, bSheathH);
+  ctx.strokeStyle='rgba(255,160,80,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(cL+2,bSheathY); ctx.lineTo(cR-2,bSheathY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,160,80,0.85)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.sheathBot||'', cR+6, bSheathY+bSheathH/2+3);
+  // downward ion flux arrows
+  ctx.strokeStyle='rgba(255,170,100,0.85)'; ctx.fillStyle='rgba(255,170,100,0.85)';
+  for (let ix=cL+70; ix<cR-50; ix+=70) {
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(ix,bSheathY+3); ctx.lineTo(ix,bSheathY+bSheathH-6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ix,bSheathY+bSheathH-2); ctx.lineTo(ix-4,bSheathY+bSheathH-9); ctx.lineTo(ix+4,bSheathY+bSheathH-9); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle='rgba(255,170,100,0.9)'; ctx.font='bold 9px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.ions||'', (cL+cR)/2, bSheathY-4);
+
+  // ── Al wafer + mask + etched trench ──
+  const wY=bSheathY+bSheathH;
+  ctx.fillStyle='#8fb8e8'; ctx.fillRect(cL+60,wY,cR-cL-120,10);
+  ctx.fillStyle='rgba(217,184,237,0.85)';
+  ctx.fillRect(cL+90,wY-6,40,6); ctx.fillRect(cL+200,wY-6,40,6); ctx.fillRect(cL+320,wY-6,40,6); ctx.fillRect(cL+430,wY-6,40,6);
+  ctx.fillStyle='#FFD580'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.etch||'', (cL+cR)/2, wY-12);
+  ctx.fillStyle='#8fb8e8'; ctx.font='bold 11px "Google Sans",sans-serif';
+  ctx.fillText(labels.wafer||'', (cL+cR)/2, wY+22);
+
+  // ── Wafer Chuck (Bias RF electrode) ──
+  const chY=wY+12, chH=18;
+  const chuckW = (cR-cL)*0.55, chuckX = cL + (cR-cL-chuckW)/2;
+  const g2=ctx.createLinearGradient(chuckX,chY,chuckX+chuckW,chY+chH);
+  g2.addColorStop(0,'#4a1080'); g2.addColorStop(1,'#7030A0');
+  ctx.fillStyle=g2; ctx.fillRect(chuckX,chY,chuckW,chH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.chuck||'', (cL+cR)/2, chY+chH+16);
+
+  // ── C_block between chuck and Bias RF ──
+  const cbX=(cL+cR)/2, cbY=chY+chH+26;
+  ctx.strokeStyle='rgba(255,200,100,0.8)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cbX-14,cbY); ctx.lineTo(cbX+14,cbY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cbX-14,cbY+6); ctx.lineTo(cbX+14,cbY+6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cbX,chY+chH); ctx.lineTo(cbX,cbY); ctx.stroke();
+  ctx.fillStyle='rgba(255,200,100,0.85)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.cblock||'', cbX+18, cbY+4);
+
+  // ── Bias RF Generator + Matcher (bottom-left) — independent circuit to chuck ──
+  const bmX=20,bmY=160,bmW=80,bmH=46;
+  ctx.strokeStyle='rgba(255,160,100,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(bmX,bmY,bmW,bmH);
+  ctx.fillStyle='rgba(120,40,0,0.4)'; ctx.fillRect(bmX,bmY,bmW,bmH);
+  ctx.fillStyle='#ffd0a8'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.biasmat||'').split('\n').forEach((l,i)=>ctx.fillText(l,bmX+bmW/2,bmY+17+i*13));
+
+  const bgX=20,bgY=230,bgW=80,bgH=50;
+  ctx.strokeStyle='rgba(255,160,100,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(bgX,bgY,bgW,bgH);
+  ctx.fillStyle='rgba(120,40,0,0.4)'; ctx.fillRect(bgX,bgY,bgW,bgH);
+  ctx.fillStyle='#ffd0a8'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.biasgen||'').split('\n').forEach((l,i)=>ctx.fillText(l,bgX+bgW/2,bgY+17+i*13));
+
+  ctx.strokeStyle='rgba(255,160,100,0.7)'; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(bgX+bgW/2,bgY); ctx.lineTo(bmX+bmW/2,bmY+bmH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bmX+bmW,bmY+bmH/2); ctx.lineTo(cbX-14,cbY+3); ctx.stroke();
+
+  // ── Source RF Generator + Matcher (top-left) — independent circuit to coil ──
+  const smX=20,smY=40,smW=80,smH=46;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(smX,smY,smW,smH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(smX,smY,smW,smH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.srcmat||'').split('\n').forEach((l,i)=>ctx.fillText(l,smX+smW/2,smY+17+i*13));
+
+  const sgX=20,sgY=96,sgW=80,sgH=50;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(sgX,sgY,sgW,sgH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(sgX,sgY,sgW,sgH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.srcgen||'').split('\n').forEach((l,i)=>ctx.fillText(l,sgX+sgW/2,sgY+17+i*13));
+
+  ctx.strokeStyle='rgba(200,140,255,0.7)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(sgX+sgW/2,sgY); ctx.lineTo(smX+smW/2,smY+smH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(smX+smW,smY+smH/2); ctx.lineTo(cL,coilY+coilH/2); ctx.stroke();
+
+  // ── V_DC label (Bias RF result) ──
+  ctx.fillStyle='rgba(255,130,80,0.95)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.dcbias||'', (cL+cR)/2, cB-6);
+
+  // ── Gas inlet (side wall, single nozzle) ──
+  ctx.fillStyle='rgba(100,200,255,0.8)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.gasIn||'', cL+6, plT-4);
+  ctx.fillStyle='rgba(100,200,255,0.5)';
+  ctx.beginPath(); ctx.moveTo(cL+30,plT+10); ctx.lineTo(cL+18,plT+18); ctx.lineTo(cL+30,plT+18); ctx.closePath(); ctx.fill();
+
+  // ── Pump (side exhaust, right) ──
+  const pX=cR+8, pY=plT+30, pW=70, pH=28;
+  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.lineWidth=1.5;
+  ctx.strokeRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(15,60,20,0.5)'; ctx.fillRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(100,200,120,0.8)'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.pump||'', pX+pW/2, pY+pH/2+4);
+  ctx.strokeStyle='rgba(100,180,100,0.5)';
+  ctx.beginPath(); ctx.moveTo(cR,pY+pH/2); ctx.lineTo(pX,pY+pH/2); ctx.stroke();
+}
+
+// ─────────────────────────────────────────────
+//  REMOTE PLASMA SOURCE (RPS) DIAGRAM
+// ─────────────────────────────────────────────
+function buildRPSDiagram(isEn) {
+  window._rpsLabels = isEn ? {
+    toroid: 'Toroidal Quartz Tube (Plasma Confined Here)', ferrite: 'Split Ferrite Core',
+    coil: 'Primary Coil \u2014 AC Source', acsrc: 'AC Source\n(typ. 400 kHz)',
+    o2: 'O\u2082 (+Ar/He)', plasma: 'O\u2082 \u2192 2O\u00b7 (H-mode, confined)',
+    duct: 'Downstream Duct \u2014 Ions/e\u207b Recombine, O\u00b7 Survives',
+    showerhead: 'Radical Showerhead (Grounded, No RF)', rzone: 'Reaction Zone \u2014 No Plasma, No Sheath, No E-field',
+    wafer: 'Wafer + PR (C\u2093H\u1d67)', chuck: 'Chuck (Grounded, Heated 150\u2013300\u00b0C)',
+    pump: 'Process Chamber Pump', ashing: 'Isotropic Ashing \u2193 (CO\u2082\u2191, H\u2082O\u2191)',
+    noions: 'No Ions, No V_DC, No Sheath',
+  } : {
+    toroid: '\ud1a0\ub85c\uc774\ub2ec \uc11d\uc601 \ud0c0\ube0c (\ud50c\ub77c\uc998\ub9c8 \ud55c\uc815)', ferrite: '\ubd84\ub9ac\ud615 \ud3d0\ub77c\uc774\ud2b8 \ucf54\uc5b4',
+    coil: '1\ucc28 \ucf54\uc77c \u2014 AC Source', acsrc: 'AC Source\n(\ub300\ud45c 400 kHz)',
+    o2: 'O\u2082 (+Ar/He)', plasma: 'O\u2082 \u2192 2O\u00b7 (H-mode, \ud55c\uc815)',
+    duct: 'Downstream Duct \u2014 \uc774\uc628/e\u207b \uc7ac\uacb0\ud569, O\u00b7\ub294 \uc0dd\uc874',
+    showerhead: '\ub77c\ub2ac\ucf5c \uc0e8\uc6c0\uca54\ub37c (\uc811\uc9c0, RF \uc5c6\uc74c)', rzone: '\ubc18\uc751 \uc601\uc5ed \u2014 \ud50c\ub77c\uc998\ub9c8\u00b7Sheath\u00b7E-field \uc5c6\uc74c',
+    wafer: '\uc6e8\uc774\ud37c + PR (C\u2093H\u1d67)', chuck: 'Chuck (\uc811\uc9c0, \uac00\uc5f4 150\u2013300\u00b0C)',
+    pump: '\uacf5\uc815 \ucc44\ubc84 \ud39c\ud504', ashing: '\ub4f1\ubc29\uc801 Ashing \u2193 (CO\u2082\u2191, H\u2082O\u2191)',
+    noions: '\uc774\uc628 \uc5c6\uc74c, V_DC \uc5c6\uc74c, Sheath \uc5c6\uc74c',
+  };
+  setTimeout(drawRPSCanvas, 80);
+  return '<canvas id="rpsCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
+}
+
+function drawRPSCanvas() {
+  const canvas = document.getElementById('rpsCanvas');
+  if (!canvas) return;
+  const labels = window._rpsLabels || {};
+  const CW = 780, CH = 460;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = CW * dpr; canvas.height = CH * dpr;
+  canvas.style.height = Math.round(CH * (canvas.offsetWidth / CW)) + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = CW, H = CH;
+
+  ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(112,48,160,0.08)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // ── Left: Toroidal RPS module ──
+  const torCx=150, torCy=140, torR=70, torTube=16;
+  // outer ring (quartz tube)
+  ctx.lineWidth=torTube;
+  ctx.strokeStyle='rgba(180,120,255,0.18)';
+  ctx.beginPath(); ctx.arc(torCx,torCy,torR,0,Math.PI*2); ctx.stroke();
+  // plasma glow inside the toroid (confined)
+  ctx.strokeStyle='rgba(255,150,200,0.5)'; ctx.lineWidth=torTube-6;
+  ctx.beginPath(); ctx.arc(torCx,torCy,torR,0,Math.PI*2); ctx.stroke();
+  const glowGrad=ctx.createRadialGradient(torCx,torCy,torR-12,torCx,torCy,torR+12);
+  glowGrad.addColorStop(0,'rgba(255,170,210,0)'); glowGrad.addColorStop(0.5,'rgba(255,170,210,0.35)'); glowGrad.addColorStop(1,'rgba(255,170,210,0)');
+  ctx.strokeStyle=glowGrad; ctx.lineWidth=torTube+6;
+  ctx.beginPath(); ctx.arc(torCx,torCy,torR,0,Math.PI*2); ctx.stroke();
+  // split ferrite core (two arcs clamped on toroid)
+  ctx.strokeStyle='#6b6f78'; ctx.lineWidth=torTube+10;
+  ctx.beginPath(); ctx.arc(torCx,torCy,torR, -0.5, 0.5); ctx.stroke();
+  ctx.beginPath(); ctx.arc(torCx,torCy,torR, Math.PI-0.5, Math.PI+0.5); ctx.stroke();
+  // primary coil windings around the ferrite (top segment)
+  ctx.strokeStyle='#FFD580'; ctx.lineWidth=2;
+  for (let i=-4;i<=4;i++){
+    const a = i*0.11;
+    const x1 = torCx + (torR-torTube/2-12)*Math.cos(a), y1 = torCy + (torR-torTube/2-12)*Math.sin(a);
+    const x2 = torCx + (torR+torTube/2+12)*Math.cos(a), y2 = torCy + (torR+torTube/2+12)*Math.sin(a);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  }
+  ctx.fillStyle='#FFD580'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.coil||'', torCx, torCy-torR-torTube-22);
+  ctx.fillStyle='rgba(200,200,215,0.8)'; ctx.font='9px "JetBrains Mono",monospace';
+  ctx.fillText(labels.ferrite||'', torCx, torCy-torR-torTube-8);
+  ctx.fillStyle='rgba(230,170,255,0.85)'; ctx.font='italic bold 10px "Google Sans",sans-serif';
+  ctx.fillText(labels.plasma||'', torCx, torCy+torR+torTube+34);
+  ctx.fillStyle='rgba(160,120,255,0.6)'; ctx.font='9px "JetBrains Mono",monospace';
+  ctx.fillText(labels.toroid||'', torCx, torCy+torR+torTube+18);
+
+  // AC Source box, connected to coil
+  const acX=30, acY=230, acW=90, acH=46;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(acX,acY,acW,acH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(acX,acY,acW,acH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.acsrc||'').split('\n').forEach((l,i)=>ctx.fillText(l,acX+acW/2,acY+18+i*13));
+  ctx.strokeStyle='rgba(200,140,255,0.7)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(acX+acW/2,acY); ctx.lineTo(torCx-20,torCy+torR*0.7); ctx.stroke();
+
+  // O2 gas inlet (bottom-left into toroid)
+  ctx.fillStyle='rgba(100,200,255,0.8)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='right';
+  ctx.fillText(labels.o2||'', torCx-torR-10, torCy+10);
+  ctx.fillStyle='rgba(100,200,255,0.5)';
+  ctx.beginPath(); ctx.moveTo(torCx-torR-14,torCy+18); ctx.lineTo(torCx-torR-2,torCy+14); ctx.lineTo(torCx-torR-2,torCy+22); ctx.closePath(); ctx.fill();
+
+  // ── Downstream Duct (connects toroid to chamber) ──
+  const ductY=torCy-6, ductH=12, ductX1=torCx+torR+torTube, ductX2=380;
+  const dg=ctx.createLinearGradient(ductX1,0,ductX2,0);
+  dg.addColorStop(0,'rgba(255,170,210,0.35)'); dg.addColorStop(1,'rgba(120,120,140,0.15)');
+  ctx.fillStyle=dg; ctx.fillRect(ductX1,ductY,ductX2-ductX1,ductH);
+  // recombination marks along the duct (ions/electrons disappearing)
+  ctx.font='11px sans-serif'; ctx.textAlign='center';
+  [[ductX1+30,'rgba(255,120,120,0.7)'],[ductX1+70,'rgba(255,120,120,0.45)'],[ductX1+110,'rgba(255,120,120,0.2)']].forEach(([x,c])=>{
+    ctx.fillStyle=c; ctx.fillText('+', x, ductY-4);
+  });
+  ctx.fillStyle='rgba(200,205,215,0.85)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.duct||'', (ductX1+ductX2)/2, ductY-14);
+
+  // ── Right: Process chamber (no plasma) ──
+  const cL=ductX2, cR=720, cT=70, cB=400;
+  ctx.strokeStyle='rgba(160,160,180,0.35)'; ctx.lineWidth=2;
+  ctx.strokeRect(cL, cT, cR-cL, cB-cT);
+  ctx.fillStyle='rgba(40,40,55,0.4)'; ctx.fillRect(cL+1, cT+1, cR-cL-2, cB-cT-2);
+
+  // Showerhead (grounded, no RF) — top
+  const shY=cT+10, shH=14;
+  ctx.fillStyle='rgba(120,120,140,0.5)'; ctx.fillRect(cL+10,shY,cR-cL-20,shH);
+  ctx.fillStyle='rgba(15,15,26,1)';
+  for (let hx=cL+30; hx<cR-15; hx+=22) { ctx.beginPath(); ctx.arc(hx,shY+shH/2,2,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle='rgba(180,180,195,0.85)'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.showerhead||'', (cL+cR)/2, shY-6);
+
+  // Reaction zone (no plasma, no glow) — faint neutral gas dots only
+  const rzT=shY+shH+6, rzB=cB-90;
+  ctx.fillStyle='rgba(160,160,180,0.04)';
+  ctx.fillRect(cL+10,rzT,cR-cL-20,rzB-rzT);
+  ctx.fillStyle='rgba(200,205,215,0.5)';
+  for (let gx=cL+40; gx<cR-30; gx+=46) for (let gy=rzT+15; gy<rzB-15; gy+=34) {
+    ctx.beginPath(); ctx.arc(gx,gy,2,0,Math.PI*2); ctx.fill();
+  }
+  ctx.fillStyle='rgba(200,205,215,0.7)'; ctx.font='italic 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.rzone||'', (cL+cR)/2, (rzT+rzB)/2);
+  ctx.fillStyle='rgba(255,213,128,0.85)'; ctx.font='bold 10px "JetBrains Mono",monospace';
+  ctx.fillText(labels.noions||'', (cL+cR)/2, (rzT+rzB)/2+20);
+
+  // Wafer + PR on chuck
+  const wY=rzB+4;
+  ctx.fillStyle='#8fb8e8'; ctx.fillRect(cL+40,wY,cR-cL-80,8);
+  ctx.fillStyle='rgba(217,184,237,0.85)'; ctx.fillRect(cL+40,wY-5,cR-cL-80,5);
+  ctx.fillStyle='#FFD580'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.ashing||'', (cL+cR)/2, wY-10);
+  ctx.fillStyle='#8fb8e8'; ctx.font='bold 11px "Google Sans",sans-serif';
+  ctx.fillText(labels.wafer||'', (cL+cR)/2, wY+22);
+
+  // Chuck (grounded, heated)
+  const chY=wY+12, chH=20;
+  const g2=ctx.createLinearGradient(cL+30,chY,cR-30,chY+chH);
+  g2.addColorStop(0,'#1a3a1a'); g2.addColorStop(1,'#0F8C50');
+  ctx.fillStyle=g2; ctx.fillRect(cL+30,chY,cR-cL-60,chH);
+  ctx.fillStyle='#7fffb3'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.chuck||'', (cL+cR)/2, chY+chH+16);
+
+  // Pump (bottom)
+  const pX=(cL+cR)/2-35, pY=cB+14, pW=70, pH=26;
+  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.lineWidth=1.5; ctx.strokeRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(15,60,20,0.5)'; ctx.fillRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(100,200,120,0.8)'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.pump||'', pX+pW/2, pY+pH/2+4);
+  ctx.strokeStyle='rgba(100,180,100,0.5)';
+  ctx.beginPath(); ctx.moveTo((cL+cR)/2,cB); ctx.lineTo((cL+cR)/2,pY); ctx.stroke();
+}
+
+// ─────────────────────────────────────────────
 //  PE-CVD DEEP LEARN
 // ─────────────────────────────────────────────
 function buildPECVDDeepLearn(isEn, slideId) {
@@ -2363,6 +3054,356 @@ function buildPVDDeepLearn(isEn, slideId) {
   </tbody>
 </table>
 <div class="dl-highlight">The DC/AC power source (and matcher, where needed) drives the target cathode in the above platforms, setting V_target and the sputtering rate. DC (or pulsed-DC) supplies are standard for metal targets; reactive/dielectric sputtering modules add a 13.56 MHz AC/RF matcher.</div>`
+        },
+      ]
+    }
+  };
+
+  const d = DATA[isEn ? 'en' : 'ko'];
+  const sectionsHtml = d.sections.map(sec => `
+    <div class="dl-section">
+      <div class="dl-section-title">${sec.icon} ${sec.title}</div>
+      <div class="dl-body">${sec.body}</div>
+    </div>`).join('');
+
+  return `
+    <div class="deep-learn-wrap" id="${uid}">
+      <div class="deep-learn-header" onclick="toggleDeepLearn('${uid}')" id="${uid}_hdr">
+        <div class="deep-learn-icon">📚</div>
+        <div class="deep-learn-title">${d.headerTitle}</div>
+        <span class="deep-learn-badge">${d.badge}</span>
+        <span class="deep-learn-chevron">▼</span>
+      </div>
+      <div class="deep-learn-body" id="${uid}_body">
+        <div class="deep-learn-inner">${sectionsHtml}</div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  ICP DEEP LEARN
+// ─────────────────────────────────────────────
+function buildICPDeepLearn(isEn, slideId) {
+  const uid = 'dlAccordion_' + slideId;
+
+  const DATA = {
+    ko: {
+      headerTitle: '심화학습 — ICP in Dry Etch: 공정 원리 깊이 이해하기',
+      badge: '심화학습',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'Inductive Coupling — H-mode가 E-mode보다 고밀도인 이유',
+          body: `<p>Chapter 1~3의 CCP는 전극 표면의 Sheath 전기장으로만 전자를 가속하는 <b>E-mode(Capacitive/Electrostatic)</b> 방식입니다. ICP는 Coil의 변동 전류가 만드는 B-field가 Faraday 법칙(∇×E=−∂B/∂t)에 의해 플라즈마 <b>부피 전체</b>에 회전 E-field를 유도하는 <b>H-mode(Inductive)</b> 방식입니다.</p>
+<div class="dl-eq">CCP (E-mode): 가열이 Sheath 표면에 국한 → nₑ ≈ 10⁸–10¹⁰ cm⁻³
+ICP (H-mode): 가열이 플라즈마 부피 전체에 분포 → nₑ ≈ 10¹¹–10¹² cm⁻³
+→ BCl₃/Cl₂ 해리율 > 80% (CCP의 30–70% 대비)</div>
+<div class="dl-highlight">Faraday Shield는 Coil과 플라즈마 사이에서 <b>B-field는 통과시키되 Coil의 정전(Capacitive) 결합은 차단</b>합니다 — 이를 통해 Window 손상(Erosion)과 금속 오염을 줄입니다. Y₂O₃ 코팅된 Al₂O₃ Window는 Cl 계열 화학에 대한 내식성을 제공합니다. 결과적으로 더 많은 전자-분자 충돌이 발생하여, Tₑ 자체는 CCP와 크게 다르지 않아도(2–5eV → 3–6eV) 해리·이온화 효율이 훨씬 높습니다.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'Source RF vs Bias RF — "두 개의 손잡이"와 V_DC의 출처',
+          body: `<p>Chapter 1~3에서는 <b>하나의 RF 회로</b>가 플라즈마 생성과 V_DC 형성을 동시에 담당했습니다(대칭 전극→낮은 V_DC, 비대칭 전극→Target 또는 Wafer 쪽에 큰 V_DC). ICP는 이 둘을 물리적으로 분리된 두 회로로 나눕니다.</p>
+<table class="dl-table">
+  <thead><tr><th>비교 항목</th><th>Chapter 1–3 (CCP, 단일 RF)</th><th>Chapter 4 (ICP, Source+Bias 분리)</th></tr></thead>
+  <tbody>
+    <tr><td>플라즈마 밀도 결정</td><td>RF 파워 (단일 변수)</td><td>Source RF → Coil (독립 변수 1)</td></tr>
+    <tr><td>V_DC/이온 에너지 결정</td><td>전극 면적 비대칭 + 동일 RF 파워</td><td>Bias RF → Chuck, C_block 통해 (독립 변수 2)</td></tr>
+    <tr><td>V_DC 크기</td><td>대칭: 수~수십 V / 비대칭: 수백 V</td><td>−10 ~ −100V (Source 밀도와 거의 무관)</td></tr>
+    <tr><td>Source RF만 있을 때 Chuck 전위</td><td>해당 없음 (회로가 하나뿐)</td><td>V_f ≈ −수~−20V (Floating Potential)</td></tr>
+  </tbody>
+</table>
+<div class="dl-eq">ICP: Source RF (Coil) → nₑ, 라디칼/이온 생성량 결정
+     Bias RF (Chuck, via C_block) → V_DC, 이온 에너지 결정
+     → 두 변수가 "거의 독립적"으로 조절 가능</div>
+<div class="dl-highlight">ICP의 V_DC(−10~−100V)가 CCP 식각(−200~−500V)보다 작은 이유는 "ICP가 약해서"가 아니라, <b>ICP의 높은 플라즈마 밀도가 이미 충분한 이온 플럭스를 제공하므로, Bias는 방향성(이방성) 부여에 필요한 만큼의 적은 에너지만 추가하면 충분</b>하기 때문입니다. CCP처럼 큰 V_DC를 쓰면 오히려 과도한 손상/스퍼터링을 유발합니다. 이 "두 손잡이"의 독립성이, 실제 레시피에서 식각 속도(밀도 의존)는 고정한 채 이방성·산화막 Breakthrough(Bias 의존)만 따로 튜닝할 수 있게 해주는 ICP의 실용적 핵심 장점입니다.</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'Al + Cl 화학 — SiO₂ + F 화학과의 차이, BCl₃의 두 가지 역할',
+          body: `<p>Chapter 2(CCP, SiO₂+F)와 Chapter 4(ICP, Al+Cl)는 똑같이 "라디칼이 화학적으로 식각하고 이온이 이방성을 보조한다"는 틀을 따르지만, 화학 자체의 성격이 다릅니다.</p>
+<table class="dl-table">
+  <thead><tr><th>비교 항목</th><th>Chapter 2: SiO₂ + F (CCP)</th><th>Chapter 4: Al + Cl (ICP)</th></tr></thead>
+  <tbody>
+    <tr><td>반응식</td><td>SiO₂ + 4F· → SiF₄↑ + O₂</td><td>Al + 3Cl· → AlCl₃↑</td></tr>
+    <tr><td>이온 충격 없이 진행?</td><td>느림 — 이온 충격(Ar⁺ 보조)이 중요</td><td>자발적·빠름 — Al–Cl 결합이 열역학적으로 유리, AlCl₃ 휘발성</td></tr>
+    <tr><td>이온의 주 역할</td><td>화학적 식각의 "보조"(결합 절단 보조)</td><td>이방성 부여 + 자연 산화막(Al₂O₃) Breakthrough</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight"><b>BCl₃의 두 가지 역할</b>: ① Cl₂와 함께 전자 충돌로 해리되어 BCl₂·, Cl· 등 Cl 계열 라디칼을 추가 공급. ② Al 표면의 자연 산화막(Al₂O₃)을 화학적으로 환원·게터링하여 Cl·가 산화막 아래의 신선한 Al 금속에 직접 도달하도록 함 — 이 두 번째 역할은 SiO₂ 식각에는 없는, Al 식각 특유의 중요한 기능입니다. Ar은 물리적 스퍼터링 보조 및 플라즈마 안정화/희석 역할로, Chapter 2·3에서의 역할과 유사합니다.</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'ICP vs CCP 종합 비교 및 장비 공급사',
+          body: `<table class="dl-table">
+  <thead><tr><th>파라미터</th><th>ICP (Al RIE, Chapter 4)</th><th>CCP (Oxide RIE, Chapter 2)</th></tr></thead>
+  <tbody>
+    <tr><td>플라즈마 밀도 (nₑ)</td><td>10¹⁰ – 10¹² cm⁻³</td><td>10⁸ – 10¹⁰ cm⁻³</td></tr>
+    <tr><td>해리율</td><td>&gt; 80%</td><td>30 – 70%</td></tr>
+    <tr><td>전자 온도 (Tₑ)</td><td>3 – 6 eV</td><td>2 – 5 eV</td></tr>
+    <tr><td>DC Self-Bias (V_DC)</td><td>−10 ~ −100V (Bias RF)</td><td>−200 ~ −500V (전극 면적비)</td></tr>
+    <tr><td>이온 에너지</td><td>10 – 200 eV</td><td>200 – 1000+ eV</td></tr>
+    <tr><td>공정 압력</td><td>1 – 50 mTorr</td><td>5 – 50 mTorr</td></tr>
+    <tr><td>RF 결합 방식</td><td>유도성 (H-mode)</td><td>용량성 (E-mode)</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>장비사</th><th>대표 장비</th><th>주요 용도</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials (AMAT)</td><td>Centura, AdvantEdge G3</td><td>Al/Poly ICP Etch, BEOL/Gate Etch</td></tr>
+    <tr><td>Lam Research</td><td>Kiyo, Versys</td><td>Al/Poly/High-AR ICP Etch</td></tr>
+    <tr><td>TEL (Tokyo Electron)</td><td>Tactras, Telius ICP</td><td>Poly Gate, Al/Cu BEOL Etch</td></tr>
+    <tr><td>ASM / Mattson</td><td>ICP Strip/Etch</td><td>Poly Gate Etch, Resist Strip</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">ICP 장비에는 Source RF Generator/Matcher와 Bias RF Generator/Matcher, 두 세트의 독립적인 RF Power Delivery System이 필요합니다 — Chapter 1~3의 단일 회로 CCP 대비 장비 복잡도와 비용은 높지만, Density(Source)와 Ion Energy(Bias)를 독립적으로 제어할 수 있어 Al BEOL 배선뿐 아니라 Poly Gate Etch 등 고선택비·고이방성이 요구되는 첨단 공정에 광범위하게 사용됩니다.</div>`
+        },
+      ]
+    },
+    en: {
+      headerTitle: 'Deep Study — ICP in Dry Etch: Process Principles in Depth',
+      badge: 'Deep Study',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'Inductive Coupling — Why H-mode Reaches Higher Density Than E-mode',
+          body: `<p>The CCP chambers in Chapters 1–3 are <b>E-mode (capacitive/electrostatic)</b>: electrons are accelerated only by the sheath field at the electrode surfaces. ICP is <b>H-mode (inductive)</b>: the coil's oscillating current produces a B-field that, by Faraday's law (∇×E=−∂B/∂t), induces a rotating E-field throughout the <b>entire plasma volume</b>.</p>
+<div class="dl-eq">CCP (E-mode): heating confined to the sheath surface → nₑ ≈ 10⁸–10¹⁰ cm⁻³
+ICP (H-mode): heating distributed through the plasma volume → nₑ ≈ 10¹¹–10¹² cm⁻³
+→ BCl₃/Cl₂ dissociation > 80% (vs. 30–70% for CCP)</div>
+<div class="dl-highlight">The Faraday shield, between the coil and the plasma, <b>passes the B-field while blocking the coil's capacitive coupling</b> — reducing window erosion and metal contamination. The Y₂O₃-coated Al₂O₃ window resists Cl-based chemistry. The net result is many more electron-molecule collisions, so even though Tₑ itself isn't dramatically different from CCP (2–5 eV → 3–6 eV), dissociation and ionization efficiency are much higher.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'Source RF vs. Bias RF — "Two Knobs" and Where V_DC Comes From',
+          body: `<p>In Chapters 1–3, a <b>single RF circuit</b> handled both plasma generation and V_DC formation (symmetric electrodes → low V_DC; asymmetric → large V_DC at the target or wafer). ICP splits these into two physically separate circuits.</p>
+<table class="dl-table">
+  <thead><tr><th>Comparison</th><th>Chapters 1–3 (CCP, single RF)</th><th>Chapter 4 (ICP, Source+Bias separated)</th></tr></thead>
+  <tbody>
+    <tr><td>Sets plasma density</td><td>RF power (single variable)</td><td>Source RF → Coil (independent variable 1)</td></tr>
+    <tr><td>Sets V_DC / ion energy</td><td>Electrode area asymmetry + same RF power</td><td>Bias RF → Chuck, via C_block (independent variable 2)</td></tr>
+    <tr><td>V_DC magnitude</td><td>Symmetric: few–tens of V / Asymmetric: hundreds of V</td><td>−10 to −100 V (largely independent of Source density)</td></tr>
+    <tr><td>Chuck potential, Source RF only</td><td>N/A (only one circuit exists)</td><td>V_f ≈ −few to −20 V (floating potential)</td></tr>
+  </tbody>
+</table>
+<div class="dl-eq">ICP: Source RF (Coil) → sets nₑ, radical/ion generation
+     Bias RF (Chuck, via C_block) → sets V_DC, ion energy
+     → the two variables are tunable "almost independently"</div>
+<div class="dl-highlight">ICP's V_DC (−10 to −100 V) is smaller than CCP etch's (−200 to −500 V) not because ICP is "weaker," but because <b>ICP's high plasma density already supplies abundant ion flux — Bias only needs to add the modest extra energy required for directionality (anisotropy)</b>. Using a CCP-scale V_DC here would cause excessive damage/sputtering instead. This independence of the "two knobs" is ICP's key practical advantage: a recipe can hold etch rate (density-dependent) fixed while separately tuning anisotropy and oxide breakthrough (bias-dependent).</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'Al + Cl Chemistry — Contrast with SiO₂ + F, and BCl₃\'s Two Roles',
+          body: `<p>Chapter 2 (CCP, SiO₂+F) and Chapter 4 (ICP, Al+Cl) both follow the framework "radicals etch chemically, ions assist anisotropy" — but the chemistry itself behaves differently.</p>
+<table class="dl-table">
+  <thead><tr><th>Comparison</th><th>Chapter 2: SiO₂ + F (CCP)</th><th>Chapter 4: Al + Cl (ICP)</th></tr></thead>
+  <tbody>
+    <tr><td>Reaction</td><td>SiO₂ + 4F· → SiF₄↑ + O₂</td><td>Al + 3Cl· → AlCl₃↑</td></tr>
+    <tr><td>Proceeds without ion bombardment?</td><td>Slow — ion bombardment (Ar⁺ assist) matters</td><td>Spontaneous & fast — Al–Cl bond formation is thermodynamically favorable, AlCl₃ is volatile</td></tr>
+    <tr><td>Primary role of ions</td><td>"Assist" the chemical etch (bond-breaking help)</td><td>Provide anisotropy + native-oxide (Al₂O₃) breakthrough</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight"><b>BCl₃'s two roles</b>: ① Like Cl₂, it dissociates under electron impact to supply additional Cl-based radicals (BCl₂·, Cl·, etc.). ② It chemically reduces/getters the native Al₂O₃ oxide on the Al surface, allowing Cl· to reach fresh Al metal beneath — a role with no analog in SiO₂ etch, and specifically important for Al etch. Ar plays a similar role to Chapters 2–3: physical sputtering assist and plasma stabilization/dilution.</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'ICP vs. CCP — Overall Comparison & Equipment Vendors',
+          body: `<table class="dl-table">
+  <thead><tr><th>Parameter</th><th>ICP (Al RIE, Chapter 4)</th><th>CCP (Oxide RIE, Chapter 2)</th></tr></thead>
+  <tbody>
+    <tr><td>Plasma density (nₑ)</td><td>10¹⁰ – 10¹² cm⁻³</td><td>10⁸ – 10¹⁰ cm⁻³</td></tr>
+    <tr><td>Dissociation</td><td>&gt; 80%</td><td>30 – 70%</td></tr>
+    <tr><td>Electron temp (Tₑ)</td><td>3 – 6 eV</td><td>2 – 5 eV</td></tr>
+    <tr><td>DC self-bias (V_DC)</td><td>−10 to −100 V (Bias RF)</td><td>−200 to −500 V (electrode area ratio)</td></tr>
+    <tr><td>Ion energy</td><td>10 – 200 eV</td><td>200 – 1000+ eV</td></tr>
+    <tr><td>Operating pressure</td><td>1 – 50 mTorr</td><td>5 – 50 mTorr</td></tr>
+    <tr><td>RF coupling</td><td>Inductive (H-mode)</td><td>Capacitive (E-mode)</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>Vendor</th><th>Key Tool</th><th>Primary Use</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials</td><td>Centura, AdvantEdge G3</td><td>Al/poly ICP etch, BEOL/gate etch</td></tr>
+    <tr><td>Lam Research</td><td>Kiyo, Versys</td><td>Al/poly/high-AR ICP etch</td></tr>
+    <tr><td>TEL (Tokyo Electron)</td><td>Tactras, Telius ICP</td><td>Poly gate, Al/Cu BEOL etch</td></tr>
+    <tr><td>ASM / Mattson</td><td>ICP strip/etch</td><td>Poly gate etch, resist strip</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">ICP platforms require two independent RF power delivery systems — a Source RF Generator/Matcher and a Bias RF Generator/Matcher — adding equipment complexity and cost relative to the single-circuit CCP chambers of Chapters 1–3. In return, independent control of density (Source) and ion energy (Bias) makes ICP the workhorse for Al BEOL interconnect etch as well as poly gate etch and other advanced processes demanding high selectivity and high anisotropy.</div>`
+        },
+      ]
+    }
+  };
+
+  const d = DATA[isEn ? 'en' : 'ko'];
+  const sectionsHtml = d.sections.map(sec => `
+    <div class="dl-section">
+      <div class="dl-section-title">${sec.icon} ${sec.title}</div>
+      <div class="dl-body">${sec.body}</div>
+    </div>`).join('');
+
+  return `
+    <div class="deep-learn-wrap" id="${uid}">
+      <div class="deep-learn-header" onclick="toggleDeepLearn('${uid}')" id="${uid}_hdr">
+        <div class="deep-learn-icon">📚</div>
+        <div class="deep-learn-title">${d.headerTitle}</div>
+        <span class="deep-learn-badge">${d.badge}</span>
+        <span class="deep-learn-chevron">▼</span>
+      </div>
+      <div class="deep-learn-body" id="${uid}_body">
+        <div class="deep-learn-inner">${sectionsHtml}</div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  REMOTE PLASMA SOURCE (RPS) DEEP LEARN
+// ─────────────────────────────────────────────
+function buildRPSDeepLearn(isEn, slideId) {
+  const uid = 'dlAccordion_' + slideId;
+
+  const DATA = {
+    ko: {
+      headerTitle: '심화학습 — Remote Plasma Source: 공정 원리 깊이 이해하기',
+      badge: '심화학습',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'Transformer-Coupled Plasma (TCP) — Toroidal RPS vs Chapter 4의 평면형 ICP',
+          body: `<p>Chapter 4(ICP)의 평면 Coil도 변압기 원리(1차 코일 → 변동 B-field → 2차측에 유도 E-field)를 사용했지만, 2차측이 <b>웨이퍼 위의 평면 플라즈마</b>였습니다. RPS의 토로이달 TCP는 동일한 변압기 원리를 사용하되, 2차측이 <b>닫힌 링 형태의 석영 튜브 내부</b>입니다.</p>
+<table class="dl-table">
+  <thead><tr><th>비교 항목</th><th>Chapter 4: 평면형 ICP</th><th>Chapter 5: Toroidal RPS (TCP)</th></tr></thead>
+  <tbody>
+    <tr><td>변압기의 2차측(플라즈마)</td><td>평면 Window 아래, 웨이퍼를 향함</td><td>닫힌 링 형태 석영 튜브 내부, 챔버 밖</td></tr>
+    <tr><td>Bias RF / Matcher</td><td>있음 (V_DC 독립 제어)</td><td>없음 — 단일 AC 회로뿐</td></tr>
+    <tr><td>플라즈마와 웨이퍼의 관계</td><td>직접 접촉(둘러싸임)</td><td>완전 분리(Downstream으로 전달)</td></tr>
+    <tr><td>전형적 주파수</td><td>13.56 MHz</td><td>400 kHz (13.56MHz, 2.45GHz Microwave 변형도 존재)</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">즉, RPS는 "ICP가 없는 새로운 개념"이 아니라, <b>같은 유도결합 원리를 챔버 밖의 닫힌 루프에 적용하고, Bias 회로 자체를 처음부터 설계에서 제외</b>한 형태입니다. Bias가 없는 이유는 단순합니다 — 플라즈마가 챔버 밖에 있으므로 웨이퍼 쪽으로 이온을 가속할 대상도, 필요도 없습니다.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'Duct = 재결합 필터 — 라디칼은 살아남고 이온/전자는 사라지는 이유',
+          body: `<p>RPS의 핵심 트릭은 "라디칼만 선택적으로 통과시키는 필터"를 만드는 것이 아니라, <b>재결합 시간 척도의 차이를 그대로 이용</b>하는 것입니다.</p>
+<div class="dl-eq">이온-전자 재결합 (Duct 벽면): O₂⁺ + e⁻ → O₂ (또는 2O)
+   재결합 시간 ~ μs–ms (Duct 벽과의 충돌마다 높은 확률로 소멸)
+중성 라디칼 손실 (O· 재결합/벽 흡착):
+   손실 시간 ≫ 이온-전자 재결합 시간 (훨씬 느림)
+→ Duct 통과 시간(가스 이송 시간) 동안:
+   이온/전자: 대부분 소멸 ✗   라디칼(O·): 대부분 생존 ✓</div>
+<div class="dl-highlight">전기적으로 하전된 입자(이온, 전자)는 Duct 벽에 닿는 순간 전하를 잃고(접지 벽으로 중화) 중성 분자로 돌아갑니다 — 이 과정은 매우 빠릅니다. 반면 중성 라디칼 O·가 벽에 흡착되어 사라지는 비율은 훨씬 낮습니다. 따라서 <b>Duct의 길이·재질·내경을 설계하는 것 = 이온/전자는 충분히 죽이면서 라디칼 손실은 최소화하는 균형점을 찾는 것</b>입니다. 너무 짧으면 이온이 일부 살아남고, 너무 길면 라디칼도 함께 손실됩니다.</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'Direct Plasma (Chapter 1~4) vs Remote Plasma (Chapter 5) — 종합 비교',
+          body: `<table class="dl-table">
+  <thead><tr><th>파라미터</th><th>Direct Plasma (CCP/ICP, Ch.1~4)</th><th>Remote Plasma (RPS, Ch.5)</th></tr></thead>
+  <tbody>
+    <tr><td>플라즈마 위치</td><td>웨이퍼를 둘러싼 챔버 내부</td><td>챔버 밖 토로이드 내부에 한정</td></tr>
+    <tr><td>웨이퍼에 도달하는 입자</td><td>이온 + 라디칼 + UV + 전자</td><td>중성 라디칼(O·)만</td></tr>
+    <tr><td>웨이퍼 위 이온 에너지</td><td>10 – 1000+ eV</td><td>~0 eV (없음)</td></tr>
+    <tr><td>웨이퍼 Chuck의 V_DC</td><td>0 ~ −500V (Chapter별로 다름)</td><td>없음 (완전 접지)</td></tr>
+    <tr><td>동작 압력</td><td>1 – 50 mTorr</td><td>0.5 – 5 Torr</td></tr>
+    <tr><td>프로파일 제어</td><td>이방성 가능(Ch.2,4) / 등방성(Ch.1,3 의도)</td><td>등방성만 가능</td></tr>
+    <tr><td>대표 용도</td><td>증착(Ch.1,3), 식각(Ch.2,4)</td><td>PR Ashing, Chamber Cleaning, Remote PE-CVD Co-reactant</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">화학식 자체(<code>O· + CₓHᵥ → CO₂ + H₂O</code>)는 Direct/Remote 어느 쪽이든 동일하게 O·가 수행하는 일입니다. 차이는 그 외의 모든 것 — 이온 에너지, 방향성, UV Flux — 이 Direct 모드에는 존재하고 Remote 모드에는 없다는 점입니다. Chapter 1~5를 관통하는 한 가지 질문으로 정리하면: <b>"이 공정에서 이온 충격(q×V_sheath)이 필요한가, 아니면 라디칼의 화학 반응만으로 충분한가?"</b> — 필요하면 Direct(Ch.1~4), 불필요하거나 오히려 해로우면 Remote(Ch.5)입니다.</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'RPS 응용 — PR Ashing & Chamber Plasma Cleaning, 장비 공급사',
+          body: `<table class="dl-table">
+  <thead><tr><th>응용</th><th>가스</th><th>대상/위치</th></tr></thead>
+  <tbody>
+    <tr><td>PR Ashing (Post-Etch)</td><td>O₂ (+Ar/He)</td><td>웨이퍼 위 잔류 PR, Cl계 부산물(AlCl_x, SiCl_x) 제거</td></tr>
+    <tr><td>Chamber Plasma Cleaning</td><td>NF₃ (+Ar/H₂/He)</td><td>챔버 벽·샤워헤드·ESC·전극의 폴리머/금속/Cl 잔류물 제거</td></tr>
+    <tr><td>Remote PE-CVD Co-reactant</td><td>O₂, N₂, NH₃ 등</td><td>Chapter 1 PE-CVD 챔버에 라디칼만 추가 공급 (저손상 보조)</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>장비사</th><th>대표 장비/모듈</th><th>주요 용도</th></tr></thead>
+  <tbody>
+    <tr><td>MKS Instruments (ASTRON)</td><td>Toroidal RPS 모듈</td><td>PR Ashing, Chamber Cleaning (OEM 공급)</td></tr>
+    <tr><td>Applied Materials</td><td>Producer GT, RPS-integrated Etch/CVD</td><td>식각 후 Ashing, 챔버 세정 통합</td></tr>
+    <tr><td>Lam Research</td><td>RPS-integrated Strip 모듈</td><td>Photoresist Strip, Residue Removal</td></tr>
+    <tr><td>TEL (Tokyo Electron)</td><td>Telius Strip/Clean</td><td>Ashing, Chamber Cleaning</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">RPS는 독자 장비로 판매되는 경우는 드물고, 대부분 식각/CVD 장비에 <b>모듈로 통합</b>되어 같은 챔버에서 "식각 → Ashing"이 연속으로 진행되거나, 별도 Strip 챔버로 구성됩니다. RPS 전원은 AC Source 하나뿐이므로 — Chapter 1~4에서 본 RF Generator/Matcher/Bias 조합에 비해 Power Delivery System이 가장 단순한 Chapter입니다. 동시에, "이온이 없다"는 단 하나의 설계 선택이 Chapter 1~4의 모든 V_DC·Sheath·이방성 논의를 무의미하게 만든다는 점에서, RPS는 이 강의 시리즈의 적절한 마지막 장입니다.</div>`
+        },
+      ]
+    },
+    en: {
+      headerTitle: 'Deep Study — Remote Plasma Source: Process Principles in Depth',
+      badge: 'Deep Study',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'Transformer-Coupled Plasma (TCP) — Toroidal RPS vs. Chapter 4\'s Planar ICP',
+          body: `<p>Chapter 4's planar coil also used a transformer principle (primary coil → oscillating B-field → induced E-field on the secondary), but the "secondary" was the <b>planar plasma above the wafer</b>. RPS's toroidal TCP uses the same transformer principle, but the secondary is the <b>interior of a closed-loop quartz ring</b>.</p>
+<table class="dl-table">
+  <thead><tr><th>Comparison</th><th>Chapter 4: Planar ICP</th><th>Chapter 5: Toroidal RPS (TCP)</th></tr></thead>
+  <tbody>
+    <tr><td>Transformer secondary (plasma)</td><td>Below the planar window, facing the wafer</td><td>Inside a closed quartz ring, outside the chamber</td></tr>
+    <tr><td>Bias RF / Matcher</td><td>Present (independent V_DC control)</td><td>Absent — single AC circuit only</td></tr>
+    <tr><td>Plasma-wafer relationship</td><td>Direct contact (surrounds the wafer)</td><td>Fully separated (delivered downstream)</td></tr>
+    <tr><td>Typical frequency</td><td>13.56 MHz</td><td>400 kHz (13.56 MHz, 2.45 GHz microwave variants also exist)</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">RPS isn't "a new concept without ICP" — it's the <b>same inductive-coupling principle applied to a closed loop outside the chamber, with the bias circuit deliberately omitted from the design from the start</b>. The reason is simple: since the plasma is outside the chamber, there is no wafer-side target to accelerate ions toward, and no need for one.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'The Duct as a Recombination Filter — Why Radicals Survive and Ions/Electrons Don\'t',
+          body: `<p>RPS's core trick isn't building a literal "radical-only filter" — it's <b>exploiting the difference in recombination timescales</b>.</p>
+<div class="dl-eq">Ion-electron recombination (at duct walls): O₂⁺ + e⁻ → O₂ (or 2O)
+   recombination time ~ μs–ms (high probability of loss per wall collision)
+Neutral radical loss (O· recombination/wall adsorption):
+   loss time ≫ ion-electron recombination time (much slower)
+→ over the duct transit (gas residence) time:
+   ions/electrons: mostly gone ✗   radicals (O·): mostly survive ✓</div>
+<div class="dl-highlight">Charged species (ions, electrons) lose their charge the instant they touch the grounded duct wall — neutralizing almost instantly. Neutral O· radicals are lost to wall adsorption at a much lower rate. So <b>designing the duct's length, material, and diameter is really about finding the balance point that kills off ions/electrons while minimizing radical loss</b> — too short and some ions survive; too long and radicals are lost too.</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'Direct Plasma (Chapters 1–4) vs. Remote Plasma (Chapter 5) — Overall Comparison',
+          body: `<table class="dl-table">
+  <thead><tr><th>Parameter</th><th>Direct Plasma (CCP/ICP, Ch.1–4)</th><th>Remote Plasma (RPS, Ch.5)</th></tr></thead>
+  <tbody>
+    <tr><td>Plasma location</td><td>Inside the chamber, surrounding the wafer</td><td>Confined in a toroid outside the chamber</td></tr>
+    <tr><td>Species reaching wafer</td><td>Ions + radicals + UV + electrons</td><td>Neutral radicals (O·) only</td></tr>
+    <tr><td>Ion energy at wafer</td><td>10 – 1000+ eV</td><td>~0 eV (none)</td></tr>
+    <tr><td>V_DC at wafer chuck</td><td>0 to −500 V (varies by chapter)</td><td>None (fully grounded)</td></tr>
+    <tr><td>Operating pressure</td><td>1 – 50 mTorr</td><td>0.5 – 5 Torr</td></tr>
+    <tr><td>Profile control</td><td>Anisotropic possible (Ch.2,4) / isotropic by design (Ch.1,3)</td><td>Isotropic only</td></tr>
+    <tr><td>Typical use</td><td>Deposition (Ch.1,3), etch (Ch.2,4)</td><td>PR ashing, chamber cleaning, remote PE-CVD co-reactant</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">The chemistry itself (<code>O· + CₓHᵥ → CO₂ + H₂O</code>) is the same job done by O· regardless of direct or remote mode. What differs is everything else — ion energy, directionality, UV flux — present in direct mode and absent in remote mode. One question runs through Chapters 1–5: <b>"does this process need ion bombardment (q×V_sheath), or is the radical chemistry enough by itself?"</b> If needed → direct (Ch.1–4); if unnecessary or even harmful → remote (Ch.5).</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'RPS Applications — PR Ashing & Chamber Plasma Cleaning, Equipment Vendors',
+          body: `<table class="dl-table">
+  <thead><tr><th>Application</th><th>Gas</th><th>Target/Location</th></tr></thead>
+  <tbody>
+    <tr><td>PR Ashing (post-etch)</td><td>O₂ (+Ar/He)</td><td>Residual PR on the wafer, Cl-based byproducts (AlCl_x, SiCl_x)</td></tr>
+    <tr><td>Chamber plasma cleaning</td><td>NF₃ (+Ar/H₂/He)</td><td>Polymer/metal/Cl residue on chamber walls, showerhead, ESC, electrodes</td></tr>
+    <tr><td>Remote PE-CVD co-reactant</td><td>O₂, N₂, NH₃, etc.</td><td>Supplies radicals only into a Chapter 1 PE-CVD chamber (low-damage assist)</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>Vendor</th><th>Key Tool/Module</th><th>Primary Use</th></tr></thead>
+  <tbody>
+    <tr><td>MKS Instruments (ASTRON)</td><td>Toroidal RPS module</td><td>PR ashing, chamber cleaning (OEM supply)</td></tr>
+    <tr><td>Applied Materials</td><td>Producer GT, RPS-integrated etch/CVD</td><td>Integrated post-etch ashing & chamber clean</td></tr>
+    <tr><td>Lam Research</td><td>RPS-integrated strip modules</td><td>Photoresist strip, residue removal</td></tr>
+    <tr><td>TEL (Tokyo Electron)</td><td>Telius strip/clean</td><td>Ashing, chamber cleaning</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">RPS is rarely sold as a standalone tool — it's almost always <b>integrated as a module</b> into etch/CVD platforms, either running "etch → ashing" in sequence in the same chamber, or as a separate strip chamber. Its power supply is just one AC source — making this chapter's power-delivery system the simplest of the series compared to the RF Generator/Matcher/Bias combinations in Chapters 1–4. At the same time, the single design choice "no ions" renders all of Chapters 1–4's V_DC, sheath, and anisotropy discussions moot — which is exactly why RPS makes a fitting final chapter for this series.</div>`
         },
       ]
     }
