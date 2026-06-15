@@ -347,6 +347,58 @@
   }
   .sim-btn:hover { background: var(--purple-dark); transform: translateY(-1px); }
 
+  /* ── Process Context Image (where this film is used) ── */
+  .context-wrap {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.1rem 1.2rem; margin-bottom: 1.1rem; box-shadow: var(--shadow);
+  }
+  .context-header {
+    display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem;
+  }
+  .context-badge {
+    background: var(--green); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem; font-weight: 700; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+  }
+  .context-title { font-family: 'Google Sans', 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: var(--charcoal); }
+  .context-img-frame {
+    width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid var(--border2);
+    cursor: zoom-in; background: #fff;
+  }
+  .context-img-frame img { width: 100%; display: block; }
+  .context-caption {
+    margin-top: 0.6rem; font-size: calc(0.8rem * var(--scale)); line-height: 1.78;
+    color: var(--text); font-family: 'Gowun Batang', serif; transition: font-size 0.15s ease-out;
+  }
+  .context-caption b { color: var(--green-dark); }
+  .context-foot { margin-top: 0.5rem; display: flex; justify-content: flex-end; }
+
+  /* ── Interactive Simulator Embed ── */
+  .sim-embed-wrap {
+    background: #0d0d1a; border-radius: 12px; padding: 0; overflow: hidden;
+    margin-bottom: 1.1rem; box-shadow: 0 4px 20px rgba(112,48,160,0.2);
+    border: 1px solid var(--purple-mid);
+  }
+  .sim-embed-header {
+    background: linear-gradient(90deg, #1a0a2e 0%, #2d1456 100%);
+    padding: 0.75rem 1.2rem; display: flex; align-items: center; gap: 0.75rem;
+  }
+  .sim-embed-badge {
+    background: var(--purple); color: #fff; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.52rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.06em;
+  }
+  .sim-embed-title { font-family: 'Google Sans', sans-serif; font-size: 0.92rem; font-weight: 700; color: #fff; }
+  .sim-embed-frame {
+    width: 100%; height: 880px; border: none; display: block; background: #0d0d1a;
+  }
+  .sim-embed-foot {
+    background: #1a0a2e; padding: 0.5rem 1.2rem; display: flex; justify-content: flex-end;
+  }
+  .sim-embed-foot a {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--purple-mid);
+    text-decoration: none; letter-spacing: 0.04em;
+  }
+  .sim-embed-foot a:hover { color: #fff; }
+
   /* ── CCP Chamber Diagram (inline SVG canvas) ── */
   .chamber-wrap {
     background: #0d0d1a; border-radius: 12px; padding: 0; overflow: hidden;
@@ -532,6 +584,7 @@ const UI = {
     eraRanges: { ccp: 'PE-CVD · Dry Etch · PVD', icp: 'High-Density Etch', rps: 'Microwave / ECR / ICP' },
     eraNames:  { ccp: 'CCP (Capacitively Coupled Plasma)', icp: 'ICP (Inductively Coupled Plasma)', rps: 'Remote Plasma Source' },
     sectionTheory: '핵심 개념 및 공정 원리',
+    sectionContext: '이 공정은 반도체 어디에 쓰일까?',
     sectionDiagram: '챔버 구조 다이어그램',
     sectionParam: '공정 핵심 파라미터',
     sectionProcess: '공정 시퀀스',
@@ -549,6 +602,7 @@ const UI = {
     eraRanges: { ccp: 'PE-CVD · Dry Etch · PVD', icp: 'High-Density Etch', rps: 'Microwave / ECR / ICP' },
     eraNames:  { ccp: 'CCP (Capacitively Coupled Plasma)', icp: 'ICP (Inductively Coupled Plasma)', rps: 'Remote Plasma Source' },
     sectionTheory: 'Key Concepts & Process Principles',
+    sectionContext: 'Where Does This Process Fit in the Chip?',
     sectionDiagram: 'Chamber Structure Diagram',
     sectionParam: 'Key Process Parameters',
     sectionProcess: 'Process Sequence',
@@ -566,9 +620,9 @@ const UI = {
 // ─────────────────────────────────────────────
 const SLIDES_KO = [
 
-  // ── MODULE 3-1: CCP in PE-CVD ─────────────────────────────────
+  // ── Chapter 1: CCP in PE-CVD ─────────────────────────────────
   {
-    id: 'm31', chapter: 'MODULE 3-1', era: 'ccp',
+    id: 'm31', chapter: 'Chapter 1', era: 'ccp',
     name: 'CCP in PE-CVD',
     nameKr: 'CCP in PE-CVD — 저온 박막 증착의 핵심',
     period: 'PE-CVD 챔버 구조 · RF 역할 · 박막 증착 메커니즘',
@@ -581,11 +635,13 @@ const SLIDES_KO = [
       { year: '챔버 구조', name: 'CCP 전극 구성 — 평행판 구조', desc: 'RF 전극(상부/샤워헤드) + 접지 전극(하부/서셉터) 사이에 RF 전압 인가. 전극 간격 약 20~60mm. 용량성 결합으로 플라즈마 형성.' },
       { year: '플라즈마 생성', name: 'Electron Impact Dissociation', desc: 'SiH₄ + e⁻ → SiH₃* + H· (radical) · SiH₄ + e⁻ → SiH₂ + H₂ + e⁻. RF 가속 전자가 전구체 분자의 화학 결합을 절단하여 라디칼 생성.' },
       { year: '박막 형성', name: 'Surface Reaction & Growth', desc: '라디칼(SiH₃*, NH₂*, N*, H*)이 웨이퍼 표면에 흡착 → 열활성화 반응 → 박막 성장. 플라즈마 파워 → 라디칼 농도 → 증착 속도(Deposition Rate) 비례.' },
-      { year: 'RF 임피던스', name: 'Sheath & Self-Bias (DC Bias)', desc: '비대칭 전극면적 → DC self-bias 생성 → 이온 가속 → 막질(Film Density) 향상. VDC가 높을수록 이온 충격 에너지 증가. Power 증가 = VDC 증가 = 막 압축 응력 증가.' },
+      { year: 'RF 임피던스', name: 'Sheath & DC Self-Bias — 대칭 전극 설계', desc: 'PE-CVD/PE-ALD 챔버는 RF 전극과 접지 전극의 면적을 거의 대칭으로 설계하여 DC self-bias(VDC)를 최소화합니다. 식각(RIE) 챔버가 비대칭 전극으로 강한 이온 충격을 의도적으로 만드는 것과 반대로, 증착 공정에서는 과도한 이온 에너지가 막질 손상·스퍼터링·파티클을 유발하므로 VDC를 낮게 유지하는 것이 목표입니다. 다만 약한 이온 충격(저에너지)은 막 밀도를 높이는 densification 효과가 있어, RF 파워는 라디칼 생성량과 막질 사이의 균형점으로 설정됩니다.' },
     ],
     showParams: 'pecvd',
     showProcess: 'pecvd',
     showDeepLearn: 'pecvd',
+    showContext: 'pecvd',
+    showSim: 'pecvd',
     equations: [
       'SiH_4 + 4N_2O \\xrightarrow{\\text{Plasma}} SiO_2 + 4N_2 + 2H_2O',
       'SiH_4 + NH_3 \\xrightarrow{\\text{Plasma}} Si_3N_4 + H_2',
@@ -594,37 +650,69 @@ const SLIDES_KO = [
     connections: ['m32', 'm33', 'm34'],
   },
 
-  // ── MODULE 3-2: CCP in Dry Etch ───────────────────────────────
+  // ── Chapter 2: CCP in Dry Etch ───────────────────────────────
   {
-    id: 'm32', chapter: 'MODULE 3-2', era: 'ccp',
+    id: 'm32', chapter: 'Chapter 2', era: 'ccp',
     name: 'CCP in Dry Etch',
     nameKr: 'CCP in Dry Etch — 이방성 식각의 원리',
-    period: 'CCP 건식 식각 챔버 · 이방성 · DC Bias',
-    tags: ['Dry Etch', 'CCP', '이방성 식각', 'DC Bias', 'CF₄', 'RIE'],
-    quote: '준비 중 — Coming Soon',
-    quoteAttr: '— Benedu Insight',
-    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
-    placeholder: true,
+    period: 'CCP 건식 식각 챔버 구조 · 비대칭 전극 · DC Self-Bias · 이방성 식각',
+    tags: ['Dry Etch', 'CCP', 'RIE', '이방성 식각', 'DC Self-Bias', 'C₄F₈/Ar/O₂'],
+    quote: '증착 공정에서는 이온 충격이 막질을 향상시키는 보조 수단이지만, 식각 공정에서는 동일한 이온 충격(qV_sheath)이 식각 방향성을 결정하는 핵심 메커니즘이 됩니다.',
+    quoteAttr: '— 반도체 식각 공정 기초 (Semiconductor Etch Process Fundamentals)',
+    bio: `<b>CCP Dry Etch (Reactive Ion Etching, RIE)</b>는 CCP(Capacitively Coupled Plasma) 구조에서 생성된 라디칼과 이온을 이용하여, 웨이퍼 위 노출된 SiO₂ 등의 박막을 선택적·방향성 있게 제거하는 공정입니다.\n\n<b>왜 비대칭 전극인가?</b> Chapter 1의 PE-CVD 챔버는 대칭 전극으로 V_DC(DC Self-Bias)를 억제하여 막 손상을 최소화했습니다. 식각 챔버는 그 반대 전략을 사용합니다. 접지 전극(샤워헤드, 면적 A_g)을 크게, RF가 인가되는 웨이퍼 척(면적 A_p)을 작게 설계하여 <b>V_DC ∝ −(A_g/A_p)^2.5</b> 관계에 따라 수백 V의 강한 음의 DC Self-Bias를 의도적으로 형성합니다. 이 V_DC가 이온을 척 방향으로 수직 가속시켜, 마스크로 보호되지 않은 영역만 깊이 방향으로 식각되는 <b>이방성(anisotropic) 식각</b>을 구현합니다.`,
+    showDiagram: 'etch',
+    theories: [
+      { year: '챔버 구조', name: 'CCP 전극 구성 — 비대칭 평행판 구조', desc: '접지 전극(샤워헤드, 면적 A_g) + RF 전극(웨이퍼 척, 면적 A_p), A_g ≫ A_p. Blocking Capacitor(C_block)를 통해 RF가 척에 인가되어, RF 전류는 흐르되 DC는 척에 누적됨.' },
+      { year: '플라즈마 생성', name: 'Fluorocarbon Dissociation', desc: 'C₄F₈ + e⁻ → CF₃·, CF₂·, F· (radical). 고리형 C₄F₈가 전자 충돌로 개환(ring-opening)되어 식각 활성종(F·)과 폴리머 형성종(CFx)을 동시에 생성.' },
+      { year: '식각 메커니즘', name: 'Chemical + Physical 복합 식각', desc: 'F· + SiO₂ → SiF₄(휘발성, 화학적 식각) + Ar⁺ 물리적 스퍼터링(Si–O 결합 파괴 보조) + 측벽 CFx 폴리머 passivation → 수직 측벽 형성.' },
+      { year: 'RF 임피던스', name: 'Sheath & DC Self-Bias — 비대칭 전극 설계', desc: 'Chapter 1의 PE-CVD와 반대로, 식각 챔버는 비대칭 전극(A_g ≫ A_p)으로 V_DC를 −200~−500V까지 의도적으로 키웁니다. V_RF + V_DC ≈ 수백~1000+ eV의 강한 이온 가속 → 이방성 식각의 직접적 구동력. 같은 qV_sheath 물리가 PE-CVD에서는 약한 densification, 식각에서는 주(主) 식각 메커니즘이 됨.' },
+    ],
+    showParams: 'etch',
+    showProcess: 'etch',
+    showDeepLearn: 'etch',
+    showContext: 'etch',
+    showSim: 'etch',
+    equations: [
+      'SiO_2 + 4F\\cdot \\xrightarrow{\\text{Plasma}} SiF_4 \\uparrow + O_2',
+      'V_{DC} \\propto -\\left(\\dfrac{A_g}{A_p}\\right)^{2.5}',
+    ],
+    classroom: `CCP Dry Etch 공정 이해 점검:\n1. PE-CVD(Chapter 1)와 Dry Etch(Chapter 2) 챔버는 둘 다 CCP 구조이지만 전극 면적 설계가 정반대입니다. 그 이유를 V_DC 관점에서 설명하세요.\n2. C₄F₈ : Ar : O₂ 가스 비율이 식각 속도(Etch Rate), 선택비(Selectivity), 측벽 Passivation에 각각 어떤 영향을 미칩니까?\n3. "화학적 식각(F· + SiO₂ → SiF₄)"과 "물리적 식각(Ar⁺ 스퍼터링)"의 역할을 구분하여 설명하고, 두 가지가 결합되었을 때 얻을 수 있는 이점은 무엇입니까?\n4. Blocking Capacitor(C_block)가 없다면 웨이퍼 척에 DC Self-Bias가 형성될 수 없는 이유는 무엇입니까?`,
     connections: ['m31', 'm33', 'm34'],
   },
 
-  // ── MODULE 3-3: CCP in PVD (Sputter) ─────────────────────────
+  // ── Chapter 3: CCP in PVD (Sputter) ─────────────────────────
   {
-    id: 'm33', chapter: 'MODULE 3-3', era: 'ccp',
+    id: 'm33', chapter: 'Chapter 3', era: 'ccp',
     name: 'CCP in PVD (Sputter)',
     nameKr: 'CCP in PVD — 스퍼터링의 원리',
-    period: 'DC/RF Magnetron Sputter · 타깃 · 성막',
-    tags: ['PVD', 'Sputter', 'Magnetron', 'DC Sputter', 'RF Sputter'],
-    quote: '준비 중 — Coming Soon',
-    quoteAttr: '— Benedu Insight',
-    bio: `이 강의는 현재 개발 중입니다. 곧 공개됩니다.`,
-    placeholder: true,
+    period: 'CCP 스퍼터 챔버 구조 · 비대칭 Target Self-Bias · 물리적 식각(증착) 메커니즘',
+    tags: ['PVD', 'Sputter', 'CCP', 'Al', 'Target Self-Bias', 'DC/AC'],
+    quote: 'PE-CVD에서는 이온 충격이 성장 중인 막을 다지는 보조 효과였지만, Sputter PVD에서는 동일한 q×V_sheath 물리가 — 더 큰 V에서 — Source Target 자체를 깎아내는 핵심 메커니즘이 됩니다.',
+    quoteAttr: '— 반도체 PVD 공정 기초 (Semiconductor PVD Process Fundamentals)',
+    bio: `<b>CCP PVD (Physical Vapor Deposition, Sputtering)</b>는 CCP 구조에서 생성된 Ar⁺ 이온을 고전압으로 가속하여 금속 Target(예: Al)에 충돌시키고, 운동량 전달(momentum transfer)로 튕겨 나온 금속 원자를 웨이퍼 위에 증착하는 공정입니다.\n\n<b>왜 비대칭 전극인가?</b> Chapter 1의 PE-CVD는 대칭 전극으로 V_DC를 억제했고, Chapter 2의 식각은 비대칭 전극으로 웨이퍼 쪽에 강한 V_DC를 만들어 이온을 웨이퍼로 가속했습니다. PVD는 이와 또 다른 비대칭 구조입니다 — <b>Target(파워 인가) 쪽에 수백 V의 강한 음의 Self-Bias</b>가 형성되어, Ar⁺ 이온이 웨이퍼가 아닌 <b>Target</b>으로 가속됩니다. Target 표면에서 충돌한 Ar⁺은 화학반응이 아닌 순수 물리적 충돌(collision cascade)로 금속 원자를 떼어내며, 이 원자가 웨이퍼로 이동·흡착되어 금속막을 형성합니다.`,
+    showDiagram: 'pvd',
+    theories: [
+      { year: '챔버 구조', name: 'CCP 전극 구성 — Target/Wafer 비대칭 구조', desc: 'Target(Cathode, 파워 인가) + 웨이퍼·서셉터(접지/Anode). Target Sheath는 수백 V(고전압), Wafer Sheath는 수~수십 V(저전압) — Chapter 2(식각)와는 비대칭의 "방향"이 반대.' },
+      { year: '플라즈마 생성', name: 'Ar Ionization (비반응성 가스)', desc: 'Ar + e⁻ → Ar⁺ + 2e⁻. SiH₄/C₄F₈처럼 화학반응에 참여하지 않는 비활성 가스를 사용 — Ar⁺는 순수히 운동량 전달용 "발사체(projectile)" 역할.' },
+      { year: '증착 메커니즘', name: 'Sputtering — Momentum Transfer (물리적 식각)', desc: 'Ar⁺(수백 eV) + Al(Target) → Al(ejected, 중성) + Ar(반사/중화). Sputtering Yield(Y, 입사 이온당 방출 원자 수) ≈ 1–3 (Ar⁺ on Al, 수백 eV). 화학 반응식이 없는 순수 물리적 공정.' },
+      { year: 'RF 임피던스', name: 'Sheath & DC Self-Bias — Target에 집중된 비대칭', desc: 'Target의 실효 면적이 접지 면적(챔버 벽+서셉터)에 비해 작아, Flux Balance(Γ_e=Γ_i)를 맞추기 위해 Target이 수백 V까지 더 음(−)으로 charging됨. Chapter 1의 q×V_sheath와 동일한 물리이나, V가 훨씬 커서 "Densification"이 아닌 "Removal(Sputtering)"이 일어남. Wafer Sheath는 낮게 유지하여 성장막의 재스퍼터링/손상을 방지.' },
+    ],
+    showParams: 'pvd',
+    showProcess: 'pvd',
+    showDeepLearn: 'pvd',
+    showContext: 'pvd',
+    showSim: 'pvd',
+    equations: [
+      'Ar + e^- \\rightarrow Ar^+ + 2e^-',
+      'Ar^+ (\\text{hundreds of eV}) + Al(\\text{target}) \\xrightarrow{\\text{Momentum Transfer}} Al(\\text{ejected}) + Ar(\\text{reflected})',
+    ],
+    classroom: `CCP PVD (Sputter) 공정 이해 점검:\n1. Chapter 1(PE-CVD, 대칭 전극)·Chapter 2(Etch, 비대칭 — Wafer측 V_DC ↑)·Chapter 3(PVD, 비대칭 — Target측 V_DC ↑)의 전극 비대칭 방향과 그 목적을 비교 설명하세요.\n2. PE-CVD의 SiH₄+N₂O 반응과 달리, PVD에는 왜 화학 반응식이 없습니까? "Physical" Vapor Deposition이라는 이름의 의미를 설명하세요.\n3. 동일한 q×V_sheath 물리가 PE-CVD에서는 막의 Densification을, PVD의 Target에서는 Sputtering(Removal)을 일으키는 이유는 무엇입니까?\n4. PVD의 공정 압력(1–10 mTorr)이 PE-CVD(0.1–10 Torr)보다 훨씬 낮은 이유와, 이것이 Al 원자의 이송 방식(Line-of-Sight vs Diffusion)에 미치는 영향을 설명하세요.\n5. 금속 Al Target에는 왜 DC Power가 기본(Default)이며, 어떤 경우에 AC/RF 또는 Pulsed-DC가 필요해집니까?`,
     connections: ['m31', 'm32', 'm34'],
   },
 
-  // ── MODULE 3-4: ICP in Dry Etch ───────────────────────────────
+  // ── Chapter 4: ICP in Dry Etch ───────────────────────────────
   {
-    id: 'm34', chapter: 'MODULE 3-4', era: 'icp',
+    id: 'm34', chapter: 'Chapter 4', era: 'icp',
     name: 'ICP in Dry Etch',
     nameKr: 'ICP in Dry Etch — 고밀도 플라즈마 식각',
     period: 'ICP 구조 · 고밀도 플라즈마 · 독립 바이어스 제어',
@@ -636,9 +724,9 @@ const SLIDES_KO = [
     connections: ['m31', 'm32', 'm35'],
   },
 
-  // ── MODULE 3-5: Remote Plasma Source ─────────────────────────
+  // ── Chapter 5: Remote Plasma Source ─────────────────────────
   {
-    id: 'm35', chapter: 'MODULE 3-5', era: 'rps',
+    id: 'm35', chapter: 'Chapter 5', era: 'rps',
     name: 'Remote Plasma Source',
     nameKr: 'Remote Plasma Source — Microwave/ECR & ICP Type',
     period: 'RPS 구조 · ECR · Microwave · 원거리 플라즈마 공급',
@@ -656,7 +744,7 @@ const SLIDES_KO = [
 // ─────────────────────────────────────────────
 const SLIDES_EN = [
   {
-    id: 'm31', chapter: 'MODULE 3-1', era: 'ccp',
+    id: 'm31', chapter: 'Chapter 1', era: 'ccp',
     name: 'CCP in PE-CVD',
     nameKr: 'CCP in PE-CVD — Low-Temperature Thin Film Deposition',
     period: 'PE-CVD Chamber · RF Role · Thin Film Deposition Mechanism',
@@ -669,11 +757,13 @@ const SLIDES_EN = [
       { year: 'Chamber Structure', name: 'CCP Electrode Configuration — Parallel Plate', desc: 'RF voltage applied between RF electrode (upper/showerhead) and ground electrode (lower/susceptor). Gap ~20–60 mm. Plasma formed by capacitive coupling.' },
       { year: 'Plasma Generation', name: 'Electron Impact Dissociation', desc: 'SiH₄ + e⁻ → SiH₃* + H· (radical) · SiH₄ + e⁻ → SiH₂ + H₂ + e⁻. RF-accelerated electrons cleave precursor bonds to generate radicals.' },
       { year: 'Film Formation', name: 'Surface Reaction & Growth', desc: 'Radicals (SiH₃*, NH₂*, N*, H*) adsorb on wafer surface → thermally-activated reaction → film growth. Plasma power → radical density → deposition rate (proportional).' },
-      { year: 'RF Impedance', name: 'Sheath & DC Self-Bias', desc: 'Asymmetric electrode area → DC self-bias → ion acceleration → improved film density. Higher V_DC = more ion bombardment energy = higher compressive stress.' },
+      { year: 'RF Impedance', name: 'Sheath & DC Self-Bias — Symmetric Electrode Design', desc: 'PE-CVD/PE-ALD chambers are designed with near-symmetric RF and ground electrode areas specifically to minimize DC self-bias (V_DC). Unlike etch (RIE) chambers, which use asymmetric electrodes to deliberately generate strong ion bombardment, deposition processes aim to keep V_DC low — excessive ion energy causes film damage, re-sputtering, and particles. A mild, low-energy ion flux still helps densify the growing film, so RF power is tuned to balance radical generation against film quality.' },
     ],
     showParams: 'pecvd',
     showProcess: 'pecvd',
     showDeepLearn: 'pecvd',
+    showContext: 'pecvd',
+    showSim: 'pecvd',
     equations: [
       'SiH_4 + 4N_2O \\xrightarrow{\\text{Plasma}} SiO_2 + 4N_2 + 2H_2O',
       'SiH_4 + NH_3 \\xrightarrow{\\text{Plasma}} Si_3N_4 + H_2',
@@ -682,28 +772,68 @@ const SLIDES_EN = [
     connections: ['m32', 'm33', 'm34'],
   },
   {
-    id: 'm32', chapter: 'MODULE 3-2', era: 'ccp', name: 'CCP in Dry Etch',
-    nameKr: 'CCP in Dry Etch — Anisotropic Etching', period: 'CCP Dry Etch · Anisotropic · DC Bias',
-    tags: ['Dry Etch', 'CCP', 'Anisotropic', 'DC Bias', 'CF₄', 'RIE'],
-    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
-    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m31', 'm33', 'm34'],
+    id: 'm32', chapter: 'Chapter 2', era: 'ccp', name: 'CCP in Dry Etch',
+    nameKr: 'CCP in Dry Etch — Anisotropic Etching Principles',
+    period: 'CCP Dry Etch Chamber · Asymmetric Electrodes · DC Self-Bias · Anisotropic Etch',
+    tags: ['Dry Etch', 'CCP', 'RIE', 'Anisotropic Etch', 'DC Self-Bias', 'C₄F₈/Ar/O₂'],
+    quote: 'In deposition, ion bombardment is a helpful side effect that densifies the film. In etch, that same ion bombardment (qV_sheath) becomes the central mechanism that determines etch directionality.',
+    quoteAttr: '— Semiconductor Etch Process Fundamentals',
+    bio: `<b>CCP Dry Etch (Reactive Ion Etching, RIE)</b> uses radicals and ions generated in a CCP (Capacitively Coupled Plasma) to selectively and directionally remove exposed thin films such as SiO₂ on the wafer.\n\n<b>Why asymmetric electrodes?</b> The PE-CVD chamber in Chapter 1 used symmetric electrodes to suppress V_DC (DC self-bias) and minimize film damage. The etch chamber takes the opposite strategy: the grounded electrode (showerhead, area A_g) is made large, while the RF-powered wafer chuck (area A_p) is made small, so that <b>V_DC ∝ −(A_g/A_p)^2.5</b> deliberately produces a strong negative DC self-bias of hundreds of volts. This V_DC accelerates ions vertically toward the chuck, producing <b>anisotropic etching</b> — material is removed in depth only where the mask does not protect the surface.`,
+    showDiagram: 'etch',
+    theories: [
+      { year: 'Chamber Structure', name: 'CCP Electrode Configuration — Asymmetric Parallel Plate', desc: 'Grounded electrode (showerhead, area A_g) + RF electrode (wafer chuck, area A_p), with A_g ≫ A_p. RF is delivered to the chuck through a Blocking Capacitor (C_block), letting RF current flow while DC charge accumulates on the chuck.' },
+      { year: 'Plasma Generation', name: 'Fluorocarbon Dissociation', desc: 'C₄F₈ + e⁻ → CF₃·, CF₂·, F· (radicals). Electron-impact ring-opening of the cyclic C₄F₈ molecule simultaneously produces etchant species (F·) and polymer-forming species (CFx).' },
+      { year: 'Etch Mechanism', name: 'Combined Chemical + Physical Etching', desc: 'F· + SiO₂ → SiF₄ (volatile, chemical etch), plus Ar⁺ physical sputtering assists Si–O bond breaking, plus sidewall CFx polymer passivation → vertical sidewall profile.' },
+      { year: 'RF Impedance', name: 'Sheath & DC Self-Bias — Asymmetric Electrode Design', desc: 'Unlike PE-CVD in Chapter 1, the etch chamber deliberately uses asymmetric electrodes (A_g ≫ A_p) to drive V_DC to −200 to −500 V. V_RF + V_DC reaches roughly hundreds to 1000+ eV, providing the direct driving force for anisotropic etching. The same qV_sheath physics that is mild densification in PE-CVD becomes the primary etch mechanism here.' },
+    ],
+    showParams: 'etch',
+    showProcess: 'etch',
+    showDeepLearn: 'etch',
+    showContext: 'etch',
+    showSim: 'etch',
+    equations: [
+      'SiO_2 + 4F\\cdot \\xrightarrow{\\text{Plasma}} SiF_4 \\uparrow + O_2',
+      'V_{DC} \\propto -\\left(\\dfrac{A_g}{A_p}\\right)^{2.5}',
+    ],
+    classroom: `CCP Dry Etch Process Comprehension Check:\n1. Both PE-CVD (Chapter 1) and Dry Etch (Chapter 2) chambers are CCP structures, yet their electrode-area designs are opposite. Explain why, in terms of V_DC.\n2. How do the C₄F₈ : Ar : O₂ gas flow ratios individually affect etch rate, selectivity, and sidewall passivation?\n3. Distinguish the roles of "chemical etching" (F· + SiO₂ → SiF₄) and "physical etching" (Ar⁺ sputtering), and explain the benefit of combining them.\n4. Why would no DC self-bias develop on the wafer chuck without the Blocking Capacitor (C_block)?`,
+    connections: ['m31', 'm33', 'm34'],
   },
   {
-    id: 'm33', chapter: 'MODULE 3-3', era: 'ccp', name: 'CCP in PVD (Sputter)',
-    nameKr: 'CCP in PVD — Sputtering Fundamentals', period: 'DC/RF Magnetron Sputter · Target · Film Growth',
-    tags: ['PVD', 'Sputter', 'Magnetron', 'DC Sputter', 'RF Sputter'],
-    quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
-    bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m31', 'm32', 'm34'],
+    id: 'm33', chapter: 'Chapter 3', era: 'ccp', name: 'CCP in PVD (Sputter)',
+    nameKr: 'CCP in PVD — Sputtering Fundamentals',
+    period: 'CCP Sputter Chamber · Asymmetric Target Self-Bias · Physical Removal (Deposition) Mechanism',
+    tags: ['PVD', 'Sputter', 'CCP', 'Al', 'Target Self-Bias', 'DC/AC'],
+    quote: 'In PE-CVD, ion bombardment was a side effect that densified the growing film. In Sputter PVD, the same q×V_sheath physics — at a much larger V — becomes the core mechanism that erodes the source target itself.',
+    quoteAttr: '— Semiconductor PVD Process Fundamentals',
+    bio: `<b>CCP PVD (Physical Vapor Deposition, Sputtering)</b> accelerates Ar⁺ ions generated in a CCP to high energy and slams them into a metal target (e.g. Al); momentum transfer ejects metal atoms, which travel to the wafer and deposit as a film.\n\n<b>Why this asymmetry?</b> Chapter 1's PE-CVD used symmetric electrodes to suppress V_DC. Chapter 2's etch chamber used asymmetric electrodes to build a strong V_DC on the <b>wafer</b> side, accelerating ions into the wafer. PVD is yet another asymmetric configuration — a strong negative self-bias of hundreds of volts forms on the <b>powered target</b>, accelerating Ar⁺ toward the <b>target</b>, not the wafer. Ar⁺ striking the target ejects metal atoms through a purely physical collision cascade (no chemical reaction); those atoms then travel to the wafer and adsorb to form the metal film.`,
+    showDiagram: 'pvd',
+    theories: [
+      { year: 'Chamber Structure', name: 'CCP Electrode Configuration — Target/Wafer Asymmetry', desc: 'Target (cathode, powered) + wafer/susceptor (grounded/anode). Target sheath is hundreds of V (high), wafer sheath is a few to tens of V (low) — the asymmetry points the opposite direction from Chapter 2 (etch).' },
+      { year: 'Plasma Generation', name: 'Ar Ionization (Inert Gas)', desc: 'Ar + e⁻ → Ar⁺ + 2e⁻. Unlike SiH₄ or C₄F₈, Ar takes no part in chemistry — Ar⁺ is purely a momentum-transfer "projectile".' },
+      { year: 'Deposition Mechanism', name: 'Sputtering — Momentum Transfer (Physical Etch of the Target)', desc: 'Ar⁺ (hundreds of eV) + Al(target) → Al(ejected, neutral) + Ar(reflected/neutralized). Sputtering yield Y (atoms ejected per incident ion) ≈ 1–3 for Ar⁺ on Al at hundreds of eV. A purely physical process — no chemical equation.' },
+      { year: 'RF Impedance', name: 'Sheath & DC Self-Bias — Asymmetry Concentrated at the Target', desc: 'The target\'s effective area is small relative to the grounded area (chamber walls + susceptor), so to satisfy flux balance (Γ_e=Γ_i) the target must charge to hundreds of volts more negative. Same q×V_sheath physics as Chapter 1, but at far larger V — producing "removal" (sputtering) rather than "densification". The wafer sheath is kept low to avoid re-sputtering/damaging the growing film.' },
+    ],
+    showParams: 'pvd',
+    showProcess: 'pvd',
+    showDeepLearn: 'pvd',
+    showContext: 'pvd',
+    showSim: 'pvd',
+    equations: [
+      'Ar + e^- \\rightarrow Ar^+ + 2e^-',
+      'Ar^+ (\\text{hundreds of eV}) + Al(\\text{target}) \\xrightarrow{\\text{Momentum Transfer}} Al(\\text{ejected}) + Ar(\\text{reflected})',
+    ],
+    classroom: `CCP PVD (Sputter) Process Comprehension Check:\n1. Compare the direction and purpose of electrode asymmetry across Chapter 1 (PE-CVD, symmetric), Chapter 2 (Etch, asymmetric — V_DC concentrated at the wafer), and Chapter 3 (PVD, asymmetric — V_DC concentrated at the target).\n2. Unlike PE-CVD's SiH₄+N₂O reaction, PVD has no chemical equation. Explain what "Physical" Vapor Deposition means in this context.\n3. Why does the same q×V_sheath physics produce film densification in PE-CVD but sputtering (removal) at the PVD target?\n4. Explain why PVD operates at a much lower pressure (1–10 mTorr) than PE-CVD (0.1–10 Torr), and how this affects Al atom transport (line-of-sight vs. diffusion).\n5. Why is DC power the default for a metal Al target, and under what circumstances does AC/RF or pulsed-DC become necessary?`,
+    connections: ['m31', 'm32', 'm34'],
   },
   {
-    id: 'm34', chapter: 'MODULE 3-4', era: 'icp', name: 'ICP in Dry Etch',
+    id: 'm34', chapter: 'Chapter 4', era: 'icp', name: 'ICP in Dry Etch',
     nameKr: 'ICP in Dry Etch — High-Density Plasma Etching', period: 'ICP Structure · High-Density Plasma · Independent Bias Control',
     tags: ['ICP', 'High-Density Plasma', 'Dry Etch', 'Source Power', 'Bias Power'],
     quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
     bio: 'This module is under development. Coming soon.', placeholder: true, connections: ['m31', 'm32', 'm35'],
   },
   {
-    id: 'm35', chapter: 'MODULE 3-5', era: 'rps', name: 'Remote Plasma Source',
+    id: 'm35', chapter: 'Chapter 5', era: 'rps', name: 'Remote Plasma Source',
     nameKr: 'Remote Plasma Source — Microwave/ECR & ICP Type', period: 'RPS Structure · ECR · Microwave · Remote Plasma Delivery',
     tags: ['RPS', 'Microwave', 'ECR', 'Remote Plasma', 'ICP Type'],
     quote: 'Coming Soon', quoteAttr: '— Benedu Insight',
@@ -903,6 +1033,85 @@ function renderDetail(slide) {
       ${(slide.bio || '').split('\n\n').map(p => `<p>${p.trim()}</p>`).join('')}
     </div>`;
 
+  // ── Process Context Image (where this film sits in the device) ──
+  let contextHtml = '';
+  if (slide.showContext === 'pecvd') {
+    const ctx = isEn ? {
+      label: 'CONTEXT', title: 'Where PE-CVD SiO₂ and PE-ALD SiO₂ Are Mainly Used',
+      img: 'images/pecvd_peald_sio2.png',
+      cap: `Before running the simulator, locate the film we are about to deposit on the device cross-section above. <b>PE-CVD SiO₂</b> (left, blue) is a high-rate, less-conformal oxide used for thick films — <b>Interlayer Dielectric (ILD)</b>, <b>Pre-Metal Dielectric (PMD)</b>, and <b>Passivation (Top Oxide)</b>. <b>PE-ALD SiO₂</b> (right, green) is a thin, highly-conformal oxide used where atomic-scale thickness control matters — gate oxide, spacer, and contact liner. In this CCP PE-CVD module, our simulator focuses on the <b>left-side PE-CVD films</b>: thick, blanket SiO₂/Si₃N₄ layers deposited at high rate with moderate step coverage.`,
+      hint: 'Click image to enlarge ↗'
+    } : {
+      label: 'CONTEXT', title: 'PE-CVD SiO₂와 PE-ALD SiO₂는 어디에 쓰일까?',
+      img: 'images/pecvd_peald_sio2.png',
+      cap: `시뮬레이터를 실행하기 전에, 위 소자 단면도에서 우리가 증착하려는 막이 어디에 위치하는지 먼저 확인합니다. <b>PE-CVD SiO₂</b>(좌측, 파란색)는 증착 속도가 빠르고 단차 충실도(conformality)가 상대적으로 낮은 두꺼운 산화막으로, <b>층간 절연막(ILD)</b>, <b>금속 전 절연막(PMD)</b>, <b>패시베이션(Top Oxide)</b> 등에 사용됩니다. <b>PE-ALD SiO₂</b>(우측, 녹색)는 원자층 단위의 두께 제어와 우수한 컨포멀리티가 필요한 게이트 산화막, 스페이서, 컨택 라이너 등 얇은 막에 사용됩니다. 이번 CCP PE-CVD 모듈의 시뮬레이터는 <b>좌측의 PE-CVD 계열 막</b> — 즉 고속 증착되는 두꺼운 SiO₂/Si₃N₄ 블랭킷 레이어 — 를 다룹니다.`,
+      hint: '클릭하면 확대됩니다 ↗'
+    };
+    contextHtml = `
+      <div class="section-title">${T.sectionContext}</div>
+      <div class="context-wrap">
+        <div class="context-header">
+          <span class="context-badge">${ctx.label}</span>
+          <span class="context-title">${ctx.title}</span>
+        </div>
+        <div class="context-img-frame" onclick="openImgPopup('${ctx.img}', '${ctx.title}')">
+          <img src="${ctx.img}" alt="${ctx.title}" loading="lazy">
+        </div>
+        <div class="context-caption">${ctx.cap}</div>
+        <div class="context-foot"><span class="img-zoom-hint">${ctx.hint}</span></div>
+      </div>`;
+  } else if (slide.showContext === 'etch') {
+    const ctx = isEn ? {
+      label: 'CONTEXT', title: 'What Are We Etching? — Spacer Oxide Etch & ILD Oxide Etch',
+      img: 'images/sio2_oxide_etching_en.png',
+      cap: `Before running the simulator, locate the SiO₂ we are about to remove on the device cross-sections above. <b>Spacer oxide etch</b> (left) uses directional RIE to strip oxide from the top and flat surfaces while leaving oxide on the gate sidewalls — these remaining sidewall spacers define the LDD implant region and reduce short-channel effects. <b>ILD oxide etch</b> (right) opens a contact/via hole through the thick interlayer dielectric down to source/drain, gate, or interconnect — this hole is later filled with a W plug to form the electrical contact. Both cases require highly <b>anisotropic (vertical) etching</b>: the simulator in this chapter models exactly the directional, ion-driven mechanism that makes such precise vertical profiles possible.`,
+      hint: 'Click image to enlarge ↗'
+    } : {
+      label: 'CONTEXT', title: '우리는 무엇을 식각하려고 할까? — 스페이서 산화막 식각 & ILD 산화막 식각',
+      img: 'images/sio2_oxide_etching_en.png',
+      cap: `시뮬레이터를 실행하기 전에, 위 소자 단면도에서 우리가 제거하려는 SiO₂가 어디에 위치하는지 먼저 확인합니다. <b>스페이서 산화막 식각</b>(좌측)은 방향성 RIE로 평탄부의 산화막을 제거하면서 게이트 측벽의 산화막만 남겨, 이 측벽 스페이서가 LDD 임플란트 영역을 정의하고 단채널 효과를 줄입니다. <b>ILD 산화막 식각</b>(우측)은 두꺼운 층간 절연막(ILD)을 관통하여 소스/드레인, 게이트, 또는 배선까지 이어지는 컨택/비아 홀을 형성하며, 이후 이 홀은 W 플러그로 채워져 전기적 접촉을 만듭니다. 두 경우 모두 매우 <b>이방성(수직) 식각</b>이 필요합니다 — 이번 챕터의 시뮬레이터는 이러한 정밀한 수직 프로파일을 가능하게 하는 방향성·이온 구동 메커니즘을 그대로 다룹니다.`,
+      hint: '클릭하면 확대됩니다 ↗'
+    };
+    contextHtml = `
+      <div class="section-title">${T.sectionContext}</div>
+      <div class="context-wrap">
+        <div class="context-header">
+          <span class="context-badge">${ctx.label}</span>
+          <span class="context-title">${ctx.title}</span>
+        </div>
+        <div class="context-img-frame" onclick="openImgPopup('${ctx.img}', '${ctx.title}')">
+          <img src="${ctx.img}" alt="${ctx.title}" loading="lazy">
+        </div>
+        <div class="context-caption">${ctx.cap}</div>
+        <div class="context-foot"><span class="img-zoom-hint">${ctx.hint}</span></div>
+      </div>`;
+  } else if (slide.showContext === 'pvd') {
+    const ctx = isEn ? {
+      label: 'CONTEXT', title: 'Where Are Metal Films Mainly Deposited in Semiconductor Devices?',
+      img: 'images/pvd_al.png',
+      cap: `Before running the simulator, locate the metal layers we are about to deposit on the device cross-sections above. PVD (sputter) metal films appear throughout the chip: the <b>Contact Plug</b> (W) connecting transistor S/D to the first metal line, <b>Metal Interconnect</b> lines (Al/Cu) that route signals and power, the <b>Gate Metal</b> (TiN, TaN) in HKMG/advanced-node transistors, thin <b>Barrier/Liner</b> films (Ti, TiN, Ta, TaN) that prevent diffusion and improve adhesion, <b>DRAM Capacitor Electrodes</b> (TiN, Ru, Pt), and <b>NAND Word Lines</b> (W, TiN, Co/Ru). In this chapter, our simulator focuses on the foundational mechanism shared by all of these: <b>Ar⁺ sputtering of a metal target (Al)</b> and transport of the ejected metal atoms to the wafer. The same asymmetric-CCP, momentum-transfer principle applies regardless of which specific metal (Al, Ti, TiN, W, Cu, Co, Ru…) or which location on this map is being deposited.`,
+      hint: 'Click image to enlarge ↗'
+    } : {
+      label: 'CONTEXT', title: '반도체 소자에서 금속막은 주로 어디에 증착될까?',
+      img: 'images/pvd_al.png',
+      cap: `시뮬레이터를 실행하기 전에, 위 소자 단면도에서 우리가 증착하려는 금속막이 어디에 위치하는지 먼저 확인합니다. PVD(스퍼터) 금속막은 칩 전반에 사용됩니다 — 트랜지스터 S/D와 첫 금속층을 연결하는 <b>Contact Plug(W)</b>, 신호·전력을 전달하는 <b>금속 배선(Al/Cu)</b>, HKMG/첨단 노드 트랜지스터의 <b>Gate Metal(TiN, TaN)</b>, 확산을 막고 접착력을 높이는 얇은 <b>Barrier/Liner(Ti, TiN, Ta, TaN)</b>, <b>DRAM Capacitor Electrode(TiN, Ru, Pt)</b>, <b>NAND Word Line(W, TiN, Co/Ru)</b> 등이 모두 PVD로 증착됩니다. 이번 챕터의 시뮬레이터는 이 모든 응용의 공통 기반이 되는 메커니즘 — <b>Ar⁺의 금속 Target(Al) Sputtering과 방출된 금속 원자의 웨이퍼 이송</b> — 을 다룹니다. 어떤 금속(Al, Ti, TiN, W, Cu, Co, Ru 등)이나 위 지도의 어떤 위치이든, 동일한 비대칭 CCP·운동량 전달 원리가 적용됩니다.`,
+      hint: '클릭하면 확대됩니다 ↗'
+    };
+    contextHtml = `
+      <div class="section-title">${T.sectionContext}</div>
+      <div class="context-wrap">
+        <div class="context-header">
+          <span class="context-badge">${ctx.label}</span>
+          <span class="context-title">${ctx.title}</span>
+        </div>
+        <div class="context-img-frame" onclick="openImgPopup('${ctx.img}', '${ctx.title}')">
+          <img src="${ctx.img}" alt="${ctx.title}" loading="lazy">
+        </div>
+        <div class="context-caption">${ctx.cap}</div>
+        <div class="context-foot"><span class="img-zoom-hint">${ctx.hint}</span></div>
+      </div>`;
+  }
+
   // ── Chamber Diagram ──
   let diagramHtml = '';
   if (slide.showDiagram === 'pecvd') {
@@ -914,6 +1123,69 @@ function renderDetail(slide) {
           <span class="chamber-title">${isEn ? 'CCP PE-CVD Chamber Structure' : 'CCP PE-CVD 챔버 구조'}</span>
         </div>
         ${buildPECVDDiagram(isEn)}
+      </div>`;
+  } else if (slide.showDiagram === 'etch') {
+    diagramHtml = `
+      <div class="section-title">${T.sectionDiagram}</div>
+      <div class="chamber-wrap">
+        <div class="chamber-header">
+          <span class="chamber-badge">DIAGRAM</span>
+          <span class="chamber-title">${isEn ? 'CCP Dry Etch (RIE) Chamber Structure' : 'CCP Dry Etch (RIE) 챔버 구조'}</span>
+        </div>
+        ${buildEtchDiagram(isEn)}
+      </div>`;
+  } else if (slide.showDiagram === 'pvd') {
+    diagramHtml = `
+      <div class="section-title">${T.sectionDiagram}</div>
+      <div class="chamber-wrap">
+        <div class="chamber-header">
+          <span class="chamber-badge">DIAGRAM</span>
+          <span class="chamber-title">${isEn ? 'CCP PVD (Sputter) Chamber Structure' : 'CCP PVD (Sputter) 챔버 구조'}</span>
+        </div>
+        ${buildPVDDiagram(isEn)}
+      </div>`;
+  }
+
+  // ── Interactive Simulator (CCP Oxide PE-CVD / Dry Etch / PVD Sputter) ──
+  let simEmbedHtml = '';
+  if (slide.showSim === 'pecvd') {
+    simEmbedHtml = `
+      <div class="section-title">${T.sectionSim}</div>
+      <div class="sim-embed-wrap">
+        <div class="sim-embed-header">
+          <span class="sim-embed-badge">SIMULATOR</span>
+          <span class="sim-embed-title">${isEn ? 'CCP PE-CVD: SiO₂ Deposition Lab' : 'CCP PE-CVD: SiO₂ 증착 실험실'}</span>
+        </div>
+        <iframe class="sim-embed-frame" src="sims/ccp_oxide_cvd.html" title="CCP Oxide PE-CVD Simulator" loading="lazy"></iframe>
+        <div class="sim-embed-foot">
+          <a href="sims/ccp_oxide_cvd.html" target="_blank" rel="noopener">${isEn ? 'Open simulator in new tab ↗' : '새 탭에서 시뮬레이터 열기 ↗'}</a>
+        </div>
+      </div>`;
+  } else if (slide.showSim === 'etch') {
+    simEmbedHtml = `
+      <div class="section-title">${T.sectionSim}</div>
+      <div class="sim-embed-wrap">
+        <div class="sim-embed-header">
+          <span class="sim-embed-badge">SIMULATOR</span>
+          <span class="sim-embed-title">${isEn ? 'CCP Dry Etch: SiO₂ RIE Lab' : 'CCP Dry Etch: SiO₂ RIE 실험실'}</span>
+        </div>
+        <iframe class="sim-embed-frame" src="sims/ccp_oxide_etching.html" title="CCP Oxide Dry Etch Simulator" loading="lazy"></iframe>
+        <div class="sim-embed-foot">
+          <a href="sims/ccp_oxide_etching.html" target="_blank" rel="noopener">${isEn ? 'Open simulator in new tab ↗' : '새 탭에서 시뮬레이터 열기 ↗'}</a>
+        </div>
+      </div>`;
+  } else if (slide.showSim === 'pvd') {
+    simEmbedHtml = `
+      <div class="section-title">${T.sectionSim}</div>
+      <div class="sim-embed-wrap">
+        <div class="sim-embed-header">
+          <span class="sim-embed-badge">SIMULATOR</span>
+          <span class="sim-embed-title">${isEn ? 'CCP PVD: Al Sputter Deposition Lab' : 'CCP PVD: Al Sputter 증착 실험실'}</span>
+        </div>
+        <iframe class="sim-embed-frame" src="sims/ccp_pvd_al.html" title="CCP PVD Sputter Simulator" loading="lazy"></iframe>
+        <div class="sim-embed-foot">
+          <a href="sims/ccp_pvd_al.html" target="_blank" rel="noopener">${isEn ? 'Open simulator in new tab ↗' : '새 탭에서 시뮬레이터 열기 ↗'}</a>
+        </div>
       </div>`;
   }
 
@@ -953,9 +1225,75 @@ function renderDetail(slide) {
             </div>`).join('')}
         </div>
       </div>`;
+  } else if (slide.showParams === 'etch') {
+    const params = isEn ? [
+      { label: 'RF Frequency', value: '13.56', unit: 'MHz', desc: 'FCC/ITU ISM band standard' },
+      { label: 'RF Power', value: '200–1500', unit: 'W', desc: 'Sets V_DC magnitude & ion flux' },
+      { label: 'Process Pressure', value: '5–50', unit: 'mTorr', desc: 'Low pressure → directional ion flux' },
+      { label: 'DC Self-Bias (V_DC)', value: '-200 to -500', unit: 'V', desc: 'From asymmetric electrodes (A_g ≫ A_p)' },
+      { label: 'Gas Ratio (C₄F₈:Ar:O₂)', value: '10 : 200 : 5', unit: 'sccm', desc: 'Controls etch rate, selectivity, passivation' },
+      { label: 'Wafer Temp.', value: '0–20', unit: '°C', desc: 'Backside He cooling removes ion heat load' },
+    ] : [
+      { label: 'RF 주파수', value: '13.56', unit: 'MHz', desc: 'FCC/ITU ISM 대역 표준' },
+      { label: 'RF 파워', value: '200–1500', unit: 'W', desc: 'V_DC 크기 및 이온 플럭스 결정' },
+      { label: '공정 압력', value: '5–50', unit: 'mTorr', desc: '저압 → 지향성 이온 플럭스' },
+      { label: 'DC Self-Bias (V_DC)', value: '-200 ~ -500', unit: 'V', desc: '비대칭 전극(A_g ≫ A_p)에서 형성' },
+      { label: '가스 비율 (C₄F₈:Ar:O₂)', value: '10 : 200 : 5', unit: 'sccm', desc: 'Etch Rate·선택비·Passivation 결정' },
+      { label: '웨이퍼 온도', value: '0–20', unit: '°C', desc: '후면 He 냉각으로 이온 충격열 제거' },
+    ];
+    paramHtml = `
+      <div class="section-title">${T.sectionParam}</div>
+      <div class="param-panel">
+        <div class="asendia-badge">
+          <div>
+            <div class="asendia-badge-text">RF Generator + RF Matcher (Power Delivery System)</div>
+            <div class="asendia-badge-sub">13.56 MHz · 50Ω Output · CW / Pulsed Mode</div>
+          </div>
+        </div>
+        <div class="param-grid">
+          ${params.map(p => `
+            <div class="param-item">
+              <div class="param-label">${p.label}</div>
+              <div class="param-value">${p.value}<span class="param-unit">${p.unit}</span></div>
+              <div class="param-desc">${p.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  } else if (slide.showParams === 'pvd') {
+    const params = isEn ? [
+      { label: 'Power Source', value: 'DC (default)', unit: '', desc: 'AC/RF 13.56 MHz or pulsed-DC for insulating/poisoned targets' },
+      { label: 'Target Power Density', value: '2–10', unit: 'W/cm²', desc: 'Sets Ar⁺ flux and target self-bias' },
+      { label: 'Process Pressure', value: '1–10', unit: 'mTorr', desc: '100–1000× lower than PE-CVD → long mean free path' },
+      { label: 'Target Self-Bias (V_target)', value: '-hundreds', unit: 'V', desc: 'From small target area vs. large grounded area' },
+      { label: 'Ion Energy (E_ion)', value: '~100–600', unit: 'eV', desc: 'Above bond-breaking threshold → sputter (removal)' },
+      { label: 'Deposition Rate', value: '50–500', unit: 'nm/min', desc: '∝ Sputter Yield × Ar⁺ flux × transport efficiency' },
+    ] : [
+      { label: '파워 소스', value: 'DC (기본)', unit: '', desc: '절연/Poisoned Target에는 AC/RF 13.56 MHz 또는 Pulsed-DC' },
+      { label: 'Target 전력 밀도', value: '2–10', unit: 'W/cm²', desc: 'Ar⁺ 플럭스 및 Target Self-Bias 결정' },
+      { label: '공정 압력', value: '1–10', unit: 'mTorr', desc: 'PE-CVD보다 100–1000배 낮음 → 긴 평균 자유 행정' },
+      { label: 'Target Self-Bias (V_target)', value: '-수백', unit: 'V', desc: '작은 Target 면적 vs 큰 접지 면적에서 형성' },
+      { label: '이온 에너지 (E_ion)', value: '~100–600', unit: 'eV', desc: '결합 절단 임계값 이상 → Sputtering(Removal)' },
+      { label: '증착 속도', value: '50–500', unit: 'nm/min', desc: '∝ Sputter Yield × Ar⁺ 플럭스 × 이송 효율' },
+    ];
+    paramHtml = `
+      <div class="section-title">${T.sectionParam}</div>
+      <div class="param-panel">
+        <div class="asendia-badge">
+          <div>
+            <div class="asendia-badge-text">DC / AC Power Source + Matcher (Power Delivery System)</div>
+            <div class="asendia-badge-sub">DC default · 13.56 MHz AC/RF or Pulsed-DC for insulating/poisoned targets</div>
+          </div>
+        </div>
+        <div class="param-grid">
+          ${params.map(p => `
+            <div class="param-item">
+              <div class="param-label">${p.label}</div>
+              <div class="param-value">${p.value}<span class="param-unit">${p.unit}</span></div>
+              <div class="param-desc">${p.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>`;
   }
-
-  // ── Process Steps ──
   let processHtml = '';
   if (slide.showProcess === 'pecvd') {
     const steps = isEn ? [
@@ -983,9 +1321,63 @@ function renderDetail(slide) {
             </div>
           </div>`).join('')}
       </div>`;
+  } else if (slide.showProcess === 'etch') {
+    const steps = isEn ? [
+      { title: 'Chamber Pump-down', desc: 'Evacuate chamber with turbo + dry vacuum pumps to base pressure. Wafer (with patterned mask) loaded and clamped on the chuck; backside He cooling engaged.' },
+      { title: 'Gas Introduction & Pressure Stabilization', desc: 'Flow C₄F₈ : Ar : O₂ (e.g. 10 : 200 : 5 sccm) through MFCs. Stabilize chamber pressure at 5–50 mTorr — low pressure favors directional ion flux.' },
+      { title: 'RF Power On — Plasma Ignition & Dissociation', desc: 'RF Generator → Matcher tunes to 50Ω → RF delivered to wafer chuck through C_block → electron-impact dissociation of C₄F₈ → CF₃·, CF₂·, F· radicals + Ar⁺ ions.' },
+      { title: 'DC Self-Bias Formation (Asymmetric Electrodes)', desc: 'A_g ≫ A_p → negative charge accumulates on the chuck side via C_block → V_DC settles at −200 to −500 V → strong vertical sheath field forms above the wafer.' },
+      { title: 'Anisotropic Etch — Chemical + Physical + Passivation', desc: 'F· chemically etches exposed SiO₂ → volatile SiF₄. Ar⁺ accelerated by V_DC physically sputters to assist bond-breaking. CFx polymer deposits on sidewalls, protecting them from lateral etch → vertical profile.' },
+      { title: 'RF Off & By-product Purge', desc: 'Plasma extinguished → SiF₄, CO₂, COF₂ by-products pumped out → chamber vented → wafer unloaded for next process step.' },
+    ] : [
+      { title: '챔버 펌프다운', desc: '터보 펌프 + 드라이 진공 펌프로 베이스 압력까지 배기. 패턴된 마스크가 있는 웨이퍼를 척에 로딩·클램핑하고 후면 He 냉각 가동.' },
+      { title: '공정 가스 유입 및 압력 안정화', desc: 'MFC로 C₄F₈ : Ar : O₂ (예: 10 : 200 : 5 sccm) 유입. 챔버 압력을 5–50 mTorr로 안정화 — 저압은 지향성 이온 플럭스에 유리.' },
+      { title: 'RF 파워 인가 — 플라즈마 점화 및 해리', desc: 'RF Generator → Matcher가 50Ω 정합 → C_block을 통해 웨이퍼 척에 RF 인가 → 전자 충돌로 C₄F₈ 해리 → CF₃·, CF₂·, F· 라디칼 + Ar⁺ 이온 생성.' },
+      { title: 'DC Self-Bias 형성 (비대칭 전극)', desc: 'A_g ≫ A_p → C_block을 통해 척 쪽에 음전하 누적 → V_DC가 −200~−500V로 안정화 → 웨이퍼 위에 강한 수직 시스 전계 형성.' },
+      { title: '이방성 식각 — 화학적 + 물리적 + Passivation', desc: 'F·가 노출된 SiO₂를 화학적으로 식각 → 휘발성 SiF₄ 생성. V_DC로 가속된 Ar⁺이 물리적 스퍼터링으로 결합 절단을 보조. 측벽에는 CFx 폴리머가 증착되어 측방향 식각을 막아 수직 프로파일 형성.' },
+      { title: 'RF Off & 부산물 퍼지', desc: '플라즈마 소멸 → SiF₄, CO₂, COF₂ 부산물 배기 → 챔버 벤트 → 웨이퍼 반출 후 다음 공정으로 이동.' },
+    ];
+    processHtml = `
+      <div class="section-title">${T.sectionProcess}</div>
+      <div class="process-steps">
+        ${steps.map((s, i) => `
+          <div class="step-item">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-body">
+              <div class="step-title">${s.title}</div>
+              <div class="step-desc">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
+  } else if (slide.showProcess === 'pvd') {
+    const steps = isEn ? [
+      { title: 'Chamber Pump-down & Target Load', desc: 'Evacuate chamber to high vacuum, then introduce Ar to set process pressure (1–10 mTorr) — roughly 100–1000× lower than PE-CVD. Al target (cathode) and grounded wafer/susceptor (anode) in place.' },
+      { title: 'Power On — Ar Ionization', desc: 'DC (default) or AC/RF 13.56 MHz applied to the target → oscillating/DC E-field accelerates electrons → electron-impact ionization: Ar + e⁻ → Ar⁺ + 2e⁻.' },
+      { title: 'Asymmetric Sheath — Target Self-Bias Develops', desc: 'Target area is small relative to the grounded chamber+wafer area → flux balance (Γ_e=Γ_i) forces the target to a strongly negative self-bias (hundreds of V), while the wafer sheath stays low (a few–tens of V).' },
+      { title: 'Sputtering — Momentum Transfer at the Target', desc: 'Ar⁺ accelerated across the target sheath (hundreds of eV) strikes the Al target → collision cascade ejects neutral Al atoms (sputtering yield Y ≈ 1–3 atoms/ion). No chemistry — purely physical.' },
+      { title: 'Al Adatom Transport — Line-of-Sight', desc: 'At 1–10 mTorr, the mean free path is long → ejected Al atoms travel largely ballistically (line-of-sight) from target to wafer, with minor scattering from residual Ar.' },
+      { title: 'Film Growth & RF/Power Off', desc: 'Al adatoms (sticking coefficient ≈1) nucleate and coalesce into a continuous metal film. No chemical by-products to pump away. Power off → plasma extinguished → wafer transfer.' },
+    ] : [
+      { title: '챔버 펌프다운 및 Target 준비', desc: '챔버를 고진공까지 배기 후 Ar을 유입하여 공정 압력(1–10 mTorr)을 설정 — PE-CVD보다 약 100–1000배 낮음. Al Target(Cathode)과 접지된 웨이퍼/서셉터(Anode)가 위치.' },
+      { title: 'Power On — Ar 이온화', desc: 'Target에 DC(기본) 또는 AC/RF 13.56 MHz 인가 → 진동/DC E-field가 전자를 가속 → 전자 충돌 이온화: Ar + e⁻ → Ar⁺ + 2e⁻.' },
+      { title: '비대칭 Sheath — Target Self-Bias 형성', desc: 'Target 면적이 접지(챔버+웨이퍼) 면적에 비해 작아 Flux Balance(Γ_e=Γ_i)에 의해 Target이 수백 V의 강한 음(−) Self-Bias로 charging. Wafer Sheath는 수~수십 V로 낮게 유지.' },
+      { title: 'Sputtering — Target에서의 운동량 전달', desc: 'Target Sheath를 가로질러 가속된 Ar⁺(수백 eV)이 Al Target에 충돌 → Collision Cascade로 중성 Al 원자 방출 (Sputtering Yield Y ≈ 1–3 atoms/ion). 화학반응 없는 순수 물리적 과정.' },
+      { title: 'Al Adatom 이송 — Line-of-Sight', desc: '1–10 mTorr에서는 평균 자유 행정이 길어 방출된 Al 원자가 대부분 Line-of-Sight(직선 경로)로 Target → Wafer로 이동하며, 잔류 Ar과의 충돌로 약간의 산란만 발생.' },
+      { title: '막 성장 및 Power Off', desc: 'Al Adatom(부착 계수 ≈1)이 Nucleation·Island Coalescence를 거쳐 연속 금속막으로 성장. 펌핑할 화학적 부산물 없음. Power Off → 플라즈마 소멸 → 웨이퍼 반출.' },
+    ];
+    processHtml = `
+      <div class="section-title">${T.sectionProcess}</div>
+      <div class="process-steps">
+        ${steps.map((s, i) => `
+          <div class="step-item">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-body">
+              <div class="step-title">${s.title}</div>
+              <div class="step-desc">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>`;
   }
-
-  // ── Theories ──
   let theoriesHtml = '';
   if (slide.theories) {
     theoriesHtml = `
@@ -1011,6 +1403,10 @@ function renderDetail(slide) {
   let deepLearnHtml = '';
   if (slide.showDeepLearn === 'pecvd') {
     deepLearnHtml = buildPECVDDeepLearn(isEn, slide.id);
+  } else if (slide.showDeepLearn === 'etch') {
+    deepLearnHtml = buildEtchDeepLearn(isEn, slide.id);
+  } else if (slide.showDeepLearn === 'pvd') {
+    deepLearnHtml = buildPVDDeepLearn(isEn, slide.id);
   }
 
   // ── Classroom ──
@@ -1044,7 +1440,9 @@ function renderDetail(slide) {
       </div>
       ${quoteHtml}
       ${bioHtml}
+      ${contextHtml}
       ${diagramHtml}
+      ${simEmbedHtml}
       ${paramHtml}
       ${processHtml}
       ${theoriesHtml}
@@ -1191,6 +1589,333 @@ function drawPECVDCanvas() {
   ctx.beginPath(); ctx.moveTo((cL+cR)/2,cB); ctx.lineTo((cL+cR)/2,cB+28); ctx.stroke();
 }
 // ─────────────────────────────────────────────
+//  CCP DRY ETCH (RIE) CHAMBER DIAGRAM
+// ─────────────────────────────────────────────
+function buildEtchDiagram(isEn) {
+  window._etchLabels = isEn ? {
+    showerhead: 'Showerhead (Grounded, A_g \u2014 large)', chuck: 'Wafer Chuck (RF, A_p \u2014 small)',
+    wafer: 'Si Wafer + Mask', plasma: 'C\u2084F\u2088/Ar/O\u2082 Plasma',
+    sheathTop: 'Thin Sheath (low V)', sheathBot: 'Thick Sheath \u2014 DC Self-Bias',
+    rfgen: 'RF Generator\n13.56 MHz', matcher: 'RF Matcher\n(50\u03a9)',
+    cblock: 'C_block', pump: 'Turbo + Dry Pump',
+    gasIn: 'C\u2084F\u2088 + Ar + O\u2082', dcbias: 'V_DC \u2248 \u2212200 to \u2212500 V (A_g \u226b A_p)',
+    etch: 'Anisotropic Etch \u2191 (SiF\u2084 \u2191)', ions: 'Ion Bombardment (V_RF+V_DC)',
+  } : {
+    showerhead: '\uc0f4\uc6cc\ud5e4\ub4dc (\uc811\uc9c0, A_g \u2014 \ud0c1\ub2e4)', chuck: '\uc6e8\uc774\ud37c \ucf5e (RF, A_p \u2014 \uc791\ub2e4)',
+    wafer: 'Si \uc6e8\uc774\ud37c + \ub9c8\uc2a4\ud0b9', plasma: 'C\u2084F\u2088/Ar/O\u2082 \ud50c\ub77c\uc998\ub9c8',
+    sheathTop: '\uc18c\uc2a4 (\uc591\uc774 \ub2ec\ud558\uace0 \uc804\uc555 \ub0b9\uc74c)', sheathBot: '\uc18c\uc2a4 (\ub192\uace0 \uadf9\uc774 \ub10e\uc74c) \u2014 DC Self-Bias',
+    rfgen: 'RF Generator\n13.56 MHz', matcher: 'RF Matcher\n(50\u03a9)',
+    cblock: 'C_block', pump: '\ud130\ubcf4 + \ub2e4\ub860 \ud39c\ud504',
+    gasIn: 'C\u2084F\u2088 + Ar + O\u2082', dcbias: 'V_DC \u2248 \u2212200 ~ \u2212500 V (A_g \u226b A_p)',
+    etch: '\uc774\ubc29\uc131 \uc2dd\uac01 \u2191 (SiF\u2084 \u2191)', ions: '\uc774\uc628 \ud3ed\uacd0 (V_RF+V_DC)',
+  };
+  setTimeout(drawEtchCanvas, 80);
+  return '<canvas id="etchCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
+}
+
+function drawEtchCanvas() {
+  const canvas = document.getElementById('etchCanvas');
+  if (!canvas) return;
+  const labels = window._etchLabels || {};
+  const CW = 780, CH = 460;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = CW * dpr; canvas.height = CH * dpr;
+  canvas.style.height = Math.round(CH * (canvas.offsetWidth / CW)) + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = CW, H = CH;
+
+  ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(112,48,160,0.08)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  const cL=120, cR=660, cT=60, cB=370;
+  ctx.strokeStyle='rgba(180,120,255,0.4)'; ctx.lineWidth=2;
+  ctx.strokeRect(cL, cT, cR-cL, cB-cT);
+
+  // ── Showerhead (grounded, A_g large) — top ──
+  const shY=60, shH=16;
+  const g1 = ctx.createLinearGradient(cL,shY,cR,shY+shH);
+  g1.addColorStop(0,'#1a3a1a'); g1.addColorStop(1,'#0F8C50');
+  ctx.fillStyle=g1; ctx.fillRect(cL,shY,cR-cL,shH);
+  ctx.fillStyle='#0d0d1a';
+  for (let hx=cL+25; hx<cR-10; hx+=22) { ctx.beginPath(); ctx.arc(hx,shY+shH/2,2.5,0,Math.PI*2); ctx.fill(); }
+  ctx.fillStyle='#7fffb3'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.showerhead||'', (cL+cR)/2, shY-8);
+
+  // ── Thin top sheath (small V, grounded side) ──
+  const topSheathH=8;
+  ctx.fillStyle='rgba(120,120,140,0.18)';
+  ctx.fillRect(cL+2, shY+shH, cR-cL-4, topSheathH);
+  ctx.fillStyle='rgba(160,160,180,0.6)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.sheathTop||'', cR+6, shY+shH+topSheathH-1);
+
+  // ── Bulk plasma ──
+  const plT=shY+shH+topSheathH, plB=260;
+  const pg=ctx.createRadialGradient((cL+cR)/2,(plT+plB)/2,30,(cL+cR)/2,(plT+plB)/2,200);
+  pg.addColorStop(0,'rgba(255,150,200,0.16)'); pg.addColorStop(0.5,'rgba(160,120,255,0.10)'); pg.addColorStop(1,'rgba(80,20,160,0.04)');
+  ctx.fillStyle=pg; ctx.fillRect(cL+2,plT,cR-cL-4,plB-plT);
+  [[250,140],[320,165],[400,130],[470,155],[340,190],[420,180],[290,205],[370,170],[450,195],[310,215],[490,145]].forEach(([px,py])=>{
+    const r=ctx.createRadialGradient(px,py,1,px,py,9);
+    r.addColorStop(0,'rgba(255,170,210,0.85)'); r.addColorStop(1,'rgba(160,80,255,0)');
+    ctx.fillStyle=r; ctx.beginPath(); ctx.arc(px,py,9,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle='rgba(230,170,255,0.8)'; ctx.font='italic bold 13px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.plasma||'', (cL+cR)/2, (plT+plB)/2+5);
+
+  // ── Thick bottom sheath (DC self-bias, RF side) — with downward ion arrows ──
+  const botSheathY=plB, botSheathH=34;
+  ctx.fillStyle='rgba(255,130,80,0.14)';
+  ctx.fillRect(cL+2, botSheathY, cR-cL-4, botSheathH);
+  ctx.strokeStyle='rgba(255,160,80,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(cL+2,botSheathY); ctx.lineTo(cR-2,botSheathY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,160,80,0.85)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.sheathBot||'', cR+6, botSheathY+botSheathH/2+3);
+  // downward ion arrows through the thick sheath
+  ctx.strokeStyle='rgba(255,170,100,0.85)'; ctx.fillStyle='rgba(255,170,100,0.85)';
+  for (let ix=cL+70; ix<cR-50; ix+=70) {
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(ix,botSheathY+3); ctx.lineTo(ix,botSheathY+botSheathH-6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ix,botSheathY+botSheathH-2); ctx.lineTo(ix-4,botSheathY+botSheathH-9); ctx.lineTo(ix+4,botSheathY+botSheathH-9); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle='rgba(255,170,100,0.9)'; ctx.font='bold 9px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.ions||'', (cL+cR)/2, botSheathY-4);
+
+  // ── Wafer + mask on chuck ──
+  const wY=botSheathY+botSheathH;
+  ctx.fillStyle='#b8d4ff'; ctx.fillRect(cL+60,wY,cR-cL-120,10);
+  // mask pattern (small rectangles) + etched trench notch
+  ctx.fillStyle='rgba(217,184,237,0.85)';
+  ctx.fillRect(cL+90,wY-6,40,6); ctx.fillRect(cL+200,wY-6,40,6); ctx.fillRect(cL+320,wY-6,40,6); ctx.fillRect(cL+430,wY-6,40,6);
+  ctx.fillStyle='#FFD580'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.etch||'', (cL+cR)/2, wY-12);
+  ctx.fillStyle='#b8d4ff'; ctx.font='bold 11px "Google Sans",sans-serif';
+  ctx.fillText(labels.wafer||'', (cL+cR)/2, wY+22);
+
+  // ── Wafer chuck (RF electrode, A_p small) ──
+  const chY=wY+12, chH=18;
+  const chuckW = (cR-cL)*0.55, chuckX = cL + (cR-cL-chuckW)/2;
+  const g2=ctx.createLinearGradient(chuckX,chY,chuckX+chuckW,chY+chH);
+  g2.addColorStop(0,'#4a1080'); g2.addColorStop(1,'#7030A0');
+  ctx.fillStyle=g2; ctx.fillRect(chuckX,chY,chuckW,chH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.chuck||'', (cL+cR)/2, chY+chH+16);
+
+  // ── C_block between chuck and RF generator ──
+  const cbX=(cL+cR)/2, cbY=chY+chH+26;
+  ctx.strokeStyle='rgba(255,200,100,0.8)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cbX-14,cbY); ctx.lineTo(cbX+14,cbY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cbX-14,cbY+6); ctx.lineTo(cbX+14,cbY+6); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cbX,chY+chH); ctx.lineTo(cbX,cbY); ctx.stroke();
+  ctx.fillStyle='rgba(255,200,100,0.85)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.cblock||'', cbX+18, cbY+4);
+
+  // ── Matcher + RF Generator boxes (left side, like PE-CVD) ──
+  const mX=20,mY=140,mW=80,mH=50;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(mX,mY,mW,mH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(mX,mY,mW,mH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.matcher||'').split('\n').forEach((l,i)=>ctx.fillText(l,mX+mW/2,mY+18+i*13));
+
+  const rX=20,rY=220,rW=80,rH=55;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(rX,rY,rW,rH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(rX,rY,rW,rH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.rfgen||'').split('\n').forEach((l,i)=>ctx.fillText(l,rX+rW/2,rY+18+i*13));
+
+  // wire: RF gen -> matcher -> down to chuck/C_block junction (cbX line)
+  ctx.strokeStyle='rgba(200,140,255,0.7)'; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(rX+rW/2,rY); ctx.lineTo(mX+mW/2,mY+mH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mX+mW,mY+mH/2); ctx.lineTo(cbX-14,cbY+3); ctx.stroke();
+
+  // ── V_DC label ──
+  ctx.fillStyle='rgba(255,130,80,0.95)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.dcbias||'', (cL+cR)/2, cB-6);
+
+  // ── Gas inlet (top) ──
+  ctx.fillStyle='rgba(100,200,255,0.8)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.gasIn||'', (cL+cR)/2, cT-12);
+  ctx.fillStyle='rgba(100,200,255,0.5)';
+  for (let ax=cL+60; ax<cR-40; ax+=80) { ctx.beginPath(); ctx.moveTo(ax,cT-5); ctx.lineTo(ax-4,cT+8); ctx.lineTo(ax+4,cT+8); ctx.closePath(); ctx.fill(); }
+
+  // ── Pump (side exhaust, right) ──
+  const pX=cR+8, pY=plT+10, pW=70, pH=28;
+  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.lineWidth=1.5;
+  ctx.strokeRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(15,60,20,0.5)'; ctx.fillRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(100,200,120,0.8)'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.pump||'', pX+pW/2, pY+pH/2+4);
+  ctx.strokeStyle='rgba(100,180,100,0.5)';
+  ctx.beginPath(); ctx.moveTo(cR,pY+pH/2); ctx.lineTo(pX,pY+pH/2); ctx.stroke();
+}
+
+// ─────────────────────────────────────────────
+//  CCP PVD (SPUTTER) CHAMBER DIAGRAM
+// ─────────────────────────────────────────────
+function buildPVDDiagram(isEn) {
+  window._pvdLabels = isEn ? {
+    target: 'Al Target (Cathode, A_target \u2014 small)', susceptor: 'Wafer / Susceptor (Grounded Anode \u2014 large)',
+    wafer: 'Si Wafer', plasma: 'Ar / Al Plasma',
+    sheathTarget: 'Thick Sheath \u2014 Target Self-Bias', sheathWafer: 'Thin Sheath (low V)',
+    rfgen: 'DC / AC Source\nDC (default) or 13.56 MHz', matcher: 'Matcher\n(50\u03a9, AC mode)',
+    pump: 'Vacuum Pump (1\u201310 mTorr)',
+    gasIn: 'Ar', dcbias: 'V_target \u2248 \u2212hundreds V (A_target \u226a A_ground)',
+    sputter: 'Sputtering \u2191 (Al ejected)', ions: 'Ar\u207a Bombardment \u2192 Target',
+    film: 'Al Film Growth \u2193',
+  } : {
+    target: 'Al Target (Cathode, A_target \u2014 \uc791\ub2e4)', susceptor: '\uc6e8\uc774\ud37c / \uc11c\uc140\ud130 (\uc811\uc9c0 Anode \u2014 \ud0c1\ub2e4)',
+    wafer: 'Si \uc6e8\uc774\ud37c', plasma: 'Ar / Al \ud50c\ub77c\uc998\ub9c8',
+    sheathTarget: '\uc18c\uc2a4 (\ub192\uace0 \uadf9\uc774 \ub10e\uc74c) \u2014 Target Self-Bias', sheathWafer: '\uc18c\uc2a4 (\uc591\uc774 \ub2ec\ud558\uace0 \uc804\uc555 \ub0b9\uc74c)',
+    rfgen: 'DC / AC \uc804\uc6d0\nDC(\uae30\ubcf8) \ub610\ub294 13.56 MHz', matcher: 'Matcher\n(50\u03a9, AC \uc0ac\uc6a9 \uc2dc)',
+    pump: '\uc9c4\uacf5 \ud39c\ud504 (1\u201310 mTorr)',
+    gasIn: 'Ar', dcbias: 'V_target \u2248 \u2212\uc218\ubc31 V (A_target \u226a A_ground)',
+    sputter: 'Sputtering \u2191 (Al \ubc29\ucd9c)', ions: 'Ar\u207a \ud3ed\uacd0 \u2192 Target',
+    film: 'Al \ub7b0 \uc131\uc7a5 \u2193',
+  };
+  setTimeout(drawPVDCanvas, 80);
+  return '<canvas id="pvdCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
+}
+
+function drawPVDCanvas() {
+  const canvas = document.getElementById('pvdCanvas');
+  if (!canvas) return;
+  const labels = window._pvdLabels || {};
+  const CW = 780, CH = 460;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = CW * dpr; canvas.height = CH * dpr;
+  canvas.style.height = Math.round(CH * (canvas.offsetWidth / CW)) + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const W = CW, H = CH;
+
+  ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(112,48,160,0.08)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  const cL=120, cR=660, cT=60, cB=370;
+  ctx.strokeStyle='rgba(180,120,255,0.4)'; ctx.lineWidth=2;
+  ctx.strokeRect(cL, cT, cR-cL, cB-cT);
+
+  // ── Al Target (cathode, powered, small effective area) — top ──
+  const tY=60, tH=22;
+  const g1 = ctx.createLinearGradient(cL,tY,cR,tY+tH);
+  g1.addColorStop(0,'#6b6f78'); g1.addColorStop(1,'#a8adb8');
+  ctx.fillStyle=g1; ctx.fillRect(cL,tY,cR-cL,tH);
+  ctx.fillStyle='#e8eaef'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.target||'', (cL+cR)/2, tY-8);
+
+  // ── Thick target sheath (high V, target self-bias) — with upward ion arrows ──
+  const tSheathY=tY+tH, tSheathH=34;
+  ctx.fillStyle='rgba(255,130,80,0.14)';
+  ctx.fillRect(cL+2, tSheathY, cR-cL-4, tSheathH);
+  ctx.strokeStyle='rgba(255,160,80,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(cL+2,tSheathY+tSheathH); ctx.lineTo(cR-2,tSheathY+tSheathH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,160,80,0.85)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.sheathTarget||'', cR+6, tSheathY+tSheathH/2+3);
+  // upward ion arrows accelerating toward the target
+  ctx.strokeStyle='rgba(255,170,100,0.85)'; ctx.fillStyle='rgba(255,170,100,0.85)';
+  for (let ix=cL+70; ix<cR-50; ix+=70) {
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(ix,tSheathY+tSheathH-3); ctx.lineTo(ix,tSheathY+6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ix,tSheathY+2); ctx.lineTo(ix-4,tSheathY+9); ctx.lineTo(ix+4,tSheathY+9); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle='rgba(255,170,100,0.9)'; ctx.font='bold 9px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.ions||'', (cL+cR)/2, tSheathY+tSheathH+12);
+
+  // sputter-ejected Al atoms (grey dots) drifting down from target
+  ctx.fillStyle='rgba(200,205,215,0.85)';
+  [[200,tSheathY+tSheathH+8],[340,tSheathY+tSheathH+14],[460,tSheathY+tSheathH+6],[560,tSheathY+tSheathH+16]].forEach(([px,py])=>{
+    ctx.beginPath(); ctx.arc(px,py,3,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle='rgba(220,225,235,0.85)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.sputter||'', (cL+cR)/2-160, tSheathY+tSheathH+26);
+
+  // ── Bulk plasma (Ar/Al) ──
+  const plT=tSheathY+tSheathH+30, plB=300;
+  const pg=ctx.createRadialGradient((cL+cR)/2,(plT+plB)/2,30,(cL+cR)/2,(plT+plB)/2,200);
+  pg.addColorStop(0,'rgba(160,80,255,0.18)'); pg.addColorStop(0.5,'rgba(200,120,255,0.10)'); pg.addColorStop(1,'rgba(80,20,160,0.04)');
+  ctx.fillStyle=pg; ctx.fillRect(cL+2,plT,cR-cL-4,plB-plT);
+  [[250,150],[320,175],[400,140],[470,165],[340,205],[420,195],[290,225],[370,185],[450,215],[310,235]].forEach(([px,py])=>{
+    const r=ctx.createRadialGradient(px,py,1,px,py,9);
+    r.addColorStop(0,'rgba(200,140,255,0.9)'); r.addColorStop(1,'rgba(160,80,255,0)');
+    ctx.fillStyle=r; ctx.beginPath(); ctx.arc(px,py,9,0,Math.PI*2); ctx.fill();
+  });
+  // line-of-sight grey Al atoms drifting toward wafer
+  ctx.fillStyle='rgba(200,205,215,0.7)';
+  [[230,260],[310,275],[400,255],[480,270],[360,290],[430,285]].forEach(([px,py])=>{
+    ctx.beginPath(); ctx.arc(px,py,2.5,0,Math.PI*2); ctx.fill();
+  });
+  ctx.fillStyle='rgba(200,160,255,0.75)'; ctx.font='italic bold 13px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.plasma||'', (cL+cR)/2, (plT+plB)/2+5);
+
+  // ── Thin wafer sheath (low V) ──
+  const wSheathY=plB, wSheathH=10;
+  ctx.fillStyle='rgba(120,120,140,0.18)';
+  ctx.fillRect(cL+2, wSheathY, cR-cL-4, wSheathH);
+  ctx.fillStyle='rgba(160,160,180,0.6)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.sheathWafer||'', cR+6, wSheathY+wSheathH-1);
+
+  // ── Wafer + growing Al film ──
+  const wY=wSheathY+wSheathH;
+  ctx.fillStyle='#b8d4ff'; ctx.fillRect(cL+60,wY,cR-cL-120,8);
+  ctx.fillStyle='#c8ccd5'; ctx.fillRect(cL+60,wY-5,cR-cL-120,5);
+  ctx.fillStyle='#e8eaef'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.film||'', (cL+cR)/2, wY-9);
+  ctx.fillStyle='#b8d4ff'; ctx.font='bold 11px "Google Sans",sans-serif';
+  ctx.fillText(labels.wafer||'', (cL+cR)/2, wY+22);
+
+  // ── Susceptor (grounded anode, large area) — bottom ──
+  const sucY=wY+12, sucH=22;
+  const g2=ctx.createLinearGradient(cL,sucY,cR,sucY+sucH);
+  g2.addColorStop(0,'#1a3a1a'); g2.addColorStop(1,'#0F8C50');
+  ctx.fillStyle=g2; ctx.fillRect(cL,sucY,cR-cL,sucH);
+  ctx.fillStyle='#7fffb3'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.susceptor||'', (cL+cR)/2, sucY+15);
+
+  // ── Matcher + DC/AC Source boxes (left side) ──
+  const mX=20,mY=140,mW=80,mH=50;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(mX,mY,mW,mH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(mX,mY,mW,mH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.matcher||'').split('\n').forEach((l,i)=>ctx.fillText(l,mX+mW/2,mY+18+i*13));
+
+  const rX=20,rY=220,rW=80,rH=55;
+  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(rX,rY,rW,rH);
+  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(rX,rY,rW,rH);
+  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  (labels.rfgen||'').split('\n').forEach((l,i)=>ctx.fillText(l,rX+rW/2,rY+18+i*13));
+
+  // wires: source -> matcher -> target (top)
+  ctx.strokeStyle='rgba(200,140,255,0.7)'; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(rX+rW/2,rY); ctx.lineTo(mX+mW/2,mY+mH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mX+mW,mY+mH/2); ctx.lineTo(cL,tY+tH/2); ctx.stroke();
+
+  // ── V_target label ──
+  ctx.fillStyle='rgba(255,130,80,0.95)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  ctx.fillText(labels.dcbias||'', (cL+cR)/2, cT-12);
+
+  // ── Ar gas inlet (side, into plasma region) ──
+  ctx.fillStyle='rgba(100,200,255,0.8)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='left';
+  ctx.fillText(labels.gasIn||'', cL+6, plT-4);
+  ctx.fillStyle='rgba(100,200,255,0.5)';
+  ctx.beginPath(); ctx.moveTo(cL+30,plT+10); ctx.lineTo(cL+18,plT+18); ctx.lineTo(cL+30,plT+18); ctx.closePath(); ctx.fill();
+
+  // ── Pump (side exhaust, right) ──
+  const pX=cR+8, pY=plT+10, pW=70, pH=28;
+  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.lineWidth=1.5;
+  ctx.strokeRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(15,60,20,0.5)'; ctx.fillRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(100,200,120,0.8)'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
+  ctx.fillText(labels.pump||'', pX+pW/2, pY+pH/2+4);
+  ctx.strokeStyle='rgba(100,180,100,0.5)';
+  ctx.beginPath(); ctx.moveTo(cR,pY+pH/2); ctx.lineTo(pX,pY+pH/2); ctx.stroke();
+}
+
+// ─────────────────────────────────────────────
 //  PE-CVD DEEP LEARN
 // ─────────────────────────────────────────────
 function buildPECVDDeepLearn(isEn, slideId) {
@@ -1212,16 +1937,17 @@ Forward Power = Incident Power − Reflected Power
         },
         {
           icon: '🔥',
-          title: 'DC 자기 바이어스(Self-Bias)와 막질 제어',
-          body: `<p>CCP 챔버에서 RF 전극(샤워헤드)과 접지 전극(서셉터)의 면적이 다를 때, 플라즈마 전위는 RF 전극에 대해 더 양(+)으로 형성됩니다. 이로 인해 RF 전극 쪽에 음(−)의 DC 자기 바이어스(V_DC)가 발생합니다.</p>
+          title: 'DC 자기 바이어스(Self-Bias)와 막질 제어 — PE-CVD의 대칭 전극 설계',
+          body: `<p>CCP 챔버에서 RF 전극(샤워헤드)과 접지 전극(서셉터)의 면적이 다를 경우, 플라즈마 전위가 RF 전극에 대해 더 양(+)으로 형성되어 RF 전극 쪽에 음(−)의 DC 자기 바이어스(V_DC)가 발생합니다. 식각(RIE) 공정은 이 V_DC를 적극적으로 키워 이온을 가속시켜 이방성 식각을 구현하지만, <b>PE-CVD/PE-ALD는 그 반대</b>입니다. 두 전극의 면적과 형태를 최대한 대칭으로 설계하여 V_DC를 수~수십 V 수준으로 억제하는 것이 일반적인 챔버 설계 목표입니다.</p>
 <table class="dl-table">
-  <thead><tr><th>RF 파워 ↑</th><th>V_DC ↑</th><th>이온 충격 에너지 ↑</th></tr></thead>
+  <thead><tr><th>설계 목표</th><th>대칭 전극 (PE-CVD/ALD)</th><th>비대칭 전극 (RIE/Etch)</th></tr></thead>
   <tbody>
-    <tr><td>막 밀도(Film Density) ↑</td><td>압축 응력(Compressive Stress) ↑</td><td>TEOS, SiO₂ 막 품질 향상</td></tr>
-    <tr><td>증착 속도(DR) ↑</td><td>단계 피복성(Step Coverage) 감소</td><td>균일도(Uniformity) 조정 필요</td></tr>
+    <tr><td>V_DC 크기</td><td>낮음 (수~수십 V)</td><td>높음 (수백 V 이상)</td></tr>
+    <tr><td>이온 충격 에너지</td><td>저에너지 — 막 손상 최소화</td><td>고에너지 — 식각/이방성 확보</td></tr>
+    <tr><td>주요 효과</td><td>경미한 densification (막 밀도 소폭 향상)</td><td>이방성 식각, 마스크 선택비</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight">반도체 공정에서는 막 응력이 웨이퍼 휨(Wafer Bow)에 직접 영향을 미치므로, RF 파워와 DC Bias의 균형이 중요합니다.</div>`
+<div class="dl-highlight">PE-CVD에서 RF 파워를 높이면 V_DC도 함께 다소 증가하지만, 그 주된 효과는 <b>전자 밀도·라디칼 생성량 증가 → 증착 속도(DR) 상승</b>입니다. V_DC 상승에 따른 저에너지 이온 충격은 막을 약하게 densify시켜 응력(stress)을 변화시킬 수 있으나, 이는 부수적 효과이며 V_DC를 의도적으로 키우는 것은 PE-CVD의 설계 방향이 아닙니다. 막 응력은 웨이퍼 휨(Wafer Bow)에 직접 영향을 미치므로, RF 파워는 DR과 막질·응력 사이의 균형점에서 결정됩니다.</div>`
         },
         {
           icon: '🧪',
@@ -1268,16 +1994,17 @@ Reflection coeff. Γ = (Z_L − Z_0) / (Z_L + Z_0)</div>
         },
         {
           icon: '🔥',
-          title: 'DC Self-Bias and Film Quality Control',
-          body: `<p>When the RF electrode (showerhead) and the grounded electrode (susceptor) have unequal areas, the plasma potential becomes more positive relative to the RF electrode, inducing a negative DC self-bias (V_DC) on the RF electrode side.</p>
+          title: 'DC Self-Bias and Film Quality Control — Symmetric Electrode Design in PE-CVD',
+          body: `<p>When the RF electrode (showerhead) and the grounded electrode (susceptor) have unequal areas, the plasma potential becomes more positive relative to the RF electrode, inducing a negative DC self-bias (V_DC) on the RF electrode side. Etch (RIE) processes deliberately exploit this — large V_DC accelerates ions for anisotropic etching. <b>PE-CVD/PE-ALD does the opposite</b>: electrodes are designed as close to symmetric as possible so that V_DC is suppressed to just a few to a few tens of volts.</p>
 <table class="dl-table">
-  <thead><tr><th>RF Power ↑</th><th>V_DC ↑</th><th>Ion Bombardment Energy ↑</th></tr></thead>
+  <thead><tr><th>Design Goal</th><th>Symmetric Electrodes (PE-CVD/ALD)</th><th>Asymmetric Electrodes (RIE/Etch)</th></tr></thead>
   <tbody>
-    <tr><td>Film Density ↑</td><td>Compressive Stress ↑</td><td>TEOS, SiO₂ film quality improves</td></tr>
-    <tr><td>Deposition Rate ↑</td><td>Step Coverage ↓</td><td>Uniformity adjustment required</td></tr>
+    <tr><td>V_DC Magnitude</td><td>Low (few to tens of V)</td><td>High (hundreds of V+)</td></tr>
+    <tr><td>Ion Bombardment Energy</td><td>Low — minimizes film damage</td><td>High — drives etch anisotropy</td></tr>
+    <tr><td>Primary Effect</td><td>Mild densification (slight film density gain)</td><td>Anisotropic etch, mask selectivity</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight">Film stress directly affects wafer bow in semiconductor manufacturing, making the balance between RF power and DC bias critical.</div>`
+<div class="dl-highlight">In PE-CVD, increasing RF power also raises V_DC somewhat, but its primary effect is <b>higher electron density → more radical generation → higher deposition rate</b>. The mild low-energy ion bombardment from increased V_DC can slightly densify the film and shift stress, but this is a secondary effect — deliberately driving up V_DC is not the design intent of PE-CVD. Since film stress directly affects wafer bow, RF power is set as a balance between deposition rate and film quality/stress.</div>`
         },
         {
           icon: '🧪',
@@ -1306,6 +2033,336 @@ Reflection coeff. Γ = (Z_L − Z_0) / (Z_L + Z_0)</div>
   </tbody>
 </table>
 <div class="dl-highlight">RF Generators and Matchers (Power Delivery Systems) are integrated into the above equipment systems to drive CCP plasma in the chamber. The RF power delivery subsystem directly influences plasma density, uniformity, and film quality.</div>`
+        },
+      ]
+    }
+  };
+
+  const d = DATA[isEn ? 'en' : 'ko'];
+  const sectionsHtml = d.sections.map(sec => `
+    <div class="dl-section">
+      <div class="dl-section-title">${sec.icon} ${sec.title}</div>
+      <div class="dl-body">${sec.body}</div>
+    </div>`).join('');
+
+  return `
+    <div class="deep-learn-wrap" id="${uid}">
+      <div class="deep-learn-header" onclick="toggleDeepLearn('${uid}')" id="${uid}_hdr">
+        <div class="deep-learn-icon">📚</div>
+        <div class="deep-learn-title">${d.headerTitle}</div>
+        <span class="deep-learn-badge">${d.badge}</span>
+        <span class="deep-learn-chevron">▼</span>
+      </div>
+      <div class="deep-learn-body" id="${uid}_body">
+        <div class="deep-learn-inner">${sectionsHtml}</div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  CCP DRY ETCH DEEP LEARN
+// ─────────────────────────────────────────────
+function buildEtchDeepLearn(isEn, slideId) {
+  const uid = 'dlAccordion_' + slideId;
+
+  const DATA = {
+    ko: {
+      headerTitle: '심화학습 — CCP Dry Etch (RIE): 공정 원리 깊이 이해하기',
+      badge: '심화학습',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'RF 임피던스 정합과 Blocking Capacitor(C_block)',
+          body: `<p>식각 챔버에서도 RF Generator → RF Matcher → 챔버 임피던스(50Ω 정합) 흐름은 PE-CVD와 동일합니다. 차이점은 RF가 <b>웨이퍼 척</b>에 인가된다는 점과, 그 경로에 <b>Blocking Capacitor(C_block)</b>가 직렬로 연결된다는 점입니다.</p>
+<div class="dl-eq">Z_match: Z_chamber(복소수) → 50Ω
+Forward Power = Incident Power − Reflected Power
+C_block: AC(RF) 전류는 통과 ↔ DC 성분은 척 표면에 누적</div>
+<div class="dl-highlight">C_block이 없으면 척에 DC 전하가 누적될 수 없어 V_DC가 형성되지 않습니다. RF Matcher는 PE-CVD와 동일하게 반사 전력을 최소화하지만, 정합 대상 임피던스 자체가 비대칭 전극 구조와 시스(sheath) 커패시턴스로 인해 PE-CVD와 다르게 나타납니다.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'DC Self-Bias와 이방성 식각 — 비대칭 전극 설계 (Chapter 1과의 대비)',
+          body: `<p>Chapter 1(PE-CVD)에서는 대칭 전극으로 V_DC를 억제했습니다. 식각 챔버는 정반대로, 접지 전극(샤워헤드, A_g)을 크게, RF 전극(웨이퍼 척, A_p)을 작게 설계하여 <b>V_DC ∝ −(A_g/A_p)^2.5</b> 관계에 따라 −200~−500V의 강한 V_DC를 의도적으로 형성합니다.</p>
+<table class="dl-table">
+  <thead><tr><th>비교 항목</th><th>PE-CVD (Chapter 1, 대칭 전극)</th><th>Dry Etch (Chapter 2, 비대칭 전극)</th></tr></thead>
+  <tbody>
+    <tr><td>전극 면적 관계</td><td>A_RF ≈ A_GND (대칭)</td><td>A_g(접지) ≫ A_p(RF 척)</td></tr>
+    <tr><td>V_DC 크기</td><td>수~수십 V (낮음)</td><td>−200~−500V (높음)</td></tr>
+    <tr><td>이온 충격 에너지 (V_RF+V_DC)</td><td>저에너지 — 약한 densification</td><td>수백~1000+ eV — 식각의 주(主) 메커니즘</td></tr>
+    <tr><td>설계 목표</td><td>막 손상 최소화</td><td>이방성(수직) 식각 프로파일 확보</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">"두 개의 물통, 하나의 배수구" 비유: 큰 접지 전극(A_g)과 작은 RF 전극(A_p)이 같은 RF 전류를 받아내야 할 때, 전류 밀도가 더 높은 작은 전극(A_p) 쪽에 더 큰 음의 DC 전위가 형성됩니다. 이 V_DC가 이온을 척 방향(웨이퍼 방향)으로 수직 가속시켜, 마스크로 보호되지 않은 영역만 깊이 방향으로 깎이는 이방성 식각을 만듭니다. 동일한 qV_sheath 물리가 PE-CVD에서는 부수적 효과였지만, 식각에서는 핵심 구동력이 됩니다.</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'SiO₂ RIE 가스 화학 — C₄F₈ / Ar / O₂의 역할',
+          body: `<table class="dl-table">
+  <thead><tr><th>가스</th><th>역할</th><th>주요 반응/효과</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td><b>C₄F₈</b></td><td>주 식각 가스 (Etchant Source)</td><td>e⁻ 충돌로 고리 개환 → CF₃·, CF₂·, F·<br>F· + SiO₂ → SiF₄↑ (휘발성)</td><td>Octafluorocyclobutane, CFx는 폴리머 형성종</td></tr>
+    <tr><td><b>Ar</b></td><td>물리적 스퍼터링 보조 + 안정화</td><td>Ar⁺(40 amu)이 V_DC로 가속되어 Si–O 결합 절단 보조. C₄F₈ 희석.</td><td>비활성 가스, Etch Rate·플라즈마 안정성에 영향</td></tr>
+    <tr><td><b>O₂</b></td><td>C/F 비율 제어</td><td>탄소를 CO₂로 소거 → 여분의 F· 방출 → Etch Rate↑<br>과도하면 CFx 폴리머 형성 억제</td><td>Selectivity·측벽 Passivation 균형 조절</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">전형적 비율 C₄F₈ : Ar : O₂ ≈ 10 : 200 : 5 sccm. 화학적 식각(F·+SiO₂→SiF₄), 물리적 식각(Ar⁺ 스퍼터링), 측벽 Passivation(CFx 폴리머) 세 가지가 결합되어 높은 SiO₂/마스크 선택비와 수직 프로파일을 동시에 달성합니다.</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'CCP Dry Etch 장비 공급사 및 RF Power Delivery System 연결',
+          body: `<table class="dl-table">
+  <thead><tr><th>장비사</th><th>대표 장비</th><th>주요 용도</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials (AMAT)</td><td>Producer, AdvantEdge Mesa</td><td>SiO₂/Si₃N₄ Spacer, Contact/Via Etch</td></tr>
+    <tr><td>Lam Research</td><td>Flex, Kiyo</td><td>Oxide RIE, High Aspect Ratio Contact</td></tr>
+    <tr><td>TEL (Tokyo Electron)</td><td>Telius, Tactras</td><td>SiO₂/SiN Etch, Spacer Formation</td></tr>
+    <tr><td>ASM International</td><td>Polygon Etch</td><td>Spacer Etch, Selective Removal</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">RF Generator와 RF Matcher(Power Delivery System)는 위 식각 장비사 시스템의 웨이퍼 척에 RF를 인가하여 V_DC와 이온 충격 에너지를 결정합니다. PE-CVD와 동일한 13.56 MHz / 50Ω 표준이 사용되지만, 챔버 임피던스 특성과 정합 범위는 전극 비대칭성으로 인해 PE-CVD와 다르게 설계됩니다.</div>`
+        },
+      ]
+    },
+    en: {
+      headerTitle: 'Deep Study — CCP Dry Etch (RIE): Process Principles in Depth',
+      badge: 'Deep Study',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'RF Impedance Matching and the Blocking Capacitor (C_block)',
+          body: `<p>The RF Generator → RF Matcher → chamber impedance (50Ω match) flow is the same as in PE-CVD. The difference is that RF is delivered to the <b>wafer chuck</b>, and a <b>Blocking Capacitor (C_block)</b> sits in series along that path.</p>
+<div class="dl-eq">Z_match: Z_chamber(complex) → 50Ω
+Forward Power = Incident Power − Reflected Power
+C_block: passes AC (RF) current ↔ blocks DC, allowing DC charge to accumulate on the chuck surface</div>
+<div class="dl-highlight">Without C_block, no DC charge could accumulate on the chuck and V_DC could not form. The RF Matcher still minimizes reflected power as in PE-CVD, but the impedance being matched differs because of the asymmetric electrode geometry and sheath capacitance.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'DC Self-Bias and Anisotropic Etch — Asymmetric Electrode Design (Contrast with Chapter 1)',
+          body: `<p>Chapter 1 (PE-CVD) used symmetric electrodes to suppress V_DC. The etch chamber does the opposite: the grounded electrode (showerhead, A_g) is made large and the RF electrode (wafer chuck, A_p) small, so that <b>V_DC ∝ −(A_g/A_p)^2.5</b> deliberately produces a strong V_DC of −200 to −500 V.</p>
+<table class="dl-table">
+  <thead><tr><th>Comparison</th><th>PE-CVD (Chapter 1, Symmetric)</th><th>Dry Etch (Chapter 2, Asymmetric)</th></tr></thead>
+  <tbody>
+    <tr><td>Electrode Area Relation</td><td>A_RF ≈ A_GND (symmetric)</td><td>A_g (ground) ≫ A_p (RF chuck)</td></tr>
+    <tr><td>V_DC Magnitude</td><td>Few to tens of V (low)</td><td>−200 to −500 V (high)</td></tr>
+    <tr><td>Ion Bombardment Energy (V_RF+V_DC)</td><td>Low — mild densification</td><td>Hundreds to 1000+ eV — primary etch mechanism</td></tr>
+    <tr><td>Design Goal</td><td>Minimize film damage</td><td>Ensure anisotropic (vertical) etch profile</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">The "two buckets, one drain" picture: when a large grounded electrode (A_g) and a small RF electrode (A_p) must carry the same RF current, the smaller electrode (A_p) — with higher current density — develops a larger negative DC potential. This V_DC accelerates ions vertically toward the chuck (the wafer), producing anisotropic etching where material is removed in depth only where the mask doesn't protect it. The same qV_sheath physics that was a secondary effect in PE-CVD becomes the primary driving mechanism here.</div>`
+        },
+        {
+          icon: '🧪',
+          title: 'SiO₂ RIE Gas Chemistry — Roles of C₄F₈ / Ar / O₂',
+          body: `<table class="dl-table">
+  <thead><tr><th>Gas</th><th>Role</th><th>Key Reaction/Effect</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><b>C₄F₈</b></td><td>Primary etchant source</td><td>Electron-impact ring-opening → CF₃·, CF₂·, F·<br>F· + SiO₂ → SiF₄↑ (volatile)</td><td>Octafluorocyclobutane; CFx are polymer-forming species</td></tr>
+    <tr><td><b>Ar</b></td><td>Physical sputtering aid + stabilization</td><td>Ar⁺ (40 amu) accelerated by V_DC assists Si–O bond breaking. Dilutes C₄F₈.</td><td>Inert gas; affects etch rate & plasma stability</td></tr>
+    <tr><td><b>O₂</b></td><td>Controls C/F ratio</td><td>Scavenges carbon as CO₂ → releases extra F· → etch rate ↑<br>Excess O₂ suppresses CFx polymer formation</td><td>Balances selectivity vs sidewall passivation</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">Typical ratio C₄F₈ : Ar : O₂ ≈ 10 : 200 : 5 sccm. Chemical etching (F·+SiO₂→SiF₄), physical etching (Ar⁺ sputtering), and sidewall passivation (CFx polymer) combine to achieve both high SiO₂/mask selectivity and vertical profiles.</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'CCP Dry Etch Equipment Vendors & RF Power Delivery',
+          body: `<table class="dl-table">
+  <thead><tr><th>Vendor</th><th>Key Tool</th><th>Primary Use</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials</td><td>Producer, AdvantEdge Mesa</td><td>SiO₂/Si₃N₄ spacer, contact/via etch</td></tr>
+    <tr><td>Lam Research</td><td>Flex, Kiyo</td><td>Oxide RIE, high-aspect-ratio contact</td></tr>
+    <tr><td>TEL (Tokyo Electron)</td><td>Telius, Tactras</td><td>SiO₂/SiN etch, spacer formation</td></tr>
+    <tr><td>ASM International</td><td>Polygon Etch</td><td>Spacer etch, selective removal</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">RF Generators and Matchers (Power Delivery Systems) supply RF to the wafer chuck in the above etch platforms, setting V_DC and the ion bombardment energy. The same 13.56 MHz / 50Ω standard as PE-CVD is used, but the chamber impedance characteristics and matching range differ due to electrode asymmetry.</div>`
+        },
+      ]
+    }
+  };
+
+  const d = DATA[isEn ? 'en' : 'ko'];
+  const sectionsHtml = d.sections.map(sec => `
+    <div class="dl-section">
+      <div class="dl-section-title">${sec.icon} ${sec.title}</div>
+      <div class="dl-body">${sec.body}</div>
+    </div>`).join('');
+
+  return `
+    <div class="deep-learn-wrap" id="${uid}">
+      <div class="deep-learn-header" onclick="toggleDeepLearn('${uid}')" id="${uid}_hdr">
+        <div class="deep-learn-icon">📚</div>
+        <div class="deep-learn-title">${d.headerTitle}</div>
+        <span class="deep-learn-badge">${d.badge}</span>
+        <span class="deep-learn-chevron">▼</span>
+      </div>
+      <div class="deep-learn-body" id="${uid}_body">
+        <div class="deep-learn-inner">${sectionsHtml}</div>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────
+//  CCP PVD (SPUTTER) DEEP LEARN
+// ─────────────────────────────────────────────
+function buildPVDDeepLearn(isEn, slideId) {
+  const uid = 'dlAccordion_' + slideId;
+
+  const DATA = {
+    ko: {
+      headerTitle: '심화학습 — CCP PVD (Sputter): 공정 원리 깊이 이해하기',
+      badge: '심화학습',
+      sections: [
+        {
+          icon: '⚡',
+          title: '비대칭 Sheath와 Target Self-Bias — Flux Balance 관점',
+          body: `<p>Chapter 1(PE-CVD, 대칭 전극)·Chapter 2(Etch, 비대칭 — Wafer측에 큰 V_DC)에서 본 것과 동일한 Flux Balance(Γ_e=Γ_i) 원리가 PVD에도 적용됩니다. 차이는 <b>"어느 전극이 작은가"</b>입니다.</p>
+<table class="dl-table">
+  <thead><tr><th>비교 항목</th><th>Chapter 2 (Etch)</th><th>Chapter 3 (PVD/Sputter)</th></tr></thead>
+  <tbody>
+    <tr><td>작은 전극(파워 인가)</td><td>웨이퍼 척 (A_p)</td><td>Target (A_target)</td></tr>
+    <tr><td>큰 전극(접지)</td><td>샤워헤드 (A_g)</td><td>웨이퍼/서셉터 + 챔버 벽</td></tr>
+    <tr><td>강한 V_DC가 형성되는 곳</td><td>웨이퍼 측 → 이온이 웨이퍼로 가속</td><td>Target 측 → 이온이 Target으로 가속</td></tr>
+    <tr><td>이온 충격의 대상</td><td>웨이퍼 위 박막 (제거)</td><td>Source Target 자체 (Sputtering)</td></tr>
+  </tbody>
+</table>
+<div class="dl-eq">Flux Balance: Γ_e (전자 유입) = Γ_i (이온 유입)
+→ 파워 인가 전극의 실효 면적이 작을수록
+→ 전자를 충분히 밀어내기 위해 그 전극이 더 음(−)으로 charging
+→ V_target ≈ −수백 V (PVD), V_DC ≈ −200~−500V (Etch, 단 대상은 Wafer)</div>
+<div class="dl-highlight">즉, "비대칭 전극으로 한쪽에 강한 V_DC를 만든다"는 설계 원리 자체는 Chapter 2와 Chapter 3이 동일하지만, <b>그 비대칭의 방향(어느 쪽이 작은가)에 따라 이온 충격이 "웨이퍼의 막을 식각"하거나 "Target을 깎아 웨이퍼에 증착"하는 정반대의 결과</b>를 만듭니다.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'Sputtering Yield와 q×V_sheath — Densification·Etch·Sputter는 같은 물리의 다른 구간',
+          body: `<p>Chapter 1~3을 관통하는 단 하나의 물리량은 <b>이온 충격 에너지 E_ion ≈ q × V_sheath</b>입니다. V_sheath의 크기에 따라 결과가 완전히 달라집니다.</p>
+<table class="dl-table">
+  <thead><tr><th>Chapter</th><th>V_sheath</th><th>E_ion</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td>1. PE-CVD (대칭)</td><td>수~수십 V</td><td>수~수십 eV</td><td>경미한 Densification (결합 절단 임계값 이하)</td></tr>
+    <tr><td>2. Dry Etch (비대칭, Wafer측)</td><td>수백 V</td><td>수백~1000+ eV</td><td>SiO₂ 식각 (Removal, 화학+물리 결합)</td></tr>
+    <tr><td>3. PVD/Sputter (비대칭, Target측)</td><td>수백 V</td><td>~100–600 eV</td><td>Al Target Sputtering (순수 물리적 Removal)</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight"><b>Sputtering Yield (Y)</b>: 입사 Ar⁺ 1개당 방출되는 Al 원자 수 (수백 eV에서 Y ≈ 1–3). Y는 이온 에너지·질량, Target 원자 질량, 입사각에 의존합니다. Chapter 2의 식각은 "화학적 식각(F·) + 물리적 보조(Ar⁺ Sputtering)"의 결합이지만, PVD의 Target Sputtering은 <b>화학 반응이 전혀 없는 순수 물리적 과정</b>입니다 — 그래서 PE-CVD(SiH₄+N₂O→SiO₂)와 달리 PVD에는 화학 반응식이 없습니다.</div>`
+        },
+        {
+          icon: '🔌',
+          title: 'DC vs AC/RF — Sputtering 전원 방식의 선택 기준과 추세',
+          body: `<p>금속(Al, Cu, Ti, Ta, W 등) Target은 <b>도체</b>이므로, Sputter PVD에서는 <b>DC Power가 전통적인 양산 표준(Default)</b>입니다. 회로가 단순하고, 닫힌 루프 구조이며, 증착 속도가 높습니다. Arc 억제를 위해 흔히 <b>Pulsed-DC</b>(낮은 주파수로 짧게 극성 반전)로 운용됩니다.</p>
+<table class="dl-table">
+  <thead><tr><th>전원 방식</th><th>적용 대상</th><th>이유</th></tr></thead>
+  <tbody>
+    <tr><td><b>DC (기본)</b></td><td>순수 금속 Target (Al, Cu, Ti, Ta, W…)</td><td>도체 → Ar⁺의 (+)전하가 자유전자로 즉시 중화 → Net 전계 무한정 유지</td></tr>
+    <tr><td><b>Pulsed-DC</b></td><td>Reactive Sputtering 등 약한 Poisoning 발생 환경</td><td>DC의 단순함 유지하면서, 주기적 극성 반전으로 Target 표면에 쌓인 전하를 방전 — Arc 억제</td></tr>
+    <tr><td><b>AC/RF (13.56 MHz)</b></td><td>절연성 Target 직접 증착 (예: Al₂O₃, HfO₂ 등 High-k/유전체), 또는 심하게 Poisoning된 금속 Target</td><td>PE-CVD의 SiO₂ 절연막이 DC에서 충전되어 Plasma가 꺼지는 것과 동일한 문제가 Target에서 발생 → AC로 매 반주기 충전/중화</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">정리하면: <b>금속막 Sputtering은 여전히 DC(또는 Pulsed-DC)가 주류이며 앞으로도 그럴 것입니다.</b> 다만 첨단 공정에서 PVD로 증착하는 대상이 순수 금속을 넘어 유전체·High-k·질화물(TiN, TaN 등 반응성 Sputtering 포함)로 확장되면서, Target 표면이 절연성/Poisoned 상태가 되는 경우가 늘어나고 있습니다. 이런 경우 PE-CVD Class 1에서 SiO₂에 DC가 통하지 않았던 것과 동일한 이유로 <b>AC/RF 또는 Pulsed-DC가 점점 더 필요해지는 추세</b>입니다 — "AC가 DC를 대체"하는 것이 아니라, <b>적용 대상이 넓어지면서 AC/Pulsed-DC가 보조·확장 수단으로 함께 쓰이는 빈도가 늘어나는 것</b>으로 이해하는 것이 정확합니다.</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'PVD 금속막 응용 및 장비 공급사 연결',
+          body: `<table class="dl-table">
+  <thead><tr><th>응용</th><th>주요 금속</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td>Contact Plug / Via Fill</td><td>W, Ti/TiN(Liner)</td><td>Barrier(Ti/TiN) 위에 W CVD/PVD로 Fill</td></tr>
+    <tr><td>Metal Interconnect</td><td>Al, Cu, Co, Ru, AlCu</td><td>신호 배선·전력 전달, Legacy~Advanced Node</td></tr>
+    <tr><td>Gate Metal (HKMG)</td><td>TiN, TaN, W/Ru/Mo</td><td>Work Function 제어, 게이트 전극</td></tr>
+    <tr><td>Barrier / Liner</td><td>Ti, TiN, Ta, TaN, WN</td><td>확산 방지(Cu→Si/SiO₂), 접착력 향상</td></tr>
+    <tr><td>DRAM Capacitor Electrode</td><td>TiN, Ru, Pt, W</td><td>High-k(HfO₂) 유전체와 함께 Capacitor 구성</td></tr>
+    <tr><td>NAND Word Line</td><td>W, TiN, Co/Ru</td><td>3D NAND 적층 구조의 Word Line</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>장비사</th><th>대표 장비</th><th>주요 용도</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials (AMAT)</td><td>Endura</td><td>Al/Cu/Ti/TiN/Ta/TaN PVD, Barrier/Liner</td></tr>
+    <tr><td>ULVAC</td><td>ENTRON, CERAUS</td><td>금속·Barrier·반응성 Sputter</td></tr>
+    <tr><td>EVG / Singulus</td><td>Cluster PVD</td><td>다층 금속 Stack 증착</td></tr>
+    <tr><td>Sunic System / Wonik IPS</td><td>PVD Cluster</td><td>국내 금속 Barrier/전극 PVD</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">DC/AC Power Source와 Matcher(필요 시)는 위 PVD 장비사 시스템의 Target Cathode에 전원을 인가하여 V_target과 Sputtering Rate를 결정합니다. 금속 Target에서는 DC(또는 Pulsed-DC) Power Supply가 표준이며, 반응성/유전체 Sputtering 모듈에는 13.56 MHz AC/RF Matcher가 추가됩니다.</div>`
+        },
+      ]
+    },
+    en: {
+      headerTitle: 'Deep Study — CCP PVD (Sputter): Process Principles in Depth',
+      badge: 'Deep Study',
+      sections: [
+        {
+          icon: '⚡',
+          title: 'Asymmetric Sheath and Target Self-Bias — A Flux-Balance View',
+          body: `<p>The same flux-balance principle (Γ_e=Γ_i) seen in Chapter 1 (PE-CVD, symmetric) and Chapter 2 (Etch, asymmetric — large V_DC at the wafer) also applies to PVD. The difference is <b>which electrode is small</b>.</p>
+<table class="dl-table">
+  <thead><tr><th>Comparison</th><th>Chapter 2 (Etch)</th><th>Chapter 3 (PVD/Sputter)</th></tr></thead>
+  <tbody>
+    <tr><td>Small (powered) electrode</td><td>Wafer chuck (A_p)</td><td>Target (A_target)</td></tr>
+    <tr><td>Large (grounded) electrode</td><td>Showerhead (A_g)</td><td>Wafer/susceptor + chamber walls</td></tr>
+    <tr><td>Where strong V_DC forms</td><td>Wafer side → ions accelerate toward wafer</td><td>Target side → ions accelerate toward target</td></tr>
+    <tr><td>What the ion bombardment acts on</td><td>Film on the wafer (removal)</td><td>Source target itself (sputtering)</td></tr>
+  </tbody>
+</table>
+<div class="dl-eq">Flux balance: Γ_e (electron influx) = Γ_i (ion influx)
+→ the smaller the effective area of the powered electrode
+→ the more negative it must charge to repel enough electrons
+→ V_target ≈ −hundreds of V (PVD); V_DC ≈ −200 to −500 V (Etch, but acting on the wafer)</div>
+<div class="dl-highlight">The design principle — "use asymmetric electrodes to build a strong V_DC on one side" — is the same in Chapters 2 and 3. But <b>the direction of the asymmetry (which side is smaller) determines whether the ion bombardment etches the film on the wafer, or erodes the target to deposit on the wafer</b> — opposite outcomes from the same mechanism.</div>`
+        },
+        {
+          icon: '🔥',
+          title: 'Sputtering Yield and q×V_sheath — Densification, Etch, and Sputter Are the Same Physics on Different Scales',
+          body: `<p>One quantity runs through Chapters 1–3: <b>ion bombardment energy E_ion ≈ q × V_sheath</b>. The magnitude of V_sheath determines the outcome entirely.</p>
+<table class="dl-table">
+  <thead><tr><th>Chapter</th><th>V_sheath</th><th>E_ion</th><th>Outcome</th></tr></thead>
+  <tbody>
+    <tr><td>1. PE-CVD (symmetric)</td><td>Few–tens of V</td><td>Few–tens of eV</td><td>Mild densification (below bond-breaking threshold)</td></tr>
+    <tr><td>2. Dry Etch (asymmetric, wafer side)</td><td>Hundreds of V</td><td>Hundreds–1000+ eV</td><td>SiO₂ etch (removal, chemical + physical combined)</td></tr>
+    <tr><td>3. PVD/Sputter (asymmetric, target side)</td><td>Hundreds of V</td><td>~100–600 eV</td><td>Al target sputtering (purely physical removal)</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight"><b>Sputtering yield (Y)</b>: atoms of Al ejected per incident Ar⁺ (Y ≈ 1–3 at hundreds of eV). Y depends on ion energy/mass, target atom mass, and incidence angle. Chapter 2's etch combines chemical etching (F·) with physical assist (Ar⁺ sputtering); PVD's target sputtering, by contrast, is a <b>purely physical process with no chemistry at all</b> — which is why, unlike PE-CVD's SiH₄+N₂O→SiO₂, PVD has no chemical equation.</div>`
+        },
+        {
+          icon: '🔌',
+          title: 'DC vs AC/RF — Choosing a Sputtering Power Source, and the Trend',
+          body: `<p>Metal targets (Al, Cu, Ti, Ta, W, etc.) are <b>conductors</b>, so <b>DC power is the conventional production default</b> for sputter PVD — simple circuitry, a closed loop, and high deposition rates. It is often run as <b>pulsed-DC</b> (brief periodic polarity reversal at low frequency) to suppress arcing.</p>
+<table class="dl-table">
+  <thead><tr><th>Power Mode</th><th>Applies To</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><b>DC (default)</b></td><td>Pure metal targets (Al, Cu, Ti, Ta, W…)</td><td>Conductor → Ar⁺-deposited (+) charge is instantly neutralized by free electrons → net field sustained indefinitely</td></tr>
+    <tr><td><b>Pulsed-DC</b></td><td>Mild poisoning conditions, e.g. some reactive sputtering</td><td>Keeps DC simplicity while periodically reversing polarity to bleed off charge accumulating on the target — suppresses arcing</td></tr>
+    <tr><td><b>AC/RF (13.56 MHz)</b></td><td>Direct deposition of insulating targets (e.g. Al₂O₃, HfO₂, other high-k/dielectrics), or heavily poisoned metal targets</td><td>Same problem as PE-CVD's SiO₂ charging under DC, but occurring at the target — AC's charge/neutralize cycle each half-period is required</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">In short: <b>DC (or pulsed-DC) remains, and will likely remain, the mainstream choice for metal-film sputtering.</b> However, as advanced processes increasingly use PVD to deposit beyond pure metals — dielectrics, high-k materials, nitrides (TiN, TaN, etc. via reactive sputtering) — target surfaces more often become insulating or poisoned. For exactly the reason DC failed for SiO₂ in PE-CVD Class 1, <b>AC/RF or pulsed-DC is becoming progressively more necessary</b> in these cases. The accurate framing is not "AC is replacing DC," but rather: <b>as the range of materials deposited by PVD broadens, AC/pulsed-DC is used more often as a supplementary/extension mode alongside DC</b>.</div>`
+        },
+        {
+          icon: '🏭',
+          title: 'PVD Metal Film Applications & Equipment Vendors',
+          body: `<table class="dl-table">
+  <thead><tr><th>Application</th><th>Key Metals</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Contact Plug / Via Fill</td><td>W, Ti/TiN (liner)</td><td>W fill (CVD/PVD) over Ti/TiN barrier</td></tr>
+    <tr><td>Metal Interconnect</td><td>Al, Cu, Co, Ru, AlCu</td><td>Signal routing & power delivery, legacy to advanced nodes</td></tr>
+    <tr><td>Gate Metal (HKMG)</td><td>TiN, TaN, W/Ru/Mo</td><td>Work function control, gate electrode</td></tr>
+    <tr><td>Barrier / Liner</td><td>Ti, TiN, Ta, TaN, WN</td><td>Diffusion prevention (Cu→Si/SiO₂), adhesion</td></tr>
+    <tr><td>DRAM Capacitor Electrode</td><td>TiN, Ru, Pt, W</td><td>Paired with high-k (HfO₂) dielectric</td></tr>
+    <tr><td>NAND Word Line</td><td>W, TiN, Co/Ru</td><td>Word lines in 3D NAND stacks</td></tr>
+  </tbody>
+</table>
+<table class="dl-table">
+  <thead><tr><th>Vendor</th><th>Key Tool</th><th>Primary Use</th></tr></thead>
+  <tbody>
+    <tr><td>Applied Materials</td><td>Endura</td><td>Al/Cu/Ti/TiN/Ta/TaN PVD, barrier/liner</td></tr>
+    <tr><td>ULVAC</td><td>ENTRON, CERAUS</td><td>Metal/barrier/reactive sputter</td></tr>
+    <tr><td>EVG / Singulus</td><td>Cluster PVD</td><td>Multi-layer metal stack deposition</td></tr>
+    <tr><td>Sunic System / Wonik IPS</td><td>PVD Cluster</td><td>Domestic metal barrier/electrode PVD</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">The DC/AC power source (and matcher, where needed) drives the target cathode in the above platforms, setting V_target and the sputtering rate. DC (or pulsed-DC) supplies are standard for metal targets; reactive/dielectric sputtering modules add a 13.56 MHz AC/RF matcher.</div>`
         },
       ]
     }
