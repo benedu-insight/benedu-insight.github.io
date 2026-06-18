@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Phase Difference — V, i & Phasor — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; font-family:'Google Sans',sans-serif; background:#F4F6FA; color:#1A2035; overflow:hidden; }
+
+.app { display:flex; flex-direction:column; height:100vh; padding:8px 14px 6px; gap:6px; }
+
+/* Header */
+.hdr { display:flex; align-items:center; gap:10px; flex-shrink:0; height:28px; }
+.badge { background:linear-gradient(135deg,#0F8C50,#7030A0); color:#fff; font-size:0.62rem; font-weight:700; padding:2px 8px; border-radius:12px; letter-spacing:0.05em; text-transform:uppercase; }
+.hdr-title { font-size:0.9rem; font-weight:700; }
+.hdr-sub { font-size:0.62rem; color:#6B7A90; margin-left:auto; }
+
+/* Tabs */
+.mode-tabs { flex-shrink:0; display:flex; gap:5px; }
+.mode-tab { flex:1; padding:5px 0; border:2px solid; border-radius:9px; font-family:'Google Sans',sans-serif; font-size:0.72rem; font-weight:700; cursor:pointer; transition:all .18s; text-align:center; }
+
+/* Content: left | center | phasor */
+.content { flex:1; min-height:0; display:grid; grid-template-columns:200px 1fr 200px; gap:7px; }
+
+/* Card */
+.card { background:#fff; border:1.5px solid #E2E8F0; border-radius:12px; padding:9px 11px; box-shadow:0 1px 5px rgba(0,0,0,.05); display:flex; flex-direction:column; gap:5px; overflow:hidden; }
+.card-title { font-size:0.65rem; font-weight:700; color:#6B7A90; text-transform:uppercase; letter-spacing:0.06em; flex-shrink:0; }
+.card-body { font-size:0.7rem; line-height:1.6; color:#3A4A5A; flex:1; }
+.hl-box { border-radius:7px; padding:7px 9px; font-size:0.7rem; line-height:1.55; flex-shrink:0; }
+.f-box { background:#1A1A2E; border-radius:7px; padding:7px 10px; text-align:center; font-size:1.0rem; font-weight:700; color:#fff; flex-shrink:0; font-family:'Google Sans',sans-serif; }
+.an-box { border-radius:7px; padding:7px 9px; font-size:0.68rem; line-height:1.5; border:1.5px solid; flex-shrink:0; }
+
+/* Center column */
+.center-col { display:flex; flex-direction:column; gap:6px; min-height:0; }
+.canvas-wrap { flex:1; min-height:0; background:#fff; border:1.5px solid #E2E8F0; border-radius:12px; overflow:hidden; box-shadow:0 1px 5px rgba(0,0,0,.05); position:relative; }
+canvas { display:block; width:100%; height:100%; }
+
+/* Controls */
+.controls { flex-shrink:0; background:#fff; border:1.5px solid #E2E8F0; border-radius:9px; padding:5px 11px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ctrl-label { font-size:0.62rem; font-weight:700; color:#6B7A90; text-transform:uppercase; letter-spacing:.05em; }
+.speed-btns { display:flex; gap:4px; }
+.ctrl-btn { padding:3px 10px; border-radius:6px; border:1.5px solid; background:transparent; font-family:'Google Sans',sans-serif; font-size:0.68rem; font-weight:600; cursor:pointer; transition:all .15s; }
+
+/* Phasor panel */
+.phasor-col { display:flex; flex-direction:column; gap:6px; min-height:0; }
+.phasor-wrap { flex:1; min-height:0; background:#fff; border:1.5px solid #E2E8F0; border-radius:12px; overflow:hidden; box-shadow:0 1px 5px rgba(0,0,0,.05); }
+#phasorCanvas { display:block; width:100%; height:100%; }
+.phasor-info { flex-shrink:0; background:#fff; border:1.5px solid #E2E8F0; border-radius:9px; padding:7px 10px; font-size:0.68rem; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="hdr">
+    <span class="badge">🧱 Benedu Insight</span>
+    <span class="hdr-title">Phase Difference in R, L, C — Waveform &amp; Phasor</span>
+    <span class="hdr-sub">V = 100 V reference · NOW marker scans left → right</span>
+  </div>
+
+  <!-- 4 Mode tabs -->
+  <div class="mode-tabs" id="modeTabs"></div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- LEFT: explanation -->
+    <div class="card">
+      <div class="card-title" id="leftTitle"></div>
+      <div class="f-box" id="leftFormula"></div>
+      <div class="card-body" id="leftBody"></div>
+      <div class="hl-box"  id="leftHL"></div>
+      <div class="an-box"  id="leftAN"></div>
+    </div>
+
+    <!-- CENTER: waveform -->
+    <div class="center-col">
+      <div class="canvas-wrap"><canvas id="waveCanvas"></canvas></div>
+      <div class="controls">
+        <span class="ctrl-label">Speed:</span>
+        <div class="speed-btns">
+          <button class="ctrl-btn" id="spd-s" onclick="setSpeed(0.4)" style="border-color:#0891B2;color:#0891B2">0.4x</button>
+          <button class="ctrl-btn" id="spd-n" onclick="setSpeed(1.0)" style="border-color:#0891B2;background:#0891B2;color:#fff">1x</button>
+          <button class="ctrl-btn" id="spd-f" onclick="setSpeed(2.0)" style="border-color:#0891B2;color:#0891B2">2x</button>
+        </div>
+        <button class="ctrl-btn" id="btnPause" onclick="togglePause()" style="border-color:#C0392B;color:#C0392B;margin-left:4px">⏸ Pause</button>
+        <span style="font-size:0.65rem;color:#6B7A90;margin-left:auto" id="readout"></span>
+      </div>
+    </div>
+
+    <!-- RIGHT: phasor diagram -->
+    <div class="phasor-col">
+      <div class="phasor-wrap"><canvas id="phasorCanvas"></canvas></div>
+      <div class="phasor-info" id="phasorInfo"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const GS   = "'Google Sans',sans-serif";
+const MONO = "'JetBrains Mono',monospace";
+
+/* ═══════════════════════════════════════════
+   MODE DEFINITIONS
+═══════════════════════════════════════════ */
+const MODES = {
+  R: {
+    label:'⬜ Resistive',
+    colV:'#1A6FB5', colI:'#0A6E3A', colComp:'#0A6E3A',
+    formula:'V = I · R',
+    leftTitle:'Resistor (R) — No Phase Shift',
+    leftBody:[
+      '① Voltage is applied across resistor.',
+      '② Current flows INSTANTLY — no storage.',
+      '③ Ohm\'s Law: V = IR at every instant.',
+      '④ V and i are perfectly in phase (θ = 0°).',
+    ],
+    leftHL:{ bg:'#E8FFF4', border:'#0A6E3A', text:'Resistor converts energy to heat instantly.\n→ No delay between V and i.' },
+    analogy:{ bg:'#F0FFF8', border:'#40C88A', icon:'🪨', text:'Like water through a narrow pipe: pressure (V) and flow (i) respond together.' },
+    rightPhase:{ bg:'#E8FFF4', border:'#0A6E3A',
+      text:'V and i are IN PHASE  (θ = 0°)',
+      formula:'V = V₀ sin(ωt)  ← reference\ni  = I₀ sin(ωt)      ← same phase' },
+    rightBody:['In a pure resistor:','• θ = 0°  (no phase shift)','• V = V₀ sin(ωt)  and  i = I₀ sin(ωt)','','• Energy dissipated as HEAT','• Z = R  (purely real)','• No reactance (X = 0)','','→ Baseline reference for L and C'],
+    rightHL:{ bg:'#E8FFF4', border:'#0A6E3A', text:'💡 Key: Resistor is the reference — zero phase shift' },
+    phaseAngle: 0,
+  },
+  L: {
+    label:'🔵 Inductor (L)',
+    colV:'#1A6FB5', colI:'#C05A00', colComp:'#C05A00',
+    formula:'V = L · dI/dt',
+    leftTitle:'Inductor (L) — Current Lags V by 90°',
+    leftBody:[
+      '① Voltage is applied → current tries to flow.',
+      '② Magnetic field OPPOSES current change (Lenz).',
+      '③ Field takes time to build → current rises slowly.',
+      '④ Current peak arrives 90° LATER than voltage.',
+    ],
+    leftHL:{ bg:'#FFF3E0', border:'#C05A00', text:'Inductor resists current change.\n→ Current always "catching up" to voltage.' },
+    analogy:{ bg:'#FFF8F0', border:'#E8A040', icon:'⚙️', text:'Like a heavy flywheel: slow to start, slow to stop.' },
+    rightPhase:{ bg:'#FFF3E0', border:'#C05A00',
+      text:'V leads i by 90°  (θ = +90°)',
+      formula:'V = V₀ sin(ωt)       ← reference\ni  = I₀ sin(ωt − 90°) ← lags 90°' },
+    rightBody:['In a pure inductor:','• θ = +90°  (V leads i)','• V = V₀ sin(ωt)       ← voltage: reference','• i = I₀ sin(ωt − 90°) ← current: lags 90°','','• Energy stored in MAGNETIC field','• X_L = ωL = 2πfL [Ω]','','Higher f → Higher X_L → more lag'],
+    rightHL:{ bg:'#FFF3E0', border:'#C05A00', text:'💡 "Voltage LEADS, Current FOLLOWS" in an inductor' },
+    phaseAngle: 90,
+  },
+  C: {
+    label:'🟣 Capacitor (C)',
+    colV:'#1A6FB5', colI:'#5A22A0', colComp:'#5A22A0',
+    formula:'I = C · dV/dt',
+    leftTitle:'Capacitor (C) — Voltage Lags i by 90°',
+    leftBody:[
+      '① Current flows in → charge builds on plates.',
+      '② Voltage rises gradually as charge accumulates.',
+      '③ Voltage cannot jump instantly — it takes time.',
+      '④ Voltage peak arrives 90° LATER than current.',
+    ],
+    leftHL:{ bg:'#F3F0FF', border:'#5A22A0', text:'Capacitor resists voltage change.\n→ Voltage always "catching up" to current.' },
+    analogy:{ bg:'#F8F5FF', border:'#9060D0', icon:'🎈', text:'Blow air in (current) first, then pressure (voltage) builds.' },
+    rightPhase:{ bg:'#F3F0FF', border:'#5A22A0',
+      text:'i leads V by 90°  (θ = −90°)',
+      formula:'i  = I₀ sin(ωt)       ← reference\nV = V₀ sin(ωt − 90°)  ← lags 90°' },
+    rightBody:['In a pure capacitor:','• θ = −90°  (i leads V)','• i = I₀ sin(ωt)       ← current: reference','• V = V₀ sin(ωt − 90°) ← voltage: lags 90°','','• Energy stored in ELECTRIC field','• X_C = 1/(ωC) [Ω]','','Higher f → Lower X_C → easier current flow'],
+    rightHL:{ bg:'#F3F0FF', border:'#5A22A0', text:'💡 "Current LEADS, Voltage FOLLOWS" in a capacitor' },
+    phaseAngle: -90,
+  },
+  RLC: {
+    label:'🟢 RLC Series',
+    colV:'#1A6FB5', colI:'#0F8C50', colComp:'#0F8C50',
+    formula:'Z = R + j(X_L − X_C)\nR=30Ω, X_L=70Ω, X_C=30Ω\n→ Z = 30 + j40  [Inductive]',
+    leftTitle:'RLC Series — Inductive Dominant (θ = +53°)',
+    leftBody:[
+      '① R=30Ω, X_L=70Ω, X_C=30Ω connected in series.',
+      '② Net reactance: X_net = X_L − X_C = 70−30 = +40Ω',
+      '③ X_net > 0 → Inductive dominant → i lags V.',
+      '④ |Z| = √(30²+40²) = 50Ω,  θ = arctan(40/30) = +53°',
+    ],
+    leftHL:{ bg:'#EAFFF4', border:'#0F8C50', text:'X_L > X_C → net inductive\n→ i lags V by 53° (between 0° and 90°).' },
+    analogy:{ bg:'#F0FFF8', border:'#40A870', icon:'⚖️', text:'L pulls i to lag 90°, C pulls it to lead 90°. X_L wins here → partial lag of 53°.' },
+    rightPhase:{ bg:'#EAFFF4', border:'#0F8C50',
+      text:'V leads i by 53°  (θ = +53°, inductive dominant)',
+      formula:'V = V₀ sin(ωt)       ← reference\ni  = I₀ sin(ωt − 53°) ← lags 53°' },
+    rightBody:[
+      'RLC Series (X_L > X_C):',
+      '• R = 30 Ω,  X_L = 70 Ω,  X_C = 30 Ω',
+      '• X_net = X_L − X_C = +40 Ω  (inductive)',
+      '• |Z| = √(R²+X_net²) = 50 Ω',
+      '• θ = arctan(40/30) = +53°',
+      '',
+      'If X_L = X_C → θ = 0° (resonance!)',
+      'If X_C > X_L → θ < 0° (capacitive)',
+      '',
+      '→ θ always between −90° and +90°'],
+    rightHL:{ bg:'#EAFFF4', border:'#0F8C50', text:'💡 RLC phase is tunable: X_L vs X_C balance determines θ' },
+    phaseAngle: 53,
+  },
+};
+
+/* ═══════════════════════════════════════════
+   State
+═══════════════════════════════════════════ */
+let mode   = 'R';
+let speed  = 1.0;
+let paused = false;
+let animT  = 0;
+let wCtx, wW, wH, pCtx, pW, pH;
+
+/* ═══════════════════════════════════════════
+   Build tabs
+═══════════════════════════════════════════ */
+const tabColors = { R:'#0A6E3A', L:'#C05A00', C:'#5A22A0', RLC:'#0F8C50' };
+const tabsEl = document.getElementById('modeTabs');
+Object.entries(MODES).forEach(([id, m]) => {
+  const btn = document.createElement('button');
+  btn.className = 'mode-tab';
+  btn.id = 'tab-'+id;
+  btn.textContent = m.label;
+  btn.style.borderColor = tabColors[id];
+  btn.onclick = () => setMode(id);
+  tabsEl.appendChild(btn);
+});
+
+/* ═══════════════════════════════════════════
+   setMode
+═══════════════════════════════════════════ */
+function setMode(m) {
+  mode = m;
+  const mc = MODES[m];
+
+  // Tab styles
+  Object.keys(MODES).forEach(id => {
+    const btn = document.getElementById('tab-'+id);
+    const act = id === m;
+    btn.style.background = act ? tabColors[id] : 'transparent';
+    btn.style.color      = act ? '#fff' : tabColors[id];
+  });
+
+  // Left panel — formula supports \n for multi-line
+  const formulaLines = mc.formula.split('\n');
+  const fBox = document.getElementById('leftFormula');
+  fBox.style.fontSize = formulaLines.length > 1 ? '0.82rem' : '1.0rem';
+  fBox.style.lineHeight = '1.7';
+  fBox.innerHTML = formulaLines.map((l,i) =>
+    `<div style="font-weight:${i===0?'700':'500'};color:${i===0?'#fff':'#A8C8FF'}">${l}</div>`
+  ).join('');
+  document.getElementById('leftTitle').textContent = mc.leftTitle;
+    mc.leftBody.map(l=>`<div style="margin-bottom:4px">${l}</div>`).join('');
+  const hl = mc.leftHL;
+  const hlEl = document.getElementById('leftHL');
+  hlEl.style.background=hl.bg; hlEl.style.border=`1.5px solid ${hl.border}`;
+  hlEl.innerHTML = hl.text.replace(/\n/g,'<br>');
+  const an = mc.analogy;
+  const anEl = document.getElementById('leftAN');
+  anEl.style.background=an.bg; anEl.style.borderColor=an.border;
+  anEl.innerHTML = `<span style="font-size:1rem">${an.icon}</span> ${an.text}`;
+
+  // Phasor info
+  const rp = mc.rightPhase;
+  const phaseFormulaLines = rp.formula.split('\n').map(line => {
+    const isRef = line.includes('reference');
+    const c = isRef ? '#1A6FB5' : mc.colI;
+    return `<div style="font-size:0.72rem;font-weight:700;font-family:${MONO};color:${c};line-height:2">${line}</div>`;
+  }).join('');
+  document.getElementById('phasorInfo').innerHTML =
+    `<div style="font-size:0.68rem;font-weight:700;color:${rp.border};margin-bottom:6px">${rp.text}</div>`
+    + phaseFormulaLines;
+}
+
+/* ═══════════════════════════════════════════
+   Speed / Pause
+═══════════════════════════════════════════ */
+function setSpeed(s) {
+  speed = s;
+  ['s','n','f'].forEach(id=>{
+    const b=document.getElementById('spd-'+id);
+    b.style.background='transparent'; b.style.color='#0891B2';
+  });
+  const map={0.4:'s',1.0:'n',2.0:'f'};
+  const ab=document.getElementById('spd-'+(map[s]||'n'));
+  ab.style.background='#0891B2'; ab.style.color='#fff';
+}
+function togglePause() {
+  paused=!paused;
+  document.getElementById('btnPause').textContent = paused?'▶ Play':'⏸ Pause';
+  if(!paused) loop();
+}
+
+/* ═══════════════════════════════════════════
+   Canvas resize
+═══════════════════════════════════════════ */
+function resizeCanvas(id) {
+  const el=document.getElementById(id), dpr=window.devicePixelRatio||1;
+  const W=el.offsetWidth, H=el.offsetHeight;
+  if(!W||!H) return {ctx:null,W,H};
+  el.width=Math.round(W*dpr); el.height=Math.round(H*dpr);
+  const ctx=el.getContext('2d'); ctx.scale(dpr,dpr);
+  return {ctx,W,H};
+}
+function resizeAll() {
+  let r;
+  r=resizeCanvas('waveCanvas');   wCtx=r.ctx; wW=r.W; wH=r.H;
+  r=resizeCanvas('phasorCanvas'); pCtx=r.ctx; pW=r.W; pH=r.H;
+}
+
+/* ═══════════════════════════════════════════
+   DRAW WAVEFORM
+═══════════════════════════════════════════ */
+function drawWave() {
+  if(!wCtx||!wW||!wH) return;
+  const mc  = MODES[mode];
+  const ph  = mc.phaseAngle * Math.PI / 180;
+  const freq= 1.5, omega=Math.PI*2*freq;
+  const W=wW, H=wH;
+
+  wCtx.clearRect(0,0,W,H);
+  wCtx.fillStyle='#FAFBFF'; wCtx.fillRect(0,0,W,H);
+
+  const xL=10, xR=W-10, xSpan=xR-xL;
+  const topM=38, botM=46, midM=20;
+  const panH=(H-topM-botM-midM)/2;
+  const p1Y=topM+panH*.5, p2Y=topM+panH+midM+panH*.5;
+  const amp=panH*.38;
+
+  // Panel BGs
+  wCtx.fillStyle='#EEF4FF';
+  if(wCtx.roundRect) wCtx.roundRect(xL,topM,xSpan,panH,5); else wCtx.rect(xL,topM,xSpan,panH);
+  wCtx.fill();
+  wCtx.fillStyle= mc.phaseAngle===0?'#EAFFF4': mc.phaseAngle>0?'#FFF4EE':'#F4EEFF';
+  wCtx.beginPath();
+  if(wCtx.roundRect) wCtx.roundRect(xL,topM+panH+midM,xSpan,panH,5); else wCtx.rect(xL,topM+panH+midM,xSpan,panH);
+  wCtx.fill();
+
+  // Grid
+  wCtx.strokeStyle='#D8E0EC'; wCtx.lineWidth=0.6;
+  [.25,.5,.75].forEach(f=>{
+    wCtx.beginPath(); wCtx.moveTo(xL,topM+panH*f); wCtx.lineTo(xR,topM+panH*f); wCtx.stroke();
+    wCtx.beginPath(); wCtx.moveTo(xL,topM+panH+midM+panH*f); wCtx.lineTo(xR,topM+panH+midM+panH*f); wCtx.stroke();
+    const x=xL+xSpan*f; wCtx.beginPath(); wCtx.moveTo(x,topM); wCtx.lineTo(x,H-botM); wCtx.stroke();
+  });
+
+  // Axes
+  wCtx.strokeStyle='#8898B0'; wCtx.lineWidth=1.1;
+  wCtx.beginPath(); wCtx.moveTo(xL,p1Y); wCtx.lineTo(xR,p1Y); wCtx.stroke();
+  wCtx.beginPath(); wCtx.moveTo(xL,p2Y); wCtx.lineTo(xR,p2Y); wCtx.stroke();
+
+  // V(t) — fixed
+  wCtx.strokeStyle=mc.colV; wCtx.lineWidth=2.5;
+  wCtx.beginPath();
+  for(let px=xL;px<=xR;px++){
+    const xn=(px-xL)/xSpan;
+    const vy=p1Y-amp*Math.sin(omega*xn);
+    px===xL?wCtx.moveTo(px,vy):wCtx.lineTo(px,vy);
+  }
+  wCtx.stroke();
+
+  // i(t) — fixed, phase shifted
+  wCtx.strokeStyle=mc.colI; wCtx.lineWidth=2.5;
+  wCtx.beginPath();
+  for(let px=xL;px<=xR;px++){
+    const xn=(px-xL)/xSpan;
+    const iy=p2Y-amp*Math.sin(omega*xn-ph);
+    px===xL?wCtx.moveTo(px,iy):wCtx.lineTo(px,iy);
+  }
+  wCtx.stroke();
+
+  // Peak markers + phase gap arrow
+  const vPkF=((1/(4*freq))%1+1)%1;
+  const iPkF=(((Math.PI/2+ph)/omega)%1+1)%1;
+  const vPkX=xL+xSpan*vPkF, iPkX=xL+xSpan*iPkF;
+  const vPkY=p1Y-amp, iPkY=p2Y-amp;
+  const arrY=topM+panH+midM*.5;
+
+  // Dashed verticals
+  [[vPkX,mc.colV],[iPkX,mc.colI]].forEach(([px,col])=>{
+    wCtx.strokeStyle=col+'99'; wCtx.lineWidth=1; wCtx.setLineDash([4,3]);
+    wCtx.beginPath(); wCtx.moveTo(px,topM); wCtx.lineTo(px,H-botM-18); wCtx.stroke();
+    wCtx.setLineDash([]);
+  });
+
+  // Phase gap arrow (only if there's a gap)
+  if(Math.abs(mc.phaseAngle)>2){
+    wCtx.strokeStyle=mc.colComp; wCtx.lineWidth=2;
+    wCtx.beginPath(); wCtx.moveTo(vPkX,arrY); wCtx.lineTo(iPkX,arrY); wCtx.stroke();
+    const dir=iPkX>vPkX?1:-1;
+    wCtx.fillStyle=mc.colComp;
+    wCtx.beginPath(); wCtx.moveTo(iPkX,arrY); wCtx.lineTo(iPkX-dir*8,arrY-4); wCtx.lineTo(iPkX-dir*8,arrY+4); wCtx.fill();
+    wCtx.font=`bold 10px ${GS}`; wCtx.textAlign='center';
+    wCtx.fillText(`Δφ = ${mc.phaseAngle}°`,(vPkX+iPkX)/2,arrY-8);
+    const lagLbl = mc.phaseAngle>0 ? 'i peak arrives LATER →' : 'V peak arrives LATER →';
+    wCtx.font=`8px ${GS}`; wCtx.fillStyle='#4A5A6A';
+    wCtx.fillText(lagLbl,(vPkX+iPkX)/2,arrY+16);
+  } else {
+    wCtx.fillStyle=mc.colComp; wCtx.font=`bold 10px ${GS}`; wCtx.textAlign='center';
+    wCtx.fillText('V and i peak at the SAME TIME  (θ = 0°)',xL+xSpan*.5,arrY);
+  }
+
+  // Peak dots
+  [[vPkX,vPkY,mc.colV,'V'],[iPkX,iPkY,mc.colI,'i']].forEach(([px,py,col,lbl])=>{
+    wCtx.fillStyle=col; wCtx.beginPath(); wCtx.arc(px,py,6,0,Math.PI*2); wCtx.fill();
+    wCtx.fillStyle='#fff'; wCtx.font=`bold 7px ${GS}`; wCtx.textAlign='center';
+    wCtx.fillText(lbl,px,py+2.5);
+  });
+
+  // NOW marker — moves L→R
+  const nowFrac=((animT*0.16*speed)%1+1)%1;
+  const nowX=xL+xSpan*nowFrac;
+  const xnNow=(nowX-xL)/xSpan;
+  const vNow=Math.sin(omega*xnNow);
+  const iNow=Math.sin(omega*xnNow-ph);
+
+  // Past shading
+  wCtx.fillStyle='rgba(0,0,0,0.04)';
+  wCtx.fillRect(xL,topM,nowX-xL,panH);
+  wCtx.fillRect(xL,topM+panH+midM,nowX-xL,panH);
+
+  // NOW line
+  wCtx.strokeStyle='#1A2035'; wCtx.lineWidth=2; wCtx.setLineDash([]);
+  wCtx.beginPath(); wCtx.moveTo(nowX,topM-4); wCtx.lineTo(nowX,H-botM-18); wCtx.stroke();
+  wCtx.fillStyle='#1A2035';
+  wCtx.beginPath(); wCtx.moveTo(nowX-7,topM-15); wCtx.lineTo(nowX+7,topM-15); wCtx.lineTo(nowX,topM-4); wCtx.fill();
+  wCtx.fillStyle='#fff'; wCtx.font=`bold 7px ${GS}`; wCtx.textAlign='center';
+  wCtx.fillText('NOW',nowX,topM-9);
+
+  // Dots at NOW
+  [[p1Y-amp*vNow,mc.colV,'V'],[p2Y-amp*iNow,mc.colI,'i']].forEach(([dotY,col,lbl])=>{
+    const g=wCtx.createRadialGradient(nowX,dotY,0,nowX,dotY,16);
+    g.addColorStop(0,col+'55'); g.addColorStop(1,'transparent');
+    wCtx.fillStyle=g; wCtx.beginPath(); wCtx.arc(nowX,dotY,16,0,Math.PI*2); wCtx.fill();
+    wCtx.fillStyle=col; wCtx.beginPath(); wCtx.arc(nowX,dotY,8,0,Math.PI*2); wCtx.fill();
+    wCtx.fillStyle='#fff'; wCtx.font=`bold 9px ${GS}`; wCtx.textAlign='center';
+    wCtx.fillText(lbl,nowX,dotY+3.5);
+  });
+
+  // Panel labels
+  wCtx.textAlign='left';
+  wCtx.fillStyle=mc.colV; wCtx.font=`bold 11px ${GS}`; wCtx.fillText('Voltage V(t)',xL+4,topM-6);
+  wCtx.fillStyle=mc.colI; wCtx.font=`bold 11px ${GS}`; wCtx.fillText('Current i(t)',xL+4,topM+panH+midM-6);
+  wCtx.fillStyle='#9AA5B8'; wCtx.font=`7px ${GS}`; wCtx.textAlign='left';
+  wCtx.fillText('← past',xL+4,H-botM+12);
+  wCtx.textAlign='right'; wCtx.fillText('future →',xR-4,H-botM+12);
+  wCtx.textAlign='right'; wCtx.fillStyle=mc.colV; wCtx.font=`8px ${MONO}`;
+  wCtx.fillText(`V=${(vNow*100).toFixed(0)}%`,xR-4,topM+panH-4);
+  wCtx.fillStyle=mc.colI; wCtx.fillText(`i=${(iNow*100).toFixed(0)}%`,xR-4,H-botM-20);
+
+  // Bottom causal message
+  const iY=H-botM+2;
+  wCtx.fillStyle='#fff'; wCtx.strokeStyle='#E2E8F0'; wCtx.lineWidth=1;
+  wCtx.beginPath(); if(wCtx.roundRect)wCtx.roundRect(xL,iY,xSpan,botM-4,5); else wCtx.rect(xL,iY,xSpan,botM-4);
+  wCtx.fill(); wCtx.stroke();
+  let msg='', msgCol='#0A6E3A';
+  if(mc.phaseAngle===0){
+    msg='✔  V and i in phase — instant response (Resistive)'; msgCol='#0A6E3A';
+  } else if(mc.phaseAngle>0){
+    if(vNow>0.5)      {msg='Voltage HIGH → inductor builds magnetic field → current rising slowly'; msgCol='#C05A00';}
+    else if(vNow<-0.5){msg='Voltage LOW → field collapses → current drops slowly'; msgCol='#C05A00';}
+    else               {msg='Voltage at zero → current at its PEAK (max field energy)'; msgCol='#0A6E3A';}
+  } else {
+    if(iNow>0.5)       {msg='Current HIGH → charge builds → voltage rising slowly'; msgCol='#5A22A0';}
+    else if(iNow<-0.5) {msg='Current LOW → charge drains → voltage dropping slowly'; msgCol='#5A22A0';}
+    else                {msg='Current at zero → voltage at its PEAK (max charge stored)'; msgCol='#0A6E3A';}
+  }
+  wCtx.fillStyle=msgCol; wCtx.font=`bold 9px ${GS}`; wCtx.textAlign='center';
+  wCtx.fillText('⚡ '+msg,xL+xSpan*.5,iY+botM*.6);
+
+  document.getElementById('readout').textContent=
+    `NOW → V=${(vNow*100).toFixed(0)}%  i=${(iNow*100).toFixed(0)}%  Δφ=${mc.phaseAngle}°`;
+}
+
+/* ═══════════════════════════════════════════
+   DRAW PHASOR DIAGRAM
+   - Two vectors rotating on unit circle
+   - V fixed at angle 0° (reference), i at -phaseAngle
+   - Both rotate together with animT
+═══════════════════════════════════════════ */
+function drawPhasor() {
+  if(!pCtx||!pW||!pH) return;
+  const mc  = MODES[mode];
+  const ph  = mc.phaseAngle * Math.PI / 180;  // i lags V by ph
+  const W=pW, H=pH;
+
+  pCtx.clearRect(0,0,W,H);
+  pCtx.fillStyle='#FAFBFF'; pCtx.fillRect(0,0,W,H);
+
+  // Title
+  pCtx.fillStyle='#6B7A90'; pCtx.font=`bold 9px ${GS}`; pCtx.textAlign='center';
+  pCtx.fillText('Phasor Diagram', W*.5, 14);
+
+  // Circle area
+  const cx=W*.5, cy=H*.5+6;
+  const R=Math.min(W,H)*.36;
+
+  // Reference circles (faint)
+  [0.5,1.0].forEach(r=>{
+    pCtx.strokeStyle='#E2E8F0'; pCtx.lineWidth=r===1?1.2:0.7;
+    pCtx.beginPath(); pCtx.arc(cx,cy,R*r,0,Math.PI*2); pCtx.stroke();
+  });
+
+  // Axes
+  pCtx.strokeStyle='#C8D0DC'; pCtx.lineWidth=0.8;
+  pCtx.beginPath(); pCtx.moveTo(cx-R-14,cy); pCtx.lineTo(cx+R+14,cy); pCtx.stroke();
+  pCtx.beginPath(); pCtx.moveTo(cx,cy-R-14); pCtx.lineTo(cx,cy+R+14); pCtx.stroke();
+  pCtx.fillStyle='#9AA5B8'; pCtx.font=`7px ${GS}`; pCtx.textAlign='center';
+  pCtx.fillText('Re',cx+R+10,cy+10);
+  pCtx.fillText('Im',cx+4,cy-R-8);
+
+  // Rotation: CCW is standard for phasors (positive angle = CCW = leads)
+  // animT drives both vectors together in CCW direction
+  const rotAngle = -animT * 0.18 * speed;  // CW on screen (canvas Y is inverted)
+
+  // V vector: reference at rotAngle
+  const vAngle = rotAngle;
+  // i vector: if ph > 0 (L, V leads i → i lags), i is BEHIND V in CCW → i at rotAngle + ph
+  // if ph < 0 (C, i leads V), i is AHEAD of V in CCW → also rotAngle + ph (ph is negative)
+  const iAngle = rotAngle + ph;
+
+  // Draw arc showing phase gap between V and i
+  if(Math.abs(mc.phaseAngle) > 2) {
+    // V is at vAngle, i is at vAngle+ph
+    // Arc from V toward i (the gap between them)
+    const arcStart = vAngle;
+    const arcEnd   = iAngle;
+    const ccw = ph > 0;   // L: ph>0, i is CCW from V → arc goes CCW from V to i
+    pCtx.strokeStyle = mc.colComp + '55'; pCtx.lineWidth = R * 0.28;
+    pCtx.beginPath();
+    pCtx.arc(cx, cy, R * 0.46, arcStart, arcEnd, ccw);
+    pCtx.stroke();
+    // θ label midpoint of arc
+    const midA = vAngle + ph * 0.5;
+    pCtx.fillStyle = mc.colComp; pCtx.font = `bold 9px ${GS}`; pCtx.textAlign = 'center';
+    pCtx.fillText(`θ=${mc.phaseAngle}°`,
+      cx + R * 0.52 * Math.cos(midA),
+      cy + R * 0.52 * Math.sin(midA) + 4);
+  }
+
+  // Draw each phasor
+  function drawVector(angle, col, label, r) {
+    const ex=cx+r*Math.cos(angle), ey=cy+r*Math.sin(angle);
+    // Tail glow
+    const g=pCtx.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0,col+'22'); g.addColorStop(1,'transparent');
+    pCtx.fillStyle=g; pCtx.beginPath(); pCtx.arc(cx,cy,r,0,Math.PI*2); pCtx.fill();
+    // Line
+    pCtx.strokeStyle=col; pCtx.lineWidth=3;
+    pCtx.beginPath(); pCtx.moveTo(cx,cy); pCtx.lineTo(ex,ey); pCtx.stroke();
+    // Arrowhead
+    const headLen=10, headA=0.4;
+    const dx=ex-cx, dy=ey-cy, len=Math.sqrt(dx*dx+dy*dy);
+    const ux=dx/len, uy=dy/len;
+    pCtx.fillStyle=col;
+    pCtx.beginPath();
+    pCtx.moveTo(ex,ey);
+    pCtx.lineTo(ex-headLen*(ux*Math.cos(headA)-uy*Math.sin(headA)), ey-headLen*(uy*Math.cos(headA)+ux*Math.sin(headA)));
+    pCtx.lineTo(ex-headLen*(ux*Math.cos(headA)+uy*Math.sin(headA)), ey-headLen*(uy*Math.cos(headA)-ux*Math.sin(headA)));
+    pCtx.fill();
+    // Dot at tip
+    pCtx.beginPath(); pCtx.arc(ex,ey,5,0,Math.PI*2); pCtx.fill();
+    // Label
+    const lblOff=14;
+    pCtx.fillStyle=col; pCtx.font=`bold 10px ${GS}`; pCtx.textAlign='center';
+    pCtx.fillText(label, ex+Math.cos(angle)*lblOff, ey+Math.sin(angle)*lblOff+3);
+  }
+
+  drawVector(iAngle, mc.colI, 'i', R*.88);  // draw i first (behind)
+  drawVector(vAngle, mc.colV, 'V', R);       // V on top
+
+  // Projections onto real axis (show instantaneous value)
+  const vProj=Math.cos(vAngle)*R, iProj=Math.cos(iAngle)*R*.88;
+  pCtx.strokeStyle=mc.colV+'66'; pCtx.lineWidth=1; pCtx.setLineDash([3,3]);
+  pCtx.beginPath(); pCtx.moveTo(cx+vProj,cy); pCtx.lineTo(cx+R*Math.cos(vAngle),cy+R*Math.sin(vAngle)); pCtx.stroke();
+  pCtx.strokeStyle=mc.colI+'66';
+  pCtx.beginPath(); pCtx.moveTo(cx+iProj,cy); pCtx.lineTo(cx+R*.88*Math.cos(iAngle),cy+R*.88*Math.sin(iAngle)); pCtx.stroke();
+  pCtx.setLineDash([]);
+  // Projection dots on real axis
+  pCtx.fillStyle=mc.colV; pCtx.beginPath(); pCtx.arc(cx+vProj,cy,4,0,Math.PI*2); pCtx.fill();
+  pCtx.fillStyle=mc.colI; pCtx.beginPath(); pCtx.arc(cx+iProj,cy,4,0,Math.PI*2); pCtx.fill();
+
+  // Rotation direction label
+  pCtx.fillStyle='#9AA5B8'; pCtx.font=`7px ${GS}`; pCtx.textAlign='center';
+  pCtx.fillText('↺ rotating', cx, cy+R+12);
+}
+
+/* ═══════════════════════════════════════════
+   Loop
+═══════════════════════════════════════════ */
+function drawFrame() {
+  drawWave();
+  drawPhasor();
+}
+
+function loop() {
+  if(paused) return;
+  animT += 0.016 * speed;
+  drawFrame();
+  requestAnimationFrame(loop);
+}
+
+function init() {
+  resizeAll();
+  setMode('R');
+  loop();
+}
+
+let rsz;
+window.addEventListener('resize',()=>{
+  clearTimeout(rsz);
+  rsz=setTimeout(()=>{ resizeAll(); drawFrame(); },100);
+});
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
