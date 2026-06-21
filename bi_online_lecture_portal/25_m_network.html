@@ -462,6 +462,15 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 8px;
 }
+.lnet-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+@media (max-width: 760px) {
+  .lnet-main-grid { grid-template-columns: 1fr; }
+}
 .lnet-chip {
   display: flex; align-items: center; gap: 8px;
   border: 1.5px solid var(--border);
@@ -974,7 +983,7 @@ const SLIDES_KO = [
   {
     id: 'd54', era: 'm5',
     eyebrow: 'Topic 5 · Module 05',
-    title: '현실적인 부하로 — Z_L=2+j20Ω과 공액 정합의 비밀',
+    title: 'Tune Capacitor — 마지막 단계',
     subtitle: 'ICP는 항상 +jX, CCP는 항상 −jX를 갖는 현실 속에서, Tune Capacitor가 등장하는 이유',
     theories: [
       { icon: '🏭', title: '단순화를 걷어내다 — 다시 Z_L=2+j20Ω으로', body: 'Topic 2~4에서 다룬 Z_L=2Ω(순수 저항)은 계산을 쉽게 보여주기 위한 의도적인 단순화였습니다. 실제로는 Topic 1에서 이미 본 것처럼 plasma chamber는 거의 항상 리액턴스 성분을 가집니다 — ICP(Inductively Coupled Plasma)는 코일 구조상 본질적으로 +jX(유도성)를, CCP(Capacitively Coupled Plasma)는 두 전극 사이의 간극 구조상 본질적으로 −jX(용량성)를 갖습니다. 이번 토픽은 그 단순화를 걷어내고, 처음의 현실적인 부하 Z_L=2+j20Ω으로 같은 과정을 다시 밟습니다.' },
@@ -1274,7 +1283,7 @@ const SLIDES_EN = [
   {
     id: 'd54', era: 'm5',
     eyebrow: 'Topic 5 · Module 05',
-    title: 'A More Realistic Load — Z_L=2+j20Ω and the Secret of Conjugate Matching',
+    title: 'A More Realistic Load → Tune Capacitor — Final Step',
     subtitle: 'In a world where ICP always has +jX and CCP always has −jX, here is why the Tune Capacitor appears',
     theories: [
       { icon: '🏭', title: 'Removing the Simplification — Back to Z_L=2+j20Ω', body: 'The Z_L=2Ω (purely resistive) we used in Topics 2–4 was a deliberate simplification to keep the math easy. As we already saw in Topic 1, a real plasma chamber almost always carries a reactive component — ICP (Inductively Coupled Plasma) is inherently inductive (+jX) due to its coil structure, while CCP (Capacitively Coupled Plasma) is inherently capacitive (−jX) due to the gap structure between its two electrodes. This topic removes the simplification and repeats the same process with the original, realistic load, Z_L=2+j20Ω.' },
@@ -1641,52 +1650,43 @@ function buildD50zDiagram(isEn) {
   </div>
   <div class="d-body">
 
-    <svg viewBox="0 0 700 260" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace">
-      <!-- Source -->
-      <circle cx="60" cy="120" r="20" fill="#fff" stroke="#3C3530" stroke-width="1.6"/>
-      <path d="M51,120 Q55,111 60,120 Q65,129 69,120" stroke="#3C3530" stroke-width="1.3" fill="none"/>
-      <line x1="60" y1="100" x2="60" y2="60" stroke="#3C3530" stroke-width="1.6"/>
-      <line x1="60" y1="140" x2="60" y2="230" stroke="#3C3530" stroke-width="1.6"/>
-      <line x1="48" y1="230" x2="72" y2="230" stroke="#3C3530" stroke-width="1.6"/>
-      <line x1="52" y1="236" x2="68" y2="236" stroke="#3C3530" stroke-width="1.2"/>
-      <text x="60" y="44" font-size="12" fill="#3C3530" text-anchor="middle" font-weight="700">Source</text>
-      <text x="60" y="172" font-size="11" fill="#1A6FB5" text-anchor="middle" font-weight="700">Zs</text>
+    <svg viewBox="0 0 700 200" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace">
+      <!-- Source: same visual language as the L-network simulator -->
+      <circle cx="55" cy="110" r="15" fill="#FAFBFF" stroke="#3C3530" stroke-width="1.6"/>
+      <path d="M47,110 Q51,102 55,110 Q59,118 63,110" stroke="#3C3530" stroke-width="1.3" fill="none"/>
+      <text x="55" y="84" font-size="11.5" fill="#3C3530" text-anchor="middle" font-weight="700">Zs=50Ω</text>
 
-      <!-- wire from source to box -->
-      <line x1="60" y1="60" x2="220" y2="60" stroke="#3C3530" stroke-width="1.6"/>
+      <!-- main wire from source straight across -->
+      <line x1="70" y1="110" x2="227" y2="110" stroke="#3C3530" stroke-width="1.8"/>
 
       <!-- Zin arrow (Generator looking right, into the network) -->
-      <line x1="100" y1="90" x2="155" y2="90" stroke="#0F8C50" stroke-width="2"/>
-      <polygon points="155,90 147,85 147,95" fill="#0F8C50"/>
-      <text x="127" y="78" font-size="11" fill="#0F8C50" text-anchor="middle" font-weight="700">Zin</text>
+      <line x1="100" y1="88" x2="155" y2="88" stroke="#0F8C50" stroke-width="2"/>
+      <polygon points="155,88 147,83 147,93" fill="#0F8C50"/>
+      <text x="127" y="76" font-size="11" fill="#0F8C50" text-anchor="middle" font-weight="700">Zin</text>
 
       <!-- Unknown matching network box -->
-      <rect x="220" y="30" width="180" height="60" rx="6" fill="#F4F1FB" stroke="#7030A0" stroke-width="1.8" stroke-dasharray="6,4"/>
-      <text x="310" y="55" font-size="22" fill="#7030A0" text-anchor="middle" font-weight="700">?</text>
-      <text x="310" y="78" font-size="10.5" fill="#7030A0" text-anchor="middle">${isEn?'Unknown Matching Network':'미지의 매칭망'}</text>
+      <rect x="227" y="80" width="160" height="60" rx="6" fill="#F4F1FB" stroke="#7030A0" stroke-width="1.8" stroke-dasharray="6,4"/>
+      <text x="307" y="115" font-size="22" fill="#7030A0" text-anchor="middle" font-weight="700">?</text>
+      <text x="307" y="133" font-size="10" fill="#7030A0" text-anchor="middle">${isEn?'Unknown Network':'미지의 매칭망'}</text>
 
       <!-- Zm arrow (Load looking left, back toward generator) -->
-      <line x1="465" y1="90" x2="410" y2="90" stroke="#C8860D" stroke-width="2"/>
-      <polygon points="410,90 418,85 418,95" fill="#C8860D"/>
-      <text x="438" y="78" font-size="11" fill="#C8860D" text-anchor="middle" font-weight="700">Zm (Zout)</text>
+      <line x1="450" y1="88" x2="395" y2="88" stroke="#C8860D" stroke-width="2"/>
+      <polygon points="395,88 403,83 403,93" fill="#C8860D"/>
+      <text x="423" y="76" font-size="11" fill="#C8860D" text-anchor="middle" font-weight="700">Zm (Zout)</text>
 
       <!-- wire from box to load -->
-      <line x1="400" y1="60" x2="640" y2="60" stroke="#3C3530" stroke-width="1.6"/>
+      <line x1="387" y1="110" x2="615" y2="110" stroke="#3C3530" stroke-width="1.8"/>
 
-      <!-- Load: R + L series, labeled Z_L -->
-      <line x1="640" y1="60" x2="640" y2="80" stroke="#3C3530" stroke-width="1.6"/>
-      <path d="M626,80 L654,80 L626,100 L654,100 L626,120 L654,120" stroke="#3C3530" stroke-width="1.4" fill="none"/>
-      <line x1="640" y1="120" x2="640" y2="136" stroke="#3C3530" stroke-width="1.6"/>
-      <path d="M640,136 q-8,4 0,8 q8,4 0,8 q-8,4 0,8 q8,4 0,8" stroke="#3C3530" stroke-width="1.4" fill="none"/>
-      <line x1="640" y1="168" x2="640" y2="230" stroke="#3C3530" stroke-width="1.6"/>
-      <line x1="628" y1="230" x2="652" y2="230" stroke="#3C3530" stroke-width="1.6"/>
-      <line x1="632" y1="236" x2="648" y2="236" stroke="#3C3530" stroke-width="1.2"/>
-      <text x="640" y="44" font-size="12" fill="#3C3530" text-anchor="middle" font-weight="700">Load</text>
-      <text x="640" y="172" font-size="11" fill="#7030A0" text-anchor="middle" font-weight="700">ZL</text>
-
-      <!-- bottom rail -->
-      <line x1="60" y1="230" x2="640" y2="230" stroke="#3C3530" stroke-width="1.2" stroke-dasharray="2,3" opacity="0.4"/>
+      <!-- Load: R + L in series, hanging upward — identical symbol language to the L-network simulator -->
+      <line x1="615" y1="110" x2="615" y2="90" stroke="#7030A0" stroke-width="1.6"/>
+      <path d="M615,90 L611,84 L619,78 L611,72 L619,66 L615,60" stroke="#7030A0" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+      <line x1="615" y1="60" x2="615" y2="40" stroke="#7030A0" stroke-width="1.6"/>
+      <path d="M601,40 a14,7 0 1,1 28,0" stroke="#7030A0" stroke-width="1.6" fill="none"/>
+      <path d="M601,33 a14,7 0 1,1 28,0" stroke="#7030A0" stroke-width="1.6" fill="none"/>
+      <line x1="615" y1="26" x2="615" y2="18" stroke="#7030A0" stroke-width="1.6"/>
+      <text x="615" y="10" font-size="12" fill="#7030A0" text-anchor="middle" font-weight="700">Z_L=2+j20Ω</text>
     </svg>
+    <div style="text-align:center;font-size:0.7rem;color:var(--text-sub);margin-top:2px">${isEn?'(zig-zag = R, coils = L \u2014 same symbols as the simulator below)':'(지그재그=R, 코일=L \u2014 아래 시뮬레이터와 동일한 기호)'}</div>
 
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px">
       <div style="border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;background:#fff">
@@ -2333,12 +2333,17 @@ function lnetDrawCircuit(canvasId, selectedKeysSet) {
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle = '#FAFBFF'; ctx.fillRect(0,0,W,H);
 
-  var midY = H*0.42;
-  var srcX = 55, nodeX = W*0.32, loadX = W-55;
+  var midY = H*0.46;
+  var srcX = Math.max(40, W*0.09), nodeX = Math.max(srcX+70, W*0.30), loadX = W - Math.max(55, W*0.13);
 
   // collect active parallel and series choices, in canonical order
   var parallelKeys = Object.keys(LNET_CHOICES).filter(function(k){ return LNET_CHOICES[k].mode==='parallel' && selectedKeysSet[k]; });
   var seriesKeys = LNET_SERIES_ORDER.filter(function(k){ return selectedKeysSet[k]; });
+
+  // ── Zin (what the Source sees, looking right) and Zm (what the Load sees, looking back left toward the Source) ──
+  var ZinVal = lnetZSeenFromSource(selectedKeysSet);
+  var ZmVal = lnetCcompute(selectedKeysSet);
+  function fmtZ(z) { return z.re.toFixed(2) + (z.im>=0?'+j':'\u2212j') + Math.abs(z.im).toFixed(2); }
 
   // ── Source symbol ──
   var srcR = 15;
@@ -2352,13 +2357,21 @@ function lnetDrawCircuit(canvasId, selectedKeysSet) {
     if (i===0) ctx.moveTo(sx,sy); else ctx.lineTo(sx,sy);
   }
   ctx.stroke();
-  ctx.font = 'bold 11px ' + MONO; ctx.fillStyle = '#3C3530'; ctx.textAlign = 'center';
+  ctx.font = 'bold 13px ' + MONO; ctx.fillStyle = '#3C3530'; ctx.textAlign = 'center';
   ctx.fillText('Zs=50Ω', srcX, midY - srcR - 10);
 
   // wire from source to node
   ctx.strokeStyle = '#3C3530'; ctx.lineWidth = 1.8;
   ctx.beginPath(); ctx.moveTo(srcX+srcR, midY); ctx.lineTo(nodeX, midY); ctx.stroke();
   ctx.beginPath(); ctx.arc(nodeX, midY, 3, 0, Math.PI*2); ctx.fillStyle='#3C3530'; ctx.fill();
+
+  // Zin label: text only, showing what the Source sees
+  (function drawZinTag(){
+    var midX = (srcX+srcR + nodeX) / 2;
+    var tagY = midY - srcR - 36;
+    ctx.font = 'bold 11.5px ' + MONO; ctx.fillStyle = '#0F8C50'; ctx.textAlign = 'center';
+    ctx.fillText('Zin = ' + fmtZ(ZinVal) + 'Ω', midX, tagY);
+  })();
 
   // ── Parallel branches hanging below the node (stacked if multiple) ──
   var branchGap = 34;
@@ -2377,10 +2390,10 @@ function lnetDrawCircuit(canvasId, selectedKeysSet) {
     ctx.beginPath(); ctx.moveTo(bx-5,botY+14); ctx.lineTo(bx+5,botY+14); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(bx-2,botY+18); ctx.lineTo(bx+2,botY+18); ctx.stroke();
     // label
-    ctx.font = '8.5px ' + MONO; ctx.textAlign='center';
+    ctx.font = 'bold 10.5px ' + MONO; ctx.textAlign='center';
     ctx.fillStyle = ctx.strokeStyle;
     var labelTxt = c.sym + (c.im!==0 ? ((c.im>0?'+j':'\u2212j')+Math.abs(c.im).toFixed(1)) : c.re.toFixed(2));
-    ctx.fillText(labelTxt, bx, botY+30);
+    ctx.fillText(labelTxt, bx, botY+32);
   });
 
   // wire continues from node toward load, through series chain
@@ -2404,12 +2417,20 @@ function lnetDrawCircuit(canvasId, selectedKeysSet) {
     lnetDrawComponentSymbol(ctx, c.sym, segMid, midY, bodyStart, bodyEnd, 'horizontal');
     ctx.strokeStyle = '#3C3530';
     ctx.beginPath(); ctx.moveTo(bodyEnd, midY); ctx.lineTo(segEnd, midY); ctx.stroke();
-    ctx.font = '8.5px ' + MONO; ctx.textAlign='center'; ctx.fillStyle = color;
+    ctx.font = 'bold 10.5px ' + MONO; ctx.textAlign='center'; ctx.fillStyle = color;
     var labelTxt = c.sym + (c.im!==0 ? ((c.im>0?'+j':'\u2212j')+Math.abs(c.im).toFixed(1)) : c.re.toFixed(2));
-    var labelOffsetY = c.sym === 'L' ? -34 : -20; // inductor loops arc higher, so its label needs more clearance
+    var labelOffsetY = c.sym === 'L' ? -36 : -20; // inductor loops arc higher, so its label needs more clearance
     ctx.fillText(labelTxt, segMid, midY+labelOffsetY);
     chainX = segEnd;
   });
+
+  // Zm label: text only, above the series chain (higher than component labels so it never collides)
+  (function drawZmTag(){
+    var tagY = midY - srcR - 36; // same height as the Zin label, for visual symmetry
+    ctx.font = 'bold 11.5px ' + MONO; ctx.fillStyle = '#C8860D'; ctx.textAlign = 'center';
+    ctx.fillText('Zm = ' + fmtZ(ZmVal) + 'Ω', (nodeX+loadX)/2, tagY);
+  })();
+
   // final wire segment to load
   ctx.strokeStyle = '#3C3530'; ctx.lineWidth = 1.8;
   ctx.beginPath(); ctx.moveTo(chainX, midY); ctx.lineTo(loadX, midY); ctx.stroke();
@@ -2427,23 +2448,8 @@ function lnetDrawCircuit(canvasId, selectedKeysSet) {
   ctx.beginPath(); ctx.moveTo(loadX-8,g1); ctx.lineTo(loadX+8,g1); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(loadX-5,g2); ctx.lineTo(loadX+5,g2); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(loadX-2,g3); ctx.lineTo(loadX+2,g3); ctx.stroke();
-  ctx.font = 'bold 11px ' + MONO; ctx.fillStyle = '#7030A0'; ctx.textAlign = 'center';
+  ctx.font = 'bold 13px ' + MONO; ctx.fillStyle = '#7030A0'; ctx.textAlign = 'center';
   ctx.fillText('Z_L=2+j20Ω', loadX, g3-10);
-
-  // ── Readout of resulting impedance at the node (everything left of the load) ──
-  var Z = lnetCcompute(selectedKeysSet);
-  // Physically meaningful reflection happens only at the SOURCE's own terminals, so VSWR/Γ
-  // must be computed from Zsrc (what the source sees looking outward), never from Z directly.
-  var Zsrc = lnetZSeenFromSource(selectedKeysSet);
-  var G = lnetGamma(Zsrc.re, Zsrc.im);
-  var Gmag = Math.sqrt(G.re*G.re+G.im*G.im);
-  var vswr = (1+Gmag)/Math.max(1e-6,1-Gmag);
-
-  ctx.font = 'bold 12px ' + MONO; ctx.textAlign = 'left'; ctx.fillStyle = '#3C3530';
-  var resultStr = 'Z = ' + Z.re.toFixed(2) + (Z.im>=0?' + j':' \u2212 j') + Math.abs(Z.im).toFixed(2) + ' Ω';
-  ctx.fillText(resultStr, 14, H-34);
-  ctx.font = '10px ' + MONO; ctx.fillStyle = '#9A8A68';
-  ctx.fillText('VSWR \u2248 ' + (vswr>100?'\u221e':vswr.toFixed(2)) + ' : 1 (' + (isEn?'source-side':'Source 쪽') + ')   |   ' + (isEn?'target: 2 \u2212 j20 Ω (conjugate of Z_L)':'목표: 2 \u2212 j20 Ω (Z_L의 켤레)'), 14, H-16);
 }
 
 function lnetDrawComponentSymbol(ctx, sym, cx, cy, start, end, orient) {
@@ -2542,11 +2548,13 @@ function lnetBuildHTML(isEn, canvasId, readoutId, checkboxPrefix) {
       <div class="lnet-chip-grid" id="${checkboxPrefix}-chips">${checkboxesHtml}</div>
     </div>
 
-    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
-      <canvas id="${canvasId}" data-w="700" data-h="280" style="width:100%;height:280px;border-radius:6px;background:#FAFBFF"></canvas>
-    </div>
+    <div class="lnet-main-grid">
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px">
+        <canvas id="${canvasId}" data-w="440" data-h="280" style="width:100%;height:280px;border-radius:6px;background:#FAFBFF"></canvas></canvas>
+      </div>
 
-    <div style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;border-radius:12px;padding:16px 18px;margin-bottom:14px" id="${readoutId}">
+      <div style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;border-radius:12px;padding:16px 18px" id="${readoutId}">
+      </div>
     </div>
   `;
 }
@@ -3062,7 +3070,7 @@ function buildD55Diagram(isEn) {
                     letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
           📡 ${isEn?'AMN Block Diagram':'AMN 블록 다이어그램'}
         </div>
-        <svg id="d55-block" viewBox="0 0 380 220" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace"></svg>
+        <svg id="d55-block" viewBox="0 0 380 250" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace"></svg>
       </div>
 
       <div id="d55-readout" style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;
@@ -3077,6 +3085,19 @@ function buildD55Diagram(isEn) {
         ? 'Each preset is a different instantaneous Z_L. Notice the required Load Cap / Tune Cap values shift with it \u2014 a real Auto Matching Network repeats this exact Load Cap / Tune Coil / Tune Cap calculation tens to hundreds of times per second, driven by motors instead of your clicks.'
         : '각 프리셋은 서로 다른 순간의 Z_L입니다. 그에 따라 필요한 Load Cap / Tune Cap 값이 바뀌는 것을 확인하세요 — 실제 Auto Matching Network는 여러분의 클릭 대신 모터로, 바로 이 Load Cap / Tune Coil / Tune Cap 계산을 초당 수십~수백 번 반복합니다.'}
     </div>
+
+    <a href="./vvc_simulator.html" target="_blank" rel="noopener" style="text-decoration:none">
+      <div class="callout purple" style="margin-top:14px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="font-size:1.8rem;flex-shrink:0">⚙️</div>
+        <div style="flex:1">
+          <div class="callout-title" style="margin-bottom:3px">${isEn?'See the Real Hardware \u2014 Variable Vacuum Capacitor (VVC) Simulator':'실제 하드웨어 보기 — Variable Vacuum Capacitor(VVC) 시뮬레이터'}</div>
+          <div style="font-size:0.82rem;color:var(--text-sub);line-height:1.5">${isEn
+            ? 'Load Cap and Tune Cap above are not abstract symbols \u2014 inside a real Auto Matching Network, each is a motor-driven VVC like this one. Open the interactive simulator to see how turning the spindle changes capacitance and impedance.'
+            : '위에서 본 Load Cap, Tune Cap은 추상적인 기호가 아닙니다 — 실제 Auto Matching Network 안에서는 이런 모터 구동 VVC 한 대씩입니다. 인터랙티브 시뮬레이터를 열어 스핀들 회전이 정전용량과 임피던스를 어떻게 바꾸는지 확인해보세요.'}</div>
+        </div>
+        <div style="font-size:1.3rem;color:#7030A0;flex-shrink:0">→</div>
+      </div>
+    </a>
 
   </div>
 </div>`;
@@ -3141,32 +3162,62 @@ function drawD55Block() {
 
   el('line', { x1:90, y1:95, x2:130, y2:95, stroke:'#3C3530', 'stroke-width':1.6 });
 
-  // Matcher box (Load Cap + Tune Cap, motor driven)
-  el('rect', { x:130, y:40, width:140, height:110, rx:8, fill:'#fff', stroke:'#1A6FB5', 'stroke-width':1.8 });
-  el('text', { x:200, y:58, 'font-size':9.5, 'text-anchor':'middle', fill:'#1A6FB5', 'font-weight':700 }, isEn?'Auto Matcher':'자동 매처');
+  // Matcher box (Load Cap + Tune Cap, motor driven) — drawn as an actual L-network circuit
+  el('rect', { x:130, y:40, width:140, height:148, rx:8, fill:'#fff', stroke:'#1A6FB5', 'stroke-width':1.8 });
+  el('text', { x:200, y:56, 'font-size':9.5, 'text-anchor':'middle', fill:'#1A6FB5', 'font-weight':700 }, isEn?'Auto Matcher':'자동 매처');
 
-  // Load cap symbol
-  el('line', { x1:155, y1:70, x2:155, y2:90, stroke:'#7A5200', 'stroke-width':1.6 });
-  el('line', { x1:147, y1:90, x2:163, y2:90, stroke:'#7A5200', 'stroke-width':2 });
-  el('line', { x1:147, y1:96, x2:163, y2:96, stroke:'#7A5200', 'stroke-width':2 });
-  el('line', { x1:155, y1:96, x2:155, y2:125, stroke:'#7A5200', 'stroke-width':1.6 });
-  el('text', { x:175, y:84, 'font-size':8, fill:'#7A5200' }, isEn?'Load':'Load');
-  el('text', { x:175, y:96, 'font-size':8, fill:'#7A5200' }, isEn?'(var)':'(가변)');
-  el('path', { d:'M148,68 q7,-10 14,0', stroke:'#7A5200', 'stroke-width':1, fill:'none' });
+  // Circuit reference line (matches the L-network simulator's visual language): in -> node -> series -> out
+  var circY = 95;
+  var inX = 130, nodeX = 165, tuneStart = 210, tuneEnd = 232, outX = 270;
 
-  // Tune cap symbol
-  el('line', { x1:245, y1:60, x2:245, y2:78, stroke:'#1A6FB5', 'stroke-width':1.6 });
-  el('line', { x1:237, y1:78, x2:253, y2:78, stroke:'#1A6FB5', 'stroke-width':2 });
-  el('line', { x1:237, y1:84, x2:253, y2:84, stroke:'#1A6FB5', 'stroke-width':2 });
-  el('line', { x1:245, y1:84, x2:245, y2:130, stroke:'#1A6FB5', 'stroke-width':1.6 });
-  el('text', { x:212, y:72, 'font-size':8, fill:'#1A6FB5' }, isEn?'Tune':'Tune');
-  el('text', { x:212, y:84, 'font-size':8, fill:'#1A6FB5' }, isEn?'(var)':'(가변)');
-  el('path', { d:'M238,58 q7,-10 14,0', stroke:'#1A6FB5', 'stroke-width':1, fill:'none' });
+  // wire: box-in to node
+  el('line', { x1:inX, y1:circY, x2:nodeX, y2:circY, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('circle', { cx:nodeX, cy:circY, r:2.2, fill:'#3C3530' });
 
-  // motor icon
-  el('circle', { cx:200, cy:135, r:12, fill:'#FDF0EE', stroke:'#C0392B', 'stroke-width':1.4 });
-  el('text', { x:200, y:139, 'font-size':10, 'text-anchor':'middle' }, '⚙');
-  el('text', { x:200, y:160, 'font-size':7.6, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'motor feedback':'모터 피드백');
+  // Load Cap: variable capacitor, hanging down from the node (parallel/shunt)
+  el('line', { x1:nodeX, y1:circY, x2:nodeX, y2:circY+18, stroke:'#7A5200', 'stroke-width':1.6 });
+  el('line', { x1:nodeX-9, y1:circY+18, x2:nodeX+9, y2:circY+18, stroke:'#7A5200', 'stroke-width':2 });
+  el('line', { x1:nodeX-9, y1:circY+24, x2:nodeX+9, y2:circY+24, stroke:'#7A5200', 'stroke-width':2 });
+  el('line', { x1:nodeX, y1:circY+24, x2:nodeX, y2:circY+40, stroke:'#7A5200', 'stroke-width':1.6 });
+  // variable-element arrow through the plates (standard variable capacitor symbol)
+  el('line', { x1:nodeX-13, y1:circY+30, x2:nodeX+13, y2:circY+12, stroke:'#7A5200', 'stroke-width':1.3 });
+  el('polygon', { points:(nodeX+13)+','+(circY+12)+' '+(nodeX+7)+','+(circY+13.5)+' '+(nodeX+10.5)+','+(circY+17), fill:'#7A5200' });
+  // ground
+  el('line', { x1:nodeX-7, y1:circY+44, x2:nodeX+7, y2:circY+44, stroke:'#7A5200', 'stroke-width':1.4 });
+  el('line', { x1:nodeX-4, y1:circY+48, x2:nodeX+4, y2:circY+48, stroke:'#7A5200', 'stroke-width':1.1 });
+  el('text', { x:nodeX, y:circY-16, 'font-size':8.2, 'text-anchor':'middle', fill:'#7A5200', 'font-weight':700 }, isEn?'Load Cap':'Load Cap');
+  el('text', { x:nodeX, y:circY-6, 'font-size':7.6, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'(variable)':'(가변)');
+
+  // wire: node to tune cap
+  el('line', { x1:nodeX, y1:circY, x2:tuneStart, y2:circY, stroke:'#3C3530', 'stroke-width':1.6 });
+
+  // Tune Cap: variable capacitor, in series along the main line
+  el('line', { x1:tuneStart, y1:circY, x2:tuneStart+6, y2:circY, stroke:'#1A6FB5', 'stroke-width':2 });
+  el('line', { x1:tuneStart+6, y1:circY-9, x2:tuneStart+6, y2:circY+9, stroke:'#1A6FB5', 'stroke-width':2 });
+  el('line', { x1:tuneEnd-6, y1:circY-9, x2:tuneEnd-6, y2:circY+9, stroke:'#1A6FB5', 'stroke-width':2 });
+  el('line', { x1:tuneEnd-6, y1:circY, x2:tuneEnd, y2:circY, stroke:'#1A6FB5', 'stroke-width':2 });
+  // variable-element arrow through the plates
+  el('line', { x1:tuneStart-2, y1:circY+11, x2:tuneEnd+2, y2:circY-11, stroke:'#1A6FB5', 'stroke-width':1.3 });
+  el('polygon', { points:(tuneEnd+2)+','+(circY-11)+' '+(tuneEnd-5)+','+(circY-10.5)+' '+(tuneEnd-2)+','+(circY-5), fill:'#1A6FB5' });
+  el('text', { x:(tuneStart+tuneEnd)/2, y:circY-18, 'font-size':8.2, 'text-anchor':'middle', fill:'#1A6FB5', 'font-weight':700 }, isEn?'Tune Cap':'Tune Cap');
+  el('text', { x:(tuneStart+tuneEnd)/2, y:circY+22, 'font-size':7.6, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'(variable)':'(가변)');
+
+  // wire: tune cap to box-out
+  el('line', { x1:tuneEnd, y1:circY, x2:outX, y2:circY, stroke:'#3C3530', 'stroke-width':1.6 });
+
+  // motors — two independent ones, one per variable element (this is the part that's easy to misread as one shared motor)
+  var motorY = 155;
+  // Load Cap's motor
+  el('line', { x1:nodeX, y1:circY+48, x2:nodeX, y2:motorY-9, stroke:'#9A8A68', 'stroke-width':1, 'stroke-dasharray':'2,2' });
+  el('circle', { cx:nodeX, cy:motorY, r:10, fill:'#FDF0EE', stroke:'#C0392B', 'stroke-width':1.4 });
+  el('text', { x:nodeX, y:motorY+3.5, 'font-size':9, 'text-anchor':'middle' }, '⚙');
+  el('text', { x:nodeX, y:motorY+21, 'font-size':7, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'motor 1':'모터 1');
+  // Tune Cap's motor
+  var tuneMidX = (tuneStart+tuneEnd)/2;
+  el('line', { x1:tuneMidX, y1:circY+9, x2:tuneMidX, y2:motorY-9, stroke:'#9A8A68', 'stroke-width':1, 'stroke-dasharray':'2,2' });
+  el('circle', { cx:tuneMidX, cy:motorY, r:10, fill:'#FDF0EE', stroke:'#C0392B', 'stroke-width':1.4 });
+  el('text', { x:tuneMidX, y:motorY+3.5, 'font-size':9, 'text-anchor':'middle' }, '⚙');
+  el('text', { x:tuneMidX, y:motorY+21, 'font-size':7, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'motor 2':'모터 2');
 
   el('line', { x1:270, y1:95, x2:310, y2:95, stroke:'#3C3530', 'stroke-width':1.6 });
 
@@ -3177,8 +3228,8 @@ function drawD55Block() {
   el('text', { x:340, y:35, 'font-size':9, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'Z_L(t) wanders':'Z_L(t) 흔들림');
   el('path', { d:'M330,40 q10,-8 20,0', stroke:'#9A8A68', 'stroke-width':1, fill:'none', 'stroke-dasharray':'2,2' });
 
-  el('text', { x:200, y:200, 'font-size':8.4, 'text-anchor':'middle', fill:'#9A8A68' },
-     isEn ? 'sensors measure Γ, feed back to motors in real time' : '센서가 Γ를 측정해 모터에 실시간 피드백');
+  el('text', { x:200, y:218, 'font-size':8.4, 'text-anchor':'middle', fill:'#9A8A68' },
+     isEn ? 'two independent motors, each tracking its own Γ feedback' : '두 모터가 각각 독립적으로 Γ를 추적하며 구동');
 }
 
 function updateD55Readout() {
