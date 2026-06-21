@@ -1,0 +1,2825 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Module 05 — Matching Network | Benedu Insight RF Lecture Series</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet"/>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+/* ═══════════════════════════════════════════════
+   BENEDU INSIGHT — MODULE 05 BASE STYLES
+   Module 04 구조 계승, Module 05(Matching Network) 아이덴티티 추가
+═══════════════════════════════════════════════ */
+:root {
+  --bg: #F7F8FA;
+  --card: #F1EFEA;
+  --card-hd: #E7E4DD;
+  --purple: #7030A0;
+  --green: #0F8C50;
+  --plasma: #E87B1E;
+  --blue: #1A6FB5;
+  --red: #C0392B;
+  --teal: #C8860D;
+  --amber: #C8860D;
+  --text: #1A1A2E;
+  --text-sub: #5A5A7A;
+  --border: #D8D5CE;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --font: 'Google Sans', 'Noto Sans KR', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --batang: 'Gowun Batang', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: #FFFFFF;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.sb-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-brand .module-tag {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--text-sub);
+}
+.sb-era {
+  padding: 10px 14px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.sb-era-bar {
+  height: 3px;
+  border-radius: 2px;
+  margin: 4px 14px 8px;
+  background: var(--teal);
+  opacity: 0.4;
+}
+.sb-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 1px 8px;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.sb-item:hover { background: #E8F7F2; }
+.sb-item.active { background: #D1F0E6; }
+.sb-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sb-label { font-size: 0.78rem; line-height: 1.35; color: var(--text); }
+.sb-sub { font-size: 0.68rem; color: var(--text-sub); margin-top: 2px; }
+.sb-lang {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+.lang-btn {
+  flex: 1; padding: 7px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-sub);
+}
+.lang-btn.active {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── TOP LOGO BAR ── */
+#top-logo-bar {
+  position: fixed;
+  top: 0; left: 260px; right: 0;
+  height: 44px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 28px;
+  z-index: 150;
+}
+#top-logo-bar img {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.88;
+}
+
+/* ── MAIN CONTENT ── */
+#main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 64px 36px 32px;
+  max-width: calc(100vw - 260px);
+}
+
+/* ── SLIDE HEADER ── */
+.slide-header { margin-bottom: 28px; }
+.slide-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.slide-title {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.slide-title span { color: var(--teal); }
+.slide-subtitle {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  color: var(--text-sub);
+  line-height: 1.5;
+}
+
+/* ── TAB SYSTEM ── */
+.tab-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+.tab-btn {
+  padding: 8px 18px 10px;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+  font-weight: 700;
+}
+.tab-btn:hover:not(.active) { color: var(--text); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── DIAGRAM CARD ── */
+.d-wrap {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.d-header {
+  background: var(--card-hd);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.d-badge {
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+}
+.d-badge.purple { background: var(--purple); }
+.d-badge.green  { background: var(--green); }
+.d-badge.plasma { background: var(--plasma); }
+.d-badge.red    { background: var(--red); }
+.d-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.d-body { padding: 1.2rem; }
+
+/* ── THEORY CARDS ── */
+.theory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.theory-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.theory-card h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin-bottom: 7px;
+  display: flex; align-items: center; gap: 6px;
+}
+.theory-card p { font-size: 0.82rem; color: var(--text-sub); line-height: 1.55; }
+
+/* ── EQUATION BLOCK ── */
+.eq-block {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 10px 0;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.eq-label {
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  text-align: right;
+  margin-top: 4px;
+  font-family: var(--font);
+}
+
+/* ── CALLOUT ── */
+.callout {
+  background: #F0FAFF;
+  border: 1px solid #A8D8E8;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.callout.green  { background: #F0FAF4; border-color: #A8D5B8; }
+.callout.plasma { background: #FFF8F0; border-color: #F5C89A; }
+.callout.purple { background: #F8F6FF; border-color: #C9B8E8; }
+.callout.red    { background: #FDF0EE; border-color: #EAB0A8; }
+.callout-title {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  color: var(--teal);
+}
+.callout.green  .callout-title { color: var(--green); }
+.callout.plasma .callout-title { color: var(--plasma); }
+.callout.purple .callout-title { color: var(--purple); }
+.callout.red    .callout-title { color: var(--red); }
+
+/* ── QUIZ ── */
+.quiz-card {
+  background: #fff;
+  border: 1.5px solid #A8D8E8;
+  border-radius: 10px;
+  padding: 18px;
+  margin-top: 10px;
+}
+.quiz-q {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  transition: all 0.15s;
+  background: var(--bg);
+}
+.quiz-opt:hover { border-color: var(--teal); background: #F0FAFF; }
+.quiz-opt.correct { border-color: var(--green); background: #F0FAF4; color: var(--green); }
+.quiz-opt.wrong   { border-color: var(--red); background: #FDF0EE; color: var(--red); }
+.quiz-opt span.opt-key {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.75rem;
+  width: 20px; flex-shrink: 0;
+}
+.quiz-feedback {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  display: none;
+  line-height: 1.5;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: #F0FAF4; color: var(--green); }
+.quiz-feedback.ng { background: #FDF0EE; color: var(--red); }
+
+/* ── CONNECTIONS ── */
+.connections { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.conn-chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fff;
+  color: var(--text-sub);
+}
+.conn-chip:hover { border-color: var(--teal); color: var(--teal); background: #F0FAFF; }
+
+/* ── DEEP STUDY ── */
+.deep-section h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #A8D8E8;
+}
+.deep-section p  { font-size: 0.84rem; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+.deep-section ul { padding-left: 18px; margin-bottom: 10px; }
+.deep-section ul li { font-size: 0.83rem; line-height: 1.65; color: var(--text); margin-bottom: 4px; }
+
+/* ── TABLE ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 10px 0; }
+.data-table th {
+  background: var(--card-hd);
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.data-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); line-height: 1.4; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #F0FAFF; }
+
+/* ── CANVAS SIMULATOR ── */
+.sim-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin: 10px 0; }
+.sim-canvas {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #0D1117;
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  box-sizing: border-box;
+}
+.sim-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; align-items: center; }
+.sim-ctrl-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
+.sim-ctrl-label { font-size: 0.72rem; font-weight: 700; color: var(--text-sub); display: flex; justify-content: space-between; }
+.sim-ctrl-val { font-family: var(--mono); font-size: 0.72rem; color: var(--teal); font-weight: 600; }
+.sim-slider {
+  -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px;
+  background: var(--border); outline: none;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--teal); cursor: pointer;
+}
+.sim-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.sim-btn {
+  padding: 7px 16px; border-radius: 8px;
+  border: 1.5px solid var(--teal);
+  background: transparent; color: var(--teal);
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.sim-btn:hover, .sim-btn.active { background: var(--teal); color: #fff; }
+.sim-btn.purple-btn { border-color: var(--purple); color: var(--purple); }
+.sim-btn.purple-btn:hover, .sim-btn.purple-btn.active { background: var(--purple); color: #fff; }
+.sim-info {
+  margin-top: 10px; padding: 10px 14px;
+  background: var(--bg); border-radius: 8px;
+  font-size: 0.78rem; color: var(--text-sub); line-height: 1.5; min-height: 36px;
+}
+
+/* ── REVEAL BLOCK (함께 생각해 보기) ── */
+.reveal-wrap {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.reveal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.reveal-header:hover { background: #F4F6FB; }
+.reveal-q {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  flex: 1;
+}
+.reveal-badge {
+  flex-shrink: 0;
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+  margin-right: 12px;
+}
+.reveal-chevron { flex-shrink: 0; font-size: 0.8rem; color: var(--text-sub); transition: transform 0.22s; }
+.reveal-header.open .reveal-chevron { transform: rotate(180deg); }
+.reveal-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 0;
+  border-top: 1px solid transparent;
+}
+.reveal-body.open {
+  max-height: 2000px;
+  opacity: 1;
+  border-top-color: var(--border);
+}
+.reveal-inner { padding: 18px; }
+
+/* ── Journey Key Block styles (Step 2) ── */
+.jkey-block {
+  display: block;
+  margin-bottom: 0;
+}
+.jkey-spacer {
+  display: block;
+  height: 14px;
+}
+.jkey-h {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #E8EEF8;
+  font-family: 'Google Sans', sans-serif;
+  line-height: 1.7;
+}
+.jkey-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #A0BBCC;
+  font-family: 'Google Sans', sans-serif;
+}
+.jkey-f {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #E8EEF8;
+  font-family: 'Google Sans', sans-serif;
+  line-height: 1.8;
+  padding-left: 18px;
+}
+.jkey-f sup {
+  font-size: 0.72em;
+  vertical-align: super;
+}
+
+#img-popup {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85); z-index: 9999;
+  align-items: center; justify-content: center;
+  overflow: hidden;
+}
+#img-popup.open { display: flex; }
+#img-popup-viewport {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: auto;
+  cursor: zoom-in;
+}
+#img-popup-viewport.zoomed {
+  cursor: grab;
+  align-items: flex-start; justify-content: flex-start;
+}
+#img-popup-viewport.zoomed:active { cursor: grabbing; }
+#img-popup img {
+  max-width: 90vw; max-height: 85vh;
+  border-radius: 10px; box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  transition: max-width 0.2s ease, max-height 0.2s ease, width 0.2s ease;
+  user-select: none;
+}
+#img-popup-viewport.zoomed img {
+  max-width: none; max-height: none;
+  width: 220%;
+  border-radius: 6px;
+  transition: none;
+}
+#img-popup-cap {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7); color: #fff;
+  padding: 8px 18px; border-radius: 20px; font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 2;
+}
+#img-popup-close {
+  position: fixed; top: 20px; right: 28px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.12); color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  font-size: 1.3rem; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+#img-popup-close:hover { background: rgba(255,255,255,0.25); }
+#img-popup-hint {
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.6); color: #fff;
+  padding: 6px 14px; border-radius: 16px; font-size: 0.74rem;
+  pointer-events: none; z-index: 2;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar { position: fixed; top: 44px; left: 260px; right: 0; height: 3px; background: var(--border); z-index: 200; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width 0.3s ease; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; padding: 64px 16px 20px; max-width: 100vw; }
+  .progress-bar { left: 0; }
+  #top-logo-bar { left: 0; }
+}
+
+/* ── 임피던스 페이저 다이어그램 ── */
+.phasor-legend {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 10px; align-items: center;
+}
+.phasor-dot {
+  display: inline-block; width: 12px; height: 12px;
+  border-radius: 50%; margin-right: 5px; vertical-align: middle;
+}
+
+/* ── Z 표기 큰 수식 ── */
+.z-formula-block {
+  display: flex; align-items: center; gap: 0;
+  background: #fff; border: 2px solid #C9B8E8;
+  border-radius: 14px; padding: 20px 28px;
+  margin: 16px 0; flex-wrap: wrap; justify-content: center;
+}
+.z-formula-block .z-sym {
+  font-size: 3rem; font-weight: 900;
+  color: var(--purple); font-family: var(--mono);
+  margin-right: 12px;
+}
+.z-formula-block .z-eq { font-size: 2.2rem; color: var(--text-sub); margin: 0 10px; }
+.z-formula-block .z-r  { font-size: 2.2rem; font-weight: 700; color: var(--blue); }
+.z-formula-block .z-pm { font-size: 2rem; color: var(--text-sub); margin: 0 8px; }
+.z-formula-block .z-x  { font-size: 2.2rem; font-weight: 700; color: var(--purple); }
+.z-formula-block .z-j  { font-size: 2.2rem; font-weight: 700; color: var(--purple); }
+.z-sub-label {
+  font-size: 0.72rem; color: var(--text-sub); text-align: center;
+  margin-top: 4px; font-family: var(--mono);
+}
+</style>
+<body>
+
+<!-- IMAGE POPUP -->
+<div id="img-popup">
+  <button id="img-popup-close" onclick="closeImgPopup()" aria-label="Close">✕</button>
+  <div id="img-popup-hint">🔍 클릭해서 확대 / 다시 클릭하면 축소 · ✕ 또는 Esc로 닫기</div>
+  <div id="img-popup-viewport" onclick="toggleImgZoom(event)">
+    <img id="img-popup-img" src="" alt=""/>
+  </div>
+  <div id="img-popup-cap"></div>
+</div>
+
+<!-- TOP LOGO BAR -->
+<div id="top-logo-bar">
+  <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="BENEDU INSIGHT"/>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-brand">
+    <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+         alt="BENEDU INSIGHT"
+         style="height:28px;width:auto;display:block;margin-bottom:6px;object-fit:contain"/>
+    <div class="module-tag">RF Lecture Series · Class 02 · Module 05</div>
+  </div>
+  <div class="sb-era">Module 05</div>
+  <div class="sb-era-bar"></div>
+  <div id="nav-list"></div>
+  <div class="sb-lang">
+    <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn"        id="btn-en" onclick="setLang('en')">English</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+  <div id="slide-area"></div>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════
+   HiDPI Canvas Utility
+═══════════════════════════════════════════ */
+function setupHiDPI(canvas) {
+  const dpr  = window.devicePixelRatio || 1;
+  const cssW = canvas.offsetWidth  || canvas.parentElement && canvas.parentElement.offsetWidth || 680;
+  const attrH = parseInt(canvas.getAttribute('data-h') || canvas.height || 260);
+  const attrW = parseInt(canvas.getAttribute('data-w') || canvas.width  || 680);
+  const cssH  = Math.round(attrH * (cssW / attrW));
+  canvas.width  = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  canvas.style.width  = '100%';
+  canvas.style.height = cssH + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, W: cssW, H: cssH, dpr };
+}
+/* ═══════════════════════════════════════════
+   SLIDE DATA
+═══════════════════════════════════════════ */
+const SLIDES_KO = [
+
+  /* ── HISTORY ───────────────────────────────── */
+  {
+    id: 'd50h',
+    era: 'm5',
+    eyebrow: 'History · Module 05',
+    title: 'Matching Network는 왜 필요해졌는가',
+    subtitle: '진공관 송신기에서 플라즈마 챔버까지 — "두 임피던스를 같게 만드는 회로"의 100년',
+    theories: [
+      { icon: '📻', title: '기원 — 진공관 시대의 안테나 매칭', body: '임피던스 매칭 회로의 개념은 20세기 초 진공관(Vacuum Tube) 송신기 시대로 거슬러 올라갑니다. 진공관 출력단의 임피던스와 안테나의 임피던스가 다르면 송신 전력의 상당 부분이 반사되어 손실되었고, 엔지니어들은 L, C 소자로 구성된 매칭 회로(L-network, Pi-network, T-network)를 끼워 넣어 이 손실을 최소화했습니다.' },
+      { icon: '🧮', title: '이론적 토대 — Smith Chart와의 결합 (1939년 이후)', body: 'Module 4에서 배운 Smith Chart(1939)는 매칭 회로 설계를 수치 계산에서 그래픽 작업으로 바꿔 놓았습니다. 임의의 부하 임피던스를 Z₀(보통 50Ω)로 변환하는 데 필요한 소자의 종류(L 또는 C)와 값을, 챠트 위에서 점이 그리는 궤적만 보고 즉시 알아낼 수 있게 된 것입니다.' },
+      { icon: '⚙️', title: '반도체 장비로의 이식 — RF Generator + Matcher', body: '1980년대 이후 반도체 plasma 공정이 발전하면서, RF Generator(50Ω 고정 출력)와 plasma chamber(끊임없이 변하는 임피던스) 사이에 자동으로 임피던스를 추적하는 Auto Matching Network(AMN)가 필수 장비로 자리잡았습니다. 이것이 오늘날 RF 장비에서 Generator 옆에 항상 붙어있는 Matcher의 시작입니다.' },
+      { icon: '🔁', title: '왜 "자동"이어야 했는가', body: '안테나는 한번 설치하면 임피던스가 거의 고정되지만, 플라즈마는 가스 종류, 압력, RF 파워, 웨이퍼 유무에 따라 임피던스가 초 단위로 변합니다. 사람이 손으로 다이얼을 돌려 맞추던 초기 방식은 곧 모터로 가변 커패시터를 구동하는 폐루프(closed-loop) 자동 매칭 시스템으로 대체되었습니다.' },
+      { icon: '🎯', title: '오늘의 목표 — 손실 없이 두 세상을 잇는 법', body: 'Module 5에서는 가장 단순하면서도 실전에서 가장 많이 쓰이는 L-network 매칭 회로를 처음부터 끝까지 직접 설계해 봅니다. 핵심 질문은 하나입니다 — "어떻게 하면 에너지를 한 방울도 버리지 않고 Source의 50Ω을 plasma의 임피던스에 연결할 수 있을까?"' },
+    ],
+    equations: [
+      { label: '매칭의 목표 조건', tex: 'Z_{source} = Z_{load}^{*}\\quad(\\text{공액 정합, Conjugate Match})' },
+    ],
+    classroom: {
+      q: 'RF Generator와 Plasma Chamber 사이에 Matching Network를 "자동(Auto)"으로 만들어야 했던 가장 근본적인 이유는 무엇인가요?',
+      opts: [
+        { key:'A', text:'장비를 더 비싸 보이게 만들기 위해', correct: false },
+        { key:'B', text:'플라즈마의 임피던스가 가스·압력·파워 조건에 따라 실시간으로 계속 변하기 때문에', correct: true },
+        { key:'C', text:'RF Generator의 출력 임피던스가 매번 달라지기 때문에', correct: false },
+        { key:'D', text:'사람이 손으로 다이얼을 돌리는 것이 법적으로 금지되어서', correct: false },
+      ],
+      feedback_ok: '정확합니다! 안테나처럼 고정된 부하라면 한 번만 맞춰두면 그만이지만, 플라즈마는 가스 종류·압력·RF 파워·웨이퍼 유무 등에 따라 임피던스가 끊임없이 흔들립니다. 이 변화를 실시간으로 따라가려면 사람의 손이 아닌 모터 구동 자동 시스템이 필요했습니다.',
+      feedback_ng: '힌트: RF Generator의 출력 임피던스(50Ω)는 거의 고정되어 있습니다. 반대로 plasma chamber 쪽은 무엇이 계속 바뀌고 있을까요?',
+    },
+    connections: ['d50p'],
+  },
+
+  /* ── PROLOGUE ─────────────────────────────── */
+  {
+    id: 'd50p',
+    era: 'm5',
+    eyebrow: 'Prologue · Module 05',
+    title: 'Matching Network, 무엇을 같게 만드는가?',
+    subtitle: 'Module 4(Smith Chart)의 "원 위의 점"이 이제 실제 L, C 소자로 움직입니다',
+    theories: [
+      { icon: '🔁', title: 'Module 4 복습 — Γ=0이라는 목적지', body: 'Smith Chart에서 우리는 R-circle과 G-circle을 따라 한 점이 챠트 중심(Γ=0)으로 이동하는 것을 보았습니다. 그 점이 바로 우리가 만들고 있는 회로 전체의 임피던스이고, 중심에 도달했다는 것은 곧 매칭이 완성되었다는 뜻입니다. Module 5는 "그 점을 실제로 움직이는 손잡이" — 즉 Series/Shunt L, C 소자 — 를 회로도 위에서 하나씩 직접 설치하는 과정입니다.' },
+      { icon: '⚡', title: '매칭되지 않으면 무슨 일이 생기는가', body: '두 임피던스가 다르면(Mismatching) 전송선로에는 반드시 반사파가 생기고, 그 결과 전압이 출렁이는 정재파(Standing Wave)가 만들어집니다. 이 정재파의 전압 피크가 RF Generator 내부 증폭소자의 허용 전압을 넘어서면 소자가 파손됩니다 — 이것이 이번 모듈에서 가장 먼저 확인할 "왜 매칭이 필수인가"의 답입니다.' },
+      { icon: '🧩', title: '왜 하필 L, C 소자인가 — 저항이 아니라', body: '직관적으로는 저항(R)을 더해서 임피던스를 맞추고 싶어집니다. 하지만 저항은 전력을 열로 소비해버립니다. RF 엔지니어의 목표는 전력을 "맞추는" 것이지 "버리는" 것이 아니므로, 에너지를 저장만 하고 소비하지 않는 리액티브 소자(L, C)만을 사용합니다. 이 원칙이 Module 5 전체를 관통하는 첫 번째 설계 규칙입니다.' },
+      { icon: '🎯', title: '오늘 다룰 것 — L-network 한 가지로 시작', body: 'Matching Network에는 L-network, Pi-network, T-network 등 여러 형태가 있지만, 가장 단순하고 반도체 RF Generator에서 가장 흔히 쓰이는 2소자 L-network부터 시작합니다. 하나는 Real부(저항)를 맞추고, 다른 하나는 허수부(리액턴스)를 맞추는 — 정확히 두 번의 손길로 매칭을 완성하는 회로입니다.' },
+    ],
+    equations: [
+      { label: '반사계수 — 매칭 여부의 척도', tex: '\\Gamma = \\dfrac{Z_L-Z_S}{Z_L+Z_S}\\;,\\quad \\Gamma=0 \\;\\Leftrightarrow\\; \\text{완전 정합}' },
+    ],
+    classroom: {
+      q: '임피던스를 맞추기 위해 저항(R) 소자 대신 인덕터(L)나 커패시터(C) 같은 리액티브 소자를 사용하는 가장 근본적인 이유는?',
+      opts: [
+        { key:'A', text:'리액티브 소자가 저항보다 훨씬 저렴하기 때문에', correct: false },
+        { key:'B', text:'저항은 전력을 열로 소비해 버리지만, L·C는 에너지를 소비하지 않고 위상만 바꾸기 때문에', correct: true },
+        { key:'C', text:'저항은 RF 주파수에서 작동하지 않기 때문에', correct: false },
+        { key:'D', text:'L, C 소자가 R보다 크기가 항상 더 작기 때문에', correct: false },
+      ],
+      feedback_ok: '정확합니다! 매칭의 목적은 입사된 전력을 "최대한 부하로 전달"하는 것입니다. 저항을 매칭에 쓰면 그 저항 자체가 전력 일부를 열로 소비해버려 목적에 정면으로 어긋납니다. L, C는 에너지를 저장했다가 되돌려줄 뿐 소비하지 않으므로, 위상(reactance)만 바꾸면서 전력 손실 없이 임피던스를 옮길 수 있습니다.',
+      feedback_ng: '힌트: 매칭 회로의 진짜 목적이 무엇인지 떠올려보세요 — Source의 전력을 Load에 "최대한 많이" 전달하는 것입니다. 저항을 추가하면 그 전력에는 어떤 일이 생길까요?',
+    },
+    connections: ['d50'],
+  },
+
+  /* ── Topic 1 (PDF p.2) ─────────────────────── */
+  {
+    id: 'd50', era: 'm5',
+    eyebrow: 'Topic 1 · Module 05',
+    title: 'Mismatching의 대가 — 정재파에서 소자 파손까지',
+    subtitle: 'Zs=50Ω, Z_L=2+j20Ω을 그대로 연결하면 생기는 일을 Γ, VSWR 계산으로 직접 확인합니다',
+    theories: [
+      { icon: '🔌', title: '문제 설정 — 정합되지 않은 두 임피던스', body: 'Source 임피던스 Zs=50Ω의 RF Generator에, 전송선로(특성임피던스 50Ω, 전체 길이 30m)를 거쳐 현실적인 plasma 부하 Z_L=2+j20Ω이 직결된 상황을 생각합니다. 두 값이 다르므로 Zs ≠ Z_L — Mismatching이 발생하고, 입사파의 일부가 부하에서 반드시 반사됩니다.' },
+      { icon: '🔢', title: 'Γ와 VSWR 계산 — 숫자로 확인하는 미스매치의 크기', body: 'Γ=(Z_L−Z₀)/(Z_L+Z₀)=(2+j20−50)/(2+j20+50)=−0.675+j0.644, |Γ|≈0.933. |Γ|가 1에 매우 가깝다는 것은 입사파 에너지의 대부분(|Γ|²≈87%)이 반사되어 되돌아온다는 뜻입니다. VSWR=(1+|Γ|)/(1−|Γ|)≈29 — 정재파의 전압 최대/최소 비율이 29:1에 달하는 극심한 미스매치입니다.' },
+      { icon: '🌊', title: '전송선로 위에 형성되는 정재파(Standing Wave)', body: '입사파와 반사파가 선로 위에서 중첩되면 위치에 따라 전압이 출렁이는 정재파가 만들어집니다. 13.56MHz, 동축케이블 단축계수(VF)≈0.66을 적용하면 한 파장 λ≈15m — 30m의 전송선로 안에는 정확히 2파장(반파장 4개, 즉 node가 4개)이 들어갑니다. 아래 시뮬레이터에서 그 마디 간격을 직접 확인할 수 있습니다.' },
+      { icon: '🔥', title: 'RF Generator 내부로 되돌아가는 충격 — 증폭소자의 위협', body: '반사파는 전송선로를 거슬러 RF Generator의 출력단, 즉 증폭소자(Power Amplifier — LDMOS, MOSFET, 진공관 등)까지 되돌아갑니다. 정재파로 인해 국부적으로 솟구친 전압이 증폭소자의 내압(Breakdown Voltage) 허용치를 넘어서면, 소자가 즉시 또는 누적적으로 파손됩니다.' },
+      { icon: '💥', title: '실제 현장의 고장 — 네 곳 중 어디서든 터질 수 있다', body: '미스매치가 만드는 위협은 RF Generator 한 곳에만 머물지 않습니다. 신호가 지나가는 경로를 따라 ① RF Generator(증폭소자·출력 Capacitor) ② Connector(동축 커넥터) ③ RF Matcher(가변 Capacitor) ④ Plasma & Process(공정 자체) 네 곳 모두가 저마다 다른 방식으로 고장 나거나 불안정해질 수 있습니다. 아래 다이어그램 탭에서 각 케이스를 원인→결과의 흐름으로 정리했습니다.' },
+      { icon: '🛡️', title: '보호 회로의 한계 — 왜 매칭이 근본 해법인가', body: '대부분의 RF Generator는 VSWR이 임계치를 넘으면 출력을 자동으로 줄이거나 차단하는 보호 회로(foldback)를 내장하고 있습니다. 하지만 이는 "고장을 막는 마지막 방어선"일 뿐, 공정 자체는 진행되지 못하고 파워가 깎입니다. 진짜 해법은 보호 회로에 의존하지 않고 애초에 Γ≈0을 만들어 반사파 자체를 없애는 것 — 그것이 Matching Network의 존재 이유입니다.' },
+    ],
+    equations: [
+      { label: '반사계수', tex: '\\Gamma = \\dfrac{Z_L-Z_0}{Z_L+Z_0} = \\dfrac{(2+j20)-50}{(2+j20)+50} \\approx -0.675+j0.644' },
+      { label: 'VSWR', tex: '\\text{VSWR} = \\dfrac{1+|\\Gamma|}{1-|\\Gamma|} \\approx \\dfrac{1+0.933}{1-0.933} \\approx 29' },
+      { label: '반사된 전력 비율', tex: '\\dfrac{P_{reflected}}{P_{incident}} = |\\Gamma|^2 \\approx 0.871\\;(87.1\\%)' },
+      { label: '정재파 전압 최대값', tex: 'V_{max} = V^+(1+|\\Gamma|) \\approx 1.93\\,V^+' },
+    ],
+    classroom: {
+      q: '미스매치로 인한 고장 사례 중, "반사파로 인해 Forward Power는 높은데 실제로는 Load에 전달되지 않아 동축 케이블 내부 RMS 전류가 증가하고, 그 결과 SMA·N-Type 등 커넥터가 과열·손상되는" 케이스는 네 가지 분류 중 어디에 속할까요?',
+      opts: [
+        { key:'A', text:'① RF Generator', correct: false },
+        { key:'B', text:'② Connector', correct: true },
+        { key:'C', text:'③ RF Matcher', correct: false },
+        { key:'D', text:'④ Plasma & Process', correct: false },
+      ],
+      feedback_ok: '정확합니다! 이 케이스는 증폭소자나 가변 커패시터가 아니라, 신호가 지나가는 동축 커넥터(SMA, N-Type, HN 등) 자체가 과도한 RMS 전류로 인해 발열·손상되는 경로입니다. 같은 "반사"라는 원인이라도 손상되는 위치에 따라 분류가 달라진다는 점이 이번 토픽의 핵심입니다.',
+      feedback_ng: '힌트: 다이어그램 탭의 "4가지 고장 케이스"를 다시 살펴보세요. 이 케이스는 증폭소자(Generator)도, 가변 커패시터(Matcher)도 아닌, 신호가 지나가는 케이블의 접속부에서 일어나는 일입니다.',
+    },
+    connections: ['d50p', 'd51'],
+  },
+
+  /* ── Topic 2 (PDF p.3) ─────────────────────── */
+  {
+    id: 'd51', era: 'm5',
+    eyebrow: 'Topic 2 · Module 05',
+    title: '최대 전력 전송의 조건 — 그리고 저항을 쓰면 안 되는 이유',
+    subtitle: 'Zs=Z_L을 만드는 가장 손쉬운 방법은 병렬 저항이지만, 그 대가는 "버려지는 전력"입니다',
+    theories: [
+      { icon: '🎯', title: '최대 전력 전송의 조건', body: '전송선로를 통해 Source에서 Load로 최대 전력을 보내려면 Source 임피던스(Zs)와 Load 임피던스(Z_L)가 같아야 합니다. 둘 중 누구를 바꿀지 선택해야 하는데, 실제 현장에서는 보내는 쪽(Generator)의 임피던스를 부하 쪽에 맞춰가는 방식이 사용됩니다.' },
+      { icon: '🏭', title: '왜 부하가 아니라 Source를 바꾸는가 — Plasma Chamber의 현실', body: '부하는 반도체 플라즈마 장비의 reactor 그 자체입니다. Chamber 구조, 전극 형태, 가스 화학종, 압력은 공정 요구에 따라 결정되는 것이지 RF 매칭을 위해 50Ω으로 설계할 수 있는 대상이 아닙니다. 따라서 현실적인 선택은 Generator 쪽 출력을 조정 가능한 매칭 회로로 감싸, 부하가 무엇이든 그에 맞춰 따라가게 만드는 것입니다.' },
+      { icon: '🤔', title: '직관적인 첫 시도 — 저항을 병렬로 추가한다면?', body: 'Zs=50Ω을 Z_L=2Ω에 맞추려면 Zs를 2Ω 근처로 낮춰야 합니다. 가장 단순한 방법은 50Ω에 작은 저항 Z_a를 병렬로 연결하는 것입니다. 예를 들어 Z_a=2.09Ω을 병렬로 연결하면 Zs‖Z_a = (50·2.09)/(50+2.09) ≈ 2.006Ω — 숫자만 보면 거의 정확히 2Ω에 도달합니다.' },
+      { icon: '🚫', title: '절대 해서는 안 되는 선택 — 저항을 매칭에 쓰지 않는다', body: '하지만 RF 전력전송 엔지니어는 이 방법을 절대 쓰지 않습니다. 저항 소자는 전류가 흐르면 반드시 P=I²R만큼 전력을 열로 소비합니다. 즉 2.09Ω 저항을 추가하는 순간, Source가 보낸 전력의 상당 부분이 부하에 도달하기도 전에 저항에서 열로 사라집니다(energy loss by heat) — 임피던스 숫자는 맞아도 매칭의 본래 목적(전력을 부하에 전달)은 정면으로 배신당합니다.' },
+      { icon: '⚖️', title: '핵심 판단 기준 — "맞춘다"와 "버린다"는 다르다', body: '임피던스를 같게 만드는 방법은 무한히 많습니다. 그중 RF 엔지니어가 선택할 수 있는 것은 단 하나의 조건을 만족하는 방법뿐입니다 — 에너지를 소비하지 않고 임피던스를 옮기는 방법. 저항은 이 조건을 만족하지 못하므로 즉시 후보에서 제외됩니다. 다음 페이지에서 그 대안인 리액티브 소자(Capacitor)를 사용합니다.' },
+    ],
+    equations: [
+      { label: '최대 전력 전송 조건', tex: 'Z_S = Z_L \\quad\\Rightarrow\\quad P_{load} = P_{max}' },
+      { label: '병렬 저항으로 본 임피던스 변환 (숫자는 맞지만…)', tex: 'Z_S \\| Z_a = \\dfrac{Z_S \\cdot Z_a}{Z_S+Z_a} = \\dfrac{50\\cdot 2.09}{50+2.09} \\approx 2.006\\,\\Omega' },
+      { label: '저항에서 소비되는 전력 (피해야 할 손실)', tex: 'P_{loss} = I^2 R_a \\;\\neq\\; 0' },
+    ],
+    classroom: {
+      q: '50Ω의 Source 임피던스를 2Ω의 부하에 맞추기 위해 저항(R)을 병렬로 추가하면 임피던스 값 자체는 거의 정확히 2Ω에 도달합니다. 그럼에도 RF 엔지니어가 이 방법을 쓰지 않는 이유는?',
+      opts: [
+        { key:'A', text:'저항의 정확한 값을 구하는 계산이 너무 복잡해서', correct: false },
+        { key:'B', text:'저항이 전류에 의해 전력을 열로 소비해버려, 매칭의 본래 목적인 전력 전달을 망치기 때문', correct: true },
+        { key:'C', text:'저항은 50Ω보다 작은 값으로 만들 수 없기 때문', correct: false },
+        { key:'D', text:'저항을 병렬로 연결하면 임피던스가 항상 커지기 때문', correct: false },
+      ],
+      feedback_ok: '정확합니다! 임피던스 "숫자"를 맞추는 것과 전력을 "낭비 없이" 전달하는 것은 전혀 다른 문제입니다. 저항은 P=I²R로 전력을 열로 소모하므로, 임피던스는 맞아도 정작 부하에 도달하는 전력은 줄어듭니다. 그래서 매칭 회로는 반드시 에너지를 소비하지 않는 리액티브 소자(L, C)만으로 구성합니다.',
+      feedback_ng: '힌트: 저항에 전류가 흐를 때 항상 일어나는 물리 현상을 떠올려보세요(P=I²R). 그 에너지는 어디로 가게 될까요? 매칭의 목적이 "전력을 부하에 전달하는 것"이라는 점과 연결해보세요.',
+    },
+    connections: ['d50', 'd52'],
+  },
+
+  /* ── Topic 3 (PDF p.4) ─────────────────────── */
+  {
+    id: 'd52', era: 'm5',
+    eyebrow: 'Topic 3 · Module 05',
+    title: 'Load Capacitor — 저항 대신 커패시터로 Real부를 맞추다',
+    subtitle: '에너지를 소비하지 않으면서도 저항과 똑같은 효과를 내는 소자, Capacitor를 병렬로 설치합니다',
+    theories: [
+      { icon: '🔋', title: '리액티브 소자의 등장 — Capacitor를 병렬로', body: 'Topic 2에서 저항을 배제했으니, 이번엔 같은 위치(Source와 병렬)에 순허수 임피던스를 갖는 Capacitor Z_a=−j10.207Ω을 연결합니다. 직류 저항 성분이 0인 순수 리액티브 소자이므로 전력을 전혀 소비하지 않습니다.' },
+      { icon: '🧮', title: '계산으로 확인 — Real부가 정확히 맞아떨어진다', body: 'Zs‖Z_a = (50·(−j10.207))/(50+(−j10.207)) = 2.000 − j9.798Ω. 놀랍게도 실수부가 정확히 2.000Ω으로 맞춰졌습니다 — Topic 2에서 저항으로 얻었던 것과 똑같은 실수부 값을, 전력 손실 없이 얻어낸 것입니다.' },
+      { icon: '📛', title: '이름의 유래 — 왜 "Load Capacitor"라 부르는가', body: '이 커패시터는 부하(Load)의 실수부(저항 성분)를 Source 쪽 실수부에 맞춰주는 역할을 하기 때문에 Load Capacitor라고 부릅니다. 산업 현장의 Matcher 장비 패널에서 흔히 보는 "Load" 다이얼이 바로 이 커패시터의 값을 조절하는 손잡이입니다.' },
+      { icon: '⚠️', title: '아직 끝나지 않았다 — 허수부가 남아있다', body: '계산 결과를 다시 보면 Zs‖Z_a = 2.000 − j9.798Ω입니다. 실수부(2.000Ω)는 Z_L=2Ω과 정확히 일치했지만, 허수부(−j9.798Ω)가 여전히 남아있습니다. 임피던스가 완전히 같아지려면(Zs‖Z_a = Z_L) 이 허수부도 0이 되어야 하므로, 아직 매칭이 완성된 상태가 아닙니다.' },
+      { icon: '🔍', title: '왜 하필 −j인가 — Load Capacitor의 부호가 의미하는 것', body: 'Source‖Z_a 조합의 허수부가 음(−)으로 나타난 것은 우연이 아닙니다. Capacitor(−jX)를 병렬로 추가하면 그 영향이 회로 전체의 허수부를 음의 방향으로 끌어당기는 경향이 있습니다. 이 부호를 정확히 상쇄하는 것이 다음 단계(Tune Coil)의 역할입니다.' },
+    ],
+    equations: [
+      { label: 'Load Capacitor의 임피던스', tex: 'Z_a = -j10.207\\,\\Omega \\quad(\\text{Load Capacitor})' },
+      { label: '병렬 조합 — Real부 일치, Imaginary부는 잔류', tex: 'Z_S \\| Z_a = \\dfrac{Z_S \\cdot Z_a}{Z_S+Z_a} = \\dfrac{50\\cdot(-j10.207)}{50+(-j10.207)} = \\underline{2.000} - j9.798\\,\\Omega' },
+      { label: '매칭 완성을 위한 남은 조건', tex: '\\text{Im}(Z_S\\|Z_a) = -j9.798\\,\\Omega \\;\\Rightarrow\\; 0\\;\\text{으로 만들어야 함}' },
+    ],
+    classroom: {
+      q: 'Source(50Ω)에 Load Capacitor(−j10.207Ω)를 병렬로 연결했을 때 얻어진 결과(2.000−j9.798Ω)에 대한 설명으로 옳은 것은?',
+      opts: [
+        { key:'A', text:'실수부와 허수부가 모두 0이 되어 완전한 매칭이 이미 완성되었다', correct: false },
+        { key:'B', text:'실수부는 부하의 2Ω과 일치했지만, 허수부가 남아있어 아직 매칭이 끝나지 않았다', correct: true },
+        { key:'C', text:'Capacitor는 전력을 소비하므로 이 결과는 비효율적이다', correct: false },
+        { key:'D', text:'실수부가 음수로 나와 회로에 오류가 있다는 뜻이다', correct: false },
+      ],
+      feedback_ok: '정확합니다! Load Capacitor 하나만으로는 임피던스의 실수부(저항 성분)만 정확히 맞출 수 있습니다. 허수부(−j9.798Ω)는 여전히 남아있으므로, Z_L=2Ω(순수 저항)과 완전히 같아지려면 이 허수부를 상쇄할 또 다른 소자가 필요합니다.',
+      feedback_ng: '힌트: 매칭이 완성되려면 Zs‖Z_a가 Z_L=2Ω(허수부 0)과 정확히 같아져야 합니다. 계산 결과의 실수부와 허수부를 각각 따로 따져보세요.',
+    },
+    connections: ['d51', 'd53'],
+  },
+
+  /* ── Topic 4 (PDF p.5) ─────────────────────── */
+  {
+    id: 'd53', era: 'm5',
+    eyebrow: 'Topic 4 · Module 05',
+    title: 'Tune Coil — 마지막 한 걸음, 리액턴스를 상쇄하다',
+    subtitle: '남은 허수부 −j9.798Ω을 정확히 지워내는 인덕터 한 개로 매칭이 완성됩니다',
+    theories: [
+      { icon: '➕', title: '직렬로 추가하는 두 번째 소자 — Inductor', body: 'Topic 3에서 남은 허수부 −j9.798Ω을 없애려면, 정반대 부호의 리액턴스를 가진 소자를 직렬로 더해야 합니다. +j9.798Ω의 리액턴스를 가진 인덕터(Tune Coil)를 회로의 출력단에 직렬로 연결합니다.' },
+      { icon: '🧮', title: '계산으로 확인 — 허수부가 정확히 0이 된다', body: '직렬 연결이므로 임피던스는 단순히 더해집니다: (2.000 − j9.798) + j9.798 = 2.000 + 0j = 2Ω. 허수부가 정확히 상쇄되어 사라지고, 회로 전체의 임피던스가 Z_L=2Ω과 완전히 동일해졌습니다.' },
+      { icon: '📛', title: '이름의 유래 — Tune Coil', body: '이 인덕터는 Load Capacitor가 맞춰놓은 실수부는 그대로 둔 채, 남아있는 리액턴스(허수부)만을 "미세 조정(Tune)"하여 0으로 만드는 역할을 하기 때문에 Tune Coil이라 부릅니다. Matcher 패널의 "Tune" 다이얼이 바로 이 인덕터(또는 가변 커패시터로 구현된 등가 소자)의 값을 조절합니다.' },
+      { icon: '✅', title: '매칭 완성 — 두 번의 손길로 끝난 회로', body: 'Source(50Ω) → Load Capacitor(병렬, −j10.207Ω) → Tune Coil(직렬, +j9.798Ω) → Load(2Ω). 정확히 두 개의 리액티브 소자만으로, 전력 손실 없이 50Ω을 2Ω에 완벽히 매칭했습니다. 이것이 가장 단순한 형태의 L-network Matching입니다.' },
+      { icon: '🗺️', title: '전체 그림 — Load Cap이 R을, Tune Coil이 X를', body: '두 소자의 역할을 한 문장으로 요약하면: Load Capacitor는 실수부(저항)를 옮기는 손잡이, Tune Coil은 허수부(리액턴스)를 지우는 손잡이입니다. 이 역할 분담은 Module 4 Smith Chart에서 본 R-circle(직렬 이동)과 G-circle(병렬 이동) 궤적과 정확히 같은 원리입니다 — 다음 토픽에서 이 둘을 연결합니다.' },
+    ],
+    equations: [
+      { label: 'Tune Coil의 임피던스', tex: 'Z_{b1} = +j9.798\\,\\Omega \\quad(\\text{Tune Coil})' },
+      { label: '직렬 연결 — 허수부 상쇄, 매칭 완성', tex: '(2.000 - j9.798) + j9.798 = 2.000\\,\\Omega = Z_L' },
+      { label: 'L-network 매칭 회로의 최종 구성', tex: 'Z_{in} = \\Big(Z_S \\| Z_{a}\\Big) + Z_{b1} = Z_L' },
+    ],
+    classroom: {
+      q: 'Load Capacitor(−j10.207Ω, 병렬)로 실수부를 맞춘 뒤, 남은 허수부 −j9.798Ω을 제거하기 위해 Tune Coil을 어떻게 연결해야 할까요?',
+      opts: [
+        { key:'A', text:'+j9.798Ω의 인덕터를 병렬로 연결한다', correct: false },
+        { key:'B', text:'+j9.798Ω의 인덕터를 직렬로 연결한다', correct: true },
+        { key:'C', text:'−j9.798Ω의 커패시터를 직렬로 하나 더 연결한다', correct: false },
+        { key:'D', text:'9.798Ω의 저항을 직렬로 연결한다', correct: false },
+      ],
+      feedback_ok: '정확합니다! 직렬로 연결된 임피던스는 단순히 더해지므로(Z₁+Z₂), 기존의 −j9.798Ω을 정확히 상쇄하려면 부호가 반대인 +j9.798Ω — 즉 인덕터(Tune Coil) — 를 직렬로 더해야 합니다. 병렬로 연결하면 임피던스가 단순히 더해지지 않으므로 원하는 상쇄가 일어나지 않습니다.',
+      feedback_ng: '힌트: 직렬로 연결된 두 임피던스는 Z_total=Z₁+Z₂로 단순히 더해집니다. −j9.798을 0으로 만들려면 무엇을 더해야 할까요? 그리고 그 값을 갖는 소자는 인덕터일까요, 커패시터일까요?',
+    },
+    connections: ['d52', 'd54'],
+  },
+
+  /* ── Topic 5 (PDF p.6-7) ───────────────────── */
+  {
+    id: 'd54', era: 'm5',
+    eyebrow: 'Topic 5 · Module 05',
+    title: '현실적인 부하로 — Z_L=2+j20Ω과 공액 정합의 비밀',
+    subtitle: 'ICP는 항상 +jX, CCP는 항상 −jX를 갖는 현실 속에서, Tune Capacitor가 등장하는 이유',
+    theories: [
+      { icon: '🏭', title: '왜 2Ω이 아니라 2+j20Ω인가 — 플라즈마 부하의 현실', body: '지금까지 다룬 Z_L=2Ω(순수 저항)은 이해를 돕기 위한 단순화였습니다. 실제 plasma chamber는 거의 항상 리액턴스 성분을 가집니다 — ICP(Inductively Coupled Plasma)는 코일 구조상 본질적으로 +jX(유도성)를, CCP(Capacitively Coupled Plasma)는 두 전극 사이의 간극 구조상 본질적으로 −jX(용량성)를 갖습니다. 이번 토픽은 더 현실적인 부하 Z_L=2+j20Ω으로 같은 과정을 반복합니다.' },
+      { icon: '🎯', title: '목표 재정의 — 이번엔 전체 회로가 2−j20Ω이 되어야 한다', body: 'Topic 1~4에서는 Source를 포함한 전체 회로가 Z_L=2Ω(허수부 0)에 도달하면 매칭이 끝났습니다. 이번엔 부하가 2+j20Ω이므로, Load Capacitor와 Tune Coil을 거친 후의 전체 임피던스가 정확히 2−j20Ω이 되어야 매칭이 완성됩니다 — 즉 부하의 "공액(Conjugate)"을 만드는 것이 목표로 바뀝니다.' },
+      { icon: '🔧', title: '두 번째 직렬 소자 — Tune Capacitor의 등장', body: 'Topic 4까지의 과정(Load Capacitor로 실수부, Tune Coil로 허수부 0)을 그대로 적용하면 회로는 2Ω(허수부 0)에 도달합니다. 여기서 −j20Ω의 리액턴스를 가진 커패시터를 직렬로 하나 더 연결하면, 2 + 0j − j20 = 2 − j20Ω이 되어 부하 2+j20Ω과 정확히 공액 관계를 이룹니다. 이 마지막 직렬 커패시터가 바로 Tune Capacitor입니다.' },
+      { icon: '🤯', title: '많은 학생이 신기해하는 지점 — 왜 합치면 50Ω이 되는가', body: 'Source(50Ω)에서 Load Capacitor까지의 임피던스(2−j20Ω)와, 그 뒤에 이어지는 부하(2+j20Ω)를 직렬로 더하면 (2−j20)+(2+j20) = 4Ω이 되어야 할 것 같지만, 실제로 선로 위에서 측정되는 임피던스는 어느 지점에서든 50Ω으로 일치합니다. 이 둘은 "더해지는" 관계가 아니라 "마주보고 반사가 사라지는" 관계이기 때문입니다 — 리액턴스가 서로 상쇄되어 순수 저항만 남고, 그 저항이 정확히 전송선로의 특성임피던스 Z₀=50Ω이 보존되도록 설계되었기 때문입니다.' },
+      { icon: '💡', title: '공액 정합의 직관 — 거울처럼 마주보는 두 파동', body: '회로를 어느 한 점에서 절단했을 때, 그 점을 기준으로 왼쪽을 보면 Z_S\'=2−j20Ω, 오른쪽을 보면 Z_L=2+j20Ω입니다. 이 둘이 서로 공액(켤레복소수, X가 정확히 반대 부호)일 때, 그 경계면에서는 입사파와 반사파의 위상이 정확히 맞아떨어져 어느 쪽으로도 에너지가 되튕기지 않습니다 — 이것이 "임피던스가 같다"가 아니라 "임피던스가 공액이다"가 매칭의 진짜 조건인 이유입니다. Source 쪽에서 바라본 전체 회로(Generator+매칭망)의 출력 임피던스가 Z₀=50Ω(순저항)이 되도록 설계되어 있기 때문에, 선로 위 어디를 측정해도 50Ω이 나오는 것입니다.' },
+      { icon: '🧭', title: '요약 — 세 소자, 두 가지 역할', body: 'Load Capacitor(병렬): 실수부를 부하의 R에 맞춘다. Tune Coil(직렬): 부하의 +jX를 상쇄할 만큼 위로 끌어올린다. Tune Capacitor(직렬): 최종 목표인 −jX(공액)까지 끌어내린다. 결국 두 개의 직렬 리액턴스(+j9.798와 −j20)는 하나의 직렬 가변 리액턴스로 합쳐 운용되는 경우가 많으며, 실전 회로에서는 이를 "Tune" 한 개의 손잡이로 표현하기도 합니다.' },
+    ],
+    equations: [
+      { label: '현실적인 플라즈마 부하 (ICP 예시)', tex: 'Z_L = 2 + j20\\,\\Omega' },
+      { label: '목표 — 부하의 공액(Conjugate)', tex: 'Z_{target} = Z_L^{*} = 2 - j20\\,\\Omega' },
+      { label: 'Tune Capacitor의 임피던스', tex: 'Z_{b2} = -j20\\,\\Omega \\quad(\\text{Tune Capacitor})' },
+      { label: '최종 검산 — 경계면에서 위상이 상쇄됨', tex: '(2-j20) + (2+j20) = 4\\,\\Omega \\;\\neq 50\\,\\Omega \\quad(\\text{단순 합산이 아님 — 공액 정합의 조건은 합이 아니라 위상 상쇄})' },
+    ],
+    classroom: {
+      q: '회로의 한 지점을 기준으로 왼쪽이 2−j20Ω, 오른쪽(부하)이 2+j20Ω일 때, 그 지점에서 반사가 전혀 일어나지 않는 이유는?',
+      opts: [
+        { key:'A', text:'두 임피던스를 더하면 정확히 50Ω이 되기 때문', correct: false },
+        { key:'B', text:'두 임피던스가 서로 공액(켤레) 관계여서 경계면에서 위상이 정확히 상쇄되기 때문', correct: true },
+        { key:'C', text:'두 임피던스의 절댓값이 같기 때문', correct: false },
+        { key:'D', text:'리액턴스 성분이 둘 다 0이기 때문', correct: false },
+      ],
+      feedback_ok: '정확합니다! 매칭의 진짜 조건은 "값이 같다"가 아니라 "공액(conjugate)이다"입니다. 실수부(R)는 같고 허수부(X)는 부호만 반대인 두 임피던스가 경계면에서 만나면, 입사파와 반사파의 위상이 정확히 맞물려 반사계수가 0이 됩니다. 두 임피던스를 단순히 더한 값(4Ω)은 이 현상과 직접적인 관련이 없습니다.',
+      feedback_ng: '힌트: Module 4에서 배운 Γ=(Z₁−Z₂)/(Z₁+Z₂)을 떠올려보세요. Z₁=2−j20, Z₂=2+j20을 대입하면 분자가 어떻게 될까요?',
+    },
+    connections: ['d53', 'd55'],
+  },
+
+  /* ── Topic 6 (PDF p.8) ─────────────────────── */
+  {
+    id: 'd55', era: 'm5',
+    eyebrow: 'Topic 6 · Module 05',
+    title: '고정된 회로에서 살아있는 회로로 — Variable Capacitor',
+    subtitle: '가스·웨이퍼·압력이 바뀔 때마다 임피던스도 바뀐다 — Load Cap과 Tune Cap을 가변으로 만드는 이유',
+    theories: [
+      { icon: '📌', title: '지금까지의 전제 — 고정된 부하', body: 'Topic 1~5에서는 부하 임피던스(2Ω, 2+j20Ω)를 하나의 고정된 숫자로 놓고 Load Capacitor와 Tune Coil/Capacitor의 정확한 값을 계산했습니다. 이는 매칭 회로 설계 원리를 익히기 위한 실습이었습니다.' },
+      { icon: '🌀', title: '실제 플라즈마 부하 — 끊임없이 흔들리는 임피던스', body: '실제 공정 중인 plasma chamber의 임피던스는 절대 고정되어 있지 않습니다. 가스 종류와 유량, 챔버 내 압력, RF 파워 레벨, 웨이퍼(시료)의 유무와 종류, 심지어 공정이 진행되며 쌓이는 박막이나 식각 부산물까지 — 이 모든 요인이 임피던스를 초 단위, 때로는 그보다 빠르게 변화시킵니다.' },
+      { icon: '🔄', title: '고정 소자의 한계 — 한 순간만 맞는 회로', body: 'Topic 5에서 계산한 Load Capacitor(−j10.207Ω)와 Tune Coil/Capacitor 값은 정확히 그 순간의 부하(2+j20Ω)에만 들어맞습니다. 부하 임피던스가 조금만 변해도 고정된 값의 소자로는 더 이상 매칭이 유지되지 않고, 다시 반사파와 정재파가 발생합니다.' },
+      { icon: '🎛️', title: '해법 — Load Capacitor와 Tune Capacitor를 가변 소자로', body: '그래서 실제 Matcher는 Load Capacitor와 Tune Capacitor 자리에 고정 커패시터 대신 가변 커패시터(Variable Capacitor)를 사용합니다. 예를 들어 Load Capacitor는 보통 20~500pF 범위(예: 115pF 중심), Tune Capacitor는 15~100pF 범위(예: 58.7pF 중심)에서 연속적으로 값을 바꿀 수 있도록 설계됩니다.' },
+      { icon: '📡', title: 'Smith Chart 위에서 본 가변 매칭 — 움직이는 부하를 쫓아가는 점', body: '부하 임피던스가 2.1+j20Ω 근처에서 2±10j Ω 범위로 흔들린다고 가정하면, Smith Chart 위의 부하 점도 그 범위만큼 흔들립니다. 이때 Load/Tune 커패시터 값을 실시간으로 바꾸면, 매칭 회로가 만들어내는 "공액 목표점"도 함께 움직여 항상 흔들리는 부하를 정확히 따라갈 수 있습니다.' },
+      { icon: '🤖', title: '자동 매칭 시스템(AMN)으로의 완성', body: 'Module 5의 History에서 살펴본 대로, 이 가변 커패시터를 모터로 구동하고 반사파(또는 위상/크기 센서)를 실시간으로 측정해 자동으로 되먹임(feedback)하는 시스템이 바로 오늘날 반도체 장비의 Auto Matching Network(AMN)입니다. 지금까지 손으로 계산한 Load Cap·Tune Coil·Tune Cap의 원리가, 이 자동 시스템 내부에서 초당 수십~수백 번 반복되고 있는 것입니다.' },
+    ],
+    equations: [
+      { label: 'Load Capacitor의 가변 범위 (예시)', tex: 'C_{load} \\in [20,\\,500]\\,\\text{pF}\\quad(\\text{중심값 } 115\\,\\text{pF})' },
+      { label: 'Tune Capacitor의 가변 범위 (예시)', tex: 'C_{tune} \\in [15,\\,100]\\,\\text{pF}\\quad(\\text{중심값 } 58.7\\,\\text{pF})' },
+      { label: '목표 — 매 순간의 Z_L(t)에 대해', tex: 'Z_{in}\\big(C_{load}(t),\\,C_{tune}(t)\\big) = Z_L^{*}(t)\\quad(\\text{실시간 추적})' },
+    ],
+    classroom: {
+      q: '실제 plasma 공정에서 Load Capacitor와 Tune Capacitor를 가변 소자(Variable Capacitor)로 만드는 가장 근본적인 이유는?',
+      opts: [
+        { key:'A', text:'가변 소자가 고정 소자보다 항상 더 저렴하기 때문에', correct: false },
+        { key:'B', text:'가스·압력·웨이퍼 유무 등에 따라 플라즈마 부하 임피던스가 실시간으로 계속 변하기 때문에', correct: true },
+        { key:'C', text:'고정 커패시터는 RF 주파수에서 동작하지 않기 때문에', correct: false },
+        { key:'D', text:'가변 소자만이 Tune Coil과 함께 사용될 수 있기 때문에', correct: false },
+      ],
+      feedback_ok: '정확합니다! 고정된 Load/Tune 커패시터는 딱 한 가지 부하 임피던스에 대해서만 매칭을 완성합니다. 그러나 실제 plasma chamber의 임피던스는 가스, 압력, 파워, 웨이퍼 상태에 따라 끊임없이 변하므로, 그 변화를 실시간으로 따라가려면 커패시터 값 자체를 계속 바꿀 수 있는 가변 소자가 필수입니다.',
+      feedback_ng: '힌트: Module 5의 History 슬라이드에서 다룬 내용을 떠올려보세요 — 안테나(고정 부하)와 plasma chamber(부하)의 가장 큰 차이가 무엇이었나요?',
+    },
+    connections: ['d54'],
+  },
+
+];
+
+const SLIDES_EN = [
+
+  /* ── HISTORY ───────────────────────────────── */
+  {
+    id: 'd50h',
+    era: 'm5',
+    eyebrow: 'History · Module 05',
+    title: 'Why Did Matching Networks Become Necessary?',
+    subtitle: 'From vacuum-tube transmitters to plasma chambers — a century of circuits that "make two impedances equal"',
+    theories: [
+      { icon: '📻', title: 'Origins — Antenna Matching in the Vacuum-Tube Era', body: 'The concept of impedance matching networks traces back to early-20th-century vacuum-tube transmitters. When the output impedance of a vacuum tube differed from that of the antenna, a significant portion of transmitted power was reflected and lost. Engineers inserted matching networks built from L and C elements (L-network, Pi-network, T-network) to minimize this loss.' },
+      { icon: '🧮', title: 'Theoretical Foundation — Combining with the Smith Chart (post-1939)', body: 'The Smith Chart you learned in Module 4 (1939) turned matching-network design from numerical calculation into a graphical task. You could now instantly read off, from the trajectory a point traces on the chart, which type of element (L or C) and what value were needed to transform an arbitrary load impedance to Z₀ (typically 50Ω).' },
+      { icon: '⚙️', title: 'Transplanted into Semiconductor Equipment — RF Generator + Matcher', body: 'As semiconductor plasma processes advanced from the 1980s onward, an Auto Matching Network (AMN) that automatically tracks impedance between the RF Generator (fixed 50Ω output) and the plasma chamber (constantly changing impedance) became essential equipment. This is the origin of the Matcher you always see sitting beside the Generator in today\u2019s RF equipment.' },
+      { icon: '🔁', title: 'Why It Had to Be "Automatic"', body: 'An antenna\u2019s impedance is nearly fixed once installed, but a plasma\u2019s impedance shifts on the order of seconds depending on gas species, pressure, RF power, and wafer presence. Early systems where an operator manually turned dials were soon replaced by closed-loop automatic matching systems that drive variable capacitors with motors.' },
+      { icon: '🎯', title: 'Today\u2019s Goal — Connecting Two Worlds Without Losing Energy', body: 'In Module 5 we will design, from start to finish, the simplest and most widely used matching circuit in practice — the L-network. There is one core question: \u201cHow can we connect the Source\u2019s 50Ω to the plasma\u2019s impedance without wasting a single drop of energy?\u201d' },
+    ],
+    equations: [
+      { label: 'The matching goal condition', tex: 'Z_{source} = Z_{load}^{*}\\quad(\\text{Conjugate Match})' },
+    ],
+    classroom: {
+      q: 'What was the most fundamental reason the matching network between an RF Generator and a Plasma Chamber had to be made "automatic"?',
+      opts: [
+        { key:'A', text:'To make the equipment look more expensive', correct: false },
+        { key:'B', text:'Because the plasma\u2019s impedance keeps changing in real time with gas, pressure, and power conditions', correct: true },
+        { key:'C', text:'Because the RF Generator\u2019s output impedance changes every time', correct: false },
+        { key:'D', text:'Because manually turning a dial was legally prohibited', correct: false },
+      ],
+      feedback_ok: 'Correct! A fixed load like an antenna only needs to be matched once. A plasma, by contrast, constantly shifts with gas species, pressure, RF power, and wafer presence. Tracking that change in real time required a motor-driven automatic system rather than a human hand.',
+      feedback_ng: 'Hint: The RF Generator\u2019s output impedance (50Ω) is essentially fixed. On the other side, what keeps changing inside the plasma chamber?',
+    },
+    connections: ['d50p'],
+  },
+
+  /* ── PROLOGUE ─────────────────────────────── */
+  {
+    id: 'd50p',
+    era: 'm5',
+    eyebrow: 'Prologue · Module 05',
+    title: 'What Does a Matching Network Actually Equalize?',
+    subtitle: 'The "point on a circle" from Module 4 (Smith Chart) now moves through real L and C components',
+    theories: [
+      { icon: '🔁', title: 'Module 4 Recap — Γ=0 as the Destination', body: 'On the Smith Chart, we watched a point travel along an R-circle and a G-circle toward the chart\u2019s center (Γ=0). That point was the impedance of the entire circuit we were building, and reaching the center meant the match was complete. Module 5 is the process of actually turning the dials that move that point — Series/Shunt L and C elements — installing them one at a time on a real schematic.' },
+      { icon: '⚡', title: 'What Happens Without a Match', body: 'When two impedances differ (mismatching), a transmission line always develops a reflected wave, and the result is a standing wave with oscillating voltage. When the standing wave\u2019s voltage peak exceeds the breakdown voltage tolerance of the amplifying device inside the RF Generator, the device is damaged — this is the answer to "why matching is essential" that we confirm first in this module.' },
+      { icon: '🧩', title: 'Why L and C Elements — Not Resistors', body: 'Intuitively, you might want to add a resistor (R) to fix the impedance. But a resistor dissipates power as heat. The RF engineer\u2019s goal is to \u201cdeliver\u201d power, not \u201cdiscard\u201d it, so only reactive elements (L, C) that store energy without consuming it are used. This principle is the first design rule running through all of Module 5.' },
+      { icon: '🎯', title: 'What We Cover Today — Starting with One L-network', body: 'Matching networks come in several forms — L-network, Pi-network, T-network — but we start with the simplest two-element L-network, the one most commonly used in semiconductor RF Generators. One element matches the real part (resistance), the other matches the imaginary part (reactance) — a circuit that completes the match in exactly two moves.' },
+    ],
+    equations: [
+      { label: 'Reflection coefficient — a measure of how well matched', tex: '\\Gamma = \\dfrac{Z_L-Z_S}{Z_L+Z_S}\\;,\\quad \\Gamma=0 \\;\\Leftrightarrow\\; \\text{Perfect match}' },
+    ],
+    classroom: {
+      q: 'What is the most fundamental reason for using reactive elements like inductors (L) or capacitors (C) instead of resistors (R) to match impedance?',
+      opts: [
+        { key:'A', text:'Reactive elements are far cheaper than resistors', correct: false },
+        { key:'B', text:'A resistor dissipates power as heat, while L and C only shift phase without consuming energy', correct: true },
+        { key:'C', text:'Resistors do not work at RF frequencies', correct: false },
+        { key:'D', text:'L and C elements are always physically smaller than R', correct: false },
+      ],
+      feedback_ok: 'Correct! The purpose of matching is to deliver as much incident power as possible to the load. Using a resistor for matching means that resistor itself dissipates part of that power as heat — directly defeating the purpose. L and C only store and return energy, never consuming it, so they can shift impedance by changing reactance alone, with no power loss.',
+      feedback_ng: 'Hint: Recall the true purpose of a matching circuit — delivering the Source\u2019s power to the Load as completely as possible. What happens to that power if you add a resistor?',
+    },
+    connections: ['d50'],
+  },
+
+  /* ── Topic 1 (PDF p.2) ─────────────────────── */
+  {
+    id: 'd50', era: 'm5',
+    eyebrow: 'Topic 1 · Module 05',
+    title: 'The Price of Mismatching — From Standing Waves to Device Failure',
+    subtitle: 'Connecting Zs=50Ω directly to Z_L=2+j20Ω, and confirming what happens through Γ and VSWR calculations',
+    theories: [
+      { icon: '🔌', title: 'Setting Up the Problem — Two Unmatched Impedances', body: 'Consider an RF Generator with source impedance Zs=50Ω connected, through a transmission line (characteristic impedance 50Ω, total length 30m), directly to a realistic plasma load Z_L=2+j20Ω. Since the two values differ, Zs ≠ Z_L — mismatching occurs, and part of the incident wave is necessarily reflected at the load.' },
+      { icon: '🔢', title: 'Calculating Γ and VSWR — Quantifying the Mismatch', body: 'Γ=(Z_L−Z₀)/(Z_L+Z₀)=((2+j20)−50)/((2+j20)+50)≈−0.675+j0.644, |Γ|≈0.933. |Γ| being so close to 1 means most of the incident wave\u2019s energy (|Γ|²≈87%) is reflected back. VSWR=(1+|Γ|)/(1−|Γ|)≈29 — the standing wave\u2019s voltage max-to-min ratio reaches a severe 29:1 mismatch.' },
+      { icon: '🌊', title: 'The Standing Wave Forming on the Transmission Line', body: 'When the incident and reflected waves superimpose on the line, voltage oscillates with position, forming a standing wave. At 13.56MHz with a coax velocity factor (VF) of about 0.66, one wavelength λ≈15m — so the 30m transmission line contains exactly two full wavelengths (four half-wavelengths, i.e. four nodes). The simulator below lets you see that node spacing directly.' },
+      { icon: '🔥', title: 'The Shock Traveling Back into the RF Generator — Threat to the Amplifying Device', body: 'The reflected wave travels back up the transmission line into the RF Generator\u2019s output stage — the power amplifying device (LDMOS, MOSFET, vacuum tube, etc.). If the voltage spike locally produced by the standing wave exceeds the amplifying device\u2019s breakdown voltage rating, the device is damaged either instantly or cumulatively.' },
+      { icon: '💥', title: 'Failures in the Field — Any of Four Locations Can Break', body: 'The threat from mismatching is not confined to the RF Generator alone. Along the path the signal travels, all four locations \u2014 \u2460 RF Generator (amplifying device, output capacitor) \u2461 Connector (coaxial connectors) \u2462 RF Matcher (variable capacitors) \u2463 Plasma & Process (the process itself) \u2014 can each fail or destabilize in their own distinct way. The Diagram tab below walks through each case as a cause-to-effect flow.' },
+      { icon: '🛡️', title: 'The Limits of Protection Circuits — Why Matching Is the Real Solution', body: 'Most RF Generators have a built-in protection circuit (foldback) that automatically reduces or cuts output when VSWR exceeds a threshold. But this is only \u201cthe last line of defense against failure\u201d — the process itself cannot proceed, and power gets clipped. The real solution is to avoid relying on protection circuits at all by making Γ≈0 from the start, eliminating the reflected wave itself — that is the reason matching networks exist.' },
+    ],
+    equations: [
+      { label: 'Reflection coefficient', tex: '\\Gamma = \\dfrac{Z_L-Z_0}{Z_L+Z_0} = \\dfrac{(2+j20)-50}{(2+j20)+50} \\approx -0.675+j0.644' },
+      { label: 'VSWR', tex: '\\text{VSWR} = \\dfrac{1+|\\Gamma|}{1-|\\Gamma|} \\approx \\dfrac{1+0.933}{1-0.933} \\approx 29' },
+      { label: 'Fraction of power reflected', tex: '\\dfrac{P_{reflected}}{P_{incident}} = |\\Gamma|^2 \\approx 0.871\\;(87.1\\%)' },
+      { label: 'Standing wave voltage maximum', tex: 'V_{max} = V^+(1+|\\Gamma|) \\approx 1.93\\,V^+' },
+    ],
+    classroom: {
+      q: 'Among mismatch-related failures, consider this case: "the reflected wave keeps Forward Power high while little power actually reaches the Load, raising the RMS current inside the coax cable, which overheats and damages connectors like SMA or N-Type." Which of the four categories does this belong to?',
+      opts: [
+        { key:'A', text:'\u2460 RF Generator', correct: false },
+        { key:'B', text:'\u2461 Connector', correct: true },
+        { key:'C', text:'\u2462 RF Matcher', correct: false },
+        { key:'D', text:'\u2463 Plasma & Process', correct: false },
+      ],
+      feedback_ok: 'Correct! This case is not about the amplifying device or a variable capacitor \u2014 it is the coaxial connector itself (SMA, N-Type, HN, etc.) along the signal path overheating and failing from excessive RMS current. The key lesson of this topic is that the same underlying cause (reflection) shows up as a different failure depending on where it lands.',
+      feedback_ng: 'Hint: Revisit the "Four Failure Cases" in the Diagram tab. This case happens neither in the amplifying device (Generator) nor in the variable capacitor (Matcher), but at the connection point of the cable carrying the signal.',
+    },
+    connections: ['d50p', 'd51'],
+  },
+
+  /* ── Topic 2 (PDF p.3) ─────────────────────── */
+  {
+    id: 'd51', era: 'm5',
+    eyebrow: 'Topic 2 · Module 05',
+    title: 'The Condition for Maximum Power Transfer — and Why You Must Not Use a Resistor',
+    subtitle: 'The easiest way to make Zs=Z_L is a parallel resistor, but the price is power thrown away',
+    theories: [
+      { icon: '🎯', title: 'The Condition for Maximum Power Transfer', body: 'To deliver maximum power from Source to Load over a transmission line, the source impedance (Zs) and load impedance (Z_L) must be equal. We must choose which one to change, and in practice the approach is to adjust the sending side\u2019s (Generator\u2019s) impedance to follow the load.' },
+      { icon: '🏭', title: 'Why Change the Source, Not the Load — The Reality of the Plasma Chamber', body: 'The load is the reactor of the semiconductor plasma equipment itself. Chamber structure, electrode geometry, gas chemistry, and pressure are determined by process requirements — they cannot be designed to present 50Ω for the sake of RF matching. The realistic choice, then, is to wrap the Generator\u2019s output in an adjustable matching network so it can follow whatever impedance the load happens to present.' },
+      { icon: '🤔', title: 'An Intuitive First Attempt — What If We Add a Resistor in Parallel?', body: 'To bring Zs=50Ω down toward Z_L=2Ω, we need to lower Zs to somewhere near 2Ω. The simplest approach is to connect a small resistor Z_a in parallel with the 50Ω. For example, connecting Z_a=2.09Ω in parallel gives Zs‖Z_a = (50·2.09)/(50+2.09) ≈ 2.006Ω — by the numbers alone, we land almost exactly on 2Ω.' },
+      { icon: '🚫', title: 'The Choice You Must Never Make — Never Use a Resistor for Matching', body: 'And yet an RF power transmission engineer never uses this method. A resistor, when current flows through it, always dissipates power as heat according to P=I²R. The instant you add a 2.09Ω resistor, a significant fraction of the power the Source sent vanishes as heat in that resistor before it ever reaches the load (energy loss by heat) — the impedance number may be correct, but the entire purpose of matching (delivering power to the load) is directly betrayed.' },
+      { icon: '⚖️', title: 'The Key Judgment Criterion — "Matching" Is Not "Discarding"', body: 'There are infinitely many ways to make two impedances equal. Of all of them, the only ones an RF engineer can choose are those satisfying a single condition: shifting impedance without consuming energy. A resistor fails this condition and is immediately disqualified. On the next page, we use the alternative — a reactive element, the capacitor.' },
+    ],
+    equations: [
+      { label: 'Condition for maximum power transfer', tex: 'Z_S = Z_L \\quad\\Rightarrow\\quad P_{load} = P_{max}' },
+      { label: 'Impedance transformation via a parallel resistor (the number checks out…)', tex: 'Z_S \\| Z_a = \\dfrac{Z_S \\cdot Z_a}{Z_S+Z_a} = \\dfrac{50\\cdot 2.09}{50+2.09} \\approx 2.006\\,\\Omega' },
+      { label: 'Power dissipated in the resistor (the loss to be avoided)', tex: 'P_{loss} = I^2 R_a \\;\\neq\\; 0' },
+    ],
+    classroom: {
+      q: 'Adding a resistor in parallel to bring a 50Ω source impedance down to match a 2Ω load gets the impedance value almost exactly to 2Ω. Why do RF engineers still never use this method?',
+      opts: [
+        { key:'A', text:'Calculating the exact resistor value is too complicated', correct: false },
+        { key:'B', text:'The resistor dissipates power as heat from current flow, defeating the very purpose of matching — power delivery', correct: true },
+        { key:'C', text:'A resistor cannot be made smaller than 50Ω', correct: false },
+        { key:'D', text:'Adding a resistor in parallel always increases impedance', correct: false },
+      ],
+      feedback_ok: 'Correct! Matching the impedance "number" and delivering power "without waste" are entirely different problems. A resistor dissipates power as heat via P=I²R, so even though the impedance is correct, the power actually reaching the load is reduced. That is why matching networks are built exclusively from reactive elements (L, C) that do not consume energy.',
+      feedback_ng: 'Hint: Recall what always happens physically when current flows through a resistor (P=I²R). Where does that energy go? Connect this to the fact that the purpose of matching is "delivering power to the load."',
+    },
+    connections: ['d50', 'd52'],
+  },
+
+  /* ── Topic 3 (PDF p.4) ─────────────────────── */
+  {
+    id: 'd52', era: 'm5',
+    eyebrow: 'Topic 3 · Module 05',
+    title: 'Load Capacitor — Matching the Real Part with a Capacitor Instead of a Resistor',
+    subtitle: 'A capacitor connected in parallel achieves the same effect as a resistor, without consuming any energy',
+    theories: [
+      { icon: '🔋', title: 'Enter the Reactive Element — A Capacitor in Parallel', body: 'Having ruled out the resistor in Topic 2, we now connect a purely reactive element, Capacitor Z_a=−j10.207Ω, in the same position (in parallel with the Source). Since its DC resistance component is zero, this purely reactive element consumes no power at all.' },
+      { icon: '🧮', title: 'Confirming by Calculation — The Real Part Lines Up Exactly', body: 'Zs‖Z_a = (50·(−j10.207))/(50+(−j10.207)) = 2.000 − j9.798Ω. Remarkably, the real part lands exactly on 2.000Ω — the same real-part value we obtained with a resistor in Topic 2, but this time with zero power loss.' },
+      { icon: '📛', title: 'Where the Name Comes From — Why "Load Capacitor"', body: 'This capacitor is called a Load Capacitor because it aligns the real part (resistance component) of the load with the real part on the Source side. The "Load" dial commonly seen on a Matcher\u2019s control panel in the field is exactly the knob that adjusts this capacitor\u2019s value.' },
+      { icon: '⚠️', title: 'Not Finished Yet — A Reactive Part Remains', body: 'Looking again at the result, Zs‖Z_a = 2.000 − j9.798Ω. The real part (2.000Ω) matches Z_L=2Ω exactly, but the imaginary part (−j9.798Ω) is still there. For the impedance to become fully equal (Zs‖Z_a = Z_L), this reactive part must also become zero — so the match is not yet complete.' },
+      { icon: '🔍', title: 'Why Negative j — What the Load Capacitor\u2019s Sign Tells Us', body: 'It is no coincidence that the combination Source‖Z_a yielded a negative (−) imaginary part. Adding a Capacitor (−jX) in parallel tends to pull the overall circuit\u2019s reactance in the negative direction. Cancelling this sign precisely is exactly the job of the next step (the Tune Coil).' },
+    ],
+    equations: [
+      { label: 'Impedance of the Load Capacitor', tex: 'Z_a = -j10.207\\,\\Omega \\quad(\\text{Load Capacitor})' },
+      { label: 'Parallel combination — real part matched, imaginary part remains', tex: 'Z_S \\| Z_a = \\dfrac{Z_S \\cdot Z_a}{Z_S+Z_a} = \\dfrac{50\\cdot(-j10.207)}{50+(-j10.207)} = \\underline{2.000} - j9.798\\,\\Omega' },
+      { label: 'Remaining condition for a complete match', tex: '\\text{Im}(Z_S\\|Z_a) = -j9.798\\,\\Omega \\;\\Rightarrow\\; \\text{must be brought to }0' },
+    ],
+    classroom: {
+      q: 'After connecting a Load Capacitor (−j10.207Ω) in parallel with the Source (50Ω), the result is 2.000−j9.798Ω. Which statement about this result is correct?',
+      opts: [
+        { key:'A', text:'Both the real and imaginary parts became zero, so the match is already complete', correct: false },
+        { key:'B', text:'The real part matches the load\u2019s 2Ω, but the imaginary part remains, so the match is not yet finished', correct: true },
+        { key:'C', text:'Because a capacitor consumes power, this result is inefficient', correct: false },
+        { key:'D', text:'A negative real part means there is an error in the circuit', correct: false },
+      ],
+      feedback_ok: 'Correct! A Load Capacitor alone can precisely match only the real part (resistance component) of the impedance. The imaginary part (−j9.798Ω) still remains, so another element is needed to cancel it before the result is fully equal to Z_L=2Ω (which is purely resistive).',
+      feedback_ng: 'Hint: For the match to be complete, Zs‖Z_a must equal Z_L=2Ω exactly (imaginary part of zero). Examine the real and imaginary parts of the calculated result separately.',
+    },
+    connections: ['d51', 'd53'],
+  },
+
+  /* ── Topic 4 (PDF p.5) ─────────────────────── */
+  {
+    id: 'd53', era: 'm5',
+    eyebrow: 'Topic 4 · Module 05',
+    title: 'Tune Coil — The Final Step, Cancelling Out the Reactance',
+    subtitle: 'A single inductor precisely erases the remaining −j9.798Ω, and the match is complete',
+    theories: [
+      { icon: '➕', title: 'The Second Element, Added in Series — An Inductor', body: 'To eliminate the remaining imaginary part of −j9.798Ω from Topic 3, we need to add, in series, an element with reactance of the opposite sign. We connect an inductor (Tune Coil) with reactance +j9.798Ω in series at the circuit\u2019s output.' },
+      { icon: '🧮', title: 'Confirming by Calculation — The Imaginary Part Becomes Exactly Zero', body: 'Since this is a series connection, impedances simply add: (2.000 − j9.798) + j9.798 = 2.000 + 0j = 2Ω. The imaginary part cancels out exactly, and the entire circuit\u2019s impedance now exactly equals Z_L=2Ω.' },
+      { icon: '📛', title: 'Where the Name Comes From — Tune Coil', body: 'This inductor is called a Tune Coil because it leaves the real part set by the Load Capacitor untouched, while \u201cfine-tuning\u201d the remaining reactance (imaginary part) down to zero. The "Tune" dial on a Matcher panel adjusts exactly this inductor\u2019s value (or an equivalent element implemented as a variable capacitor).' },
+      { icon: '✅', title: 'The Match Is Complete — A Circuit Finished in Two Moves', body: 'Source(50Ω) → Load Capacitor (parallel, −j10.207Ω) → Tune Coil (series, +j9.798Ω) → Load(2Ω). With exactly two reactive elements, we have perfectly matched 50Ω to 2Ω with zero power loss. This is the simplest form of L-network matching.' },
+      { icon: '🗺️', title: 'The Big Picture — Load Cap Handles R, Tune Coil Handles X', body: 'Summarized in one sentence: the Load Capacitor is the dial that shifts the real part (resistance), and the Tune Coil is the dial that erases the imaginary part (reactance). This division of roles is exactly the same principle as the R-circle (series movement) and G-circle (parallel movement) trajectories we saw in Module 4\u2019s Smith Chart — we connect the two in the next topic.' },
+    ],
+    equations: [
+      { label: 'Impedance of the Tune Coil', tex: 'Z_{b1} = +j9.798\\,\\Omega \\quad(\\text{Tune Coil})' },
+      { label: 'Series connection — imaginary part cancelled, match complete', tex: '(2.000 - j9.798) + j9.798 = 2.000\\,\\Omega = Z_L' },
+      { label: 'Final configuration of the L-network matching circuit', tex: 'Z_{in} = \\Big(Z_S \\| Z_{a}\\Big) + Z_{b1} = Z_L' },
+    ],
+    classroom: {
+      q: 'After matching the real part with a Load Capacitor (−j10.207Ω, in parallel), how should the Tune Coil be connected to eliminate the remaining imaginary part of −j9.798Ω?',
+      opts: [
+        { key:'A', text:'Connect a +j9.798Ω inductor in parallel', correct: false },
+        { key:'B', text:'Connect a +j9.798Ω inductor in series', correct: true },
+        { key:'C', text:'Connect another −j9.798Ω capacitor in series', correct: false },
+        { key:'D', text:'Connect a 9.798Ω resistor in series', correct: false },
+      ],
+      feedback_ok: 'Correct! Impedances connected in series simply add (Z₁+Z₂), so to exactly cancel the existing −j9.798Ω, you need to add a value with the opposite sign, +j9.798Ω — that is, an inductor (Tune Coil) — in series. Connecting it in parallel would not produce simple addition, so the desired cancellation would not occur.',
+      feedback_ng: 'Hint: Two impedances in series combine as Z_total=Z₁+Z₂. What must you add to bring −j9.798 to zero? And does that value correspond to an inductor or a capacitor?',
+    },
+    connections: ['d52', 'd54'],
+  },
+
+  /* ── Topic 5 (PDF p.6-7) ───────────────────── */
+  {
+    id: 'd54', era: 'm5',
+    eyebrow: 'Topic 5 · Module 05',
+    title: 'A More Realistic Load — Z_L=2+j20Ω and the Secret of Conjugate Matching',
+    subtitle: 'In a world where ICP always has +jX and CCP always has −jX, here is why the Tune Capacitor appears',
+    theories: [
+      { icon: '🏭', title: 'Why 2+j20Ω, Not Just 2Ω — The Reality of a Plasma Load', body: 'The Z_L=2Ω (purely resistive) we used so far was a simplification to aid understanding. A real plasma chamber almost always carries a reactive component — ICP (Inductively Coupled Plasma) is inherently inductive (+jX) due to its coil structure, while CCP (Capacitively Coupled Plasma) is inherently capacitive (−jX) due to the gap structure between its two electrodes. This topic repeats the same process with a more realistic load, Z_L=2+j20Ω.' },
+      { icon: '🎯', title: 'Redefining the Goal — This Time the Whole Circuit Must Become 2−j20Ω', body: 'In Topics 1–4, the match was complete once the entire circuit including the Source reached Z_L=2Ω (zero imaginary part). This time, since the load is 2+j20Ω, the total impedance after the Load Capacitor and Tune Coil must become exactly 2−j20Ω for the match to be complete — the goal shifts to producing the "conjugate" of the load.' },
+      { icon: '🔧', title: 'A Second Series Element — Enter the Tune Capacitor', body: 'Applying the same process as through Topic 4 (Load Capacitor for the real part, Tune Coil to zero out the imaginary part) brings the circuit to 2Ω (zero imaginary part). From here, adding one more capacitor in series with reactance −j20Ω gives 2 + 0j − j20 = 2 − j20Ω, which is exactly the conjugate of the load 2+j20Ω. This final series capacitor is the Tune Capacitor.' },
+      { icon: '🤯', title: 'The Point Many Students Find Surprising — Why Does the Sum Become 50Ω?', body: 'You might expect that adding the impedance from the Source up to the Load Capacitor (2−j20Ω) and the load that follows it (2+j20Ω) in series should give (2−j20)+(2+j20) = 4Ω. Yet the impedance measured at any point along the line actually reads 50Ω. That is because these two are not in a "summing" relationship but a "facing each other with reflection cancelled" relationship — the reactances cancel each other out, leaving only pure resistance, and that resistance is designed to preserve exactly the transmission line\u2019s characteristic impedance Z₀=50Ω.' },
+      { icon: '💡', title: 'The Intuition Behind Conjugate Matching — Two Waves Facing Each Other Like Mirror Images', body: 'If you cut the circuit at a particular point, looking left you see Z_S\u2019=2−j20Ω, and looking right you see Z_L=2+j20Ω. When these two are conjugates of each other (the same R, with X exactly opposite in sign), the phases of the incident and reflected waves align perfectly at that boundary, so no energy bounces back in either direction — this is why "impedances being conjugate," not "impedances being equal," is the true condition for matching. Because the overall circuit (Generator + matching network), viewed from the Source side, is designed so its output impedance is Z₀=50Ω (purely resistive), you read 50Ω no matter where on the line you measure.' },
+      { icon: '🧭', title: 'Summary — Three Elements, Two Roles', body: 'Load Capacitor (parallel): matches the real part to the load\u2019s R. Tune Coil (series): pulls the reactance up enough to cancel the load\u2019s +jX. Tune Capacitor (series): pulls it the rest of the way down to the final target, −jX (the conjugate). In practice, the two series reactances (+j9.798 and −j20) are often combined and operated as a single variable series reactance, sometimes presented in real circuits as one "Tune" dial.' },
+    ],
+    equations: [
+      { label: 'A realistic plasma load (ICP example)', tex: 'Z_L = 2 + j20\\,\\Omega' },
+      { label: 'The goal — the conjugate of the load', tex: 'Z_{target} = Z_L^{*} = 2 - j20\\,\\Omega' },
+      { label: 'Impedance of the Tune Capacitor', tex: 'Z_{b2} = -j20\\,\\Omega \\quad(\\text{Tune Capacitor})' },
+      { label: 'A final check — phases cancel at the boundary', tex: '(2-j20) + (2+j20) = 4\\,\\Omega \\;\\neq 50\\,\\Omega \\quad(\\text{not simple addition — the conjugate-match condition is phase cancellation, not summation})' },
+    ],
+    classroom: {
+      q: 'At a point in the circuit where looking left gives 2−j20Ω and looking right (toward the load) gives 2+j20Ω, why is there no reflection at all at that point?',
+      opts: [
+        { key:'A', text:'Because adding the two impedances together gives exactly 50Ω', correct: false },
+        { key:'B', text:'Because the two impedances are conjugates of each other, so the phases cancel exactly at the boundary', correct: true },
+        { key:'C', text:'Because the magnitudes of the two impedances are equal', correct: false },
+        { key:'D', text:'Because the reactive components of both are zero', correct: false },
+      ],
+      feedback_ok: 'Correct! The true condition for matching is not "equal value" but "conjugate." When two impedances have the same real part (R) and reactances (X) that are exactly opposite in sign, the incident and reflected waves\u2019 phases align perfectly at the boundary, making the reflection coefficient zero. Simply summing the two impedances (4Ω) has no direct bearing on this phenomenon.',
+      feedback_ng: 'Hint: Recall Γ=(Z₁−Z₂)/(Z₁+Z₂) from Module 4. What happens to the numerator if you substitute Z₁=2−j20 and Z₂=2+j20?',
+    },
+    connections: ['d53', 'd55'],
+  },
+
+  /* ── Topic 6 (PDF p.8) ─────────────────────── */
+  {
+    id: 'd55', era: 'm5',
+    eyebrow: 'Topic 6 · Module 05',
+    title: 'From a Fixed Circuit to a Living One — Variable Capacitors',
+    subtitle: 'Impedance shifts every time gas, wafer, or pressure changes — why the Load Cap and Tune Cap become variable',
+    theories: [
+      { icon: '📌', title: 'Our Assumption So Far — A Fixed Load', body: 'In Topics 1–5, we treated the load impedance (2Ω, 2+j20Ω) as one fixed number and calculated exact values for the Load Capacitor and Tune Coil/Capacitor. This was an exercise to learn the matching-network design principles.' },
+      { icon: '🌀', title: 'The Real Plasma Load — Impedance That Never Stops Shifting', body: 'The impedance of an actual plasma chamber during processing is never fixed. Gas species and flow rate, chamber pressure, RF power level, the presence and type of wafer (sample), and even thin films or etch byproducts that accumulate as the process proceeds — all of these shift the impedance on the order of seconds, sometimes faster.' },
+      { icon: '🔄', title: 'The Limits of Fixed Elements — A Circuit That\u2019s Right for Only One Moment', body: 'The Load Capacitor (−j10.207Ω) and Tune Coil/Capacitor values calculated in Topic 5 are correct only for the load (2+j20Ω) at that exact instant. The moment the load impedance shifts even slightly, fixed-value elements can no longer maintain the match, and reflected waves and standing waves return.' },
+      { icon: '🎛️', title: 'The Solution — Making the Load Capacitor and Tune Capacitor Variable', body: 'This is why a real Matcher uses Variable Capacitors instead of fixed capacitors in the Load Capacitor and Tune Capacitor positions. The Load Capacitor, for example, is typically designed to vary continuously over a 20–500pF range (e.g., centered around 115pF), and the Tune Capacitor over a 15–100pF range (e.g., centered around 58.7pF).' },
+      { icon: '📡', title: 'Variable Matching on the Smith Chart — A Point Chasing a Moving Load', body: 'If the load impedance wanders within a range around 2.1+j20Ω, say roughly 2±10j Ω, the load point on the Smith Chart wanders by that same range. By adjusting the Load/Tune capacitor values in real time, the matching circuit\u2019s "conjugate target point" moves along with it, allowing it to precisely follow a constantly shifting load.' },
+      { icon: '🤖', title: 'Completing the Picture — The Automatic Matching System (AMN)', body: 'As we saw in Module 5\u2019s History, the system that drives these variable capacitors with motors and continuously measures the reflected wave (or phase/magnitude sensors) to feed back automatically is exactly today\u2019s semiconductor-equipment Auto Matching Network (AMN). The principles of the Load Cap, Tune Coil, and Tune Cap that we have just calculated by hand are repeated tens to hundreds of times per second inside that automatic system.' },
+    ],
+    equations: [
+      { label: 'Load Capacitor variable range (example)', tex: 'C_{load} \\in [20,\\,500]\\,\\text{pF}\\quad(\\text{centered at } 115\\,\\text{pF})' },
+      { label: 'Tune Capacitor variable range (example)', tex: 'C_{tune} \\in [15,\\,100]\\,\\text{pF}\\quad(\\text{centered at } 58.7\\,\\text{pF})' },
+      { label: 'Goal — for the load Z_L(t) at every instant', tex: 'Z_{in}\\big(C_{load}(t),\\,C_{tune}(t)\\big) = Z_L^{*}(t)\\quad(\\text{real-time tracking})' },
+    ],
+    classroom: {
+      q: 'What is the most fundamental reason the Load Capacitor and Tune Capacitor are made into Variable Capacitors in an actual plasma process?',
+      opts: [
+        { key:'A', text:'Variable elements are always cheaper than fixed elements', correct: false },
+        { key:'B', text:'The plasma load impedance keeps changing in real time with gas, pressure, and wafer presence', correct: true },
+        { key:'C', text:'Fixed capacitors do not operate at RF frequencies', correct: false },
+        { key:'D', text:'Only a variable element can be used together with a Tune Coil', correct: false },
+      ],
+      feedback_ok: 'Correct! A fixed Load/Tune capacitor completes the match for exactly one load impedance. But the impedance of a real plasma chamber constantly shifts with gas, pressure, power, and wafer state, so following that shift in real time requires elements whose capacitance value can itself keep changing.',
+      feedback_ng: 'Hint: Recall the History slide in Module 5 — what was the key difference between an antenna (fixed load) and a plasma chamber (load)?',
+    },
+    connections: ['d54'],
+  },
+
+];
+
+let currentLang = 'en';
+let currentId   = 'd50h';
+let currentTab  = 'diagram';
+
+function slides() { return currentLang === 'ko' ? SLIDES_KO : SLIDES_EN; }
+function getSlide(id) { return slides().find(s => s.id === id); }
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+const ERA_COLORS = { m5: '#C8860D' };
+const SB_ICONS = {
+  d50h:'📻', d50p:'🧩', d50:'🔥', d51:'🚫', d52:'🔋', d53:'➕', d54:'🤯', d55:'🎛️'
+};
+const SB_SUBS_KO = {
+  d50h:'L-network 매칭의 100년', d50p:'Smith Chart의 점이 소자로 움직인다',
+  d50:'미스매치 → 정재파 → 소자 파손', d51:'왜 저항을 쓰면 안 되는가',
+  d52:'Load Capacitor — 실수부 맞추기', d53:'Tune Coil — 허수부 상쇄',
+  d54:'2+j20Ω 부하와 공액 정합', d55:'가변 소자와 Auto Matching',
+};
+const SB_SUBS_EN = {
+  d50h:'A Century of L-network Matching', d50p:'The Smith Chart Point Now Moves Through Real Parts',
+  d50:'Mismatch → Standing Wave → Device Failure', d51:'Why You Must Not Use a Resistor',
+  d52:'Load Capacitor \u2014 Matching the Real Part', d53:'Tune Coil \u2014 Cancelling the Reactance',
+  d54:'A 2+j20Ω Load and Conjugate Matching', d55:'Variable Elements and Auto Matching',
+};
+
+function renderSidebar() {
+  const sl = slides();
+  const nl = document.getElementById('nav-list');
+  nl.innerHTML = '';
+  sl.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'sb-item' + (s.id === currentId ? ' active' : '');
+    div.onclick = () => navigateTo(s.id);
+    const color = ERA_COLORS[s.era] || '#C8860D';
+    const alpha = s.placeholder ? '0.45' : '1';
+    const sub = currentLang === 'ko' ? SB_SUBS_KO[s.id] : SB_SUBS_EN[s.id];
+    div.style.opacity = alpha;
+    div.innerHTML = `
+      <div class="sb-dot" style="background:${color}20;color:${color}">${SB_ICONS[s.id]||'●'}</div>
+      <div>
+        <div class="sb-label">${s.title}</div>
+        <div class="sb-sub">${sub||''}</div>
+      </div>`;
+    nl.appendChild(div);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const sl = slides();
+  const idx = sl.findIndex(s => s.id === currentId);
+  const pct = sl.length > 1 ? (idx / (sl.length - 1)) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ═══════════════════════════════════════════
+   DIAGRAM BUILDERS
+═══════════════════════════════════════════ */
+
+function buildD50hDiagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge amber">📻 History</span>
+    <span class="d-title">${isEn ? 'From Tube Transmitters to Auto Matching Networks' : '진공관 송신기에서 자동 매칭 시스템까지'}</span>
+  </div>
+  <div class="d-body">
+    <svg viewBox="0 0 720 290" style="width:100%;height:auto;font-family:'Google Sans',sans-serif">
+      <defs>
+        <marker id="m5arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="#C8860D"/>
+        </marker>
+      </defs>
+      <line x1="40" y1="145" x2="680" y2="145" stroke="#D8D5CE" stroke-width="2" marker-end="url(#m5arrow)"/>
+      <text x="660" y="130" font-size="11" fill="#9A8A68" text-anchor="end">${isEn?'time':'시간'}</text>
+
+      <!-- Era 1: vacuum tube -->
+      <g>
+        <circle cx="120" cy="145" r="34" fill="#FFF8EC" stroke="#C8860D" stroke-width="2"/>
+        <text x="120" y="141" font-size="22" text-anchor="middle">📻</text>
+        <text x="120" y="160" font-size="9" text-anchor="middle" fill="#7A5200">1920s</text>
+      </g>
+      <text x="120" y="205" font-size="11" font-weight="700" text-anchor="middle" fill="#3C3530">${isEn?'Vacuum-tube':'진공관'}</text>
+      <text x="120" y="219" font-size="11" font-weight="700" text-anchor="middle" fill="#3C3530">${isEn?'transmitters':'송신기'}</text>
+      <text x="120" y="236" font-size="9.5" text-anchor="middle" fill="#9A8A68">${isEn?'L/Pi/T networks':'L/Pi/T 네트워크'}</text>
+
+      <!-- Era 2: Smith chart -->
+      <g>
+        <circle cx="290" cy="145" r="34" fill="#FFF8EC" stroke="#C8860D" stroke-width="2"/>
+        <text x="290" y="141" font-size="22" text-anchor="middle">⭕</text>
+        <text x="290" y="160" font-size="9" text-anchor="middle" fill="#7A5200">1939</text>
+      </g>
+      <text x="290" y="205" font-size="11" font-weight="700" text-anchor="middle" fill="#3C3530">Smith Chart</text>
+      <text x="290" y="219" font-size="9.5" text-anchor="middle" fill="#9A8A68">${isEn?'graphical matching':'그래픽 매칭 설계'}</text>
+
+      <!-- Era 3: semiconductor RF -->
+      <g>
+        <circle cx="460" cy="145" r="34" fill="#FFF8EC" stroke="#C8860D" stroke-width="2"/>
+        <text x="460" y="141" font-size="22" text-anchor="middle">⚙️</text>
+        <text x="460" y="160" font-size="9" text-anchor="middle" fill="#7A5200">1980s~</text>
+      </g>
+      <text x="460" y="205" font-size="11" font-weight="700" text-anchor="middle" fill="#3C3530">${isEn?'RF Generator':'RF Generator'}</text>
+      <text x="460" y="219" font-size="11" font-weight="700" text-anchor="middle" fill="#3C3530">+ Matcher</text>
+      <text x="460" y="236" font-size="9.5" text-anchor="middle" fill="#9A8A68">${isEn?'fixed semiconductor tools':'반도체 고정 장비'}</text>
+
+      <!-- Era 4: AMN -->
+      <g>
+        <circle cx="610" cy="145" r="34" fill="#FFF8EC" stroke="#C8860D" stroke-width="2.4"/>
+        <text x="610" y="141" font-size="22" text-anchor="middle">🤖</text>
+        <text x="610" y="160" font-size="9" text-anchor="middle" fill="#7A5200">${isEn?'Today':'오늘'}</text>
+      </g>
+      <text x="610" y="205" font-size="11" font-weight="700" text-anchor="middle" fill="#3C3530">Auto Matching</text>
+      <text x="610" y="219" font-size="11" font-weight="700" text-anchor="middle" fill="#3C3530">Network (AMN)</text>
+      <text x="610" y="236" font-size="9.5" text-anchor="middle" fill="#9A8A68">${isEn?'motor-driven, closed loop':'모터 구동, 폐루프'}</text>
+    </svg>
+
+    <div class="callout amber">
+      <div class="callout-title">📡 ${isEn?'Antenna vs. Plasma — Why "Auto" Became Essential':'안테나 vs. 플라즈마 — "자동"이 필수가 된 이유'}</div>
+      ${isEn
+        ? 'An antenna\u2019s impedance is set once at installation. A plasma chamber\u2019s impedance shifts continuously with gas, pressure, RF power, and wafer presence \u2014 so the matching network had to evolve from a hand-tuned dial into a motor-driven, sensor-fed automatic system.'
+        : '안테나는 설치 시점에 임피던스가 거의 고정됩니다. 반면 플라즈마 챔버의 임피던스는 가스, 압력, RF 파워, 웨이퍼 유무에 따라 끊임없이 변하므로 \u2014 매칭 회로는 손으로 돌리는 다이얼에서 모터로 구동되는 센서 피드백 자동 시스템으로 진화해야 했습니다.'}
+    </div>
+  </div>
+</div>`;
+}
+
+function buildD50pDiagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge amber">🧩 Prologue</span>
+    <span class="d-title">${isEn ? 'Three Reasons a Match Matters' : '매칭이 중요한 세 가지 이유'}</span>
+  </div>
+  <div class="d-body">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:1.6rem;margin-bottom:6px">⚡</div>
+        <div style="font-weight:700;font-size:0.86rem;color:var(--text);margin-bottom:6px">
+          ${isEn?'Mismatch → Damage':'미스매치 → 소자 손상'}
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-sub);line-height:1.6">
+          ${isEn?'Reflected waves build standing-wave peaks that can exceed the amplifier\u2019s breakdown voltage.':'반사파가 정재파 전압 피크를 만들고, 이는 증폭소자의 내압을 넘어설 수 있습니다.'}
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:1.6rem;margin-bottom:6px">🚫</div>
+        <div style="font-weight:700;font-size:0.86rem;color:var(--text);margin-bottom:6px">
+          ${isEn?'Reactive, Not Resistive':'리액티브, 저항 아님'}
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-sub);line-height:1.6">
+          ${isEn?'Only L and C \u2014 elements that store energy instead of burning it \u2014 belong in a matching network.':'L, C만 사용합니다 — 전력을 태우지 않고 저장만 하는 소자여야 합니다.'}
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px">
+        <div style="font-size:1.6rem;margin-bottom:6px">🎯</div>
+        <div style="font-weight:700;font-size:0.86rem;color:var(--text);margin-bottom:6px">
+          ${isEn?'Two Moves, Two Roles':'두 번의 손길, 두 역할'}
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-sub);line-height:1.6">
+          ${isEn?'One element fixes the real part, the other fixes the reactive part \u2014 exactly the L-network we build this module.':'하나는 실수부를, 다른 하나는 허수부를 맞춥니다 — 이번 모듈에서 만드는 L-network 그대로입니다.'}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout amber" style="margin-top:16px">
+      <div class="callout-title">🔁 ${isEn?'Same Destination as Module 4':'Module 4와 같은 목적지'}</div>
+      ${isEn
+        ? 'In Module 4, a point slid along R-circles and G-circles toward Γ=0. In Module 5, that point is no longer abstract \u2014 it is the impedance looking into a real schematic, and each circle-slide corresponds to physically installing one capacitor or inductor.'
+        : 'Module 4에서는 한 점이 R-circle과 G-circle을 따라 Γ=0으로 미끄러졌습니다. Module 5에서는 그 점이 더 이상 추상적이지 않습니다 — 실제 회로도를 바라본 임피던스이며, 원을 따라 미끄러지는 각 동작이 곧 커패시터나 인덕터를 하나씩 설치하는 과정입니다.'}
+    </div>
+  </div>
+</div>`;
+}
+
+function buildD50Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge amber">🔥 Topic 1 Lab</span>
+    <span class="d-title">${isEn ? 'Mismatch → Standing Wave → Failure' : '미스매치 → 정재파 → 고장'}</span>
+  </div>
+  <div class="d-body">
+
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px">
+      <div style="font-size:0.74rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                  letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+        ${isEn ? 'Choose the load \u2014 watch the standing wave envelope' : '부하를 선택하세요 — 정재파 envelope를 확인합니다'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="sim-btn active" id="d50-load-mismatch" onclick="setD50Load('mismatch')">Z_L = 2 + j20 Ω</button>
+        <button class="sim-btn" id="d50-load-matched" onclick="setD50Load('matched')">Z_L = 50 Ω (${isEn?'matched':'정합'})</button>
+        <button class="sim-btn" id="d50-play" onclick="toggleD50Play()" style="margin-left:auto;border-color:var(--green);color:var(--green)">
+          ▶ ${isEn?'Animate':'애니메이션'}
+        </button>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+      <canvas id="d50-canvas" data-w="700" data-h="220" style="width:100%;height:220px;border-radius:6px;background:#FAFBFF"></canvas>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:0.7rem;color:var(--text-sub);font-family:'Google Sans',sans-serif">
+        <span><span style="display:inline-block;width:16px;height:2px;background:#1A6FB5;margin-right:4px;vertical-align:2px"></span>${isEn?'Instantaneous V(z,t)':'순간 전압 파형 V(z,t)'}</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#C0392B;margin-right:4px;vertical-align:-1px"></span>${isEn?'Standing-wave envelope (VSWR shape)':'정재파 envelope (VSWR 포락선)'}</span>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;border-radius:12px;padding:16px 18px;margin-bottom:14px" id="d50-readout">
+    </div>
+
+
+    <div style="font-size:0.74rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;font-family:var(--mono)">
+      💥 ${isEn?'Four Failure Cases — Same Reflection, Four Different Breakdowns':'네 가지 고장 케이스 — 같은 반사, 서로 다른 파손'}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #C0392B;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#C0392B;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">
+          ① RF Generator
+        </div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:8px">
+          ${isEn?'Output Capacitor Breakdown':'출력 Capacitor Breakdown'}
+        </div>
+        <div style="font-size:0.74rem;color:var(--text-sub);line-height:1.95;font-family:var(--mono)">
+          ${isEn?'Reflection raises voltage at a specific point':'반사파로 인해 특정 지점의 전압 상승'}<br/>
+          ↓<br/>
+          ${isEn?'Output DC Block Capacitor':'Output DC Block Capacitor'}<br/>
+          ↓<br/>
+          ${isEn?'Rating exceeded':'정격 초과'}<br/>
+          ↓<br/>
+          <span style="color:#C0392B;font-weight:700">${isEn?'Crack or flashover':'Crack 또는 Flashover'}</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #1A6FB5;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#1A6FB5;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">
+          ③ RF Matcher
+        </div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:8px">
+          ${isEn?'Internal Arc in the Matching Box':'Matching Box 내부 Arc'}
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-sub);margin-bottom:6px">
+          ${isEn?'Especially common at 13.56 MHz / a few kW':'특히 13.56 MHz, 수 kW에서 흔함'}
+        </div>
+        <div style="font-size:0.74rem;color:var(--text-sub);line-height:1.95;font-family:var(--mono)">
+          ${isEn?'Discharge inside the variable capacitor at V_max':'전압 최대점(Vmax)에서 가변 Capacitor 내부 방전'}<br/>
+          ↓<br/>
+          <span style="color:#1A6FB5;font-weight:700">${isEn?'Arc occurs':'Arc 발생'}</span><br/>
+          ↓<br/>
+          <span style="color:#1A6FB5;font-weight:700">${isEn?'Capacitor damaged':'Capacitor 손상'}</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #0F8C50;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#0F8C50;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">
+          ② Connector
+        </div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:8px">
+          ${isEn?'Coax Connector Overheating':'Coax Connector 과열'}
+        </div>
+        <div style="font-size:0.74rem;color:var(--text-sub);line-height:1.95;font-family:var(--mono)">
+          ${isEn?'Forward Power stays high but barely reaches the Load':'반사로 인해 Forward Power는 높은데 실제 Load로는 안 감'}<br/>
+          ↓<br/>
+          ${isEn?'RMS current rises inside the coax cable':'동축 케이블 내부 RMS Current 증가'}<br/>
+          ↓<br/>
+          ${isEn?'Connector heats up':'Connector 발열'}<br/>
+          ↓<br/>
+          <span style="color:#0F8C50;font-weight:700">SMA, N-Type, HN ${isEn?'connector damage':'Connector 손상'}</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #7030A0;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#7030A0;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">
+          ④ Plasma & Process
+        </div>
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text);margin-bottom:8px">
+          ${isEn?'Plasma Instability':'플라즈마 불안정'}
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-sub);margin-bottom:6px">
+          ${isEn?'On real fab tools this often shows up as a process problem before the Generator ever complains':'실제 반도체 장비에서는 RF Generator보다 공정 문제로 먼저 나타남'}
+        </div>
+        <div style="font-size:0.74rem;color:var(--text-sub);line-height:1.95;font-family:var(--mono)">
+          ${isEn?'e.g., Plasma Flickering, Plasma Extinction, density shift':'예: Plasma Flickering, Plasma Extinction, Density 변화'}<br/>
+          ↓<br/>
+          ${isEn?'Etch rate shifts':'Etch Rate 변화'}<br/>
+          ↓<br/>
+          <span style="color:#7030A0;font-weight:700">${isEn?'CD defect':'CD 불량'}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout red" style="margin-top:16px">
+      <div class="callout-title">🛡️ ${isEn?'Protection Circuits Are a Last Resort, Not a Fix':'보호 회로는 최후 수단일 뿐, 해법이 아닙니다'}</div>
+      ${isEn
+        ? 'Foldback protection prevents catastrophic failure by cutting power \u2014 but the process itself loses power and cannot proceed normally. Eliminating the reflected wave at its source (Γ\u22480) through matching is the only solution that does not sacrifice process performance.'
+        : '폴드백 보호 회로는 전력을 줄여 치명적 고장은 막지만, 그만큼 공정 자체의 파워가 깎여 정상 진행이 어려워집니다. 매칭을 통해 반사파 자체를 근원에서 없애는 것(Γ≈0)만이 공정 성능을 희생하지 않는 유일한 해법입니다.'}
+    </div>
+
+  </div>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIMULATOR — Topic 1 (d50): standing wave on the line
+   13.56MHz, VF\u22480.66 => \u03bb \u2248 15m, line length = 30m (\u2248 2\u03bb, \u2248 4 half-wavelengths)
+   z is measured from the LOAD (z=0 at load) toward the SOURCE (z=L at source).
+═══════════════════════════════════════════ */
+var D50_Z0 = 50;
+var D50_F = 13.56e6;
+var D50_VF = 0.66;
+var D50_C = 3e8;
+var D50_LAMBDA = (D50_C / D50_F) * D50_VF;      // \u2248 14.6 m
+var D50_BETA = 2 * Math.PI / D50_LAMBDA;         // rad/m
+var D50_LINE_LEN = 30;                            // m, Source-to-Load distance
+var D50_LOADS = {
+  mismatch: { R: 2,  X: 20 },
+  matched:  { R: 50, X: 0  },
+};
+window._d50LoadKey = 'mismatch';
+window._d50Playing = false;
+window._d50PlayTimer = null;
+window._d50Phase = 0;
+
+function d50Gamma(R, X) {
+  var Z0 = D50_Z0;
+  var numRe = R - Z0, numIm = X, denRe = R + Z0, denIm = X;
+  var denMag2 = denRe*denRe + denIm*denIm || 1e-9;
+  return { re: (numRe*denRe + numIm*denIm)/denMag2, im: (numIm*denRe - numRe*denIm)/denMag2 };
+}
+
+// Instantaneous (normalized, Vplus=1) voltage at distance z from the LOAD, at phase wt (animation time)
+// V(z,t) = Re[ (e^{j\u03b2z} + \u0393_L e^{-j\u03b2z}) e^{jwt} ]
+function d50InstantV(z, R, X, wt) {
+  var G = d50Gamma(R, X);
+  var phPlus = D50_BETA * z;
+  var phMinus = -D50_BETA * z;
+  // forward wave phasor e^{j\u03b2z}, reflected wave phasor \u0393_L * e^{-j\u03b2z}
+  var fRe = Math.cos(phPlus), fIm = Math.sin(phPlus);
+  var rRe = G.re*Math.cos(phMinus) - G.im*Math.sin(phMinus);
+  var rIm = G.re*Math.sin(phMinus) + G.im*Math.cos(phMinus);
+  var totRe = fRe + rRe, totIm = fIm + rIm;
+  // multiply by e^{jwt} and take real part: Re[(totRe+j*totIm)(cos(wt)+j sin(wt))]
+  return totRe*Math.cos(wt) - totIm*Math.sin(wt);
+}
+
+// Envelope (VSWR shape) at distance z from the LOAD
+function d50Envelope(z, R, X) {
+  var G = d50Gamma(R, X);
+  var mag = Math.sqrt(G.re*G.re + G.im*G.im);
+  var ang = Math.atan2(G.im, G.re);
+  return Math.sqrt(1 + mag*mag + 2*mag*Math.cos(2*D50_BETA*z - ang));
+}
+
+window.setD50Load = function(key) {
+  window._d50LoadKey = key;
+  document.querySelectorAll('[id^="d50-load-"]').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('d50-load-' + key);
+  if (btn) btn.classList.add('active');
+  renderD50();
+};
+
+window.toggleD50Play = function() {
+  window._d50Playing = !window._d50Playing;
+  var btn = document.getElementById('d50-play');
+  var isEn = currentLang === 'en';
+  if (window._d50Playing) {
+    if (btn) { btn.classList.add('active'); btn.innerHTML = '⏸ ' + (isEn?'Pause':'정지'); }
+    window._d50PlayTimer = setInterval(function() {
+      window._d50Phase += 0.18;
+      drawD50Canvas();
+    }, 40);
+  } else {
+    if (btn) { btn.classList.remove('active'); btn.innerHTML = '▶ ' + (isEn?'Animate':'애니메이션'); }
+    if (window._d50PlayTimer) { clearInterval(window._d50PlayTimer); window._d50PlayTimer = null; }
+  }
+};
+
+function renderD50() {
+  drawD50Canvas();
+  updateD50Readout();
+}
+
+function drawD50Canvas() {
+  var canvas = document.getElementById('d50-canvas');
+  if (!canvas) return;
+  var hi = setupHiDPI(canvas);
+  var ctx = hi.ctx, W = hi.W, H = hi.H;
+  var isEn = currentLang === 'en';
+  var MONO = "'JetBrains Mono',monospace";
+
+  var L = D50_LOADS[window._d50LoadKey];
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFF'; ctx.fillRect(0,0,W,H);
+
+  // layout: Source at left (z=L, i.e. 30m from load), Load at right (z=0)
+  var padL = 60, padR = 60;
+  var lineY = H*0.5;
+  var x0 = padL, x1 = W - padR; // x0 = Source side, x1 = Load side
+  var ampPx = H*0.36; // pixels per unit normalized voltage (Vplus=1 maps to ampPx)
+
+  function zOfX(x) {
+    // z measured from the load: at x1 (load) z=0, at x0 (source) z=D50_LINE_LEN
+    var t = (x1 - x) / (x1 - x0); // 0 at load, 1 at source
+    return t * D50_LINE_LEN;
+  }
+
+  // baseline
+  ctx.strokeStyle = '#3C3530'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x0,lineY); ctx.lineTo(x1,lineY); ctx.stroke();
+
+  // envelope (upper & lower) as a filled red dotted curve, and instantaneous wave as blue line
+  var N = 240;
+  ctx.beginPath();
+  for (var i=0;i<=N;i++) {
+    var x = x0 + (x1-x0)*i/N;
+    var z = zOfX(x);
+    var env = d50Envelope(z, L.R, L.X);
+    var y = lineY - env*ampPx;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  for (var i=N;i>=0;i--) {
+    var x = x0 + (x1-x0)*i/N;
+    var z = zOfX(x);
+    var env = d50Envelope(z, L.R, L.X);
+    var y = lineY + env*ampPx;
+    ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(192,57,43,0.07)';
+  ctx.fill();
+
+  // envelope curves (dotted, red) -- this is the SWR envelope, the "boundary" the wave oscillates within
+  ctx.strokeStyle = '#C0392B'; ctx.lineWidth = 1.6; ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  for (var i=0;i<=N;i++) {
+    var x = x0 + (x1-x0)*i/N;
+    var z = zOfX(x);
+    var env = d50Envelope(z, L.R, L.X);
+    var y = lineY - env*ampPx;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.beginPath();
+  for (var i=0;i<=N;i++) {
+    var x = x0 + (x1-x0)*i/N;
+    var z = zOfX(x);
+    var env = d50Envelope(z, L.R, L.X);
+    var y = lineY + env*ampPx;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // instantaneous wave (solid, blue)
+  ctx.strokeStyle = '#1A6FB5'; ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  for (var i=0;i<=N;i++) {
+    var x = x0 + (x1-x0)*i/N;
+    var z = zOfX(x);
+    var v = d50InstantV(z, L.R, L.X, window._d50Phase);
+    var y = lineY - v*ampPx;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // markers: node / antinode dots on the upper envelope (visual reference)
+  // mark the half-wavelength spacing along the bottom axis
+  ctx.fillStyle = '#9A8A68'; ctx.font = '9px ' + MONO; ctx.textAlign = 'center';
+  var halfLambdaPx = (x1-x0) * (D50_LAMBDA/2) / D50_LINE_LEN;
+  var nTicks = Math.floor(D50_LINE_LEN / (D50_LAMBDA/2));
+  for (var k=0; k<=nTicks; k++) {
+    var xz = x1 - k*halfLambdaPx;
+    if (xz < x0-1) break;
+    ctx.strokeStyle = '#D8D5CE'; ctx.lineWidth = 1; ctx.setLineDash([2,2]);
+    ctx.beginPath(); ctx.moveTo(xz, lineY-ampPx*2.05); ctx.lineTo(xz, lineY+ampPx*2.05); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Source label
+  ctx.fillStyle = '#3C3530'; ctx.font = 'bold 12px ' + MONO; ctx.textAlign = 'left';
+  ctx.fillText('Zs=50Ω', x0-2, lineY - ampPx*2.25);
+  ctx.beginPath(); ctx.arc(x0, lineY, 5, 0, Math.PI*2); ctx.fillStyle='#3C3530'; ctx.fill();
+
+  // Load label
+  ctx.textAlign = 'right';
+  ctx.fillStyle = (window._d50LoadKey === 'matched') ? '#0F8C50' : '#C0392B';
+  var loadLabel = (window._d50LoadKey === 'matched') ? 'Z_L=50Ω' : 'Z_L=2+j20Ω';
+  ctx.fillText(loadLabel, x1+2, lineY - ampPx*2.25);
+  ctx.beginPath(); ctx.arc(x1, lineY, 5, 0, Math.PI*2); ctx.fill();
+
+  // distance label
+  ctx.fillStyle = '#9A8A68'; ctx.font = '10px ' + MONO; ctx.textAlign = 'center';
+  ctx.fillText('30 m  (\u2248 2\u03bb @ 13.56MHz, VF\u22480.66, \u03bb\u224815m)', (x0+x1)/2, H-8);
+
+  // VSWR readout on canvas
+  var G = d50Gamma(L.R, L.X);
+  var Gmag = Math.sqrt(G.re*G.re+G.im*G.im);
+  var vswr = (1+Gmag)/Math.max(1e-6,1-Gmag);
+  ctx.fillStyle = '#3C3530'; ctx.font = 'bold 11px ' + MONO; ctx.textAlign='left';
+  ctx.fillText('VSWR \u2248 ' + (vswr>100? '\u221e' : vswr.toFixed(2)) + ' : 1', x0-2, lineY + ampPx*2.4);
+}
+
+function updateD50Readout() {
+  var ro = document.getElementById('d50-readout');
+  if (!ro) return;
+  var isEn = currentLang === 'en';
+  var L = D50_LOADS[window._d50LoadKey];
+  var G = d50Gamma(L.R, L.X);
+  var Gmag = Math.sqrt(G.re*G.re + G.im*G.im);
+  var Gang = Math.atan2(G.im, G.re) * 180/Math.PI;
+  var vswr = (1+Gmag)/Math.max(1e-6,1-Gmag);
+  var pctReflected = Gmag*Gmag*100;
+  var matched = window._d50LoadKey === 'matched';
+
+  var loadStr = matched ? '50 + j0' : '2 + j20';
+
+  ro.innerHTML =
+    '<div style="font-size:0.78rem;font-weight:700;color:#FFD580;margin-bottom:10px;font-family:\'Google Sans\',sans-serif">'+
+      '🔢 ' + (isEn?'The Numbers':'계산 결과') +
+    '</div>'+
+    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.84rem;color:#E8DCC0;line-height:2.1;display:flex;gap:28px;flex-wrap:wrap">'+
+      '<div>Z_L = '+loadStr+' Ω</div>'+
+      '<div>Γ = '+G.re.toFixed(3)+(G.im>=0?' + j':' \u2212 j')+Math.abs(G.im).toFixed(3)+
+        '  (|Γ|='+Gmag.toFixed(3)+', ∠'+Gang.toFixed(1)+'°)</div>'+
+      '<div>|Γ|² ≈ <span style="color:#FF8A7A;font-weight:700">'+pctReflected.toFixed(1)+'%</span> '+(isEn?'reflected':'반사됨')+'</div>'+
+      '<div>VSWR = <span style="color:'+(matched?'#7FD8A0':'#FF8A7A')+';font-weight:700">'+(vswr>100?'\u221e':vswr.toFixed(2))+' : 1</span></div>'+
+    '</div>'+
+    '<div style="font-size:0.78rem;color:#E8DCC0;line-height:1.6;margin-top:10px;border-top:1px solid rgba(255,255,255,0.15);padding-top:10px">'+
+      (matched
+        ? (isEn ? 'With Z_L=50Ω the envelope flattens into a straight line \u2014 the voltage amplitude is the same everywhere on the line, exactly V\u207a, because there is no reflected wave at all.'
+                : 'Z_L=50Ω일 때 envelope가 완전한 수평선이 됩니다 — 반사파가 전혀 없으므로 선로 위 어디서나 전압 진폭이 똑같이 V⁺입니다.')
+        : (isEn ? 'With Z_L=2+j20Ω, the envelope swings between V\u207a(1+|\u0393|)\u22481.93 and V\u207a(1\u2212|\u0393|)\u22480.07 \u2014 nearly double the source voltage at the antinode.'
+                : 'Z_L=2+j20Ω일 때 envelope는 V⁺(1+|Γ|)≈1.93과 V⁺(1−|Γ|)≈0.07 사이를 오갑니다 — antinode에서는 거의 보내는 전압의 2배에 달합니다.'))+
+    '</div>';
+}
+
+function initD50Sim() {
+  renderD50();
+}
+
+function buildD51Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge red">🚫 Topic 2 Lab</span>
+    <span class="d-title">${isEn ? 'The Forbidden Path — Matching with a Resistor' : '금지된 길 — 저항으로 매칭하기'}</span>
+  </div>
+  <div class="d-body">
+
+    <svg viewBox="0 0 700 220" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace">
+      <!-- Source -->
+      <circle cx="60" cy="80" r="20" fill="#fff" stroke="#3C3530" stroke-width="1.6"/>
+      <path d="M51,80 Q55,71 60,80 Q65,89 69,80" stroke="#3C3530" stroke-width="1.3" fill="none"/>
+      <line x1="60" y1="60" x2="60" y2="20" stroke="#3C3530" stroke-width="1.6"/>
+      <line x1="60" y1="100" x2="60" y2="190" stroke="#3C3530" stroke-width="1.6"/>
+      <line x1="48" y1="190" x2="72" y2="190" stroke="#3C3530" stroke-width="1.6"/>
+      <line x1="52" y1="196" x2="68" y2="196" stroke="#3C3530" stroke-width="1.2"/>
+      <text x="14" y="24" font-size="11" fill="#3C3530" font-weight="700">Zs=50Ω</text>
+
+      <!-- horizontal top wire to node -->
+      <line x1="60" y1="20" x2="260" y2="20" stroke="#3C3530" stroke-width="1.6"/>
+      <circle cx="260" cy="20" r="3.2" fill="#3C3530"/>
+
+      <!-- Za resistor branch (forbidden) -->
+      <line x1="260" y1="20" x2="260" y2="48" stroke="#C0392B" stroke-width="1.6"/>
+      <rect x="246" y="48" width="28" height="44" fill="#FDF0EE" stroke="#C0392B" stroke-width="1.6"/>
+      <line x1="252" y1="58" x2="268" y2="58" stroke="#C0392B" stroke-width="1.2"/>
+      <line x1="252" y1="68" x2="268" y2="68" stroke="#C0392B" stroke-width="1.2"/>
+      <line x1="252" y1="78" x2="268" y2="78" stroke="#C0392B" stroke-width="1.2"/>
+      <line x1="260" y1="92" x2="260" y2="190" stroke="#C0392B" stroke-width="1.6"/>
+      <line x1="248" y1="190" x2="272" y2="190" stroke="#C0392B" stroke-width="1.6"/>
+      <line x1="252" y1="196" x2="268" y2="196" stroke="#C0392B" stroke-width="1.2"/>
+      <text x="225" y="46" font-size="10.5" fill="#C0392B" font-weight="700">Z_a=2.09Ω</text>
+      <text x="220" y="106" font-size="10" fill="#C0392B">${isEn?'(resistor \u2014 FORBIDDEN)':'(저항 — 금지)'}</text>
+
+      <!-- heat icon -->
+      <text x="290" y="72" font-size="20">🔥</text>
+      <text x="282" y="36" font-size="9.5" fill="#C0392B" font-weight="700">${isEn?'P=I²R lost as heat':'P=I²R 열 손실'}</text>
+
+      <!-- wire from node to load -->
+      <line x1="260" y1="20" x2="640" y2="20" stroke="#3C3530" stroke-width="1.6"/>
+
+      <!-- Load -->
+      <line x1="640" y1="20" x2="640" y2="48" stroke="#3C3530" stroke-width="1.6"/>
+      <path d="M626,48 L654,48 L626,68 L654,68 L626,88 L654,88" stroke="#3C3530" stroke-width="1.4" fill="none"/>
+      <line x1="640" y1="88" x2="640" y2="190" stroke="#3C3530" stroke-width="1.6"/>
+      <line x1="628" y1="190" x2="652" y2="190" stroke="#3C3530" stroke-width="1.6"/>
+      <line x1="632" y1="196" x2="648" y2="196" stroke="#3C3530" stroke-width="1.2"/>
+      <text x="595" y="42" font-size="11" fill="#3C3530" font-weight="700">Z_L=2Ω</text>
+
+      <!-- annotation -->
+      <text x="350" y="140" font-size="10.5" fill="#9A8A68" text-anchor="middle">
+        Zs‖Z_a = (50·2.09)/(50+2.09) ≈ 2.006Ω
+      </text>
+      <text x="350" y="158" font-size="10.5" fill="#0F8C50" text-anchor="middle" font-weight="700">
+        ${isEn?'\u2713 the number matches\u2026':'✓ 숫자는 맞지만…'}
+      </text>
+      <text x="350" y="176" font-size="10.5" fill="#C0392B" text-anchor="middle" font-weight="700">
+        ${isEn?'\u2717 power never reaches the load':'✗ 전력이 부하에 도달하지 못함'}
+      </text>
+    </svg>
+
+    <div class="callout red" style="margin-top:14px">
+      <div class="callout-title">⚖️ ${isEn?'The Rule: Match, Don\u2019t Discard':'규칙: "맞춘다"이지 "버린다"가 아니다'}</div>
+      ${isEn
+        ? 'A parallel resistor gets the impedance number right, but every watt dissipated in Z_a never makes it to the plasma. This is why Topic 3 replaces the resistor with a purely reactive Capacitor \u2014 same real-part result, zero power loss.'
+        : '병렬 저항은 임피던스 숫자는 맞지만, Z_a에서 소비되는 전력은 한 와트도 플라즈마에 도달하지 못합니다. 그래서 Topic 3에서는 저항을 순수 리액티브 소자인 Capacitor로 교체합니다 — 실수부 결과는 같지만 전력 손실은 0입니다.'}
+    </div>
+
+  </div>
+</div>`;
+}
+
+function buildD52Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge amber">🔋 Topic 3 Lab</span>
+    <span class="d-title">${isEn ? 'L-network Builder \u2014 Step 1: Load Capacitor' : 'L-network 빌더 — 1단계: Load Capacitor'}</span>
+  </div>
+  <div class="d-body">
+
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px">
+      <div style="font-size:0.74rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                  letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+        ${isEn ? 'Build the circuit \u2014 watch the running impedance' : '회로를 조립하세요 — 누적 임피던스를 확인합니다'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="sim-btn active" id="d52-step-0" onclick="setD52Step(0)">0. ${isEn?'Source only':'Source만'}</button>
+        <button class="sim-btn" id="d52-step-1" onclick="setD52Step(1)">1. + Load Cap (${isEn?'parallel':'병렬'})</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start">
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                    letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+          🔌 ${isEn?'Schematic':'회로도'}
+        </div>
+        <svg id="d52-schematic" viewBox="0 0 420 230" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace"></svg>
+      </div>
+
+      <div id="d52-readout" style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;
+           border-radius:12px;padding:16px 18px;font-family:'Google Sans',sans-serif">
+      </div>
+
+    </div>
+
+    <div class="callout amber" style="margin-top:16px">
+      <div class="callout-title">🔍 ${isEn?'What to Notice':'주목할 점'}</div>
+      ${isEn
+        ? 'Click "+ Load Cap" and watch the real part of the running impedance lock onto 2.000Ω while the imaginary part stays nonzero. The Load Capacitor only ever touches the real part \u2014 the leftover reactance is Topic 4\u2019s job.'
+        : '"+ Load Cap" 버튼을 눌러 누적 임피던스의 실수부가 2.000Ω에 고정되는 것을 확인하세요. 허수부는 여전히 남아있습니다. Load Capacitor는 실수부만 건드릴 뿐 — 남은 리액턴스는 Topic 4의 몫입니다.'}
+    </div>
+
+  </div>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIMULATOR — Topic 3 (d52): Load Capacitor step
+═══════════════════════════════════════════ */
+window._d52Step = 0;
+
+window.setD52Step = function(step) {
+  window._d52Step = step;
+  document.querySelectorAll('[id^="d52-step-"]').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('d52-step-' + step);
+  if (btn) btn.classList.add('active');
+  renderD52();
+};
+
+function complexParallel(re1, im1, re2, im2) {
+  // (Z1*Z2)/(Z1+Z2)
+  var numRe = re1*re2 - im1*im2, numIm = re1*im2 + im1*re2;
+  var denRe = re1+re2, denIm = im1+im2;
+  var denMag2 = denRe*denRe + denIm*denIm || 1e-12;
+  return { re: (numRe*denRe + numIm*denIm)/denMag2, im: (numIm*denRe - numRe*denIm)/denMag2 };
+}
+
+function renderD52() {
+  drawD52Schematic();
+  updateD52Readout();
+}
+
+function drawD52Schematic() {
+  var svg = document.getElementById('d52-schematic');
+  if (!svg) return;
+  var isEn = currentLang === 'en';
+  var step = window._d52Step;
+  var ns = 'http://www.w3.org/2000/svg';
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(ns, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    svg.appendChild(e);
+    return e;
+  }
+
+  // Source
+  el('circle', { cx:50, cy:80, r:20, fill:'#fff', stroke:'#3C3530', 'stroke-width':1.6 });
+  el('path', { d:'M41,80 Q45,71 50,80 Q55,89 59,80', stroke:'#3C3530', 'stroke-width':1.3, fill:'none' });
+  el('line', { x1:50, y1:60, x2:50, y2:20, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('line', { x1:50, y1:100, x2:50, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('line', { x1:38, y1:190, x2:62, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('text', { x:8, y:24, 'font-size':10.5, fill:'#3C3530', 'font-weight':700 }, 'Zs=50Ω');
+
+  el('line', { x1:50, y1:20, x2:160, y2:20, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('circle', { cx:160, cy:20, r:3, fill:'#3C3530' });
+
+  var active = (step >= 1);
+  var col = active ? '#7A5200' : '#D8D5CE';
+
+  // Load Capacitor branch (parallel)
+  el('line', { x1:160, y1:20, x2:160, y2:48, stroke:col, 'stroke-width':1.6 });
+  el('line', { x1:150, y1:55, x2:170, y2:55, stroke:col, 'stroke-width':2.2 });
+  el('line', { x1:150, y1:63, x2:170, y2:63, stroke:col, 'stroke-width':2.2 });
+  el('line', { x1:160, y1:63, x2:160, y2:190, stroke:col, 'stroke-width':1.6 });
+  el('line', { x1:148, y1:190, x2:172, y2:190, stroke:col, 'stroke-width':1.6 });
+  el('text', { x: active?108:118, y:46, 'font-size':9.5, fill:col, 'font-weight':700 },
+     active ? 'Z_a=-j10.2Ω' : (isEn?'(not yet)':'(미설치)'));
+  el('text', { x:122, y:80, 'font-size':9, fill:col }, isEn?'Load Cap':'Load Cap');
+
+  el('line', { x1:160, y1:20, x2:370, y2:20, stroke:'#3C3530', 'stroke-width':1.6 });
+
+  // Load
+  el('line', { x1:370, y1:20, x2:370, y2:48, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('path', { d:'M356,48 L384,48 L356,68 L384,68 L356,88 L384,88', stroke:'#3C3530', 'stroke-width':1.4, fill:'none' });
+  el('line', { x1:370, y1:88, x2:370, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('line', { x1:358, y1:190, x2:382, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('text', { x:330, y:42, 'font-size':10.5, fill:'#C0392B', 'font-weight':700 }, 'Z_L=2Ω');
+
+  el('line', { x1:38, y1:190, x2:382, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+}
+
+function updateD52Readout() {
+  var ro = document.getElementById('d52-readout');
+  if (!ro) return;
+  var isEn = currentLang === 'en';
+  var step = window._d52Step;
+
+  var re = 50, im = 0; // Source alone, Zs
+  var rows = [];
+  rows.push({ label: isEn?'Source':'Source', re: 50, im: 0 });
+
+  if (step >= 1) {
+    var p = complexParallel(50, 0, 0, -10.207);
+    re = p.re; im = p.im;
+    rows.push({ label: 'Zs‖Z_a', re: re, im: im });
+  }
+
+  var rowsHtml = rows.map(function(r){
+    return '<div style="display:flex;justify-content:space-between;gap:8px">'+
+      '<span style="color:#B8C4D8">'+r.label+'</span>'+
+      '<span style="font-family:JetBrains Mono,monospace;color:#FFD580">'+r.re.toFixed(3)+(r.im>=0?' + j':' \u2212 j')+Math.abs(r.im).toFixed(3)+'</span>'+
+    '</div>';
+  }).join('');
+
+  var realDone = Math.abs(re - 2) < 0.01;
+
+  ro.innerHTML =
+    '<div style="font-size:0.78rem;font-weight:700;color:#FFD580;margin-bottom:10px">'+
+      (isEn?'Running Impedance':'누적 임피던스')+
+    '</div>'+
+    '<div style="font-size:0.76rem;color:#B8C4D8;line-height:1.9;margin-bottom:10px">'+rowsHtml+'</div>'+
+    '<div style="border-top:1px solid rgba(255,255,255,0.15);padding-top:10px;font-size:0.78rem;color:#E8DCC0;line-height:1.7">'+
+      (realDone
+        ? (isEn ? '<span style="color:#7FD8A0;font-weight:700">\u2713 Real part = 2.000Ω matched.</span> Imaginary part \u2212j9.798Ω still remains \u2014 onward to Topic 4.'
+                : '<span style="color:#7FD8A0;font-weight:700">✓ 실수부 = 2.000Ω 정합 완료.</span> 허수부 −j9.798Ω이 아직 남아있습니다 — Topic 4로 이어집니다.')
+        : (isEn ? 'Click "+ Load Cap" to add the parallel capacitor and watch the real part shift toward 2Ω.'
+                : '"+ Load Cap" 버튼을 눌러 병렬 커패시터를 추가하고 실수부가 2Ω으로 이동하는 것을 확인하세요.'))+
+    '</div>';
+}
+
+function initD52Sim() {
+  renderD52();
+}
+
+function buildD53Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge amber">➕ Topic 4 Lab</span>
+    <span class="d-title">${isEn ? 'L-network Builder \u2014 Step 2: Tune Coil' : 'L-network 빌더 — 2단계: Tune Coil'}</span>
+  </div>
+  <div class="d-body">
+
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px">
+      <div style="font-size:0.74rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                  letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+        ${isEn ? 'Finish the match \u2014 add the series inductor' : '매칭을 완성하세요 — 직렬 인덕터를 추가합니다'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="sim-btn" id="d53-step-1" onclick="setD53Step(1)">1. Load Cap (${isEn?'parallel':'병렬'})</button>
+        <button class="sim-btn active" id="d53-step-2" onclick="setD53Step(2)">2. + Tune Coil (${isEn?'series':'직렬'})</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start">
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                    letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+          🔌 ${isEn?'Schematic':'회로도'}
+        </div>
+        <svg id="d53-schematic" viewBox="0 0 460 230" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace"></svg>
+      </div>
+
+      <div id="d53-readout" style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;
+           border-radius:12px;padding:16px 18px;font-family:'Google Sans',sans-serif">
+      </div>
+
+    </div>
+
+    <div class="callout green" style="margin-top:16px">
+      <div class="callout-title">✅ ${isEn?'Two Elements, Zero Loss':'두 개의 소자, 손실 제로'}</div>
+      ${isEn
+        ? 'With the Tune Coil in series, the running impedance lands exactly on 2.000+j0Ω \u2014 identical to Z_L, reached with two purely reactive elements and no power dissipated anywhere in the matching network.'
+        : 'Tune Coil을 직렬로 연결하면 누적 임피던스가 정확히 2.000+j0Ω에 도달합니다 — Z_L과 완전히 동일하며, 두 개의 순수 리액티브 소자만으로 매칭 회로 어디에서도 전력을 소비하지 않고 이루어냈습니다.'}
+    </div>
+
+  </div>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIMULATOR — Topic 4 (d53): Tune Coil step
+═══════════════════════════════════════════ */
+window._d53Step = 2;
+
+window.setD53Step = function(step) {
+  window._d53Step = step;
+  document.querySelectorAll('[id^="d53-step-"]').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('d53-step-' + step);
+  if (btn) btn.classList.add('active');
+  renderD53();
+};
+
+function renderD53() {
+  drawD53Schematic();
+  updateD53Readout();
+}
+
+function drawD53Schematic() {
+  var svg = document.getElementById('d53-schematic');
+  if (!svg) return;
+  var isEn = currentLang === 'en';
+  var step = window._d53Step;
+  var ns = 'http://www.w3.org/2000/svg';
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(ns, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    svg.appendChild(e);
+    return e;
+  }
+
+  // Source
+  el('circle', { cx:40, cy:80, r:18, fill:'#fff', stroke:'#3C3530', 'stroke-width':1.6 });
+  el('path', { d:'M32,80 Q36,72 40,80 Q44,88 48,80', stroke:'#3C3530', 'stroke-width':1.2, fill:'none' });
+  el('line', { x1:40, y1:62, x2:40, y2:20, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('line', { x1:40, y1:98, x2:40, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('line', { x1:28, y1:190, x2:52, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('text', { x:2, y:24, 'font-size':9.5, fill:'#3C3530', 'font-weight':700 }, 'Zs=50Ω');
+
+  el('line', { x1:40, y1:20, x2:130, y2:20, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('circle', { cx:130, cy:20, r:3, fill:'#3C3530' });
+
+  // Load Capacitor branch (parallel, always installed in this slide)
+  var col1 = '#7A5200';
+  el('line', { x1:130, y1:20, x2:130, y2:46, stroke:col1, 'stroke-width':1.6 });
+  el('line', { x1:120, y1:53, x2:140, y2:53, stroke:col1, 'stroke-width':2 });
+  el('line', { x1:120, y1:60, x2:140, y2:60, stroke:col1, 'stroke-width':2 });
+  el('line', { x1:130, y1:60, x2:130, y2:190, stroke:col1, 'stroke-width':1.6 });
+  el('line', { x1:118, y1:190, x2:142, y2:190, stroke:col1, 'stroke-width':1.6 });
+  el('text', { x:84, y:44, 'font-size':8.6, fill:col1, 'font-weight':700 }, 'Z_a=-j10.2');
+  el('text', { x:96, y:78, 'font-size':8.4, fill:col1 }, isEn?'Load Cap':'Load Cap');
+
+  var active2 = (step >= 2);
+  var col2 = active2 ? '#1A6FB5' : '#D8D5CE';
+
+  // Tune Coil (series) between node and load
+  el('line', { x1:130, y1:20, x2:240, y2:20, stroke:'#3C3530', 'stroke-width':1.6 });
+  // coil drawing
+  var coilPath = 'M240,20 q8,-12 16,0 q8,-12 16,0 q8,-12 16,0 q8,-12 16,0';
+  el('path', { d: coilPath, stroke: col2, 'stroke-width':1.8, fill:'none' });
+  el('text', { x:248, y:8, 'font-size':8.6, fill:col2, 'font-weight':700 },
+     active2 ? '+j9.798Ω' : (isEn?'(not yet)':'(미설치)'));
+  el('text', { x:255, y:42, 'font-size':8.4, fill:col2 }, 'Tune Coil');
+
+  el('line', { x1:304, y1:20, x2:400, y2:20, stroke:'#3C3530', 'stroke-width':1.6 });
+
+  // Load
+  el('line', { x1:400, y1:20, x2:400, y2:46, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('path', { d:'M388,46 L412,46 L388,64 L412,64 L388,82 L412,82', stroke:'#3C3530', 'stroke-width':1.3, fill:'none' });
+  el('line', { x1:400, y1:82, x2:400, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('line', { x1:388, y1:190, x2:412, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+  el('text', { x:368, y:40, 'font-size':9.5, fill:'#C0392B', 'font-weight':700 }, 'Z_L=2Ω');
+
+  el('line', { x1:28, y1:190, x2:412, y2:190, stroke:'#3C3530', 'stroke-width':1.6 });
+}
+
+function updateD53Readout() {
+  var ro = document.getElementById('d53-readout');
+  if (!ro) return;
+  var isEn = currentLang === 'en';
+  var step = window._d53Step;
+
+  var p = complexParallel(50, 0, 0, -10.207);
+  var re = p.re, im = p.im;
+  var rows = [{ label: 'Zs‖Z_a', re: re, im: im }];
+
+  if (step >= 2) {
+    im = im + 9.798;
+    rows.push({ label: '+ Z_b1 (series)', re: re, im: im });
+  }
+
+  var rowsHtml = rows.map(function(r){
+    return '<div style="display:flex;justify-content:space-between;gap:8px">'+
+      '<span style="color:#B8C4D8">'+r.label+'</span>'+
+      '<span style="font-family:JetBrains Mono,monospace;color:#FFD580">'+r.re.toFixed(3)+(r.im>=0?' + j':' \u2212 j')+Math.abs(r.im).toFixed(3)+'</span>'+
+    '</div>';
+  }).join('');
+
+  var matched = Math.abs(re-2) < 0.01 && Math.abs(im) < 0.01;
+
+  ro.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
+      '<span style="width:10px;height:10px;border-radius:50%;background:'+(matched?'#7FD8A0':'#FFD580')+';display:inline-block"></span>'+
+      '<span style="font-weight:800;font-size:0.92rem;color:'+(matched?'#7FD8A0':'#FFD580')+'">'+
+        (matched ? (isEn?'MATCHED \u2014 Z = Z_L':'정합 완료 — Z = Z_L') : (isEn?'IN PROGRESS':'진행 중'))+
+      '</span>'+
+    '</div>'+
+    '<div style="font-size:0.76rem;color:#B8C4D8;line-height:1.9;margin-bottom:10px">'+rowsHtml+'</div>'+
+    '<div style="border-top:1px solid rgba(255,255,255,0.15);padding-top:10px;font-size:0.78rem;color:#E8DCC0;line-height:1.7">'+
+      (matched
+        ? (isEn ? 'The imaginary part has been cancelled exactly. Source(50Ω) is now perfectly matched to Load(2Ω) with the simplest possible L-network.'
+                : '허수부가 정확히 상쇄되었습니다. Source(50Ω)가 가장 단순한 형태의 L-network로 Load(2Ω)에 완벽히 매칭되었습니다.')
+        : (isEn ? 'Click "+ Tune Coil" to add the series inductor and watch the imaginary part go to zero.'
+                : '"+ Tune Coil" 버튼을 눌러 직렬 인덕터를 추가하고 허수부가 0이 되는 것을 확인하세요.'))+
+    '</div>';
+}
+
+function initD53Sim() {
+  if (window._d53Step === undefined) window._d53Step = 2;
+  renderD53();
+}
+
+function buildD54Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge amber">🤯 Topic 5 Lab</span>
+    <span class="d-title">${isEn ? 'A Realistic Load on the Smith Chart \u2014 Conjugate Matching' : 'Smith Chart 위의 현실적인 부하 — 공액 정합'}</span>
+  </div>
+  <div class="d-body">
+
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px">
+      <div style="font-size:0.74rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                  letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+        ${isEn ? 'Walk the 3-element L-network on the chart' : '챠트 위에서 3소자 L-network를 따라가세요'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="sim-btn active" id="d54-step-0" onclick="setD54Step(0)">0. Z_L=2+j20Ω</button>
+        <button class="sim-btn" id="d54-step-1" onclick="setD54Step(1)">1. + Load Cap</button>
+        <button class="sim-btn" id="d54-step-2" onclick="setD54Step(2)">2. + Tune Coil</button>
+        <button class="sim-btn" id="d54-step-3" onclick="setD54Step(3)">3. + Tune Cap</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:start">
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                    letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+          ⭕ Smith Chart — ${isEn?'Reversed Path (Load → Source view)':'역방향 경로 (Load → Source 시점)'}
+        </div>
+        <canvas id="d54-chart" style="width:100%;height:300px;border-radius:6px;background:#FAFBFF;border:1px solid #EEF2F8"></canvas>
+        <div style="font-size:0.7rem;color:var(--text-sub);margin-top:8px;line-height:1.5">
+          ${isEn
+            ? 'Gold dot: running impedance looking from the Source into the network. Faint dot: Z_L itself (fixed reference).'
+            : '금색 점: Source 쪽에서 회로를 바라본 누적 임피던스. 흐린 점: Z_L 그 자체(고정 기준점).'}
+        </div>
+      </div>
+
+      <div id="d54-readout" style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;
+           border-radius:12px;padding:16px 18px;font-family:'Google Sans',sans-serif">
+      </div>
+
+    </div>
+
+    <div class="callout amber" style="margin-top:16px">
+      <div class="callout-title">💡 ${isEn?'Why It Looks Like "Just" 4Ω But Reads 50Ω':'왜 "단순 합"은 4Ω인데 측정값은 50Ω인가'}</div>
+      ${isEn
+        ? 'Step 3 lands the network side at 2\u2212j20Ω, the exact conjugate of Z_L=2+j20Ω. Adding them gives 4Ω on paper, but physically the two reactances cancel at that boundary so no energy reflects \u2014 and the whole Source-side circuit is engineered to present Z\u2080=50Ω, which is what you would measure anywhere along the matched line.'
+        : '3단계에서 네트워크 쪽은 정확히 Z_L=2+j20Ω의 공액인 2−j20Ω에 도달합니다. 단순히 더하면 종이 위에서는 4Ω이지만, 실제로는 그 경계에서 두 리액턴스가 상쇄되어 에너지가 전혀 반사되지 않습니다 — 그리고 Source 쪽 전체 회로는 Z₀=50Ω을 내도록 설계되어 있으므로, 매칭된 선로 위 어디서든 측정값은 50Ω입니다.'}
+    </div>
+
+  </div>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIMULATOR — Topic 5 (d54): realistic load + conjugate matching
+═══════════════════════════════════════════ */
+var D54_Z0 = 50;
+window._d54Step = 0;
+// Path of {R, X, type} representing the impedance looking from Source into the network at each step
+window._d54Path = [
+  { R: 50, X: 0,      type: 'source' },
+  { R: 2,  X: -10.207, type: 'loadcap' },   // after parallel Load Cap (real part matched to 2, leftover -j9.798... but we show network-side conjugate build)
+];
+
+function d54Gamma(R, X) {
+  var Z0 = D54_Z0;
+  var numRe = R-Z0, numIm = X, denRe = R+Z0, denIm = X;
+  var denMag2 = denRe*denRe + denIm*denIm || 1e-9;
+  return { re: (numRe*denRe + numIm*denIm)/denMag2, im: (numIm*denRe - numRe*denIm)/denMag2 };
+}
+
+window.setD54Step = function(step) {
+  window._d54Step = step;
+  document.querySelectorAll('[id^="d54-step-"]').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('d54-step-' + step);
+  if (btn) btn.classList.add('active');
+  renderD54();
+};
+
+function renderD54() {
+  drawD54Chart();
+  updateD54Readout();
+}
+
+function d54StateAt(step) {
+  // Network-side impedance as seen from Source, at each construction step,
+  // tracking the same numeric path used in Topics 3/4/5's worked example,
+  // generalized to the conjugate target of Z_L = 2+j20.
+  // step0: Source alone (50)
+  // step1: Zs‖Za  (Load Cap, parallel)            -> 2.000 - j9.798
+  // step2: + Tune Coil (series, +j9.798)            -> 2.000 + 0j
+  // step3: + Tune Cap (series, -j20)                -> 2.000 - j20  (= Z_L*)
+  if (step <= 0) return { R: 50, X: 0 };
+  if (step === 1) return { R: 2.000, X: -9.798 };
+  if (step === 2) return { R: 2.000, X: 0 };
+  return { R: 2.000, X: -20 };
+}
+
+function drawD54Chart() {
+  var canvas = document.getElementById('d54-chart');
+  if (!canvas) return;
+  var dpr = window.devicePixelRatio||1;
+  var W = canvas.offsetWidth, H = canvas.offsetHeight;
+  if (!W||!H) return;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  var ctx = canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  var isEn = currentLang === 'en';
+  var MONO = "'JetBrains Mono',monospace";
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFF'; ctx.fillRect(0,0,W,H);
+
+  var cx = W*0.5, cy = H*0.5;
+  var rad = Math.min(W*0.42, H*0.42);
+
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 1.8;
+  ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = '#D8D5CE'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx-rad,cy); ctx.lineTo(cx+rad,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,cy-rad); ctx.lineTo(cx,cy+rad); ctx.stroke();
+
+  function toXY(R, X) { var g = d54Gamma(R,X); return { x: cx+g.re*rad, y: cy-g.im*rad }; }
+
+  // fixed reference: the actual load Z_L = 2+j20
+  var loadPt = toXY(2, 20);
+  ctx.fillStyle = '#C8B89A';
+  ctx.beginPath(); ctx.arc(loadPt.x, loadPt.y, 5, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(loadPt.x, loadPt.y, 5, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = '#9A8A68'; ctx.font = '9px '+MONO; ctx.textAlign='center';
+  ctx.fillText('Z_L=2+j20', loadPt.x, loadPt.y-12);
+
+  // center target
+  ctx.fillStyle = '#0F8C50';
+  ctx.beginPath(); ctx.arc(cx,cy,3.5,0,Math.PI*2); ctx.fill();
+
+  var step = window._d54Step;
+  var path = [];
+  for (var i=0; i<=step; i++) path.push(d54StateAt(i));
+
+  // draw connecting arcs (simple straight-ish guide, since each step mixes series/shunt moves
+  // through an intermediate normalization not directly expressible as one circle on this Z0=50 chart)
+  for (var i=1; i<path.length; i++) {
+    var p1 = toXY(path[i-1].R, path[i-1].X), p2 = toXY(path[i].R, path[i].X);
+    ctx.strokeStyle = '#C8860D88'; ctx.lineWidth = 2;
+    ctx.setLineDash([5,3]);
+    ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // draw points
+  path.forEach(function(p, i){
+    var pt = toXY(p.R, p.X);
+    var isLast = (i === path.length-1);
+    if (isLast) {
+      var glow = ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,16);
+      glow.addColorStop(0,'#C8860D77'); glow.addColorStop(1,'transparent');
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(pt.x,pt.y,16,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#C8860D';
+    } else {
+      ctx.fillStyle = '#1A6FB5';
+    }
+    ctx.beginPath(); ctx.arc(pt.x,pt.y, isLast?7:5, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(pt.x,pt.y,isLast?7:5,0,Math.PI*2); ctx.stroke();
+  });
+
+  if (step >= 3) {
+    ctx.fillStyle = '#0F8C50'; ctx.font = 'bold 10px '+MONO; ctx.textAlign='center';
+    ctx.fillText(isEn?'\u0393\u22480 looking into network':'네트워크 쪽 Γ≈0', cx, cy+rad+18);
+  }
+}
+
+function updateD54Readout() {
+  var ro = document.getElementById('d54-readout');
+  if (!ro) return;
+  var isEn = currentLang === 'en';
+  var step = window._d54Step;
+  var typeLabels = {
+    0: isEn?'Source':'Source',
+    1: isEn?'+ Load Cap (parallel)':'+ Load Cap (병렬)',
+    2: isEn?'+ Tune Coil (series)':'+ Tune Coil (직렬)',
+    3: isEn?'+ Tune Cap (series)':'+ Tune Cap (직렬)',
+  };
+  var rowsHtml = '';
+  for (var i=0; i<=step; i++) {
+    var st = d54StateAt(i);
+    rowsHtml += '<div style="display:flex;justify-content:space-between;gap:8px">'+
+      '<span style="color:#B8C4D8">'+typeLabels[i]+'</span>'+
+      '<span style="font-family:JetBrains Mono,monospace;color:#FFD580">'+st.R.toFixed(2)+(st.X>=0?' + j':' \u2212 j')+Math.abs(st.X).toFixed(2)+'</span>'+
+    '</div>';
+  }
+
+  var cur = d54StateAt(step);
+  var matched = (step >= 3);
+
+  ro.innerHTML =
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
+      '<span style="width:10px;height:10px;border-radius:50%;background:'+(matched?'#7FD8A0':'#FFD580')+';display:inline-block"></span>'+
+      '<span style="font-weight:800;font-size:0.92rem;color:'+(matched?'#7FD8A0':'#FFD580')+'">'+
+        (matched ? (isEn?'CONJUGATE MATCHED':'공액 정합 완료') : (isEn?'IN PROGRESS':'진행 중'))+
+      '</span>'+
+    '</div>'+
+    '<div style="font-size:0.76rem;color:#B8C4D8;line-height:1.9;margin-bottom:10px">'+rowsHtml+'</div>'+
+    '<div style="border-top:1px solid rgba(255,255,255,0.15);padding-top:10px;font-size:0.78rem;color:#E8DCC0;line-height:1.7">'+
+      (matched
+        ? (isEn ? 'Network side = 2\u221220j Ω, exactly Z_L*. Looking from the Source, the whole circuit now presents Z\u2080=50Ω with no reflection.'
+                : '네트워크 쪽 = 2−20jΩ, 정확히 Z_L*입니다. Source에서 바라본 전체 회로는 이제 반사 없이 Z₀=50Ω을 나타냅니다.')
+        : (isEn ? 'Step through Load Cap → Tune Coil → Tune Cap and watch the point approach the conjugate of Z_L.'
+                : 'Load Cap → Tune Coil → Tune Cap 순서로 진행하며 점이 Z_L의 공액으로 다가가는 것을 확인하세요.'))+
+    '</div>';
+}
+
+function initD54Sim() {
+  renderD54();
+}
+
+function buildD55Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge amber">🎛️ Topic 6 Lab</span>
+    <span class="d-title">${isEn ? 'A Wandering Load \u2014 Tracking with Variable Capacitors' : '흔들리는 부하 — 가변 커패시터로 추적하기'}</span>
+  </div>
+  <div class="d-body">
+
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px">
+      <div style="font-size:0.74rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                  letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+        ${isEn ? 'Drag the load \u2014 watch Load Cap / Tune Cap chase it' : '부하를 드래그하세요 — Load Cap / Tune Cap이 따라가는 것을 확인합니다'}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="sim-btn active" id="d55-preset-center" onclick="setD55Preset('center')">2.1 + j20Ω</button>
+        <button class="sim-btn" id="d55-preset-hi" onclick="setD55Preset('hi')">2 + j30Ω</button>
+        <button class="sim-btn" id="d55-preset-lo" onclick="setD55Preset('lo')">2 + j10Ω</button>
+        <button class="sim-btn" id="d55-preset-neg" onclick="setD55Preset('neg')">2 \u2212 j20Ω (CCP)</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px">
+        <div style="font-size:0.72rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;
+                    letter-spacing:0.06em;margin-bottom:8px;font-family:var(--mono)">
+          📡 ${isEn?'AMN Block Diagram':'AMN 블록 다이어그램'}
+        </div>
+        <svg id="d55-block" viewBox="0 0 380 220" style="width:100%;height:auto;font-family:'JetBrains Mono',monospace"></svg>
+      </div>
+
+      <div id="d55-readout" style="background:linear-gradient(135deg,#1A1A2E,#2A2210);border:2px solid #C8860D;
+           border-radius:12px;padding:16px 18px;font-family:'Google Sans',sans-serif">
+      </div>
+
+    </div>
+
+    <div class="callout amber" style="margin-top:16px">
+      <div class="callout-title">🤖 ${isEn?'This Is What an AMN Computes, Every Cycle':'AMN이 매 주기마다 계산하는 것이 바로 이것입니다'}</div>
+      ${isEn
+        ? 'Each preset is a different instantaneous Z_L. Notice the required Load Cap / Tune Cap values shift with it \u2014 a real Auto Matching Network repeats this exact Load Cap / Tune Coil / Tune Cap calculation tens to hundreds of times per second, driven by motors instead of your clicks.'
+        : '각 프리셋은 서로 다른 순간의 Z_L입니다. 그에 따라 필요한 Load Cap / Tune Cap 값이 바뀌는 것을 확인하세요 — 실제 Auto Matching Network는 여러분의 클릭 대신 모터로, 바로 이 Load Cap / Tune Coil / Tune Cap 계산을 초당 수십~수백 번 반복합니다.'}
+    </div>
+
+  </div>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIMULATOR — Topic 6 (d55): variable capacitor tracking
+═══════════════════════════════════════════ */
+var D55_LOADS = {
+  center: { R: 2.1, X: 20 },
+  hi:     { R: 2.0, X: 30 },
+  lo:     { R: 2.0, X: 10 },
+  neg:    { R: 2.0, X: -20 },
+};
+window._d55LoadKey = 'center';
+
+window.setD55Preset = function(key) {
+  window._d55LoadKey = key;
+  document.querySelectorAll('[id^="d55-preset-"]').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.getElementById('d55-preset-' + key);
+  if (btn) btn.classList.add('active');
+  renderD55();
+};
+
+function d55Compute(R, X) {
+  // Classic L-network synthesis: first cancel the load's own reactance with a conceptual
+  // series step, leaving a pure resistance R; then a shunt (Load Cap) at the Z0 side
+  // and a combined series reactance (Tune) bring the network to Z0's conjugate.
+  var Z0 = 50;
+  var Qm = Math.sqrt(Math.max(0, Z0 / R - 1));   // Q of the L-section needed for this R
+  var Bshunt = Qm / Z0;                           // shunt susceptance magnitude (Load Cap, at source side)
+  var XseriesTotal = Qm * R;                      // total series reactance magnitude needed across the section
+  var loadCapX = -1 / Bshunt;                      // Load Cap expressed as a reactance (negative => capacitive)
+  var tuneTotalX = XseriesTotal - X;                // net series reactance still required, after accounting for load's own +X
+  return { loadCapX: loadCapX, tuneTotalX: tuneTotalX, Rprime: R, Qm: Qm };
+}
+
+function renderD55() {
+  drawD55Block();
+  updateD55Readout();
+}
+
+function drawD55Block() {
+  var svg = document.getElementById('d55-block');
+  if (!svg) return;
+  var isEn = currentLang === 'en';
+  var ns = 'http://www.w3.org/2000/svg';
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(ns, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text !== undefined) e.textContent = text;
+    svg.appendChild(e);
+    return e;
+  }
+
+  // RF Generator box
+  el('rect', { x:10, y:70, width:80, height:50, rx:6, fill:'#FFF8EC', stroke:'#C8860D', 'stroke-width':1.6 });
+  el('text', { x:50, y:91, 'font-size':9.5, 'text-anchor':'middle', fill:'#7A5200', 'font-weight':700 }, 'RF');
+  el('text', { x:50, y:104, 'font-size':9.5, 'text-anchor':'middle', fill:'#7A5200', 'font-weight':700 }, 'Generator');
+
+  el('line', { x1:90, y1:95, x2:130, y2:95, stroke:'#3C3530', 'stroke-width':1.6 });
+
+  // Matcher box (Load Cap + Tune Cap, motor driven)
+  el('rect', { x:130, y:40, width:140, height:110, rx:8, fill:'#fff', stroke:'#1A6FB5', 'stroke-width':1.8 });
+  el('text', { x:200, y:58, 'font-size':9.5, 'text-anchor':'middle', fill:'#1A6FB5', 'font-weight':700 }, isEn?'Auto Matcher':'자동 매처');
+
+  // Load cap symbol
+  el('line', { x1:155, y1:70, x2:155, y2:90, stroke:'#7A5200', 'stroke-width':1.6 });
+  el('line', { x1:147, y1:90, x2:163, y2:90, stroke:'#7A5200', 'stroke-width':2 });
+  el('line', { x1:147, y1:96, x2:163, y2:96, stroke:'#7A5200', 'stroke-width':2 });
+  el('line', { x1:155, y1:96, x2:155, y2:125, stroke:'#7A5200', 'stroke-width':1.6 });
+  el('text', { x:175, y:84, 'font-size':8, fill:'#7A5200' }, isEn?'Load':'Load');
+  el('text', { x:175, y:96, 'font-size':8, fill:'#7A5200' }, isEn?'(var)':'(가변)');
+  el('path', { d:'M148,68 q7,-10 14,0', stroke:'#7A5200', 'stroke-width':1, fill:'none' });
+
+  // Tune cap symbol
+  el('line', { x1:245, y1:60, x2:245, y2:78, stroke:'#1A6FB5', 'stroke-width':1.6 });
+  el('line', { x1:237, y1:78, x2:253, y2:78, stroke:'#1A6FB5', 'stroke-width':2 });
+  el('line', { x1:237, y1:84, x2:253, y2:84, stroke:'#1A6FB5', 'stroke-width':2 });
+  el('line', { x1:245, y1:84, x2:245, y2:130, stroke:'#1A6FB5', 'stroke-width':1.6 });
+  el('text', { x:212, y:72, 'font-size':8, fill:'#1A6FB5' }, isEn?'Tune':'Tune');
+  el('text', { x:212, y:84, 'font-size':8, fill:'#1A6FB5' }, isEn?'(var)':'(가변)');
+  el('path', { d:'M238,58 q7,-10 14,0', stroke:'#1A6FB5', 'stroke-width':1, fill:'none' });
+
+  // motor icon
+  el('circle', { cx:200, cy:135, r:12, fill:'#FDF0EE', stroke:'#C0392B', 'stroke-width':1.4 });
+  el('text', { x:200, y:139, 'font-size':10, 'text-anchor':'middle' }, '⚙');
+  el('text', { x:200, y:160, 'font-size':7.6, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'motor feedback':'모터 피드백');
+
+  el('line', { x1:270, y1:95, x2:310, y2:95, stroke:'#3C3530', 'stroke-width':1.6 });
+
+  // Plasma chamber
+  el('rect', { x:310, y:65, width:60, height:60, rx:6, fill:'#F8F6FF', stroke:'#7030A0', 'stroke-width':1.6 });
+  el('text', { x:340, y:90, 'font-size':9, 'text-anchor':'middle', fill:'#7030A0', 'font-weight':700 }, 'Plasma');
+  el('text', { x:340, y:103, 'font-size':9, 'text-anchor':'middle', fill:'#7030A0', 'font-weight':700 }, isEn?'Chamber':'챔버');
+  el('text', { x:340, y:35, 'font-size':9, 'text-anchor':'middle', fill:'#9A8A68' }, isEn?'Z_L(t) wanders':'Z_L(t) 흔들림');
+  el('path', { d:'M330,40 q10,-8 20,0', stroke:'#9A8A68', 'stroke-width':1, fill:'none', 'stroke-dasharray':'2,2' });
+
+  el('text', { x:200, y:200, 'font-size':8.4, 'text-anchor':'middle', fill:'#9A8A68' },
+     isEn ? 'sensors measure Γ, feed back to motors in real time' : '센서가 Γ를 측정해 모터에 실시간 피드백');
+}
+
+function updateD55Readout() {
+  var ro = document.getElementById('d55-readout');
+  if (!ro) return;
+  var isEn = currentLang === 'en';
+  var L = D55_LOADS[window._d55LoadKey];
+  var res = d55Compute(L.R, L.X);
+
+  ro.innerHTML =
+    '<div style="font-size:0.78rem;font-weight:700;color:#FFD580;margin-bottom:10px">'+
+      (isEn?'Instantaneous Load':'순간 부하')+
+    '</div>'+
+    '<div style="font-family:JetBrains Mono,monospace;font-size:0.85rem;color:#E8DCC0;line-height:2.0">'+
+      '<div>Z_L = '+L.R.toFixed(2)+(L.X>=0?' + j':' \u2212 j')+Math.abs(L.X).toFixed(2)+' Ω</div>'+
+    '</div>'+
+    '<div style="border-top:1px solid rgba(255,255,255,0.15);margin-top:10px;padding-top:10px;'+
+         'font-family:JetBrains Mono,monospace;font-size:0.78rem;color:#B8C4D8;line-height:2.0">'+
+      '<div>'+(isEn?'Load Cap (parallel)':'Load Cap (병렬)')+': <span style="color:#FFD580">X \u2248 '+res.loadCapX.toFixed(1)+' Ω</span></div>'+
+      '<div>'+(isEn?'Tune (series, combined)':'Tune (직렬, 통합)')+': <span style="color:#FFD580">X \u2248 '+(res.tuneTotalX>=0?'+':'')+res.tuneTotalX.toFixed(1)+' Ω</span></div>'+
+    '</div>'+
+    '<div style="font-size:0.76rem;color:#E8DCC0;line-height:1.6;margin-top:10px">'+
+      (isEn
+        ? 'Switch presets and watch both values shift \u2014 this is exactly the real-time recalculation an Auto Matching Network performs.'
+        : '프리셋을 바꿔가며 두 값이 함께 바뀌는 것을 확인하세요 — 이것이 바로 Auto Matching Network가 실시간으로 수행하는 재계산입니다.')+
+    '</div>';
+}
+
+function initD55Sim() {
+  renderD55();
+}
+
+/* ═══════════════════════════════════════════
+   REVEAL TOGGLE
+═══════════════════════════════════════════ */
+window.toggleReveal = function(id) {
+  const body = document.getElementById(id);
+  const hdr  = body?.previousElementSibling;
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  hdr?.classList.toggle('open', !isOpen);
+};
+
+/* ═══════════════════════════════════════════
+   RENDER DETAIL
+═══════════════════════════════════════════ */
+function renderDetail(id) {
+  const s = getSlide(id);
+  if (!s) return;
+  const isEn = currentLang === 'en';
+  const area = document.getElementById('slide-area');
+
+  const theoriesHtml = s.theories.map(t => `
+    <div class="theory-card">
+      <h4>${t.icon} ${t.title}</h4>
+      <p>${t.body}</p>
+    </div>`).join('');
+
+  const equationsHtml = s.equations && s.equations.length ? s.equations.map(e => `
+    <div class="eq-block">
+      $$${e.tex}$$
+      ${e.label ? `<div class="eq-label">${e.label}</div>` : ''}
+    </div>`).join('') : '';
+
+  const classroomHtml = s.classroom && s.classroom.opts && s.classroom.opts.length ? `
+    <div class="quiz-card">
+      <div class="quiz-q">🎓 ${isEn ? 'Comprehension Check' : '이해 점검'}: ${s.classroom.q}</div>
+      <div class="quiz-opts">
+        ${s.classroom.opts.map(o => `
+          <div class="quiz-opt" onclick="checkQuiz(this, ${o.correct}, '${id}')">
+            <span class="opt-key">${o.key}</span>
+            <span>${o.text}</span>
+          </div>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb-${id}"></div>
+    </div>` : '';
+
+  const connHtml = s.connections && s.connections.length ? `
+    <div style="margin-top:20px">
+      <div style="font-size:0.72rem;color:var(--text-sub);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em">
+        ${isEn ? 'Connected Topics' : '연결 토픽'}
+      </div>
+      <div class="connections">
+        ${s.connections.map(c => {
+          const cs = getSlide(c);
+          return cs ? `<div class="conn-chip" onclick="navigateTo('${c}')">${cs.eyebrow || c}</div>` : '';
+        }).join('')}
+      </div>
+    </div>` : '';
+
+  let diagramHtml = '';
+  if (id === 'd50h') diagramHtml = buildD50hDiagram(isEn);
+  else if (id === 'd50p') diagramHtml = buildD50pDiagram(isEn);
+  else if (id === 'd50') diagramHtml = buildD50Diagram(isEn);
+  else if (id === 'd51') diagramHtml = buildD51Diagram(isEn);
+  else if (id === 'd52') diagramHtml = buildD52Diagram(isEn);
+  else if (id === 'd53') diagramHtml = buildD53Diagram(isEn);
+  else if (id === 'd54') diagramHtml = buildD54Diagram(isEn);
+  else if (id === 'd55') diagramHtml = buildD55Diagram(isEn);
+
+  let deepHtml = '';
+
+  area.innerHTML = `
+    <div class="slide-header">
+      <div class="slide-eyebrow">${s.eyebrow}</div>
+      <div class="slide-title">${s.title}</div>
+      ${s.subtitle ? `<div class="slide-subtitle">${s.subtitle}</div>` : ''}
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn ${currentTab==='diagram'?'active':''}" onclick="switchTab('diagram')">
+        📊 ${isEn ? 'Diagram / Lab' : '다이어그램 / 실습'}
+      </button>
+      <button class="tab-btn ${currentTab==='concepts'?'active':''}" onclick="switchTab('concepts')">
+        📖 ${isEn ? 'Key Concepts' : '핵심 개념'}
+      </button>
+      ${equationsHtml ? `
+      <button class="tab-btn ${currentTab==='equations'?'active':''}" onclick="switchTab('equations')">
+        🔢 ${isEn ? 'Equations' : '수식'}
+      </button>` : ''}
+      ${deepHtml ? `
+      <button class="tab-btn ${currentTab==='deep'?'active':''}" onclick="switchTab('deep')">
+        📚 ${isEn ? 'Deep Study' : '심화 학습'}
+      </button>` : ''}
+      ${classroomHtml ? `
+      <button class="tab-btn ${currentTab==='classroom'?'active':''}" onclick="switchTab('classroom')">
+        🎓 ${isEn ? 'Classroom' : '교실'}
+      </button>` : ''}
+    </div>
+
+    <div id="tab-diagram" class="tab-pane ${currentTab==='diagram'?'active':''}">${diagramHtml}</div>
+    <div id="tab-concepts" class="tab-pane ${currentTab==='concepts'?'active':''}">
+      <div class="theory-grid">${theoriesHtml}</div>
+      ${connHtml}
+    </div>
+    ${equationsHtml ? `<div id="tab-equations" class="tab-pane ${currentTab==='equations'?'active':''}">${equationsHtml}</div>` : ''}
+    ${deepHtml ? `<div id="tab-deep" class="tab-pane ${currentTab==='deep'?'active':''}">${deepHtml}</div>` : ''}
+    ${classroomHtml ? `<div id="tab-classroom" class="tab-pane ${currentTab==='classroom'?'active':''}">${classroomHtml}</div>` : ''}
+  `;
+
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+
+  // 각 슬라이드별 시뮬 초기화
+  if (id === 'd50') setTimeout(() => initD50Sim(), 80);
+  if (id === 'd52') setTimeout(() => initD52Sim(), 80);
+  if (id === 'd53') setTimeout(() => initD53Sim(), 80);
+  if (id === 'd54') setTimeout(() => initD54Sim(), 80);
+  if (id === 'd55') setTimeout(() => initD55Sim(), 80);
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION & EVENTS
+═══════════════════════════════════════════ */
+function navigateTo(id) {
+  if (window._d50PlayTimer) { clearInterval(window._d50PlayTimer); window._d50PlayTimer = null; window._d50Playing = false; }
+  currentId = id;
+  currentTab = 'diagram';
+  renderDetail(id);
+  renderSidebar();
+  window.scrollTo(0, 0);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const pane = document.getElementById('tab-' + tab);
+  if (pane) pane.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.getAttribute('onclick') === `switchTab('${tab}')`) b.classList.add('active');
+  });
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+  // 탭 전환 후 시뮬 재초기화
+  if (tab === 'diagram') {
+    if (currentId === 'd50') setTimeout(() => initD50Sim(), 80);
+    if (currentId === 'd52') setTimeout(() => initD52Sim(), 80);
+    if (currentId === 'd53') setTimeout(() => initD53Sim(), 80);
+    if (currentId === 'd54') setTimeout(() => initD54Sim(), 80);
+    if (currentId === 'd55') setTimeout(() => initD55Sim(), 80);
+  }
+}
+
+function setLang(lang) {
+  if (window._d50PlayTimer) { clearInterval(window._d50PlayTimer); window._d50PlayTimer = null; window._d50Playing = false; }
+  currentLang = lang;
+  document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  renderDetail(currentId);
+  renderSidebar();
+}
+
+function checkQuiz(el, correct, id) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.style.pointerEvents = 'none');
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = document.getElementById('qfb-' + id);
+  const s  = getSlide(id);
+  if (fb && s) {
+    fb.textContent = correct ? s.classroom.feedback_ok : s.classroom.feedback_ng;
+    fb.className   = 'quiz-feedback show ' + (correct ? 'ok' : 'ng');
+  }
+}
+
+function openImgPopup(src, cap) {
+  var img = document.getElementById('img-popup-img');
+  var viewport = document.getElementById('img-popup-viewport');
+  img.src = src;
+  document.getElementById('img-popup-cap').textContent = cap;
+  viewport.classList.remove('zoomed');
+  viewport.scrollTop = 0;
+  viewport.scrollLeft = 0;
+  document.getElementById('img-popup').classList.add('open');
+  document.addEventListener('keydown', handleImgPopupKey);
+}
+function closeImgPopup() {
+  document.getElementById('img-popup').classList.remove('open');
+  document.getElementById('img-popup-viewport').classList.remove('zoomed');
+  document.removeEventListener('keydown', handleImgPopupKey);
+}
+function handleImgPopupKey(e) {
+  if (e.key === 'Escape') closeImgPopup();
+}
+function toggleImgZoom(e) {
+  var viewport = document.getElementById('img-popup-viewport');
+  var isZoomed = viewport.classList.contains('zoomed');
+  if (!isZoomed) {
+    var img = document.getElementById('img-popup-img');
+    var rect = img.getBoundingClientRect();
+    var relX = (e.clientX - rect.left) / rect.width;
+    var relY = (e.clientY - rect.top) / rect.height;
+    viewport.classList.add('zoomed');
+    requestAnimationFrame(function() {
+      var img2 = document.getElementById('img-popup-img');
+      var targetX = relX * img2.offsetWidth - viewport.clientWidth / 2;
+      var targetY = relY * img2.offsetHeight - viewport.clientHeight / 2;
+      viewport.scrollLeft = Math.max(0, targetX);
+      viewport.scrollTop = Math.max(0, targetY);
+    });
+  } else {
+    viewport.classList.remove('zoomed');
+    viewport.scrollTop = 0;
+    viewport.scrollLeft = 0;
+  }
+}
+
+/* ── Responsive Canvas: resize handler ── */
+function reinitCurrentSimulator() {
+  if (currentId === 'd50') { initD50Sim(); }
+  if (currentId === 'd52') { initD52Sim(); }
+  if (currentId === 'd53') { initD53Sim(); }
+  if (currentId === 'd54') { initD54Sim(); }
+  if (currentId === 'd55') { initD55Sim(); }
+}
+
+var _resizeTimer = null;
+window.addEventListener('resize', function() {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(function() {
+    reinitCurrentSimulator();
+  }, 120);
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderSidebar();
+  renderDetail(currentId);
+});
+</script>
+</body>
+</html>

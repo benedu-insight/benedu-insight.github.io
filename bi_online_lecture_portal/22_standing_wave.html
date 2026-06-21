@@ -1,0 +1,3434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Module 02 — Standing Wave | Benedu Insight RF Lecture Series</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+/* ═══════════════════════════════════════════════
+   BENEDU INSIGHT — MODULE 02 BASE STYLES
+   Theme: Light Pastel (Module 01 일관성 유지)
+═══════════════════════════════════════════════ */
+:root {
+  --bg: #F7F8FA;
+  --card: #F1EFEA;
+  --card-hd: #E7E4DD;
+  --purple: #7030A0;
+  --green: #0F8C50;
+  --plasma: #E87B1E;
+  --blue: #1A6FB5;
+  --red: #C0392B;
+  --text: #1A1A2E;
+  --text-sub: #5A5A7A;
+  --border: #D8D5CE;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --font: 'Google Sans', 'Noto Sans KR', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: #FFFFFF;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.sb-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-brand .logo-text {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--purple);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sb-brand .module-tag {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--text-sub);
+}
+.sb-era {
+  padding: 10px 14px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.sb-era-bar {
+  height: 3px;
+  border-radius: 2px;
+  margin: 4px 14px 8px;
+  background: var(--purple);
+  opacity: 0.3;
+}
+.sb-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 1px 8px;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.sb-item:hover { background: #F0EDF8; }
+.sb-item.active { background: #EDE7F6; }
+.sb-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sb-label { font-size: 0.78rem; line-height: 1.35; color: var(--text); }
+.sb-sub { font-size: 0.68rem; color: var(--text-sub); margin-top: 2px; }
+.sb-lang {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+.lang-btn {
+  flex: 1; padding: 7px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-sub);
+}
+.lang-btn.active {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── TOP LOGO BAR ── */
+#top-logo-bar {
+  position: fixed;
+  top: 0; left: 260px; right: 0;
+  height: 44px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 28px;
+  z-index: 150;
+}
+#top-logo-bar img {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.88;
+}
+
+/* ── MAIN CONTENT ── */
+#main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 64px 36px 32px;
+  max-width: calc(100vw - 260px);
+}
+
+/* ── SLIDE HEADER ── */
+.slide-header {
+  margin-bottom: 28px;
+}
+.slide-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--purple);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.slide-title {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.slide-title span { color: var(--purple); }
+.slide-subtitle {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  color: var(--text-sub);
+  line-height: 1.5;
+}
+
+/* ── TAB SYSTEM ── */
+.tab-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+.tab-btn {
+  padding: 8px 18px 10px;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  color: var(--purple);
+  border-bottom-color: var(--purple);
+  font-weight: 700;
+}
+.tab-btn:hover:not(.active) { color: var(--text); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── DIAGRAM CARD (Module 01 패턴 동일) ── */
+.d-wrap {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.d-header {
+  background: var(--card-hd);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.d-badge {
+  background: var(--purple);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+}
+.d-badge.green { background: var(--green); }
+.d-badge.plasma { background: var(--plasma); }
+.d-badge.blue { background: var(--blue); }
+.d-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.d-body { padding: 1.2rem; }
+
+/* ── THEORY CARDS ── */
+.theory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.theory-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.theory-card h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--purple);
+  margin-bottom: 7px;
+  display: flex; align-items: center; gap: 6px;
+}
+.theory-card p { font-size: 0.82rem; color: var(--text-sub); line-height: 1.55; }
+
+/* ── EQUATION BLOCK ── */
+.eq-block {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 10px 0;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.eq-label {
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  text-align: right;
+  margin-top: 4px;
+  font-family: var(--font);
+}
+
+/* ── CALLOUT (헤어라인 스타일, Module 01 선호) ── */
+.callout {
+  background: #F8F6FF;
+  border: 1px solid #C9B8E8;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.callout.green { background: #F0FAF4; border-color: #A8D5B8; }
+.callout.plasma { background: #FFF8F0; border-color: #F5C89A; }
+.callout.blue { background: #F0F6FF; border-color: #A8C4E8; }
+.callout-title {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  color: var(--purple);
+}
+.callout.green .callout-title { color: var(--green); }
+.callout.plasma .callout-title { color: var(--plasma); }
+.callout.blue .callout-title { color: var(--blue); }
+
+/* ── QUIZ / CLASSROOM ── */
+.quiz-card {
+  background: #fff;
+  border: 1.5px solid #C9B8E8;
+  border-radius: 10px;
+  padding: 18px;
+  margin-top: 10px;
+}
+.quiz-q {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  transition: all 0.15s;
+  background: var(--bg);
+}
+.quiz-opt:hover { border-color: var(--purple); background: #F8F6FF; }
+.quiz-opt.correct { border-color: var(--green); background: #F0FAF4; color: var(--green); }
+.quiz-opt.wrong { border-color: var(--red); background: #FDF0EE; color: var(--red); }
+.quiz-opt span.opt-key {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.75rem;
+  width: 20px; flex-shrink: 0;
+}
+.quiz-feedback {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  display: none;
+  line-height: 1.5;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: #F0FAF4; color: var(--green); }
+.quiz-feedback.ng { background: #FDF0EE; color: var(--red); }
+
+/* ── CONNECTIONS ── */
+.connections {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 16px;
+}
+.conn-chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fff;
+  color: var(--text-sub);
+}
+.conn-chip:hover { border-color: var(--purple); color: var(--purple); background: #F8F6FF; }
+
+/* ── DEEP STUDY ── */
+.deep-section h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--purple);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #C9B8E8;
+}
+.deep-section p {
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+.deep-section ul {
+  padding-left: 18px;
+  margin-bottom: 10px;
+}
+.deep-section ul li {
+  font-size: 0.83rem;
+  line-height: 1.65;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+/* ── TABLE ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin: 10px 0;
+}
+.data-table th {
+  background: var(--card-hd);
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.data-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  line-height: 1.4;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #F8F6FF; }
+
+/* ── CANVAS SIMULATOR ── */
+.sim-wrap {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 10px 0;
+}
+.sim-canvas {
+  width: 100%;
+  border-radius: 8px;
+  background: #0D1117;
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+.sim-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  align-items: center;
+}
+.sim-ctrl-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 140px;
+}
+.sim-ctrl-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  display: flex;
+  justify-content: space-between;
+}
+.sim-ctrl-val {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--purple);
+  font-weight: 600;
+}
+.sim-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  outline: none;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--purple);
+  cursor: pointer;
+}
+.sim-btn-row {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;
+}
+.sim-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--purple);
+  background: transparent;
+  color: var(--purple);
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sim-btn:hover, .sim-btn.active {
+  background: var(--purple);
+  color: #fff;
+}
+.sim-btn.green-btn {
+  border-color: var(--green);
+  color: var(--green);
+}
+.sim-btn.green-btn:hover, .sim-btn.green-btn.active {
+  background: var(--green);
+  color: #fff;
+}
+.sim-info {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  line-height: 1.5;
+  min-height: 36px;
+}
+
+/* ── IMAGE POPUP ── */
+#img-popup {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+#img-popup.open { display: flex; }
+#img-popup img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+#img-popup-cap {
+  position: fixed;
+  bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  position: fixed;
+  top: 44px; left: 260px; right: 0;
+  height: 3px;
+  background: var(--border);
+  z-index: 200;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--green));
+  transition: width 0.3s ease;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; padding: 64px 16px 20px; max-width: 100vw; }
+  .progress-bar { left: 0; }
+  #top-logo-bar { left: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- IMAGE POPUP -->
+<div id="img-popup" onclick="closeImgPopup()">
+  <img id="img-popup-img" src="" alt=""/>
+  <div id="img-popup-cap"></div>
+</div>
+
+<!-- TOP LOGO BAR -->
+<div id="top-logo-bar">
+  <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+       alt="BENEDU INSIGHT"/>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-brand">
+    <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+         alt="BENEDU INSIGHT"
+         style="height:28px;width:auto;display:block;margin-bottom:6px;object-fit:contain"/>
+    <div class="module-tag">RF Lecture Series · Class 02</div>
+  </div>
+
+  <div class="sb-era">Module 02</div>
+  <div class="sb-era-bar"></div>
+
+  <div id="nav-list"></div>
+
+  <div class="sb-lang">
+    <button class="lang-btn" id="btn-ko" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">English</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+  <div id="slide-area"></div>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════
+   UTILITY — HiDPI / DPR Canvas Setup
+   devicePixelRatio 보정으로 캔버스 텍스트/선 선명도 개선
+═══════════════════════════════════════════ */
+function setupHiDPI(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  // logical size가 0이면 기본값 사용 (아직 레이아웃 전)
+  const cssW = rect.width  || canvas.width;
+  const cssH = rect.height || canvas.height;
+  canvas.width  = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  canvas.style.width  = cssW  + 'px';
+  canvas.style.height = cssH  + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  // W/H는 CSS logical 픽셀 기준으로 반환
+  return { ctx, W: cssW, H: cssH, dpr };
+}
+
+/* ═══════════════════════════════════════════
+   DATA — SLIDES_KO / SLIDES_EN
+═══════════════════════════════════════════ */
+
+const SLIDES_KO = [
+  {
+    id: 'c24p',
+    era: 'm2',
+    eyebrow: 'Prologue · Module 02',
+    title: '전기는 어떻게 흐르는가?',
+    subtitle: '두 가지 질문으로 시작하는 가장 중요한 오개념 교정',
+    theories: [
+      { icon: '💡', title: '질문 1 — 전구의 불은 왜 들어오는가?', body: '배터리가 전류를 밀어넣어서? 전자가 전선을 타고 흘러서? 당신의 직관을 먼저 확인해 보세요. 대부분의 엔지니어와 학생들이 여기서 틀립니다.' },
+      { icon: '⏱️', title: '질문 2 — 전구의 불은 얼마 만에 들어올까?', body: '전선 길이가 빛의 속도로 1광초(약 30만 km)일 때, 스위치를 켜면 전구는 언제 켜질까요? a) 0.5초 b) 1초 c) 2초 d) 1/c초 e) 위의 어느 것도 아니다' },
+      { icon: '🌊', title: '에너지는 전선 속이 아닌 밖을 흐른다', body: 'Veritasium이 밝힌 핵심: 에너지는 전자가 아니라 전선 바깥의 E-field와 B-field(Poynting Vector)를 통해 전달됩니다. 이것이 RF/플라즈마 강의의 출발점입니다.' },
+      { icon: '🔗', title: '이 영상이 중요한 이유', body: 'RF Generator에서 Reactor까지의 에너지 전달, 임피던스 매칭, 정재파 — 모두 이 오개념의 교정에서 시작합니다. 전기의 본질을 이해해야 RF를 이해할 수 있습니다.' },
+    ],
+    equations: [],
+    classroom: {
+      q: 'Veritasium 영상의 질문: 1광초 길이의 전선 회로에서 스위치를 켜면 전구는 얼마 만에 켜지는가?',
+      opts: [
+        { key:'a', text:'0.5초 — 전류가 절반 거리를 이동하는 시간', correct: false },
+        { key:'b', text:'1초 — 전류가 한 바퀴 도는 시간', correct: false },
+        { key:'c', text:'2초 — 왕복 시간', correct: false },
+        { key:'e', text:'위의 어느 것도 아니다 — 약 1/c초 (전선 간격/광속)', correct: true },
+      ],
+      feedback_ok: '정답! 에너지는 전자가 아니라 전선 사이의 E/B field(Poynting Vector)를 통해 전달됩니다. 전선 간격이 1m라면 약 1/c ≈ 3.3 나노초 만에 전구가 켜집니다.',
+      feedback_ng: 'Veritasium의 핵심: 에너지는 전선 속 전자가 아니라 전선 바깥의 전자기장을 통해 전달됩니다. 따라서 전선 전체 길이가 아니라 전선 간격(1m)에 해당하는 빛의 이동 시간이 답입니다.',
+    },
+    connections: ['c25'],
+  },
+  {
+    id: 'c25',
+    era: 'm2',
+    eyebrow: 'Topic 1 · Module 02',
+    title: '파동이란 무엇인가?',
+    subtitle: '매질은 달라도 방정식은 같다 — 파동의 보편성에서 출발합니다',
+    theories: [
+      { icon: '〰️', title: '파동의 정의', body: '파동이란 에너지가 매질의 이동 없이 공간을 통해 전파되는 현상입니다. 매질의 각 요소는 제자리에서 진동하고, 에너지만 앞으로 나아갑니다.' },
+      { icon: '🧮', title: '파동방정식의 보편성', body: '줄의 파동, 전자기파, RF 전송선로의 전압파 — 세 가지 모두 동일한 형태의 편미분방정식으로 기술됩니다. 이것이 줄로 전기를 설명할 수 있는 근거입니다.' },
+      { icon: '⚡', title: '에너지의 실체', body: 'Veritasium이 보여주듯, 전선 속을 흐르는 것은 전자가 아닙니다. E-field(전기장)와 B-field(자기장)가 도선 밖 공간을 통해 에너지를 실어 나릅니다.' },
+      { icon: '🔄', title: 'E/B ↔ V/I 대응', body: 'E-field는 전압파(V)로, B-field는 전류파(I)로 대변됩니다. 단, 더 정확히는 V·I가 E·B(Poynting Vector)의 회로적 번역입니다.' },
+    ],
+    equations: [
+      { label: '줄의 파동방정식', tex: '\\dfrac{\\partial^2 y}{\\partial t^2} = \\dfrac{T}{\\mu} \\dfrac{\\partial^2 y}{\\partial x^2}' },
+      { label: '전송선로 전압 파동방정식', tex: '\\dfrac{\\partial^2 V}{\\partial t^2} = \\dfrac{1}{LC} \\dfrac{\\partial^2 V}{\\partial x^2}' },
+    ],
+    classroom: {
+      q: '다음 중 파동방정식이 동일한 형태를 갖는 것들을 모두 고르시오.',
+      opts: [
+        { key:'A', text:'줄(string)의 횡파', correct: true },
+        { key:'B', text:'전송선로의 전압파', correct: true },
+        { key:'C', text:'직류(DC) 회로의 전압 강하', correct: false },
+        { key:'D', text:'전자기파(EM wave)', correct: true },
+      ],
+      feedback_ok: '정답입니다! A, B, D 모두 동일한 2차 편미분 파동방정식으로 기술됩니다. C의 DC는 시간에 따른 변화가 없으므로 파동방정식이 적용되지 않습니다.',
+      feedback_ng: '다시 생각해보세요. DC(직류)는 시간적으로 변화하지 않기 때문에 파동방정식의 대상이 아닙니다.',
+    },
+    connections: ['c21b', 'c24', 'c25b'],
+  },
+  {
+    id: 'c25b',
+    era: 'm2',
+    eyebrow: 'Topic 1.5 · Module 02',
+    title: '경계조건 — 반사의 시작',
+    subtitle: '파동이 끝을 만나면 어떤 일이 일어나는가?',
+    theories: [
+      { icon: '🚪', title: '자유단 (Free End / Open)', body: '줄의 끝이 자유롭게 움직일 수 있는 경우. 에너지가 "갈 곳"이 없어 그대로 되돌아옵니다. 반사파의 위상이 입사파와 동일합니다.' },
+      { icon: '🔩', title: '고정단 (Fixed End / Short)', body: '줄의 끝이 완전히 고정된 경우. 고정점에서 변위가 항상 0이어야 하므로 반사파의 위상이 180° 반전됩니다.' },
+      { icon: '🤝', title: '부분 반사 (Partial Reflection)', body: '줄의 끝을 느슨하게 잡은 경우. 일부 에너지는 반사되고 일부는 투과됩니다. RF에서는 임피던스 불일치(Z<sub>L</sub> ≠ Z₀)에 해당합니다.' },
+      { icon: '✅', title: '완전 매칭 (Perfect Match)', body: '경계에서 줄의 물성이 연속적으로 이어지는 경우. 반사 없이 모든 에너지가 투과됩니다. RF 임피던스 매칭의 이상적 목표입니다.' },
+    ],
+    equations: [
+      { label: 'Γ 본질 정의 (전압비)', tex: '\\Gamma = \\dfrac{V^-}{V^+} = \\dfrac{\\text{반사파}}{\\text{입사파}}' },
+      { label: '전력 측정 표현', tex: '|\\Gamma|^2 = \\dfrac{P_r}{P_f} \\quad\\Rightarrow\\quad |\\Gamma| = \\sqrt{\\dfrac{P_r}{P_f}}' },
+      { label: '임피던스 유도 공식', tex: '\\Gamma = \\dfrac{Z_L - Z_0}{Z_L + Z_0}' },
+    ],
+    classroom: {
+      q: 'RF 전송선로에서 부하 임피던스 Z<sub>L</sub> = Z₀일 때 반사계수 Γ의 값은?',
+      opts: [
+        { key:'A', text:'Γ = 1 (완전 반사)', correct: false },
+        { key:'B', text:'Γ = 0 (반사 없음)', correct: true },
+        { key:'C', text:'Γ = -1 (위상 반전 완전 반사)', correct: false },
+        { key:'D', text:'Γ = 0.5 (부분 반사)', correct: false },
+      ],
+      feedback_ok: '정확합니다! Z<sub>L</sub> = Z₀이면 Γ = (Z<sub>L</sub> - Z₀)/(Z<sub>L</sub> + Z₀) = 0. 반사가 전혀 없는 완전 매칭 상태입니다.',
+      feedback_ng: '반사계수 공식 Γ = (Z<sub>L</sub> - Z₀)/(Z<sub>L</sub> + Z₀)에 Z<sub>L</sub> = Z₀를 대입해보세요.',
+    },
+    connections: ['c25', 'c26'],
+  },
+  {
+    id: 'c26',
+    era: 'm2',
+    eyebrow: 'Topic 2 · Module 02',
+    title: '정재파 (Standing Wave)',
+    subtitle: '진행파 + 반사파 = 공간에 새겨지는 파동 패턴',
+    theories: [
+      { icon: '➕', title: '중첩의 원리', body: '진행파와 반사파가 같은 공간에 공존할 때 두 파동은 중첩됩니다. 이 중첩의 결과로 마치 제자리에서 진동하는 것처럼 보이는 패턴이 형성됩니다 — 이것이 정재파입니다.' },
+      { icon: '📍', title: 'Node와 Antinode', body: '정재파에서 항상 진폭이 0인 지점을 Node(마디), 진폭이 최대인 지점을 Antinode(배)라고 합니다. 이 패턴은 반사계수 Γ가 클수록 더 뚜렷해집니다.' },
+      { icon: '↔️', title: 'V와 I의 90° 어긋남', body: '전압 정재파와 전류 정재파는 공간적으로 λ/4(90°)만큼 어긋납니다. 전압이 최대인 곳에서 전류는 최소, 전압이 최소인 곳에서 전류는 최대입니다.' },
+      { icon: '⚡', title: 'Power는 정재파가 아님', body: '실수 전력(Active Power)은 위치에 관계없이 일정합니다. 출렁이는 것은 V와 I이지, 전력 자체가 정재파를 이루지는 않습니다. 이것은 많은 학생들이 혼동하는 핵심 포인트입니다.' },
+    ],
+    equations: [
+      { label: '전압 정재파', tex: 'V(x) = V^+ e^{-j\\beta x} + V^- e^{+j\\beta x}' },
+      { label: '전류 정재파', tex: 'I(x) = \\dfrac{V^+}{Z_0} e^{-j\\beta x} - \\dfrac{V^-}{Z_0} e^{+j\\beta x}' },
+    ],
+    classroom: {
+      q: '정재파에서 전압이 최대(V_max)인 지점에서 전류는?',
+      opts: [
+        { key:'A', text:'전류도 최대이다', correct: false },
+        { key:'B', text:'전류는 최소이다', correct: true },
+        { key:'C', text:'전류는 0이다 (항상)', correct: false },
+        { key:'D', text:'전류와 전압은 항상 같은 위치에서 최대가 된다', correct: false },
+      ],
+      feedback_ok: '정확합니다! 전압과 전류의 정재파 패턴은 공간적으로 λ/4만큼 어긋나 있어, V_max 위치에서 I_min, V_min 위치에서 I_max가 됩니다.',
+      feedback_ng: 'V(x)와 I(x)의 정재파 패턴은 공간적으로 λ/4(= 90°) 어긋나 있다는 점을 기억하세요.',
+    },
+    connections: ['c25b', 'c27'],
+  },
+  {
+    id: 'c27',
+    era: 'm2',
+    eyebrow: 'Topic 3 · Module 02',
+    title: 'VSWR — 정재파를 수치로',
+    subtitle: '임피던스 불일치의 심각도를 하나의 숫자로 표현한다',
+    theories: [
+      { icon: '📊', title: 'VSWR의 정의', body: 'Voltage Standing Wave Ratio. 전압 정재파에서 최대값과 최소값의 비율입니다. VSWR = V_max / V_min. 완전 매칭이면 VSWR = 1, 완전 반사면 VSWR = ∞.' },
+      { icon: '🔗', title: 'Γ와 VSWR의 관계', body: 'VSWR = (1 + |Γ|) / (1 - |Γ|). 반사계수 Γ가 0이면 VSWR=1, Γ=0.5이면 VSWR=3, Γ=1이면 VSWR=∞. 하나를 알면 다른 하나를 구할 수 있습니다.' },
+      { icon: '📉', title: '반사 전력 손실', body: '반사계수가 Γ이면 반사전력 비율 = |Γ|². VSWR=2이면 약 11% 전력이 반사손실. VSWR=3이면 25% 손실. 반도체 장비에서 VSWR 관리가 중요한 이유입니다.' },
+      { icon: '🏭', title: '반도체 현장에서의 VSWR', body: '플라즈마 반응기의 임피던스는 압력, 가스 조성, RF 전력, 챔버 형상에 따라 동적으로 변합니다. 이 변화가 VSWR을 높이고 RF Matcher가 이를 실시간으로 보정합니다.' },
+    ],
+    equations: [
+      { label: 'VSWR 정의', tex: 'VSWR = \\dfrac{V_{max}}{V_{min}} = \\dfrac{1 + |\\Gamma|}{1 - |\\Gamma|}' },
+      { label: '반사 전력 비율', tex: 'P_{reflected} / P_{incident} = |\\Gamma|^2' },
+    ],
+    classroom: {
+      q: 'RF 시스템에서 VSWR = 2로 측정되었다. 반사되는 전력의 비율은?',
+      opts: [
+        { key:'A', text:'약 5.6%', correct: false },
+        { key:'B', text:'약 11.1%', correct: true },
+        { key:'C', text:'약 25%', correct: false },
+        { key:'D', text:'약 50%', correct: false },
+      ],
+      feedback_ok: '정확합니다! VSWR=2 → Γ = (2-1)/(2+1) = 1/3 → 반사전력 = |Γ|² = 1/9 ≈ 11.1%. 실용 시스템에서 VSWR ≤ 1.5를 권장하는 이유입니다.',
+      feedback_ng: 'VSWR=2에서 Γ = (VSWR-1)/(VSWR+1) = 1/3. 반사전력 = |Γ|² = 1/9를 계산해보세요.',
+    },
+    connections: ['c26', 'c28'],
+  },
+  {
+    id: 'c28',
+    era: 'm2',
+    eyebrow: 'Topic 4 · Module 02',
+    title: '줄에서 RF 전송선로로',
+    subtitle: '물리적 직관에서 실제 RF 시스템으로의 다리',
+    theories: [
+      { icon: '🔁', title: '완전한 대응 구조', body: '줄의 장력 T는 인덕턴스 L에, 선밀도 μ는 커패시턴스 C에 대응됩니다. 파동 속도 √(T/μ)는 1/√(LC)에 대응됩니다. 수식이 같으니 거동도 같습니다.' },
+      { icon: '📡', title: '동축케이블의 물성', body: '동축케이블은 특성 임피던스 Z₀ = √(L/C)를 가집니다. 반도체 RF 시스템의 표준은 50Ω. 이 값은 케이블 내부·외부 도체의 직경 비율로 결정됩니다.' },
+      { icon: '⚗️', title: 'CCP Reactor의 경계조건', body: 'CCP 전극은 Open circuit에 가까운 특성을 가지나, 플라즈마가 점화되면 저항성+용량성 복합 임피던스로 변합니다. 즉, 경계조건이 동적으로 변하는 시스템입니다.' },
+      { icon: '🔌', title: 'Poynting Vector로 보면', body: '동축케이블 속을 흐르는 에너지는 전자가 아니라 E×H(Poynting Vector), 즉 E-field와 B-field의 교차 공간입니다. 줄에서 파동에너지가 공간을 통해 전달되는 것과 동일한 구조입니다.' },
+    ],
+    equations: [
+      { label: '특성 임피던스', tex: 'Z_0 = \\sqrt{\\dfrac{L}{C}} \\approx 50\\,\\Omega' },
+      { label: '줄 ↔ 선로 파동속도 대응', tex: 'v = \\sqrt{\\dfrac{T}{\\mu}} \\longleftrightarrow v = \\dfrac{1}{\\sqrt{LC}}' },
+    ],
+    classroom: {
+      q: '동축케이블의 특성 임피던스 Z₀를 결정하는 것은?',
+      opts: [
+        { key:'A', text:'케이블의 길이', correct: false },
+        { key:'B', text:'신호의 주파수', correct: false },
+        { key:'C', text:'내부·외부 도체의 직경 비율 (즉, L과 C의 비율)', correct: true },
+        { key:'D', text:'인가 전압의 크기', correct: false },
+      ],
+      feedback_ok: '맞습니다! Z₀ = √(L/C)이며, L과 C는 케이블의 기하학적 구조(도체 직경 비율, 유전체 특성)에 의해 결정됩니다. 길이나 주파수에는 무관합니다.',
+      feedback_ng: 'Z₀ = √(L/C)에서, L과 C는 케이블의 기하학적 구조로 결정됩니다. 길이나 주파수와는 무관합니다.',
+    },
+    connections: ['c27', 'c29'],
+  },
+  {
+    id: 'c29',
+    era: 'm2',
+    eyebrow: 'Topic 5 · Module 02',
+    title: '왜 임피던스 매칭인가?',
+    subtitle: 'Module 02 마무리 — 그리고 Module 03으로의 예고',
+    theories: [
+      { icon: '🎯', title: 'RF Matcher의 존재 이유', body: 'RF 전원(50Ω)과 CCP Reactor(동적 임피던스) 사이의 경계조건을 강제로 일치시키는 장치입니다. 즉, 줄의 "느슨한 잡기"를 "정확한 잡기"로 보정하는 역할입니다.' },
+      { icon: '📈', title: '최대 전력 전달 조건', body: '임피던스 매칭이 완벽하면 Γ=0, VSWR=1이 되어 전원에서 출력되는 전력이 100% 부하에 전달됩니다. 이것이 Maximum Power Transfer Theorem의 RF 적용입니다.' },
+      { icon: '⚠️', title: '매칭 실패의 결과', body: '높은 VSWR은 RF 전원에 반사전력을 되돌려 보내 전원 보호 회로를 동작시키거나, 전송선로에 과전압/과전류를 발생시켜 장비 손상을 유발할 수 있습니다.' },
+      { icon: '🔮', title: 'Module 03 예고', body: 'Impedance란 무엇인가? L, C, R이 합쳐진 복소 임피던스의 개념, Smith Chart로 임피던스를 시각화하는 방법, 그리고 RF Matcher의 내부 동작 원리를 다룹니다.' },
+    ],
+    equations: [
+      { label: '최대 전력 전달 조건', tex: 'P_{max} \\text{ when } Z_L = Z_0^* \\quad (\\Gamma = 0)' },
+      { label: '전달 전력', tex: 'P_{del} = P_{gen}(1 - |\\Gamma|^2)' },
+    ],
+    classroom: {
+      q: 'RF Matcher의 주된 역할을 가장 정확하게 설명한 것은?',
+      opts: [
+        { key:'A', text:'RF 신호의 주파수를 변환한다', correct: false },
+        { key:'B', text:'RF 전력을 증폭한다', correct: false },
+        { key:'C', text:'전원과 부하 사이의 임피던스를 일치시켜 반사를 최소화한다', correct: true },
+        { key:'D', text:'플라즈마 밀도를 직접 제어한다', correct: false },
+      ],
+      feedback_ok: '정확합니다! RF Matcher = 임피던스 변환 장치. Γ를 0에 가깝게 만들어 최대 전력이 Reactor에 전달되도록 합니다.',
+      feedback_ng: 'RF Matcher는 신호 처리 장치가 아닙니다. 임피던스 불일치로 인한 반사를 제거하여 최대 전력을 전달하는 것이 핵심입니다.',
+    },
+    connections: ['c28', 'c24'],
+  },
+];
+
+const SLIDES_EN = [
+  {
+    id: 'c24p',
+    era: 'm2',
+    eyebrow: 'Prologue · Module 02',
+    title: 'How Does Electricity Flow?',
+    subtitle: 'Two questions that expose the biggest misconception about electricity',
+    theories: [
+      { icon: '💡', title: 'Question 1 — Why does the bulb light up?', body: 'Because the battery pushes current through? Because electrons flow along the wire? Check your intuition first — most engineers and students get this wrong.' },
+      { icon: '⏱️', title: 'Question 2 — How long until the bulb lights?', body: 'If the wire is 1 light-second long (~300,000 km), how soon does the bulb light after the switch is closed? a) 0.5 sec b) 1 sec c) 2 sec d) 1/c sec e) None of the above' },
+      { icon: '🌊', title: 'Energy flows outside the wire, not inside', body: "Veritasium's key insight: energy is delivered not by electrons but by the E-field and B-field (Poynting Vector) in the space outside the wire. This is the foundation of RF and plasma engineering." },
+      { icon: '🔗', title: 'Why this matters for RF', body: 'RF energy transfer from generator to reactor, impedance matching, standing waves — all of it begins with correcting this misconception. Understanding the true nature of electricity is the gateway to understanding RF.' },
+    ],
+    equations: [],
+    classroom: {
+      q: "Veritasium's question: In a circuit with 1 light-second of wire, how soon does the bulb light after the switch closes?",
+      opts: [
+        { key:'a', text:'0.5 sec — time for current to travel halfway', correct: false },
+        { key:'b', text:'1 sec — time for current to travel the full loop', correct: false },
+        { key:'c', text:'2 sec — round-trip time', correct: false },
+        { key:'e', text:'None of the above — about 1/c sec (wire gap / speed of light)', correct: true },
+      ],
+      feedback_ok: 'Correct! Energy is not carried by electrons but by the E/B fields (Poynting Vector) between the wires. If the gap between wires is 1m, the bulb lights in ~1/c ≈ 3.3 nanoseconds.',
+      feedback_ng: "Veritasium's key: energy travels through the electromagnetic field outside the wire, not through electrons inside. So it's the gap between wires (1m), not the full wire length, that sets the timing.",
+    },
+    connections: ['c25'],
+  },
+  {
+    id: 'c25',
+    era: 'm2',
+    eyebrow: 'Topic 1 · Module 02',
+    title: 'What is a Wave?',
+    subtitle: 'Different media, same equation — starting from the universality of waves',
+    theories: [
+      { icon: '〰️', title: 'Definition of a Wave', body: 'A wave is a phenomenon where energy propagates through space without the physical transport of the medium. Each element of the medium oscillates in place; only energy moves forward.' },
+      { icon: '🧮', title: 'Universality of Wave Equations', body: 'String waves, electromagnetic waves, and voltage waves on RF transmission lines — all three are described by the same form of partial differential equation. This is why we can explain RF with a string.' },
+      { icon: '⚡', title: 'The Nature of Energy', body: "As Veritasium demonstrates, what flows through wires is not electrons. E-field (electric) and B-field (magnetic) carry energy through the space outside the conductors." },
+      { icon: '🔄', title: 'E/B ↔ V/I Correspondence', body: 'E-field corresponds to voltage wave (V); B-field corresponds to current wave (I). More precisely, V·I is the circuit-language translation of E×H (the Poynting Vector).' },
+    ],
+    equations: [
+      { label: 'String wave equation', tex: '\\dfrac{\\partial^2 y}{\\partial t^2} = \\dfrac{T}{\\mu} \\dfrac{\\partial^2 y}{\\partial x^2}' },
+      { label: 'Transmission line voltage wave equation', tex: '\\dfrac{\\partial^2 V}{\\partial t^2} = \\dfrac{1}{LC} \\dfrac{\\partial^2 V}{\\partial x^2}' },
+    ],
+    classroom: {
+      q: 'Which of the following are described by the same form of wave equation? (Select all that apply)',
+      opts: [
+        { key:'A', text:'Transverse waves on a string', correct: true },
+        { key:'B', text:'Voltage waves on a transmission line', correct: true },
+        { key:'C', text:'Voltage drop in a DC circuit', correct: false },
+        { key:'D', text:'Electromagnetic waves (EM waves)', correct: true },
+      ],
+      feedback_ok: 'Correct! A, B, and D all satisfy the same second-order PDE wave equation. DC has no time variation, so the wave equation does not apply.',
+      feedback_ng: 'Reconsider. DC (direct current) does not vary with time, so it is not subject to the wave equation.',
+    },
+    connections: ['c21b', 'c24', 'c25b'],
+  },
+  {
+    id: 'c25b',
+    era: 'm2',
+    eyebrow: 'Topic 1.5 · Module 02',
+    title: 'Boundary Conditions — Where Reflection Begins',
+    subtitle: 'What happens when a wave meets an end?',
+    theories: [
+      { icon: '🚪', title: 'Free End (Open)', body: 'The end of the string is free to move. Energy has "nowhere to go" and reflects back. The reflected wave has the same phase as the incident wave.' },
+      { icon: '🔩', title: 'Fixed End (Short)', body: 'The end of the string is rigidly fixed. Displacement must always be zero at the fixed point, so the reflected wave is phase-inverted by 180°.' },
+      { icon: '🤝', title: 'Partial Reflection', body: 'The end is loosely held. Some energy reflects, some transmits. In RF terms, this corresponds to impedance mismatch (Z<sub>L</sub> ≠ Z₀).' },
+      { icon: '✅', title: 'Perfect Match', body: 'The string properties continue seamlessly across the boundary. No reflection — all energy transmits. This is the ideal goal of RF impedance matching.' },
+    ],
+    equations: [
+      { label: 'Fundamental definition (voltage ratio)', tex: '\\Gamma = \\dfrac{V^-}{V^+} = \\dfrac{\\text{Reflected}}{\\text{Incident}}' },
+      { label: 'Measurable form (power ratio)', tex: '|\\Gamma|^2 = \\dfrac{P_r}{P_f} \\quad\\Rightarrow\\quad |\\Gamma| = \\sqrt{\\dfrac{P_r}{P_f}}' },
+      { label: 'Impedance derivation', tex: '\\Gamma = \\dfrac{Z_L - Z_0}{Z_L + Z_0}' },
+    ],
+    classroom: {
+      q: 'In an RF transmission line, when Z<sub>L</sub> = Z₀, what is the reflection coefficient Γ?',
+      opts: [
+        { key:'A', text:'Γ = 1 (total reflection)', correct: false },
+        { key:'B', text:'Γ = 0 (no reflection)', correct: true },
+        { key:'C', text:'Γ = -1 (phase-inverted total reflection)', correct: false },
+        { key:'D', text:'Γ = 0.5 (partial reflection)', correct: false },
+      ],
+      feedback_ok: 'Correct! When Z<sub>L</sub> = Z₀, Γ = (Z<sub>L</sub> - Z₀)/(Z<sub>L</sub> + Z₀) = 0. Perfect matching — no reflection at all.',
+      feedback_ng: 'Apply Z<sub>L</sub> = Z₀ to the formula Γ = (Z<sub>L</sub> - Z₀)/(Z<sub>L</sub> + Z₀) and compute.',
+    },
+    connections: ['c25', 'c26'],
+  },
+  {
+    id: 'c26',
+    era: 'm2',
+    eyebrow: 'Topic 2 · Module 02',
+    title: 'Standing Wave',
+    subtitle: 'Forward wave + Reflected wave = A pattern engraved in space',
+    theories: [
+      { icon: '➕', title: 'Principle of Superposition', body: 'When a forward wave and a reflected wave coexist in the same space, they superpose. The result appears as a pattern that oscillates in place — a standing wave.' },
+      { icon: '📍', title: 'Nodes and Antinodes', body: 'Points of permanent zero amplitude are called nodes; points of maximum amplitude are antinodes. The pattern becomes more pronounced as the reflection coefficient Γ increases.' },
+      { icon: '↔️', title: 'V and I are offset by 90°', body: 'Voltage and current standing wave patterns are spatially offset by λ/4 (90°). Where voltage is maximum, current is minimum, and vice versa.' },
+      { icon: '⚡', title: 'Power does NOT form a standing wave', body: 'Real (active) power is constant with position on a lossless line. V and I oscillate spatially, but the delivered power does not — a common misconception among students.' },
+    ],
+    equations: [
+      { label: 'Voltage standing wave', tex: 'V(x) = V^+ e^{-j\\beta x} + V^- e^{+j\\beta x}' },
+      { label: 'Current standing wave', tex: 'I(x) = \\dfrac{V^+}{Z_0} e^{-j\\beta x} - \\dfrac{V^-}{Z_0} e^{+j\\beta x}' },
+    ],
+    classroom: {
+      q: 'At a point where voltage is maximum (V_max) in a standing wave, what is the current?',
+      opts: [
+        { key:'A', text:'Current is also at maximum', correct: false },
+        { key:'B', text:'Current is at minimum', correct: true },
+        { key:'C', text:'Current is always zero', correct: false },
+        { key:'D', text:'Voltage and current always peak at the same location', correct: false },
+      ],
+      feedback_ok: 'Correct! Voltage and current standing wave patterns are spatially offset by λ/4, so V_max coincides with I_min and V_min coincides with I_max.',
+      feedback_ng: 'Remember: V(x) and I(x) standing wave patterns are spatially offset by λ/4 (= 90°).',
+    },
+    connections: ['c25b', 'c27'],
+  },
+  {
+    id: 'c27',
+    era: 'm2',
+    eyebrow: 'Topic 3 · Module 02',
+    title: 'VSWR — Standing Wave as a Number',
+    subtitle: 'Expressing the severity of impedance mismatch as a single metric',
+    theories: [
+      { icon: '📊', title: 'Definition of VSWR', body: 'Voltage Standing Wave Ratio. The ratio of maximum to minimum voltage amplitude in a standing wave. VSWR = V_max / V_min. Perfect match → VSWR = 1; total reflection → VSWR = ∞.' },
+      { icon: '🔗', title: 'Γ and VSWR Relationship', body: 'VSWR = (1 + |Γ|) / (1 - |Γ|). If Γ=0, VSWR=1. If Γ=0.5, VSWR=3. If Γ=1, VSWR=∞. Knowing one gives the other.' },
+      { icon: '📉', title: 'Reflected Power Loss', body: 'Reflected power fraction = |Γ|². At VSWR=2, approximately 11% of power is reflected. At VSWR=3, 25% is lost. This is why VSWR management matters in semiconductor equipment.' },
+      { icon: '🏭', title: 'VSWR in Semiconductor Equipment', body: "The plasma reactor's impedance changes dynamically with pressure, gas composition, RF power, and chamber geometry. These changes raise VSWR, and the RF Matcher corrects this in real time." },
+    ],
+    equations: [
+      { label: 'VSWR definition', tex: 'VSWR = \\dfrac{V_{max}}{V_{min}} = \\dfrac{1 + |\\Gamma|}{1 - |\\Gamma|}' },
+      { label: 'Reflected power fraction', tex: 'P_{reflected} / P_{incident} = |\\Gamma|^2' },
+    ],
+    classroom: {
+      q: 'An RF system measures VSWR = 2. What percentage of power is reflected?',
+      opts: [
+        { key:'A', text:'~5.6%', correct: false },
+        { key:'B', text:'~11.1%', correct: true },
+        { key:'C', text:'~25%', correct: false },
+        { key:'D', text:'~50%', correct: false },
+      ],
+      feedback_ok: 'Correct! VSWR=2 → Γ = (2-1)/(2+1) = 1/3 → Reflected power = |Γ|² = 1/9 ≈ 11.1%. This is why VSWR ≤ 1.5 is recommended in practice.',
+      feedback_ng: 'From VSWR=2: Γ = (VSWR-1)/(VSWR+1) = 1/3. Reflected power = |Γ|² = 1/9. Calculate.',
+    },
+    connections: ['c26', 'c28'],
+  },
+  {
+    id: 'c28',
+    era: 'm2',
+    eyebrow: 'Topic 4 · Module 02',
+    title: 'From String to RF Transmission Line',
+    subtitle: 'Bridging physical intuition to real RF systems',
+    theories: [
+      { icon: '🔁', title: 'Complete Correspondence', body: 'Tension T maps to inductance L; linear mass density μ maps to capacitance C. Wave speed √(T/μ) maps to 1/√(LC). Same equations — same behavior.' },
+      { icon: '📡', title: 'Coaxial Cable Properties', body: 'Coaxial cables have a characteristic impedance Z₀ = √(L/C). The standard in semiconductor RF systems is 50Ω, set by the ratio of inner to outer conductor diameters.' },
+      { icon: '⚗️', title: 'CCP Reactor as a Boundary', body: 'CCP electrodes approximate an open circuit before plasma ignition. Once plasma lights, they present a complex resistive+capacitive impedance that varies dynamically.' },
+      { icon: '🔌', title: 'The Poynting Vector View', body: 'Energy in a coaxial cable travels not as electrons but as E×H (Poynting Vector) — the cross-product of E-field and B-field in the space between conductors. Exactly as energy travels through the space around a vibrating string.' },
+    ],
+    equations: [
+      { label: 'Characteristic impedance', tex: 'Z_0 = \\sqrt{\\dfrac{L}{C}} \\approx 50\\,\\Omega' },
+      { label: 'String ↔ Line wave speed', tex: 'v = \\sqrt{\\dfrac{T}{\\mu}} \\longleftrightarrow v = \\dfrac{1}{\\sqrt{LC}}' },
+    ],
+    classroom: {
+      q: 'What determines the characteristic impedance Z₀ of a coaxial cable?',
+      opts: [
+        { key:'A', text:'The length of the cable', correct: false },
+        { key:'B', text:'The frequency of the signal', correct: false },
+        { key:'C', text:'The ratio of inner to outer conductor diameters (i.e., L and C ratio)', correct: true },
+        { key:'D', text:'The magnitude of the applied voltage', correct: false },
+      ],
+      feedback_ok: 'Correct! Z₀ = √(L/C), where L and C are determined by the cable geometry (conductor diameter ratio and dielectric properties). Independent of length or frequency.',
+      feedback_ng: 'Z₀ = √(L/C), where L and C depend on the geometric structure of the cable, not its length or the signal frequency.',
+    },
+    connections: ['c27', 'c29'],
+  },
+  {
+    id: 'c29',
+    era: 'm2',
+    eyebrow: 'Topic 5 · Module 02',
+    title: 'Why Impedance Matching?',
+    subtitle: 'Module 02 conclusion — and a preview of Module 03',
+    theories: [
+      { icon: '🎯', title: 'The Role of an RF Matcher', body: 'The RF Matcher forcibly aligns the boundary condition between the RF source (50Ω) and the CCP Reactor (dynamic impedance). It converts a "loose grip" on the string into a "perfect grip."' },
+      { icon: '📈', title: 'Maximum Power Transfer Condition', body: 'Perfect impedance matching means Γ=0, VSWR=1 — 100% of the source power is delivered to the load. This is the Maximum Power Transfer Theorem applied to RF.' },
+      { icon: '⚠️', title: 'Consequences of Poor Matching', body: 'High VSWR sends reflected power back to the RF source, triggering protection circuits or causing overvoltage/overcurrent on the transmission line, potentially damaging equipment.' },
+      { icon: '🔮', title: 'Module 03 Preview', body: 'What is Impedance? Complex impedance combining L, C, R. Visualizing impedance on a Smith Chart. And the internal operating principle of an RF Matcher.' },
+    ],
+    equations: [
+      { label: 'Maximum power transfer condition', tex: 'P_{max} \\text{ when } Z_L = Z_0^* \\quad (\\Gamma = 0)' },
+      { label: 'Delivered power', tex: 'P_{del} = P_{gen}(1 - |\\Gamma|^2)' },
+    ],
+    classroom: {
+      q: 'Which statement most accurately describes the primary function of an RF Matcher?',
+      opts: [
+        { key:'A', text:'It converts the frequency of the RF signal', correct: false },
+        { key:'B', text:'It amplifies the RF power', correct: false },
+        { key:'C', text:'It matches impedance between source and load to minimize reflection', correct: true },
+        { key:'D', text:'It directly controls plasma density', correct: false },
+      ],
+      feedback_ok: 'Correct! RF Matcher = impedance transformer. It drives Γ toward zero so that maximum power reaches the reactor.',
+      feedback_ng: 'An RF Matcher is not a signal processor. Its core function is to eliminate reflection from impedance mismatch so maximum power is delivered.',
+    },
+    connections: ['c28', 'c24'],
+  },
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let currentLang = 'en';
+let currentId = 'c24p';
+let currentTab = 'diagram';
+
+function slides() { return currentLang === 'ko' ? SLIDES_KO : SLIDES_EN; }
+function getSlide(id) { return slides().find(s => s.id === id); }
+
+/* ═══════════════════════════════════════════
+   SIDEBAR RENDER
+═══════════════════════════════════════════ */
+const ERA_COLORS = { m2: '#7030A0' };
+const SB_ICONS = { c24p:'⚡', c25:'〰️', c25b:'🪢', c26:'📊', c27:'📈', c28:'🔌', c29:'🎯' };
+const SB_SUBS_KO = { c24p:'전기의 본질 (Prologue)', c25:'파동의 보편성', c25b:'경계조건', c26:'정재파', c27:'VSWR', c28:'줄→RF 선로', c29:'임피던스 매칭' };
+const SB_SUBS_EN = { c24p:'Nature of Electricity (Prologue)', c25:'Wave Universality', c25b:'Boundary Conditions', c26:'Standing Wave', c27:'VSWR', c28:'String→RF Line', c29:'Impedance Matching' };
+
+function renderSidebar() {
+  const sl = slides();
+  const nl = document.getElementById('nav-list');
+  nl.innerHTML = '';
+  sl.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'sb-item' + (s.id === currentId ? ' active' : '');
+    div.onclick = () => navigateTo(s.id);
+    const color = ERA_COLORS[s.era] || '#7030A0';
+    const sub = currentLang === 'ko' ? SB_SUBS_KO[s.id] : SB_SUBS_EN[s.id];
+    div.innerHTML = `
+      <div class="sb-dot" style="background:${color}20;color:${color}">${SB_ICONS[s.id]||'●'}</div>
+      <div>
+        <div class="sb-label">${s.title}</div>
+        <div class="sb-sub">${sub||''}</div>
+      </div>`;
+    nl.appendChild(div);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const sl = slides();
+  const idx = sl.findIndex(s => s.id === currentId);
+  const pct = sl.length > 1 ? (idx / (sl.length - 1)) * 100 : 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ═══════════════════════════════════════════
+   DIAGRAM BUILDERS — per topic
+═══════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════
+   c24p — PROLOGUE: 전기는 어떻게 흐르는가?
+═══════════════════════════════════════════ */
+function buildC24pDiagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge" style="background:#C0392B">⚡ Prologue</span>
+    <span class="d-title">${isEn ? 'How Does Electricity Flow? — Two Questions' : '전기는 어떻게 흐르는가? — 두 가지 질문'}</span>
+  </div>
+  <div class="d-body">
+
+    <!-- 도입 callout -->
+    <div class="callout" style="margin-bottom:18px">
+      <div class="callout-title">🎯 ${isEn ? 'Think About It' : '생각해 보기'}</div>
+    </div>
+
+    <!-- Q1 이미지 카드 -->
+    <div style="background:var(--card);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)">
+      <div style="background:var(--card-hd);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="background:#C0392B;color:#fff;font-size:0.7rem;font-weight:700;
+                       padding:3px 10px;border-radius:12px;font-family:var(--mono)">Q1</span>
+          <span style="font-size:0.9rem;font-weight:700;color:var(--text)">
+            ${isEn ? 'Why does the light bulb turn on?' : '전구의 불은 왜 들어오는 것일까?'}
+          </span>
+        </div>
+        <button onclick="toggleAnswer('ans1')"
+          style="padding:5px 14px;border:1.5px solid #C0392B;border-radius:7px;
+                 background:transparent;color:#C0392B;font-size:0.75rem;font-weight:700;
+                 cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all 0.15s"
+          onmouseover="this.style.background='#C0392B';this.style.color='#fff'"
+          onmouseout="this.style.background='transparent';this.style.color='#C0392B'">
+          ${isEn ? '💡 Show Answer' : '💡 정답 보기'}
+        </button>
+      </div>
+      <div style="padding:12px 16px;display:flex;justify-content:center;background:var(--card)">
+        <img src="./images/circuit_1.png" alt="${isEn ? 'Battery and bulb circuit' : '배터리와 전구 회로'}"
+             style="width:60%;display:block;cursor:zoom-in;border-radius:8px"
+             onclick="openImgPopup('./images/circuit_1.png', '${isEn ? 'Q1: Why does the bulb light up?' : 'Q1: 전구의 불은 왜 들어오는 것일까?'}')"/>
+      </div>
+      <!-- 정답 패널 (기본 숨김) -->
+      <div id="ans1" style="display:none;padding:14px 16px;border-top:2px solid #C0392B10">
+        <div style="display:flex;gap:8px;flex-direction:column">
+          ${[
+            { t: isEn?'A. Electrons flow through the wire':'A. 전자가 전선을 타고 흐른다',        correct:false },
+            { t: isEn?'B. Battery pushes current':'B. 배터리가 전류를 밀어낸다',                  correct:false },
+            { t: isEn?'C. E/B fields carry energy outside the wire':'C. 전선 바깥의 E/B field가 에너지를 전달한다', correct:true  },
+          ].map(o=>`
+            <div style="padding:9px 14px;border-radius:8px;display:flex;align-items:center;gap:10px;
+                 border:1.5px solid ${o.correct ? 'var(--green)' : '#88888830'};
+                 background:${o.correct ? 'var(--green)12' : '#88888808'}">
+              <span style="font-size:1rem;flex-shrink:0">${o.correct ? '✅' : '❌'}</span>
+              <span style="font-size:0.8rem;color:${o.correct ? 'var(--green)' : '#888'};
+                    font-weight:${o.correct ? '700' : '400'}">${o.t}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:10px;padding:10px 14px;background:#F0FAF4;border-radius:8px;
+             font-size:0.78rem;color:var(--text);line-height:1.6;border:1px solid #A8D5B8">
+          ${isEn
+            ? '<strong style="color:var(--green)">Answer C</strong> — Energy is not carried by electrons moving through the wire. The E-field and B-field surrounding the wire carry energy as a Poynting Vector (S = E × H) through the space outside the conductors.'
+            : '<strong style="color:var(--green)">정답 C</strong> — 에너지는 전선 속 전자의 이동으로 전달되지 않습니다. 전선 주변의 E-field와 B-field가 도체 바깥 공간을 통해 Poynting Vector(S = E × H)로 에너지를 전달합니다.'}
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2 이미지 카드 -->
+    <div style="background:var(--card);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)">
+      <div style="background:var(--card-hd);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="background:#1A6FB5;color:#fff;font-size:0.7rem;font-weight:700;
+                       padding:3px 10px;border-radius:12px;font-family:var(--mono)">Q2</span>
+          <span style="font-size:0.9rem;font-weight:700;color:var(--text)">
+            ${isEn ? 'How long until the bulb lights up?' : '전구의 불은 얼마 만에 들어올까?'}
+          </span>
+        </div>
+        <button onclick="toggleAnswer('ans2')"
+          style="padding:5px 14px;border:1.5px solid #1A6FB5;border-radius:7px;
+                 background:transparent;color:#1A6FB5;font-size:0.75rem;font-weight:700;
+                 cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all 0.15s"
+          onmouseover="this.style.background='#1A6FB5';this.style.color='#fff'"
+          onmouseout="this.style.background='transparent';this.style.color='#1A6FB5'">
+          ${isEn ? '💡 Show Answer' : '💡 정답 보기'}
+        </button>
+      </div>
+      <div style="padding:12px 16px;display:flex;justify-content:center;background:var(--card)">
+        <img src="./images/circuit_2.png" alt="${isEn ? '1 light-second circuit question' : '1광초 회로 질문'}"
+             style="width:60%;display:block;cursor:zoom-in;border-radius:8px"
+             onclick="openImgPopup('./images/circuit_2.png', '${isEn ? 'Q2: How long until the bulb lights up?' : 'Q2: 전구의 불은 얼마 만에 들어올까?'}')"/>
+      </div>
+      <!-- 선택지 (항상 표시) -->
+      <div style="padding:12px 16px">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+          ${['a) 0.5 sec','b) 1 sec','c) 2 sec'].map(o=>`
+            <div style="padding:8px;border-radius:8px;border:1.5px solid #88888830;
+                 background:#88888808;text-align:center;font-family:var(--mono);
+                 font-size:0.82rem;color:#888">${o}</div>
+          `).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="padding:8px;border-radius:8px;border:1.5px solid #88888830;
+               background:#88888808;text-align:center;font-family:var(--mono);
+               font-size:0.82rem;color:#888">d) 1/c sec</div>
+          <div style="padding:8px;border-radius:8px;border:1.5px solid #88888830;
+               background:#88888808;text-align:center;font-family:var(--mono);
+               font-size:0.82rem;color:#888">
+            e) ${isEn?'None of the Above':'위의 어느 것도 아니다'}
+          </div>
+        </div>
+      </div>
+      <!-- 정답 패널 (기본 숨김) -->
+      <div id="ans2" style="display:none;padding:0 16px 14px;border-top:2px solid #1A6FB510">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;margin-top:14px">
+          ${['a) 0.5 sec','b) 1 sec','c) 2 sec'].map(o=>`
+            <div style="padding:8px;border-radius:8px;border:1.5px solid var(--red)30;
+                 background:var(--red)08;text-align:center;font-family:var(--mono);
+                 font-size:0.82rem;color:var(--red);display:flex;align-items:center;justify-content:center;gap:6px">
+              ❌ ${o}
+            </div>
+          `).join('')}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="padding:8px;border-radius:8px;border:1.5px solid var(--red)30;
+               background:var(--red)08;text-align:center;font-family:var(--mono);
+               font-size:0.82rem;color:var(--red);display:flex;align-items:center;justify-content:center;gap:6px">
+            ❌ d) 1/c sec
+          </div>
+          <div style="padding:8px;border-radius:8px;border:2px solid var(--green);
+               background:var(--green)12;text-align:center;font-family:var(--mono);
+               font-size:0.82rem;color:var(--green);font-weight:700">
+            ✅ e) ${isEn?'None of the Above':'위의 어느 것도 아니다'}
+          </div>
+        </div>
+        <div style="padding:10px 14px;background:#F0FAF4;border-radius:8px;
+             font-size:0.78rem;color:var(--text);line-height:1.65;border:1px solid #A8D5B8">
+          <strong style="color:var(--green)">${isEn?'Answer: e)':'정답: e)'}</strong>
+          ${isEn
+            ? ' — The bulb lights up in ~1/c seconds (≈ 3.3 ns), determined by the <em>gap between the wires</em> (1 m), not the total wire length (1 light-second). Energy travels through the E/B field outside the wire at the speed of light. Option d) "1/c sec" is dimensionally wrong (1/c has units of s/m, not seconds).'
+            : ' — 전구는 약 1/c초(≈ 3.3 나노초) 만에 켜집니다. 전선의 총 길이(1광초)가 아니라 <em>두 전선 사이의 간격</em>(1m)에 의해 결정됩니다. 에너지는 전선 바깥의 E/B field를 통해 빛의 속도로 이동합니다. d) "1/c 초"는 단위가 맞지 않습니다(1/c의 단위는 s/m).'}
+        </div>
+      </div>
+    </div>
+
+    <!-- Veritasium 유튜브 링크 -->
+    <div style="border:1.5px solid #E8E0EE;border-radius:12px;overflow:hidden;background:#fff">
+      <div style="padding:14px 18px;display:flex;align-items:center;gap:16px">
+        <!-- YouTube 마크 클릭 → 6분 이동 -->
+        <a href="https://www.youtube.com/watch?v=bHIhgxav9LY&t=360s"
+           target="_blank" rel="noopener noreferrer"
+           title="Watch on YouTube"
+           style="display:flex;align-items:center;justify-content:center;
+                  flex-shrink:0;text-decoration:none"
+           onmouseover="this.querySelector('div').style.background='#AA0000'"
+           onmouseout="this.querySelector('div').style.background='#FF0000'">
+          <div style="background:#FF0000;border-radius:10px;width:54px;height:38px;
+               display:flex;align-items:center;justify-content:center;
+               transition:background 0.15s">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="white">
+              <path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/>
+            </svg>
+          </div>
+        </a>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;color:var(--text);line-height:1.3">
+            Watch: The Biggest Misconception About Electricity
+          </div>
+          <div style="font-size:0.7rem;color:var(--text-sub);margin-top:3px">
+            Veritasium
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>`;
+}
+
+function buildC24pDeepLearn(isEn) {
+  return isEn ? `
+<div class="deep-section">
+  <h3>The Poynting Vector — Energy's True Path</h3>
+  <p>The conventional picture of electricity — electrons flowing like water through a pipe, carrying energy with them — is a useful approximation for simple DC circuits. But it breaks down completely when we ask: how fast does energy travel? Where exactly does it flow?</p>
+  <h3>Poynting's Theorem (1884)</h3>
+  <p>John Henry Poynting proved that electromagnetic energy flows through the fields surrounding a conductor, not through the conductor itself. The energy flux (power per unit area) is described by the Poynting Vector:</p>
+  <div class="eq-block">S = E × H &nbsp;&nbsp; [W/m²]</div>
+  <p>In a wire carrying DC current: the E-field points along the wire (from high to low potential), the H-field (B-field) circles around the wire, and S = E × H points radially inward — energy flows from the space surrounding the wire into the wire, where it is dissipated as heat. The electrons are not the carriers; they are the medium that shapes the fields.</p>
+  <h3>Why the Bulb Lights in ~1/c Seconds</h3>
+  <p>In the 1 light-second circuit, closing the switch creates a disturbance in the electromagnetic field that propagates outward at the speed of light. The bulb is 1 meter away from the switch (across the wire gap). The field disturbance reaches the bulb in 1m / c ≈ 3.3 nanoseconds — regardless of how long the wire is.</p>
+  <div class="eq-block">t ≈ d_gap / c &nbsp;≈&nbsp; 1m / (3×10⁸ m/s) &nbsp;≈&nbsp; 3.3 ns</div>
+  <h3>Connection to RF Engineering</h3>
+  <p>This is not merely a curiosity. In RF systems, energy travels through the space between the inner and outer conductors of a coaxial cable as a transverse electromagnetic (TEM) wave — exactly the E×H Poynting flux. The electrons in the conductors guide and shape the fields; they do not transport the energy. This is why impedance matching, transmission line theory, and standing waves are formulated in terms of field quantities (V and I as proxies for E and H), not electron flow.</p>
+  <div class="callout green">
+    <div class="callout-title">💬 Key Statement</div>
+    "In RF systems, we talk about voltage and current because they are convenient proxies for E-field and H-field. The real energy carrier is the Poynting Vector S = E × H, flowing in the space between the conductors. This is what Veritasium showed — and it is the physical foundation of every concept in this module."
+  </div>
+</div>` : `
+<div class="deep-section">
+  <h3>Poynting Vector — 에너지의 진짜 경로</h3>
+  <p>전통적인 전기 그림 — 물이 파이프를 흐르듯 전자가 에너지를 싣고 전선을 흐른다 — 은 단순한 DC 회로에서는 유용한 근사입니다. 하지만 "에너지는 얼마나 빨리 이동하는가? 정확히 어디를 흐르는가?"라고 물으면 완전히 무너집니다.</p>
+  <h3>Poynting 정리 (1884)</h3>
+  <p>John Henry Poynting은 전자기 에너지가 도체 내부가 아니라 도체 주변의 전자기장을 통해 흐른다는 것을 증명했습니다. 에너지 플럭스(단위면적당 전력)는 Poynting Vector로 기술됩니다:</p>
+  <div class="eq-block">S = E × H &nbsp;&nbsp; [W/m²]</div>
+  <p>DC 전류가 흐르는 전선에서: E-field는 전선을 따라(고전위→저전위), H-field는 전선 주위를 회전하고, S = E × H는 전선 중심 방향으로 향합니다 — 에너지는 전선 주변 공간에서 전선 내부로 흘러 들어가 열로 소산됩니다. 전자는 운반체가 아니라 장(field)을 형성하는 매질입니다.</p>
+  <h3>왜 전구가 ~1/c초 만에 켜지는가</h3>
+  <p>1광초 회로에서 스위치를 닫으면 전자기장의 교란이 빛의 속도로 바깥쪽으로 전파됩니다. 전구는 스위치로부터 전선 간격 1m 거리에 있습니다. 장의 교란이 전구에 도달하는 시간은 전선 길이와 무관하게 1m/c ≈ 3.3 나노초입니다.</p>
+  <div class="eq-block">t ≈ d_간격 / c &nbsp;≈&nbsp; 1m / (3×10⁸ m/s) &nbsp;≈&nbsp; 3.3 ns</div>
+  <h3>RF 공학과의 연결</h3>
+  <p>이것은 단순한 호기심이 아닙니다. RF 시스템에서 에너지는 동축케이블의 내부/외부 도체 사이의 공간을 횡전자기(TEM)파 형태로 이동합니다 — 정확히 E×H Poynting 플럭스입니다. 도체 속 전자는 장을 안내하고 형성할 뿐, 에너지를 운반하지 않습니다. 이것이 임피던스 매칭, 전송선로 이론, 정재파가 전자 흐름이 아닌 장(field) 물리량(V, I는 E, H의 대용)으로 기술되는 이유입니다.</p>
+  <div class="callout green">
+    <div class="callout-title">💬 핵심 문장</div>
+    "RF 시스템에서 전압과 전류를 다루는 것은 E-field와 H-field의 편리한 대용이기 때문입니다. 실제 에너지 운반체는 도체 사이 공간을 흐르는 Poynting Vector S = E × H입니다. 이것이 Veritasium이 보여준 것이며, 이 모듈의 모든 개념의 물리적 토대입니다."
+  </div>
+</div>`;
+}
+
+function buildC25Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge">파동방정식</span>
+    <span class="d-title">${isEn ? 'Three Waves — One Equation' : '세 가지 파동 — 하나의 방정식'}</span>
+  </div>
+  <div class="d-body">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px">
+      ${[
+        { icon:'〰️', label: isEn?'String Wave':'줄의 파동', sub: isEn?'Mechanical':'역학적', color:'var(--blue)',
+          items: isEn?['Medium: string mass','Energy: displacement','Speed: √(T/μ)']:['매질: 줄의 질량','에너지: 변위','속도: √(T/μ)'] },
+        { icon:'🌊', label: isEn?'EM Wave':'전자기파', sub: isEn?'Electromagnetic':'전자기적', color:'var(--green)',
+          items: isEn?['Medium: vacuum/dielectric','Energy: E×H field','Speed: c = 1/√(μ₀ε₀)']:['매질: 진공/유전체','에너지: E×H 필드','속도: c = 1/√(μ₀ε₀)'] },
+        { icon:'⚡', label: isEn?'RF Transmission Line':'RF 전송선로', sub: isEn?'Circuit':'회로적', color:'var(--plasma)',
+          items: isEn?['Medium: coax space','Energy: V, I wave','Speed: 1/√(LC)']:['매질: 동축 공간','에너지: V, I 파동','속도: 1/√(LC)'] },
+      ].map(w=>`
+        <div style="background:#fff;border:1.5px solid ${w.color}30;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:1.8rem;margin-bottom:6px">${w.icon}</div>
+          <div style="font-weight:700;font-size:0.88rem;color:${w.color};margin-bottom:2px">${w.label}</div>
+          <div style="font-size:0.68rem;color:var(--text-sub);margin-bottom:10px">${w.sub}</div>
+          ${w.items.map(it=>`<div style="font-size:0.73rem;color:var(--text);padding:3px 0;border-top:1px solid var(--border)">${it}</div>`).join('')}
+        </div>
+      `).join('')}
+    </div>
+    <div class="callout" style="text-align:center">
+      <div class="callout-title">📐 ${isEn?'Universal Wave Equation':'보편 파동방정식'}</div>
+      <div style="font-family:var(--mono);font-size:1rem;margin:6px 0">∂²Ψ/∂t² = v² · ∂²Ψ/∂x²</div>
+      <div style="font-size:0.78rem;color:var(--text-sub)">${isEn?'Ψ = y (string), E (EM wave), V (transmission line) — same structure, same behavior':'Ψ = y(줄), E(전자기파), V(전송선로) — 형태가 같으면 거동도 같다'}</div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="sim-wrap">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--purple);margin-bottom:10px">
+          🎬 ${isEn?'String Wave Simulator':'줄 파동 시뮬레이터'}
+        </div>
+        <canvas id="waveCanvas" class="sim-canvas" width="680" height="160"></canvas>
+        <div class="sim-controls">
+          <div class="sim-ctrl-group">
+            <div class="sim-ctrl-label">${isEn?'Frequency':'주파수'} <span class="sim-ctrl-val" id="freqVal">2 Hz</span></div>
+            <input type="range" class="sim-slider" id="freqSlider" min="0.5" max="5" step="0.1" value="2">
+          </div>
+          <div class="sim-ctrl-group">
+            <div class="sim-ctrl-label">${isEn?'Amplitude':'진폭'} <span class="sim-ctrl-val" id="ampVal">40</span></div>
+            <input type="range" class="sim-slider" id="ampSlider" min="10" max="50" step="1" value="28">
+          </div>
+          <div class="sim-ctrl-group">
+            <div class="sim-ctrl-label">${isEn?'Wave Speed':'파동 속도'} <span class="sim-ctrl-val" id="speedVal">200</span></div>
+            <input type="range" class="sim-slider" id="speedSlider" min="50" max="400" step="10" value="200">
+          </div>
+        </div>
+        <div class="sim-info" id="waveInfo">${isEn?'Adjust sliders to observe how frequency, amplitude, and wave speed affect the traveling wave.':'슬라이더를 조정하여 주파수, 진폭, 파동속도가 진행파에 미치는 영향을 관찰하세요.'}</div>
+      </div>
+    </div>
+
+    <!-- 슈뢰딩거 방정식 이미지 링크 -->
+    <div style="margin-top:16px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:14px;cursor:pointer"
+         onclick="openImgPopup('./images/s_wave_equation.png','The Schrödinger Equation — from waves to quantum mechanics')">
+      <img src="./images/s_wave_equation.png" alt="The Schrödinger Equation"
+           style="width:72px;height:auto;border-radius:6px;object-fit:cover;border:1px solid var(--border);flex-shrink:0"/>
+      <div>
+        <div style="font-size:0.82rem;font-weight:700;color:var(--purple);margin-bottom:3px">
+          📄 ${isEn?'Reference: The Schrödinger Equation':'참고자료: 슈뢰딩거 방정식'}
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-sub);line-height:1.5">
+          ${isEn
+            ? 'The same wave equation structure that governs strings and RF lines extends to quantum mechanics. Click to view.'
+            : '줄과 RF 선로를 지배하는 것과 동일한 파동방정식 구조가 양자역학으로 이어집니다. 클릭하여 확인하세요.'}
+        </div>
+      </div>
+      <div style="margin-left:auto;font-size:0.72rem;color:var(--purple);font-weight:600;white-space:nowrap">
+        🔍 ${isEn?'View':'확대 보기'}
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+function buildC25bDiagram(isEn) {
+  const conditions = isEn ? [
+    { id:'free', label:'Free End (Open)', icon:'🚪', color:'var(--blue)', rf:'Z<sub>L</sub> = ∞', phase: isEn?'Same phase (+1)':'동위상 (+1)', desc:'End free to move. Full reflection, same phase. RF: open circuit terminal.' },
+    { id:'fixed', label:'Fixed End (Short)', icon:'🔩', color:'var(--red)', rf:'Z<sub>L</sub> = 0', phase:'Phase inverted (−1)', desc:'End rigidly fixed. Full reflection, 180° phase inversion. RF: short circuit terminal.' },
+    { id:'partial', label:'Partial (Z<sub>L</sub> ≠ Z₀)', icon:'🤝', color:'var(--plasma)', rf:'0 < |Γ| < 1', phase:'Partial reflection', desc:'Loosely held end. Partial reflection + partial transmission. RF: impedance mismatch.' },
+    { id:'match', label:'Perfect Match (Z<sub>L</sub> = Z₀)', icon:'✅', color:'var(--green)', rf:'Γ = 0', phase:'No reflection', desc:'Seamless continuation. Zero reflection. Maximum power transfer. RF: ideal matching.' },
+  ] : [
+    { id:'free', label:'자유단 (Open)', icon:'🚪', color:'var(--blue)', rf:'Z<sub>L</sub> = ∞', phase:'동위상 반사 (+1)', desc:'끝이 자유롭게 움직임. 완전반사, 위상 유지. RF: 개방 회로 단자.' },
+    { id:'fixed', label:'고정단 (Short)', icon:'🔩', color:'var(--red)', rf:'Z<sub>L</sub> = 0', phase:'위상 반전 반사 (−1)', desc:'끝이 완전히 고정. 완전반사, 180° 위상 반전. RF: 단락 회로 단자.' },
+    { id:'partial', label:'부분 반사 (Z<sub>L</sub> ≠ Z₀)', icon:'🤝', color:'var(--plasma)', rf:'0 < |Γ| < 1', phase:'부분 반사', desc:'느슨하게 잡힌 끝. 일부 반사 + 일부 투과. RF: 임피던스 불일치.' },
+    { id:'match', label:'완전 매칭 (Z<sub>L</sub> = Z₀)', icon:'✅', color:'var(--green)', rf:'Γ = 0', phase:'반사 없음', desc:'경계가 연속적으로 이어짐. 반사 없음. 최대 전력 전달. RF: 이상적 매칭.' },
+  ];
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge">경계조건</span>
+    <span class="d-title">${isEn?'Boundary Conditions & RF Correspondence':'경계조건과 RF 대응'}</span>
+  </div>
+  <div class="d-body">
+
+    <!-- Γ 개념 소개 블록 — 3단계 개념 흐름 -->
+    <div style="background:#fff;border:1.5px solid #C9B8E8;border-radius:12px;padding:16px;margin-bottom:16px">
+
+      <!-- 타이틀 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="background:var(--purple);color:#fff;font-family:var(--mono);font-size:0.72rem;
+                     font-weight:700;padding:3px 10px;border-radius:12px">Γ (Gamma)</span>
+        <span style="font-size:0.84rem;font-weight:700;color:var(--purple)">
+          ${isEn?'Reflection Coefficient — 3-Step Concept Flow':'반사계수 — 3단계 개념 흐름'}
+        </span>
+      </div>
+
+      <!-- 3단계 수직 흐름 -->
+      <div style="display:flex;flex-direction:column;gap:0">
+
+        <!-- STEP 1: 본질 정의 -->
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:48px;flex-shrink:0">
+            <div style="background:var(--purple);color:#fff;font-size:0.7rem;font-weight:700;
+                        width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+                        justify-content:center;flex-shrink:0;font-family:var(--mono)">①</div>
+            <div style="width:2px;flex:1;background:#C9B8E8;margin:4px 0"></div>
+          </div>
+          <div style="flex:1;padding:0 0 16px 12px">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--purple);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">
+              ${isEn?'Fundamental Definition — What you observe':'본질 정의 — 관찰되는 현상'}
+            </div>
+            <div style="background:#F8F6FF;border:1.5px solid #C9B8E8;border-radius:10px;padding:12px">
+              <p style="font-size:0.8rem;color:var(--text);line-height:1.65;margin-bottom:10px">
+                ${isEn
+                  ? 'When a wave reaches a boundary, part of it reflects back. <strong>Γ is simply the ratio of the reflected voltage wave to the incident (forward) voltage wave.</strong> This is the most direct, observable definition.'
+                  : '파동이 경계를 만나면 일부가 반사됩니다. <strong>Γ는 반사파 전압과 입사(진행)파 전압의 비율입니다.</strong> 이것이 가장 직접적이고 관찰 가능한 정의입니다.'}
+              </p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div style="background:#fff;border:2px solid var(--purple);border-radius:8px;padding:10px;text-align:center">
+                  <div style="font-size:0.68rem;color:var(--text-sub);margin-bottom:4px">${isEn?'Voltage definition':'전압 정의'}</div>
+                  <div style="font-family:var(--mono);font-size:1.05rem;font-weight:700;color:var(--purple)">
+                    Γ = V<sup>−</sup> / V<sup>+</sup>
+                  </div>
+                  <div style="font-size:0.65rem;color:var(--text-sub);margin-top:4px">
+                    ${isEn?'V⁻ = reflected · V⁺ = incident':'V⁻ = 반사파 · V⁺ = 입사파'}
+                  </div>
+                </div>
+                <div style="background:#fff;border:1.5px solid #C9B8E8;border-radius:8px;padding:10px;text-align:center">
+                  <div style="font-size:0.68rem;color:var(--text-sub);margin-bottom:4px">${isEn?'Range':'범위'}</div>
+                  <div style="font-size:0.75rem;color:var(--text);line-height:1.8;font-family:var(--mono)">
+                    <span style="color:var(--green)">|Γ| = 0</span> ${isEn?'→ no refl.':'→ 반사 없음'}<br>
+                    <span style="color:var(--plasma)">0 &lt; |Γ| &lt; 1</span> ${isEn?'→ partial':'→ 부분 반사'}<br>
+                    <span style="color:var(--red)">|Γ| = 1</span> ${isEn?'→ total refl.':'→ 완전 반사'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: 전력으로 측정 -->
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:48px;flex-shrink:0">
+            <div style="background:#1A6FB5;color:#fff;font-size:0.7rem;font-weight:700;
+                        width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+                        justify-content:center;flex-shrink:0;font-family:var(--mono)">②</div>
+            <div style="width:2px;flex:1;background:#A8C4E8;margin:4px 0"></div>
+          </div>
+          <div style="flex:1;padding:0 0 16px 12px">
+            <div style="font-size:0.75rem;font-weight:700;color:#1A6FB5;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">
+              ${isEn?'Measurable Form — Power you can read on an instrument':'측정 가능한 형태 — 계측기로 읽을 수 있는 전력'}
+            </div>
+            <div style="background:#F0F6FF;border:1.5px solid #A8C4E8;border-radius:10px;padding:12px">
+              <p style="font-size:0.8rem;color:var(--text);line-height:1.65;margin-bottom:10px">
+                ${isEn
+                  ? 'In practice, we measure <em>power</em> — not voltage directly. Since power ∝ V², the reflected power ratio becomes |Γ|². This is what RF power meters actually read.'
+                  : '실제로는 전압이 아닌 <em>전력</em>을 측정합니다. 전력 ∝ V²이므로 반사전력 비율은 |Γ|²가 됩니다. RF 전력계가 실제로 읽는 값입니다.'}
+              </p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div style="background:#fff;border:2px solid #1A6FB5;border-radius:8px;padding:10px;text-align:center">
+                  <div style="font-size:0.68rem;color:var(--text-sub);margin-bottom:4px">${isEn?'Power definition':'전력 정의'}</div>
+                  <div style="font-family:var(--mono);font-size:1.05rem;font-weight:700;color:#1A6FB5">
+                    |Γ|² = P<sub>r</sub> / P<sub>f</sub>
+                  </div>
+                  <div style="font-size:0.65rem;color:var(--text-sub);margin-top:4px">
+                    ${isEn?'Pᵣ = reflected power · Pf = forward power':'Pᵣ = 반사전력 · Pf = 전진전력'}
+                  </div>
+                </div>
+                <div style="background:#fff;border:1.5px solid #A8C4E8;border-radius:8px;padding:10px;text-align:center">
+                  <div style="font-size:0.68rem;color:var(--text-sub);margin-bottom:4px">${isEn?'Therefore |Γ|':'따라서 |Γ|'}</div>
+                  <div style="font-family:var(--mono);font-size:1.05rem;font-weight:700;color:#1A6FB5">
+                    |Γ| = √(P<sub>r</sub> / P<sub>f</sub>)
+                  </div>
+                  <div style="font-size:0.65rem;color:var(--text-sub);margin-top:4px">
+                    ${isEn?'Directly from power meter readings':'전력계 수치로 직접 계산'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: 임피던스로 유도 -->
+        <div style="display:flex;gap:0;align-items:stretch">
+          <div style="display:flex;flex-direction:column;align-items:center;width:48px;flex-shrink:0">
+            <div style="background:var(--green);color:#fff;font-size:0.7rem;font-weight:700;
+                        width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+                        justify-content:center;flex-shrink:0;font-family:var(--mono)">③</div>
+          </div>
+          <div style="flex:1;padding:0 0 0 12px">
+            <div style="font-size:0.75rem;font-weight:700;color:var(--green);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">
+              ${isEn?'Circuit Derivation — From impedance boundary conditions':'회로 유도 — 임피던스 경계조건으로부터'}
+            </div>
+            <div style="background:#F0FAF4;border:1.5px solid #A8D5B8;border-radius:10px;padding:12px">
+              <p style="font-size:0.8rem;color:var(--text);line-height:1.65;margin-bottom:10px">
+                ${isEn
+                  ? 'Applying voltage and current continuity at the boundary between a line (Z₀) and a load (Z<sub>L</sub>), we derive Γ analytically. This links the observable Γ to the underlying impedance mismatch.'
+                  : '선로(Z₀)와 부하(Z<sub>L</sub>) 경계에서 전압·전류 연속 조건을 적용하면 Γ를 해석적으로 유도할 수 있습니다. 이것이 관찰 가능한 Γ를 임피던스 불일치와 연결합니다.'}
+              </p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div style="background:#fff;border:2px solid var(--green);border-radius:8px;padding:10px;text-align:center">
+                  <div style="font-size:0.68rem;color:var(--text-sub);margin-bottom:4px">${isEn?'Impedance formula (derived)':'임피던스 공식 (유도)'}
+                  </div>
+                  <div style="font-family:var(--mono);font-size:0.98rem;font-weight:700;color:var(--green)">
+                    Γ = (Z<sub>L</sub> − Z₀) / (Z<sub>L</sub> + Z₀)
+                  </div>
+                </div>
+                <div style="background:#fff;border:1.5px solid #A8D5B8;border-radius:8px;padding:8px">
+                  <div style="font-size:0.67rem;color:var(--text-sub);margin-bottom:4px">${isEn?'Special cases':'특수 케이스'}</div>
+                  <table style="width:100%;font-size:0.67rem;border-collapse:collapse">
+                    ${[
+                      {zl:'Z<sub>L</sub>=Z₀', g:'0', c:'var(--green)',  t: isEn?'match':'매칭'},
+                      {zl:'Z<sub>L</sub>=0',  g:'−1', c:'var(--red)',   t: isEn?'short':'단락'},
+                      {zl:'Z<sub>L</sub>=∞',  g:'+1', c:'var(--blue)',  t: isEn?'open':'개방'},
+                    ].map(r=>`
+                      <tr>
+                        <td style="padding:2px 4px;color:var(--text-sub)">${r.zl}</td>
+                        <td style="padding:2px 4px;font-family:var(--mono);font-weight:700;color:${r.c}">Γ=${r.g}</td>
+                        <td style="padding:2px 4px;color:${r.c}">${r.t}</td>
+                      </tr>
+                    `).join('')}
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end 3단계 -->
+
+      <!-- 핵심 메시지 callout -->
+      <div style="margin-top:14px;background:#F8F6FF;border:1px solid #C9B8E8;border-radius:8px;padding:10px 14px;
+                  font-size:0.78rem;color:var(--text);line-height:1.6">
+        <span style="font-weight:700;color:var(--purple)">
+          ${isEn?'Key Insight: ':'핵심 통찰: '}
+        </span>
+        ${isEn
+          ? 'Γ = V⁻/V⁺ is the definition. |Γ|² = Pᵣ/Pf is how you measure it. Γ = (Z<sub>L</sub>−Z₀)/(Z<sub>L</sub>+Z₀) is why it happens — all three are the same quantity, seen from different angles.'
+          : 'Γ = V⁻/V⁺는 정의입니다. |Γ|² = Pᵣ/Pf는 측정 방법입니다. Γ = (Z<sub>L</sub>−Z₀)/(Z<sub>L</sub>+Z₀)는 발생 원인입니다. 세 가지 모두 같은 물리량을 다른 관점에서 본 것입니다.'}
+      </div>
+
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px" id="bcGrid">
+      ${conditions.map(c=>`
+        <div onclick="selectBC('${c.id}')" id="bc-${c.id}" style="background:#fff;border:2px solid ${c.color}40;border-radius:10px;padding:14px;cursor:pointer;transition:all 0.15s">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:1.4rem">${c.icon}</span>
+            <span style="font-weight:700;font-size:0.84rem;color:${c.color}">${c.label}</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span style="font-family:var(--mono);font-size:0.7rem;background:${c.color}15;color:${c.color};padding:2px 8px;border-radius:12px">${c.rf}</span>
+            <span style="font-size:0.7rem;color:var(--text-sub);padding:2px 8px;border:1px solid var(--border);border-radius:12px">${c.phase}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div id="bcDetail" style="background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:14px;font-size:0.82rem;color:var(--text-sub);min-height:52px">
+      ${isEn?'👆 Click a boundary condition to see details and RF correspondence.':'👆 경계조건을 클릭하여 상세 설명과 RF 대응을 확인하세요.'}
+    </div>
+    <div style="margin-top:14px">
+      <canvas id="bcCanvas" class="sim-canvas" width="680" height="180"></canvas>
+      <div class="sim-btn-row">
+        ${conditions.map(c=>`<button class="sim-btn" onclick="selectBC('${c.id}')" id="bcbtn-${c.id}">${c.icon} ${c.label.split(' ')[0]} ${c.label.split(' ')[1]||''}</button>`).join('')}
+      </div>
+      <div class="sim-info" id="bcInfo">${isEn?'Select a boundary condition above to animate the wave reflection behavior.':'위에서 경계조건을 선택하면 반사 거동이 애니메이션으로 표시됩니다.'}</div>
+    </div>
+
+    <!-- PhET 시각 학습 링크 -->
+    <div style="margin-top:16px;border:1.5px solid #A8C4E8;border-radius:12px;overflow:hidden">
+
+      <!-- 헤더 -->
+      <div style="background:#EEF4FF;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="background:#1A6FB5;color:#fff;font-size:0.72rem;font-weight:700;
+                      padding:4px 10px;border-radius:6px;letter-spacing:0.04em;font-family:var(--mono)">
+            PhET
+          </div>
+          <div>
+            <div style="font-size:0.84rem;font-weight:700;color:#1A3A6E">
+              ${isEn?'Interactive Simulation: Wave on a String':'인터랙티브 시뮬레이션: 줄 위의 파동'}
+            </div>
+            <div style="font-size:0.68rem;color:#4A6A9E;margin-top:1px">
+              ${isEn
+                ? 'University of Colorado Boulder · PhET Interactive Simulations'
+                : '출처: University of Colorado Boulder · PhET Interactive Simulations'}
+            </div>
+          </div>
+        </div>
+        <a href="https://phet.colorado.edu/sims/html/wave-on-a-string/latest/wave-on-a-string_all.html"
+           target="_blank" rel="noopener noreferrer"
+           style="display:inline-flex;align-items:center;gap:6px;
+                  background:#1A6FB5;color:#fff;text-decoration:none;
+                  padding:8px 16px;border-radius:8px;font-size:0.78rem;font-weight:700;
+                  white-space:nowrap;transition:background 0.15s;font-family:var(--font)"
+           onmouseover="this.style.background='#145799'"
+           onmouseout="this.style.background='#1A6FB5'">
+          🔗 ${isEn?'Open Simulator':'시뮬레이터 열기'}
+        </a>
+      </div>
+
+      <!-- 사용 가이드 -->
+      <div style="padding:14px 16px;background:#fff">
+        <div style="font-size:0.75rem;font-weight:700;color:#1A3A6E;margin-bottom:8px">
+          ${isEn?'🎯 What to Try — Boundary Condition Experiments':'🎯 실습 가이드 — 경계조건 실험'}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${[
+            { icon:'🔩', title: isEn?'Fixed End':'고정단',
+              steps: isEn
+                ? 'Set End = <b>Fixed</b>. Send a pulse → observe 180° phase inversion on reflection.'
+                : 'End = <b>Fixed End</b> 설정. 펄스 전송 → 반사 시 위상 180° 반전 확인.' },
+            { icon:'🚪', title: isEn?'Free End':'자유단',
+              steps: isEn
+                ? 'Set End = <b>Loose</b>. Send a pulse → reflected wave has same phase.'
+                : 'End = <b>Loose End</b> 설정. 펄스 전송 → 반사파가 동위상임을 확인.' },
+            { icon:'〰️', title: isEn?'Standing Wave':'정재파',
+              steps: isEn
+                ? 'Set <b>Oscillate</b> + <b>Fixed End</b>. Adjust frequency to see nodes and antinodes appear.'
+                : '<b>Oscillate</b> + <b>Fixed End</b> 설정. 주파수 조절 → Node/Antinode 형성 관찰.' },
+            { icon:'📏', title: isEn?'No End (open)':'끝 없음 (개방)',
+              steps: isEn
+                ? 'Set End = <b>No End</b>. Observe that the wave travels through without reflection.'
+                : 'End = <b>No End</b> 설정. 파동이 반사 없이 통과하는 것을 관찰.' },
+          ].map(g=>`
+            <div style="background:#F4F6FB;border-radius:8px;padding:10px 12px">
+              <div style="font-size:0.75rem;font-weight:700;color:#1A3A6E;margin-bottom:4px">
+                ${g.icon} ${g.title}
+              </div>
+              <div style="font-size:0.72rem;color:#4A5A7A;line-height:1.55">${g.steps}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:10px;font-size:0.67rem;color:#8899AA;line-height:1.5;border-top:1px solid #E8EEF8;padding-top:8px">
+          ${isEn
+            ? '© PhET Interactive Simulations, University of Colorado Boulder. Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color:#1A6FB5">CC BY 4.0</a>. This simulation is embedded here for educational purposes.'
+            : '© PhET Interactive Simulations, University of Colorado Boulder. <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color:#1A6FB5">CC BY 4.0</a> 라이선스. 교육 목적으로 링크 제공.'}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>`;
+}
+
+function buildC26Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge plasma">Standing Wave</span>
+    <span class="d-title">${isEn?'Voltage & Current Standing Wave — Dual Panel':'전압·전류 정재파 — 2패널 독립 표시'}</span>
+  </div>
+  <div class="d-body">
+    <div class="callout plasma" style="margin-bottom:14px">
+      <div class="callout-title">🔑 ${isEn?'Key Concept':'핵심 개념'}</div>
+      ${isEn
+        ? 'V and I standing waves are spatially offset by <strong>λ/4 (90°)</strong>. Each panel uses its own scale — V_max ↔ I_min, V_min ↔ I_max. The dashed envelope shows the amplitude boundary at each position.'
+        : '전압·전류 정재파는 공간적으로 <strong>λ/4(90°)</strong> 어긋납니다. 각 패널은 독립 스케일 표시 — V_max ↔ I_min, V_min ↔ I_max. 점선 포락선은 각 위치의 진폭 경계를 나타냅니다.'}
+    </div>
+    <div class="sim-wrap">
+      <!-- Γ 슬라이더 -->
+      <div class="sim-controls" style="margin-bottom:12px">
+        <div class="sim-ctrl-group">
+          <div class="sim-ctrl-label">
+            ${isEn?'Reflection Coefficient |Γ|':'반사계수 |Γ|'}
+            <span class="sim-ctrl-val" id="gammaVal">0.00</span>
+          </div>
+          <input type="range" class="sim-slider" id="gammaSlider" min="0" max="1" step="0.01" value="0">
+        </div>
+        <div class="sim-ctrl-group" style="max-width:200px">
+          <div class="sim-ctrl-label" style="margin-bottom:6px">${isEn?'Animation':'애니메이션'}</div>
+          <button class="sim-btn active" id="swPauseBtn" onclick="toggleSWPause()"
+                  style="padding:6px 14px;font-size:0.75rem">⏸ ${isEn?'Pause':'일시정지'}</button>
+        </div>
+      </div>
+
+      <!-- V 패널 -->
+      <div style="margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="width:16px;height:3px;background:#A06CD0;border-radius:2px"></div>
+          <span style="font-size:0.75rem;font-weight:700;color:#A06CD0">
+            ${isEn?'Voltage Standing Wave  V(x)':'전압 정재파  V(x)'}
+          </span>
+          <div style="width:20px;height:2px;background:#FFD700;border-top:1.5px dashed #FFD700;margin-left:4px"></div>
+          <span style="font-size:0.72rem;color:#B8960A">${isEn?'V envelope':'V 포락선'}</span>
+        </div>
+        <canvas id="swVCanvas" class="sim-canvas" width="680" height="130"></canvas>
+      </div>
+
+      <!-- I 패널 -->
+      <div style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="width:16px;height:3px;background:#30C870;border-radius:2px"></div>
+          <span style="font-size:0.75rem;font-weight:700;color:#30C870">
+            ${isEn?'Current Standing Wave  I(x)':'전류 정재파  I(x)'}
+          </span>
+          <div style="width:20px;height:2px;background:#00E5CC;border-top:1.5px dashed #00E5CC;margin-left:4px"></div>
+          <span style="font-size:0.72rem;color:#007A6E">${isEn?'I envelope':'I 포락선'}</span>
+        </div>
+        <canvas id="swICanvas" class="sim-canvas" width="680" height="130"></canvas>
+      </div>
+
+      <!-- 위치 대응 설명 바 -->
+      <div id="swNodeBar" style="background:#1A1A2E;border-radius:8px;padding:8px 12px;margin-bottom:10px;
+           display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem">
+        <div style="text-align:center;padding:5px;background:#7030A020;border-radius:6px;border:1px solid #7030A040">
+          <span style="color:#FFD700;font-family:var(--mono);font-weight:700">V_max</span>
+          <span style="color:#888;margin:0 4px">↔</span>
+          <span style="color:#00E5CC;font-family:var(--mono);font-weight:700">I_min</span>
+          <div style="color:#666;font-size:0.68rem;margin-top:2px">${isEn?'same position':'같은 위치'}</div>
+        </div>
+        <div style="text-align:center;padding:5px;background:#0F8C5020;border-radius:6px;border:1px solid #0F8C5040">
+          <span style="color:#A06CD0;font-family:var(--mono);font-weight:700">V_min</span>
+          <span style="color:#888;margin:0 4px">↔</span>
+          <span style="color:#30C870;font-family:var(--mono);font-weight:700">I_max</span>
+          <div style="color:#666;font-size:0.68rem;margin-top:2px">${isEn?'same position':'같은 위치'}</div>
+        </div>
+      </div>
+
+      <div class="sim-info" id="swInfo">
+        Γ = 0.00 &nbsp;|&nbsp; VSWR = 1.00 &nbsp;|&nbsp; ${isEn?'Reflected Power':'반사전력'} = 0.0%
+      </div>
+    </div>
+
+    <!-- Eugene Khutoryansky 유튜브 링크 — 시뮬레이터 바로 하단 -->
+    <div style="margin-top:12px;border:1.5px solid #E8E0EE;border-radius:10px;
+                background:#fff;overflow:hidden">
+      <div style="padding:11px 16px;display:flex;align-items:center;gap:14px">
+        <!-- YouTube 마크 -->
+        <a href="https://www.youtube.com/watch?v=ozeYaikI11g"
+           target="_blank" rel="noopener noreferrer"
+           title="Transmission Lines - Signal Transmission and Reflection"
+           style="display:flex;align-items:center;justify-content:center;
+                  flex-shrink:0;text-decoration:none"
+           onmouseover="this.querySelector('div').style.background='#AA0000'"
+           onmouseout="this.querySelector('div').style.background='#FF0000'">
+          <div style="background:#FF0000;border-radius:8px;width:50px;height:36px;
+               display:flex;align-items:center;justify-content:center;
+               transition:background 0.15s">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="white">
+              <path d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"/>
+            </svg>
+          </div>
+        </a>
+        <!-- 제목 + 출처 + 설명 -->
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.84rem;font-weight:700;color:var(--text)">
+            Transmission Lines — Signal Transmission and Reflection
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-sub);margin-top:2px">
+            Physics Videos by Eugene Khutoryansky
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-sub);margin-top:3px;line-height:1.5">
+            ${isEn
+              ? 'Visualizes signal reflection and standing-wave-like phenomena on transmission lines (DC context) — excellent intuition builder before the AC/RF treatment.'
+              : '전송선로에서의 신호 반사와 정재파 유사 현상을 시각화합니다 (DC 상황) — AC/RF 강의 전 직관을 쌓기에 매우 좋습니다.'}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 보충강좌: 정재파는 항상 나쁜가? ═══ -->
+    <div style="margin-top:22px;border-top:2px solid var(--border);padding-top:18px">
+
+      <!-- 질문 도입 -->
+      <div style="background:linear-gradient(135deg,#F8F6FF 0%,#F0FAF4 100%);
+                  border:1.5px solid #C9B8E8;border-radius:12px;padding:16px 18px;margin-bottom:16px;
+                  display:flex;align-items:flex-start;gap:14px">
+        <div style="font-size:2rem;flex-shrink:0;margin-top:2px">🤔</div>
+        <div>
+          <div style="font-size:0.92rem;font-weight:700;color:var(--purple);margin-bottom:6px">
+            ${isEn
+              ? 'Is a Standing Wave always bad?'
+              : '정재파(Standing Wave)는 항상 나쁜 것인가?'}
+          </div>
+          <div style="font-size:0.82rem;color:var(--text);line-height:1.65">
+            ${isEn
+              ? 'In RF power transfer, standing waves reduce efficiency — they are the enemy. But stop and think: <strong>if there were no reflection and no standing waves anywhere in nature, there would be no music, no lasers, no atoms, and no semiconductors.</strong>'
+              : 'RF 전력전송에서 정재파는 효율을 떨어뜨리는 적입니다. 그런데 잠깐 — <strong>자연 어디에도 반사가 없고 정재파가 없다면, 음악도 없고, 레이저도 없고, 원자도 없고, 반도체도 존재하지 않습니다.</strong>'}
+          </div>
+        </div>
+      </div>
+
+      <!-- 핵심 대비 문장 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:#FDF0EE;border:2px solid var(--red);border-radius:10px;
+                    padding:14px;text-align:center">
+          <div style="font-size:1.4rem;margin-bottom:6px">⚡</div>
+          <div style="font-size:0.8rem;font-weight:700;color:var(--red);margin-bottom:6px">
+            ${isEn?'RF Power Engineering':'RF 전력 공학'}
+          </div>
+          <div style="font-size:0.78rem;color:var(--text);line-height:1.6">
+            ${isEn
+              ? 'Tries to <strong>eliminate</strong> standing waves<br>→ RF Matching Network<br>→ VSWR → 1, Γ → 0'
+              : '정재파를 <strong>없애려</strong> 한다<br>→ RF Matching Network<br>→ VSWR → 1, Γ → 0'}
+          </div>
+        </div>
+        <div style="background:#F0FAF4;border:2px solid var(--green);border-radius:10px;
+                    padding:14px;text-align:center">
+          <div style="font-size:1.4rem;margin-bottom:6px">🎵</div>
+          <div style="font-size:0.8rem;font-weight:700;color:var(--green);margin-bottom:6px">
+            ${isEn?'Nature & Music':'자연과 음악'}
+          </div>
+          <div style="font-size:0.78rem;color:var(--text);line-height:1.6">
+            ${isEn
+              ? 'Tries to <strong>create</strong> standing waves<br>→ Resonance → Music, Light,<br>Atoms, Semiconductors'
+              : '정재파를 <strong>만들려</strong> 한다<br>→ 공진 → 음악, 빛,<br>원자, 반도체'}
+          </div>
+        </div>
+      </div>
+
+      <!-- 핵심 인용문 -->
+      <div style="background:#1A1A2E;border-left:4px solid var(--purple);border-radius:0 10px 10px 0;
+                  padding:14px 18px;margin-bottom:16px">
+        <div style="font-size:0.88rem;color:#E8EEF8;line-height:1.7;font-style:italic">
+          ${isEn
+            ? '"In engineering, we try to <span style="color:var(--red);font-weight:700">eliminate</span> standing waves to transfer energy efficiently.<br>In nature, standing waves <span style="color:var(--green);font-weight:700">create</span> sound, light, atoms, and even music."'
+            : '"공학에서는 에너지를 효율적으로 보내기 위해 정재파를 <span style="color:var(--red);font-weight:700">없애려</span> 하지만,<br>자연은 정재파를 <span style="color:var(--green);font-weight:700">이용해서</span> 소리, 빛, 원자, 그리고 음악을 만든다."'}
+        </div>
+      </div>
+
+      <!-- 응용 이미지 -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border);
+                    display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:0.82rem;font-weight:700;color:var(--purple)">
+            📊 ${isEn
+              ? 'Standing Wave in Nature & Engineering — At a Glance'
+              : '자연과 공학에서의 정재파 — 한눈에 비교'}
+          </div>
+          <span style="font-size:0.7rem;color:var(--text-sub);cursor:pointer;
+                       border:1px solid var(--border);border-radius:5px;padding:3px 10px"
+                onclick="openImgPopup('./images/standingwave_application_en.png',
+                  '${isEn
+                    ? 'Standing Wave Applications — RF, Guitar, Microwave, Laser, Quantum'
+                    : '정재파의 응용 — RF, 기타, 전자레인지, 레이저, 양자역학'}')">
+            🔍 ${isEn?'Enlarge':'확대'}
+          </span>
+        </div>
+        <img src="./images/standingwave_application_en.png"
+             alt="${isEn?'Standing Wave Applications':'정재파 응용 비교'}"
+             style="width:100%;display:block;cursor:zoom-in"
+             onclick="openImgPopup('./images/standingwave_application_en.png',
+               '${isEn
+                 ? 'Standing Wave Applications — RF, Guitar, Microwave, Laser, Quantum'
+                 : '정재파의 응용 — RF, 기타, 전자레인지, 레이저, 양자역학'}')"/>
+      </div>
+
+    </div>
+  </div>
+</div>`;
+}
+
+function buildC27Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge green">VSWR</span>
+    <span class="d-title">${isEn?'VSWR Scale & Reflected Power Calculator':'VSWR 스케일 & 반사전력 계산기'}</span>
+  </div>
+  <div class="d-body">
+
+    <!-- VSWR 공식 블록 -->
+    <div style="background:#fff;border:1.5px solid #A8D5B8;border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--green);margin-bottom:10px">📐 ${isEn?'VSWR Formula & Derivation':'VSWR 공식과 유도'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:0.72rem;color:var(--text-sub);margin-bottom:4px">${isEn?'① Standing wave voltage amplitude at position x:':'① x 위치의 정재파 전압 진폭:'}</div>
+          <div style="font-family:var(--mono);font-size:0.82rem;background:#F0FAF4;padding:8px 10px;border-radius:6px;color:var(--text)">
+            |V(x)| = |V⁺| · |1 + Γe<sup>j2βx</sup>|
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-sub);margin:6px 0 4px">${isEn?'② Maximum and minimum amplitudes:':'② 최대값과 최소값:'}</div>
+          <div style="font-family:var(--mono);font-size:0.82rem;background:#F0FAF4;padding:8px 10px;border-radius:6px;color:var(--text)">
+            V<sub>max</sub> = |V⁺|(1 + |Γ|)<br>
+            V<sub>min</sub> = |V⁺|(1 − |Γ|)
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.72rem;color:var(--text-sub);margin-bottom:4px">${isEn?'③ VSWR definition:':'③ VSWR 정의:'}</div>
+          <div style="background:#F0FAF4;border:2px solid var(--green);border-radius:8px;padding:10px;text-align:center">
+            <div style="font-family:var(--mono);font-size:1.05rem;font-weight:700;color:var(--green)">
+              VSWR = V<sub>max</sub> / V<sub>min</sub>
+            </div>
+            <div style="font-family:var(--mono);font-size:0.88rem;color:var(--text);margin-top:4px">
+              = (1 + |Γ|) / (1 − |Γ|)
+            </div>
+          </div>
+          <div style="font-size:0.72rem;color:var(--text-sub);margin:6px 0 4px">${isEn?'④ Inverse (Γ from VSWR):':'④ 역변환 (VSWR → Γ):'}</div>
+          <div style="font-family:var(--mono);font-size:0.82rem;background:#F0FAF4;padding:8px 10px;border-radius:6px;color:var(--text)">
+            |Γ| = (VSWR − 1) / (VSWR + 1)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+      ${[
+        { vswr:'1.0', gamma:'0', refl:'0%', label: isEn?'Perfect Match':'완전 매칭', color:'var(--green)' },
+        { vswr:'1.5', gamma:'0.20', refl:'4%', label: isEn?'Practical Limit':'실용 한계', color:'var(--blue)' },
+        { vswr:'2.0', gamma:'0.33', refl:'11%', label: isEn?'Caution':'주의', color:'var(--plasma)' },
+        { vswr:'∞', gamma:'1.0', refl:'100%', label: isEn?'Total Reflection':'완전 반사', color:'var(--red)' },
+      ].map(v=>`
+        <div style="background:#fff;border:1.5px solid ${v.color}40;border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:1.5rem;font-family:var(--mono);font-weight:700;color:${v.color}">${v.vswr}</div>
+          <div style="font-size:0.68rem;color:var(--text-sub);margin-bottom:6px">VSWR</div>
+          <div style="font-size:0.72rem;font-family:var(--mono);color:var(--text)">|Γ| = ${v.gamma}</div>
+          <div style="font-size:0.72rem;color:${v.color};font-weight:700">${isEn?'Refl.':'반사'} ${v.refl}</div>
+          <div style="font-size:0.68rem;color:var(--text-sub);margin-top:4px">${v.label}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="sim-wrap">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--purple);margin-bottom:12px">
+        🧮 ${isEn?'VSWR Calculator + Standing Wave Visualizer':'VSWR 계산기 + 정재파 시각화'}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="sim-ctrl-group">
+          <div class="sim-ctrl-label">
+            ${isEn?'Input: Reflection Coefficient |Γ|':'입력: 반사계수 |Γ|'}
+            <span class="sim-ctrl-val" id="vswr-gamma-val">0.00</span>
+          </div>
+          <input type="range" class="sim-slider" id="vswr-gamma" min="0" max="0.99" step="0.01" value="0">
+        </div>
+        <div class="sim-ctrl-group">
+          <div class="sim-ctrl-label">
+            ${isEn?'Or Input: VSWR directly':'또는 입력: VSWR 직접 입력'}
+            <span class="sim-ctrl-val" id="vswr-direct-val">1.00</span>
+          </div>
+          <input type="range" class="sim-slider" id="vswr-direct" min="1" max="20" step="0.1" value="1"
+            style="--thumb-color:var(--green)"
+            oninput="syncVSWRfromVSWR(this.value)">
+        </div>
+      </div>
+      <!-- Standing Wave Canvas — height 확대 -->
+      <canvas id="vswrSwCanvas" class="sim-canvas" width="680" height="180" style="margin-bottom:8px"></canvas>
+      <!-- Power bar canvas -->
+      <canvas id="vswrCanvas" class="sim-canvas" width="680" height="110"></canvas>
+      <div class="sim-info" id="vswrInfo" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center;min-height:auto;padding:12px">
+        <div><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--purple)" id="ri-vswr">1.00</div><div style="font-size:0.68rem;color:var(--text-sub)">VSWR</div></div>
+        <div><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--text)" id="ri-gamma">0.000</div><div style="font-size:0.68rem;color:var(--text-sub)">|Γ|</div></div>
+        <div><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--red)" id="ri-refl">0.0%</div><div style="font-size:0.68rem;color:var(--text-sub)">${isEn?'Reflected Power':'반사전력 비율'}</div></div>
+        <div><div style="font-family:var(--mono);font-size:1.1rem;font-weight:700;color:var(--green)" id="ri-del">100.0%</div><div style="font-size:0.68rem;color:var(--text-sub)">${isEn?'Delivered Power':'전달전력 비율'}</div></div>
+      </div>
+    </div>
+
+    <!-- ═══ 별도 계산기 모듈 ═══ -->
+    <div style="background:#fff;border:1.5px solid #C9B8E8;border-radius:12px;padding:18px;margin-top:16px">
+      <div style="font-size:0.85rem;font-weight:700;color:var(--purple);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+        <span>🔢 ${isEn?'RF Parameter Calculator — Type Any Value':'RF 파라미터 계산기 — 아무 값이나 입력하세요'}</span>
+        <button onclick="clearCalc()"
+          style="padding:4px 12px;border:1px solid #C9B8E8;border-radius:6px;background:transparent;color:var(--purple);font-size:0.72rem;cursor:pointer;font-family:var(--font)">
+          ${isEn?'Clear':'초기화'}
+        </button>
+      </div>
+
+      <!-- 좌(입력) + 우(결과) 2컬럼 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch">
+
+        <!-- ── 좌측: 입력 패널 (수직 스택) ── -->
+        <div style="display:flex;flex-direction:column;gap:10px">
+
+          <!-- ① Γ 입력 -->
+          <div style="background:#F8F6FF;border:1.5px solid #C9B8E8;border-radius:10px;padding:12px">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--purple);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.05em">
+              ${isEn?'① Reflection Coefficient  |Γ|':'① 반사계수  |Γ|'}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:var(--mono);font-size:0.95rem;color:var(--purple);font-weight:700;min-width:28px">|Γ|</span>
+              <input id="calc-gamma" type="number" min="0" max="1" step="0.001" value=""
+                placeholder="0 ~ 1"
+                style="flex:1;padding:8px 10px;border:1.5px solid #C9B8E8;border-radius:7px;font-family:var(--mono);font-size:0.9rem;color:var(--text);background:#fff;outline:none"
+                oninput="calcFromGamma(this.value)">
+            </div>
+            <div style="font-size:0.67rem;color:var(--text-sub);margin-top:5px">
+              ${isEn?'0 = no reflection · 1 = total reflection':'0 = 반사 없음 · 1 = 완전 반사'}
+            </div>
+          </div>
+
+          <!-- ② VSWR 입력 -->
+          <div style="background:#F0FAF4;border:1.5px solid #A8D5B8;border-radius:10px;padding:12px">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--green);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.05em">
+              ${isEn?'② VSWR':'② VSWR'}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:var(--mono);font-size:0.95rem;color:var(--green);font-weight:700;min-width:28px">S</span>
+              <input id="calc-vswr" type="number" min="1" step="0.01" value=""
+                placeholder="≥ 1.00"
+                style="flex:1;padding:8px 10px;border:1.5px solid #A8D5B8;border-radius:7px;font-family:var(--mono);font-size:0.9rem;color:var(--text);background:#fff;outline:none"
+                oninput="calcFromVSWR(this.value)">
+            </div>
+            <div style="font-size:0.67rem;color:var(--text-sub);margin-top:5px">
+              ${isEn?'1 = ideal · ∞ = open or short circuit':'1 = 이상 · ∞ = 개방 또는 단락'}
+            </div>
+          </div>
+
+          <!-- ③ Pf / Pr 입력 -->
+          <div style="background:#FFF8F0;border:1.5px solid #F5C89A;border-radius:10px;padding:12px">
+            <div style="font-size:0.7rem;font-weight:700;color:var(--plasma);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.05em">
+              ${isEn?'③ Forward / Reflected Power':'③ 전진전력 / 반사전력'}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+              <span style="font-family:var(--mono);font-size:0.88rem;color:var(--plasma);font-weight:700;min-width:28px">P<sub>f</sub></span>
+              <input id="calc-pf" type="number" min="0" step="0.1" value=""
+                placeholder="${isEn?'W or any unit':'W 또는 임의단위'}"
+                style="flex:1;padding:7px 10px;border:1.5px solid #F5C89A;border-radius:7px;font-family:var(--mono);font-size:0.88rem;color:var(--text);background:#fff;outline:none"
+                oninput="calcFromPower()">
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-family:var(--mono);font-size:0.88rem;color:var(--red);font-weight:700;min-width:28px">P<sub>r</sub></span>
+              <input id="calc-pr" type="number" min="0" step="0.1" value=""
+                placeholder="${isEn?'W or any unit':'W 또는 임의단위'}"
+                style="flex:1;padding:7px 10px;border:1.5px solid #F5C89A;border-radius:7px;font-family:var(--mono);font-size:0.88rem;color:var(--text);background:#fff;outline:none"
+                oninput="calcFromPower()">
+            </div>
+            <div style="font-size:0.67rem;color:var(--text-sub);margin-top:5px">
+              ${isEn?'|Γ| = √(Pr / Pf)':'|Γ| = √(Pr / Pf) 로 계산'}
+            </div>
+          </div>
+
+        </div><!-- end 좌측 -->
+
+        <!-- ── 우측: 결과 패널 (수직 스택) ── -->
+        <div style="background:#1A1A2E;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:0">
+
+          <div style="font-size:0.7rem;font-weight:700;color:#6688AA;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px">
+            ${isEn?'Calculated Results':'계산 결과'}
+          </div>
+
+          <!-- 결과 행들 -->
+          ${[
+            { id:'cr-gamma', label:'|Γ|',            color:'#D4AAFF', desc: isEn?'Reflection Coefficient':'반사계수' },
+            { id:'cr-vswr',  label:'VSWR',            color:'#66EEA0', desc: isEn?'Voltage Standing Wave Ratio':'전압정재파비' },
+            { id:'cr-refl',  label: isEn?'Refl %':'반사전력 %',  color:'#FF8080', desc: isEn?'|Γ|² × 100':'|Γ|² × 100' },
+            { id:'cr-del',   label: isEn?'Del %':'전달전력 %',   color:'#66EEA0', desc: isEn?'(1 − |Γ|²) × 100':'(1 − |Γ|²) × 100' },
+            { id:'cr-rl',    label:'Return Loss',     color:'#FFAA44', desc: isEn?'−20·log|Γ| (dB)':'−20·log|Γ| (dB)' },
+          ].map((r,i)=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;
+                 padding:10px 0;${i>0?'border-top:1px solid #2A3A5A':''}">
+              <div>
+                <div style="font-size:0.72rem;font-weight:700;color:${r.color};margin-bottom:2px">${r.label}</div>
+                <div style="font-size:0.62rem;color:#556677;font-family:var(--mono)">${r.desc}</div>
+              </div>
+              <div id="${r.id}"
+                style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:${r.color};
+                       background:#0D1117;padding:6px 14px;border-radius:7px;min-width:110px;text-align:right">
+                —
+              </div>
+            </div>
+          `).join('')}
+
+        </div><!-- end 우측 -->
+
+      </div><!-- end 2컬럼 -->
+    </div>
+  </div>
+</div>`;
+}
+
+function buildC28Diagram(isEn) {
+  const rows = isEn ? [
+    ['String Property','Symbol','RF Line Property','Symbol'],
+    ['Tension','T','Inductance per unit length','L'],
+    ['Linear mass density','μ','Capacitance per unit length','C'],
+    ['Wave speed','√(T/μ)','Wave speed','1/√(LC)'],
+    ['Fixed end','y=0 boundary','Short circuit','Z<sub>L</sub> = 0'],
+    ['Free end','dy/dx=0','Open circuit','Z<sub>L</sub> = ∞'],
+    ['Impedance ratio','√(T₁μ₁)/√(T₂μ₂)','Characteristic impedance','Z₀ = √(L/C)'],
+  ] : [
+    ['줄의 물성','기호','RF 선로 물성','기호'],
+    ['장력','T','단위길이당 인덕턴스','L'],
+    ['선밀도','μ','단위길이당 커패시턴스','C'],
+    ['파동속도','√(T/μ)','파동속도','1/√(LC)'],
+    ['고정단','y=0 경계','단락 회로','Z<sub>L</sub> = 0'],
+    ['자유단','dy/dx=0','개방 회로','Z<sub>L</sub> = ∞'],
+    ['임피던스 비율','√(T₁μ₁)/√(T₂μ₂)','특성 임피던스','Z₀ = √(L/C)'],
+  ];
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge blue">대응 관계</span>
+    <span class="d-title">${isEn?'String ↔ RF Transmission Line — 1:1 Mapping':'줄 ↔ RF 전송선로 — 1:1 대응'}</span>
+  </div>
+  <div class="d-body">
+    <table class="data-table">
+      <thead><tr>${rows[0].map((h,i)=>`<th style="${i>=2?'color:var(--plasma)':''}">${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows.slice(1).map(r=>`<tr>
+        <td>${r[0]}</td>
+        <td><code style="font-family:var(--mono);font-size:0.78rem;color:var(--blue)">${r[1]}</code></td>
+        <td>${r[2]}</td>
+        <td><code style="font-family:var(--mono);font-size:0.78rem;color:var(--plasma)">${r[3]}</code></td>
+      </tr>`).join('')}</tbody>
+    </table>
+    <div class="callout green" style="margin-top:14px">
+      <div class="callout-title">⚗️ ${isEn?'CCP Reactor Boundary Condition':'CCP Reactor의 경계조건'}</div>
+      ${isEn
+        ? 'Before plasma ignition: CCP electrodes ≈ Open circuit (high impedance capacitive load). After ignition: complex resistive+capacitive impedance that changes dynamically with pressure, gas, and power. The RF Matcher tracks this change in real time.'
+        : '플라즈마 점화 전: CCP 전극 ≈ 개방 회로(고임피던스 용량성 부하). 점화 후: 압력·가스·전력에 따라 동적으로 변하는 복소 저항+용량성 임피던스. RF Matcher가 이 변화를 실시간으로 추적합니다.'}
+    </div>
+    <div style="margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden">
+      <!-- 헤더 -->
+      <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--purple)">
+            🔌 ${isEn?'Poynting Vector Simulator — Free Space & Coaxial Cable':'Poynting Vector 시뮬레이터 — 자유공간 & 동축케이블'}
+          </div>
+          <a href="./sims/poynting.html" target="_blank"
+             style="font-size:0.75rem;color:var(--purple);text-decoration:none;
+                    border:1px solid #C9B8E8;border-radius:5px;padding:4px 12px;
+                    transition:all 0.15s;flex-shrink:0"
+             onmouseover="this.style.background='var(--purple)';this.style.color='#fff'"
+             onmouseout="this.style.background='transparent';this.style.color='var(--purple)'">
+            ↗ ${isEn?'Full screen':'전체화면'}
+          </a>
+        </div>
+        <!-- Poynting Vector 공식 -->
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:14px">
+          <div style="background:#F8F6FF;border:1.5px solid #C9B8E8;border-radius:10px;
+                      padding:10px 20px;display:flex;align-items:baseline;gap:10px">
+            <span style="font-family:var(--mono);font-size:1.25rem;font-weight:700;color:var(--purple)">S</span>
+            <span style="font-size:1.1rem;color:var(--text-sub)">=</span>
+            <span style="font-family:var(--mono);font-size:1.25rem;font-weight:700;color:var(--purple)">E</span>
+            <span style="font-size:1.1rem;color:var(--text-sub)">×</span>
+            <span style="font-family:var(--mono);font-size:1.25rem;font-weight:700;color:var(--green)">H</span>
+            <span style="font-size:0.85rem;color:var(--text-sub);font-family:var(--mono)">[W/m²]</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem">
+              <span style="font-family:var(--mono);font-weight:700;color:var(--purple);min-width:14px">S</span>
+              <span style="color:var(--text-sub)">${isEn?'Poynting Vector — energy flux density (W/m²)':'Poynting Vector — 에너지 플럭스 밀도 (W/m²)'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem">
+              <span style="font-family:var(--mono);font-weight:700;color:var(--purple);min-width:14px">E</span>
+              <span style="color:var(--text-sub)">${isEn?'Electric field (V/m) — creates voltage':'전기장 (V/m) — 전압을 형성'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem">
+              <span style="font-family:var(--mono);font-weight:700;color:var(--green);min-width:14px">H</span>
+              <span style="color:var(--text-sub)">${isEn?'Magnetic field (A/m) — creates current':'자기장 (A/m) — 전류를 형성'}</span>
+            </div>
+          </div>
+          <div style="background:#F0FAF4;border:1px solid #A8D5B8;border-radius:8px;padding:8px 14px;font-size:0.8rem;color:var(--text)">
+            ${isEn
+              ? 'Direction: <strong>E ⊥ H ⊥ S</strong><br>Energy flows where E and H exist —<br>outside the conductor'
+              : '방향: <strong>E ⊥ H ⊥ S</strong><br>에너지는 E와 H가 존재하는 곳 —<br>도체 바깥 공간을 흐름'}
+          </div>
+        </div>
+      </div>
+      <!-- iframe -->
+      <iframe src="./sims/poynting.html"
+              style="width:100%;height:470px;border:none;display:block"
+              title="Poynting Vector Simulator"
+              loading="lazy">
+      </iframe>
+    </div>
+  </div>
+</div>`;
+}
+
+function buildC29Diagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge green">RF 시스템</span>
+    <span class="d-title">${isEn
+      ? 'Why RF Matching? — The Complete Picture'
+      : '왜 임피던스 매칭인가? — 전체 그림'}</span>
+  </div>
+  <div class="d-body">
+
+    <!-- 핵심 메시지 -->
+    <div class="callout green" style="margin-bottom:18px">
+      <div class="callout-title">🎯 ${isEn ? 'The Bottom Line' : '핵심 결론'}</div>
+      ${isEn
+        ? 'RF power from a generator travels through a coaxial cable to a plasma reactor. The reactor\'s impedance is dynamic — it changes with pressure, gas, power, and chamber geometry. Without an RF Matching Network, this mismatch causes reflection, wasted power, and process instability. <strong>The RF Matcher is not optional — it is essential.</strong>'
+        : 'RF Generator에서 출력된 전력은 동축케이블을 통해 플라즈마 Reactor로 전달됩니다. Reactor의 임피던스는 압력·가스·전력·챔버 형상에 따라 동적으로 변합니다. RF Matching Network 없이는 임피던스 불일치로 인한 반사, 전력 손실, 공정 불안정이 불가피합니다. <strong>RF Matcher는 선택이 아니라 필수입니다.</strong>'}
+    </div>
+
+    <!-- plasma_tool 이미지 — 클릭 확대 -->
+    <div style="border-radius:10px;overflow:hidden;cursor:zoom-in;margin-bottom:18px;
+         box-shadow:0 4px 20px rgba(0,0,0,0.12)"
+         onclick="openImgPopup('./images/plasma_tool.png',
+           '${isEn
+             ? 'CCP Plasma Tool — Dual-frequency RF System (13 MHz + 300 kHz~2 MHz)'
+             : 'CCP 플라즈마 장비 — 이중주파수 RF 시스템 (13 MHz + 300 kHz~2 MHz)'}')">
+      <img src="./images/plasma_tool.png"
+           alt="${isEn ? 'CCP Plasma Tool with RF Matching Networks' : 'RF Matching Network가 적용된 CCP 플라즈마 장비'}"
+           style="width:100%;display:block"/>
+    </div>
+
+    <!-- 이미지 설명 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
+      <div style="background:#F8F6FF;border:1.5px solid #C9B8E8;border-radius:10px;padding:14px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--purple);margin-bottom:8px">
+          📡 ${isEn ? 'Source Power (Top)' : '소스 전력 (상단)'}
+        </div>
+        <div style="font-size:0.79rem;color:var(--text);line-height:1.65">
+          ${isEn
+            ? '<strong>13 MHz RF Generator</strong> → RF Matching Network → upper electrode<br><br>Controls plasma density. High-frequency drives ionization — the "engine" of the plasma.'
+            : '<strong>13 MHz RF Generator</strong> → RF Matching Network → 상부 전극<br><br>플라즈마 밀도를 제어합니다. 고주파가 이온화를 유도 — 플라즈마의 "엔진"입니다.'}
+        </div>
+      </div>
+      <div style="background:#FFF8F0;border:1.5px solid #F5C89A;border-radius:10px;padding:14px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--plasma);margin-bottom:8px">
+          ⚡ ${isEn ? 'Bias Power (Bottom)' : '바이어스 전력 (하단)'}
+        </div>
+        <div style="font-size:0.79rem;color:var(--text);line-height:1.65">
+          ${isEn
+            ? '<strong>13 MHz + 300 kHz~2 MHz</strong> RF Generators → RF Matching Network → lower electrode (chuck)<br><br>Controls ion energy (etch directionality). Dual-frequency enables independent control.'
+            : '<strong>13 MHz + 300 kHz~2 MHz</strong> RF Generator → RF Matching Network → 하부 전극(척)<br><br>이온 에너지(식각 방향성)를 제어합니다. 이중주파수로 독립 제어가 가능합니다.'}
+        </div>
+      </div>
+    </div>
+
+    <!-- RF Matcher의 역할 요약 -->
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px">
+      <div style="font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:12px">
+        ${isEn ? '⚙️ RF Power Transmission System — Standard Configuration' : '⚙️ RF 전력전송 시스템 — 표준 구성'}
+      </div>
+
+      <!-- 블록 다이어그램 — 올바른 순서: Generator → 동축케이블 → Matcher → Reactor -->
+      <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px">
+        ${[
+          { label:'RF Generator', sub:'50 Ω (fixed)', color:'var(--purple)', icon:'📻',
+            conn: null },
+          { label: isEn?'Coaxial Cable':'동축케이블',
+            sub: isEn?'50 Ω · several~tens of meters':'50 Ω · 수m ~ 수십m',
+            color:'var(--blue)', icon:'〰️',
+            conn: { label: isEn?'50 Ω coax':'50 Ω 동축', color:'var(--blue)' } },
+          { label:'RF Matcher', sub: isEn?'L-C network':'L-C 네트워크', color:'var(--plasma)', icon:'⚙️',
+            conn: { label: isEn?'50 Ω coax':'50 Ω 동축', color:'var(--blue)' } },
+          { label:'Reactor', sub: isEn?'Dynamic Z (plasma)':'동적 Z (플라즈마)', color:'var(--green)', icon:'⚗️',
+            conn: { label: isEn?'Direct / short':'직결 / 최단거리', color:'var(--green)' } },
+        ].map((b,i)=>`
+          ${i>0?`
+            <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding:0 2px">
+              <div style="font-size:0.6rem;color:${b.conn.color};font-weight:600;
+                          margin-bottom:2px;white-space:nowrap;font-family:var(--mono)">
+                ${b.conn.label}
+              </div>
+              <div style="color:#AAA;font-size:1.4rem;line-height:1">→</div>
+            </div>
+          `:''}
+          <div style="background:${b.color}12;border:1.5px solid ${b.color}50;border-radius:9px;
+               padding:10px 14px;text-align:center;flex-shrink:0;min-width:96px">
+            <div style="font-size:1.3rem;margin-bottom:3px">${b.icon}</div>
+            <div style="font-size:0.75rem;font-weight:700;color:${b.color}">${b.label}</div>
+            <div style="font-size:0.63rem;color:var(--text-sub);font-family:var(--mono);
+                        margin-top:2px;line-height:1.4">${b.sub}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- 연결 방식 설명 박스 -->
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:10px 12px;background:#F0F6FF;border-radius:8px;
+                    border-left:3px solid var(--blue);font-size:0.78rem;line-height:1.6;color:var(--text)">
+          <div style="font-weight:700;color:var(--blue);margin-bottom:4px">
+            〰️ ${isEn?'Generator → Coax → Matcher':'Generator → 동축케이블 → Matcher'}
+          </div>
+          ${isEn
+            ? '50 Ω coaxial cable, typically <strong>several to tens of meters</strong>. Characteristic impedance matches generator output → low reflection, stable transmission.'
+            : '50 Ω 동축케이블, 통상 <strong>수m ~ 수십m</strong>. 특성임피던스가 Generator 출력과 일치 → 낮은 반사, 안정적 전송.'}
+        </div>
+        <div style="padding:10px 12px;background:#F0FAF4;border-radius:8px;
+                    border-left:3px solid var(--green);font-size:0.78rem;line-height:1.6;color:var(--text)">
+          <div style="font-weight:700;color:var(--green);margin-bottom:4px">
+            ⚗️ ${isEn?'Matcher → Reactor  (Direct connection)':'Matcher → Reactor  (직결)'}
+          </div>
+          ${isEn
+            ? '<strong>Not recommended to use coaxial cable here.</strong> RF component manufacturers advise direct connection or shortest possible path — long cable between Matcher and Reactor introduces instability and maintenance issues.'
+            : '<strong>이 구간에 동축케이블 사용은 권장하지 않습니다.</strong> RF 부품사들은 직결 또는 최단 연결을 권고합니다 — Matcher~Reactor 간 긴 케이블은 임피던스 불안정성과 유지보수 문제를 야기합니다.'}
+        </div>
+      </div>
+
+      <!-- 핵심 설명 -->
+      <div style="margin-top:10px;font-size:0.79rem;color:var(--text-sub);line-height:1.65;
+           padding:10px;background:var(--bg);border-radius:8px">
+        ${isEn
+          ? '• Generator output impedance: fixed at <strong>50 Ω</strong><br>• Reactor impedance: varies from a few Ω to hundreds of Ω (dynamic with process conditions)<br>• RF Matcher: transforms reactor impedance to <strong>50 Ω as seen from the generator</strong> → Γ → 0, VSWR → 1'
+          : '• Generator 출력 임피던스: <strong>50 Ω</strong>으로 고정<br>• Reactor 임피던스: 공정 조건에 따라 수 Ω ~ 수백 Ω으로 동적 변동<br>• RF Matcher: Reactor 임피던스를 <strong>Generator 관점에서 50 Ω</strong>으로 변환 → Γ → 0, VSWR → 1'}
+      </div>
+    </div>
+
+    <!-- Module 03 예고 -->
+    <div class="callout" style="border-color:var(--purple)40">
+      <div class="callout-title">🔮 ${isEn?'Module 03 Preview — What comes next':'Module 03 예고 — 다음에 배울 것'}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px">
+        ${[
+          { icon:'📐', t: isEn?'Impedance':'임피던스', d: isEn?'Complex Z = R + jX at RF frequencies':'RF 주파수에서의 복소 임피던스 Z = R + jX' },
+          { icon:'🗺️', t: isEn?'Smith Chart':'스미스 차트', d: isEn?'A 2D map of all possible impedances':'모든 임피던스를 하나의 2D 지도로' },
+          { icon:'⚙️', t: isEn?'RF Matcher Inside':'RF Matcher 내부', d: isEn?'How L-C networks transform impedance in real time':'L-C 회로망이 실시간으로 임피던스를 변환하는 원리' },
+        ].map(m=>`
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:5px">${m.icon}</div>
+            <div style="font-size:0.8rem;font-weight:700;color:var(--purple);margin-bottom:5px">${m.t}</div>
+            <div style="font-size:0.72rem;color:var(--text-sub);line-height:1.45">${m.d}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+  </div>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   DEEP LEARN BUILDERS
+═══════════════════════════════════════════ */
+function buildC25DeepLearn(isEn) {
+  return isEn ? `
+<div class="deep-section">
+  <h3>Why Do We Explain Electricity with a String?</h3>
+  <p>Some students wonder: "Why are we explaining electrical energy transmission with a physical string?" This is not a metaphor or a simplification — it is a mathematically rigorous equivalence.</p>
+
+  <h3>The Wave Equations Are Identical</h3>
+  <p>The string wave equation, the transmission line voltage equation, and Maxwell's electromagnetic wave equation all share the same mathematical structure:</p>
+  <div class="eq-block">∂²Ψ/∂t² = v² · ∂²Ψ/∂x²</div>
+  <div class="eq-label">where Ψ = y (string displacement), V (voltage), or E (electric field)</div>
+  <p>When the governing equation is identical, every physical consequence — reflection, superposition, standing waves, resonance, phase inversion at boundaries — is also identical. This is what physicists call the <strong>universality of wave phenomena</strong>.</p>
+
+  <h3>Connection to Schrödinger's Equation</h3>
+  <p>The same wave-equation lineage continues into quantum mechanics. Schrödinger derived his famous equation starting from de Broglie's matter-wave hypothesis — the idea that particles behave like waves. The time-dependent Schrödinger equation:</p>
+  <div class="eq-block">iℏ ∂Ψ/∂t = −(ℏ²/2m) ∂²Ψ/∂x² + VΨ</div>
+  <p>is first-order in time (unlike the classical second-order form), but the second-order spatial derivative governing wave propagation remains. The intuition built from a vibrating string carries all the way from classical mechanics to quantum field theory.</p>
+
+  <h3>The Lineage of Wave Equations</h3>
+  <table class="data-table">
+    <thead><tr><th>Wave Type</th><th>Equation</th><th>Speed</th></tr></thead>
+    <tbody>
+      <tr><td>String (mechanical)</td><td>∂²y/∂t² = (T/μ) ∂²y/∂x²</td><td>v = √(T/μ)</td></tr>
+      <tr><td>EM wave (Maxwell)</td><td>∂²E/∂t² = (1/μ₀ε₀) ∂²E/∂x²</td><td>c = 1/√(μ₀ε₀)</td></tr>
+      <tr><td>RF transmission line</td><td>∂²V/∂t² = (1/LC) ∂²V/∂x²</td><td>v = 1/√(LC)</td></tr>
+      <tr><td>Quantum (Schrödinger)</td><td>iℏ ∂Ψ/∂t = −(ℏ²/2m) ∂²Ψ/∂x²</td><td>phase velocity ∝ k</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What Is Different?</h3>
+  <p>The governing equations are the same, but what "waves" is different. On a string, mass displacement waves. In a coaxial cable, E-field and B-field wave through the space between conductors. The medium and the physical quantity differ — the mathematics does not.</p>
+
+  <div class="callout green">
+    <div class="callout-title">💬 Suggested Teaching Statement</div>
+    "Explaining RF with a string is not a metaphor — it is mathematics. The string wave equation and the transmission line voltage equation are structurally identical. Every intuition you build from the string — reflection, standing waves, resonance — transfers directly to RF systems, electromagnetic waves, and even to quantum mechanics through Schrödinger's equation. Nature, across all scales, speaks the same mathematical language."
+  </div>
+</div>` : `
+<div class="deep-section">
+  <h3>왜 줄(String)로 전기를 설명하는가?</h3>
+  <p>어떤 학생들은 이렇게 묻습니다. "왜 전기 에너지 전달을 물리적인 줄로 설명하는 건가요?" 이것은 비유나 단순화가 아닙니다 — 수학적으로 엄밀한 동치(equivalence)입니다.</p>
+
+  <h3>파동방정식이 동일하다</h3>
+  <p>줄의 파동방정식, 전송선로 전압 방정식, 맥스웰 전자기파 방정식은 모두 동일한 수학적 구조를 가집니다:</p>
+  <div class="eq-block">∂²Ψ/∂t² = v² · ∂²Ψ/∂x²</div>
+  <div class="eq-label">여기서 Ψ = y(줄의 변위), V(전압), 또는 E(전기장)</div>
+  <p>지배 방정식이 동일하면 모든 물리적 결과 — 반사, 중첩, 정재파, 공진, 경계에서의 위상 반전 — 도 동일합니다. 이것이 물리학에서 말하는 <strong>파동 현상의 보편성(universality of wave phenomena)</strong>입니다.</p>
+
+  <h3>슈뢰딩거 방정식과의 연결</h3>
+  <p>같은 파동방정식 계보는 양자역학으로도 이어집니다. 슈뢰딩거는 드브로이의 물질파 가설 — 입자도 파동처럼 거동한다 — 에서 출발하여 그의 유명한 방정식을 유도했습니다. 시간 의존 슈뢰딩거 방정식:</p>
+  <div class="eq-block">iℏ ∂Ψ/∂t = −(ℏ²/2m) ∂²Ψ/∂x² + VΨ</div>
+  <p>은 시간에 대해 1차 미분(고전 2차와 다름)이지만, 파동 전파를 지배하는 공간 2차 미분 구조는 동일합니다. 줄에서 쌓은 직관은 고전역학에서 양자장론까지 그대로 이어집니다.</p>
+
+  <h3>파동방정식의 계보</h3>
+  <table class="data-table">
+    <thead><tr><th>파동 종류</th><th>방정식</th><th>속도</th></tr></thead>
+    <tbody>
+      <tr><td>줄의 파동 (역학적)</td><td>∂²y/∂t² = (T/μ) ∂²y/∂x²</td><td>v = √(T/μ)</td></tr>
+      <tr><td>전자기파 (맥스웰)</td><td>∂²E/∂t² = (1/μ₀ε₀) ∂²E/∂x²</td><td>c = 1/√(μ₀ε₀)</td></tr>
+      <tr><td>RF 전송선로</td><td>∂²V/∂t² = (1/LC) ∂²V/∂x²</td><td>v = 1/√(LC)</td></tr>
+      <tr><td>양자역학 (슈뢰딩거)</td><td>iℏ ∂Ψ/∂t = −(ℏ²/2m) ∂²Ψ/∂x²</td><td>위상속도 ∝ k</td></tr>
+    </tbody>
+  </table>
+
+  <h3>무엇이 다른가?</h3>
+  <p>지배 방정식은 같지만 "파동치는 것"이 다릅니다. 줄에서는 질량의 변위가 파동칩니다. 동축케이블에서는 도체 사이 공간에서 E-field와 B-field가 파동칩니다. 매질과 물리량은 다르지만 — 수학은 동일합니다.</p>
+
+  <div class="callout green">
+    <div class="callout-title">💬 강의 언어 제안</div>
+    "줄로 RF를 설명하는 것은 비유가 아닙니다 — 수학입니다. 줄의 파동방정식과 전송선로 전압 방정식은 구조적으로 동일합니다. 줄에서 쌓은 모든 직관 — 반사, 정재파, 공진 — 이 RF 시스템에 그대로 적용되고, 전자기파를 거쳐 슈뢰딩거 방정식의 양자역학까지 이어집니다. 자연은 모든 스케일에서 같은 수학 언어로 말합니다."
+  </div>
+</div>`;
+}
+
+function buildC25bDeepLearn(isEn) {
+  return isEn ? `
+<div class="deep-section">
+  <h3>Reflection Coefficient Γ — Mathematical Derivation</h3>
+  <p>When a wave traveling along a transmission line (characteristic impedance Z₀) encounters a load impedance Z<sub>L</sub>, the boundary condition requires that both voltage and current be continuous at the junction. Applying these conditions:</p>
+  <div class="eq-block">Γ = (Z<sub>L</sub> − Z₀) / (Z<sub>L</sub> + Z₀)</div>
+  <p>The reflection coefficient Γ is a complex number in general. Its magnitude |Γ| (0 ≤ |Γ| ≤ 1) tells us what fraction of the voltage amplitude is reflected; its phase angle tells us the phase of the reflected wave relative to the incident wave.</p>
+  <h3>Special Cases</h3>
+  <table class="data-table">
+    <thead><tr><th>Load Z<sub>L</sub></th><th>Γ</th><th>Physical meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Z<sub>L</sub> = Z₀</td><td>0</td><td>No reflection — perfect match</td></tr>
+      <tr><td>Z<sub>L</sub> = 0 (short)</td><td>−1</td><td>Total reflection, 180° phase inversion</td></tr>
+      <tr><td>Z<sub>L</sub> = ∞ (open)</td><td>+1</td><td>Total reflection, same phase</td></tr>
+      <tr><td>Z<sub>L</sub> = jX (pure reactance)</td><td>|Γ| = 1</td><td>Total reflection (no power absorbed), phase varies</td></tr>
+    </tbody>
+  </table>
+  <h3>Transmission Coefficient</h3>
+  <p>The fraction of the wave that continues beyond the boundary is described by the transmission coefficient τ = 1 + Γ (for voltage). Energy conservation requires: |Γ|² + (Z₀/Z<sub>L</sub>)|τ|² = 1.</p>
+</div>` : `
+<div class="deep-section">
+  <h3>반사계수 Γ — 수학적 유도</h3>
+  <p>특성 임피던스 Z₀의 전송선로를 따라 진행하는 파동이 부하 임피던스 Z<sub>L</sub>을 만날 때, 경계 조건은 접합점에서 전압과 전류가 연속이어야 함을 요구합니다. 이 조건을 적용하면:</p>
+  <div class="eq-block">Γ = (Z<sub>L</sub> − Z₀) / (Z<sub>L</sub> + Z₀)</div>
+  <p>반사계수 Γ는 일반적으로 복소수입니다. 크기 |Γ|(0 ≤ |Γ| ≤ 1)는 전압 진폭의 몇 분의 일이 반사되는지를, 위상각은 반사파의 위상이 입사파 대비 얼마나 회전하는지를 나타냅니다.</p>
+  <h3>특수한 경우</h3>
+  <table class="data-table">
+    <thead><tr><th>부하 Z<sub>L</sub></th><th>Γ</th><th>물리적 의미</th></tr></thead>
+    <tbody>
+      <tr><td>Z<sub>L</sub> = Z₀</td><td>0</td><td>반사 없음 — 완전 매칭</td></tr>
+      <tr><td>Z<sub>L</sub> = 0 (단락)</td><td>−1</td><td>완전 반사, 180° 위상 반전</td></tr>
+      <tr><td>Z<sub>L</sub> = ∞ (개방)</td><td>+1</td><td>완전 반사, 동위상</td></tr>
+      <tr><td>Z<sub>L</sub> = jX (순 리액턴스)</td><td>|Γ| = 1</td><td>완전 반사 (전력 흡수 없음), 위상 변화</td></tr>
+    </tbody>
+  </table>
+  <h3>투과계수</h3>
+  <p>경계를 넘어 계속 진행하는 파동의 비율은 투과계수 τ = 1 + Γ(전압 기준)로 기술됩니다. 에너지 보존에 의해: |Γ|² + (Z₀/Z<sub>L</sub>)|τ|² = 1.</p>
+</div>`;
+}
+
+function buildC26DeepLearn(isEn) {
+  return isEn ? `
+<div class="deep-section">
+  <h3>Telegraph Equation — The Transmission Line Wave Equation</h3>
+  <p>For a lossless transmission line, the distributed-element model gives us two coupled first-order equations (Telegrapher's equations):</p>
+  <div class="eq-block">∂V/∂x = −L · ∂I/∂t &nbsp;&nbsp;&nbsp; ∂I/∂x = −C · ∂V/∂t</div>
+  <p>Combining these two equations yields the second-order wave equations for both V and I, structurally identical to the string wave equation. This mathematical equivalence is why string intuition maps perfectly to transmission line behavior.</p>
+  <h3>Standing Wave: Superposition of Forward and Reflected Waves</h3>
+  <div class="eq-block">V(x,t) = V⁺cos(ωt − βx) + V⁻cos(ωt + βx)</div>
+  <p>At specific positions where the two waves always cancel (nodes), amplitude is permanently zero. At antinodes, they always reinforce. The result is a spatial amplitude pattern that does not move — a standing wave.</p>
+  <h3>Why Power Does Not Form a Standing Wave</h3>
+  <p>Instantaneous power P(x,t) = V(x,t)·I(x,t). When you expand this product for the standing wave case, the position-dependent terms cancel out in the time average. The time-averaged (active) power:</p>
+  <div class="eq-block">⟨P⟩ = (1/2)|V⁺|²/Z₀ · (1 − |Γ|²) = constant w.r.t. x</div>
+  <p>This is a fundamental result: net power flow is uniform along the line. Only V and I oscillate spatially — the delivered power does not.</p>
+</div>` : `
+<div class="deep-section">
+  <h3>Telegraph Equation — 전송선로 파동방정식</h3>
+  <p>무손실 전송선로에 대해 분포 정수 모델은 두 개의 연립 1차 방정식(전신방정식)을 줍니다:</p>
+  <div class="eq-block">∂V/∂x = −L · ∂I/∂t &nbsp;&nbsp;&nbsp; ∂I/∂x = −C · ∂V/∂t</div>
+  <p>이 두 방정식을 결합하면 V와 I 모두에 대한 2차 파동방정식이 나오며, 구조적으로 줄의 파동방정식과 동일합니다. 이 수학적 동치가 줄의 직관이 전송선로 거동에 완벽하게 적용되는 이유입니다.</p>
+  <h3>정재파: 진행파와 반사파의 중첩</h3>
+  <div class="eq-block">V(x,t) = V⁺cos(ωt − βx) + V⁻cos(ωt + βx)</div>
+  <p>두 파동이 항상 상쇄되는 특정 위치(마디, node)에서는 진폭이 영구적으로 0입니다. 배(antinode)에서는 항상 보강됩니다. 결과는 이동하지 않는 공간적 진폭 패턴 — 정재파입니다.</p>
+  <h3>전력이 정재파를 이루지 않는 이유</h3>
+  <p>순시 전력 P(x,t) = V(x,t)·I(x,t). 정재파의 경우 이 곱을 전개하면 시간 평균에서 위치 의존 항들이 상쇄됩니다. 시간 평균(유효) 전력:</p>
+  <div class="eq-block">⟨P⟩ = (1/2)|V⁺|²/Z₀ · (1 − |Γ|²) = x에 무관한 상수</div>
+  <p>이것은 근본적인 결과입니다: 순 전력 흐름은 선로를 따라 균일합니다. V와 I만 공간적으로 진동하고 — 전달 전력은 그렇지 않습니다.</p>
+</div>`;
+}
+
+function buildC27DeepLearn(isEn) {
+  return isEn ? `
+<div class="deep-section">
+  <h3>Three Ways to Express the Same Thing: Γ, VSWR, Return Loss</h3>
+  <table class="data-table">
+    <thead><tr><th>Metric</th><th>Formula</th><th>Unit</th><th>Range</th></tr></thead>
+    <tbody>
+      <tr><td>Reflection Coefficient |Γ|</td><td>|Γ| = (VSWR−1)/(VSWR+1)</td><td>dimensionless</td><td>0 to 1</td></tr>
+      <tr><td>VSWR</td><td>VSWR = (1+|Γ|)/(1−|Γ|)</td><td>dimensionless (ratio)</td><td>1 to ∞</td></tr>
+      <tr><td>Return Loss (RL)</td><td>RL = −20 log|Γ| dB</td><td>dB (positive value)</td><td>0 dB to ∞ dB</td></tr>
+    </tbody>
+  </table>
+  <p>Higher Return Loss = less reflection = better match. A Return Loss of 20 dB corresponds to |Γ| = 0.1, VSWR ≈ 1.22, and only 1% reflected power.</p>
+  <h3>Practical VSWR Limits in Semiconductor RF</h3>
+  <table class="data-table">
+    <thead><tr><th>VSWR</th><th>|Γ|</th><th>Reflected Power</th><th>Assessment</th></tr></thead>
+    <tbody>
+      <tr><td>1.0</td><td>0</td><td>0%</td><td>Ideal (theoretical)</td></tr>
+      <tr><td>1.2</td><td>0.091</td><td>0.8%</td><td>Excellent</td></tr>
+      <tr><td>1.5</td><td>0.200</td><td>4.0%</td><td>Good (typical target)</td></tr>
+      <tr><td>2.0</td><td>0.333</td><td>11.1%</td><td>Marginal</td></tr>
+      <tr><td>3.0</td><td>0.500</td><td>25.0%</td><td>Poor — investigate</td></tr>
+      <tr><td>∞</td><td>1.000</td><td>100%</td><td>Open or short circuit</td></tr>
+    </tbody>
+  </table>
+</div>` : `
+<div class="deep-section">
+  <h3>같은 것을 표현하는 세 가지 방법: Γ, VSWR, Return Loss</h3>
+  <table class="data-table">
+    <thead><tr><th>지표</th><th>공식</th><th>단위</th><th>범위</th></tr></thead>
+    <tbody>
+      <tr><td>반사계수 |Γ|</td><td>|Γ| = (VSWR−1)/(VSWR+1)</td><td>무차원</td><td>0 ~ 1</td></tr>
+      <tr><td>VSWR</td><td>VSWR = (1+|Γ|)/(1−|Γ|)</td><td>무차원 (비율)</td><td>1 ~ ∞</td></tr>
+      <tr><td>Return Loss (RL)</td><td>RL = −20 log|Γ| dB</td><td>dB (양수)</td><td>0 dB ~ ∞ dB</td></tr>
+    </tbody>
+  </table>
+  <p>Return Loss가 높을수록 반사가 적고 매칭이 좋습니다. Return Loss 20dB는 |Γ|=0.1, VSWR≈1.22, 반사전력 1%에 해당합니다.</p>
+  <h3>반도체 RF에서 실용적 VSWR 기준</h3>
+  <table class="data-table">
+    <thead><tr><th>VSWR</th><th>|Γ|</th><th>반사전력</th><th>평가</th></tr></thead>
+    <tbody>
+      <tr><td>1.0</td><td>0</td><td>0%</td><td>이상적 (이론값)</td></tr>
+      <tr><td>1.2</td><td>0.091</td><td>0.8%</td><td>우수</td></tr>
+      <tr><td>1.5</td><td>0.200</td><td>4.0%</td><td>양호 (일반 목표치)</td></tr>
+      <tr><td>2.0</td><td>0.333</td><td>11.1%</td><td>주의 필요</td></tr>
+      <tr><td>3.0</td><td>0.500</td><td>25.0%</td><td>불량 — 원인 조사</td></tr>
+      <tr><td>∞</td><td>1.000</td><td>100%</td><td>개방 또는 단락</td></tr>
+    </tbody>
+  </table>
+</div>`;
+}
+
+function buildC28DeepLearn(isEn) {
+  return isEn ? `
+<div class="deep-section">
+  <h3>Characteristic Impedance of a Coaxial Cable</h3>
+  <p>For a coaxial cable with inner conductor radius a, outer conductor radius b, and relative permittivity εᵣ of the dielectric:</p>
+  <div class="eq-block">Z₀ = (60/√εᵣ) · ln(b/a) Ω</div>
+  <p>For standard 50Ω air-dielectric cable: b/a ≈ 2.303. The 50Ω standard was chosen as a compromise between minimum loss (~77Ω) and maximum power handling (~30Ω).</p>
+  <h3>Why 50Ω?</h3>
+  <p>In the 1930s–1940s, engineers discovered that minimum attenuation occurs at ~77Ω and maximum power handling at ~30Ω. For air dielectric, the geometric mean √(77×30) ≈ 50Ω was selected as a universal standard. This is why every RF instrument, cable, and connector in semiconductor equipment uses 50Ω.</p>
+  <h3>CCP Electrode Impedance — Before and After Plasma</h3>
+  <table class="data-table">
+    <thead><tr><th>State</th><th>Impedance Character</th><th>VSWR (vs 50Ω)</th></tr></thead>
+    <tbody>
+      <tr><td>No plasma (vacuum)</td><td>Predominantly capacitive (high |Z|)</td><td>Very high</td></tr>
+      <tr><td>Plasma lit (low pressure)</td><td>Resistive + capacitive (moderate |Z|)</td><td>High without matching</td></tr>
+      <tr><td>Plasma lit + matched</td><td>≈ 50Ω (Matcher transforms)</td><td>≈ 1</td></tr>
+    </tbody>
+  </table>
+</div>` : `
+<div class="deep-section">
+  <h3>동축케이블의 특성 임피던스</h3>
+  <p>내부 도체 반경 a, 외부 도체 반경 b, 유전체 비유전율 εᵣ의 동축케이블에서:</p>
+  <div class="eq-block">Z₀ = (60/√εᵣ) · ln(b/a) Ω</div>
+  <p>표준 50Ω 공기 유전체 케이블: b/a ≈ 2.303. 50Ω 표준은 최소 손실(~77Ω)과 최대 전력 처리(~30Ω) 사이의 절충으로 선택되었습니다.</p>
+  <h3>왜 50Ω인가?</h3>
+  <p>1930~40년대 엔지니어들은 최소 감쇠가 ~77Ω에서, 최대 전력 처리가 ~30Ω에서 발생함을 발견했습니다. 공기 유전체에서 기하평균 √(77×30) ≈ 50Ω이 보편적 표준으로 선택되었습니다. 반도체 장비의 모든 RF 계측기, 케이블, 커넥터가 50Ω을 사용하는 이유입니다.</p>
+  <h3>CCP 전극 임피던스 — 플라즈마 전·후</h3>
+  <table class="data-table">
+    <thead><tr><th>상태</th><th>임피던스 성격</th><th>VSWR (50Ω 기준)</th></tr></thead>
+    <tbody>
+      <tr><td>플라즈마 없음 (진공)</td><td>주로 용량성 (높은 |Z|)</td><td>매우 높음</td></tr>
+      <tr><td>플라즈마 점화 (저압)</td><td>저항성+용량성 복합 (중간 |Z|)</td><td>매칭 없으면 높음</td></tr>
+      <tr><td>플라즈마 + 매칭 후</td><td>≈ 50Ω (Matcher 변환)</td><td>≈ 1</td></tr>
+    </tbody>
+  </table>
+</div>`;
+}
+
+function buildC29DeepLearn(isEn) {
+  return isEn ? `
+<div class="deep-section">
+  <h3>Maximum Power Transfer Theorem</h3>
+  <p>In circuit theory, maximum power is transferred from a source (with source impedance Zₛ) to a load when Z<sub>L</sub> = Zₛ* (complex conjugate of source impedance). For a resistive source (Zₛ = R), this simplifies to Z<sub>L</sub> = R.</p>
+  <div class="eq-block">P_max = |Vₛ|² / (4Rₛ) &nbsp; when &nbsp; Z<sub>L</sub> = Zₛ*</div>
+  <p>In RF transmission line terms, this becomes: Γ = 0, meaning the load impedance perfectly matches the line impedance Z₀, resulting in zero reflection and maximum power delivery.</p>
+  <h3>Delivered Power as a Function of Γ</h3>
+  <div class="eq-block">P_del = P_gen · (1 − |Γ|²)</div>
+  <p>This single equation summarizes everything from Module 02: the fraction of generated power that actually reaches the reactor depends entirely on how well the impedances are matched (how small |Γ| is).</p>
+  <h3>What Module 03 Will Cover</h3>
+  <p>To understand how an RF Matcher achieves Γ ≈ 0 despite the dynamically changing reactor impedance, we need three new tools: (1) complex impedance Z = R + jX and how L and C contribute, (2) the Smith Chart as a visual map of all possible impedances, and (3) L-network / π-network topology and how variable capacitors tune impedance in real time.</p>
+</div>` : `
+<div class="deep-section">
+  <h3>최대 전력 전달 정리</h3>
+  <p>회로이론에서 소스 임피던스 Zₛ를 가진 전원에서 부하로 최대 전력이 전달되는 조건은 Z<sub>L</sub> = Zₛ*(소스 임피던스의 켤레 복소수)입니다. 순 저항 소스(Zₛ = R)의 경우 Z<sub>L</sub> = R로 단순화됩니다.</p>
+  <div class="eq-block">P_max = |Vₛ|² / (4Rₛ) &nbsp; Z<sub>L</sub> = Zₛ*일 때</div>
+  <p>RF 전송선로 관점에서는: Γ = 0, 즉 부하 임피던스가 선로 임피던스 Z₀와 완전히 일치하면 반사가 없고 최대 전력이 전달됩니다.</p>
+  <h3>Γ의 함수로서의 전달 전력</h3>
+  <div class="eq-block">P_del = P_gen · (1 − |Γ|²)</div>
+  <p>이 하나의 방정식이 Module 02의 모든 내용을 요약합니다: 실제로 Reactor에 도달하는 전력의 비율은 임피던스가 얼마나 잘 매칭되었는가(|Γ|가 얼마나 작은가)에 전적으로 달려있습니다.</p>
+  <h3>Module 03에서 다룰 내용</h3>
+  <p>동적으로 변하는 Reactor 임피던스에도 불구하고 RF Matcher가 어떻게 Γ ≈ 0을 달성하는지 이해하려면 세 가지 새로운 도구가 필요합니다: (1) 복소 임피던스 Z = R + jX와 L, C의 기여, (2) 가능한 모든 임피던스를 시각적으로 나타내는 스미스 차트, (3) L-network / π-network 토폴로지와 가변 커패시터가 실시간으로 임피던스를 튜닝하는 방법.</p>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
+   RENDER DETAIL
+═══════════════════════════════════════════ */
+function renderDetail(id) {
+  const s = getSlide(id);
+  if (!s) return;
+  const isEn = currentLang === 'en';
+
+  let diagramHTML = '';
+  let deepHTML = '';
+  if (id==='c24p') { diagramHTML=buildC24pDiagram(isEn); deepHTML=buildC24pDeepLearn(isEn); }
+  else if (id==='c25') { diagramHTML=buildC25Diagram(isEn); deepHTML=buildC25DeepLearn(isEn); }
+  else if (id==='c25b') { diagramHTML=buildC25bDiagram(isEn); deepHTML=buildC25bDeepLearn(isEn); }
+  else if (id==='c26') { diagramHTML=buildC26Diagram(isEn); deepHTML=buildC26DeepLearn(isEn); }
+  else if (id==='c27') { diagramHTML=buildC27Diagram(isEn); deepHTML=buildC27DeepLearn(isEn); }
+  else if (id==='c28') { diagramHTML=buildC28Diagram(isEn); deepHTML=buildC28DeepLearn(isEn); }
+  else if (id==='c29') { diagramHTML=buildC29Diagram(isEn); deepHTML=buildC29DeepLearn(isEn); }
+
+  // Build theories
+  const theoriesHTML = `<div class="theory-grid">${s.theories.map(t=>`
+    <div class="theory-card">
+      <h4>${t.icon} ${t.title}</h4>
+      <p>${t.body}</p>
+    </div>`).join('')}</div>`;
+
+  // Build equations
+  const eqHTML = s.equations.map(eq=>`
+    <div class="eq-block">
+      \\[ ${eq.tex} \\]
+      <div class="eq-label">${eq.label}</div>
+    </div>`).join('');
+
+  // Build classroom quiz
+  const q = s.classroom;
+  const quizHTML = `
+    <div class="quiz-card">
+      <div class="quiz-q">Q. ${q.q}</div>
+      <div class="quiz-opts">
+        ${q.opts.map((o,i)=>`
+          <div class="quiz-opt" onclick="checkQuiz(this, ${o.correct}, '${id}')">
+            <span class="opt-key">${o.key}</span>
+            <span>${o.text}</span>
+          </div>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb-${id}"></div>
+    </div>`;
+
+  // Build connections
+  const connHTML = `
+    <div style="margin-top:16px">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">
+        ${isEn?'Related Topics':'관련 토픽'}
+      </div>
+      <div class="connections">
+        ${s.connections.map(c=>`<span class="conn-chip" onclick="navigateTo('${c}')">${c}</span>`).join('')}
+      </div>
+    </div>`;
+
+  document.getElementById('slide-area').innerHTML = `
+    <div class="slide-header">
+      <div class="slide-eyebrow">${s.eyebrow}</div>
+      <h1 class="slide-title">${s.title}</h1>
+      <p class="slide-subtitle">${s.subtitle}</p>
+    </div>
+    <div class="tab-row">
+      <button class="tab-btn ${currentTab==='diagram'?'active':''}" onclick="switchTab('diagram')">
+        ${isEn?'📊 Diagram & Simulator':'📊 다이어그램 & 시뮬레이터'}
+      </button>
+      <button class="tab-btn ${currentTab==='theory'?'active':''}" onclick="switchTab('theory')">
+        ${isEn?'📖 Theory Cards':'📖 이론 카드'}
+      </button>
+      <button class="tab-btn ${currentTab==='classroom'?'active':''}" onclick="switchTab('classroom')">
+        ${isEn?'🎓 Check Understanding':'🎓 이해 점검'}
+      </button>
+      <button class="tab-btn ${currentTab==='deep'?'active':''}" onclick="switchTab('deep')">
+        ${isEn?'🔬 Deep Study':'🔬 심화 학습'}
+      </button>
+    </div>
+    <div class="tab-pane ${currentTab==='diagram'?'active':''}" id="tab-diagram">${diagramHTML}</div>
+    <div class="tab-pane ${currentTab==='theory'?'active':''}" id="tab-theory">${theoriesHTML}${eqHTML}${connHTML}</div>
+    <div class="tab-pane ${currentTab==='classroom'?'active':''}" id="tab-classroom">${quizHTML}${connHTML}</div>
+    <div class="tab-pane ${currentTab==='deep'?'active':''}" id="tab-deep">${deepHTML}${connHTML}</div>
+  `;
+
+  // Typeset math
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+
+  // Init simulators
+  setTimeout(()=>{
+    if (id==='c25') initWaveSim();
+    if (id==='c25b') initBCSim();
+    if (id==='c26') initSWSim();
+    if (id==='c27') initVSWRSim();
+    if (id==='c28') { /* Poynting sim in iframe — no canvas init needed */ }
+  }, 80);
+}
+
+/* ═══════════════════════════════════════════
+   SIMULATORS
+═══════════════════════════════════════════ */
+
+// ── C25: Wave Simulator ──
+let waveAnim = null;
+function initWaveSim() {
+  const canvas = document.getElementById('waveCanvas');
+  if (!canvas) return;
+  const { ctx, W, H } = setupHiDPI(canvas);
+  let freq = 2, amp = 28, speed = 200, t = 0;
+  const isEn = currentLang === 'en';
+
+  const freqSlider = document.getElementById('freqSlider');
+  const ampSlider = document.getElementById('ampSlider');
+  const speedSlider = document.getElementById('speedSlider');
+
+  function update() {
+    freq = parseFloat(freqSlider.value);
+    amp = parseFloat(ampSlider.value);
+    speed = parseFloat(speedSlider.value);
+    document.getElementById('freqVal').textContent = freq.toFixed(1) + ' Hz';
+    document.getElementById('ampVal').textContent = Math.round(amp);
+    document.getElementById('speedVal').textContent = Math.round(speed);
+    const lambda = speed / freq;
+    const T = 1 / freq;
+    document.getElementById('waveInfo').innerHTML =
+      `λ = ${lambda.toFixed(1)} &nbsp;|&nbsp; T = ${T.toFixed(3)}s &nbsp;|&nbsp; `+
+      (isEn ? `Wave speed = ${Math.round(speed)} (arbitrary units)` : `파동속도 = ${Math.round(speed)} (임의 단위)`);
+  }
+
+  freqSlider.addEventListener('input', update);
+  ampSlider.addEventListener('input', update);
+  speedSlider.addEventListener('input', update);
+  update();
+
+  if (waveAnim) cancelAnimationFrame(waveAnim);
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0D1117'; ctx.fillRect(0,0,W,H);
+
+    // Grid
+    ctx.strokeStyle = '#1E2940'; ctx.lineWidth = 1;
+    for (let y=0; y<=H; y+=40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+    for (let x=0; x<=W; x+=80) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+
+    // Center line
+    ctx.strokeStyle = '#2A3A5A'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+
+    const k = (2*Math.PI*freq) / speed;
+    const omega = 2*Math.PI*freq;
+
+    // Forward wave
+    ctx.strokeStyle = '#7030A0'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let px=0; px<W; px++) {
+      const x = px / W * W;
+      const xNorm = px / W;
+      const y = H/2 - amp * Math.sin(omega*t - k*x);
+      if (px===0) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke();
+
+    // Moving particle indicator
+    const cx = (t * speed * 0.3) % W;
+    ctx.fillStyle = '#E87B1E';
+    ctx.beginPath();
+    const cy = H/2 - amp * Math.sin(omega*t - (2*Math.PI*freq/speed)*cx);
+    ctx.arc(cx, cy, 5, 0, Math.PI*2);
+    ctx.fill();
+
+    // Labels
+    ctx.fillStyle = '#C09EE0'; ctx.font = 'bold 12px JetBrains Mono';
+    ctx.fillText(isEn?'→ forward wave':'→ 진행파', 10, 20);
+    ctx.fillStyle = '#E87B1E'; ctx.font = 'bold 10px JetBrains Mono';
+    ctx.fillText('● energy particle', cx-4, cy - 14);
+    ctx.fillStyle = '#AABBCC'; ctx.font = '11px JetBrains Mono';
+    ctx.fillText(`f=${freq.toFixed(1)}Hz  A=${Math.round(amp)}  v=${Math.round(speed)}`, W-210, 20);
+
+    t += 0.016;
+    waveAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ── C25b: Boundary Condition Simulator ──
+let bcAnim = null, bcMode = 'free', bcPhase = 0;
+
+window.selectBC = function(mode) {
+  bcMode = mode;
+  ['free','fixed','partial','match'].forEach(m => {
+    const el = document.getElementById('bc-'+m);
+    const btn = document.getElementById('bcbtn-'+m);
+    if (el) el.style.borderWidth = m===mode ? '2.5px' : '2px';
+    if (el) el.style.opacity = m===mode ? '1' : '0.7';
+  });
+  const descs = {
+    free: { ko:'자유단: 끝이 자유롭게 움직이며 에너지가 그대로 반사됩니다. 위상 동일(+1). RF 대응: 개방 회로(Z<sub>L</sub> = ∞)', en:'Free End: The end moves freely. Energy reflects with same phase (+1). RF: Open circuit (Z<sub>L</sub> = ∞)' },
+    fixed: { ko:'고정단: 끝이 완전히 고정되어 변위가 0이어야 합니다. 위상 반전(−1). RF 대응: 단락 회로(Z<sub>L</sub> = 0)', en:'Fixed End: The end is rigid; displacement must be zero. Phase inverted (−1). RF: Short circuit (Z<sub>L</sub> = 0)' },
+    partial: { ko:'부분 반사: 일부만 반사, 일부는 투과합니다. 0 < |Γ| < 1. RF 대응: 임피던스 불일치(Z<sub>L</sub> ≠ Z₀)', en:'Partial Reflection: Some reflects, some transmits. 0 < |Γ| < 1. RF: Impedance mismatch (Z<sub>L</sub> ≠ Z₀)' },
+    match: { ko:'완전 매칭: 반사가 없습니다. 모든 에너지가 투과됩니다. Γ = 0. RF 대응: Z<sub>L</sub> = Z₀', en:'Perfect Match: No reflection. All energy transmits. Γ = 0. RF: Z<sub>L</sub> = Z₀' },
+  };
+  const isEn = currentLang === 'en';
+  const d = document.getElementById('bcDetail');
+  if (d) d.innerHTML = `<span style="color:var(--text)">${isEn ? descs[mode].en : descs[mode].ko}</span>`;
+  bcPhase = 0;
+};
+
+function initBCSim() {
+  const canvas = document.getElementById('bcCanvas');
+  if (!canvas) return;
+  const { ctx, W, H } = setupHiDPI(canvas);
+  let t = 0;
+  if (bcAnim) cancelAnimationFrame(bcAnim);
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0D1117'; ctx.fillRect(0, 0, W, H);
+
+    const isEn = currentLang === 'en';
+    const midY = H/2, amp = 38, k = Math.PI*4/W, omega = Math.PI*2;
+    const midX = W * 0.65;
+
+    // Boundary line
+    ctx.strokeStyle = bcMode==='fixed'?'#E05050':bcMode==='match'?'#30C870':bcMode==='free'?'#4A9FE0':'#F5A85A';
+    ctx.lineWidth = 2.5; ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(midX, 10); ctx.lineTo(midX, H-10); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Incident wave
+    ctx.strokeStyle = '#A06CD0'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let px=20; px<=midX; px++) {
+      const y = midY - amp * Math.sin(omega*t - k*(px-20)*4);
+      if (px===20) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+    }
+    ctx.stroke();
+
+    // Reflected wave
+    if (bcMode !== 'match') {
+      const refAmp = bcMode==='partial' ? amp*0.45 : amp;
+      const phaseFlip = bcMode==='fixed' ? -1 : 1;
+      ctx.strokeStyle = '#F5A85A'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let px=20; px<=midX; px++) {
+        const dist = midX - px;
+        const y = midY - refAmp * phaseFlip * Math.sin(omega*t - k*dist*4 + Math.PI);
+        if (px===20) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+      }
+      ctx.stroke();
+    }
+
+    // Transmitted wave
+    if (bcMode === 'match' || bcMode === 'partial') {
+      const transAmp = bcMode==='match' ? amp : amp*0.65;
+      ctx.strokeStyle = '#30C870'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let px=midX; px<=W-20; px++) {
+        const y = midY - transAmp * Math.sin(omega*t - k*(px-midX)*4);
+        if (px===midX) ctx.moveTo(px,y); else ctx.lineTo(px,y);
+      }
+      ctx.stroke();
+    }
+
+    // Fixed end hatching
+    if (bcMode==='fixed') {
+      ctx.fillStyle = '#E05050';
+      for (let yi=10; yi<H; yi+=14) { ctx.fillRect(midX+1, yi, 10, 7); }
+    }
+
+    // Center line
+    ctx.strokeStyle = '#2A3A5A'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,midY); ctx.lineTo(W,midY); ctx.stroke();
+
+    // Labels — bright, readable
+    const font13 = 'bold 13px "JetBrains Mono",monospace';
+    const font11 = '11px "JetBrains Mono",monospace';
+    ctx.font = font13;
+    ctx.fillStyle = '#D4AAFF';
+    ctx.fillText(isEn?'→ incident':'→ 입사파', 25, midY-48);
+    if (bcMode !== 'match') {
+      ctx.fillStyle = '#FFBB66';
+      ctx.fillText(isEn?'← reflected':'← 반사파', 25, midY+62);
+    }
+    if (bcMode==='match'||bcMode==='partial') {
+      ctx.fillStyle = '#66EEA0';
+      ctx.fillText(isEn?'→ transmitted':'→ 투과파', midX+12, midY-48);
+    }
+    const labels = { free:isEn?'FREE END':'자유단', fixed:isEn?'FIXED END':'고정단', partial:isEn?'PARTIAL':'부분반사', match:isEn?'MATCHED':'완전매칭' };
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 12px "JetBrains Mono",monospace';
+    ctx.fillText(labels[bcMode], midX+10, 22);
+
+    t += 0.016;
+    bcAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ── C26: Standing Wave Simulator — Dual Panel ──
+let swAnim = null, swPaused = false;
+
+window.toggleSWPause = function() {
+  swPaused = !swPaused;
+  const btn = document.getElementById('swPauseBtn');
+  if (btn) btn.textContent = swPaused
+    ? (currentLang==='en' ? '▶ Resume' : '▶ 재생')
+    : (currentLang==='en' ? '⏸ Pause' : '⏸ 일시정지');
+};
+
+function drawPanel(ctx, W, H, gamma, t, omega, k, amp, isVoltage) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0D1117'; ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+
+  const midY = H / 2;
+  // 각 패널은 자신의 amp 기준으로 ±amp 범위 내에서 표시
+  // V: 최대진폭 amp*(1+γ)이 H/2 내에 들어오도록 스케일 고정
+  // I: 동일하게 amp*(1+γ) 기준 — 독립 스케일이므로 시각적 크기 동일
+
+  // ── 포락선 (물리적으로 올바른 수식) ──
+  // V(x,t) = amp·sin(ωt-kx) - γ·amp·sin(ωt+kx)  [반사파 +π 적용]
+  // 진폭 포락선 = amp · sqrt(1 + γ² - 2γ·cos(2kx))  [표준 전송선로 공식]
+  // → x=0:   (1-γ)  → Node  (최소)
+  // → x=λ/4: (1+γ)  → Antinode (최대)
+  //
+  // I는 V와 cos↔sin 교환 (λ/4 위상 이동):
+  // I 포락선 = amp · sqrt(1 + γ² + 2γ·cos(2kx))  [부호 반전]
+  // → x=0:   (1+γ)  → I-Antinode (최대)  ← V의 Node와 같은 위치
+  // → x=λ/4: (1-γ)  → I-Node (최소)     ← V의 Antinode와 같은 위치
+  const envColor  = isVoltage ? '#FFD700' : '#00E5CC';
+  const waveColor = isVoltage ? '#A06CD0' : '#30C870';
+
+  ctx.strokeStyle = envColor; ctx.lineWidth = 1; ctx.setLineDash([7, 5]);
+
+  if (gamma < 0.005) {
+    // Γ=0: 수평 일자선 (진폭 = amp 고정)
+    ctx.beginPath(); ctx.moveTo(0, midY - amp); ctx.lineTo(W, midY - amp); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, midY + amp); ctx.lineTo(W, midY + amp); ctx.stroke();
+  } else {
+    // 올바른 포락선
+    // V: sqrt(1 + γ² - 2γ·cos(2kx))  → 부호 -
+    // I: sqrt(1 + γ² + 2γ·cos(2kx))  → 부호 +
+    const sign = isVoltage ? -1 : +1;
+    ctx.beginPath();
+    for (let px = 0; px < W; px++) {
+      const e = amp * Math.sqrt(1 + gamma*gamma + sign*2*gamma*Math.cos(2*k*px));
+      if (px === 0) ctx.moveTo(px, midY - e); else ctx.lineTo(px, midY - e);
+    }
+    ctx.stroke();
+    ctx.beginPath();
+    for (let px = 0; px < W; px++) {
+      const e = amp * Math.sqrt(1 + gamma*gamma + sign*2*gamma*Math.cos(2*k*px));
+      if (px === 0) ctx.moveTo(px, midY + e); else ctx.lineTo(px, midY + e);
+    }
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // 파동 (2px 실선)
+  ctx.strokeStyle = waveColor; ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let px = 0; px < W; px++) {
+    let val;
+    if (isVoltage) {
+      // V(x,t) = amp·sin(ωt - kx) + γ·amp·sin(ωt + kx + π)
+      val = amp * Math.sin(omega * t - k * px)
+          + gamma * amp * Math.sin(omega * t + k * px + Math.PI);
+    } else {
+      // I(x,t) = amp·cos(ωt - kx) - γ·amp·cos(ωt + kx + π)
+      // → I는 V와 90° 위상차, V_max에서 I=0, V=0에서 I_max
+      val = amp * Math.cos(omega * t - k * px)
+          - gamma * amp * Math.cos(omega * t + k * px + Math.PI);
+    }
+    if (px === 0) ctx.moveTo(px, midY - val); else ctx.lineTo(px, midY - val);
+  }
+  ctx.stroke();
+
+  // 중심선
+  ctx.strokeStyle = '#2A3A5A'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(W, midY); ctx.stroke();
+
+  // ── Node / Antinode 마커 + 레이블 (γ > 0.1) ──
+  if (gamma > 0.1) {
+    const lambda    = (2 * Math.PI) / k;
+    const halfLambda = lambda / 2;
+    const nodeLabel      = isVoltage ? 'V-node'      : 'I-node';
+    const antinodeLabel  = isVoltage ? 'V-antinode'  : 'I-antinode';
+    const nodeColor      = isVoltage ? '#FFD700CC'   : '#00E5CCCC';
+    const antinodeColor  = isVoltage ? '#A06CD0CC'   : '#30C870CC';
+
+    // 새 포락선: V는 x=0에서 최소(Node), x=λ/4에서 최대(Antinode)
+    //            I는 x=0에서 최대(Antinode), x=λ/4에서 최소(Node)
+    const firstNodeX     = isVoltage ? 0         : Math.PI / (2 * k);  // V-node@0, I-node@λ/4
+    const firstAntinodeX = isVoltage ? Math.PI / (2 * k) : 0;          // V-anti@λ/4, I-anti@0
+
+    ctx.font = '10px "JetBrains Mono",monospace';
+
+    // Node 마커
+    for (let nx = firstNodeX; nx < W; nx += halfLambda) {
+      const px = Math.round(nx);
+      if (px < 4 || px >= W - 4) continue;
+      const env_min = amp * (1 - gamma);  // Node에서 포락선 최소값
+
+      // 수직 점선
+      ctx.strokeStyle = '#FFFFFF22'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(px, 6); ctx.lineTo(px, H - 6); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 위쪽 삼각형 (포락선 최소점 아래에)
+      ctx.fillStyle = nodeColor;
+      ctx.beginPath();
+      ctx.moveTo(px, midY - env_min - 3);
+      ctx.lineTo(px - 5, midY - env_min - 12);
+      ctx.lineTo(px + 5, midY - env_min - 12);
+      ctx.closePath(); ctx.fill();
+
+      ctx.fillStyle = nodeColor;
+      ctx.textAlign = 'center';
+      ctx.fillText(nodeLabel, px, midY - env_min - 14);
+      ctx.textAlign = 'left';
+    }
+
+    // Antinode 마커
+    for (let nx = firstAntinodeX; nx < W; nx += halfLambda) {
+      const px = Math.round(nx);
+      if (px < 4 || px >= W - 4) continue;
+      const env_max = amp * (1 + gamma);  // Antinode에서 포락선 최대값
+
+      ctx.fillStyle = antinodeColor;
+      ctx.beginPath();
+      ctx.moveTo(px, midY - env_max + 3);
+      ctx.lineTo(px - 5, midY - env_max + 12);
+      ctx.lineTo(px + 5, midY - env_max + 12);
+      ctx.closePath(); ctx.fill();
+
+      ctx.fillStyle = antinodeColor;
+      ctx.textAlign = 'center';
+      ctx.fillText(antinodeLabel, px, midY - env_max + 22);
+      ctx.textAlign = 'left';
+    }
+  }
+
+  ctx.restore();
+}
+
+function initSWSim() {
+  const vCanvas = document.getElementById('swVCanvas');
+  const iCanvas = document.getElementById('swICanvas');
+  if (!vCanvas || !iCanvas) return;
+
+  const { ctx: vCtx, W: vW, H: vH } = setupHiDPI(vCanvas);
+  const { ctx: iCtx, W: iW, H: iH } = setupHiDPI(iCanvas);
+
+  let t = 0;
+  const isEn = currentLang === 'en';
+  const gammaSlider = document.getElementById('gammaSlider');
+  const FONT_B = 'bold 13px "JetBrains Mono",monospace';
+  const FONT_S = '11px "JetBrains Mono",monospace';
+
+  if (swAnim) cancelAnimationFrame(swAnim);
+
+  function draw() {
+    const gamma = parseFloat(gammaSlider.value);
+    document.getElementById('gammaVal').textContent = gamma.toFixed(2);
+    const vswr = gamma < 1 ? (1 + gamma) / (1 - gamma) : 999;
+    const refl = (gamma * gamma * 100).toFixed(1);
+    document.getElementById('swInfo').innerHTML =
+      `Γ = ${gamma.toFixed(2)} &nbsp;|&nbsp; VSWR = ${vswr < 999 ? vswr.toFixed(2) : '∞'} &nbsp;|&nbsp; ${isEn ? 'Reflected Power' : '반사전력'} = ${refl}%`;
+
+    const omega = 2 * Math.PI * 1.5;
+    const k = 2 * Math.PI / (vW * 0.6);
+
+    // amp 고정: γ=0에서 H/4 크기(절반), γ=1에서 H/2(두 배)가 되도록
+    // γ=1 최대진폭 = amp*(1+1) = 2*amp <= H/2 - margin
+    // → amp = (H/2 - margin) / 2  (γ에 무관하게 고정)
+    const amp = (vH / 2 - 8) / 2;
+
+    // V 패널
+    drawPanel(vCtx, vW, vH, gamma, t, omega, k, amp, true);
+    vCtx.font = FONT_B; vCtx.fillStyle = '#D4AAFF';
+    vCtx.fillText('V(x)', 8, 18);
+    vCtx.font = FONT_S; vCtx.fillStyle = '#CCDDEE';
+    vCtx.fillText('RF Source', 8, vH - 10);
+    vCtx.fillText(isEn ? 'Load' : '부하', vW - 52, vH - 10);
+
+    // Vmax / Vmin 주석
+    if (gamma > 0.02) {
+      const Vmax = amp * (1 + gamma), Vmin = amp * (1 - gamma);
+      vCtx.font = FONT_S; vCtx.fillStyle = '#FFD700';
+      vCtx.fillText(`Vmax = ${Vmax.toFixed(0)}`, vW - 115, vH/2 - Vmax + 14);
+      vCtx.fillText(`Vmin = ${Vmin.toFixed(0)}`, vW - 115, vH/2 - Vmin - 4);
+    }
+
+    // I 패널
+    drawPanel(iCtx, iW, iH, gamma, t, omega, k, amp, false);
+    iCtx.font = FONT_B; iCtx.fillStyle = '#66EEA0';
+    iCtx.fillText('I(x)', 8, 18);
+    iCtx.font = FONT_S; iCtx.fillStyle = '#CCDDEE';
+    iCtx.fillText('RF Source', 8, iH - 10);
+    iCtx.fillText(isEn ? 'Load' : '부하', iW - 52, iH - 10);
+
+    // Imax / Imin 주석
+    if (gamma > 0.02) {
+      const Imax = amp * (1 + gamma), Imin = amp * (1 - gamma);
+      iCtx.font = FONT_S; iCtx.fillStyle = '#00E5CC';
+      iCtx.fillText(`Imax = ${Imax.toFixed(0)}`, iW - 115, iH/2 - Imax + 14);
+      iCtx.fillText(`Imin = ${Imin.toFixed(0)}`, iW - 115, iH/2 - Imin - 4);
+    }
+
+    if (!swPaused) t += 0.014;
+    swAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ── C27: VSWR Calculator + Standing Wave ──
+let vswrAnim = null;
+function initVSWRSim() {
+  const swCanvas  = document.getElementById('vswrSwCanvas');
+  const barCanvas = document.getElementById('vswrCanvas');
+  if (!swCanvas || !barCanvas) return;
+
+  const { ctx: swCtx,  W: SW, H: SH } = setupHiDPI(swCanvas);
+  const { ctx: barCtx, W: BW, H: BH } = setupHiDPI(barCanvas);
+
+  const gammaSlider = document.getElementById('vswr-gamma');
+  const vswrSlider  = document.getElementById('vswr-direct');
+  const isEn = currentLang === 'en';
+  let t = 0;
+
+  window.syncVSWRfromVSWR = function(vswrVal) {
+    const vswr = parseFloat(vswrVal);
+    const g = (vswr - 1) / (vswr + 1);
+    gammaSlider.value = Math.min(0.99, g).toFixed(3);
+    document.getElementById('vswr-direct-val').textContent = vswr.toFixed(2);
+  };
+  gammaSlider.addEventListener('input', () => {
+    const g = parseFloat(gammaSlider.value);
+    const vswr = g < 0.99 ? (1+g)/(1-g) : 999;
+    vswrSlider.value = Math.min(20, vswr).toFixed(2);
+    document.getElementById('vswr-direct-val').textContent = Math.min(20, vswr).toFixed(2);
+  });
+
+  const BFONT = 'bold 13px "JetBrains Mono",monospace';
+  const NFONT = '11px "JetBrains Mono",monospace';
+
+  function drawAll() {
+    const gamma   = parseFloat(gammaSlider.value);
+    document.getElementById('vswr-gamma-val').textContent = gamma.toFixed(2);
+    const vswr    = gamma < 0.99 ? (1+gamma)/(1-gamma) : 999;
+    const reflPct = (gamma*gamma*100).toFixed(1);
+    const delPct  = (100 - gamma*gamma*100).toFixed(1);
+    document.getElementById('ri-vswr').textContent  = vswr < 999 ? vswr.toFixed(2) : '\u221e';
+    document.getElementById('ri-gamma').textContent = gamma.toFixed(3);
+    document.getElementById('ri-refl').textContent  = reflPct + '%';
+    document.getElementById('ri-del').textContent   = delPct  + '%';
+
+    /* Standing Wave Canvas */
+    swCtx.clearRect(0, 0, SW, SH);
+    swCtx.fillStyle = '#0D1117'; swCtx.fillRect(0, 0, SW, SH);
+    swCtx.save(); swCtx.beginPath(); swCtx.rect(0, 0, SW, SH); swCtx.clip();
+
+    const midY = SH / 2;
+    const amp  = (SH / 2 - 10) / 2;
+    const k    = 2 * Math.PI / (SW * 0.6);
+    const omega = 2 * Math.PI * 1.5;
+
+    swCtx.strokeStyle = '#FFD700'; swCtx.lineWidth = 1; swCtx.setLineDash([7, 4]);
+    if (gamma < 0.005) {
+      swCtx.beginPath(); swCtx.moveTo(0, midY-amp); swCtx.lineTo(SW, midY-amp); swCtx.stroke();
+      swCtx.beginPath(); swCtx.moveTo(0, midY+amp); swCtx.lineTo(SW, midY+amp); swCtx.stroke();
+    } else {
+      swCtx.beginPath();
+      for (let px = 0; px < SW; px++) {
+        const e = amp * Math.sqrt(1 + gamma*gamma - 2*gamma*Math.cos(2*k*px));
+        if (px===0) swCtx.moveTo(px, midY-e); else swCtx.lineTo(px, midY-e);
+      }
+      swCtx.stroke();
+      swCtx.beginPath();
+      for (let px = 0; px < SW; px++) {
+        const e = amp * Math.sqrt(1 + gamma*gamma - 2*gamma*Math.cos(2*k*px));
+        if (px===0) swCtx.moveTo(px, midY+e); else swCtx.lineTo(px, midY+e);
+      }
+      swCtx.stroke();
+    }
+    swCtx.setLineDash([]);
+
+    swCtx.strokeStyle = '#A06CD0'; swCtx.lineWidth = 2;
+    swCtx.beginPath();
+    for (let px = 0; px < SW; px++) {
+      const V = amp * Math.sin(omega*t - k*px)
+              + gamma * amp * Math.sin(omega*t + k*px + Math.PI);
+      if (px===0) swCtx.moveTo(px, midY-V); else swCtx.lineTo(px, midY-V);
+    }
+    swCtx.stroke();
+
+    swCtx.strokeStyle = '#2A3A5A'; swCtx.lineWidth = 1;
+    swCtx.beginPath(); swCtx.moveTo(0, midY); swCtx.lineTo(SW, midY); swCtx.stroke();
+    swCtx.restore();
+
+    swCtx.font = BFONT; swCtx.fillStyle = '#FFE066';
+    swCtx.fillText(isEn ? 'V envelope  (Vmax / Vmin)' : 'V \ud3ec\ub77d\uc120  (Vmax / Vmin)', 10, 20);
+    swCtx.fillStyle = '#D4AAFF';
+    swCtx.fillText('V(x)', 10, SH - 10);
+
+    if (gamma > 0.01) {
+      const Vmax = amp*(1+gamma), Vmin = amp*(1-gamma);
+      swCtx.font = NFONT; swCtx.fillStyle = '#FFE066';
+      swCtx.fillText('Vmax = ' + Vmax.toFixed(1), SW - 130, Math.max(16, midY - Vmax + 14));
+      if (Vmin > 2) swCtx.fillText('Vmin = ' + Vmin.toFixed(1), SW - 130, midY - Vmin - 5);
+      else          swCtx.fillText('Vmin \u2248 0', SW - 110, midY - 5);
+    }
+
+    /* Power Bar Canvas */
+    barCtx.clearRect(0, 0, BW, BH);
+    barCtx.fillStyle = '#0D1117'; barCtx.fillRect(0, 0, BW, BH);
+
+    const barY = 14, barH = 40, barX = 72, barW = BW - 92;
+    barCtx.fillStyle = '#1E2940'; barCtx.fillRect(barX, barY, barW, barH);
+    const delW  = barW * (1 - gamma*gamma);
+    const reflW = barW * gamma*gamma;
+    const grd = barCtx.createLinearGradient(barX, 0, barX+delW, 0);
+    grd.addColorStop(0, '#0F8C50'); grd.addColorStop(1, '#1AB564');
+    barCtx.fillStyle = grd; barCtx.fillRect(barX, barY, delW, barH);
+    if (reflW > 2) { barCtx.fillStyle = '#C0392B'; barCtx.fillRect(barX+delW, barY, reflW, barH); }
+    barCtx.strokeStyle = '#333'; barCtx.lineWidth = 1; barCtx.strokeRect(barX, barY, barW, barH);
+    barCtx.font = BFONT; barCtx.fillStyle = '#fff';
+    if (delW > 80)  barCtx.fillText((isEn?'Delivered ':'\uc804\ub2ec ') + delPct+'%', barX+10, barY+26);
+    if (reflW > 70) barCtx.fillText((isEn?'Refl ':'\ubc18\uc0ac ') + reflPct+'%', barX+delW+8, barY+26);
+
+    const scaleY = 66, scaleX = 72, scaleW = BW - 92;
+    barCtx.fillStyle = '#555'; barCtx.fillRect(scaleX, scaleY+6, scaleW, 2);
+    const marks = [{v:1,l:'1'},{v:1.5,l:'1.5'},{v:2,l:'2'},{v:3,l:'3'},{v:5,l:'5'},{v:10,l:'10'},{v:20,l:'20+'}];
+    marks.forEach(m => {
+      const g = (m.v-1)/(m.v+1);
+      const px = scaleX + (g/0.99)*scaleW;
+      barCtx.fillStyle = '#444'; barCtx.fillRect(px, scaleY, 1, 14);
+      barCtx.fillStyle = '#AABBCC'; barCtx.font = NFONT;
+      barCtx.textAlign = 'center'; barCtx.fillText(m.l, px, scaleY+26); barCtx.textAlign = 'left';
+    });
+    barCtx.fillStyle = '#AABBCC'; barCtx.font = NFONT;
+    barCtx.fillText('VSWR', scaleX - 64, scaleY + 12);
+
+    const markerX = scaleX + (gamma/0.99)*scaleW;
+    const mColor  = vswr<1.5 ? '#0F8C50' : vswr<2 ? '#E87B1E' : '#C0392B';
+    barCtx.fillStyle = mColor;
+    barCtx.beginPath(); barCtx.arc(markerX, scaleY+7, 9, 0, Math.PI*2); barCtx.fill();
+    barCtx.fillStyle = '#fff'; barCtx.font = 'bold 10px "JetBrains Mono",monospace';
+    barCtx.textAlign = 'center';
+    barCtx.fillText(vswr<999 ? vswr.toFixed(1) : '\u221e', markerX, scaleY+11);
+    barCtx.textAlign = 'left';
+    barCtx.fillStyle = '#888'; barCtx.font = NFONT;
+    barCtx.fillText(isEn ? '\u2190 better  worse \u2192' : '\u2190 \uc591\ud638  \ubd88\ub7c9 \u2192', scaleX, BH - 5);
+
+    t += 0.016;
+    vswrAnim = requestAnimationFrame(drawAll);
+  }
+
+  if (vswrAnim) cancelAnimationFrame(vswrAnim);
+  drawAll();
+}
+
+
+
+/* ═══════════════════════════════════════════
+   NAVIGATION & EVENTS
+═══════════════════════════════════════════ */
+function navigateTo(id) {
+  // Cancel running animations
+  if (waveAnim) { cancelAnimationFrame(waveAnim); waveAnim=null; }
+  if (bcAnim) { cancelAnimationFrame(bcAnim); bcAnim=null; }
+  if (swAnim) { cancelAnimationFrame(swAnim); swAnim=null; }
+
+  currentId = id;
+  currentTab = 'diagram';
+  renderDetail(id);
+  renderSidebar();
+  window.scrollTo(0,0);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const pane = document.getElementById('tab-'+tab);
+  if (pane) pane.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    if (b.getAttribute('onclick')===`switchTab('${tab}')`) b.classList.add('active');
+  });
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+}
+
+function setLang(lang) {
+  if (waveAnim) { cancelAnimationFrame(waveAnim); waveAnim=null; }
+  if (bcAnim) { cancelAnimationFrame(bcAnim); bcAnim=null; }
+  if (swAnim) { cancelAnimationFrame(swAnim); swAnim=null; }
+  currentLang = lang;
+  document.getElementById('btn-ko').classList.toggle('active', lang==='ko');
+  document.getElementById('btn-en').classList.toggle('active', lang==='en');
+  renderDetail(currentId);
+  renderSidebar();
+}
+
+function checkQuiz(el, correct, id) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.style.pointerEvents='none');
+  el.classList.add(correct?'correct':'wrong');
+  const fb = document.getElementById('qfb-'+id);
+  const s = getSlide(id);
+  if (fb && s) {
+    fb.textContent = correct ? s.classroom.feedback_ok : s.classroom.feedback_ng;
+    fb.className = 'quiz-feedback show ' + (correct?'ok':'ng');
+  }
+}
+
+function openImgPopup(src, cap) {
+  document.getElementById('img-popup-img').src=src;
+  document.getElementById('img-popup-cap').textContent=cap;
+  document.getElementById('img-popup').classList.add('open');
+}
+function closeImgPopup() { document.getElementById('img-popup').classList.remove('open'); }
+
+/* ═══════════════════════════════════════════
+   TOGGLE ANSWER — Q1/Q2 정답 표시/숨김
+═══════════════════════════════════════════ */
+window.toggleAnswer = function(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isHidden = el.style.display === 'none';
+  el.style.display = isHidden ? 'block' : 'none';
+  // 버튼 텍스트 토글
+  const btn = el.previousElementSibling
+    ? el.closest('.d-wrap, [style*="overflow:hidden"]')
+      ?.querySelector('button[onclick*="' + id + '"]')
+    : null;
+};
+
+/* ═══════════════════════════════════════════
+   RF PARAMETER CALCULATOR
+═══════════════════════════════════════════ */
+function calcUpdateResult(gamma) {
+  if (isNaN(gamma) || gamma < 0) return;
+  gamma = Math.min(gamma, 0.9999);
+  const vswr   = (1 + gamma) / (1 - gamma);
+  const reflPct = (gamma * gamma * 100);
+  const delPct  = 100 - reflPct;
+  const rl      = gamma > 0 ? -20 * Math.log10(gamma) : Infinity;
+
+  document.getElementById('cr-gamma').textContent = gamma.toFixed(4);
+  document.getElementById('cr-vswr').textContent  = vswr.toFixed(3);
+  document.getElementById('cr-refl').textContent  = reflPct.toFixed(2) + '%';
+  document.getElementById('cr-del').textContent   = delPct.toFixed(2) + '%';
+  document.getElementById('cr-rl').textContent    = isFinite(rl) ? rl.toFixed(2) + ' dB' : '∞ dB';
+
+  // 슬라이더 연동
+  const gs = document.getElementById('vswr-gamma');
+  const vs = document.getElementById('vswr-direct');
+  if (gs) gs.value = Math.min(0.99, gamma).toFixed(4);
+  if (vs) vs.value = Math.min(20, vswr).toFixed(3);
+  const gv = document.getElementById('vswr-gamma-val');
+  const vv = document.getElementById('vswr-direct-val');
+  if (gv) gv.textContent = Math.min(0.99, gamma).toFixed(2);
+  if (vv) vv.textContent = Math.min(20, vswr).toFixed(2);
+}
+
+window.calcFromGamma = function(val) {
+  const gamma = parseFloat(val);
+  if (isNaN(gamma) || val === '') return;
+  // 다른 필드 초기화
+  const v = document.getElementById('calc-vswr');
+  const pf = document.getElementById('calc-pf');
+  const pr = document.getElementById('calc-pr');
+  if (v) v.value = '';
+  if (pf) pf.value = '';
+  if (pr) pr.value = '';
+  calcUpdateResult(gamma);
+};
+
+window.calcFromVSWR = function(val) {
+  const vswr = parseFloat(val);
+  if (isNaN(vswr) || vswr < 1 || val === '') return;
+  const gamma = (vswr - 1) / (vswr + 1);
+  const g = document.getElementById('calc-gamma');
+  const pf = document.getElementById('calc-pf');
+  const pr = document.getElementById('calc-pr');
+  if (g) g.value = '';
+  if (pf) pf.value = '';
+  if (pr) pr.value = '';
+  calcUpdateResult(gamma);
+};
+
+window.calcFromPower = function() {
+  const pf = parseFloat(document.getElementById('calc-pf').value);
+  const pr = parseFloat(document.getElementById('calc-pr').value);
+  if (isNaN(pf) || isNaN(pr) || pf <= 0 || pr < 0) return;
+  if (pr > pf) return;  // 물리적으로 불가
+  const gamma = Math.sqrt(pr / pf);
+  const g = document.getElementById('calc-gamma');
+  const v = document.getElementById('calc-vswr');
+  if (g) g.value = '';
+  if (v) v.value = '';
+  calcUpdateResult(gamma);
+};
+
+window.clearCalc = function() {
+  ['calc-gamma','calc-vswr','calc-pf','calc-pr'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['cr-gamma','cr-vswr','cr-refl','cr-del','cr-rl'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '—';
+  });
+};
+
+// Init
+window.addEventListener('DOMContentLoaded', ()=>{
+  renderSidebar();
+  renderDetail(currentId);
+});
+</script>
+</body>
+</html>
