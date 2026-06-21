@@ -151,6 +151,9 @@
       text-align: center;
       margin-bottom: 3rem;
       animation: fadeInDown 0.8s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .logo-container {
@@ -189,7 +192,71 @@
       background: linear-gradient(90deg, transparent, rgba(0,0,0,0.15), transparent);
     }
 
-    /* ── STREAMING_CHUNK:Creating class card metrics... ── */
+    /* Premium Capsule Language Toggle */
+    .lang-toggle-wrapper {
+      margin-top: 1.85rem;
+      display: flex;
+      justify-content: center;
+      animation: fadeInDown 1s ease;
+    }
+
+    .lang-toggle-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      background: #FFFFFF;
+      border: 1.5px solid var(--color-border);
+      border-radius: 9999px;
+      padding: 2px;
+      width: 140px;
+      height: 36px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .lang-toggle-pill .slide-bg {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      left: 2px;
+      width: calc(50% - 2px);
+      background-color: var(--color-class2); /* Premium brand violet */
+      border-radius: 9999px;
+      transition: var(--transition-smooth);
+      z-index: 1;
+    }
+
+    .lang-toggle-pill.lang-en .slide-bg {
+      transform: translateX(100%);
+    }
+
+    .lang-toggle-pill button {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #9CA3AF; /* Slick slate gray when inactive */
+      font-family: var(--font-mono) !important;
+      font-size: 0.85rem;
+      font-weight: 700;
+      height: 100%;
+      cursor: pointer;
+      z-index: 2;
+      transition: color 0.25s ease;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lang-toggle-pill.lang-ko button#btn-lang-ko {
+      color: #FFFFFF;
+    }
+
+    .lang-toggle-pill.lang-en button#btn-lang-en {
+      color: #FFFFFF;
+    }
+
     /* Cards Grid */
     .portal-grid {
       display: flex;
@@ -367,7 +434,6 @@
       background: #F3F4F6;
     }
 
-    /* ── STREAMING_CHUNK:Building the classroom main workspace... ── */
     /* ─────────────────────────────────────────────────────────────────────────
        CLASSROOM WORKSPACE VIEW
        ───────────────────────────────────────────────────────────────────────── */
@@ -447,7 +513,6 @@
       color: var(--color-text-primary);
     }
 
-    /* ── STREAMING_CHUNK:Structuring sidebar navigation... ── */
     /* Lecture Module List Container */
     .lecture-list-container {
       flex-grow: 1;
@@ -473,11 +538,12 @@
       padding: 0 0.75rem;
     }
 
+    /* --- REFINED ACTIVE LECTURE STYLING --- */
     .lecture-item-btn {
       width: 100%;
       background: transparent;
       border: 1px solid transparent;
-      border-radius: 8px;
+      border-radius: 8px; /* Rounded corners for a softer look */
       padding: 10px 12px;
       color: var(--color-text-muted);
       cursor: pointer;
@@ -485,62 +551,108 @@
       align-items: center;
       gap: 10px;
       text-align: left;
-      transition: var(--transition-smooth);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; /* For pseudo-elements if needed */
     }
 
     .lecture-item-btn:hover {
       background: rgba(0, 0, 0, 0.02);
       color: var(--color-text-primary);
+      transform: translateX(2px); /* Slight hover nudge */
     }
 
+    /* Modern Active State: Soft background, text color change, subtle shadow */
     .lecture-item-btn.active {
       color: var(--color-text-primary);
-      background: var(--color-active-bg);
-      border-color: var(--color-border);
+      font-weight: 700; /* Bolder text for active item */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* Soft lift */
+      /* Remove the old left border */
+      border-left: 1px solid transparent !important; 
+    }
+    
+    /* Elegant colored indicator line on the RIGHT instead of a heavy left border */
+    .lecture-item-btn.active::after {
+        content: '';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 60%;
+        width: 3px;
+        border-radius: 4px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
+    /* Class 1 Active Colors */
     .class1-active .lecture-item-btn.active {
-      border-left: 3.5px solid var(--color-class1);
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.01) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+    .class1-active .lecture-item-btn.active::after {
+        background-color: var(--color-class1);
+        opacity: 1;
+    }
+    .class1-active .lecture-item-btn.active .module-num {
+      color: var(--color-class1);
+      background: rgba(16, 185, 129, 0.1);
+      font-weight: 700;
     }
 
+    /* Class 2 Active Colors */
     .class2-active .lecture-item-btn.active {
-      border-left: 3.5px solid var(--color-class2);
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.01) 100%);
+      border: 1px solid rgba(139, 92, 246, 0.1);
     }
+    .class2-active .lecture-item-btn.active::after {
+        background-color: var(--color-class2);
+        opacity: 1;
+    }
+    .class2-active .lecture-item-btn.active .module-num {
+      color: var(--color-class2);
+      background: rgba(139, 92, 246, 0.1);
+      font-weight: 700;
+    }
+
 
     .module-num {
       font-size: 0.7rem;
       background: rgba(0, 0, 0, 0.04);
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 3px 6px;
+      border-radius: 6px;
       flex-shrink: 0;
-      color: var(--color-text-primary);
-    }
-
-    .lecture-item-btn.active .module-num {
-      background: rgba(0, 0, 0, 0.08);
+      color: var(--color-text-muted);
+      transition: all 0.25s ease;
+      font-family: var(--font-mono);
+      letter-spacing: 0.5px;
     }
 
     .lecture-title {
       font-size: 0.85rem;
-      font-weight: 500;
       flex-grow: 1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      transition: font-weight 0.25s ease;
     }
 
     /* Completion Tick */
     .checkbox-container {
-      width: 16px;
-      height: 16px;
-      border: 1.5px solid rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid rgba(0, 0, 0, 0.2);
+      border-radius: 5px; /* Slightly more rounded */
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: var(--transition-smooth);
       flex-shrink: 0;
+      margin-right: 12px; /* Make room for the new right-side indicator */
+    }
+
+    .checkbox-container:hover {
+        border-color: rgba(0, 0, 0, 0.4);
     }
 
     .checkbox-container.checked {
@@ -554,16 +666,24 @@
     }
 
     .checkbox-container svg {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       fill: none;
       stroke: white;
       stroke-width: 3px;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       display: none;
     }
 
     .checkbox-container.checked svg {
       display: block;
+      animation: checkmark 0.2s ease-in-out forwards;
+    }
+    
+    @keyframes checkmark {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
     }
 
     /* Scratch Notebook Drawer in Sidebar */
@@ -650,7 +770,6 @@
       border-color: rgba(0, 0, 0, 0.15);
     }
 
-    /* ── STREAMING_CHUNK:Designing secure frame container... ── */
     /* ─────────────────────────────────────────────────────────────────────────
        SECURE SECURED CANVAS VIEWER (OCCUPIES 90%+ VIEWPORT)
        ───────────────────────────────────────────────────────────────────────── */
@@ -854,7 +973,6 @@
       }
     }
 
-    /* ── STREAMING_CHUNK:Styling the portal footer... ── */
     .portal-main-content {
       display: flex;
       flex-direction: column;
@@ -914,7 +1032,6 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── STREAMING_CHUNK:Injecting Gowun Batang for Korean typography support... ── */
     /* Korean Mode Typography Override (Request 3) */
     body[data-lang="ko"] * {
       font-family: 'Gowun Batang', 'Georgia', serif !important;
@@ -945,15 +1062,23 @@
       <div class="plasma-orb two"></div>
     </div>
 
-    <!-- ── STREAMING_CHUNK:Structuring main wrapper... ── -->
     <div class="portal-main-content">
       <!-- Entrance Header & Branding (Updated with official horizontal image-logo) -->
       <header class="portal-header">
         <div class="logo-container">
           <img class="logo-img" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight Logo">
         </div>
-        <!-- Updated subtitle to include RF Transmission Theory (Request 2) -->
+        <!-- Updated subtitle to include RF Transmission Theory -->
         <div class="portal-subtitle" id="portal-sub-text">Plasma School for Semiconductor & RF Transmission Theory</div>
+        
+        <!-- Beautiful Language Toggle Pill Button -->
+        <div class="lang-toggle-wrapper">
+          <div class="lang-toggle-pill lang-en" id="portal-lang-pill" onclick="togglePortalLanguage(event)">
+            <div class="slide-bg"></div>
+            <button id="btn-lang-ko" onclick="setLanguage('ko'); event.stopPropagation();">KO</button>
+            <button id="btn-lang-en" onclick="setLanguage('en'); event.stopPropagation();">EN</button>
+          </div>
+        </div>
       </header>
 
       <!-- Class Cards Matrix -->
@@ -1010,20 +1135,36 @@
           <div class="syllabus-preview">
             <div class="syllabus-preview-header">
               <span id="lbl-c2-curric">Core Modules</span>
-              <span id="lbl-c2-count">3 Lectures</span>
+              <span id="lbl-c2-count">7 Lectures</span>
             </div>
             <ul class="syllabus-items">
               <li class="syllabus-item">
                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                <span>Electromagnetics & Maxwell's Equations</span>
+                <span>RF Transmission</span>
               </li>
               <li class="syllabus-item">
                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                <span>Fundamentals of Plasma Physics Basics</span>
+                <span>Standing Wave</span>
               </li>
               <li class="syllabus-item">
                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                <span>RF Matchers & Power Delivery Systems</span>
+                <span>Impedance</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Smith Chart</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Matching Network</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>Power Delivery & Monitoring Parameters</span>
+              </li>
+              <li class="syllabus-item">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>RF Source & its Application</span>
               </li>
             </ul>
           </div>
@@ -1032,7 +1173,6 @@
       </div>
     </div>
 
-    <!-- ── STREAMING_CHUNK:Appending global footer info... ── -->
     <footer class="portal-footer">
       <div class="footer-links">
         <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer">Homepage</a>
@@ -1043,11 +1183,6 @@
         © 2026 Benedu Insight. All rights reserved.
       </div>
     </footer>
-
-    <!-- Entrance Options & Branding Controls -->
-    <div class="portal-options">
-      <button class="btn-text-lang" onclick="toggleLanguage()" id="portal-lang-btn">KO</button>
-    </div>
   </div>
 
 
@@ -1176,6 +1311,9 @@
       </div>
 
     </main>
+    
+    <!-- General Toast Message -->
+    <div id="toast-msg" class="toast-msg"></div>
   </div>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -1183,7 +1321,7 @@
        ───────────────────────────────────────────────────────────────────────── -->
   <script>
     // ─────────────────────────────────────────────
-    // Localized Translation Content (Request 2 Updates)
+    // Localized Translation Content
     // ─────────────────────────────────────────────
     const TRANSLATIONS = {
       en: {
@@ -1195,7 +1333,7 @@
         c2Title: "RF Power Transmission Theory for Plasma Formation",
         c2Desc: "Acquire professional theoretical knowledge of RF engineering. Learn electromagnetics foundations, Maxwell's key equations, and advanced RF power transmission, load matching mechanics.",
         c2Curric: "Core Modules",
-        c2Count: "3 Lectures",
+        c2Count: "7 Lectures",
         secureBadge: "SECURE SANDBOX ACTIVE",
         loadingText: "SECURELY DEPLOYING LESSON...",
         lblSyllabus: "Course Modules",
@@ -1213,9 +1351,9 @@
         c1Curric: "교육 커리큘럼",
         c1Count: "6개 강좌",
         c2Title: "CLASS-02 플라즈마 형성을 위한 RF 전력전송 이론",
-        c2Desc: "플라즈마를 발생시키기 위한 고주파(RF) 전원 및 정합공학 개념을 체계적으로 섭취합니다. 기초 전자기학, 맥스웰 방정식, 고주파 송전선로 이론과 부하 매칭 원리를 완벽하게 분석합니다.",
+        c2Desc: "플라즈마 발생을 위한 고주파(RF) 전력의 전송 특성과 부하 매칭 원리를 체계적으로 분석합니다. 송전선로 및 정상파 이론, 임피던스와 스미스 차트, 정합 회로(Matching Network) 설계부터 실제 RF 전원의 구성 및 제어 파라메터까지 완벽하게 파헤칩니다.",
         c2Curric: "교육 커리큘럼",
-        c2Count: "3개 강좌",
+        c2Count: "7개 강좌",
         secureBadge: "보안 샌드박스 프레임 작동 중",
         loadingText: "보안 강의 페이지를 생성 중입니다...",
         lblSyllabus: "강의 커리큘럼 리스트",
@@ -1290,25 +1428,53 @@
         colorClass: "class2-active",
         lectures: [
           {
-            id: "maxwell-equations",
-            titleEn: "Electromagnetics & Maxwell's Equations",
-            titleKo: "전자기 전송 및 맥스웰 방정식",
-            file: "21_benedu_maxwell_equation.html",
+            id: "rf-transmission",
+            titleEn: "RF Transmission",
+            titleKo: "RF Transmission",
+            file: "21_rf_transmission.html",
             duration: "60m"
           },
           {
-            id: "rf-plasma-basics",
-            titleEn: "Fundamentals of Plasma Physics Basics",
-            titleKo: "플라즈마 기초 물리학",
-            file: "22_benedu_plasma_lecture.html",
+            id: "standing-wave",
+            titleEn: "Standing Wave",
+            titleKo: "Standing Wave",
+            file: "22_standing_wave.html",
             duration: "60m"
           },
           {
-            id: "rf-matchers",
-            titleEn: "RF Matchers & Power Delivery Systems",
-            titleKo: "RF 매칭 및 전력 공급 시스템",
-            file: "23_benedu_plasma_semi_lecture_v1.html",
+            id: "impedance",
+            titleEn: "Impedance",
+            titleKo: "Impedance",
+            file: "23_impedance.html",
             duration: "75m"
+          },
+          {
+            id: "smith-chart",
+            titleEn: "Smith Chart",
+            titleKo: "Smith Chart",
+            file: "24_smithchart.html",
+            duration: "75m"
+          },
+          {
+            id: "matching-network",
+            titleEn: "Matching Network",
+            titleKo: "Matching Network",
+            file: "25_m_network.html",
+            duration: "75m"
+          },
+          {
+            id: "power-delivery",
+            titleEn: "Power Delivery & Monitoring Parameters",
+            titleKo: "Power Delivery & Monitoring Parameters",
+            file: "26_power_delivery.html",
+            duration: "60m"
+          },
+          {
+            id: "rf-source",
+            titleEn: "RF Source & its Application",
+            titleKo: "RF Source & its Application",
+            file: "27_rf_source.html",
+            duration: "60m"
           }
         ]
       }
@@ -1317,22 +1483,25 @@
     // ─────────────────────────────────────────────
     // Global Application State
     // ─────────────────────────────────────────────
-    let currentLang = 'en';
+    let currentLang = 'en'; // Default = EN
     let currentClassId = null;
     let currentLectureIndex = 0;
     
     const iframe = document.getElementById('lecture-frame');
     const spinner = document.getElementById('frame-spinner');
     const errorAlert = document.getElementById('error-alert');
+    let toastTimeout;
 
     // ─────────────────────────────────────────────
     // Setup & Page Load Initialization
     // ─────────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
-      // Get preferred language from localStorage
+      // Get preferred language from localStorage, default En
       const savedLang = localStorage.getItem('benedu_pref_lang');
-      if (savedLang) {
+      if (savedLang === 'ko' || savedLang === 'en') {
         currentLang = savedLang;
+      } else {
+        currentLang = 'en'; // default = En
       }
       applyTranslations();
       
@@ -1349,17 +1518,27 @@
     // Switch Portal Language Core Logic
     // ─────────────────────────────────────────────
     function toggleLanguage() {
-      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      const nextLang = currentLang === 'en' ? 'ko' : 'en';
+      setLanguage(nextLang);
+    }
+
+    function togglePortalLanguage(event) {
+      if (event) event.stopPropagation();
+      const nextLang = currentLang === 'en' ? 'ko' : 'en';
+      setLanguage(nextLang);
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
       localStorage.setItem('benedu_pref_lang', currentLang);
       applyTranslations();
       
       // Re-render sidebar if actively in classroom
-      if (currentClassId) {
+      if (currentClassId !== null) {
         renderSidebarLectures();
       }
     }
 
-    // ── STREAMING_CHUNK:Handling entrance transitions... ──
     function applyTranslations() {
       document.body.setAttribute('data-lang', currentLang);
       const T = TRANSLATIONS[currentLang];
@@ -1375,8 +1554,20 @@
       document.getElementById('lbl-c2-curric').innerText = T.c2Curric;
       document.getElementById('lbl-c2-count').innerText = T.c2Count;
       
-      document.getElementById('portal-lang-btn').innerText = currentLang === 'en' ? 'KO' : 'EN';
-      document.getElementById('side-lang-btn').innerText = currentLang === 'en' ? 'KO' : 'EN';
+      // Sync the Capsule Pill Switch active class state
+      const pill = document.getElementById('portal-lang-pill');
+      if (pill) {
+        if (currentLang === 'en') {
+          pill.className = 'lang-toggle-pill lang-en';
+        } else {
+          pill.className = 'lang-toggle-pill lang-ko';
+        }
+      }
+      
+      const sideLangBtn = document.getElementById('side-lang-btn');
+      if (sideLangBtn) {
+        sideLangBtn.innerText = currentLang === 'en' ? 'KO' : 'EN';
+      }
       
       document.getElementById('lbl-syllabus').innerText = T.lblSyllabus;
       document.getElementById('lbl-notebook').innerText = T.lblNotebook;
@@ -1385,7 +1576,7 @@
       document.getElementById('student-notepad').placeholder = T.notePlaceholder;
       
       // Class 1 Module 4 customized translated label for preview
-      document.getElementById('lbl-c1-m4-title').innerText = currentLang === 'en' ? 'Electromagnetics & Maxwell\'s Equations' : '맥스웰 방정식과 전자기학 기초';
+      document.getElementById('lbl-c1-m4-title').innerText = 'Electromagnetics & Maxwell\'s Equations';
 
       // Header control indicators
       document.getElementById('lbl-secure').innerHTML = `
@@ -1400,6 +1591,19 @@
         <code id="error-file-code">${getCurrentActiveLectureFile()}</code>
       `;
       document.getElementById('err-dismiss').innerText = T.errDismiss;
+
+      // Dynamic Class & Lecture Updates (Fixes language-toggle bugs inside Classroom View)
+      if (currentClassId !== null) {
+        const config = CLASS_DATA[currentClassId];
+        const classTitleEl = document.getElementById('sidebar-class-title');
+        if (classTitleEl) classTitleEl.innerText = currentLang === 'en' ? config.titleEn : config.titleKo;
+        
+        const lecture = config.lectures[currentLectureIndex];
+        const breadEl = document.getElementById('bread-lecture');
+        if (lecture && breadEl) {
+          breadEl.innerText = currentLang === 'en' ? lecture.titleEn : lecture.titleKo;
+        }
+      }
     }
 
     // ─────────────────────────────────────────────
@@ -1430,7 +1634,6 @@
       selectLecture(0);
     }
 
-    // ── STREAMING_CHUNK:Managing sidebar navigation... ──
     function exitToPortal() {
       // Halt whatever is in the iframe to optimize memory and silence audio
       iframe.src = "about:blank";
@@ -1516,7 +1719,6 @@
       checkLocalFileAvailability(lecture.file);
     }
 
-    // ── STREAMING_CHUNK:Setting up localStorage mechanics... ──
     function reloadLectureFrame() {
       spinner.classList.add('active');
       const prevSrc = iframe.src;
