@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variable Vacuum Capacitor Simulator - benedu insight</title>
+    <!-- Google Sans와 가장 유사한 형태의 Poppins 폰트 및 한글 고운바탕 폰트 추가 -->
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Setup Google Sans (Local Check & CDN Fallback) */
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Google Sans'), local('Google Sans Regular'), local('Product Sans'), url(https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 600;
+            src: local('Google Sans Medium'), local('Product Sans Medium'), url(https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumweDk2xN2IIN2WzIe4AONoE.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Google Sans Bold'), local('Product Sans Bold'), url(https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwePbYnk8Fh72E2kH4q4C5M.woff2) format('woff2');
+        }
+
+        :root {
+            --brand-green: #188358;
+            --brand-purple: #5e35b1;
+            --bg-color: #f4f6f8;
+            --panel-bg: #ffffff;
+            --text-main: #202124;
+            --text-muted: #5f6368;
+            --copper-color: #d97736;
+            --insulator-color: #e0f2f1;
+            --border-color: #dadce0;
+        }
+
+        body {
+            /* 영문은 Google Sans/Poppins, 한글은 Gowun Batang으로 렌더링되도록 폰트 스택 구성 */
+            font-family: 'Google Sans', 'Product Sans', 'Poppins', 'Gowun Batang', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-circle {
+            width: 36px;
+            height: 36px;
+            border: 7px solid var(--brand-green);
+            border-radius: 50%;
+            margin-right: 12px;
+            box-sizing: border-box;
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--brand-purple);
+            line-height: 1.1;
+        }
+
+        .logo-text span {
+            font-weight: 400;
+        }
+
+        .title-area h1 {
+            font-size: 20px;
+            margin: 0;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .container {
+            display: flex;
+            background: var(--panel-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            overflow: hidden;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .control-panel {
+            flex: 1.2;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .visualization {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fafbfc;
+            position: relative;
+        }
+
+        /* Specification Box */
+        .spec-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+        }
+
+        .spec-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #1a73e8;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .spec-grid strong {
+            color: var(--text-main);
+        }
+
+        /* Dashboard Gauges */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+
+        .metric-card.primary {
+            border-color: var(--brand-purple);
+            background: rgba(94, 53, 177, 0.03);
+        }
+
+        .metric-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-main);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .primary .metric-value {
+            color: var(--brand-purple);
+            font-size: 42px;
+        }
+
+        .metric-unit {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .impedance-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* Slider */
+        .slider-wrapper {
+            margin-top: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: var(--brand-green);
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 6px rgba(24, 131, 88, 0.4);
+            border: 3px solid #fff;
+            transition: transform 0.1s;
+        }
+
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #e8eaed;
+            border-radius: 4px;
+        }
+        
+        .formula-note {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 15px;
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        /* SVG Styles */
+        svg text {
+            font-family: 'Google Sans', 'Product Sans', 'Poppins', 'Gowun Batang', sans-serif;
+            fill: #5f6368;
+        }
+        .copper { fill: var(--copper-color); }
+        .insulator { fill: var(--insulator-color); stroke: #80cbc4; stroke-width: 2;}
+
+        /* Deep Dive Accordion Styles */
+        .deep-dive-container {
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 20px;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        details {
+            width: 100%;
+        }
+
+        summary {
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--brand-purple);
+            cursor: pointer;
+            list-style: none; /* Hide default arrow */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            transition: background-color 0.2s;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary:hover {
+            background-color: #f1f3f4;
+        }
+
+        summary:after {
+            content: '+';
+            font-size: 24px;
+            color: var(--brand-purple);
+            line-height: 1;
+            font-weight: 400;
+        }
+
+        details[open] summary:after {
+            content: '−'; /* Minus sign for open state */
+        }
+
+        details[open] summary {
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--panel-bg);
+        }
+
+        .summary-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-title .divider {
+            color: #bdbdbd;
+            margin: 0 6px;
+            font-weight: 400;
+        }
+
+        .dd-icon {
+            color: var(--brand-purple);
+            flex-shrink: 0;
+        }
+
+        .dd-content {
+            padding: 25px;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .dd-intro {
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .dd-section {
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 3px solid var(--border-color);
+        }
+
+        .dd-section strong {
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+        
+        .dd-lang {
+            margin-bottom: 6px;
+        }
+
+        .dd-tip {
+            background: #e8f5e9;
+            padding: 15px 20px;
+            border-left: 4px solid var(--brand-green);
+            border-radius: 0 4px 4px 0;
+            margin-top: 25px;
+            color: #2e7d32;
+            font-size: 13px;
+        }
+
+        .dd-tip strong {
+            color: #1b5e20;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="brand-area">
+            <div class="logo-circle"></div>
+            <div class="logo-text">benedu<br><span>insight</span></div>
+        </div>
+        <div class="title-area">
+            <h1>Variable Vacuum Capacitor Analysis</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="control-panel">
+            
+            <div class="spec-box">
+                <!-- Removed Model and Manufacturer info -->
+                <h3><span>Capacitor Specifications</span></h3>
+                <div class="spec-grid">
+                    <div>Capacitance: <strong>35 - 1000 pF</strong></div>
+                    <div>Working Volts: <strong>3 kVp</strong></div>
+                    <div>Max Current: <strong>94 Arms (13.56MHz)</strong></div>
+                    <div>Tuner Turns: <strong>10.5 Turns</strong></div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Capacitance -->
+                <div class="metric-card primary">
+                    <div class="metric-title">Current Capacitance (C)</div>
+                    <div class="metric-value" id="valCap">35<span class="metric-unit"> pF</span></div>
+                </div>
+
+                <!-- Impedances -->
+                <div class="impedance-group">
+                    <div class="metric-card">
+                        <div class="metric-title">Impedance @ 400 kHz</div>
+                        <div class="metric-value" id="valZ400">11368<span class="metric-unit"> &Omega;</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Impedance @ 13.56 MHz</div>
+                        <div class="metric-value" id="valZ1356">335<span class="metric-unit"> &Omega;</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-wrapper">
+                <div class="slider-labels">
+                    <span>Min (35 pF)</span>
+                    <span id="turnIndicator">Turns: 0.0</span>
+                    <span>Max (1000 pF)</span>
+                </div>
+                <!-- Range min=35, max=1000 -->
+                <input type="range" id="capSlider" min="35" max="1000" value="35" step="1">
+                <div class="formula-note">
+                    Impedance Formula: Z = -j / (2&pi; &times; f &times; C)
+                </div>
+            </div>
+
+        </div>
+
+        <div class="visualization">
+            <!-- Expanded viewBox upwards to -150 and total height to 700 to fit motor and coupler -->
+            <svg viewBox="0 -150 400 700" width="100%" height="650px" id="vvcSvg">
+                
+                <!-- 1. VVC Housing & Fixed Parts -->
+                <!-- Housing & Insulator -->
+                <rect x="70" y="200" width="20" height="250" class="insulator" />
+                <rect x="310" y="200" width="20" height="250" class="insulator" />
+                
+                <!-- Bottom Connection & Fixed Electrodes -->
+                <path d="M 60 450 L 340 450 L 340 490 L 220 490 L 220 510 L 180 510 L 180 490 L 60 490 Z" fill="#e0e0e0" stroke="#999" stroke-width="2"/>
+                <path d="M 90 450 L 310 450 L 310 470 L 90 470 Z" class="copper" />
+                
+                <!-- Fixed Cylinder Electrodes -->
+                <g id="fixedElectrodes" class="copper">
+                    <rect x="100" y="320" width="6" height="130" />
+                    <rect x="130" y="320" width="6" height="130" />
+                    <rect x="160" y="320" width="6" height="130" />
+                    <rect x="190" y="320" width="6" height="130" />
+                    <rect x="220" y="320" width="6" height="130" />
+                    <rect x="250" y="320" width="6" height="130" />
+                    <rect x="280" y="320" width="6" height="130" />
+                </g>
+
+                <!-- Upper Housing -->
+                <path d="M 60 200 L 90 200 L 90 100 L 170 100 L 170 50 L 230 50 L 230 100 L 310 100 L 310 200 L 340 200 Z" fill="#e0e0e0" stroke="#999" stroke-width="2" fill-opacity="0.5"/>
+
+                <!-- 2. Movable Assembly (Translates vertically) -->
+                <!-- Spindle extended upwards (y=-100) to remain seamlessly inside the coupler even when moving -->
+                <g id="movableAssembly" transform="translate(0, 0)">
+                    <rect x="190" y="-100" width="20" height="315" class="copper" />
+                    <rect x="90" y="200" width="220" height="15" class="copper" />
+                    
+                    <!-- Movable Cylinder Electrodes -->
+                    <g id="movableElectrodes" class="copper">
+                        <rect x="115" y="215" width="6" height="130" />
+                        <rect x="145" y="215" width="6" height="130" />
+                        <rect x="175" y="215" width="6" height="130" />
+                        <rect x="205" y="215" width="6" height="130" />
+                        <rect x="235" y="215" width="6" height="130" />
+                        <rect x="265" y="215" width="6" height="130" />
+                    </g>
+                </g>
+
+                <!-- 3. Drive System (Motor & Coupler - Fixed position, overlays spindle top) -->
+                <g id="driveSystem">
+                    <!-- Insulation Tube (Dashed outline around coupler) -->
+                    <rect x="150" y="-40" width="100" height="75" fill="rgba(240,248,255,0.7)" stroke="#90a4ae" stroke-width="2" stroke-dasharray="5,5" rx="4" ry="4"/>
+                    
+                    <!-- Insulation Coupler -->
+                    <!-- Solid background to hide translating spindle top -->
+                    <rect x="175" y="-30" width="50" height="55" fill="#bbdefb" stroke="#1976d2" stroke-width="2" rx="4" ry="4"/>
+                    
+                    <!-- Rotating mechanism inside coupler (Animates with JS) -->
+                    <g id="rotatingShaft" transform="translate(200, -2.5)">
+                        <circle cx="0" cy="0" r="14" fill="#90caf9" stroke="#1565c0" stroke-width="2"/>
+                        <line x1="-14" y1="0" x2="14" y2="0" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="0" y1="-14" x2="0" y2="14" stroke="#1565c0" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="0" cy="0" r="4" fill="#1565c0" />
+                    </g>
+
+                    <!-- Motor Shaft -->
+                    <rect x="190" y="-55" width="20" height="25" fill="#cfd8dc" stroke="#78909c" stroke-width="1"/>
+
+                    <!-- Stepping Motor Body -->
+                    <rect x="150" y="-130" width="100" height="75" fill="#eceff1" stroke="#78909c" stroke-width="2" rx="6" ry="6"/>
+                    <rect x="145" y="-120" width="5" height="55" fill="#cfd8dc" stroke="#78909c" stroke-width="1"/> <!-- Back cooling fin -->
+                    <line x1="150" y1="-92.5" x2="250" y2="-92.5" stroke="#cfd8dc" stroke-width="2"/> <!-- Motor body detail -->
+                    
+                    <!-- Encoder attached to motor back -->
+                    <rect x="125" y="-110" width="20" height="35" fill="#546e7a" stroke="#37474f" stroke-width="1" rx="2" ry="2"/>
+                    
+                    <!-- Motor internal detail circle -->
+                    <circle cx="200" cy="-92.5" r="20" fill="#e0e0e0" stroke="#b0bec5" stroke-width="1"/>
+                </g>
+
+                <!-- Bellows -->
+                <path id="bellowsPath" d="" fill="none" stroke="#90a4ae" stroke-width="4" stroke-linejoin="round" />
+
+                <!-- 4. Labels and Pointers -->
+                <!-- Motor & Encoder Label -->
+                <text x="260" y="-105" font-size="12" fill="#37474f" font-weight="bold">Stepping motor</text>
+                <text x="260" y="-90" font-size="12" fill="#546e7a">with an encoder</text>
+                <polyline points="255,-100 230,-100" fill="none" stroke="#90a4ae" stroke-width="1"/>
+
+                <!-- Coupler Label -->
+                <text x="265" y="-15" font-size="12" fill="#1565c0" font-weight="bold">10kVp DC/AC</text>
+                <text x="265" y="0" font-size="12" fill="#1976d2">Insulation coupler</text>
+                <polyline points="260,-5 250,-5 215,-2.5" fill="none" stroke="#64b5f6" stroke-width="1.5"/>
+
+                <!-- Insulation Tube Label -->
+                <text x="135" y="-15" font-size="12" fill="#546e7a" text-anchor="end">Insulation tube</text>
+                <polyline points="140,-18 160,-18" fill="none" stroke="#90a4ae" stroke-width="1" stroke-dasharray="2,2"/>
+
+                <!-- VVC Internal Labels -->
+                <text x="10" y="150" font-size="12">Upper connection</text>
+                <line x1="110" y1="145" x2="160" y2="145" stroke="#999" stroke-width="1" stroke-dasharray="2,2"/>
+
+                <text x="25" y="260" font-size="12">Flexible bellows</text>
+                <line x1="105" y1="255" x2="160" y2="255" stroke="#999" stroke-width="1" stroke-dasharray="2,2"/>
+
+                <text x="20" y="350" font-size="12">Ceramic insulator</text>
+                <line x1="115" y1="345" x2="80" y2="345" stroke="#999" stroke-width="1" stroke-dasharray="2,2"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Deep Dive Accordion Section -->
+    <div class="deep-dive-container">
+        <details>
+            <summary>
+                <div class="summary-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dd-icon">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                    <span>Deep Dive: Why High Vacuum? <span class="divider">|</span> 심층 분석: 왜 고진공을 사용할까?</span>
+                </div>
+            </summary>
+            <div class="dd-content">
+                <div class="dd-intro">
+                    Typical VVCs maintain a high vacuum of <strong>10<sup>-5</sup> ~ 10<sup>-7</sup> Torr</strong>. Here are the core reasons why:<br>
+                    통상적으로 VVC 내부는 <strong>10<sup>-5</sup> ~ 10<sup>-7</sup> Torr</strong> 수준의 고진공 상태를 유지합니다. 그 핵심 이유는 다음과 같습니다.
+                </div>
+                
+                <div class="dd-section">
+                    <strong>1. Maximize Withstand Voltage (절연 내압 극대화)</strong>
+                    <div class="dd-lang">According to Paschen's Law, eliminating gas molecules inside the enclosure prevents electrical arcing, allowing the capacitor to safely withstand high RF voltages (e.g., 3kVp ~ 10kVp+).</div>
+                    <div class="dd-lang">파셴의 법칙에 따라 진공 상태에서는 방전(아크)을 매개할 가스 분자가 없으므로, 전극 간격이 좁아도 3kVp 이상의 높은 RF 고전압을 안전하게 견딜 수 있습니다.</div>
+                </div>
+                
+                <div class="dd-section">
+                    <strong>2. Zero Dielectric Loss & Heat Reduction (유전 손실 제로 및 발열 억제)</strong>
+                    <div class="dd-lang">Vacuum is an ideal dielectric with near-zero loss. This prevents massive currents (like 94 Arms at 13.56MHz) from causing significant power loss or self-heating within the component.</div>
+                    <div class="dd-lang">진공은 이상적인 유전체로 유전 손실이 거의 '0'에 가깝습니다. 덕분에 13.56MHz에서 94 Arms와 같은 대전류가 흘러도 전력 손실과 자체 발열이 최소화됩니다.</div>
+                </div>
+
+                <div class="dd-section">
+                    <strong>3. Prevent Oxidation & Extend Lifespan (전극 산화 방지 및 수명 연장)</strong>
+                    <div class="dd-lang">The Oxygen-Free Copper (OFC) electrodes will not oxidize in a vacuum, ensuring stable performance despite millions of mechanical spindle movements and high-temperature environments.</div>
+                    <div class="dd-lang">무산소동(OFC) 재질의 전극이 고진공 상태에서는 산화되지 않아, 수백만 번의 스핀들 상하 운동과 고온의 가혹한 환경에서도 장기간 일정한 성능을 보장합니다.</div>
+                </div>
+
+                <div class="dd-tip">
+                    <strong>💡 Pro Tip: The Getter (게터의 역할)</strong>
+                    A special material inside, called a 'Getter', continuously absorbs outgassed molecules from the metal and ceramic surfaces over time to maintain the high vacuum level. If a leak occurs and the vacuum is broken, the VVC fails immediately due to internal arcing.<br><br>
+                    내부에 내장된 '게터(Getter)'라는 흡착 물질이 작동 중 미세하게 방출되는 가스를 지속적으로 흡착하여 수명이 다할 때까지 완벽한 진공을 방어합니다. 진공 씰이 깨져(Leak) 공기가 유입되면 즉시 내부 아크가 발생하여 파손됩니다.
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <script>
+        const slider = document.getElementById('capSlider');
+        const valCap = document.getElementById('valCap');
+        const valZ400 = document.getElementById('valZ400');
+        const valZ1356 = document.getElementById('valZ1356');
+        const turnIndicator = document.getElementById('turnIndicator');
+        const movableAssembly = document.getElementById('movableAssembly');
+        const bellowsPath = document.getElementById('bellowsPath');
+        const rotatingShaft = document.getElementById('rotatingShaft'); // New variable for rotation animation
+
+        // Specs base limits
+        const minCap = 35;
+        const maxCap = 1000;
+        const linearVariability = 96.5; // pF/Turn
+        
+        // Frequencies in Hz
+        const freq400k = 400 * 1000;
+        const freq1356M = 13.56 * 1000000;
+
+        // Visual limits (Y offset pixels)
+        const minYOffset = 0;
+        const maxYOffset = 100;
+        const bellowsTopY = 100;
+
+        function updateSimulation() {
+            const currentCap = parseFloat(slider.value);
+            
+            // 1. Update Capacitance Text
+            valCap.innerHTML = `${currentCap}<span class="metric-unit"> pF</span>`;
+
+            // 2. Calculate Turns (Approximation based on variability)
+            // Turns = (Current Cap - Min Cap) / Variability
+            let turns = (currentCap - minCap) / linearVariability;
+            turnIndicator.innerText = `Turns: ~${turns.toFixed(1)}`;
+
+            // 3. Calculate Impedances: Z = -j / (2 * pi * f * C)
+            // Convert C to Farads
+            const C_F = currentCap * 1e-12; 
+            
+            const z400 = 1 / (2 * Math.PI * freq400k * C_F);
+            const z1356 = 1 / (2 * Math.PI * freq1356M * C_F);
+
+            // Update UI formatting based on size (Adding -j for capacitive reactance)
+            valZ400.innerHTML = `-${z400 > 1000 ? z400.toFixed(0) : z400.toFixed(1)} j<span class="metric-unit"> &Omega;</span>`;
+            valZ1356.innerHTML = `-${z1356.toFixed(1)} j<span class="metric-unit"> &Omega;</span>`;
+
+            // 4. Update SVG Visuals (Linear Translation)
+            const percent = (currentCap - minCap) / (maxCap - minCap);
+            const currentYOffset = minYOffset + percent * (maxYOffset - minYOffset);
+
+            movableAssembly.setAttribute('transform', `translate(0, ${currentYOffset})`);
+            
+            // 5. Update Motor/Coupler Animation (Rotation based on Turns)
+            // Multiply turns by 360 degrees to get physical rotation angle
+            const angle = turns * 360;
+            // Center of rotating mechanism is at (200, -2.5) in the viewBox
+            rotatingShaft.setAttribute('transform', `translate(200, -2.5) rotate(${angle})`);
+
+            drawBellows(currentYOffset);
+        }
+
+        function drawBellows(yOffset) {
+            const bellowsBottomY = 200 + yOffset; 
+            const numFolds = 12;
+            const leftX = 175;
+            const rightX = 225;
+            
+            let d = `M 190 ${bellowsTopY} `;
+            d += `L ${leftX} ${bellowsTopY + 5} `;
+            
+            const totalHeight = bellowsBottomY - bellowsTopY - 10;
+            const foldHeight = totalHeight / numFolds;
+
+            for (let i = 0; i <= numFolds; i++) {
+                const currentY = bellowsTopY + 5 + (i * foldHeight);
+                const currentX = (i % 2 === 0) ? rightX : leftX;
+                d += `L ${currentX} ${currentY} `;
+            }
+            
+            d += `L 190 ${bellowsBottomY}`;
+            bellowsPath.setAttribute('d', d);
+        }
+
+        // Event Listener
+        slider.addEventListener('input', updateSimulation);
+
+        // Init
+        updateSimulation();
+    </script>
+</body>
+</html>
