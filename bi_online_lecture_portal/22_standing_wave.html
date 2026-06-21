@@ -1954,6 +1954,51 @@ function buildC27Diagram(isEn) {
       `).join('')}
     </div>
 
+    <!-- ═══ DEEP DIVE — 펼친 상태 시작, 클릭하면 접힘 ═══ -->
+    <div style="border:1.5px solid #E8C66A;border-radius:10px;overflow:hidden;margin-bottom:16px;background:#fff">
+      <div onclick="toggleDeepDive('dd-gamma-power')"
+           style="background:#FBF3DC;padding:10px 16px;display:flex;align-items:center;
+                  justify-content:space-between;cursor:pointer;user-select:none">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="background:#C8860D;color:#fff;font-size:0.66rem;font-weight:700;
+                       padding:3px 10px;border-radius:10px;letter-spacing:0.05em;
+                       font-family:var(--mono)">DEEP DIVE</span>
+          <span style="font-size:0.84rem;font-weight:700;color:var(--text)">
+            😅 ${isEn
+              ? 'Common Confusion: Does |Γ| Itself Equal the Reflected Power?'
+              : '흔한 오해: |Γ| 자체가 반사전력 비율인가?'}
+          </span>
+        </div>
+        <span id="dd-gamma-power-arrow" style="font-size:0.8rem;color:var(--text-sub);
+              transition:transform 0.2s;transform:rotate(0deg)">▲</span>
+      </div>
+      <div id="dd-gamma-power" style="display:block;padding:16px 18px">
+        <p style="font-size:0.82rem;color:var(--text);line-height:1.7;margin-bottom:12px">
+          ${isEn
+            ? 'It\'s natural to read "Γ = reflection coefficient" and assume Γ itself is the fraction of power reflected. It isn\'t — <strong>Γ is a voltage ratio</strong>, and the fraction of <strong>power</strong> reflected is <strong>|Γ|²</strong>.'
+            : '"Γ = 반사계수"라는 표현 때문에 Γ 자체가 반사되는 전력의 비율이라고 생각하기 쉽습니다. 하지만 그렇지 않습니다 — <strong>Γ는 전압 비율</strong>이며, <strong>전력</strong>이 반사되는 비율은 <strong>|Γ|²</strong>입니다.'}
+        </p>
+        <div style="background:#F7F8FA;border-radius:8px;padding:12px 16px;margin-bottom:12px;
+                    font-family:var(--mono);font-size:0.82rem;color:var(--text);line-height:2">
+          Γ = V<sub>reflected</sub> / V<sub>incident</sub> &nbsp; — &nbsp; ${isEn?'a complex number (magnitude':'복소수 (크기'} <em>${isEn?'and phase':'와 위상'}</em>${isEn?')':' )'}<br>
+          |Γ| = 0.933 &nbsp; → &nbsp; ${isEn
+            ? 'this is how much the <strong>voltage</strong> amplitude comes back, not power'
+            : '<strong>전압</strong> 진폭이 되돌아오는 비율 — 전력이 아닙니다'}<br>
+          P<sub>reflected</sub> / P<sub>incident</sub> = |Γ|² = 0.933² ≈ <strong>0.871 (87.1%)</strong>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text);line-height:1.7;margin-bottom:10px">
+          ${isEn
+            ? 'The reason is simple: power is proportional to the <strong>square</strong> of voltage (P = V²/Z₀), not to voltage itself. So whatever fraction comes back in voltage, the power that comes back is that fraction <em>squared</em> — and squaring a number less than 1 always makes it smaller. 93.3% voltage reflection becomes 87.1% power reflection, not a bigger number.'
+            : '이유는 단순합니다: 전력은 전압 자체가 아니라 전압의 <strong>제곱</strong>에 비례합니다 (P = V²/Z₀). 따라서 전압이 되돌아오는 비율이 무엇이든, 전력이 되돌아오는 비율은 그 값의 <em>제곱</em>입니다 — 1보다 작은 수를 제곱하면 항상 더 작아집니다. 93.3%의 전압 반사는 87.1%의 전력 반사가 되는 것이지, 더 큰 숫자가 되지 않습니다.'}
+        </p>
+        <p style="font-size:0.82rem;color:var(--text);line-height:1.7">
+          ${isEn
+            ? 'Current behaves the same way, just with a sign flip: the current reflection coefficient is exactly −Γ, so |I<sub>reflected</sub>/I<sub>incident</sub>| is the same 0.933 — current doesn\'t introduce a separate ratio. The squaring happens because <em>power itself</em> is defined as a product of voltage and current (or equivalently V² or I²), not because current "adds" anything extra.'
+            : '전류도 동일하게 거동하며, 부호만 반대입니다: 전류 반사계수는 정확히 −Γ이므로 |I<sub>reflected</sub>/I<sub>incident</sub>|도 동일하게 0.933입니다 — 전류가 별도의 비율을 만들어내지 않습니다. 제곱이 나타나는 이유는 <em>전력 자체</em>가 전압과 전류의 곱(또는 동등하게 V² 혹은 I²)으로 정의되기 때문이지, 전류가 무언가를 "추가"해서가 아닙니다.'}
+        </p>
+      </div>
+    </div>
+
     <div class="sim-wrap">
       <div style="font-size:0.8rem;font-weight:700;color:var(--purple);margin-bottom:12px">
         🧮 ${isEn?'VSWR Calculator + Standing Wave Visualizer':'VSWR 계산기 + 정재파 시각화'}
@@ -3344,6 +3389,18 @@ window.toggleAnswer = function(id) {
     ? el.closest('.d-wrap, [style*="overflow:hidden"]')
       ?.querySelector('button[onclick*="' + id + '"]')
     : null;
+};
+
+/* ═══════════════════════════════════════════
+   TOGGLE DEEP DIVE — 펼침/접힘 (기본: 펼침)
+═══════════════════════════════════════════ */
+window.toggleDeepDive = function(id) {
+  const body = document.getElementById(id);
+  const arrow = document.getElementById(id + '-arrow');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
 };
 
 /* ═══════════════════════════════════════════
