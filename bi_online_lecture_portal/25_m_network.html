@@ -3410,9 +3410,61 @@ function buildD55LabDiagram(isEn) {
       </div>
     </a>
 
+    <div style="margin-top:20px">
+      <div style="font-size:0.7rem;font-weight:700;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;font-family:var(--mono)">
+        📐 ${isEn ? 'Reference — Sensor Architecture Overview' : '참고 자료 — 센서 아키텍처 전체 구성'}
+      </div>
+      <img src="./images/sensors.png"
+           alt="RF Auto Matching Network — Sensor Architecture"
+           onclick="openLightbox('./images/sensors.png')"
+           style="width:60%;display:block;border-radius:10px;border:1.5px solid var(--border);
+                  box-shadow:0 2px 12px rgba(0,0,0,0.08);cursor:zoom-in;transition:opacity .15s"
+           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"/>
+      <div style="font-size:0.68rem;color:var(--text-sub);margin-top:6px;font-family:var(--mono)">
+        🔍 ${isEn ? 'Click image to enlarge' : '이미지 클릭 시 확대'}
+      </div>
+      <div style="font-size:0.72rem;color:var(--text-sub);margin-top:5px;line-height:1.6;font-family:var(--mono)">
+        ${isEn
+          ? 'INPUT sensor (green) measures Zin in real time → drives Load/Tune VVC motors. OUTPUT sensor (purple) monitors Z_L for plasma process diagnosis — not used for motor control. Directional Coupler is used only for Generator arc protection and power calibration, not for AMN matching control.'
+          : 'INPUT 센서(녹색)는 Zin을 실시간 측정하여 Load/Tune VVC 모터를 제어합니다. OUTPUT 센서(보라)는 플라즈마 공정 진단용 ZL 모니터링에 사용되며 모터 제어에는 관여하지 않습니다. Directional Coupler는 Generator 아크 보호 및 전력 교정 전용으로, AMN 매칭 제어 루프에는 사용되지 않습니다.'}
+      </div>
+    </div>
+
   </div>
+</div>
+
+<!-- Lightbox overlay -->
+<div id="lb-overlay" onclick="closeLightbox()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);
+            z-index:9999;cursor:zoom-out;align-items:center;justify-content:center">
+  <img id="lb-img" src="" alt=""
+       style="max-width:92vw;max-height:92vh;border-radius:10px;
+              box-shadow:0 8px 48px rgba(0,0,0,0.6);object-fit:contain"/>
+  <div style="position:absolute;top:18px;right:24px;color:#fff;font-size:1.6rem;
+              cursor:pointer;line-height:1;opacity:.7" onclick="closeLightbox()">✕</div>
 </div>`;
 }
+
+/* ═══════════════════════════════════════════
+   LIGHTBOX
+═══════════════════════════════════════════ */
+window.openLightbox = function(src) {
+  var el = document.getElementById('lb-overlay');
+  var img = document.getElementById('lb-img');
+  if (!el || !img) return;
+  img.src = src;
+  el.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+window.closeLightbox = function() {
+  var el = document.getElementById('lb-overlay');
+  if (!el) return;
+  el.style.display = 'none';
+  document.body.style.overflow = '';
+};
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') window.closeLightbox();
+});
 
 /* ═══════════════════════════════════════════
    REVEAL TOGGLE
