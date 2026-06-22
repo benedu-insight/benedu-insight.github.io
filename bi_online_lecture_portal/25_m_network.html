@@ -1043,7 +1043,35 @@ const SLIDES_KO = [
       feedback_ok: '정확합니다! 고정된 Load/Tune 커패시터는 딱 한 가지 부하 임피던스에 대해서만 매칭을 완성합니다. 그러나 실제 plasma chamber의 임피던스는 가스, 압력, 파워, 웨이퍼 상태에 따라 끊임없이 변하므로, 그 변화를 실시간으로 따라가려면 커패시터 값 자체를 계속 바꿀 수 있는 가변 소자가 필수입니다.',
       feedback_ng: '힌트: Module 5의 History 슬라이드에서 다룬 내용을 떠올려보세요 — 안테나(고정 부하)와 plasma chamber(부하)의 가장 큰 차이가 무엇이었나요?',
     },
-    connections: ['d54'],
+    connections: ['d54', 'd55lab'],
+  },
+
+  /* ── Lab Practice (d55lab) ──────────────────── */
+  {
+    id: 'd55lab', era: 'm5',
+    eyebrow: '조별 실습 · Module 05',
+    title: '실습 — 실제 RF Matcher와 시뮬레이터',
+    subtitle: 'VVC를 직접 조작하며 Smith Chart 위에서 Zin → 50 Ω, Zm → ZL* 수렴 과정을 확인합니다',
+    theories: [
+      { icon: '🎯', title: '실습 목표', body: '실제 RF Matcher(Load VVC / Tune VVC)를 직접 조작하면서, 동시에 시뮬레이터의 Smith Chart 커버리지를 관찰합니다. VVC 값이 변하면서 Zin → 50 Ω, Zm → ZL* 로 수렴하는 과정을 확인하여 Topics 1~6에서 배운 이론을 손으로 체험합니다.' },
+      { icon: '📊', title: 'Step 1 — 미매칭 상태 확인', body: 'Load VVC, Tune VVC를 모두 최소값(0%)으로 설정합니다. Matcher의 임피던스 표시에서 Zin 값을 기록하고, 시뮬레이터 Smith Chart의 해당 점을 확인합니다. VSWR과 반사 전력을 관찰합니다.' },
+      { icon: '🔄', title: 'Step 2 — Load VVC 스윕', body: 'Tune VVC를 고정한 채 Load VVC를 0% → 100%로 천천히 증가시킵니다. Smith Chart에서 Zin, Zm 점이 이동하는 궤적을 추적합니다. Shunt 서셉턴스 변화에 따라 실수부가 변하는 것을 관찰합니다.' },
+      { icon: '🎛️', title: 'Step 3 — Tune VVC로 미세 조정', body: 'Load VVC를 매칭값 근처에 고정하고 Tune VVC를 조정하여 Zin을 Smith Chart 중심(50+j0)으로 이동시킵니다. |Γ|가 낮아지고 VSWR이 1:1에 가까워지는 것을 확인합니다. Zin ≈ 50 Ω, Zm ≈ ZL* 이 되는 조합을 찾아봅니다.' },
+      { icon: '📡', title: 'Step 4 — 27.12 vs 13.56 MHz 비교', body: '시뮬레이터를 13.56 MHz로 전환합니다(동일한 VVC 사양). 커버리지 영역이 완전히 이동하고 매칭이 불가능해지는 것을 관찰합니다. 토론: 동일 하드웨어가 절반 주파수에서 왜 동작하지 않는가? Tune VVC(90pF)의 용량성 리액턴스(-130 Ω)가 Tune Coil(+j25.6 Ω)을 압도하기 때문입니다.' },
+    ],
+    equations: [],
+    classroom: {
+      q: '실습 중 Load VVC를 100%로 올렸을 때 |Γ|이 오히려 높아지는 경우가 있었다면, 그 이유로 가장 적절한 것은?',
+      opts: [
+        { key:'A', text:'Load VVC가 고장났기 때문에', correct: false },
+        { key:'B', text:'Shunt 서셉턴스가 너무 커져서 임피던스가 다시 중심에서 멀어졌기 때문에', correct: true },
+        { key:'C', text:'Tune VVC 값을 먼저 바꿔야 했기 때문에', correct: false },
+        { key:'D', text:'27.12 MHz에서는 Load VVC가 동작하지 않기 때문에', correct: false },
+      ],
+      feedback_ok: '정확합니다! L-network에서 Shunt(병렬) 소자는 적절한 서셉턴스 값을 넘어서면 오히려 임피던스를 중심에서 멀어지게 합니다. 최적 Load VVC 값은 수식으로 계산하거나(Topics 3~5) 시뮬레이터에서 Matched 버튼으로 확인할 수 있습니다.',
+      feedback_ng: '힌트: Smith Chart에서 병렬(Shunt) 소자는 어드미턴스 원(G-circle)을 따라 점을 회전시킵니다. 서셉턴스가 너무 크면 어떤 방향으로 과도하게 이동할까요?',
+    },
+    connections: ['d55'],
   },
 
 ];
@@ -1343,7 +1371,35 @@ const SLIDES_EN = [
       feedback_ok: 'Correct! A fixed Load/Tune capacitor completes the match for exactly one load impedance. But the impedance of a real plasma chamber constantly shifts with gas, pressure, power, and wafer state, so following that shift in real time requires elements whose capacitance value can itself keep changing.',
       feedback_ng: 'Hint: Recall the History slide in Module 5 — what was the key difference between an antenna (fixed load) and a plasma chamber (load)?',
     },
-    connections: ['d54'],
+    connections: ['d54', 'd55lab'],
+  },
+
+  /* ── Lab Practice (d55lab) ──────────────────── */
+  {
+    id: 'd55lab', era: 'm5',
+    eyebrow: 'Lab Practice · Module 05',
+    title: 'Lab — Real RF Matcher + Simulator',
+    subtitle: 'Operate the VVC controls directly and verify Zin → 50 Ω, Zm → ZL* convergence on the Smith Chart',
+    theories: [
+      { icon: '🎯', title: 'Lab Objective', body: 'Operate a real RF Matcher (Load VVC / Tune VVC) while simultaneously observing the Smith Chart coverage in the simulator. Verify that Zin → 50 Ω and Zm → ZL* as the VVC values move — connecting the hands-on knob-turn to the theory covered in Topics 1–6.' },
+      { icon: '📊', title: 'Step 1 — Start unmatched', body: 'Set both VVCs to minimum (0%). Record Zin on the Matcher\'s impedance display and locate the corresponding point on the simulator\'s Smith Chart. Observe VSWR and reflected power.' },
+      { icon: '🔄', title: 'Step 2 — Sweep Load VVC', body: 'With Tune VVC fixed, slowly increase Load VVC from 0% → 100%. Track how the Zin and Zm points travel across the Smith Chart. Notice the real part shifting as the shunt susceptance changes.' },
+      { icon: '🎛️', title: 'Step 3 — Fine-tune with Tune VVC', body: 'With Load VVC near the matched value, adjust Tune VVC to move Zin toward the chart center (50+j0). Watch |Γ| drop and VSWR approach 1:1. Find the combination where Zin ≈ 50 Ω and Zm ≈ ZL*.' },
+      { icon: '📡', title: 'Step 4 — Compare 27.12 vs 13.56 MHz', body: 'Switch the simulator to 13.56 MHz (same VVC specs). Observe that the coverage region shifts entirely and matching becomes unreachable. Discussion: why does the same hardware fail at half the frequency? The Tune VVC (90pF) gives −130 Ω reactance, overwhelming the Tune Coil (+j25.6 Ω).' },
+    ],
+    equations: [],
+    classroom: {
+      q: 'During the lab, if raising Load VVC to 100% caused |Γ| to increase rather than decrease, which explanation is most correct?',
+      opts: [
+        { key:'A', text:'The Load VVC was faulty', correct: false },
+        { key:'B', text:'The shunt susceptance became too large, moving the impedance point away from center again', correct: true },
+        { key:'C', text:'The Tune VVC should have been adjusted first', correct: false },
+        { key:'D', text:'The Load VVC does not operate at 27.12 MHz', correct: false },
+      ],
+      feedback_ok: 'Correct! In an L-network, a shunt element that exceeds its optimal susceptance value moves the impedance point back away from center. The optimal Load VVC value can be calculated from the formulas in Topics 3–5, or found instantly with the Matched button in the simulator.',
+      feedback_ng: 'Hint: On the Smith Chart, a shunt (parallel) element rotates the operating point along a constant-conductance (G) circle. What happens when the susceptance overshoots in one direction?',
+    },
+    connections: ['d55'],
   },
 
 ];
@@ -3086,7 +3142,7 @@ function buildD55Diagram(isEn) {
         : '각 프리셋은 서로 다른 순간의 Z_L입니다. 그에 따라 필요한 Load Cap / Tune Cap 값이 바뀌는 것을 확인하세요 — 실제 Auto Matching Network는 여러분의 클릭 대신 모터로, 바로 이 Load Cap / Tune Coil / Tune Cap 계산을 초당 수십~수백 번 반복합니다.'}
     </div>
 
-    <a href="./vvc_simulator.html" target="_blank" rel="noopener" style="text-decoration:none">
+    <a href="./sims/vvc_simulator.html" target="_blank" rel="noopener" style="text-decoration:none">
       <div class="callout purple" style="margin-top:14px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
         <div style="font-size:1.8rem;flex-shrink:0">⚙️</div>
         <div style="flex:1">
@@ -3263,6 +3319,102 @@ function initD55Sim() {
 }
 
 /* ═══════════════════════════════════════════
+   LAB DIAGRAM — Topic Lab (d55lab): matching simulator link
+═══════════════════════════════════════════ */
+function buildD55LabDiagram(isEn) {
+  return `
+<div class="d-wrap">
+  <div class="d-header">
+    <span class="d-badge purple">🧪 ${isEn ? 'Lab Practice' : '조별 실습'}</span>
+    <span class="d-title">${isEn ? 'Hands-On Matching — Real RF Matcher + Simulator' : '실제 RF Matcher와 시뮬레이터를 함께하는 실습'}</span>
+  </div>
+  <div class="d-body">
+
+    <div style="background:#F8F6FF;border:1.5px solid #C0A8E0;border-radius:10px;padding:14px 18px;margin-bottom:16px">
+      <div style="font-size:0.74rem;font-weight:700;color:#7030A0;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;font-family:var(--mono)">
+        🎯 ${isEn ? 'Lab Objective' : '실습 목표'}
+      </div>
+      <div style="font-size:0.88rem;color:var(--text);line-height:1.7">
+        ${isEn
+          ? 'Operate a real RF Matcher (Load VVC / Tune VVC) while simultaneously observing the Smith Chart coverage in the simulator. Verify that Zin → 50 Ω and Zm → ZL* as the VVC values move — connecting the hands-on knob-turn to the theory covered in Topics 1–6.'
+          : '실제 RF Matcher(Load VVC / Tune VVC)를 직접 조작하면서, 동시에 시뮬레이터의 Smith Chart 커버리지를 관찰합니다. VVC 값이 변하면서 Zin → 50 Ω, Zm → ZL* 로 수렴하는 과정을 확인하여 Topics 1~6에서 배운 이론을 손으로 체험합니다.'}
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #C8860D;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#C8860D;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">
+          ${isEn ? 'Step 1 — Start unmatched' : 'Step 1 — 미매칭 상태 확인'}
+        </div>
+        <div style="font-size:0.8rem;color:var(--text);line-height:1.7">
+          ${isEn
+            ? 'Set both VVCs to minimum. Record Zin on the Matcher\'s impedance display and locate the corresponding point on the simulator\'s Smith Chart. Observe VSWR and reflected power.'
+            : 'Load VVC, Tune VVC를 모두 최소값(0%)으로 설정합니다. Matcher의 임피던스 표시에서 Zin 값을 기록하고, 시뮬레이터 Smith Chart의 해당 점을 확인합니다. VSWR과 반사 전력을 관찰합니다.'}
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #1A6FB5;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#1A6FB5;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">
+          ${isEn ? 'Step 2 — Sweep Load VVC' : 'Step 2 — Load VVC 스윕'}
+        </div>
+        <div style="font-size:0.8rem;color:var(--text);line-height:1.7">
+          ${isEn
+            ? 'With Tune VVC fixed, slowly increase Load VVC from 0% → 100%. Track how the Zin and Zm points travel across the Smith Chart. Notice the real part shifting as the shunt susceptance changes.'
+            : 'Tune VVC를 고정한 채 Load VVC를 0% → 100%로 천천히 증가시킵니다. Smith Chart에서 Zin, Zm 점이 이동하는 궤적을 추적합니다. Shunt 서셉턴스 변화에 따라 실수부가 변하는 것을 관찰합니다.'}
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #0F8C50;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#0F8C50;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">
+          ${isEn ? 'Step 3 — Fine-tune with Tune VVC' : 'Step 3 — Tune VVC로 미세 조정'}
+        </div>
+        <div style="font-size:0.8rem;color:var(--text);line-height:1.7">
+          ${isEn
+            ? 'With Load VVC near the matched value, adjust Tune VVC to move Zin toward the chart center (50+j0). Watch |Γ| drop and VSWR approach 1:1. Find the combination where Zin ≈ 50 Ω and Zm ≈ ZL*.'
+            : 'Load VVC를 매칭값 근처에 고정하고 Tune VVC를 조정하여 Zin을 Smith Chart 중심(50+j0)으로 이동시킵니다. |Γ|가 낮아지고 VSWR이 1:1에 가까워지는 것을 확인합니다. Zin ≈ 50 Ω, Zm ≈ ZL* 이 되는 조합을 찾아봅니다.'}
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1.5px solid var(--border);border-left:4px solid #7030A0;border-radius:8px;padding:12px 14px">
+        <div style="font-size:0.7rem;font-weight:700;color:#7030A0;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">
+          ${isEn ? 'Step 4 — Compare 27.12 vs 13.56 MHz' : 'Step 4 — 27.12 vs 13.56 MHz 비교'}
+        </div>
+        <div style="font-size:0.8rem;color:var(--text);line-height:1.7">
+          ${isEn
+            ? 'Switch the simulator to 13.56 MHz (same VVC specs). Observe that the coverage region shifts entirely and matching becomes unreachable. Discuss: why does the same hardware fail at half the frequency?'
+            : '시뮬레이터를 13.56 MHz로 전환합니다 (동일한 VVC 사양). 커버리지 영역이 완전히 이동하고 매칭이 불가능해지는 것을 관찰합니다. 토론: 동일 하드웨어가 절반 주파수에서 왜 동작하지 않는가?'}
+        </div>
+      </div>
+
+    </div>
+
+    <a href="./sims/matching_simulator.html" target="_blank" rel="noopener" style="text-decoration:none">
+      <div style="background:linear-gradient(135deg,#1A1A2E,#0A1A30);border:2px solid #0F8C50;border-radius:12px;
+                  padding:16px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;
+                  transition:transform 0.15s,box-shadow 0.15s"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 24px rgba(15,140,80,0.25)'"
+           onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+        <div style="font-size:2.2rem;flex-shrink:0">🎛️</div>
+        <div style="flex:1">
+          <div style="font-size:0.92rem;font-weight:700;color:#7FD8A0;margin-bottom:4px;font-family:var(--font)">
+            ${isEn ? 'Open Lab Simulator — Matching Simulator (L type)' : '실습 시뮬레이터 열기 — Matching Simulator (L type)'}
+          </div>
+          <div style="font-size:0.78rem;color:#8AAAB8;line-height:1.55">
+            ${isEn
+              ? 'Interactive Smith Chart · Load VVC 50–900 pF · Tune VVC 20–90 pF · Tune Coil 300 nH · 27.12 / 13.56 MHz · 1024-step resolution'
+              : 'Interactive Smith Chart · Load VVC 50–900 pF · Tune VVC 20–90 pF · Tune Coil 300 nH · 27.12 / 13.56 MHz · 1024단계 해상도'}
+          </div>
+        </div>
+        <div style="font-size:1.4rem;color:#0F8C50;flex-shrink:0">→</div>
+      </div>
+    </a>
+
+  </div>
+</div>`;
+}
+
+/* ═══════════════════════════════════════════
    REVEAL TOGGLE
 ═══════════════════════════════════════════ */
 window.toggleReveal = function(id) {
@@ -3335,6 +3487,7 @@ function renderDetail(id) {
   else if (id === 'd53') diagramHtml = buildD53Diagram(isEn);
   else if (id === 'd54') diagramHtml = buildD54Diagram(isEn);
   else if (id === 'd55') diagramHtml = buildD55Diagram(isEn);
+  else if (id === 'd55lab') diagramHtml = buildD55LabDiagram(isEn);
 
   let deepHtml = '';
 
