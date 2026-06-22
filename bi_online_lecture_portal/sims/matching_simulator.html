@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Matching Simulator (L type) — Benedu Insight RF Lab</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════
+   BENEDU INSIGHT — MATCHING SIMULATOR (L TYPE)
+   Standalone | 27.12 MHz | English
+════════════════════════════════════════ */
+:root{
+  --bg:#F7F8FA; --card:#FFFFFF; --border:#D8D5CE;
+  --green:#0F8C50; --purple:#7030A0; --blue:#1A6FB5;
+  --amber:#C8860D; --red:#C0392B; --text:#1A1A2E; --sub:#5A5A7A;
+  --font:'Google Sans',sans-serif; --mono:'JetBrains Mono',monospace;
+  --r:12px; --sh:0 2px 16px rgba(0,0,0,0.08);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+#hdr{
+  background:#fff;border-bottom:1.5px solid var(--border);
+  padding:0 28px;height:54px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 8px rgba(0,0,0,0.06);
+}
+.hdr-l{display:flex;align-items:center;gap:14px;}
+#hdr-logo img{height:25px;opacity:.9;}
+.hdr-div{width:1px;height:20px;background:var(--border);}
+.hdr-title{font-size:.9rem;font-weight:700;}
+.hdr-sub{font-size:.68rem;color:var(--sub);font-family:var(--mono);margin-top:2px;}
+.freq-toggle{
+  display:flex; gap:3px; background:#1A1A2E;
+  border-radius:22px; padding:3px;
+}
+.ftb{
+  background:transparent; color:#8A9AB8;
+  font-family:var(--mono); font-size:.76rem; font-weight:600;
+  padding:4px 14px; border-radius:18px; border:none;
+  cursor:pointer; transition:all .18s; letter-spacing:.03em; white-space:nowrap;
+}
+.ftb.active{
+  background:linear-gradient(135deg,#2A1A40,#1A2A40);
+  color:#FFD580; box-shadow:0 1px 6px rgba(0,0,0,0.3);
+}
+.ftb:not(.active):hover{ color:#E8DCC0; }
+
+/* LAYOUT */
+#main{
+  display:grid;
+  grid-template-columns:1fr 370px;
+  grid-template-rows:auto 1fr;
+  gap:16px;padding:20px 26px 30px;
+  max-width:1300px;margin:0 auto;
+}
+
+/* CARDS */
+.card{
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:14px 18px;box-shadow:var(--sh);
+}
+.card-lbl{
+  font-size:.66rem;font-weight:700;color:var(--sub);
+  text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono);
+  margin-bottom:9px;
+}
+
+/* CIRCUIT CARD */
+#circ-card{grid-column:1/-1;}
+
+/* SMITH CARD */
+#smith-card{grid-row:2;}
+#sc{width:100%;aspect-ratio:1;display:block;border-radius:8px;background:#FAFBFF;border:1px solid #EEF2F8;cursor:crosshair;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:.71rem;color:var(--sub);}
+.leg-d{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+#sc-hover{margin-top:7px;min-height:20px;font-family:var(--mono);font-size:.67rem;color:var(--sub);}
+
+/* CTRL CARD */
+#ctrl-card{grid-row:2;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+
+/* SLIDER BLOCK */
+.sl-block{background:#F7F8FA;border:1px solid var(--border);border-radius:10px;padding:10px 13px;}
+.sl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.sl-name{font-size:.78rem;font-weight:700;}
+.sl-val{font-family:var(--mono);font-size:.9rem;font-weight:700;}
+.sl-sub{font-size:.67rem;color:var(--sub);font-family:var(--mono);margin-bottom:5px;}
+.sl-row{display:flex;align-items:center;gap:8px;}
+.sl-lim{font-size:.64rem;color:var(--sub);font-family:var(--mono);white-space:nowrap;}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer;}
+input[type=range].sl-a{background:linear-gradient(to right,var(--amber) 0%,var(--amber) var(--pct,0%),#D8D5CE var(--pct,0%),#D8D5CE 100%);}
+input[type=range].sl-b{background:linear-gradient(to right,var(--blue) 0%,var(--blue) var(--pct,0%),#D8D5CE var(--pct,0%),#D8D5CE 100%);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,0.2);cursor:pointer;}
+input[type=range].sl-a::-webkit-slider-thumb{background:var(--amber);}
+input[type=range].sl-b::-webkit-slider-thumb{background:var(--blue);}
+.sl-kv{font-size:.66rem;color:var(--sub);font-family:var(--mono);}
+.sl-lim-row{display:flex;justify-content:space-between;margin-top:3px;}
+.sl-lim2{font-size:.62rem;color:var(--sub);font-family:var(--mono);}
+.match-btn{
+  width:100%;padding:8px;border-radius:8px;border:1.5px solid var(--green);
+  background:#F0FBF5;color:var(--green);font-family:var(--font);font-size:.78rem;
+  font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.02em;
+  text-align:center;
+}
+.match-btn:hover:not(.btn-disabled){background:var(--green);color:#fff;}
+.match-btn.btn-disabled{
+  border-color:#C0392B;background:#FEF0EE;color:#C0392B;cursor:not-allowed;
+  font-weight:600;
+}
+.match-btn.btn-warn{
+  background:#C0392B!important;color:#fff!important;
+  transform:scale(.98);
+}
+
+/* FIXED COMP */
+.fc{background:#F0F7FF;border:1px solid #C0D8F0;border-radius:8px;padding:8px 13px;display:flex;align-items:center;justify-content:space-between;}
+.fc-n{font-size:.76rem;font-weight:700;color:var(--blue);}
+.fc-s{font-size:.66rem;color:var(--sub);font-family:var(--mono);margin-top:1px;}
+.fc-v{font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--blue);}
+
+/* READOUT */
+#ro{background:linear-gradient(135deg,#1A1A2E,#15152A);border:2px solid var(--amber);border-radius:10px;padding:12px 15px;font-family:var(--mono);}
+.ro-t{font-size:.68rem;font-weight:700;color:#FFD580;letter-spacing:.05em;margin-bottom:8px;font-family:var(--font);text-transform:uppercase;}
+.ro-r{display:flex;justify-content:space-between;gap:6px;font-size:.76rem;color:#B8C4D8;line-height:1.85;}
+.ro-v{color:#E8DCC0;font-weight:600;text-align:right;font-size:.73rem;}
+.ro-hr{border:none;border-top:1px solid rgba(255,255,255,.1);margin:6px 0;}
+.ro-s{font-size:.73rem;line-height:1.5;padding-top:2px;}
+.ok{color:#7FD8A0;font-weight:700;} .bad{color:#FF8A7A;} .mid{color:#FFD580;}
+
+/* SWEEP / TOGGLES */
+.sweep{border-top:1px solid var(--border);padding-top:11px;display:flex;flex-direction:column;gap:7px;}
+.sw-hdr{display:flex;align-items:center;justify-content:space-between;}
+.sw-t{font-size:.68rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+.sw-c{font-size:.66rem;color:var(--sub);font-family:var(--mono);}
+.sw-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.stag{font-size:.64rem;background:#EEF2F8;border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-family:var(--mono);color:var(--sub);}
+.tog-row{display:flex;align-items:center;gap:7px;}
+.tog-sw{position:relative;width:30px;height:16px;flex-shrink:0;}
+.tog-sw input{opacity:0;width:0;height:0;}
+.tog-tr{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#C8D0DC;border-radius:8px;transition:.2s;}
+.tog-tr::after{content:'';position:absolute;width:10px;height:10px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+input:checked+.tog-tr{background:var(--green);}
+input:checked+.tog-tr::after{transform:translateX(14px);}
+.tog-lbl{font-size:.71rem;color:var(--sub);}
+
+@media(max-width:900px){
+  #main{grid-template-columns:1fr;padding:12px;gap:12px;}
+  #circ-card{grid-column:1;} #smith-card,#ctrl-card{grid-row:auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="hdr-l">
+    <div id="hdr-logo">
+      <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="BENEDU INSIGHT"
+           onerror="this.style.display='none';document.getElementById('lfb').style.display='block'"/>
+      <span id="lfb" style="display:none;font-weight:700;font-size:1rem;color:#0F8C50;letter-spacing:.04em">BENEDU INSIGHT</span>
+    </div>
+    <div class="hdr-div"></div>
+    <div>
+      <div class="hdr-title">Matching Simulator (L type)</div>
+      <div class="hdr-sub">Module 05 · AMN Lab · CLASS02</div>
+    </div>
+  </div>
+  <div class="freq-toggle" id="freq-toggle">
+    <button class="ftb" id="ftb-1356" onclick="setFreq(13.56)">13.56 MHz</button>
+    <button class="ftb active" id="ftb-2712" onclick="setFreq(27.12)">27.12 MHz</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- CIRCUIT DIAGRAM -->
+  <div class="card" id="circ-card">
+    <div class="card-lbl">⚡ L-type AMN — Load VVC (shunt) · Tune Coil 300 nH (series) · Tune VVC (series) · Plasma Load Z_L</div>
+    <svg viewBox="0 0 940 156" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;font-family:'Google Sans',sans-serif">
+      <defs>
+        <marker id="arr" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+          <path d="M0,1 L7,4 L0,7 Z" fill="#9A8A68"/>
+        </marker>
+      </defs>
+
+      <!-- RF Gen box -->
+      <rect x="8" y="46" width="84" height="52" rx="6" fill="#FFF8EC" stroke="#C8860D" stroke-width="1.6"/>
+      <text x="50" y="66" font-size="9" text-anchor="middle" fill="#7A5200" font-weight="700">RF Gen</text>
+      <text x="50" y="79" font-size="9" text-anchor="middle" fill="#7A5200" font-weight="700">50 Ω</text>
+
+      <!-- Wire Gen→NodeA -->
+      <line x1="92" y1="72" x2="250" y2="72" stroke="#3C3530" stroke-width="1.8"/>
+      <line x1="155" y1="66" x2="178" y2="66" stroke="#9A8A68" stroke-width="1" marker-end="url(#arr)" opacity=".45"/>
+
+      <!-- Zin probe (left of NodeA, what source sees) -->
+      <circle cx="218" cy="72" r="3" fill="#0F8C50"/>
+      <line x1="218" y1="43" x2="218" y2="69" stroke="#0F8C50" stroke-width="1.1" stroke-dasharray="3,2" opacity=".8"/>
+      <text x="218" y="26" font-size="8.5" text-anchor="middle" fill="#0F8C50" font-weight="700">Zin</text>
+      <text x="218" y="37" font-size="7" text-anchor="middle" fill="#9A8A68">source sees</text>
+      <text x="218" y="47" font-size="6.5" text-anchor="middle" fill="#0F8C50">→ 50+j0 Ω</text>
+
+      <!-- NodeA dot -->
+      <circle cx="250" cy="72" r="3.2" fill="#3C3530"/>
+
+      <!-- Load VVC (shunt) -->
+      <line x1="250" y1="72" x2="250" y2="86" stroke="#C8860D" stroke-width="1.8"/>
+      <line x1="235" y1="86" x2="265" y2="86" stroke="#C8860D" stroke-width="2.2"/>
+      <line x1="235" y1="93" x2="265" y2="93" stroke="#C8860D" stroke-width="2.2"/>
+      <line x1="231" y1="99" x2="269" y2="81" stroke="#C8860D" stroke-width="1.4"/>
+      <polygon points="269,81 262,84 265,89" fill="#C8860D"/>
+      <line x1="250" y1="93" x2="250" y2="110" stroke="#C8860D" stroke-width="1.8"/>
+      <line x1="238" y1="110" x2="262" y2="110" stroke="#C8860D" stroke-width="1.6"/>
+      <line x1="241" y1="115" x2="259" y2="115" stroke="#C8860D" stroke-width="1.2"/>
+      <line x1="245" y1="120" x2="255" y2="120" stroke="#C8860D" stroke-width="1.0"/>
+      <text x="250" y="133" font-size="7.8" text-anchor="middle" fill="#C8860D" font-weight="700">Load VVC</text>
+      <text x="250" y="143" font-size="6.5" text-anchor="middle" fill="#9A8A68">50–900 pF</text>
+      <text x="197" y="84" font-size="7.5" text-anchor="middle" fill="#C8860D" id="lbl-cl">C_L = 50 pF</text>
+      <text x="197" y="94" font-size="6.5" text-anchor="middle" fill="#9A8A68" id="lbl-cl-x">X = —</text>
+
+      <!-- Wire NodeA→Coil -->
+      <line x1="250" y1="72" x2="380" y2="72" stroke="#3C3530" stroke-width="1.8"/>
+
+      <!-- Tune Coil (series) -->
+      <path d="M380,72 A8,8 0 0,1 396,72" fill="none" stroke="#1A6FB5" stroke-width="2.2"/>
+      <path d="M396,72 A8,8 0 0,1 412,72" fill="none" stroke="#1A6FB5" stroke-width="2.2"/>
+      <path d="M412,72 A8,8 0 0,1 428,72" fill="none" stroke="#1A6FB5" stroke-width="2.2"/>
+      <path d="M428,72 A8,8 0 0,1 444,72" fill="none" stroke="#1A6FB5" stroke-width="2.2"/>
+      <text x="412" y="54" font-size="7.8" text-anchor="middle" fill="#1A6FB5" font-weight="700">Tune Coil</text>
+      <text x="412" y="63" font-size="6.5" text-anchor="middle" fill="#9A8A68">300 nH (fixed)</text>
+      <text x="412" y="87" font-size="7.5" text-anchor="middle" fill="#1A6FB5" id="lbl-coil">+j51.1 Ω</text>
+
+      <!-- Wire Coil→TuneVVC -->
+      <line x1="444" y1="72" x2="530" y2="72" stroke="#3C3530" stroke-width="1.8"/>
+
+      <!-- Tune VVC (series) -->
+      <line x1="530" y1="72" x2="544" y2="72" stroke="#1A6FB5" stroke-width="1.8"/>
+      <line x1="544" y1="60" x2="544" y2="84" stroke="#1A6FB5" stroke-width="2.2"/>
+      <line x1="557" y1="60" x2="557" y2="84" stroke="#1A6FB5" stroke-width="2.2"/>
+      <line x1="557" y1="72" x2="571" y2="72" stroke="#1A6FB5" stroke-width="1.8"/>
+      <line x1="528" y1="85" x2="573" y2="60" stroke="#1A6FB5" stroke-width="1.4"/>
+      <polygon points="573,60 566,63 569,68" fill="#1A6FB5"/>
+      <text x="550" y="48" font-size="7.8" text-anchor="middle" fill="#1A6FB5" font-weight="700">Tune VVC</text>
+      <text x="550" y="57" font-size="6.5" text-anchor="middle" fill="#9A8A68">20–90 pF</text>
+      <text x="550" y="100" font-size="7.5" text-anchor="middle" fill="#1A6FB5" id="lbl-ct">C_T = 20 pF</text>
+      <text x="550" y="110" font-size="6.5" text-anchor="middle" fill="#9A8A68" id="lbl-ct-x">X = —</text>
+
+      <!-- Wire TuneVVC→Zm probe -->
+      <line x1="571" y1="72" x2="720" y2="72" stroke="#3C3530" stroke-width="1.8"/>
+      <line x1="624" y1="66" x2="647" y2="66" stroke="#9A8A68" stroke-width="1" marker-end="url(#arr)" opacity=".45"/>
+
+      <!-- Zm probe (right, what load sees looking back) -->
+      <circle cx="700" cy="72" r="3" fill="#C8860D"/>
+      <line x1="700" y1="43" x2="700" y2="69" stroke="#C8860D" stroke-width="1.1" stroke-dasharray="3,2" opacity=".8"/>
+      <text x="700" y="26" font-size="8.5" text-anchor="middle" fill="#C8860D" font-weight="700">Zm</text>
+      <text x="700" y="37" font-size="7" text-anchor="middle" fill="#9A8A68">load looks back</text>
+      <text x="700" y="47" font-size="6.5" text-anchor="middle" fill="#C8860D">→ ZL* = 4−j35 Ω</text>
+
+      <!-- Plasma Chamber -->
+      <rect x="720" y="46" width="80" height="52" rx="6" fill="#F8F6FF" stroke="#7030A0" stroke-width="1.8"/>
+      <text x="760" y="70" font-size="9" text-anchor="middle" fill="#7030A0" font-weight="700">Plasma</text>
+      <text x="760" y="83" font-size="9" text-anchor="middle" fill="#7030A0" font-weight="700">Chamber</text>
+      <text x="760" y="92" font-size="6.5" text-anchor="middle" fill="#9A8A68" id="lbl-zl">Z_L = 4+j35 Ω</text>
+
+      <!-- AMN boundary -->
+      <rect x="208" y="14" width="502" height="136" rx="8" fill="none" stroke="#1A6FB5" stroke-width="1.2" stroke-dasharray="5,3" opacity=".38"/>
+      <text x="459" y="10" font-size="7.5" text-anchor="middle" fill="#1A6FB5" opacity=".6" font-weight="700">Auto Matching Network (AMN)</text>
+
+      <!-- Ground return -->
+      <line x1="50" y1="98" x2="50" y2="145" stroke="#9A8A68" stroke-width="1.2"/>
+      <line x1="50" y1="145" x2="760" y2="145" stroke="#9A8A68" stroke-width="1.2"/>
+      <line x1="760" y1="145" x2="760" y2="98" stroke="#9A8A68" stroke-width="1.2"/>
+    </svg>
+  </div>
+
+  <!-- SMITH CHART -->
+  <div class="card" id="smith-card">
+    <div class="card-lbl" id="smith-card-lbl">⭕ Smith Chart — Z₀ = 50 Ω · f = 27.12 MHz · Coverage Map</div>
+    <canvas id="sc"></canvas>
+    <div class="legend">
+      <div class="leg-i"><div class="leg-d" style="background:rgba(15,140,80,.55)"></div><span>Zin sweep cloud</span></div>
+      <div class="leg-i"><div class="leg-d" style="background:rgba(200,134,13,.55)"></div><span>Zm sweep cloud</span></div>
+      <div class="leg-i"><div class="leg-d" style="background:#0F8C50;border:2px solid #fff;box-shadow:0 0 0 1.5px #0F8C50;width:12px;height:12px"></div><span>Zin (current)</span></div>
+      <div class="leg-i"><div class="leg-d" style="background:#C8860D;border:2px solid #fff;box-shadow:0 0 0 1.5px #C8860D;width:12px;height:12px"></div><span>Zm (current)</span></div>
+      <div class="leg-i"><div style="width:24px;height:2px;background:#C8860D;flex-shrink:0"></div><span>Zm contour — Load fixed</span></div>
+      <div class="leg-i"><div style="width:24px;height:2px;background:#E09020;flex-shrink:0;border-top:2px dashed #E09020;border-bottom:none;background:none"></div><span>Zm contour — Tune fixed</span></div>
+    </div>
+    <div id="sc-hover"></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="card" id="ctrl-card">
+
+    <!-- Load VVC -->
+    <div class="sl-block">
+      <div class="sl-top">
+        <div>
+          <div class="sl-name" style="color:var(--amber)">Load VVC <span style="font-weight:400;color:var(--sub);font-size:.72rem">(shunt)</span></div>
+          <div class="sl-sub">Shunt susceptance at the node</div>
+        </div>
+        <div class="sl-val" style="color:var(--amber)" id="lvc-d">50 pF (0%)</div>
+      </div>
+      <div class="sl-row">
+        <input type="range" id="sl-l" class="sl-a" min="0" max="1023" step="1" value="0" oninput="onSl()"/>
+      </div>
+      <div class="sl-lim-row">
+        <span class="sl-lim2">50 pF (0%)</span>
+        <span class="sl-lim2">900 pF (100%)</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px">
+        <span class="sl-kv" id="lvc-x">X_C = —</span>
+        <span class="sl-kv" id="lvc-b">B = —</span>
+      </div>
+    </div>
+
+    <!-- Tune VVC -->
+    <div class="sl-block">
+      <div class="sl-top">
+        <div>
+          <div class="sl-name" style="color:var(--blue)">Tune VVC <span style="font-weight:400;color:var(--sub);font-size:.72rem">(series)</span></div>
+          <div class="sl-sub">Series reactance in main line</div>
+        </div>
+        <div class="sl-val" style="color:var(--blue)" id="tvc-d">20 pF (0%)</div>
+      </div>
+      <div class="sl-row">
+        <input type="range" id="sl-t" class="sl-b" min="0" max="1023" step="1" value="0" oninput="onSl()"/>
+      </div>
+      <div class="sl-lim-row">
+        <span class="sl-lim2">20 pF (0%)</span>
+        <span class="sl-lim2">90 pF (100%)</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px">
+        <span class="sl-kv" id="tvc-x">X_C = —</span>
+        <span class="sl-kv" id="tvc-net">X_net = —</span>
+      </div>
+    </div>
+
+    <!-- Tune Coil (fixed) -->
+    <div class="fc">
+      <div>
+        <div class="fc-n">Tune Coil — series (fixed)</div>
+        <div class="fc-s">L = 300 nH · f = 27.12 MHz</div>
+      </div>
+      <div class="fc-v" id="fc-x">+j51.1 Ω</div>
+    </div>
+
+    <!-- Readout -->
+    <div id="ro">
+      <div class="ro-t">📐 Impedance Readout</div>
+      <div class="ro-r">
+        <span>Zin <span style="font-size:.65rem;color:#8A9AB8">(source side, → 50+j0)</span></span>
+        <span class="ro-v" id="ro-zin">—</span>
+      </div>
+      <div class="ro-r">
+        <span>Zm <span style="font-size:.65rem;color:#8A9AB8">(load side, → ZL*)</span></span>
+        <span class="ro-v" id="ro-zm">—</span>
+      </div>
+      <hr class="ro-hr"/>
+      <div class="ro-r"><span>|Γ|</span><span class="ro-v" id="ro-gm">—</span></div>
+      <div class="ro-r"><span>VSWR</span><span class="ro-v" id="ro-vswr">—</span></div>
+      <div class="ro-r"><span>Reflected power</span><span class="ro-v" id="ro-pref">—</span></div>
+      <hr class="ro-hr"/>
+      <div class="ro-s" id="ro-st">—</div>
+    </div>
+
+    <!-- Matched button -->
+    <button class="match-btn" id="match-btn" onclick="setMatched()">⚡ Set to Matched Position — CL ≈ 400 pF · CT ≈ 81 pF · |Γ| ≈ 0.004</button>
+
+    <!-- Sweep / Options -->
+    <div class="sweep">
+      <div class="sw-hdr">
+        <span class="sw-t">📊 Full-Grid Sweep</span>
+        <span class="sw-c" id="sw-cnt">—</span>
+      </div>
+      <div class="sw-tags">
+        <span class="stag" id="sw-l">—</span>
+        <span class="stag" id="sw-t">—</span>
+        <span class="stag" id="sw-tot">—</span>
+      </div>
+      <div class="tog-row">
+        <label class="tog-sw"><input type="checkbox" id="tog-grid" checked onchange="redraw()"/><span class="tog-tr"></span></label>
+        <span class="tog-lbl">R / X grid circles</span>
+      </div>
+      <div class="tog-row">
+        <label class="tog-sw"><input type="checkbox" id="tog-cross" checked onchange="redraw()"/><span class="tog-tr"></span></label>
+        <span class="tog-lbl">50+j0 crosshair</span>
+      </div>
+      <div class="tog-row">
+        <label class="tog-sw"><input type="checkbox" id="tog-contour" checked onchange="redraw()"/><span class="tog-tr"></span></label>
+        <span class="tog-lbl">Zm corner contours (Zm = ZL*)</span>
+      </div>
+      <div class="tog-row">
+        <label class="tog-sw"><input type="checkbox" id="tog-arc" checked onchange="redraw()"/><span class="tog-tr"></span></label>
+        <span class="tog-lbl">Zin → Zm arc (current point)</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════
+   FREQUENCY CONFIG
+   Both configs use SAME VVC specs — educational contrast
+════════════════════════════ */
+var FREQ_CFG = {
+  27.12: {
+    F: 27.12e6,
+    ZL: {re:4, im:35},          // 27.12MHz ICP typical: Z_L=4+j35 Ω
+    L_MATCH_IDX: 421,            // CL≈400pF (41.2%) → |Γ|≈0.004
+    T_MATCH_IDX: 889,            // CT≈81pF  (86.9%)
+    matchLabel: 'CL ≈ 400 pF · CT ≈ 81 pF · |Γ| ≈ 0.004'
+  },
+  13.56: {
+    F: 13.56e6,
+    ZL: {re:4, im:35},           // same ZL — shows why matching fails
+    L_MATCH_IDX: null,           // no match achievable within VVC range
+    T_MATCH_IDX: null,
+    matchLabel: null
+  }
+};
+
+var ACTIVE_FREQ = 27.12;         // currently selected frequency (MHz)
+
+// Derived physics vars (set by setFreq / applyFreq)
+var F, OM, ZL;
+
+// Physical VVC ranges — IDENTICAL for both frequencies (key educational point)
+var LMIN=50, LMAX=900;
+var TMIN=20, TMAX=90;
+
+// Slider resolution: 0..1023 integer steps
+var SL_STEPS = 1023;
+
+// Sweep grid steps
+var LSTEP=18, TSTEP=2;
+
+// Active match indices (null at 13.56MHz)
+var L_MATCH_IDX, T_MATCH_IDX;
+
+// Convert slider index → pF
+function idxToL(idx){ return LMIN + idx*(LMAX-LMIN)/SL_STEPS; }
+function idxToT(idx){ return TMIN + idx*(TMAX-TMIN)/SL_STEPS; }
+
+// Apply a frequency config
+function applyFreq(mhz){
+  var cfg = FREQ_CFG[mhz];
+  F  = cfg.F;
+  OM = 2*Math.PI*F;
+  ZL = cfg.ZL;
+  L_MATCH_IDX = cfg.L_MATCH_IDX;
+  T_MATCH_IDX = cfg.T_MATCH_IDX;
+  ACTIVE_FREQ = mhz;
+}
+
+/* ════════════════════════════
+   PHYSICS
+════════════════════════════ */
+var Z0 = 50;  // reference impedance (fixed)
+
+function Xc(pF){ return -1/(OM*pF*1e-12); }
+function XLc(nH){ return OM*nH*1e-9; }
+function gam(re,im){
+  var nr=re-Z0,ni=im,dr=re+Z0,di=im,d2=dr*dr+di*di||1e-30;
+  return {re:(nr*dr+ni*di)/d2, im:(ni*dr-nr*di)/d2};
+}
+function cdiv(ar,ai,br,bi){var d=br*br+bi*bi||1e-30;return{re:(ar*br+ai*bi)/d,im:(ai*br-ar*bi)/d};}
+function cmul(ar,ai,br,bi){return{re:ar*br-ai*bi,im:ar*bi+ai*br};}
+function cadd(ar,ai,br,bi){return{re:ar+br,im:ai+bi};}
+function cpar(ar,ai,br,bi){var n=cmul(ar,ai,br,bi),d=cadd(ar,ai,br,bi);return cdiv(n.re,n.im,d.re,d.im);}
+
+/*
+  L-network topology (source → load):
+    Source(50Ω) ──[node A]── Tune Coil(series) ── Tune VVC(series) ── Plasma Z_L
+                      |
+                  Load VVC (shunt to GND)
+
+  Zin = impedance seen by source looking INTO the network
+      = (ZL + jXcoil + jXt) ‖ jXl
+      → 50+j0 Ω when matched
+
+  Zm  = impedance seen by the load looking BACK toward the source
+      = (Load VVC ‖ Zs_source) + jXcoil + jXt
+        where Zs_source = 50 Ω (source impedance)
+      → ZL* = 4−j35 Ω when conjugate-matched
+*/
+function net(cl,ct){
+  var Xl=Xc(cl), Xcoil=XLc(300), Xt=Xc(ct);
+
+  // === Zin: source looks in ===
+  var Zser_re=ZL.re, Zser_im=ZL.im+Xcoil+Xt;
+  var p=cpar(Zser_re,Zser_im,0,Xl);
+  var Zin={re:p.re,im:p.im};
+
+  // === Zm: load looks back ===
+  // Step 1: Load VVC ‖ source (50Ω)
+  var Zsh=cpar(0,Xl,Z0,0);
+  // Step 2: add series elements toward the load
+  var Zm={re:Zsh.re, im:Zsh.im+Xcoil+Xt};
+
+  var G=gam(Zin.re,Zin.im);
+  var Gm=Math.sqrt(G.re*G.re+G.im*G.im);
+  return {Zin:Zin, Zm:Zm, Xl:Xl, Xcoil:Xcoil, Xt:Xt, G:G, Gm:Gm};
+}
+
+/* ════════════════════════════
+   SWEEP DATA
+════════════════════════════ */
+var swZin=[], swZm=[];
+
+function buildSweep(){
+  swZin=[]; swZm=[];
+  var nL=Math.floor((LMAX-LMIN)/LSTEP)+1;
+  var nT=Math.floor((TMAX-TMIN)/TSTEP)+1;
+  document.getElementById('sw-l').textContent   = 'Load: '+nL+' steps';
+  document.getElementById('sw-t').textContent   = 'Tune: '+nT+' steps';
+  document.getElementById('sw-tot').textContent = 'Total: '+(nL*nT)+' pts';
+  document.getElementById('sw-cnt').textContent = nL+' × '+nT+' = '+(nL*nT);
+  for(var cl=LMIN;cl<=LMAX+.01;cl+=LSTEP){
+    for(var ct=TMIN;ct<=TMAX+.01;ct+=TSTEP){
+      var r=net(cl,ct);
+      swZin.push(r.Zin);
+      swZm.push(r.Zm);
+    }
+  }
+}
+
+/* ════════════════════════════
+   CONTOUR TRAJECTORIES
+   4 edge sweeps: fix one VVC, vary the other
+════════════════════════════ */
+// Returns array of {Zin, Zm} for a sweep
+function edgeSweep(fixLoad, loadVal, fixTune, tuneVal, steps){
+  var pts=[];
+  for(var i=0;i<=steps;i++){
+    var t=i/steps;
+    var cl = fixLoad ? loadVal : LMIN+t*(LMAX-LMIN);
+    var ct = fixTune ? tuneVal : TMIN+t*(TMAX-TMIN);
+    pts.push(net(cl,ct));
+  }
+  return pts;
+}
+
+/* ════════════════════════════
+   SMITH CHART CANVAS
+════════════════════════════ */
+var sc=document.getElementById('sc'), sctx=sc.getContext('2d');
+var CX,CY,RAD;
+
+function toXY(re,im){
+  var g=gam(re,im);
+  return {x:CX+g.re*RAD, y:CY-g.im*RAD};
+}
+function fromXY(px,py){
+  var gr=(px-CX)/RAD, gi=-(py-CY)/RAD;
+  if(gr*gr+gi*gi>=1) return null;
+  var nr=1+gr,ni=gi,dr=1-gr,di=-gi,d2=dr*dr+di*di||1e-30;
+  return {re:Z0*(nr*dr+ni*di)/d2, im:Z0*(ni*dr-nr*di)/d2};
+}
+
+function drawGrid(ctx){
+  // outer circle
+  ctx.strokeStyle='#3C3530'; ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.arc(CX,CY,RAD,0,2*Math.PI); ctx.stroke();
+  if(!document.getElementById('tog-grid').checked) return;
+  // R-circles
+  [0,.2,.5,1,2,5].forEach(function(r){
+    var cx2=r/(1+r), rad2=1/(1+r);
+    ctx.strokeStyle=r===1?'#A8A8CC':'#DDD9F0';
+    ctx.lineWidth=r===1?1.1:.7;
+    ctx.beginPath(); ctx.arc(CX+cx2*RAD,CY,rad2*RAD,0,2*Math.PI); ctx.stroke();
+    if(r>0){
+      ctx.fillStyle='#AAAACC'; ctx.font='7.5px JetBrains Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText(r,CX+(cx2-rad2)*RAD+4,CY-3);
+    }
+  });
+  // X-arcs
+  [.2,.5,1,2,5].forEach(function(x){
+    [x,-x].forEach(function(xi){
+      ctx.strokeStyle='#E2DCF5'; ctx.lineWidth=.65;
+      ctx.beginPath(); ctx.arc(CX+RAD,CY-RAD/xi,Math.abs(RAD/xi),0,2*Math.PI); ctx.stroke();
+    });
+  });
+  ctx.strokeStyle='#C4C0D8'; ctx.lineWidth=.8;
+  ctx.beginPath(); ctx.moveTo(CX-RAD,CY); ctx.lineTo(CX+RAD,CY); ctx.stroke();
+}
+
+// Draw a smooth polyline through Smith Chart points (array of {Zin} or {Zm})
+function drawContourLine(ctx, pts, getZ, color, lw, dash){
+  ctx.strokeStyle=color; ctx.lineWidth=lw||1.5;
+  if(dash) ctx.setLineDash(dash); else ctx.setLineDash([]);
+  ctx.beginPath();
+  var first=true;
+  pts.forEach(function(p){
+    var z=getZ(p), pt=toXY(z.re,z.im);
+    var inR=(pt.x-CX)*(pt.x-CX)+(pt.y-CY)*(pt.y-CY);
+    if(inR>RAD*RAD*1.04){first=true;return;}
+    if(first){ctx.moveTo(pt.x,pt.y);first=false;}
+    else ctx.lineTo(pt.x,pt.y);
+  });
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function dot(ctx,x,y,r,fill,stroke,sw){
+  ctx.fillStyle=fill;
+  ctx.beginPath(); ctx.arc(x,y,r,0,2*Math.PI); ctx.fill();
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw||1.8;ctx.beginPath();ctx.arc(x,y,r,0,2*Math.PI);ctx.stroke();}
+}
+
+function redraw(){
+  var dpr=window.devicePixelRatio||1;
+  var W=sc.offsetWidth, H=sc.offsetHeight;
+  if(!W||!H) return;
+  sc.width=Math.round(W*dpr); sc.height=Math.round(H*dpr);
+  var ctx=sctx; ctx.scale(dpr,dpr);
+  CX=W*.5; CY=H*.5; RAD=Math.min(W,H)*.44;
+
+  // Background + grid
+  ctx.fillStyle='#FAFBFF'; ctx.fillRect(0,0,W,H);
+  drawGrid(ctx);
+
+  // Frequency annotation on canvas
+  ctx.font='bold 11px Google Sans,sans-serif'; ctx.textAlign='left';
+  ctx.fillStyle = ACTIVE_FREQ===13.56 ? '#C0392B' : '#1A6FB5';
+  ctx.fillText('f = '+ACTIVE_FREQ+' MHz', CX-RAD+6, CY+RAD-10);
+  // Note about VVC specs
+  ctx.font='9px JetBrains Mono,monospace';
+  ctx.fillStyle='#9A8A68';
+  ctx.fillText('Load 50–900 pF · Tune 20–90 pF · Coil 300 nH', CX-RAD+6, CY+RAD+4);
+
+  // Crosshair at 50+j0 (center)
+  if(document.getElementById('tog-cross').checked){
+    ctx.strokeStyle='rgba(15,140,80,.28)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(CX-RAD,CY); ctx.lineTo(CX+RAD,CY);
+    ctx.moveTo(CX,CY-RAD); ctx.lineTo(CX,CY+RAD); ctx.stroke();
+    ctx.setLineDash([]);
+    dot(ctx,CX,CY,4,'#0F8C50','#fff',1.5);
+    ctx.fillStyle='#0F8C50'; ctx.font='7.5px Google Sans,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('50+j0',CX,CY-7);
+  }
+
+  // ZL* target dot (for Zm)
+  var ptZLstar=toXY(ZL.re,-ZL.im);
+  dot(ctx,ptZLstar.x,ptZLstar.y,4,'#C8860D','#fff',1.5);
+  ctx.fillStyle='#C8860D'; ctx.font='7.5px Google Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('ZL*',ptZLstar.x,ptZLstar.y-7);
+
+  // ZL dot (plasma load reference)
+  var ptZL=toXY(ZL.re,ZL.im);
+  dot(ctx,ptZL.x,ptZL.y,4,'#7030A0','#fff',1.5);
+  ctx.fillStyle='#7030A0'; ctx.font='7.5px Google Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('Z_L',ptZL.x,ptZL.y-7);
+
+  // ── Full-grid sweep clouds ──
+  swZin.forEach(function(z){
+    var pt=toXY(z.re,z.im);
+    if((pt.x-CX)*(pt.x-CX)+(pt.y-CY)*(pt.y-CY)>RAD*RAD*1.02) return;
+    ctx.beginPath(); ctx.arc(pt.x,pt.y,2.2,0,2*Math.PI);
+    ctx.fillStyle='rgba(15,140,80,0.16)'; ctx.fill();
+  });
+  swZm.forEach(function(z){
+    var pt=toXY(z.re,z.im);
+    if((pt.x-CX)*(pt.x-CX)+(pt.y-CY)*(pt.y-CY)>RAD*RAD*1.02) return;
+    ctx.beginPath(); ctx.arc(pt.x,pt.y,2.2,0,2*Math.PI);
+    ctx.fillStyle='rgba(200,134,13,0.16)'; ctx.fill();
+  });
+
+  // ── Corner contour trajectories — Zm only ──
+  if(document.getElementById('tog-contour').checked){
+    var N=80;
+    // 4 edges: fix one VVC at its min/max, sweep the other
+    // Edge labels:  solid = Load fixed at min/max,  dashed = Tune fixed at min/max
+    var e1=edgeSweep(true,LMIN,false,0,N);    // Load=min,  Tune: min→max
+    var e2=edgeSweep(true,LMAX,false,0,N);    // Load=max,  Tune: min→max
+    var e3=edgeSweep(false,0,true,TMIN,N);    // Tune=min,  Load: min→max
+    var e4=edgeSweep(false,0,true,TMAX,N);    // Tune=max,  Load: min→max
+
+    // Zm contours — two colour pairs: Load-fixed (amber), Tune-fixed (orange)
+    drawContourLine(ctx,e1,function(p){return p.Zm;},'#C8860D',1.7,[]);
+    drawContourLine(ctx,e2,function(p){return p.Zm;},'#C8860D',1.7,[6,3]);
+    drawContourLine(ctx,e3,function(p){return p.Zm;},'#E09020',1.4,[]);
+    drawContourLine(ctx,e4,function(p){return p.Zm;},'#E09020',1.4,[6,3]);
+
+    // Corner endpoint dots (Zm only)
+    [[LMIN,TMIN],[LMIN,TMAX],[LMAX,TMIN],[LMAX,TMAX]].forEach(function(c){
+      var r=net(c[0],c[1]);
+      var pm=toXY(r.Zm.re,r.Zm.im);
+      dot(ctx,pm.x,pm.y,3.5,'#C8860D','#fff',1.4);
+    });
+
+    // Corner labels
+    var corners=[
+      {cl:LMIN,ct:TMIN,lbl:'L₀T₀'},
+      {cl:LMIN,ct:TMAX,lbl:'L₀T₁'},
+      {cl:LMAX,ct:TMIN,lbl:'L₁T₀'},
+      {cl:LMAX,ct:TMAX,lbl:'L₁T₁'}
+    ];
+    ctx.font='7px JetBrains Mono,monospace'; ctx.fillStyle='#A06008';
+    corners.forEach(function(c){
+      var r=net(c.cl,c.ct);
+      var pm=toXY(r.Zm.re,r.Zm.im);
+      ctx.textAlign='left';
+      ctx.fillText(c.lbl,pm.x+6,pm.y-3);
+    });
+  }
+
+  // ── Current operating point ──
+  var li=parseInt(document.getElementById('sl-l').value);
+  var ti=parseInt(document.getElementById('sl-t').value);
+  var cl=idxToL(li);
+  var ct=idxToT(ti);
+  var r=net(cl,ct);
+  var piZin=toXY(r.Zin.re,r.Zin.im);
+  var piZm =toXY(r.Zm.re, r.Zm.im);
+
+  // Arc Zin→Zm
+  if(document.getElementById('tog-arc').checked){
+    ctx.strokeStyle='rgba(120,100,200,0.38)'; ctx.lineWidth=1.4; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(piZin.x,piZin.y); ctx.lineTo(piZm.x,piZm.y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Zin glow + dot (green)
+  var gl=ctx.createRadialGradient(piZin.x,piZin.y,0,piZin.x,piZin.y,18);
+  gl.addColorStop(0,'rgba(15,140,80,0.32)'); gl.addColorStop(1,'transparent');
+  ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(piZin.x,piZin.y,18,0,2*Math.PI); ctx.fill();
+  dot(ctx,piZin.x,piZin.y,8.5,'#0F8C50','#fff',2.2);
+  ctx.fillStyle='#0F8C50'; ctx.font='bold 8.5px JetBrains Mono,monospace'; ctx.textAlign='left';
+  ctx.fillText('Zin',piZin.x+12,piZin.y+4);
+
+  // Zm glow + dot (amber)
+  var gl2=ctx.createRadialGradient(piZm.x,piZm.y,0,piZm.x,piZm.y,16);
+  gl2.addColorStop(0,'rgba(200,134,13,0.32)'); gl2.addColorStop(1,'transparent');
+  ctx.fillStyle=gl2; ctx.beginPath(); ctx.arc(piZm.x,piZm.y,16,0,2*Math.PI); ctx.fill();
+  dot(ctx,piZm.x,piZm.y,7.5,'#C8860D','#fff',2);
+  ctx.fillStyle='#C8860D'; ctx.font='bold 8.5px JetBrains Mono,monospace'; ctx.textAlign='left';
+  ctx.fillText('Zm',piZm.x+11,piZm.y+4);
+}
+
+/* ════════════════════════════
+   READOUT
+════════════════════════════ */
+function fZ(re,im){
+  var s=im>=0?' + j':' − j';
+  return re.toFixed(2)+s+Math.abs(im).toFixed(2)+' Ω';
+}
+
+function updateRO(){
+  var li=parseInt(document.getElementById('sl-l').value);
+  var ti=parseInt(document.getElementById('sl-t').value);
+
+  // Map index to pF
+  var cl=idxToL(li);
+  var ct=idxToT(ti);
+
+  // Percentages
+  var lp=(li/SL_STEPS*100).toFixed(1);
+  var tp=(ti/SL_STEPS*100).toFixed(1);
+
+  // Slider track fill
+  document.getElementById('sl-l').style.setProperty('--pct',lp+'%');
+  document.getElementById('sl-t').style.setProperty('--pct',tp+'%');
+
+  var r=net(cl,ct);
+
+  // Display: pF + %
+  document.getElementById('lvc-d').textContent=cl.toFixed(1)+' pF ('+lp+'%)';
+  document.getElementById('tvc-d').textContent=ct.toFixed(1)+' pF ('+tp+'%)';
+  document.getElementById('lvc-x').textContent='X_C = '+r.Xl.toFixed(1)+' Ω';
+  document.getElementById('lvc-b').textContent='B = '+(-1/r.Xl*1000).toFixed(3)+' mS';
+  document.getElementById('tvc-x').textContent='X_C = '+r.Xt.toFixed(1)+' Ω';
+  document.getElementById('tvc-net').textContent='X_net = '+(r.Xcoil+r.Xt>=0?'+':'')+(r.Xcoil+r.Xt).toFixed(1)+' Ω';
+  document.getElementById('fc-x').textContent='+j'+r.Xcoil.toFixed(1)+' Ω';
+
+  // SVG labels
+  function $s(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  $s('lbl-cl','C_L = '+cl.toFixed(0)+' pF');
+  $s('lbl-cl-x','X = '+r.Xl.toFixed(1)+' Ω');
+  $s('lbl-ct','C_T = '+ct.toFixed(1)+' pF');
+  $s('lbl-ct-x','X = '+r.Xt.toFixed(1)+' Ω');
+  $s('lbl-coil','+j'+r.Xcoil.toFixed(1)+' Ω');
+
+  document.getElementById('ro-zin').textContent=fZ(r.Zin.re,r.Zin.im);
+  document.getElementById('ro-zm').textContent =fZ(r.Zm.re, r.Zm.im);
+
+  var vswr=(1+r.Gm)/Math.max(1e-9,1-r.Gm);
+  var pref=r.Gm*r.Gm*100;
+  document.getElementById('ro-gm').textContent   = r.Gm.toFixed(4);
+  document.getElementById('ro-vswr').textContent = (vswr>999?'∞':vswr.toFixed(2))+' : 1';
+  document.getElementById('ro-pref').textContent = pref.toFixed(1)+' %';
+
+  var st=document.getElementById('ro-st');
+  if(ACTIVE_FREQ===13.56){
+    // Educational: explain why matching fails at 13.56MHz with these specs
+    var bestGm = 0.957; // pre-computed: best |Γ| at 13.56MHz = 0.957
+    st.innerHTML='<span class="bad">✗ At 13.56 MHz — Tune VVC max(90pF) gives X_C=−130 Ω, '
+      +'far exceeding Tune Coil +j25.6 Ω. Net series reactance cannot be cancelled. '
+      +'Best achievable |Γ| = 0.957 (only 8% power delivered). '
+      +'→ Real 13.56 MHz matchers use Tune VVC up to 500 pF+.</span>';
+  } else if(r.Gm<0.07){
+    st.innerHTML='<span class="ok">✓ Matched — Zin ≈ 50+j0 Ω  |  Zm ≈ ZL* = 4−j35 Ω</span>';
+  } else if(Math.abs(r.Zin.re-50)<2 && Math.abs(r.Zin.im)<5){
+    st.innerHTML='<span class="mid">△ Source side matched (Zin ≈ 50 Ω). Adjust Tune VVC for Zm.</span>';
+  } else if(r.Gm<0.30){
+    st.innerHTML='<span class="mid">△ Near match — '+(100-pref).toFixed(1)+'% delivered. Tune toward center.</span>';
+  } else {
+    st.innerHTML='<span class="bad">✗ Mismatched — '+(100-pref).toFixed(1)+'% reaches plasma. |Γ| = '+r.Gm.toFixed(3)+'</span>';
+  }
+}
+
+function onSl(){ updateRO(); redraw(); }
+
+/* ════════════════════════════
+   MATCHED BUTTON
+════════════════════════════ */
+function setMatched(){
+  if(L_MATCH_IDX === null){
+    // Educational message for 13.56 MHz
+    var btn = document.getElementById('match-btn');
+    if(btn){ btn.classList.add('btn-warn'); setTimeout(function(){ btn.classList.remove('btn-warn'); }, 1200); }
+    return;
+  }
+  document.getElementById('sl-l').value = L_MATCH_IDX;
+  document.getElementById('sl-t').value = T_MATCH_IDX;
+  onSl();
+}
+
+/* ════════════════════════════
+   FREQUENCY SELECTOR
+════════════════════════════ */
+function setFreq(mhz){
+  applyFreq(mhz);
+  // Update toggle button appearance
+  document.getElementById('ftb-1356').classList.toggle('active', mhz===13.56);
+  document.getElementById('ftb-2712').classList.toggle('active', mhz===27.12);
+  // Update Smith Chart card label
+  document.getElementById('smith-card-lbl').textContent =
+    '⭕ Smith Chart — Z₀ = 50 Ω · f = '+mhz+' MHz · same VVC specs';
+  // Update matched button
+  updateMatchBtn();
+  // Rebuild sweep + redraw
+  buildSweep();
+  updateRO();
+  redraw();
+}
+
+function updateMatchBtn(){
+  var btn = document.getElementById('match-btn');
+  var cfg = FREQ_CFG[ACTIVE_FREQ];
+  if(!btn) return;
+  if(cfg.L_MATCH_IDX === null){
+    btn.textContent = '⚠️ No match achievable at 13.56 MHz with these VVC specs';
+    btn.classList.add('btn-disabled');
+  } else {
+    btn.textContent = '⚡ Set to Matched Position — '+cfg.matchLabel;
+    btn.classList.remove('btn-disabled');
+  }
+}
+
+
+sc.addEventListener('mousemove',function(e){
+  var rect=sc.getBoundingClientRect();
+  var dpr=window.devicePixelRatio||1;
+  var px=(e.clientX-rect.left)*(sc.width/rect.width)/dpr;
+  var py=(e.clientY-rect.top)*(sc.height/rect.height)/dpr;
+  var z=fromXY(px,py);
+  var el=document.getElementById('sc-hover');
+  if(z){
+    var g=gam(z.re,z.im),gm=Math.sqrt(g.re*g.re+g.im*g.im);
+    var vswr=(1+gm)/Math.max(1e-9,1-gm);
+    el.textContent='Z = '+z.re.toFixed(2)+(z.im>=0?' + j':' − j')+Math.abs(z.im).toFixed(2)
+      +' Ω  |Γ| = '+gm.toFixed(3)+'  VSWR = '+vswr.toFixed(2)+':1';
+  } else el.textContent='';
+});
+sc.addEventListener('mouseleave',function(){document.getElementById('sc-hover').textContent='';});
+
+/* ════════════════════════════
+   INIT
+════════════════════════════ */
+function init(){
+  applyFreq(27.12);   // default frequency
+  updateMatchBtn();
+  buildSweep();
+  updateRO();
+  redraw();
+}
+window.addEventListener('resize',function(){redraw();});
+window.addEventListener('load',function(){setTimeout(init,80);});
+</script>
+</body>
+</html>
