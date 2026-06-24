@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AC Frequency & Wavelength Converter — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:      #0F8C50;
+    --green-lt:   #E6F4ED;
+    --green-dk:   #0A6B3C;
+    --purple:     #7030A0;
+    --purple-lt:  #F0E8F8;
+    --purple-mid: #9B59D0;
+    --bg:         #F8FAFB;
+    --card:       #FFFFFF;
+    --border:     #E2E8F0;
+    --text:       #1A202C;
+    --muted:      #64748B;
+    --label:      #94A3B8;
+    --shadow:     0 2px 12px rgba(0,0,0,0.07);
+  }
+
+  body {
+    font-family: 'Google Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .logo-img { height: 36px; display: block; }
+  .header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+  .header-title   { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+  /* ─── LANG TOGGLE ─── */
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 3px;
+    gap: 2px;
+    margin-left: 8px;
+  }
+  .lang-btn {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 12px; border-radius: 16px;
+    border: none; background: transparent;
+    color: var(--muted); cursor: pointer;
+    transition: all .18s;
+  }
+  .lang-btn.active {
+    background: var(--purple);
+    color: #fff;
+  }
+
+  /* ─── BADGE ─── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green-lt); color: var(--green);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    padding: 3px 10px; border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .badge-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  /* ─── LAYOUT ─── */
+  .main { max-width: 900px; margin: 28px auto 56px; padding: 0 16px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+
+  /* ─── CARD HEADER ─── */
+  .card-head {
+    padding: 16px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .card-head-text h2 { font-size: 15px; font-weight: 600; }
+  .card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ─── CONTROLS ─── */
+  .controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+
+  .freq-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 80px; }
+
+  .slider-track { flex: 1; min-width: 160px; }
+  input[type=range] {
+    -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+    background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+    outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--green); border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  input[type=range]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--green); border: 2px solid #fff; cursor: pointer;
+  }
+
+  .freq-inputs { display: flex; align-items: center; gap: 6px; }
+  .freq-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px; font-weight: 600;
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+    padding: 5px 10px; width: 110px; text-align: right; outline: none;
+    transition: border-color .2s;
+  }
+  .freq-num:focus { border-color: var(--green); }
+  .unit-select {
+    font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 500;
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+    padding: 5px 8px; color: var(--text); cursor: pointer; outline: none;
+  }
+  .unit-select:focus { border-color: var(--green); }
+
+  /* ─── QUICK SELECT ─── */
+  .quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+  .quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+  .qbtn {
+    font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+    padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .qbtn:hover   { border-color: var(--purple-mid); color: var(--purple); }
+  .qbtn.active  { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+  .qbtn.ism     { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+  .qbtn.ism.active { background: var(--green); color: #fff; }
+
+  /* ─── CANVAS ─── */
+  .canvas-wrap { padding: 0 24px; }
+  #waveCanvas {
+    width: 100%; height: 210px; display: block;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: #FAFBFC; margin-top: 16px;
+  }
+  .canvas-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+  /* ─── STATS ─── */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; padding: 0 24px 22px;
+  }
+  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+  .stat-name  { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+  .stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+  .stat-unit  { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+
+  /* ─── FORMULA PANEL ─── */
+  .formula-panel {
+    border-top: 1px solid var(--border);
+    padding: 14px 24px; background: var(--green-lt);
+    display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center;
+  }
+  .formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+  .formula-eq    { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+  /* ══════════════════════════════════════════
+     VELOCITY FACTOR SECTION
+  ══════════════════════════════════════════ */
+  .vf-card-head {
+    padding: 14px 24px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .vf-card-head h2 { font-size: 15px; font-weight: 600; }
+  .vf-card-head p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  .vf-custom-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px 0;
+  }
+  .vf-custom-row label { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .vf-input {
+    font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+    padding: 5px 10px; width: 90px; text-align: right; outline: none;
+    transition: border-color .2s;
+  }
+  .vf-input:focus { border-color: var(--green); }
+  .vf-range { width: 180px; }
+
+  .vf-tabs { display: flex; gap: 6px; padding: 14px 24px 0; flex-wrap: wrap; }
+  .vf-tab {
+    font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+  }
+  .vf-tab:hover  { border-color: var(--purple-mid); color: var(--purple); }
+  .vf-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+  .vf-table-wrap { padding: 12px 24px 20px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  thead tr { background: #F1F5F9; }
+  th {
+    text-align: left; padding: 8px 10px;
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    letter-spacing: .05em; white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 8px 10px; border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle; white-space: nowrap;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #F8F9FE; }
+
+  .vf-bar-cell { min-width: 100px; }
+  .vf-bar-bg   { background: #E2E8F0; border-radius: 3px; height: 6px; overflow: hidden; }
+  .vf-bar-fill { height: 6px; border-radius: 3px; background: var(--green); transition: width .4s; }
+  .vf-lambda   { font-family: 'JetBrains Mono', monospace; color: var(--purple); font-weight: 600; }
+  tr.selected td { background: var(--purple-lt) !important; }
+  td.cable-name  { font-weight: 600; color: var(--text); }
+  td.dielectric  { color: var(--muted); }
+  .badge-ism {
+    font-size: 10px; font-weight: 700; letter-spacing: .05em;
+    background: var(--green-lt); color: var(--green);
+    border-radius: 3px; padding: 1px 5px; margin-left: 5px;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+    .controls, .canvas-wrap, .stats { padding-left: 12px; padding-right: 12px; }
+    .card-head, .vf-card-head { padding: 12px 12px 10px; }
+    .vf-table-wrap, .vf-custom-row, .vf-tabs { padding-left: 12px; padding-right: 12px; }
+    .formula-panel { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <img
+    src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+    alt="Benedu Insight"
+    class="logo-img"
+    onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';"
+  >
+  <div id="logo-fallback" style="display:none; align-items:center; gap:8px;">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/></svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span><span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="headerTitle">AC Frequency &amp; Wavelength Converter</span>
+  <!-- Language Toggle -->
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn"        id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+
+  <!-- ══ CARD 1: WAVE SIMULATOR ══ -->
+  <div class="card">
+
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badgeInteractive">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">AC Frequency &amp; Wavelength Converter — Adjust frequency to see how the waveform changes</h2>
+        <p id="card1Sub">Use the slider, direct input, or quick-select buttons. Period and wavelength update in real time.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelFreq">Frequency (f)</span>
+        <div class="slider-track">
+          <input type="range" id="freqSlider" min="0" max="1000" value="500" step="1">
+        </div>
+        <div class="freq-inputs">
+          <input type="text" id="freqInput" class="freq-num" value="13.56">
+          <select id="unitSel" class="unit-select">
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="MHz" selected>MHz</option>
+            <option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick">Quick select:</span>
+        <button class="qbtn" data-hz="60" data-u="Hz">60 Hz</button>
+        <button class="qbtn" data-hz="1" data-u="kHz">1 kHz</button>
+        <button class="qbtn" data-hz="1" data-u="MHz">1 MHz</button>
+        <button class="qbtn ism active" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="100" data-u="MHz">100 MHz</button>
+        <button class="qbtn" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="waveCanvas"></canvas>
+      <p class="canvas-note" id="canvasNote">The waveform shows 3 cycles at the selected frequency on a time axis. (Wavelength is calculated; the plot is time-domain.)</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameFreq">FREQUENCY (F)</div>
+        <div><span class="stat-value" id="dispFreq">13.56</span><span class="stat-unit" id="dispFreqUnit">MHz</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNamePeriod">PERIOD (T = 1/F)</div>
+        <div><span class="stat-value" id="dispPeriod">73.746</span><span class="stat-unit" id="dispPeriodUnit">ns</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameWave">FREE-SPACE λ (c/F)</div>
+        <div><span class="stat-value" id="dispWave">22.12</span><span class="stat-unit" id="dispWaveUnit">m</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="fmlPeriod">PERIOD</div><div class="formula-eq">T = 1 / f</div></div>
+      <div><div class="formula-label" id="fmlWave">WAVELENGTH</div><div class="formula-eq">λ = c / f</div></div>
+      <div><div class="formula-label" id="fmlAngular">ANGULAR FREQ.</div><div class="formula-eq">ω = 2π · f</div></div>
+      <div><div class="formula-label" id="fmlLight">SPEED OF LIGHT</div><div class="formula-eq">c = 3 × 10⁸ m/s</div></div>
+    </div>
+
+  </div><!-- /.card -->
+
+
+  <!-- ══ CARD 2: VELOCITY FACTOR ══ -->
+  <div class="card">
+
+    <div class="vf-card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="badgeVF">VF TABLE</span>
+      </span>
+      <div>
+        <h2 id="vfTitle">Velocity Factor — Coaxial Cable Reference</h2>
+        <p id="vfSub">Click a cable row to apply its VF. The wavelength inside the cable (λ<sub>cable</sub> = VF × λ<sub>free-space</sub>) is shown for the current frequency.</p>
+      </div>
+    </div>
+
+    <!-- Custom VF -->
+    <div class="vf-custom-row">
+      <label id="labelCustomVF">Custom VF:</label>
+      <input type="range" id="vfSlider" class="vf-range" min="0.60" max="1.00" step="0.001" value="1.0">
+      <input type="text"  id="vfInput"  class="vf-input" value="1.000">
+      <span style="font-size:12px;color:var(--muted);"><span id="labelVfLambda">Wavelength in medium:</span> <span id="vfLambda" class="vf-lambda">—</span></span>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="vf-tabs" id="vfTabs">
+      <button class="vf-tab active" data-cat="all"       id="tab-all">All</button>
+      <button class="vf-tab"        data-cat="vacuum"    id="tab-vacuum">Vacuum / Air</button>
+      <button class="vf-tab"        data-cat="rg"        id="tab-rg">RG Series</button>
+      <button class="vf-tab"        data-cat="lmr"       id="tab-lmr">LMR Series</button>
+      <button class="vf-tab"        data-cat="semirigid" id="tab-semirigid">Semi-Rigid</button>
+      <button class="vf-tab"        data-cat="hardline"  id="tab-hardline">Hardline / Heliax</button>
+    </div>
+
+    <!-- Table -->
+    <div class="vf-table-wrap">
+      <table id="vfTable">
+        <thead>
+          <tr>
+            <th id="thCableModel">Cable Model</th>
+            <th id="thDielectric">Dielectric</th>
+            <th>Z₀ (Ω)</th>
+            <th>VF</th>
+            <th id="thVfBar" style="min-width:110px;">VF Bar</th>
+            <th id="thLambda">λ in Cable</th>
+            <th id="thNotes">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="vfTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="fmlCableWave">IN-CABLE WAVELENGTH</div><div class="formula-eq">λ<sub>cable</sub> = VF × (c / f)</div></div>
+      <div><div class="formula-label" id="fmlVfDef">VF DEFINITION</div><div class="formula-eq">VF = v<sub>p</sub> / c = 1 / √ε<sub>r</sub></div></div>
+      <div><div class="formula-label" id="fmlElecLen">ELECTRICAL LENGTH</div><div class="formula-eq">θ = (L / λ<sub>cable</sub>) × 360°</div></div>
+    </div>
+
+  </div><!-- /.card vf -->
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════
+   I18N STRINGS
+═══════════════════════════════════════════════ */
+const I18N = {
+  en: {
+    headerTitle:   'AC Frequency & Wavelength Converter',
+    badgeInteractive: 'INTERACTIVE',
+    card1Title:    'AC Frequency & Wavelength Converter — Adjust frequency to see how the waveform changes',
+    card1Sub:      'Use the slider, direct input, or quick-select buttons. Period and wavelength update in real time.',
+    labelFreq:     'Frequency (f)',
+    labelQuick:    'Quick select:',
+    canvasNote:    'The waveform shows 3 cycles at the selected frequency on a time axis. (Wavelength is calculated; the plot is time-domain.)',
+    statNameFreq:  'FREQUENCY (F)',
+    statNamePeriod:'PERIOD (T = 1/F)',
+    statNameWave:  'FREE-SPACE λ (c/F)',
+    fmlPeriod:     'PERIOD',
+    fmlWave:       'WAVELENGTH',
+    fmlAngular:    'ANGULAR FREQ.',
+    fmlLight:      'SPEED OF LIGHT',
+    badgeVF:       'VF TABLE',
+    vfTitle:       'Velocity Factor — Coaxial Cable Reference',
+    vfSub:         'Click a cable row to apply its VF. The wavelength inside the cable (λ<sub>cable</sub> = VF × λ<sub>free-space</sub>) is shown for the current frequency.',
+    labelCustomVF: 'Custom VF:',
+    labelVfLambda: 'Wavelength in medium:',
+    tabAll:        'All',
+    tabVacuum:     'Vacuum / Air',
+    tabRg:         'RG Series',
+    tabLmr:        'LMR Series',
+    tabSemirigid:  'Semi-Rigid',
+    tabHardline:   'Hardline / Heliax',
+    thCableModel:  'Cable Model',
+    thDielectric:  'Dielectric',
+    thVfBar:       'VF Bar',
+    thLambda:      'λ in Cable',
+    thNotes:       'Notes',
+    fmlCableWave:  'IN-CABLE WAVELENGTH',
+    fmlVfDef:      'VF DEFINITION',
+    fmlElecLen:    'ELECTRICAL LENGTH',
+  },
+  ko: {
+    headerTitle:   'AC 주파수 & 파장 변환기',
+    badgeInteractive: '인터랙티브',
+    card1Title:    'AC 주파수 & 파장 변환기 — 주파수를 조절하면 파형이 어떻게 변하는지 확인해 보세요',
+    card1Sub:      '슬라이더, 직접 입력, 또는 빠른 선택 버튼으로 주파수를 바꾸면 주기와 파장이 실시간으로 갱신됩니다.',
+    labelFreq:     '주파수 (f)',
+    labelQuick:    '빠른 선택:',
+    canvasNote:    '아래 파형은 선택한 주파수에서 3주기(cycle)를 시간 축으로 표시한 것입니다. (파장은 계산값이며, 그림은 시간 축 기준입니다.)',
+    statNameFreq:  '주파수 (F)',
+    statNamePeriod:'주기 (T = 1/F)',
+    statNameWave:  '자유공간 파장 λ (c/F)',
+    fmlPeriod:     '주기',
+    fmlWave:       '파장',
+    fmlAngular:    '각주파수',
+    fmlLight:      '광속',
+    badgeVF:       'VF 표',
+    vfTitle:       '속도계수 (Velocity Factor) — 동축케이블 참조표',
+    vfSub:         '케이블 행을 클릭하면 해당 VF가 적용됩니다. 현재 주파수에서의 케이블 내 파장(λ<sub>cable</sub> = VF × λ<sub>자유공간</sub>)이 표시됩니다.',
+    labelCustomVF: '직접 입력 VF:',
+    labelVfLambda: '매질 내 파장:',
+    tabAll:        '전체',
+    tabVacuum:     '진공 / 공기',
+    tabRg:         'RG 시리즈',
+    tabLmr:        'LMR 시리즈',
+    tabSemirigid:  '반경성 (Semi-Rigid)',
+    tabHardline:   '하드라인 / Heliax',
+    thCableModel:  '케이블 모델',
+    thDielectric:  '유전체',
+    thVfBar:       'VF 막대',
+    thLambda:      '케이블 내 파장',
+    thNotes:       '비고',
+    fmlCableWave:  '케이블 내 파장',
+    fmlVfDef:      'VF 정의',
+    fmlElecLen:    '전기적 길이',
+  }
+};
+
+/* ─── Cable notes bilingual ─── */
+const CABLE_NOTES = {
+  en: [
+    'Theoretical maximum',
+    'Open-wire or air coax',
+    'Common general-purpose',
+    'Low-loss RG-8 variant',
+    'Mini-8 flexible',
+    'Very common 50 Ω lab cable',
+    'Foam version of RG-58',
+    '75 Ω video/cable TV',
+    '75 Ω foam version',
+    'Cable TV / satellite',
+    'Low-loss cable-TV drop',
+    'Long-run 75 Ω trunk',
+    'Thin; pigtails, bench wiring',
+    'MIL-spec RG-8 equivalent',
+    'Flexible PTFE; –65 to +200 °C',
+    'Double-shielded PTFE',
+    'Flexible double-shield PTFE',
+    'Ultra-flexible; jumper cables',
+    'Handheld / patch cord use',
+    'Antenna drop; < 300 MHz runs',
+    'Mid-size flexible feedline',
+    'Ultra-flex version of LMR-240',
+    'Industry standard low-loss',
+    'Ultra-flex LMR-400',
+    'Low-loss long-run feedline',
+    'High-power tower base cable',
+    'Large-diameter trunk cable',
+    'Maximum-size LMR trunk',
+    '0.085″ OD; PCB-to-module wiring',
+    '0.141″ OD; bench & VNA interconnects',
+    '0.250″ OD; moderate power microwave',
+    'Aluminum OC; weight-sensitive apps',
+    '0.047″; chip-level RF connections',
+    'Semi-flex foam PTFE variant',
+    'Andrew ½″ corrugated hardline',
+    'Andrew ⅞″; high-power base station',
+    'Andrew 1¼″; broadcast feedline',
+    'Andrew 1⅝″; very high power TX',
+    'Andrew ¼″ flexible corrugated',
+    'Andrew ½″ flexible hardline',
+    'Air-spaced; ultra-low loss',
+    'Largest broadcast hardline',
+  ],
+  ko: [
+    '이론적 최대값',
+    '개방 도선 또는 공기 동축',
+    '범용 일반 케이블',
+    '저손실 RG-8 변형',
+    '미니-8 유연형',
+    '가장 일반적인 50 Ω 실험실 케이블',
+    'RG-58 폼 유전체 버전',
+    '75 Ω 영상/케이블 TV용',
+    '75 Ω 폼 버전',
+    '케이블 TV / 위성',
+    '저손실 케이블 TV 인입선',
+    '장거리 75 Ω 트렁크',
+    '얇은 피그테일·벤치 배선용',
+    'MIL 규격 RG-8 동등품',
+    '유연 PTFE; –65 ~ +200 °C',
+    '이중 차폐 PTFE',
+    '이중 차폐 유연 PTFE',
+    '초유연; 점퍼 케이블',
+    '핸드헬드 / 패치코드용',
+    '안테나 인입; 300 MHz 이하 단거리',
+    '중형 유연 피더라인',
+    'LMR-240 초유연 버전',
+    '업계 표준 저손실 케이블',
+    'LMR-400 초유연 버전',
+    '저손실 장거리 피더라인',
+    '고출력 타워 기저부 케이블',
+    '대구경 트렁크 케이블',
+    '최대 규격 LMR 트렁크',
+    'OD 0.085″; PCB↔모듈 배선',
+    'OD 0.141″; 벤치 & VNA 연결',
+    'OD 0.250″; 중출력 마이크로파',
+    '알루미늄 외도체; 경량화 응용',
+    'OD 0.047″; 칩 레벨 RF 연결',
+    '반유연 폼 PTFE 변형',
+    'Andrew ½″ 주름형 하드라인',
+    'Andrew ⅞″; 고출력 기지국',
+    'Andrew 1¼″; 방송용 피더',
+    'Andrew 1⅝″; 초고출력 TX',
+    'Andrew ¼″ 유연 주름형',
+    'Andrew ½″ 유연 하드라인',
+    '공기 간격; 초저손실',
+    '최대 규격 방송용 하드라인',
+  ]
+};
+
+/* ═══════════════════════════════════════════════
+   CABLE DATABASE
+═══════════════════════════════════════════════ */
+const CABLES = [
+  // Vacuum / Air
+  { cat:'vacuum',    name:'Vacuum / Free Space',          dielectric:'Vacuum (ε=1.0)',  Z0:'-', vf:1.000 },
+  { cat:'vacuum',    name:'Air-Dielectric Line',          dielectric:'Air (ε≈1.0006)', Z0:50,  vf:0.999 },
+  // RG Series
+  { cat:'rg',        name:'RG-8/U (PE)',                  dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-8/U Foam (9913)',           dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'rg',        name:'RG-8X (9258)',                 dielectric:'Foam PE',      Z0:50,  vf:0.820 },
+  { cat:'rg',        name:'RG-58/U (PE)',                 dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-58A/U Foam',                dielectric:'Foam PE',      Z0:50,  vf:0.730 },
+  { cat:'rg',        name:'RG-59/U (PE)',                 dielectric:'Solid PE',     Z0:75,  vf:0.660 },
+  { cat:'rg',        name:'RG-59/U Foam',                 dielectric:'Foam PE',      Z0:75,  vf:0.780 },
+  { cat:'rg',        name:'RG-6/U (PE)',                  dielectric:'Solid PE',     Z0:75,  vf:0.660 },
+  { cat:'rg',        name:'RG-6/U Foam',                  dielectric:'Foam PE',      Z0:75,  vf:0.810 },
+  { cat:'rg',        name:'RG-11/U Foam',                 dielectric:'Foam HDPE',    Z0:75,  vf:0.840 },
+  { cat:'rg',        name:'RG-174/U',                     dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-213/U',                     dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-316/U',                     dielectric:'PTFE',         Z0:50,  vf:0.690 },
+  { cat:'rg',        name:'RG-142/U',                     dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'rg',        name:'RG-400/U',                     dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  // LMR Series
+  { cat:'lmr',       name:'LMR-100A',                     dielectric:'Foam PE',      Z0:50,  vf:0.800 },
+  { cat:'lmr',       name:'LMR-195',                      dielectric:'Foam PE',      Z0:50,  vf:0.800 },
+  { cat:'lmr',       name:'LMR-200',                      dielectric:'Foam PE',      Z0:50,  vf:0.830 },
+  { cat:'lmr',       name:'LMR-240',                      dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'lmr',       name:'LMR-240UF',                    dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'lmr',       name:'LMR-400',                      dielectric:'Foam PE',      Z0:50,  vf:0.850 },
+  { cat:'lmr',       name:'LMR-400UF',                    dielectric:'Foam PE',      Z0:50,  vf:0.850 },
+  { cat:'lmr',       name:'LMR-600',                      dielectric:'Foam PE',      Z0:50,  vf:0.870 },
+  { cat:'lmr',       name:'LMR-900',                      dielectric:'Foam PE',      Z0:50,  vf:0.870 },
+  { cat:'lmr',       name:'LMR-1200',                     dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'lmr',       name:'LMR-1700',                     dielectric:'Foam PE',      Z0:50,  vf:0.890 },
+  // Semi-Rigid
+  { cat:'semirigid', name:'UT-085 / RG-405',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'UT-141 / RG-402',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695, ism:true },
+  { cat:'semirigid', name:'UT-250 / RG-401',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'UT-141-AL',                    dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'UT-047',                       dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'RG-405/U (SF)',                dielectric:'Foam PTFE',    Z0:50,  vf:0.780 },
+  // Hardline / Heliax
+  { cat:'hardline',  name:'LDF4-50A (½″ Heliax)',         dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'LDF5-50A (⅞″ Heliax)',         dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'LDF6-50A (1¼″ Heliax)',        dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'LDF7-50A (1⅝″ Heliax)',        dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'FSJ1-50A (¼″ SuperFlex)',      dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'hardline',  name:'FSJ4-50B (½″ SuperFlex)',      dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'HJ4-50 (½″ Heliax air)',       dielectric:'Air/Foam',     Z0:50,  vf:0.920 },
+  { cat:'hardline',  name:'HJ11-50 (1⅝″ air coax)',       dielectric:'Air disc',     Z0:50,  vf:0.920 },
+];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const C_LIGHT = 3e8;
+let freqHz    = 13.56e6;
+let vfValue   = 1.000;
+let activeVfRow = null;
+let currentCat  = 'all';
+let lang        = 'en';
+
+/* ═══════════════════════════════════════════════
+   LANGUAGE SWITCH
+═══════════════════════════════════════════════ */
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+
+  const T = I18N[l];
+  const set = (id, html) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  };
+
+  set('headerTitle',    T.headerTitle);
+  set('badgeInteractive', T.badgeInteractive);
+  set('card1Title',     T.card1Title);
+  set('card1Sub',       T.card1Sub);
+  set('labelFreq',      T.labelFreq);
+  set('labelQuick',     T.labelQuick);
+  set('canvasNote',     T.canvasNote);
+  set('statNameFreq',   T.statNameFreq);
+  set('statNamePeriod', T.statNamePeriod);
+  set('statNameWave',   T.statNameWave);
+  set('fmlPeriod',      T.fmlPeriod);
+  set('fmlWave',        T.fmlWave);
+  set('fmlAngular',     T.fmlAngular);
+  set('fmlLight',       T.fmlLight);
+  set('badgeVF',        T.badgeVF);
+  set('vfTitle',        T.vfTitle);
+  set('vfSub',          T.vfSub);
+  set('labelCustomVF',  T.labelCustomVF);
+  set('labelVfLambda',  T.labelVfLambda);
+  // Tabs
+  set('tab-all',        T.tabAll);
+  set('tab-vacuum',     T.tabVacuum);
+  set('tab-rg',         T.tabRg);
+  set('tab-lmr',        T.tabLmr);
+  set('tab-semirigid',  T.tabSemirigid);
+  set('tab-hardline',   T.tabHardline);
+  // Table headers
+  set('thCableModel',   T.thCableModel);
+  set('thDielectric',   T.thDielectric);
+  set('thVfBar',        T.thVfBar);
+  set('thLambda',       T.thLambda);
+  set('thNotes',        T.thNotes);
+  // Formula labels
+  set('fmlCableWave',   T.fmlCableWave);
+  set('fmlVfDef',       T.fmlVfDef);
+  set('fmlElecLen',     T.fmlElecLen);
+
+  // Re-render table with new language notes
+  renderTable(currentCat);
+  updateVfLambda();
+}
+
+/* ═══════════════════════════════════════════════
+   UNIT HELPERS
+═══════════════════════════════════════════════ */
+const unitMult = { Hz:1, kHz:1e3, MHz:1e6, GHz:1e9 };
+
+function fmtSI(f) {
+  if (f >= 1e9)  return { v: +(f/1e9).toPrecision(5),  u:'GHz' };
+  if (f >= 1e6)  return { v: +(f/1e6).toPrecision(5),  u:'MHz' };
+  if (f >= 1e3)  return { v: +(f/1e3).toPrecision(5),  u:'kHz' };
+  return               { v: +f.toPrecision(5),          u:'Hz'  };
+}
+function fmtPeriod(T) {
+  if (T >= 1)    return { v: +T.toPrecision(5),         u:'s'  };
+  if (T >= 1e-3) return { v: +(T*1e3).toPrecision(5),  u:'ms' };
+  if (T >= 1e-6) return { v: +(T*1e6).toPrecision(5),  u:'µs' };
+  if (T >= 1e-9) return { v: +(T*1e9).toPrecision(5),  u:'ns' };
+  return               { v: +(T*1e12).toPrecision(5),  u:'ps' };
+}
+function fmtLen(m) {
+  if (m >= 1e3)  return { v: +(m/1e3).toPrecision(4),  u:'km' };
+  if (m >= 1)    return { v: +m.toPrecision(4),         u:'m'  };
+  if (m >= 0.01) return { v: +(m*100).toPrecision(4),  u:'cm' };
+  if (m >= 1e-3) return { v: +(m*1e3).toPrecision(4),  u:'mm' };
+  return               { v: +(m*1e6).toPrecision(4),   u:'µm' };
+}
+function fmtLenStr(m) { const f = fmtLen(m); return `${f.v} ${f.u}`; }
+
+/* ═══════════════════════════════════════════════
+   SLIDER MAPPING — log scale 1 Hz to 10 GHz
+═══════════════════════════════════════════════ */
+const LOG_MIN = 0;
+const LOG_MAX = Math.log10(10e9);
+function sliderToHz(s) { return Math.pow(10, LOG_MIN + (s/1000)*(LOG_MAX-LOG_MIN)); }
+function hzToSlider(f) {
+  const t = (Math.log10(Math.max(f,1)) - LOG_MIN) / (LOG_MAX - LOG_MIN);
+  return Math.round(t * 1000);
+}
+
+/* ═══════════════════════════════════════════════
+   CANVAS
+═══════════════════════════════════════════════ */
+const canvas = document.getElementById('waveCanvas');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const dpr  = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width  = rect.width  * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  drawWave();
+}
+
+function drawWave() {
+  const W = canvas.getBoundingClientRect().width;
+  const H = canvas.getBoundingClientRect().height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFC';
+  ctx.fillRect(0,0,W,H);
+
+  const pL=44, pR=22, pT=28, pB=28;
+  const gW=W-pL-pR, gH=H-pT-pB, midY=pT+gH/2;
+  const CYCLES=3, cycPx=gW/CYCLES;
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  [0,.5,1].forEach(t=>{
+    const y=pT+t*gH;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+gW,y); ctx.stroke();
+  });
+
+  ctx.fillStyle='#94A3B8'; ctx.font='11px JetBrains Mono,monospace'; ctx.textAlign='right';
+  ctx.fillText('+1', pL-6, pT+4);
+  ctx.fillText('0',  pL-6, midY+4);
+  ctx.fillText('−1', pL-6, pT+gH+4);
+
+  ctx.strokeStyle='#CBD5E1'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,midY); ctx.lineTo(pL+gW,midY); ctx.stroke();
+
+  ctx.fillStyle='#94A3B8';
+  ctx.beginPath(); ctx.moveTo(pL+gW+2,midY); ctx.lineTo(pL+gW-6,midY-4); ctx.lineTo(pL+gW-6,midY+4); ctx.fill();
+  ctx.font='11px Google Sans,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('t →', pL+gW+4, midY+4);
+
+  ctx.strokeStyle='#0F8C50'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(pL,pT); ctx.lineTo(pL,pT+gH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pL+cycPx,pT); ctx.lineTo(pL+cycPx,pT+gH); ctx.stroke();
+  ctx.setLineDash([]);
+  const barY=pT-7;
+  ctx.beginPath(); ctx.moveTo(pL+2,barY); ctx.lineTo(pL+cycPx-2,barY); ctx.stroke();
+  ctx.fillStyle='#0F8C50'; ctx.font='bold 13px Google Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('T', pL+cycPx/2, barY-3);
+
+  ctx.strokeStyle='#7030A0'; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  for (let px=0; px<=gW; px++) {
+    const y = midY - (gH/2-8)*Math.sin((px/gW)*CYCLES*2*Math.PI);
+    px===0 ? ctx.moveTo(pL+px,y) : ctx.lineTo(pL+px,y);
+  }
+  ctx.stroke();
+}
+
+/* ═══════════════════════════════════════════════
+   UPDATE MAIN STATS
+═══════════════════════════════════════════════ */
+function updateStats() {
+  const T   = 1/freqHz;
+  const lam = C_LIGHT/freqHz;
+  const fF  = fmtSI(freqHz);
+  const fT  = fmtPeriod(T);
+  const fL  = fmtLen(lam);
+
+  document.getElementById('dispFreq').textContent      = fF.v;
+  document.getElementById('dispFreqUnit').textContent   = fF.u;
+  document.getElementById('dispPeriod').textContent    = fT.v;
+  document.getElementById('dispPeriodUnit').textContent = fT.u;
+  document.getElementById('dispWave').textContent      = fL.v;
+  document.getElementById('dispWaveUnit').textContent   = fL.u;
+
+  const mult = unitMult[document.getElementById('unitSel').value];
+  document.getElementById('freqInput').value  = +(freqHz/mult).toPrecision(6);
+  document.getElementById('freqSlider').value = hzToSlider(freqHz);
+
+  updateVfLambda();
+  renderTable(currentCat);
+  drawWave();
+}
+
+/* ═══════════════════════════════════════════════
+   VF SECTION
+═══════════════════════════════════════════════ */
+function updateVfLambda() {
+  const lam = (C_LIGHT / freqHz) * vfValue;
+  document.getElementById('vfLambda').textContent = fmtLenStr(lam);
+}
+
+document.getElementById('vfSlider').addEventListener('input', function() {
+  vfValue = parseFloat(this.value);
+  document.getElementById('vfInput').value = vfValue.toFixed(3);
+  activeVfRow = null;
+  updateVfLambda();
+  renderTable(currentCat);
+});
+document.getElementById('vfInput').addEventListener('change', function() {
+  let v = parseFloat(this.value);
+  if (isNaN(v)) return;
+  v = Math.max(0.5, Math.min(1.0, v));
+  vfValue = v;
+  this.value = v.toFixed(3);
+  document.getElementById('vfSlider').value = v;
+  activeVfRow = null;
+  updateVfLambda();
+  renderTable(currentCat);
+});
+
+/* ─── Table render ─── */
+function renderTable(cat) {
+  const tbody = document.getElementById('vfTbody');
+  tbody.innerHTML = '';
+  const notes = CABLE_NOTES[lang];
+  const rows  = CABLES.filter(c => cat === 'all' || c.cat === cat);
+
+  rows.forEach(c => {
+    const globalIdx = CABLES.indexOf(c);
+    const noteText  = notes[globalIdx] || '';
+    const lamCable  = (C_LIGHT / freqHz) * c.vf;
+    const lStr      = fmtLenStr(lamCable);
+    const pct       = ((c.vf - 0.60) / (1.00 - 0.60) * 100).toFixed(1);
+
+    const tr = document.createElement('tr');
+    if (globalIdx === activeVfRow) tr.classList.add('selected');
+    tr.style.cursor = 'pointer';
+
+    const refBadge = c.cat === 'vacuum'
+      ? '<span class="badge-ism" style="background:#E8F4FF;color:#1A6BBF;">REF</span>' : '';
+    const ismBadge = c.ism
+      ? '<span class="badge-ism">ISM</span>' : '';
+
+    tr.innerHTML = `
+      <td class="cable-name">${c.name}${ismBadge}${refBadge}</td>
+      <td class="dielectric">${c.dielectric}</td>
+      <td>${c.Z0}</td>
+      <td><span style="font-family:'JetBrains Mono',monospace;font-weight:600;">${c.vf.toFixed(3)}</span></td>
+      <td class="vf-bar-cell">
+        <div class="vf-bar-bg"><div class="vf-bar-fill" style="width:${pct}%"></div></div>
+      </td>
+      <td><span class="vf-lambda">${lStr}</span></td>
+      <td style="color:var(--muted);font-size:11.5px;">${noteText}</td>
+    `;
+
+    tr.addEventListener('click', () => {
+      activeVfRow = globalIdx;
+      vfValue = c.vf;
+      document.getElementById('vfSlider').value = c.vf;
+      document.getElementById('vfInput').value  = c.vf.toFixed(3);
+      updateVfLambda();
+      renderTable(currentCat);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* ─── Tab filter ─── */
+document.querySelectorAll('.vf-tab').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.vf-tab').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    currentCat = this.dataset.cat;
+    renderTable(currentCat);
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   QUICK SELECT
+═══════════════════════════════════════════════ */
+document.querySelectorAll('.qbtn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    freqHz = parseFloat(this.dataset.hz) * unitMult[this.dataset.u];
+    document.getElementById('unitSel').value = this.dataset.u;
+    document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    updateStats();
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   FREQUENCY CONTROLS
+═══════════════════════════════════════════════ */
+document.getElementById('freqSlider').addEventListener('input', function() {
+  freqHz = sliderToHz(+this.value);
+  document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+  updateStats();
+});
+document.getElementById('freqInput').addEventListener('change', function() {
+  const val  = parseFloat(this.value);
+  const unit = document.getElementById('unitSel').value;
+  if (!isNaN(val) && val > 0) {
+    freqHz = val * unitMult[unit];
+    document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+    updateStats();
+  }
+});
+document.getElementById('unitSel').addEventListener('change', function() {
+  document.getElementById('freqInput').value = +(freqHz / unitMult[this.value]).toPrecision(6);
+});
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('load', () => {
+  resizeCanvas();
+  freqHz  = 13.56e6;
+  vfValue = 1.000;
+  setLang('en');   // default English; also renders table + stats
+  updateStats();
+});
+</script>
+</body>
+</html>
