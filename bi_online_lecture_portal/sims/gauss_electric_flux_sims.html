@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gauss's Law Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png"
+  href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Google Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.logo-img{height:36px;display:block}
+.header-divider{width:1px;height:28px;background:var(--border);margin:0 4px}
+.header-title{font-size:14px;font-weight:500;color:var(--muted)}
+.lang-toggle{display:flex;align-items:center;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:2px;margin-left:8px}
+.lang-btn{font-family:'Google Sans',sans-serif;font-size:12px;font-weight:600;padding:3px 12px;border-radius:16px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .18s}
+.lang-btn.active{background:var(--purple);color:#fff}
+
+/* SECTION NAV */
+.section-nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 32px;display:flex;justify-content:center;gap:4px;flex-wrap:wrap}
+.snav-btn{font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500;padding:11px 18px;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .18s;white-space:nowrap}
+.snav-btn:hover{color:var(--purple)}
+.snav-btn.active{color:var(--purple);border-bottom-color:var(--purple);font-weight:600}
+
+/* MAIN */
+.main{max-width:920px;margin:28px auto 60px;padding:0 16px}
+.section-panel{display:none}
+.section-panel.active{display:block}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
+.card-head{padding:16px 24px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.card-head-text h2{font-size:15px;font-weight:600}
+.card-head-text p{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-lt);color:var(--green);font-size:11px;font-weight:600;letter-spacing:.08em;padding:3px 10px;border-radius:4px;flex-shrink:0;margin-top:2px}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* CONTROLS */
+.controls{padding:18px 24px 14px;border-bottom:1px solid var(--border)}
+.ctrl-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.ctrl-label{font-size:13px;font-weight:500;color:var(--muted);min-width:110px}
+.slider-track{flex:1;min-width:160px}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(to right,var(--green) 0%,var(--purple-mid) 55%,#DDD4F5 100%);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--green);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer;transition:transform .1s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--green);border:2px solid #fff;cursor:pointer}
+.num-input{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;padding:5px 10px;width:100px;text-align:right;outline:none;transition:border-color .2s}
+.num-input:focus{border-color:var(--green)}
+.unit-label{font-size:12px;color:var(--muted);font-weight:500;min-width:50px}
+
+/* QUICK BTNS */
+.quick-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:4px}
+.quick-label{font-size:11.5px;color:var(--label);font-weight:500}
+.qbtn{font-family:'Google Sans',sans-serif;font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s}
+.qbtn:hover{border-color:var(--purple-mid);color:var(--purple)}
+.qbtn.active{background:var(--purple-lt);border-color:var(--purple);color:var(--purple)}
+
+/* CANVAS */
+.canvas-wrap{padding:16px 24px}
+.canvas-wrap{position:relative}
+canvas{display:block;width:100% !important;height:230px !important;border:1px solid var(--border);border-radius:8px;background:#FAFBFC;}
+.canvas-note{font-size:11.5px;color:var(--muted);margin-top:7px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 24px 20px}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px 14px;text-align:center}
+.stat-name{font-size:11px;color:var(--label);font-weight:500;letter-spacing:.04em;margin-bottom:5px}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--purple);line-height:1}
+.stat-unit{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-left:3px}
+
+/* FORMULA PANEL */
+.formula-panel{border-top:1px solid var(--border);padding:14px 24px;background:var(--green-lt);display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center}
+.formula-item{}
+.formula-label{font-size:10.5px;font-weight:600;color:var(--green);letter-spacing:.08em;margin-bottom:2px}
+.formula-eq{font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:500;color:var(--green-dk)}
+
+/* RF CONTEXT BOX */
+.rf-box{margin:0 24px 20px;border:1.5px solid var(--purple);border-radius:8px;overflow:hidden}
+.rf-tabs-row{display:flex;border-bottom:1px solid var(--purple)}
+.rf-tab{font-family:'Google Sans',sans-serif;font-size:12px;font-weight:600;padding:7px 16px;border:none;background:transparent;color:var(--purple);cursor:pointer;transition:all .15s;opacity:.55}
+.rf-tab.active{background:var(--purple);color:#fff;opacity:1}
+.rf-panel{display:none;padding:13px 16px;font-size:12.5px;line-height:1.7;color:var(--text);background:var(--purple-lt)}
+.rf-panel.active{display:block}
+.rf-panel strong{color:var(--purple);font-weight:600}
+
+/* SYMMETRY TABS */
+.sym-tabs{display:flex;align-items:center;gap:6px;padding:10px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg)}
+.sym-tab{font-family:'Google Sans',sans-serif;font-size:12.5px;font-weight:600;padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s;line-height:1}
+.sym-tab:hover{border-color:var(--purple-mid);color:var(--purple)}
+.sym-tab.active{background:var(--purple);border-color:var(--purple);color:#fff}
+.sym-panel{display:none}
+.sym-panel.active{display:block}
+
+/* RESULT HIGHLIGHT */
+.result-highlight{margin:0 24px 16px;padding:12px 16px;background:var(--green-lt);border-left:4px solid var(--green);border-radius:0 6px 6px 0}
+.result-highlight .rh-label{font-size:11px;font-weight:600;color:var(--green);letter-spacing:.06em;margin-bottom:4px}
+.result-highlight .rh-value{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--green-dk)}
+.result-highlight .rh-unit{font-size:13px;color:var(--muted);margin-left:4px}
+
+/* COMPARISON TABLE */
+.comp-table-wrap{padding:0 24px 20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:#F1F5F9}
+th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:9px 10px;border-bottom:1px solid #F1F5F9;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F8F9FE}
+td.mono{font-family:'JetBrains Mono',monospace;color:var(--purple);font-weight:600}
+td.note{color:var(--muted);font-size:12px}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:1fr 1fr}
+  .header{padding:10px 12px;gap:10px}
+  .controls,.canvas-wrap,.stats,.sym-tabs{padding-left:12px;padding-right:12px}
+  .card-head{padding:12px 12px 10px}
+  .formula-panel{padding:12px}
+  .rf-box{margin:0 12px 16px}
+  .result-highlight{margin:0 12px 14px}
+  .comp-table-wrap{padding:0 12px 16px}
+  .snav-btn{font-size:12px;padding:9px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback" style="display:none;align-items:center;gap:8px">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/></svg>
+    <div style="line-height:1.15">
+      <span style="color:#7030A0;font-size:18px;font-weight:700">bene</span><span style="color:#7030A0;font-size:18px;font-weight:400">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="hdrTitle">Gauss's Law &amp; Electric Flux Simulator</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<!-- SECTION NAV -->
+<nav class="section-nav">
+  <button class="snav-btn active" id="snavFlux" onclick="showSection('flux')">① Electric Flux</button>
+  <button class="snav-btn" id="snavGauss" onclick="showSection('gauss')">② Gauss's Law</button>
+  <button class="snav-btn" id="snavSym" onclick="showSection('sym')">③ Symmetry &amp; E-field</button>
+  <button class="snav-btn" id="snavComp" onclick="showSection('comp')">④ Comparison</button>
+</nav>
+
+<main class="main">
+
+<!-- ============================================================ -->
+<!-- SECTION 1: ELECTRIC FLUX -->
+<!-- ============================================================ -->
+<div class="section-panel active" id="sec-flux">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="b1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="s1title">Electric Flux — Φ = E · A · cosθ</h2>
+        <p id="s1sub">Adjust E-field strength, surface area, and angle to see how flux changes</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <!-- E field -->
+      <div class="ctrl-row">
+        <span class="ctrl-label" id="lbl_E">E-field (E)</span>
+        <div class="slider-track"><input type="range" id="slE" min="1" max="1000" value="100" oninput="fluxCalc()"></div>
+        <input type="text" class="num-input" id="inE" value="100" oninput="fluxFromInput('E')">
+        <span class="unit-label">V/m</span>
+      </div>
+      <!-- Area -->
+      <div class="ctrl-row">
+        <span class="ctrl-label" id="lbl_A">Area (A)</span>
+        <div class="slider-track"><input type="range" id="slA" min="0.01" max="10" step="0.01" value="1" oninput="fluxCalc()"></div>
+        <input type="text" class="num-input" id="inA" value="1.00" oninput="fluxFromInput('A')">
+        <span class="unit-label">m²</span>
+      </div>
+      <!-- Angle -->
+      <div class="ctrl-row">
+        <span class="ctrl-label" id="lbl_T">Angle (θ)</span>
+        <div class="slider-track"><input type="range" id="slT" min="0" max="180" value="0" oninput="fluxCalc()"></div>
+        <input type="text" class="num-input" id="inT" value="0" oninput="fluxFromInput('T')">
+        <span class="unit-label">°</span>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="lbl_quick1">Quick θ:</span>
+        <button class="qbtn" onclick="setTheta(0)">0° (max)</button>
+        <button class="qbtn" onclick="setTheta(30)">30°</button>
+        <button class="qbtn" onclick="setTheta(60)">60°</button>
+        <button class="qbtn" onclick="setTheta(90)">90° (zero)</button>
+        <button class="qbtn" onclick="setTheta(180)">180° (neg)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="fluxCanvas"></canvas>
+      <p class="canvas-note" id="fluxNote">Blue arrows = E-field lines | Orange surface = area A | θ = angle between E and area normal</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="sn_cosT">cos θ</div><div><span class="stat-value" id="disp_cosT">1.000</span></div></div>
+      <div class="stat"><div class="stat-name" id="sn_flux">FLUX (Φ)</div><div><span class="stat-value" id="disp_flux">100.0</span><span class="stat-unit">Nm²/C</span></div></div>
+      <div class="stat"><div class="stat-name" id="sn_pct">% OF MAX</div><div><span class="stat-value" id="disp_pct">100</span><span class="stat-unit">%</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div class="formula-item"><div class="formula-label">ELECTRIC FLUX</div><div class="formula-eq">Φ = E · A · cos θ</div></div>
+      <div class="formula-item"><div class="formula-label">DOT PRODUCT</div><div class="formula-eq">Φ = <b><i>E</i></b> · <b><i>A</i></b></div></div>
+      <div class="formula-item"><div class="formula-label">UNIT</div><div class="formula-eq">Nm²/C = V·m</div></div>
+    </div>
+  </div>
+
+  <!-- RF Context -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple)"><span class="badge-dot" style="background:var(--purple)"></span><span id="b1rf">RF CONTEXT</span></span>
+      <div class="card-head-text">
+        <h2 id="s1rf_title">Electric Flux in Plasma &amp; RF Systems</h2>
+        <p id="s1rf_sub">General physics vs. semiconductor/RF application perspective</p>
+      </div>
+    </div>
+    <div style="padding:0 24px 16px;margin-top:14px">
+      <div class="rf-box">
+        <div class="rf-tabs-row">
+          <button class="rf-tab active" onclick="rfTab(this,'rfFluxGen')" id="rfFluxGenBtn">General</button>
+          <button class="rf-tab" onclick="rfTab(this,'rfFluxRF')" id="rfFluxRFBtn">Plasma / RF</button>
+        </div>
+        <div class="rf-panel active" id="rfFluxGen">
+          Electric flux (Φ) measures how many electric field lines pass through a surface.
+          The angle θ between the E-field direction and the surface normal determines how much field "penetrates" the surface.
+          When θ = 0° the surface is <strong>perpendicular to E</strong> → maximum flux. When θ = 90° the surface is <strong>parallel to E</strong> → zero flux.
+          The unit Nm²/C is equivalent to V·m, emphasizing its role as a "field × area" quantity.
+        </div>
+        <div class="rf-panel" id="rfFluxRF">
+          In a <strong>CCP (Capacitively Coupled Plasma)</strong> chamber, the sheath electric field is nearly perpendicular to the electrode surface (θ ≈ 0°), maximizing ion acceleration flux toward the wafer — this is precisely why CCP etching produces directional (anisotropic) etch profiles.
+          In <strong>ICP (Inductively Coupled Plasma)</strong> chambers, the RF coil generates a time-varying magnetic flux (Faraday's law), but the resulting E-field lines run <strong>parallel</strong> to the substrate → near-zero electric flux through the wafer → much lower ion bombardment energy, suitable for gentle deposition (e.g. ALD).
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /sec-flux -->
+
+<!-- ============================================================ -->
+<!-- SECTION 2: GAUSS'S LAW -->
+<!-- ============================================================ -->
+<div class="section-panel" id="sec-gauss">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="b2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="s2title">Gauss's Law Calculator — Φ = Q<sub>enc</sub> / ε₀</h2>
+        <p id="s2sub">Total electric flux through ANY closed surface depends only on the enclosed charge</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-row">
+        <span class="ctrl-label" id="lbl_Q">Charge (Q)</span>
+        <div class="slider-track"><input type="range" id="slQ" min="-100" max="100" value="20" oninput="gaussCalc()"></div>
+        <input type="text" class="num-input" id="inQ" value="20" oninput="gaussFromInput()">
+        <span class="unit-label">nC</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label" id="lbl_R">Radius (R)</span>
+        <div class="slider-track"><input type="range" id="slR" min="0.1" max="5" step="0.01" value="1" oninput="gaussCalc()"></div>
+        <input type="text" class="num-input" id="inR" value="1.00" oninput="gaussFromInputR()">
+        <span class="unit-label">m</span>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="lbl_quick2">Quick Q:</span>
+        <button class="qbtn" onclick="setQ(1)">+1 nC</button>
+        <button class="qbtn" onclick="setQ(10)">+10 nC</button>
+        <button class="qbtn" onclick="setQ(100)">+100 nC</button>
+        <button class="qbtn" onclick="setQ(-10)">−10 nC</button>
+        <button class="qbtn" onclick="setQ(0)">0 (neutral)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="gaussCanvas"></canvas>
+      <p class="canvas-note" id="gaussNote">Closed Gaussian surface (sphere). Flux lines radiate outward (+Q) or inward (−Q). Radius R does NOT affect total flux.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="sn_Qenc">Q<sub>enc</sub></div><div><span class="stat-value" id="disp_Qenc">20.0</span><span class="stat-unit">nC</span></div></div>
+      <div class="stat"><div class="stat-name" id="sn_gaussFlux">TOTAL FLUX (Φ)</div><div><span class="stat-value" id="disp_gaussFlux">2.26</span><span class="stat-unit" id="gaussFluxUnit">kNm²/C</span></div></div>
+      <div class="stat"><div class="stat-name" id="sn_Efield">E at Surface</div><div><span class="stat-value" id="disp_Efield">179.8</span><span class="stat-unit" id="gaussEUnit">V/m</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div class="formula-item"><div class="formula-label">GAUSS'S LAW</div><div class="formula-eq">Φ = Q<sub>enc</sub> / ε₀</div></div>
+      <div class="formula-item"><div class="formula-label">ε₀</div><div class="formula-eq">8.854 × 10⁻¹² F/m</div></div>
+      <div class="formula-item"><div class="formula-label">E at radius R</div><div class="formula-eq">E = Q / (4πε₀R²)</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple)"><span class="badge-dot" style="background:var(--purple)"></span>RF CONTEXT</span>
+      <div class="card-head-text">
+        <h2 id="s2rf_title">Gauss's Law in Plasma Chambers</h2>
+        <p id="s2rf_sub">Why enclosed charge is the key concept in sheath physics</p>
+      </div>
+    </div>
+    <div style="padding:0 24px 16px;margin-top:14px">
+      <div class="rf-box">
+        <div class="rf-tabs-row">
+          <button class="rf-tab active" onclick="rfTab(this,'rfGaussGen')">General</button>
+          <button class="rf-tab" onclick="rfTab(this,'rfGaussRF')">Plasma / RF</button>
+        </div>
+        <div class="rf-panel active" id="rfGaussGen">
+          Gauss's law states that the total electric flux through any closed surface equals the total enclosed charge divided by ε₀.
+          The shape or size of the Gaussian surface is irrelevant — only the <strong>enclosed charge Q<sub>enc</sub></strong> matters.
+          A neutral object (Q<sub>enc</sub> = 0) produces zero net flux regardless of the external field, which explains electric shielding.
+        </div>
+        <div class="rf-panel" id="rfGaussRF">
+          In a plasma chamber, the <strong>plasma sheath</strong> is a region of net positive charge (ion-rich space-charge layer) adjacent to each electrode.
+          By Gauss's law, this uncompensated positive charge creates a strong inward-pointing E-field inside the sheath — the <strong>sheath electric field</strong> — which accelerates ions toward the electrode (wafer).
+          The total sheath voltage (V<sub>sheath</sub>) scales with the enclosed space-charge density.
+          In RF systems, the RF Generator delivers power that sustains this charge imbalance cycle-by-cycle, directly controlling ion bombardment energy on the wafer.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /sec-gauss -->
+
+<!-- ============================================================ -->
+<!-- SECTION 3: SYMMETRY & E-FIELD -->
+<!-- ============================================================ -->
+<div class="section-panel" id="sec-sym">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span>INTERACTIVE</span>
+      <div class="card-head-text">
+        <h2 id="s3title">E-field by Symmetry Type</h2>
+        <p id="s3sub">Spherical / Cylindrical / Planar — apply Gauss's law to derive E-field</p>
+      </div>
+    </div>
+
+    <div class="sym-tabs">
+      <button class="sym-tab active" id="stab1" onclick="showSym('sphere')">Spherical</button>
+      <button class="sym-tab" id="stab2" onclick="showSym('cylinder')">Cylindrical</button>
+      <button class="sym-tab" id="stab3" onclick="showSym('plane')">Planar</button>
+      <button class="sym-tab" id="stab4" onclick="showSym('twoplate')">Two Plates</button>
+    </div>
+
+    <!-- SPHERICAL -->
+    <div class="sym-panel active" id="sym-sphere">
+      <div class="controls" style="border-top:1px solid var(--border)">
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="sph_lbl_Q">Charge (Q)</span>
+          <div class="slider-track"><input type="range" id="slSphQ" min="1" max="200" value="50" oninput="symCalc('sphere')"></div>
+          <input type="text" class="num-input" id="inSphQ" value="50" oninput="symCalcInput('sphere')">
+          <span class="unit-label">nC</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="sph_lbl_r">Radius (r)</span>
+          <div class="slider-track"><input type="range" id="slSphR" min="0.1" max="10" step="0.05" value="2" oninput="symCalc('sphere')"></div>
+          <input type="text" class="num-input" id="inSphR" value="2.00" oninput="symCalcInput('sphere')">
+          <span class="unit-label">m</span>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="symSphCanvas"></canvas>
+        <p class="canvas-note" id="sph_note">E-field vs. distance r from point charge. Click on graph to read E at that radius.</p>
+      </div>
+      <div class="result-highlight">
+        <div class="rh-label" id="sph_rlbl">ELECTRIC FIELD AT r</div>
+        <span class="rh-value" id="sph_Eval">112.3</span><span class="rh-unit" id="sph_Eunit">V/m</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-name">Q (nC)</div><div><span class="stat-value" id="sph_dispQ">50.0</span></div></div>
+        <div class="stat"><div class="stat-name">r (m)</div><div><span class="stat-value" id="sph_dispR">2.00</span></div></div>
+        <div class="stat"><div class="stat-name">E (V/m)</div><div><span class="stat-value" id="sph_dispE">112.3</span></div></div>
+      </div>
+      <div class="formula-panel">
+        <div class="formula-item"><div class="formula-label">SPHERICAL</div><div class="formula-eq">E = Q / (4πε₀r²)</div></div>
+        <div class="formula-item"><div class="formula-label">GAUSSIAN SURFACE</div><div class="formula-eq">A = 4πr²</div></div>
+        <div class="formula-item"><div class="formula-label">DROPS AS</div><div class="formula-eq">E ∝ 1/r²</div></div>
+      </div>
+    </div>
+
+    <!-- CYLINDRICAL -->
+    <div class="sym-panel" id="sym-cylinder">
+      <div class="controls" style="border-top:1px solid var(--border)">
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="cyl_lbl_lam">λ (C/m)</span>
+          <div class="slider-track"><input type="range" id="slCylL" min="1" max="200" value="50" oninput="symCalc('cylinder')"></div>
+          <input type="text" class="num-input" id="inCylL" value="50" oninput="symCalcInput('cylinder')">
+          <span class="unit-label">nC/m</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="cyl_lbl_r">Radius (r)</span>
+          <div class="slider-track"><input type="range" id="slCylR" min="0.1" max="10" step="0.05" value="2" oninput="symCalc('cylinder')"></div>
+          <input type="text" class="num-input" id="inCylR" value="2.00" oninput="symCalcInput('cylinder')">
+          <span class="unit-label">m</span>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="symCylCanvas"></canvas>
+        <p class="canvas-note" id="cyl_note">E-field vs. distance r from an infinite line charge. E drops as 1/r.</p>
+      </div>
+      <div class="result-highlight">
+        <div class="rh-label" id="cyl_rlbl">E-FIELD AT r (from line charge)</div>
+        <span class="rh-value" id="cyl_Eval">449.4</span><span class="rh-unit" id="cyl_Eunit">V/m</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-name">λ (nC/m)</div><div><span class="stat-value" id="cyl_dispL">50.0</span></div></div>
+        <div class="stat"><div class="stat-name">r (m)</div><div><span class="stat-value" id="cyl_dispR">2.00</span></div></div>
+        <div class="stat"><div class="stat-name">E (V/m)</div><div><span class="stat-value" id="cyl_dispE">449.4</span></div></div>
+      </div>
+      <div class="formula-panel">
+        <div class="formula-item"><div class="formula-label">CYLINDRICAL</div><div class="formula-eq">E = λ / (2πε₀r)</div></div>
+        <div class="formula-item"><div class="formula-label">GAUSSIAN SURFACE</div><div class="formula-eq">A = 2πrL</div></div>
+        <div class="formula-item"><div class="formula-label">DROPS AS</div><div class="formula-eq">E ∝ 1/r</div></div>
+      </div>
+    </div>
+
+    <!-- PLANAR -->
+    <div class="sym-panel" id="sym-plane">
+      <div class="controls" style="border-top:1px solid var(--border)">
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="pln_lbl_sig">σ (C/m²)</span>
+          <div class="slider-track"><input type="range" id="slPlnS" min="1" max="200" value="50" oninput="symCalc('plane')"></div>
+          <input type="text" class="num-input" id="inPlnS" value="50" oninput="symCalcInput('plane')">
+          <span class="unit-label">nC/m²</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="pln_lbl_r">Distance (r)</span>
+          <div class="slider-track"><input type="range" id="slPlnR" min="0.1" max="5" step="0.1" value="1.0" oninput="symCalc('plane')"></div>
+          <input type="text" class="num-input" id="inPlnR" value="1.0" oninput="symCalcInput('plane')">
+          <span class="unit-label">m</span>
+        </div>
+        <div class="ctrl-row" style="margin-bottom:4px">
+          <span class="ctrl-label" style="font-size:11px;color:#7030A0;font-weight:600">⚡ KEY INSIGHT</span>
+          <span id="pln_insight" style="font-size:11.5px;color:#7030A0;font-weight:500">E does NOT change with distance — try moving r!</span>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="symPlnCanvas"></canvas>
+        <p class="canvas-note" id="pln_note">Infinite plane of surface charge density σ. E is constant — does NOT depend on distance.</p>
+      </div>
+      <div class="result-highlight">
+        <div class="rh-label" id="pln_rlbl">E-FIELD (uniform, both sides)</div>
+        <span class="rh-value" id="pln_Eval">2825</span><span class="rh-unit" id="pln_Eunit">V/m</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-name">σ (nC/m²)</div><div><span class="stat-value" id="pln_dispS">50.0</span></div></div>
+        <div class="stat"><div class="stat-name" id="pln_stat2">DISTANCE (r)</div><div><span class="stat-value" id="pln_dispR">1.0</span><span class="stat-unit">m</span></div></div>
+        <div class="stat"><div class="stat-name">E (V/m)</div><div><span class="stat-value" id="pln_dispE">2825</span></div></div>
+      </div>
+      <div class="formula-panel">
+        <div class="formula-item"><div class="formula-label">PLANAR</div><div class="formula-eq">E = σ / (2ε₀)</div></div>
+        <div class="formula-item"><div class="formula-label">GAUSSIAN SURFACE</div><div class="formula-eq">Pillbox (2A)</div></div>
+        <div class="formula-item"><div class="formula-label">CONSTANT</div><div class="formula-eq">E ∝ σ (no r dep.)</div></div>
+      </div>
+    </div>
+
+    <!-- TWO PLATES -->
+    <div class="sym-panel" id="sym-twoplate">
+      <div class="controls" style="border-top:1px solid var(--border)">
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="tp_lbl_sig">σ (C/m²)</span>
+          <div class="slider-track"><input type="range" id="slTpS" min="1" max="200" value="50" oninput="symCalc('twoplate')"></div>
+          <input type="text" class="num-input" id="inTpS" value="50" oninput="symCalcInput('twoplate')">
+          <span class="unit-label">nC/m²</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label" id="tp_lbl_d">Gap (d)</span>
+          <div class="slider-track"><input type="range" id="slTpD" min="0.001" max="0.05" step="0.001" value="0.01" oninput="symCalc('twoplate')"></div>
+          <input type="text" class="num-input" id="inTpD" value="10.0" oninput="symCalcInput('twoplate')">
+          <span class="unit-label">mm</span>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="symTpCanvas"></canvas>
+        <p class="canvas-note" id="tp_note">Parallel plate capacitor: E = σ/ε₀ between plates, ~0 outside. Voltage = E × d.</p>
+      </div>
+      <div class="result-highlight">
+        <div class="rh-label" id="tp_rlbl">VOLTAGE ACROSS GAP (V = E·d)</div>
+        <span class="rh-value" id="tp_Vval">56.5</span><span class="rh-unit" id="tp_Vunit">V</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-name">E between (V/m)</div><div><span class="stat-value" id="tp_dispE">5650</span></div></div>
+        <div class="stat"><div class="stat-name">E outside</div><div><span class="stat-value">≈ 0</span></div></div>
+        <div class="stat"><div class="stat-name">V = E·d</div><div><span class="stat-value" id="tp_dispV">56.5</span><span class="stat-unit">V</span></div></div>
+      </div>
+      <div class="formula-panel">
+        <div class="formula-item"><div class="formula-label">BETWEEN PLATES</div><div class="formula-eq">E = σ / ε₀</div></div>
+        <div class="formula-item"><div class="formula-label">OUTSIDE</div><div class="formula-eq">E ≈ 0 (cancel)</div></div>
+        <div class="formula-item"><div class="formula-label">VOLTAGE</div><div class="formula-eq">V = σ·d / ε₀</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RF Context for Symmetry -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple)"><span class="badge-dot" style="background:var(--purple)"></span>RF CONTEXT</span>
+      <div class="card-head-text">
+        <h2 id="s3rf_title">Symmetry Choice in Real RF Equipment</h2>
+        <p id="s3rf_sub">Which geometry governs your plasma reactor?</p>
+      </div>
+    </div>
+    <div style="padding:0 24px 16px;margin-top:14px">
+      <div class="rf-box">
+        <div class="rf-tabs-row">
+          <button class="rf-tab active" onclick="rfTab(this,'rfSymGen')">General</button>
+          <button class="rf-tab" onclick="rfTab(this,'rfSymRF')">Plasma / RF</button>
+        </div>
+        <div class="rf-panel active" id="rfSymGen">
+          The choice of Gaussian surface reflects the physical symmetry of the charge distribution.
+          <strong>Spherical</strong>: point charges, isolated conductors → E ∝ 1/r².
+          <strong>Cylindrical</strong>: long wire, coaxial cable → E ∝ 1/r.
+          <strong>Planar</strong>: large flat conductor → E = constant.
+          Each geometry is selected so that E is constant and parallel to dA on the Gaussian surface, making the surface integral trivial.
+        </div>
+        <div class="rf-panel" id="rfSymRF">
+          <strong>CCP (Parallel Plate)</strong>: The electrode geometry is inherently planar → E = σ/ε₀ inside the sheath.
+          The <strong>DC self-bias voltage (V<sub>DC</sub>)</strong> on the RF-driven electrode is governed by this planar E-field integrated across the sheath thickness.
+          <br><br>
+          <strong>ICP (Toroidal)</strong>: The RF coil has cylindrical/toroidal geometry → the induced E-field follows cylindrical symmetry inside the plasma (E ∝ 1/r from the coil axis).
+          <br><br>
+          <strong>RF Generator & Coaxial Cable</strong>: The 50Ω transmission line between generator and chamber is a perfect cylindrical geometry — inner conductor and outer shield separated by dielectric → E ∝ 1/r, which is why coaxial cables have logarithmic capacitance per unit length: C/L = 2πε/ln(b/a).
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /sec-sym -->
+
+<!-- ============================================================ -->
+<!-- SECTION 4: COMPARISON TABLE -->
+<!-- ============================================================ -->
+<div class="section-panel" id="sec-comp">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple)"><span class="badge-dot" style="background:var(--purple)"></span>REFERENCE</span>
+      <div class="card-head-text">
+        <h2 id="s4title">Gauss's Law — Symmetry Summary Table</h2>
+        <p id="s4sub">All three geometries at a glance: Gaussian surface, E-field formula, and real-world examples</p>
+      </div>
+    </div>
+    <div class="comp-table-wrap" style="margin-top:16px">
+      <table>
+        <thead>
+          <tr>
+            <th id="th1">Geometry</th>
+            <th id="th2">Charge Source</th>
+            <th id="th3">Gaussian Surface</th>
+            <th id="th4">E-field Formula</th>
+            <th id="th5">Distance Dep.</th>
+            <th id="th6">RF / Plasma Example</th>
+          </tr>
+        </thead>
+        <tbody id="compTbody"></tbody>
+      </table>
+    </div>
+    <div class="formula-panel">
+      <div class="formula-item"><div class="formula-label">ALL CASES</div><div class="formula-eq">Φ = Q<sub>enc</sub> / ε₀</div></div>
+      <div class="formula-item"><div class="formula-label">KEY INSIGHT</div><div class="formula-eq">Shape ≠ Flux, Q<sub>enc</sub> = Flux</div></div>
+    </div>
+  </div>
+
+  <!-- Visual E-field comparison chart -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span>INTERACTIVE</span>
+      <div class="card-head-text">
+        <h2 id="s4c_title">E-field vs. Distance — All Symmetries</h2>
+        <p id="s4c_sub">Compare 1/r², 1/r, and constant E-field on a single graph</p>
+      </div>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="compCanvas"></canvas>
+      <p class="canvas-note" id="compNote">Purple = Spherical (1/r²) | Green = Cylindrical (1/r) | Orange = Planar (constant) — normalized at r = 1m</p>
+    </div>
+  </div>
+
+</div><!-- /sec-comp -->
+
+</main>
+
+<script>
+// ============================================================
+// CONSTANTS & GLOBALS
+// ============================================================
+const eps0 = 8.854187817e-12;
+const k    = 1/(4*Math.PI*eps0);
+let lang   = 'en';
+
+// ============================================================
+// I18N
+// ============================================================
+const I18N = {
+  en: {
+    hdrTitle:'Gauss\'s Law & Electric Flux Simulator',
+    snavFlux:'① Electric Flux',snavGauss:'② Gauss\'s Law',snavSym:'③ Symmetry & E-field',snavComp:'④ Comparison',
+    b1:'INTERACTIVE',b1rf:'RF CONTEXT',b2:'INTERACTIVE',
+    s1title:'Electric Flux — Φ = E · A · cosθ',s1sub:'Adjust E-field strength, surface area, and angle to see how flux changes',
+    s1rf_title:'Electric Flux in Plasma & RF Systems',s1rf_sub:'General physics vs. semiconductor/RF application perspective',
+    s2title:'Gauss\'s Law Calculator — Φ = Q<sub>enc</sub> / ε₀',s2sub:'Total electric flux through ANY closed surface depends only on the enclosed charge',
+    s2rf_title:'Gauss\'s Law in Plasma Chambers',s2rf_sub:'Why enclosed charge is the key concept in sheath physics',
+    s3title:'E-field by Symmetry Type',s3sub:'Spherical / Cylindrical / Planar — apply Gauss\'s law to derive E-field',
+    s3rf_title:'Symmetry Choice in Real RF Equipment',s3rf_sub:'Which geometry governs your plasma reactor?',
+    s4title:'Gauss\'s Law — Symmetry Summary Table',s4sub:'All three geometries at a glance: Gaussian surface, E-field formula, and real-world examples',
+    s4c_title:'E-field vs. Distance — All Symmetries',s4c_sub:'Compare 1/r², 1/r, and constant E-field on a single graph',
+    lbl_E:'E-field (E)',lbl_A:'Area (A)',lbl_T:'Angle (θ)',lbl_quick1:'Quick θ:',lbl_quick2:'Quick Q:',lbl_Q:'Charge (Q)',lbl_R:'Radius (R)',
+    sn_cosT:'cos θ',sn_flux:'FLUX (Φ)',sn_pct:'% OF MAX',sn_Qenc:'Q<sub>enc</sub>',sn_gaussFlux:'TOTAL FLUX (Φ)',sn_Efield:'E at Surface',
+    fluxNote:'Blue arrows = E-field lines | Orange surface = area A | θ = angle between E and area normal',
+    gaussNote:'Closed Gaussian surface (sphere). Flux lines radiate outward (+Q) or inward (−Q). Radius R does NOT affect total flux.',
+    rfFluxGenBtn:'General',rfFluxRFBtn:'Plasma / RF',
+    stab1:'Spherical',stab2:'Cylindrical',stab3:'Planar',stab4:'Two Plates',
+    sph_lbl_Q:'Charge (Q)',sph_lbl_r:'Radius (r)',sph_note:'E-field vs. distance r from point charge. Click on graph to read E at that radius.',sph_rlbl:'ELECTRIC FIELD AT r',
+    cyl_lbl_lam:'λ (C/m)',cyl_lbl_r:'Radius (r)',cyl_note:'E-field vs. distance r from an infinite line charge. E drops as 1/r.',cyl_rlbl:'E-FIELD AT r (from line charge)',
+    pln_lbl_sig:'σ (C/m²)',pln_lbl_r:'Distance (r)',pln_insight:'E does NOT change with distance — try moving r!',pln_note:'Infinite plane of surface charge density σ. E is constant — does NOT depend on distance.',pln_rlbl:'E-FIELD (uniform, both sides)',pln_stat2:'DISTANCE',
+    tp_lbl_sig:'σ (C/m²)',tp_lbl_d:'Gap (d)',tp_note:'Parallel plate capacitor: E = σ/ε₀ between plates, ~0 outside. Voltage = E × d.',tp_rlbl:'VOLTAGE ACROSS GAP (V = E·d)',
+    compNote:'Purple = Spherical (1/r²) | Green = Cylindrical (1/r) | Orange = Planar (constant) — normalized at r = 1m',
+    th1:'Geometry',th2:'Charge Source',th3:'Gaussian Surface',th4:'E-field Formula',th5:'Distance Dep.',th6:'RF / Plasma Example',
+    // RF context panel contents (English)
+    rfFluxGen:`Electric flux (Φ) measures how many electric field lines pass through a surface.
+      The angle θ between the E-field direction and the surface normal determines how much field "penetrates" the surface.
+      When θ = 0° the surface is <strong>perpendicular to E</strong> → maximum flux. When θ = 90° the surface is <strong>parallel to E</strong> → zero flux.
+      The unit Nm²/C is equivalent to V·m, emphasizing its role as a "field × area" quantity.`,
+    rfFluxRF:`In a <strong>CCP (Capacitively Coupled Plasma)</strong> chamber, the sheath electric field is nearly perpendicular to the electrode surface (θ ≈ 0°), maximizing ion acceleration flux toward the wafer — this is precisely why CCP etching produces directional (anisotropic) etch profiles.
+      In <strong>ICP (Inductively Coupled Plasma)</strong> chambers, the RF coil generates a time-varying magnetic flux (Faraday's law), but the resulting E-field lines run <strong>parallel</strong> to the substrate → near-zero electric flux through the wafer → much lower ion bombardment energy, suitable for gentle deposition (e.g. ALD).`,
+    rfGaussGen:`Gauss's law states that the total electric flux through any closed surface equals the total enclosed charge divided by ε₀.
+      The shape or size of the Gaussian surface is irrelevant — only the <strong>enclosed charge Q<sub>enc</sub></strong> matters.
+      A neutral object (Q<sub>enc</sub> = 0) produces zero net flux regardless of the external field, which explains electric shielding.`,
+    rfGaussRF:`In a plasma chamber, the <strong>plasma sheath</strong> is a region of net positive charge (ion-rich space-charge layer) adjacent to each electrode.
+      By Gauss's law, this uncompensated positive charge creates a strong inward-pointing E-field inside the sheath — the <strong>sheath electric field</strong> — which accelerates ions toward the electrode (wafer).
+      The total sheath voltage (V<sub>sheath</sub>) scales with the enclosed space-charge density.
+      In RF systems, the RF Generator delivers power that sustains this charge imbalance cycle-by-cycle, directly controlling ion bombardment energy on the wafer.`,
+    rfSymGen:`The choice of Gaussian surface reflects the physical symmetry of the charge distribution.
+      <strong>Spherical</strong>: point charges, isolated conductors → E ∝ 1/r².
+      <strong>Cylindrical</strong>: long wire, coaxial cable → E ∝ 1/r.
+      <strong>Planar</strong>: large flat conductor → E = constant (no r dependence).<br><br>
+      Each geometry is selected so that E is constant and parallel to dA on the Gaussian surface, making the surface integral trivial.<br><br>
+      <strong style="color:#FF8C00">⚠ Planar idealization:</strong>
+      E = σ/(2ε₀) holds strictly only for an <em>infinite</em> plate.
+      For a finite plate of size L, the approximation breaks down with distance:
+      <ul style="margin:6px 0 0 16px;line-height:1.9">
+        <li><strong>r ≪ L</strong> → E ≈ constant &nbsp;(infinite-plate model valid)</li>
+        <li><strong>r ≫ L</strong> → E ∝ 1/r² &nbsp;(plate looks like a point charge)</li>
+      </ul>`,
+    rfSymRF:`<strong>CCP (Parallel Plate)</strong>: The electrode geometry is inherently planar → E = σ/ε₀ inside the sheath.
+      The <strong>DC self-bias voltage (V<sub>DC</sub>)</strong> on the RF-driven electrode is governed by this planar E-field integrated across the sheath thickness.<br><br>
+      <strong style="color:#FF8C00">Why does the infinite-plate model work for CCP?</strong><br>
+      The key condition is <strong>r ≪ L</strong> (distance ≪ electrode size).
+      In a typical CCP chamber:
+      <ul style="margin:6px 0 0 16px;line-height:1.9">
+        <li>Sheath thickness (r): <strong>~1–10 mm</strong></li>
+        <li>Electrode diameter (L): <strong>~300–450 mm</strong></li>
+        <li>Ratio r/L: <strong>~0.002–0.03</strong> → r ≪ L ✓</li>
+      </ul>
+      This ratio is so small that the infinite-plate approximation E = σ/ε₀ is
+      essentially exact inside the sheath — the plate "looks infinite" to any ion
+      that is only a few mm away from it.<br><br>
+      If the sheath were as thick as the electrode diameter (r ~ L), the E-field
+      would already be transitioning toward 1/r² behavior and the planar model
+      would fail.<br><br>
+      <strong>ICP (Toroidal)</strong>: The RF coil has cylindrical/toroidal geometry → the induced E-field follows cylindrical symmetry inside the plasma (E ∝ 1/r from the coil axis).<br><br>
+      <strong>RF Generator & Coaxial Cable</strong>: The 50Ω transmission line is a perfect cylindrical geometry — E ∝ 1/r, which is why coaxial cables have logarithmic capacitance per unit length: C/L = 2πε/ln(b/a).`,
+  },
+  ko: {
+    hdrTitle:'가우스 법칙 & 전기 선속 시뮬레이터',
+    snavFlux:'① 전기 선속',snavGauss:'② 가우스 법칙',snavSym:'③ 대칭성 & E-field',snavComp:'④ 비교표',
+    b1:'인터랙티브',b1rf:'RF 맥락',b2:'인터랙티브',
+    s1title:'전기 선속 — Φ = E · A · cosθ',s1sub:'전기장 세기, 면적, 각도를 조절하여 선속 변화를 확인하세요',
+    s1rf_title:'플라즈마 & RF 시스템에서의 전기 선속',s1rf_sub:'일반 물리 vs. 반도체/RF 응용 관점',
+    s2title:'가우스 법칙 계산기 — Φ = Q<sub>enc</sub> / ε₀',s2sub:'임의의 닫힌 면을 통과하는 총 선속은 오직 내부 전하에만 의존',
+    s2rf_title:'플라즈마 챔버에서의 가우스 법칙',s2rf_sub:'왜 내부 전하가 시스 물리학의 핵심 개념인가',
+    s3title:'대칭 유형별 E-field 계산',s3sub:'구형 / 원통형 / 평면형 — 가우스 법칙으로 전기장 도출',
+    s3rf_title:'실제 RF 장비에서의 대칭 선택',s3rf_sub:'어떤 기하학이 플라즈마 반응기를 지배하는가?',
+    s4title:'가우스 법칙 — 대칭 요약표',s4sub:'세 가지 기하학의 한눈에 보기: 가우스 면, 전기장 공식, 실제 사례',
+    s4c_title:'거리에 따른 E-field — 모든 대칭 비교',s4c_sub:'1/r², 1/r, 상수 E-field를 단일 그래프에서 비교',
+    lbl_E:'전기장 (E)',lbl_A:'면적 (A)',lbl_T:'각도 (θ)',lbl_quick1:'빠른 θ:',lbl_quick2:'빠른 Q:',lbl_Q:'전하 (Q)',lbl_R:'반경 (R)',
+    sn_cosT:'cos θ',sn_flux:'선속 (Φ)',sn_pct:'최대값 대비 %',sn_Qenc:'내부 전하 Q<sub>enc</sub>',sn_gaussFlux:'총 선속 (Φ)',sn_Efield:'표면 E-field',
+    fluxNote:'파란 화살표 = 전기장 선 | 주황면 = 면적 A | θ = E와 면 법선 사이의 각도',
+    gaussNote:'닫힌 가우스 면(구). 선속 선은 +Q이면 외부로, −Q이면 내부로 방사. 반경 R은 총 선속에 영향 없음.',
+    rfFluxGenBtn:'일반',rfFluxRFBtn:'플라즈마 / RF',
+    stab1:'구형',stab2:'원통형',stab3:'평면형',stab4:'평행판',
+    sph_lbl_Q:'전하 (Q)',sph_lbl_r:'반경 (r)',sph_note:'점전하로부터 거리 r에서의 E-field. 그래프를 클릭하면 해당 반경의 E값을 읽을 수 있습니다.',sph_rlbl:'반경 r에서의 전기장',
+    cyl_lbl_lam:'선전하 밀도 λ',cyl_lbl_r:'반경 (r)',cyl_note:'무한 선전하로부터 거리 r에서의 E-field. E는 1/r로 감소.',cyl_rlbl:'거리 r에서의 전기장 (선전하)',
+    pln_lbl_sig:'면전하 밀도 σ',pln_lbl_r:'거리 (r)',pln_insight:'E는 거리에 무관합니다 — r을 움직여 보세요!',pln_note:'면전하 밀도 σ의 무한 평면. E는 상수 — 거리에 무관.',pln_rlbl:'전기장 (균일, 양쪽)',pln_stat2:'거리',
+    tp_lbl_sig:'면전하 밀도 σ',tp_lbl_d:'간격 (d)',tp_note:'평행판 축전기: 판 사이 E = σ/ε₀, 외부 ≈ 0. 전압 = E × d.',tp_rlbl:'간격 양단 전압 (V = E·d)',
+    compNote:'보라 = 구형 (1/r²) | 초록 = 원통형 (1/r) | 주황 = 평면형 (상수) — r = 1m에서 정규화',
+    th1:'기하학',th2:'전하 분포',th3:'가우스 면',th4:'전기장 공식',th5:'거리 의존성',th6:'RF / 플라즈마 사례',
+    // RF context panel contents (Korean)
+    rfFluxGen:`전기 선속(Φ)은 어떤 면을 통과하는 전기장 선의 수를 측정합니다.
+      E-field 방향과 면 법선 사이의 각도 θ가 얼마나 많은 전기장이 면을 "관통"하는지를 결정합니다.
+      θ = 0°이면 면이 <strong>E에 수직</strong> → 최대 선속. θ = 90°이면 면이 <strong>E에 평행</strong> → 선속 = 0.
+      단위 Nm²/C는 V·m와 동일하며, "전기장 × 면적"의 양을 강조합니다.`,
+    rfFluxRF:`<strong>CCP(용량 결합 플라즈마)</strong> 챔버에서 시스 전기장은 전극 면에 거의 수직(θ ≈ 0°)으로 향하여 웨이퍼 방향으로의 이온 가속 선속을 최대화합니다.
+      이것이 CCP 에칭이 방향성(이방성) 식각 프로파일을 만드는 핵심 이유입니다.<br><br>
+      <strong>ICP(유도 결합 플라즈마)</strong> 챔버에서는 RF 코일이 시변 자속(패러데이 법칙)을 생성하지만, 그 결과 E-field 선은 기판에 <strong>평행</strong>하게 흐릅니다 → 웨이퍼를 통과하는 전기 선속 ≈ 0 → 이온 충돌 에너지가 훨씬 낮아 ALD 등 온화한 증착에 적합합니다.`,
+    rfGaussGen:`가우스 법칙은 임의의 닫힌 면을 통과하는 총 전기 선속이 내부 전하를 ε₀로 나눈 값과 같다고 말합니다.
+      가우스 면의 모양이나 크기는 관계없습니다 — 오직 <strong>내부 전하 Q<sub>enc</sub></strong>만이 중요합니다.
+      중성 물체(Q<sub>enc</sub> = 0)는 외부 전기장에 관계없이 알짜 선속이 0이며, 이것이 전기 차폐의 원리입니다.`,
+    rfGaussRF:`플라즈마 챔버에서 <strong>플라즈마 시스(sheath)</strong>는 각 전극 인접부의 순 양전하 영역(이온이 풍부한 공간 전하층)입니다.
+      가우스 법칙에 의해, 이 불균형 양전하는 시스 내부에 강한 내향 E-field를 생성합니다 — <strong>시스 전기장</strong> — 이온을 전극(웨이퍼)으로 가속시킵니다.
+      총 시스 전압(V<sub>sheath</sub>)은 내부 공간 전하 밀도에 비례하며,
+      RF Generator는 이 전하 불균형을 사이클마다 유지하여 웨이퍼의 이온 충돌 에너지를 직접 제어합니다.`,
+    rfSymGen:`가우스 면의 선택은 전하 분포의 물리적 대칭성을 반영합니다.
+      <strong>구형</strong>: 점전하, 고립 도체 → E ∝ 1/r².
+      <strong>원통형</strong>: 긴 도선, 동축 케이블 → E ∝ 1/r.
+      <strong>평면형</strong>: 넓은 평판 도체 → E = 상수 (거리 무관).<br><br>
+      각 기하학은 가우스 면에서 E가 상수이고 dA에 평행하도록 선택되어, 면 적분이 간단해집니다.<br><br>
+      <strong style="color:#FF8C00">⚠ 평면형 이상화의 한계:</strong>
+      E = σ/(2ε₀)는 엄밀히 말해 <em>무한 평판</em>에서만 성립합니다.
+      실제 유한한 크기 L의 판에서는 거리에 따라 근사가 무너집니다:
+      <ul style="margin:6px 0 0 16px;line-height:1.9">
+        <li><strong>r ≪ L</strong> → E ≈ 상수 &nbsp;(무한 평판 모델 유효)</li>
+        <li><strong>r ≫ L</strong> → E ∝ 1/r² &nbsp;(판이 점전하처럼 보임)</li>
+      </ul>`,
+    rfSymRF:`<strong>CCP (평행판)</strong>: 전극 기하학이 본질적으로 평면형 → 시스 내 E = σ/ε₀.
+      RF 구동 전극의 <strong>DC 자기 바이어스(V<sub>DC</sub>)</strong>는 이 평면 E-field를 시스 두께에 걸쳐 적분하여 결정됩니다.<br><br>
+      <strong style="color:#FF8C00">왜 CCP에서 무한 평판 모델이 성립하는가?</strong><br>
+      핵심 조건은 <strong>r ≪ L</strong> (거리 ≪ 전극 크기)입니다.
+      전형적인 CCP 챔버에서:
+      <ul style="margin:6px 0 0 16px;line-height:1.9">
+        <li>시스(Sheath) 두께 (r): <strong>~1–10 mm</strong></li>
+        <li>전극 직경 (L): <strong>~300–450 mm</strong></li>
+        <li>비율 r/L: <strong>~0.002–0.03</strong> → r ≪ L ✓</li>
+      </ul>
+      이 비율이 매우 작기 때문에 무한 평판 근사 E = σ/ε₀는
+      시스 내부에서 사실상 정확합니다 — 불과 몇 mm 거리에 있는 이온의 입장에서
+      전극은 "무한히 넓어" 보입니다.<br><br>
+      만약 시스 두께가 전극 직경과 비슷해진다면(r ~ L), E-field는 이미
+      1/r² 거동으로 전환되기 시작하여 평면 모델이 성립하지 않습니다.<br><br>
+      <strong>ICP (토로이달)</strong>: RF 코일이 원통/토로이달 기하학 → 유도 E-field가 플라즈마 내부에서 원통 대칭(코일 축에서 E ∝ 1/r)을 따릅니다.<br><br>
+      <strong>RF Generator & 동축 케이블</strong>: Generator와 챔버 사이 50Ω 전송선은 완벽한 원통 기하학 — 내부 도체와 외부 차폐 사이 E ∝ 1/r. 이 때문에 동축 케이블의 단위 길이당 커패시턴스는 로그 형태: C/L = 2πε/ln(b/a)입니다.`,
+  }
+};
+
+// ============================================================
+// COMPARISON TABLE DATA
+// ============================================================
+const TABLE_DATA = {
+  en: [
+    ['Spherical','Point charge Q','Sphere (4πr²)','E = Q/(4πε₀r²)','1/r²','Isolated conductor, plasma ball'],
+    ['Cylindrical','Line charge λ','Cylinder (2πrL)','E = λ/(2πε₀r)','1/r','Coaxial cable (50Ω line), ICP coil'],
+    ['Planar','Surface charge σ','Pillbox (2A)','E = σ/(2ε₀)','Constant','CCP electrode, parallel plate cap.'],
+    ['Two Plates','±σ on each plate','Pillbox','E = σ/ε₀ (inside)\n≈0 (outside)','Constant','CCP reactor sheath region'],
+  ],
+  ko: [
+    ['구형','점전하 Q','구면 (4πr²)','E = Q/(4πε₀r²)','1/r²','고립 도체, 플라즈마 볼'],
+    ['원통형','선전하 λ','원통면 (2πrL)','E = λ/(2πε₀r)','1/r','동축케이블 (50Ω선), ICP 코일'],
+    ['평면형','면전하 σ','필박스 (2A)','E = σ/(2ε₀)','상수','CCP 전극, 평행판 축전기'],
+    ['평행판','각 판 ±σ','필박스','E = σ/ε₀ (내부)\n≈0 (외부)','상수','CCP 반응기 시스 영역'],
+  ]
+};
+
+// ============================================================
+// LANGUAGE TOGGLE
+// ============================================================
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active',l==='en');
+  document.getElementById('btnKO').classList.toggle('active',l==='ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id,html)=>{const el=document.getElementById(id);if(el)el.innerHTML=html;};
+  Object.keys(T).forEach(k=>set(k,T[k]));
+  // Update RF panel body contents
+  const rfPanels = {
+    rfFluxGen:'rfFluxGen', rfFluxRF:'rfFluxRF',
+    rfGaussGen:'rfGaussGen', rfGaussRF:'rfGaussRF',
+    rfSymGen:'rfSymGen', rfSymRF:'rfSymRF'
+  };
+  Object.entries(rfPanels).forEach(([key,id])=>{
+    if(T[key]){const el=document.getElementById(id);if(el)el.innerHTML=T[key];}
+  });
+  renderCompTable();
+  // redraw canvases
+  fluxCalc(); gaussCalc();
+  symCalc('sphere'); symCalc('cylinder'); symCalc('plane'); symCalc('twoplate');
+  drawCompChart();
+}
+
+// ============================================================
+// SECTION NAV
+// ============================================================
+function showSection(s) {
+  document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.snav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+s).classList.add('active');
+  document.getElementById('snav'+s.charAt(0).toUpperCase()+s.slice(1)).classList.add('active');
+  // Redraw after the panel is visible (offsetWidth now available)
+  requestAnimationFrame(()=>{
+    if(s==='flux'){fluxCalc();}
+    if(s==='gauss'){gaussCalc();}
+    if(s==='sym'){symCalc('sphere');symCalc('cylinder');symCalc('plane');symCalc('twoplate');}
+    if(s==='comp'){renderCompTable();drawCompChart();}
+  });
+}
+
+// ============================================================
+// RF TAB
+// ============================================================
+function rfTab(btn,panelId) {
+  const box = btn.closest('.rf-box');
+  box.querySelectorAll('.rf-tab').forEach(b=>b.classList.remove('active'));
+  box.querySelectorAll('.rf-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+// ============================================================
+// SYMMETRY TAB
+// ============================================================
+function showSym(s) {
+  document.querySelectorAll('.sym-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sym-panel').forEach(p=>p.classList.remove('active'));
+  const map={sphere:'stab1',cylinder:'stab2',plane:'stab3',twoplate:'stab4'};
+  document.getElementById(map[s]).classList.add('active');
+  document.getElementById('sym-'+s).classList.add('active');
+  requestAnimationFrame(()=>symCalc(s));
+}
+
+// ============================================================
+// HiDPI CANVAS SETUP  (stable — no grow-loop)
+//
+// Strategy: CSS locks the visual size (width:100%, height:230px).
+// The canvas HTML attribute (width/height) controls the backing-store
+// resolution and is separate from layout. We measure the wrapper div
+// once per "session" (cached in dataset) and only invalidate on resize.
+// ============================================================
+function setupCanvas(canvas) {
+  const dpr  = window.devicePixelRatio || 1;
+  const CSS_H = 230;  // matches the !important CSS height
+
+  // Measure the wrapper (always visible even when canvas panel is hidden)
+  let CSS_W = parseInt(canvas.dataset.cssW || '0');
+  if (!CSS_W) {
+    const wrap = canvas.closest('.canvas-wrap') || canvas.parentElement;
+    // getBoundingClientRect is reliable for the wrapper (it's not display:none)
+    const rect = wrap ? wrap.getBoundingClientRect() : null;
+    const pad  = 48; // 24px padding × 2 sides
+    CSS_W = rect && rect.width > 0 ? Math.round(rect.width - pad) : 800;
+    if (CSS_W > 0) canvas.dataset.cssW = String(CSS_W);
+  }
+
+  // Only write to backing store if size actually changed
+  const bsW = Math.round(CSS_W * dpr);
+  const bsH = Math.round(CSS_H * dpr);
+  if (canvas.width !== bsW)  canvas.width  = bsW;
+  if (canvas.height !== bsH) canvas.height = bsH;
+
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return {ctx, W: CSS_W, H: CSS_H};
+}
+
+// ============================================================
+// SECTION 1: ELECTRIC FLUX
+// ============================================================
+function fluxCalc() {
+  const E  = parseFloat(document.getElementById('slE').value)||0;
+  const A  = parseFloat(document.getElementById('slA').value)||0;
+  const th = parseFloat(document.getElementById('slT').value)||0;
+  document.getElementById('inE').value = E.toFixed(0);
+  document.getElementById('inA').value = A.toFixed(2);
+  document.getElementById('inT').value = th.toFixed(0);
+  const cosT = Math.cos(th*Math.PI/180);
+  const flux = E*A*cosT;
+  const maxFlux = E*A;
+  const pct = maxFlux>0 ? Math.abs(flux/maxFlux)*100 : 0;
+  document.getElementById('disp_cosT').textContent = cosT.toFixed(3);
+  document.getElementById('disp_flux').textContent = flux.toFixed(1);
+  document.getElementById('disp_pct').textContent  = pct.toFixed(1);
+  drawFluxCanvas(E, A, th, cosT, flux);
+}
+function fluxFromInput(type) {
+  if(type==='E'){const v=parseFloat(document.getElementById('inE').value);if(!isNaN(v)&&v>=1&&v<=1000){document.getElementById('slE').value=v;}}
+  if(type==='A'){const v=parseFloat(document.getElementById('inA').value);if(!isNaN(v)&&v>=0.01&&v<=10){document.getElementById('slA').value=v;}}
+  if(type==='T'){const v=parseFloat(document.getElementById('inT').value);if(!isNaN(v)&&v>=0&&v<=180){document.getElementById('slT').value=v;}}
+  fluxCalc();
+}
+function setTheta(t) {
+  document.getElementById('slT').value=t;
+  document.getElementById('inT').value=t;
+  fluxCalc();
+}
+
+function drawFluxCanvas(E, A, th, cosT, flux) {
+  const canvas = document.getElementById('fluxCanvas');
+  const {ctx,W,H} = setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.fillStyle='#FAFBFC';ctx.fillRect(0,0,W,H);
+
+  const cx=W/2, cy=H/2;
+
+  // Draw E-field arrows (blue, horizontal)
+  const nLines = 9;
+  const spacing = H/(nLines+1);
+  ctx.strokeStyle='#4A90D9';ctx.lineWidth=1.5;
+  ctx.fillStyle='#4A90D9';
+  for(let i=1;i<=nLines;i++){
+    const y=i*spacing;
+    const x0=30,x1=cx-70;
+    ctx.beginPath();ctx.moveTo(x0,y);ctx.lineTo(x1,y);ctx.stroke();
+    // arrowhead
+    ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x1-8,y-4);ctx.lineTo(x1-8,y+4);ctx.closePath();ctx.fill();
+  }
+  // "E" label
+  ctx.fillStyle='#4A90D9';ctx.font='bold 13px Google Sans';ctx.fillText('E →',12,H-10);
+
+  // Draw rotated surface (orange rect)
+  const rad = th*Math.PI/180;
+  const rW=18, rH=Math.max(30, A*25);
+  ctx.save();
+  ctx.translate(cx,cy);ctx.rotate(rad);
+  ctx.fillStyle='rgba(255,140,0,0.18)';ctx.strokeStyle='#FF8C00';ctx.lineWidth=2;
+  ctx.fillRect(-rW/2,-rH/2,rW,rH);
+  ctx.strokeRect(-rW/2,-rH/2,rW,rH);
+  ctx.restore();
+
+  // Draw normal vector (green)
+  const nx=Math.cos(rad-Math.PI/2)*50, ny=Math.sin(rad-Math.PI/2)*50;
+  ctx.strokeStyle='#0F8C50';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+nx,cy+ny);ctx.stroke();
+  ctx.fillStyle='#0F8C50';
+  ctx.beginPath();ctx.moveTo(cx+nx,cy+ny);
+  const ang2=Math.atan2(ny,nx);
+  ctx.lineTo(cx+nx-10*Math.cos(ang2-0.4),cy+ny-10*Math.sin(ang2-0.4));
+  ctx.lineTo(cx+nx-10*Math.cos(ang2+0.4),cy+ny-10*Math.sin(ang2+0.4));
+  ctx.closePath();ctx.fill();
+  // θ arc
+  if(Math.abs(th)>2){
+    ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.arc(cx,cy,28,-(Math.PI/2)+rad,-(Math.PI/2),th>0);ctx.stroke();
+    ctx.fillStyle='#64748B';ctx.font='12px JetBrains Mono';
+    ctx.fillText('θ='+th+'°',cx+35,cy-10);
+  }
+
+  // Flux visualization on right side
+  const rightX = cx+90;
+  const fluxNorm = Math.abs(cosT);
+  ctx.fillStyle='rgba(112,48,160,0.08)';
+  ctx.fillRect(rightX,cy-80,80,160);
+  ctx.strokeStyle='var(--border)';ctx.strokeRect(rightX,cy-80,80,160);
+  // penetrating lines
+  const nPen = Math.round(nLines*fluxNorm);
+  ctx.strokeStyle=flux>=0?'#7030A0':'#E53E3E';ctx.lineWidth=1.5;
+  const gap2=160/(nPen+1);
+  for(let i=1;i<=nPen;i++){
+    const y=cy-80+i*gap2;
+    ctx.setLineDash([4,2]);
+    ctx.beginPath();ctx.moveTo(rightX,y);ctx.lineTo(rightX+80,y);ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.fillStyle='#64748B';ctx.font='11px Google Sans';
+  ctx.fillText('Φ lines',rightX+8,cy+90);
+  ctx.fillStyle=flux>=0?'#7030A0':'#E53E3E';
+  ctx.font='bold 13px JetBrains Mono';
+  ctx.fillText((flux>=0?'+':'')+flux.toFixed(1),rightX+4,cy-90);
+}
+
+// ============================================================
+// SECTION 2: GAUSS'S LAW
+// ============================================================
+function gaussCalc() {
+  let Q  = parseFloat(document.getElementById('slQ').value)||0;
+  let R  = parseFloat(document.getElementById('slR').value)||1;
+  document.getElementById('inQ').value = Q.toFixed(0);
+  document.getElementById('inR').value = R.toFixed(2);
+  const Qc = Q*1e-9;
+  const flux = Qc/eps0;
+  const E    = k*Qc/(R*R);
+  document.getElementById('disp_Qenc').textContent = Q.toFixed(1);
+  // format flux
+  let fv, fu;
+  if(Math.abs(flux)>=1e6){fv=(flux/1e6).toFixed(2);fu='MNm²/C';}
+  else if(Math.abs(flux)>=1e3){fv=(flux/1e3).toFixed(2);fu='kNm²/C';}
+  else{fv=flux.toFixed(1);fu='Nm²/C';}
+  document.getElementById('disp_gaussFlux').textContent=fv;
+  document.getElementById('gaussFluxUnit').textContent=fu;
+  let ev, eu;
+  if(Math.abs(E)>=1e6){ev=(E/1e6).toFixed(2);eu='MV/m';}
+  else if(Math.abs(E)>=1e3){ev=(E/1e3).toFixed(2);eu='kV/m';}
+  else{ev=E.toFixed(1);eu='V/m';}
+  document.getElementById('disp_Efield').textContent=ev;
+  document.getElementById('gaussEUnit').textContent=eu;
+  drawGaussCanvas(Q,R);
+}
+function gaussFromInput(){
+  const v=parseFloat(document.getElementById('inQ').value);
+  if(!isNaN(v)&&v>=-100&&v<=100){document.getElementById('slQ').value=v;}
+  gaussCalc();
+}
+function gaussFromInputR(){
+  const v=parseFloat(document.getElementById('inR').value);
+  if(!isNaN(v)&&v>=0.1&&v<=5){document.getElementById('slR').value=v;}
+  gaussCalc();
+}
+function setQ(q){document.getElementById('slQ').value=q;document.getElementById('inQ').value=q;gaussCalc();}
+
+function drawGaussCanvas(Q,R) {
+  const canvas = document.getElementById('gaussCanvas');
+  const {ctx,W,H} = setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#FAFBFC';ctx.fillRect(0,0,W,H);
+
+  const cx=W/2,cy=H/2;
+  const sR = Math.min(W,H)*0.32;
+
+  // Gaussian sphere
+  ctx.beginPath();ctx.arc(cx,cy,sR,0,Math.PI*2);
+  ctx.strokeStyle='#7030A0';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(112,48,160,0.04)';ctx.fill();
+
+  // charge in center
+  const r0=14;
+  const col=Q>=0?'#E53E3E':'#4A90D9';
+  ctx.beginPath();ctx.arc(cx,cy,r0,0,Math.PI*2);
+  ctx.fillStyle=col;ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='bold 14px Google Sans';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(Q>=0?'+':'-',cx,cy);ctx.textAlign='start';ctx.textBaseline='alphabetic';
+
+  // flux lines
+  const nL=Math.max(1,Math.round(Math.abs(Q)/10));
+  const step=Math.PI*2/nL;
+  for(let i=0;i<nL;i++){
+    const ang=i*step;
+    const outward=Q>=0;
+    const x0=cx+(r0+2)*Math.cos(ang), y0=cy+(r0+2)*Math.sin(ang);
+    const x1=cx+(sR+18)*Math.cos(ang), y1=cy+(sR+18)*Math.sin(ang);
+    const xa=outward?x1:x0, ya=outward?y1:y0;
+    const xb=outward?x0:x1, yb=outward?y0:y1;
+    ctx.strokeStyle=col;ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.moveTo(xb,yb);ctx.lineTo(xa,ya);ctx.stroke();
+    // arrowhead near surface
+    const mid = outward ? 0.75 : 0.25;
+    const axm=xb+(xa-xb)*mid,aym=yb+(ya-yb)*mid;
+    const aang=Math.atan2(ya-yb,xa-xb)*(outward?1:-1);
+    const aang2=Math.atan2(ya-yb,xa-xb);
+    ctx.fillStyle=col;
+    ctx.beginPath();ctx.moveTo(axm,aym);
+    ctx.lineTo(axm-8*Math.cos(aang2-0.4),aym-8*Math.sin(aang2-0.4));
+    ctx.lineTo(axm-8*Math.cos(aang2+0.4),aym-8*Math.sin(aang2+0.4));
+    ctx.closePath();ctx.fill();
+  }
+
+  // R label
+  ctx.strokeStyle='#94A3B8';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+sR*0.7,cy-sR*0.7);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='#64748B';ctx.font='12px JetBrains Mono';
+  ctx.fillText('R = '+R.toFixed(1)+'m',cx+sR*0.7+4,cy-sR*0.7+4);
+
+  // Q label
+  ctx.fillStyle=col;ctx.font='bold 13px Google Sans';
+  ctx.fillText('Q = '+Q.toFixed(0)+' nC',cx-sR+4,cy-sR+18);
+}
+
+// ============================================================
+// SECTION 3: SYMMETRY
+// ============================================================
+function symCalc(type) {
+  if(type==='sphere'){
+    const Q=parseFloat(document.getElementById('slSphQ').value)||50;
+    const r=parseFloat(document.getElementById('slSphR').value)||2;
+    document.getElementById('inSphQ').value=Q.toFixed(0);
+    document.getElementById('inSphR').value=r.toFixed(2);
+    const Qc=Q*1e-9;
+    const E=k*Qc/(r*r);
+    const es=(v)=>{if(Math.abs(v)>=1e6)return{v:(v/1e6).toFixed(3),u:'MV/m'};if(Math.abs(v)>=1e3)return{v:(v/1e3).toFixed(3),u:'kV/m'};return{v:v.toFixed(2),u:'V/m'};};
+    const ef=es(E);
+    document.getElementById('sph_Eval').textContent=ef.v;
+    document.getElementById('sph_Eunit').textContent=ef.u;
+    document.getElementById('sph_dispQ').textContent=Q.toFixed(1);
+    document.getElementById('sph_dispR').textContent=r.toFixed(2);
+    document.getElementById('sph_dispE').textContent=ef.v+' '+ef.u;
+    drawSphGraph(Q,r);
+  }
+  else if(type==='cylinder'){
+    const L=parseFloat(document.getElementById('slCylL').value)||50;
+    const r=parseFloat(document.getElementById('slCylR').value)||2;
+    document.getElementById('inCylL').value=L.toFixed(0);
+    document.getElementById('inCylR').value=r.toFixed(2);
+    const Lc=L*1e-9;
+    const E=Lc/(2*Math.PI*eps0*r);
+    const es=(v)=>{if(Math.abs(v)>=1e6)return{v:(v/1e6).toFixed(3),u:'MV/m'};if(Math.abs(v)>=1e3)return{v:(v/1e3).toFixed(3),u:'kV/m'};return{v:v.toFixed(1),u:'V/m'};};
+    const ef=es(E);
+    document.getElementById('cyl_Eval').textContent=ef.v;
+    document.getElementById('cyl_Eunit').textContent=ef.u;
+    document.getElementById('cyl_dispL').textContent=L.toFixed(1);
+    document.getElementById('cyl_dispR').textContent=r.toFixed(2);
+    document.getElementById('cyl_dispE').textContent=ef.v+' '+ef.u;
+    drawCylGraph(L,r);
+  }
+  else if(type==='plane'){
+    const S=parseFloat(document.getElementById('slPlnS').value)||50;
+    const r=parseFloat(document.getElementById('slPlnR').value)||1.0;
+    document.getElementById('inPlnS').value=S.toFixed(0);
+    document.getElementById('inPlnR').value=r.toFixed(1);
+    const Sc=S*1e-9;
+    const E=Sc/(2*eps0);
+    const Estr=E>=1e6?(E/1e6).toFixed(3)+' MV/m':E>=1000?(E/1000).toFixed(2)+' kV/m':E.toFixed(1)+' V/m';
+    document.getElementById('pln_Eval').textContent=E>=1000?(E/1000).toFixed(2):E.toFixed(1);
+    document.getElementById('pln_Eunit').textContent=E>=1000?'kV/m':'V/m';
+    document.getElementById('pln_dispS').textContent=S.toFixed(1);
+    document.getElementById('pln_dispR').textContent=r.toFixed(1);
+    document.getElementById('pln_dispE').textContent=E>=1000?(E/1000).toFixed(2):E.toFixed(1);
+    drawPlnGraph(S, r);
+  }
+  else if(type==='twoplate'){
+    // slTpD is in meters (0.001 to 0.05); inTpD display is in mm
+    let d;
+    const slVal = parseFloat(document.getElementById('slTpD').value);
+    const inVal = parseFloat(document.getElementById('inTpD').value);
+    // Determine which was changed: compare slider (m) vs input (mm converted)
+    // We always trust the slider as the source of truth unless input was directly edited
+    // Both fire symCalc('twoplate'), so just read slider for d in meters
+    d = isNaN(slVal) ? 0.01 : slVal;
+    // Keep input field showing mm
+    document.getElementById('inTpD').value = (d * 1000).toFixed(1);
+
+    const S=parseFloat(document.getElementById('slTpS').value)||50;
+    document.getElementById('inTpS').value=S.toFixed(0);
+    const Sc=S*1e-9;
+    const E=Sc/eps0;
+    const V=E*d;
+    document.getElementById('tp_Vval').textContent=V.toFixed(3);
+    document.getElementById('tp_Vunit').textContent='V';
+    document.getElementById('tp_dispE').textContent=E.toFixed(0);
+    document.getElementById('tp_dispV').textContent=V.toFixed(3);
+    drawTpGraph(S,d);
+  }
+}
+function symCalcInput(type){
+  if(type==='twoplate'){
+    // inTpD is in mm — sync back to slider (meters)
+    const mm = parseFloat(document.getElementById('inTpD').value);
+    if(!isNaN(mm)){
+      const m = mm / 1000;
+      const clamped = Math.max(0.001, Math.min(0.05, m));
+      document.getElementById('slTpD').value = clamped;
+    }
+  }
+  if(type==='sphere'){
+    const q=parseFloat(document.getElementById('inSphQ').value);
+    const r=parseFloat(document.getElementById('inSphR').value);
+    if(!isNaN(q))document.getElementById('slSphQ').value=Math.max(1,Math.min(200,q));
+    if(!isNaN(r))document.getElementById('slSphR').value=Math.max(0.1,Math.min(10,r));
+  }
+  if(type==='cylinder'){
+    const l=parseFloat(document.getElementById('inCylL').value);
+    const r=parseFloat(document.getElementById('inCylR').value);
+    if(!isNaN(l))document.getElementById('slCylL').value=Math.max(1,Math.min(200,l));
+    if(!isNaN(r))document.getElementById('slCylR').value=Math.max(0.1,Math.min(10,r));
+  }
+  if(type==='plane'){
+    const s=parseFloat(document.getElementById('inPlnS').value);
+    const rr=parseFloat(document.getElementById('inPlnR').value);
+    if(!isNaN(s))document.getElementById('slPlnS').value=Math.max(1,Math.min(200,s));
+    if(!isNaN(rr))document.getElementById('slPlnR').value=Math.max(0.1,Math.min(5,rr));
+  }
+  symCalc(type);
+}
+
+function drawGrid(ctx,W,H,nX,nY){
+  ctx.strokeStyle='#E9EEF3';ctx.lineWidth=0.8;
+  for(let i=1;i<nX;i++){const x=i*W/nX;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let i=1;i<nY;i++){const y=i*H/nY;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+}
+
+// ── helper: draw a filled circle ─────────────────────────────────────────
+function dot(ctx,x,y,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
+
+// ── helper: arrowhead ─────────────────────────────────────────────────────
+function arrowHead(ctx,x,y,dir,len,color){
+  // dir: 'r' right, 'l' left
+  ctx.fillStyle=color;ctx.strokeStyle=color;
+  const dx=dir==='r'?1:-1;
+  ctx.beginPath();ctx.moveTo(x+dx*len,y);
+  ctx.lineTo(x+dx*(len-7),y-4);ctx.lineTo(x+dx*(len-7),y+4);
+  ctx.closePath();ctx.fill();
+  ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+dx*(len-4),y);ctx.stroke();
+}
+
+// ── SPHERICAL (참조 이미지 스타일: R 꺾임, r<R 구간 포함) ─────────────────
+function drawSphGraph(Q, rMark){
+  const canvas=document.getElementById('symSphCanvas');
+  const {ctx,W,H}=setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#FAFBFC';ctx.fillRect(0,0,W,H);
+
+  const pad={l:56,r:24,t:24,b:40};
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+  const Qc=Q*1e-9;
+
+  // x-axis: r from 0 to rMax
+  const rMax=10;
+  // R (conductor radius) = fixed at 0.8 m for illustration
+  const R=0.8;
+  const toX=r=>pad.l+pw*(r/rMax);
+  // E outside: kQ/r²; Emax at r=R
+  const Emax=k*Qc/(R*R);
+  const toY=E=>pad.t+ph*(1-Math.max(0,Math.min(1, E/Emax)));
+
+  // Grid
+  ctx.strokeStyle='#E9EEF3';ctx.lineWidth=0.7;
+  for(let i=1;i<8;i++){const x=pad.l+pw*i/8;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();}
+  for(let i=1;i<5;i++){const y=pad.t+ph*i/5;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();}
+
+  // r < R region: E=0 (flat line on x-axis)
+  const xR=toX(R);
+  ctx.strokeStyle='#E53E3E';ctx.lineWidth=2.8;
+  ctx.beginPath();ctx.moveTo(pad.l,H-pad.b);ctx.lineTo(xR,H-pad.b);ctx.stroke();
+
+  // r ≥ R region: E = kQ/r² curve (red, like reference image)
+  ctx.beginPath();ctx.strokeStyle='#E53E3E';ctx.lineWidth=2.8;
+  let first=true;
+  for(let i=0;i<=pw;i++){
+    const r=R+(rMax-R)*i/pw;
+    const E=k*Qc/(r*r);
+    const x=pad.l+pw*(r/rMax);
+    const y=toY(E);
+    if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // rMark position marker (green dot + dashed crosshairs)
+  if(rMark>=R){
+    const Emark=k*Qc/(rMark*rMark);
+    const mx=toX(rMark), my=toY(Emark);
+    ctx.strokeStyle='#0F8C50';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(mx,H-pad.b);ctx.lineTo(mx,my);ctx.lineTo(pad.l,my);ctx.stroke();
+    ctx.setLineDash([]);
+    dot(ctx,mx,my,5,'#0F8C50');
+    // E label on y-axis
+    ctx.fillStyle='#0F8C50';ctx.font='9px JetBrains Mono';
+    const ef=Emark>=1e3?(Emark/1e3).toFixed(1)+'k':Emark.toFixed(0);
+    ctx.fillText(ef,2,my+3);
+  }
+
+  // R marker on x-axis (teal dashed, like reference)
+  ctx.strokeStyle='#0AB884';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(xR,pad.t);ctx.lineTo(xR,H-pad.b);ctx.stroke();ctx.setLineDash([]);
+  dot(ctx,xR,H-pad.b,4,'#0AB884');
+  ctx.fillStyle='#0AB884';ctx.font='bold 11px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText('R',xR,H-pad.b+14);ctx.textAlign='left';
+
+  // Horizontal dashed line at E(R) (teal, like reference)
+  ctx.strokeStyle='#0AB884';ctx.lineWidth=1.2;ctx.setLineDash([5,3]);
+  ctx.beginPath();ctx.moveTo(pad.l,toY(Emax));ctx.lineTo(xR,toY(Emax));ctx.stroke();ctx.setLineDash([]);
+
+  // Axes
+  ctx.strokeStyle='#2D3748';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  // axis labels
+  ctx.fillStyle='#2D3748';ctx.font='bold 13px JetBrains Mono';
+  ctx.fillText('E',pad.l-20,pad.t+8);
+  ctx.fillText('r',W-pad.r+4,H-pad.b+4);
+  // formula label
+  ctx.fillStyle='#E53E3E';ctx.font='bold 12px JetBrains Mono';
+  ctx.fillText('E ∝ 1/r²',pad.l+pw*0.55,pad.t+ph*0.4);
+  // E=0 inside label
+  ctx.fillStyle='#94A3B8';ctx.font='10px JetBrains Mono';
+  ctx.fillText('E=0 (r<R)',pad.l+4,H-pad.b-6);
+
+  // sphere icon (top-left inset)
+  const ic={x:pad.l+34,y:pad.t+34,r:22};
+  ctx.beginPath();ctx.arc(ic.x,ic.y,ic.r,0,Math.PI*2);
+  ctx.strokeStyle='#7030A0';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.fillStyle='rgba(112,48,160,0.08)';ctx.fill();
+  dot(ctx,ic.x,ic.y,4,'#E53E3E');
+  ctx.fillStyle='#E53E3E';ctx.font='10px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText('+Q',ic.x,ic.y+3);ctx.textAlign='left';
+  // radial arrows from sphere
+  for(let a=0;a<8;a++){
+    const ang=a*Math.PI/4;
+    const x1=ic.x+ic.r*Math.cos(ang),y1=ic.y+ic.r*Math.sin(ang);
+    const x2=ic.x+(ic.r+10)*Math.cos(ang),y2=ic.y+(ic.r+10)*Math.sin(ang);
+    ctx.strokeStyle='#4A90D9';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  }
+}
+
+// ── CYLINDRICAL (참조 이미지 스타일: R 꺾임, r<R E=0) ──────────────────────
+function drawCylGraph(L, rMark){
+  const canvas=document.getElementById('symCylCanvas');
+  const {ctx,W,H}=setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#FAFBFC';ctx.fillRect(0,0,W,H);
+
+  const pad={l:56,r:24,t:24,b:40};
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+  const Lc=L*1e-9;
+  const rMax=10, R=0.8;
+  const toX=r=>pad.l+pw*(r/rMax);
+  const Emax=Lc/(2*Math.PI*eps0*R);
+  const toY=E=>pad.t+ph*(1-Math.max(0,Math.min(1,E/Emax)));
+
+  // Grid
+  ctx.strokeStyle='#E9EEF3';ctx.lineWidth=0.7;
+  for(let i=1;i<8;i++){const x=pad.l+pw*i/8;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,H-pad.b);ctx.stroke();}
+  for(let i=1;i<5;i++){const y=pad.t+ph*i/5;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();}
+
+  // r < R: E=0
+  const xR=toX(R);
+  ctx.strokeStyle='#0F8C50';ctx.lineWidth=2.8;
+  ctx.beginPath();ctx.moveTo(pad.l,H-pad.b);ctx.lineTo(xR,H-pad.b);ctx.stroke();
+
+  // r ≥ R: E = λ/(2πε₀r), 1/r curve (green)
+  ctx.beginPath();ctx.strokeStyle='#0F8C50';ctx.lineWidth=2.8;
+  let first=true;
+  for(let i=0;i<=pw;i++){
+    const r=R+(rMax-R)*i/pw;
+    const E=Lc/(2*Math.PI*eps0*r);
+    const x=pad.l+pw*(r/rMax);
+    const y=toY(E);
+    if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // rMark marker
+  if(rMark>=R){
+    const Emark=Lc/(2*Math.PI*eps0*rMark);
+    const mx=toX(rMark), my=toY(Emark);
+    ctx.strokeStyle='#7030A0';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(mx,H-pad.b);ctx.lineTo(mx,my);ctx.lineTo(pad.l,my);ctx.stroke();
+    ctx.setLineDash([]);
+    dot(ctx,mx,my,5,'#7030A0');
+    ctx.fillStyle='#7030A0';ctx.font='9px JetBrains Mono';
+    const ef=Emark>=1e3?(Emark/1e3).toFixed(1)+'k':Emark.toFixed(0);
+    ctx.fillText(ef,2,my+3);
+  }
+
+  // R marker
+  ctx.strokeStyle='#0AB884';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(xR,pad.t);ctx.lineTo(xR,H-pad.b);ctx.stroke();ctx.setLineDash([]);
+  dot(ctx,xR,H-pad.b,4,'#0AB884');
+  ctx.fillStyle='#0AB884';ctx.font='bold 11px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText('R',xR,H-pad.b+14);ctx.textAlign='left';
+
+  // Horizontal dashed at Emax
+  ctx.strokeStyle='#0AB884';ctx.lineWidth=1.2;ctx.setLineDash([5,3]);
+  ctx.beginPath();ctx.moveTo(pad.l,toY(Emax));ctx.lineTo(xR,toY(Emax));ctx.stroke();ctx.setLineDash([]);
+
+  // Axes
+  ctx.strokeStyle='#2D3748';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#2D3748';ctx.font='bold 13px JetBrains Mono';
+  ctx.fillText('E',pad.l-20,pad.t+8);ctx.fillText('r',W-pad.r+4,H-pad.b+4);
+  ctx.fillStyle='#0F8C50';ctx.font='bold 12px JetBrains Mono';
+  ctx.fillText('E ∝ 1/r',pad.l+pw*0.55,pad.t+ph*0.4);
+  ctx.fillStyle='#94A3B8';ctx.font='10px JetBrains Mono';
+  ctx.fillText('E=0 (r<R)',pad.l+4,H-pad.b-6);
+
+  // Cylinder icon (top-left inset) — 3D 원통 측면도
+  const ic={x:pad.l+52,y:pad.t+46,rX:22,rY:8,cH:38};
+  // 원통 몸체 (측면 사각형)
+  ctx.fillStyle='rgba(15,140,80,0.10)';
+  ctx.fillRect(ic.x-ic.rX,ic.y-ic.cH/2,ic.rX*2,ic.cH);
+  ctx.strokeStyle='#0F8C50';ctx.lineWidth=1.8;
+  ctx.strokeRect(ic.x-ic.rX,ic.y-ic.cH/2,ic.rX*2,ic.cH);
+  // 아래 타원 (원통 바닥)
+  ctx.beginPath();ctx.ellipse(ic.x,ic.y+ic.cH/2,ic.rX,ic.rY,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(15,140,80,0.18)';ctx.fill();
+  ctx.strokeStyle='#0F8C50';ctx.lineWidth=1.8;ctx.stroke();
+  // 위 타원 (원통 상단)
+  ctx.beginPath();ctx.ellipse(ic.x,ic.y-ic.cH/2,ic.rX,ic.rY,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(15,140,80,0.28)';ctx.fill();
+  ctx.strokeStyle='#0F8C50';ctx.lineWidth=1.8;ctx.stroke();
+  // 중심 선전하 (세로 빨간 선)
+  ctx.strokeStyle='#E53E3E';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(ic.x,ic.y-ic.cH/2-ic.rY);ctx.lineTo(ic.x,ic.y+ic.cH/2+ic.rY);ctx.stroke();
+  dot(ctx,ic.x,ic.y,3,'#E53E3E');
+  // λ 레이블
+  ctx.fillStyle='#E53E3E';ctx.font='bold 9px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText('λ',ic.x+6,ic.y+2);
+  // 가우스 원통 (외부 점선 타원 — 위/아래만 표시)
+  ctx.strokeStyle='#7030A0';ctx.lineWidth=1.2;ctx.setLineDash([3,2]);
+  ctx.beginPath();ctx.ellipse(ic.x,ic.y-ic.cH/2,ic.rX+10,ic.rY+4,0,Math.PI,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(ic.x,ic.y+ic.cH/2,ic.rX+10,ic.rY+4,0,0,Math.PI);ctx.stroke();
+  // 가우스 원통 측면 세로선
+  ctx.beginPath();ctx.moveTo(ic.x-(ic.rX+10),ic.y-ic.cH/2);ctx.lineTo(ic.x-(ic.rX+10),ic.y+ic.cH/2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ic.x+(ic.rX+10),ic.y-ic.cH/2);ctx.lineTo(ic.x+(ic.rX+10),ic.y+ic.cH/2);ctx.stroke();
+  ctx.setLineDash([]);
+  // r 반경 화살표 (수평)
+  const ry_mid=ic.y;
+  ctx.strokeStyle='#4A90D9';ctx.fillStyle='#4A90D9';ctx.lineWidth=1.3;
+  ctx.beginPath();ctx.moveTo(ic.x,ry_mid);ctx.lineTo(ic.x+ic.rX-2,ry_mid);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ic.x+ic.rX+1,ry_mid);ctx.lineTo(ic.x+ic.rX-6,ry_mid-3);ctx.lineTo(ic.x+ic.rX-6,ry_mid+3);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#4A90D9';ctx.font='bold 9px JetBrains Mono';
+  ctx.fillText('R',ic.x+ic.rX+4,ry_mid+3);
+  ctx.textAlign='left';
+}
+
+// ── PLANAR: E-field vs. distance (horizontal graph + charge viz) ────────────
+function drawPlnGraph(S, r){
+  const canvas=document.getElementById('symPlnCanvas');
+  const {ctx,W,H}=setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#FAFBFC';ctx.fillRect(0,0,W,H);
+
+  // Layout: left 55% = E vs r graph, right 45% = physical cross-section
+  const splitX = Math.round(W * 0.54);
+
+  // ── LEFT: E vs r graph ─────────────────────────────────────────────
+  const gpad={l:46,r:12,t:20,b:34};
+  const gw=splitX-gpad.l-gpad.r, gh=H-gpad.t-gpad.b;
+  const Sc=S*1e-9, E=Sc/(2*eps0);
+  const rMax=5.5;
+
+  // grid
+  ctx.save();ctx.beginPath();ctx.rect(gpad.l,gpad.t,gw,gh);ctx.clip();
+  ctx.strokeStyle='#E9EEF3';ctx.lineWidth=0.7;
+  for(let i=1;i<6;i++){const x=gpad.l+gw*i/6;ctx.beginPath();ctx.moveTo(x,gpad.t);ctx.lineTo(x,H-gpad.b);ctx.stroke();}
+  for(let i=1;i<4;i++){const y=gpad.t+gh*i/4;ctx.beginPath();ctx.moveTo(gpad.l,y);ctx.lineTo(splitX-gpad.r,y);ctx.stroke();}
+
+  // E(r) = constant line — FLAT horizontal (orange)
+  const Enormalized = 0.55; // fixed ratio in graph (E is constant)
+  const ey = gpad.t + gh*(1-Enormalized);
+  ctx.strokeStyle='#FF8C00';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(gpad.l,ey);ctx.lineTo(splitX-gpad.r,ey);ctx.stroke();
+
+  // r marker (vertical dashed line + dot on E line)
+  const rx_px = gpad.l + gw*(r/rMax);
+  ctx.strokeStyle='#7030A0';ctx.lineWidth=1.2;ctx.setLineDash([4,3]);
+  ctx.beginPath();ctx.moveTo(rx_px,gpad.t);ctx.lineTo(rx_px,H-gpad.b);ctx.stroke();
+  ctx.setLineDash([]);
+  // dot ON the flat E line
+  ctx.fillStyle='#7030A0';ctx.beginPath();ctx.arc(rx_px,ey,6,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(rx_px,ey,3,0,Math.PI*2);ctx.fill();
+
+  // horizontal dashed from dot to y-axis
+  ctx.strokeStyle='#7030A0';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(gpad.l,ey);ctx.lineTo(rx_px,ey);ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.restore();
+
+  // "CONSTANT" emphasis label
+  ctx.fillStyle='#FF8C00';ctx.font='bold 10.5px JetBrains Mono';
+  ctx.textAlign='center';ctx.fillText('E = const',gpad.l+gw*0.5,ey-9);
+  // E value on y-axis
+  const Estr=E>=1e6?(E/1e6).toFixed(2)+' MV/m':E>=1000?(E/1000).toFixed(1)+' kV/m':E.toFixed(0)+' V/m';
+  ctx.fillStyle='#FF8C00';ctx.font='9px JetBrains Mono';ctx.textAlign='right';
+  ctx.fillText(Estr,gpad.l-2,ey+3);
+
+  // Axes
+  ctx.strokeStyle='#2D3748';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(gpad.l,gpad.t);ctx.lineTo(gpad.l,H-gpad.b);ctx.lineTo(splitX-gpad.r,H-gpad.b);ctx.stroke();
+  ctx.fillStyle='#2D3748';ctx.font='bold 12px JetBrains Mono';ctx.textAlign='left';
+  ctx.fillText('E',gpad.l-22,gpad.t+8);
+  ctx.fillStyle='#2D3748';ctx.fillText('r',splitX-gpad.r+4,H-gpad.b+4);
+
+  // r-axis ticks
+  ctx.fillStyle='#94A3B8';ctx.font='9px JetBrains Mono';ctx.textAlign='center';
+  [1,2,3,4,5].forEach(v=>{
+    const x=gpad.l+gw*(v/rMax);
+    ctx.fillText(v,x,H-gpad.b+12);
+    ctx.strokeStyle='#CBD5E1';ctx.lineWidth=0.8;
+    ctx.beginPath();ctx.moveTo(x,H-gpad.b);ctx.lineTo(x,H-gpad.b+3);ctx.stroke();
+  });
+  ctx.textAlign='left';
+
+  // r label & "NO r dep." annotation
+  ctx.fillStyle='#7030A0';ctx.font='bold 10px Google Sans';ctx.textAlign='center';
+  ctx.fillText('r = '+r.toFixed(1)+' m',rx_px,H-gpad.b+22);
+  ctx.fillStyle='#94A3B8';ctx.font='9px Google Sans';
+  ctx.fillText('(m)',splitX-gpad.r-4,H-gpad.b+12);
+
+  // Comparison hint: draw faint 1/r² ghost
+  ctx.strokeStyle='rgba(112,48,160,0.12)';ctx.lineWidth=1.5;ctx.setLineDash([2,3]);
+  ctx.beginPath();
+  for(let i=0;i<=gw;i++){
+    const rr=0.3+(rMax-0.3)*i/gw;
+    const yy=gpad.t+gh*(1-Math.min(1,0.55*(0.3*0.3)/(rr*rr)*8));
+    if(i===0)ctx.moveTo(gpad.l+i,yy);else ctx.lineTo(gpad.l+i,yy);
+  }
+  ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(112,48,160,0.35)';ctx.font='8.5px JetBrains Mono';ctx.textAlign='left';
+  ctx.fillText('(1/r² ref)',gpad.l+gw*0.55,gpad.t+gh*0.22);
+
+  // ── RIGHT: Physical cross-section ──────────────────────────────────
+  const rx0=splitX+8, rw=W-splitX-12;
+  const pc={x:rx0+rw/2, y:H/2};
+
+  // Plate (vertical band)
+  const plateW=14;
+  ctx.fillStyle='rgba(255,140,0,0.2)';
+  ctx.fillRect(pc.x-plateW/2,4,plateW,H-8);
+  ctx.strokeStyle='#FF8C00';ctx.lineWidth=2;
+  ctx.strokeRect(pc.x-plateW/2,4,plateW,H-8);
+
+  // Charge dots on plate proportional to S
+  const nDots=Math.max(2,Math.min(10,Math.round(S/18)));
+  const dsp=(H-16)/(nDots+1);
+  for(let i=1;i<=nDots;i++){
+    const dy=4+i*dsp;
+    dot(ctx,pc.x,dy,4,'#E53E3E');
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(pc.x-2.5,dy);ctx.lineTo(pc.x+2.5,dy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pc.x,dy-2.5);ctx.lineTo(pc.x,dy+2.5);ctx.stroke();
+  }
+
+  // r distance arrow (purple, from plate to right)
+  const arrowEndX = pc.x+plateW/2 + Math.min(rw*0.7, (r/rMax)*rw*1.8);
+  const arrowY = H*0.28;
+  ctx.strokeStyle='#7030A0';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pc.x+plateW/2,arrowY);ctx.lineTo(arrowEndX,arrowY);ctx.stroke();
+  ctx.fillStyle='#7030A0';
+  ctx.beginPath();ctx.moveTo(arrowEndX,arrowY);
+  ctx.lineTo(arrowEndX-7,arrowY-3.5);ctx.lineTo(arrowEndX-7,arrowY+3.5);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#7030A0';ctx.font='bold 9px JetBrains Mono';ctx.textAlign='center';
+  ctx.fillText('r',pc.x+plateW/2+(arrowEndX-pc.x-plateW/2)/2,arrowY-5);
+
+  // E arrows RIGHT (2 = constant regardless of r position)
+  const nArrR=Math.max(2,Math.min(6,Math.round(S/30)));
+  const arrSp=(H-16)/(nArrR+1);
+  const aLen=Math.min(28,rw*0.35);
+  for(let i=1;i<=nArrR;i++){
+    const ay=4+i*arrSp;
+    const ax0=pc.x+plateW/2+6;
+    ctx.strokeStyle='#4A90D9';ctx.fillStyle='#4A90D9';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(ax0,ay);ctx.lineTo(ax0+aLen-7,ay);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ax0+aLen,ay);ctx.lineTo(ax0+aLen-7,ay-3.5);ctx.lineTo(ax0+aLen-7,ay+3.5);ctx.closePath();ctx.fill();
+  }
+  // E arrows LEFT
+  for(let i=1;i<=nArrR;i++){
+    const ay=4+i*arrSp;
+    const ax0=pc.x-plateW/2-6;
+    ctx.strokeStyle='#4A90D9';ctx.fillStyle='#4A90D9';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(ax0,ay);ctx.lineTo(ax0-aLen+7,ay);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ax0-aLen,ay);ctx.lineTo(ax0-aLen+7,ay-3.5);ctx.lineTo(ax0-aLen+7,ay+3.5);ctx.closePath();ctx.fill();
+  }
+
+  // Pillbox Gaussian surface outline (dashed box)
+  const pbW=Math.min(rw*0.65, arrowEndX-pc.x-plateW/2-4);
+  const pbH=H*0.38, pbY=H/2-pbH/2;
+  const pbX=pc.x+plateW/2;
+  ctx.strokeStyle='#0F8C50';ctx.lineWidth=1.2;ctx.setLineDash([4,3]);
+  ctx.strokeRect(pbX,pbY,pbW,pbH);
+  ctx.setLineDash([]);
+  ctx.fillStyle='rgba(15,140,80,0.07)';ctx.fillRect(pbX,pbY,pbW,pbH);
+  ctx.fillStyle='#0F8C50';ctx.font='bold 8.5px Google Sans';ctx.textAlign='center';
+  ctx.fillText('Pillbox',pbX+pbW/2,pbY-3);
+
+  // "E unchanged" label
+  ctx.fillStyle='#FF8C00';ctx.font='bold 9px Google Sans';ctx.textAlign='center';
+  ctx.fillText('E = σ/2ε₀',pc.x+plateW/2+(rw-plateW/2)*0.55,H-6);
+  ctx.textAlign='left';
+
+  // Divider
+  ctx.strokeStyle='#E2E8F0';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(splitX,4);ctx.lineTo(splitX,H-4);ctx.stroke();
+  ctx.strokeRect(0.5,0.5,W-1,H-1);
+}
+
+// ── TWO PLATES (charge dots ±, E arrows between, ~0 outside) ─────────────
+function drawTpGraph(S, d){
+  const canvas=document.getElementById('symTpCanvas');
+  const {ctx,W,H}=setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#FAFBFC';ctx.fillRect(0,0,W,H);
+
+  const pad={l:16,r:16,t:16,b:32};
+  const pw=W-pad.l-pad.r, ph=H-pad.t-pad.b;
+  const Sc=S*1e-9, Eb=Sc/eps0;
+  const V=Eb*d;
+
+  // Gap pixel mapping
+  const dMin=0.001,dMax=0.05;
+  const gapMin=30,gapMax=Math.round(pw*0.42);
+  const gap=gapMin+(gapMax-gapMin)*(d-dMin)/(dMax-dMin);
+  const cx=W/2;
+  const plateW=18;
+
+  // Outer region background
+  ctx.fillStyle='rgba(148,163,184,0.07)';
+  ctx.fillRect(pad.l,pad.t,cx-gap/2-plateW-pad.l,ph);
+  ctx.fillRect(cx+gap/2+plateW,pad.t,W-pad.r-cx-gap/2-plateW,ph);
+  // Inner (between plates)
+  ctx.fillStyle='rgba(112,48,160,0.06)';
+  ctx.fillRect(cx-gap/2,pad.t,gap,ph);
+
+  // Left plate (+σ)
+  const lx=cx-gap/2-plateW;
+  ctx.fillStyle='rgba(74,144,217,0.18)';ctx.fillRect(lx,pad.t,plateW,ph);
+  ctx.strokeStyle='#4A90D9';ctx.lineWidth=2.5;ctx.strokeRect(lx,pad.t,plateW,ph);
+
+  // Right plate (-σ)
+  const rx=cx+gap/2;
+  ctx.fillStyle='rgba(229,62,62,0.18)';ctx.fillRect(rx,pad.t,plateW,ph);
+  ctx.strokeStyle='#E53E3E';ctx.lineWidth=2.5;ctx.strokeRect(rx,pad.t,plateW,ph);
+
+  // Charge dots — count scales with σ
+  const nDots=Math.max(2,Math.min(10,Math.round(S/18)));
+  const dotSpacing=ph/(nDots+1);
+
+  // Left plate: + dots
+  for(let i=1;i<=nDots;i++){
+    const dy=pad.t+i*dotSpacing;
+    const dx=lx+plateW/2;
+    dot(ctx,dx,dy,5,'#4A90D9');
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(dx-3,dy);ctx.lineTo(dx+3,dy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(dx,dy-3);ctx.lineTo(dx,dy+3);ctx.stroke();
+  }
+  // Right plate: - dots
+  for(let i=1;i<=nDots;i++){
+    const dy=pad.t+i*dotSpacing;
+    const dx=rx+plateW/2;
+    dot(ctx,dx,dy,5,'#E53E3E');
+    ctx.strokeStyle='#fff';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(dx-3,dy);ctx.lineTo(dx+3,dy);ctx.stroke();
+  }
+
+  // E arrows between plates (pointing right, + → -)
+  const nArr=Math.max(2,Math.min(8,Math.round(S/22)));
+  const arrSpacing=ph/(nArr+1);
+  const arrowColor='#7030A0';
+  for(let i=1;i<=nArr;i++){
+    const ay=pad.t+i*arrSpacing;
+    const ax0=cx-gap/2+6, ax1=cx+gap/2-6;
+    ctx.strokeStyle=arrowColor;ctx.lineWidth=1.8;
+    ctx.beginPath();ctx.moveTo(ax0,ay);ctx.lineTo(ax1-8,ay);ctx.stroke();
+    ctx.fillStyle=arrowColor;
+    ctx.beginPath();ctx.moveTo(ax1,ay);ctx.lineTo(ax1-8,ay-4);ctx.lineTo(ax1-8,ay+4);ctx.closePath();ctx.fill();
+  }
+
+  // E≈0 outside: very faint short stubs
+  ctx.strokeStyle='#CBD5E1';ctx.lineWidth=1.2;
+  const nOut=2;
+  for(let i=1;i<=nOut;i++){
+    const ay=pad.t+ph*i/(nOut+1);
+    ctx.beginPath();ctx.moveTo(pad.l+4,ay);ctx.lineTo(lx-4,ay);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(rx+plateW+4,ay);ctx.lineTo(W-pad.r-4,ay);ctx.stroke();
+  }
+
+  // Labels
+  ctx.textAlign='center';
+  ctx.fillStyle='#4A90D9';ctx.font='bold 11px Google Sans';ctx.fillText('+σ',lx+plateW/2,pad.t-3);
+  ctx.fillStyle='#E53E3E';ctx.fillText('-σ',rx+plateW/2,pad.t-3);
+  ctx.fillStyle='#7030A0';ctx.font='bold 10px JetBrains Mono';
+  const Estr=Eb>=1000?(Eb/1000).toFixed(1)+' kV/m':Eb.toFixed(0)+' V/m';
+  ctx.fillText('E='+Estr,cx,pad.t+13);
+  ctx.fillStyle='#94A3B8';ctx.font='10px JetBrains Mono';
+  ctx.fillText('E≈0',pad.l+(lx-pad.l)/2,pad.t+ph*0.5);
+  ctx.fillText('E≈0',rx+plateW+(W-pad.r-rx-plateW)/2,pad.t+ph*0.5);
+  // V label
+  ctx.fillStyle='#0F8C50';ctx.font='bold 11px JetBrains Mono';
+  ctx.fillText('V = '+V.toFixed(2)+' V',cx,H-4);
+  // gap dim
+  ctx.fillStyle='#64748B';ctx.font='9px JetBrains Mono';
+  ctx.fillText('d = '+(d*1000).toFixed(1)+' mm',cx,pad.t+ph*0.88);
+  // charge count badge
+  ctx.fillStyle='#94A3B8';ctx.font='9px Google Sans';
+  ctx.fillText('× '+nDots+' charges/side',cx,pad.t+25);
+  ctx.textAlign='left';
+
+  // border
+  ctx.strokeStyle='#E2E8F0';ctx.lineWidth=1;ctx.strokeRect(0.5,0.5,W-1,H-1);
+}
+
+// ============================================================
+// SECTION 4: COMPARISON TABLE
+// ============================================================
+function renderCompTable(){
+  const tbody=document.getElementById('compTbody');
+  if(!tbody)return;
+  const rows=TABLE_DATA[lang]||TABLE_DATA.en;
+  tbody.innerHTML=rows.map(r=>`
+    <tr>
+      <td style="font-weight:600">${r[0]}</td>
+      <td class="mono">${r[1]}</td>
+      <td class="note">${r[2]}</td>
+      <td class="mono">${r[3].replace(/\n/,'<br>')}</td>
+      <td class="mono" style="color:var(--green)">${r[4]}</td>
+      <td class="note">${r[5]}</td>
+    </tr>`).join('');
+}
+
+function drawCompChart(){
+  const canvas=document.getElementById('compCanvas');
+  if(!canvas)return;
+  const {ctx,W,H}=setupCanvas(canvas);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#FAFBFC';ctx.fillRect(0,0,W,H);
+  drawGrid(ctx,W,H,8,5);
+  const pad={l:52,r:20,t:30,b:40};
+  const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+  // x-axis: r from 0.5 to 8 m
+  const rMin=0.5,rMax=8;
+  // Normalize: all curves = 1.0 at r=1
+  // E_sph(r) = 1/r², E_cyl(r) = 1/r, E_pln(r) = 1
+  // Plot range clamp: [0, 1.05]
+  const Emax=1.05;
+  const toY=(E)=>pad.t + ph*(1 - Math.min(E,Emax)/Emax);
+  const toX=(r)=>pad.l + pw*(r-rMin)/(rMax-rMin);
+
+  // Spherical 1/r²  (purple)
+  ctx.beginPath();ctx.strokeStyle='#7030A0';ctx.lineWidth=2.5;
+  for(let i=0;i<=pw;i++){
+    const r=rMin+(rMax-rMin)*i/pw;
+    const E=1/(r*r);
+    const x=pad.l+i; const y=toY(E);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }ctx.stroke();
+
+  // Cylindrical 1/r  (green)
+  ctx.beginPath();ctx.strokeStyle='#0F8C50';ctx.lineWidth=2.5;
+  for(let i=0;i<=pw;i++){
+    const r=rMin+(rMax-rMin)*i/pw;
+    const E=1/r;
+    const x=pad.l+i; const y=toY(E);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }ctx.stroke();
+
+  // Planar constant (orange) — E=1/8 (normalized at r=1 to show relative scale)
+  // To make it visible and meaningful, draw at E = 0.3 relative level
+  const Epln=0.3;
+  ctx.beginPath();ctx.strokeStyle='#FF8C00';ctx.lineWidth=2.5;
+  const ey=toY(Epln);
+  ctx.setLineDash([6,4]);
+  ctx.moveTo(pad.l,ey);ctx.lineTo(W-pad.r,ey);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#FF8C00';ctx.font='10px JetBrains Mono';
+  ctx.fillText('const',W-pad.r-36,ey-5);
+
+  // r=1 reference line
+  const rx1=toX(1);
+  ctx.strokeStyle='#CBD5E1';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(rx1,pad.t);ctx.lineTo(rx1,H-pad.b);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#94A3B8';ctx.font='9px JetBrains Mono';ctx.fillText('r=1',rx1+2,pad.t+10);
+
+  // Legend (inside, top-right area)
+  const items=[['#7030A0','Spherical (1/r²)'],['#0F8C50','Cylindrical (1/r)'],['#FF8C00','Planar (const)']];
+  items.forEach(([c,label],i)=>{
+    const lx=pad.l+8; const ly=pad.t+14+i*16;
+    ctx.fillStyle=c;ctx.fillRect(lx,ly-6,16,3);
+    ctx.fillStyle=c;ctx.font='10.5px Google Sans';ctx.fillText(label,lx+20,ly);
+  });
+
+  // Axes
+  ctx.strokeStyle='#CBD5E1';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='#94A3B8';ctx.font='10px JetBrains Mono';
+  ctx.fillText('E (norm. @ r=1)',4,pad.t+10);ctx.fillText('r (m) →',W-pad.r-44,H-pad.b+14);
+
+  // Y ticks
+  [0,0.25,0.5,0.75,1.0].forEach(v=>{
+    const y=toY(v);
+    ctx.fillStyle='#94A3B8';ctx.font='9px JetBrains Mono';
+    ctx.fillText(v.toFixed(2),4,y+3);
+    ctx.strokeStyle='#E9EEF3';ctx.lineWidth=0.8;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+  });
+
+  // X ticks
+  [1,2,3,4,5,6,7,8].forEach(v=>{
+    const x=toX(v);
+    ctx.fillStyle='#94A3B8';ctx.font='9px JetBrains Mono';
+    ctx.fillText(v,x-3,H-pad.b+14);
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load',()=>{
+  setLang('en');
+  // Double rAF ensures browser has completed layout before we measure offsetWidth
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      fluxCalc();
+      gaussCalc();
+      symCalc('sphere');
+      symCalc('cylinder');
+      symCalc('plane');
+      symCalc('twoplate');
+      drawCompChart();
+    });
+  });
+});
+window.addEventListener('resize',()=>{
+  // Clear cached widths so canvases re-measure at new viewport size
+  document.querySelectorAll('canvas').forEach(c => delete c.dataset.cssW);
+  fluxCalc();gaussCalc();
+  symCalc('sphere');symCalc('cylinder');symCalc('plane');symCalc('twoplate');
+  drawCompChart();
+});
+</script>
+</body>
+</html>
