@@ -46,7 +46,7 @@
     startup: {
       ready() {
         MathJax.startup.defaultReady();
-        const panel = document.getElementById('detail');
+        const panel = document.getElementById('main') || document.getElementById('detail');
         if (panel && window.MathJax.typesetPromise)
           MathJax.typesetPromise([panel]).catch(e => console.log('MathJax init: ' + e.message));
       }
@@ -61,6 +61,8 @@
     --bg2:         #FFFFFF;
     --bg3:         #F0E6F6;
     --bg4:         #E5F4EC;
+    --card:        #F1EFEA;
+    --card-hd:     #E7E4DD;
     --green:       #0F8C50;
     --green-soft:  #E5F4EC;
     --green-mid:   #cbeadd;
@@ -74,179 +76,214 @@
     --plasma-mid:  #F5C990;
     --plasma-dark: #A84F05;
     --charcoal:    #2D2D2D;
-    --text:        #2D2D2D;
-    --text2:       #6B7280;
+    --text:        #1A1A2E;
+    --text2:       #5A5A7A;
     --text3:       #9CA3AF;
-    --border:      #E5E7EB;
+    --border:      #D8D5CE;
     --border2:     #F3F4F6;
-    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow:      0 2px 12px rgba(0,0,0,0.08);
     --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
-    --max-w:       1400px;
+    --radius:      12px;
+    --font:        'Google Sans', 'Noto Sans KR', sans-serif;
+    --mono:        'JetBrains Mono', monospace;
     --scale:       1.0;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
   body {
+    font-family: var(--font);
     background: var(--bg);
     color: var(--text);
-    font-family: 'Gowun Batang', serif;
-    min-height: 100vh;
-    width: 100%;
-    overflow-x: hidden;
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── Header ── */
-  header {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 0.55rem 1.5rem;
+  /* ── SIDEBAR (fixed, full height — Module 02 style) ── */
+  #sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: #FFFFFF;
+    border-right: 1px solid var(--border);
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: var(--shadow);
-    width: 100%;
-    max-width: var(--max-w);
-    position: sticky;
-    top: 0;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    overflow-y: auto;
     z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
   }
-  .header-logo { height: 38px; width: auto; flex-shrink: 0; }
-  .header-divider { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
-  header h1 {
-    font-family: 'Google Sans', 'Gowun Batang', serif;
-    font-size: 1.05rem; font-weight: 700;
-    color: var(--purple); letter-spacing: 0.02em; line-height: 1.2;
-  }
-  header p {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.55rem; color: var(--text3);
-    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;
-  }
-  .header-actions { margin-left: auto; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  /* Lang toggle */
-  .lang-toggle { display: flex; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: var(--bg); }
+  /* Sidebar brand area */
+  .sb-brand {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sb-brand img { height: 28px; width: auto; display: block; margin-bottom: 6px; object-fit: contain; }
+  .sb-brand .logo-text {
+    font-size: 0.78rem; font-weight: 700; color: var(--purple);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .sb-brand .module-tag { margin-top: 4px; font-size: 0.72rem; color: var(--text2); }
+
+  /* Sidebar era header */
+  .sb-era {
+    padding: 10px 14px 6px;
+    font-size: 0.65rem; font-weight: 700; color: var(--text2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .sb-era-bar {
+    height: 3px; border-radius: 2px; margin: 4px 14px 8px;
+    background: var(--purple); opacity: 0.3;
+  }
+
+  /* Sidebar nav items */
+  .sb-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 14px; cursor: pointer; border-radius: 8px;
+    margin: 1px 8px; transition: background 0.15s; text-decoration: none;
+  }
+  .sb-item:hover { background: #F0EDF8; }
+  .sb-item.active { background: #EDE7F6; }
+  .sb-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-family: var(--mono); font-weight: 600;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .sb-label { font-size: 0.78rem; line-height: 1.35; color: var(--text); }
+  .sb-sub { font-size: 0.68rem; color: var(--text2); margin-top: 2px; }
+
+  /* Sidebar progress bar */
+  .sb-progress {
+    margin: 8px 14px 4px;
+    height: 3px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .sb-progress-fill { height: 100%; background: var(--purple); border-radius: 2px; transition: width 0.3s ease; }
+
+  /* Sidebar lang + tools footer */
+  .sb-footer {
+    margin-top: auto; border-top: 1px solid var(--border); flex-shrink: 0;
+  }
+  .sb-lang { padding: 14px 16px; display: flex; gap: 8px; }
   .lang-btn {
-    padding: 3px 12px; border: none; background: transparent; cursor: pointer;
-    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 500;
-    color: var(--text3); transition: all 0.2s;
+    flex: 1; padding: 7px; border: 1.5px solid var(--border); border-radius: 8px;
+    background: transparent; font-family: var(--font); font-size: 0.78rem;
+    cursor: pointer; transition: all 0.15s; color: var(--text2);
   }
-  .lang-btn.active-lang { background: var(--purple); color: #fff; }
-
-  /* Era filter */
-  .era-filter { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
-  .era-btn {
-    background: transparent; border: 1px solid var(--border); border-radius: 20px;
-    color: var(--text2); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
-    padding: 3px 12px; cursor: pointer; transition: all 0.18s;
+  .lang-btn.active-lang {
+    background: var(--purple); border-color: var(--purple); color: #fff; font-weight: 600;
   }
-  .era-btn:hover { border-color: var(--purple-mid); color: var(--purple); background: var(--purple-soft); }
-  .era-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
-
+  .sb-tools { padding: 0 16px 14px; display: flex; align-items: center; gap: 8px; }
   .toolbar-btn {
     border: 1px solid var(--border); border-radius: 6px;
-    background: var(--bg2); color: var(--text); padding: 3px 9px;
-    font-size: 0.62rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+    background: var(--bg2); color: var(--text); padding: 4px 10px;
+    font-size: 0.7rem; cursor: pointer; font-family: var(--mono);
     font-weight: 500; transition: all 0.15s;
   }
   .toolbar-btn:hover { border-color: var(--purple-mid); background: var(--purple-soft); color: var(--purple-dark); }
-  #scale-indicator { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text3); min-width: 32px; text-align: center; }
+  #scale-indicator { font-family: var(--mono); font-size: 0.62rem; color: var(--text2); min-width: 36px; text-align: center; }
 
-  /* ── Layout ── */
-  .layout {
-    display: grid; grid-template-columns: 270px 1fr;
-    height: calc(100vh - 58px); width: 100%; max-width: var(--max-w);
+  /* ── TOP LOGO BAR (Module 02 style) ── */
+  #top-logo-bar {
+    position: fixed;
+    top: 0; left: 260px; right: 0;
+    height: 44px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 28px;
+    z-index: 150;
+  }
+  #top-logo-bar img { height: 22px; width: auto; object-fit: contain; opacity: 0.88; }
+
+  /* ── MAIN CONTENT (Module 02 style) ── */
+  #main {
+    margin-left: 260px;
+    flex: 1;
+    padding: 64px 36px 48px;
+    max-width: calc(100vw - 260px);
+    min-height: 100vh;
   }
 
-  /* ── Sidebar ── */
-  .timeline-sidebar {
-    border-right: 1px solid var(--border); overflow-y: auto;
-    background: var(--bg2); scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent; display: flex; flex-direction: column;
-  }
-  .timeline-sidebar::-webkit-scrollbar { width: 4px; }
-  .timeline-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  .sidebar-section-label {
-    padding: 0.6rem 1.1rem 0.35rem; font-family: 'JetBrains Mono', monospace;
-    font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--text3); border-bottom: 1px solid var(--border2);
-    position: sticky; top: 0; background: var(--bg2); z-index: 5;
-  }
-  .era-header {
-    position: sticky; top: 0; background: var(--bg2);
-    padding: 0.65rem 1rem 0.45rem; border-bottom: 1px solid var(--border2);
-    z-index: 5; display: flex; align-items: center; gap: 0.6rem;
-    cursor: pointer; user-select: none;
-  }
-  .era-header:hover { background: var(--bg); }
-  .era-label { font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; }
-  .era-line { flex: 1; height: 1px; background: var(--border); }
-  .era-range { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--text3); letter-spacing: 0.04em; }
-  .era-toggle {
-    flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%;
-    background: var(--border2); display: flex; align-items: center; justify-content: center;
-    font-size: 0.6rem; color: var(--text3); transition: background 0.15s, transform 0.22s;
-  }
-  .era-header.collapsed .era-toggle { transform: rotate(-90deg); }
-  .era-header:hover .era-toggle { background: var(--border); color: var(--text2); }
-  .era-cards { overflow: hidden; max-height: 2000px; transition: max-height 0.3s ease, opacity 0.25s ease; opacity: 1; }
-  .era-cards.collapsed { max-height: 0; opacity: 0; }
-
-  .sci-card {
-    padding: 0.75rem 1rem 0.75rem 1.1rem; border-bottom: 1px solid var(--border2);
-    cursor: pointer; position: relative; transition: background 0.15s;
-    display: flex; gap: 0.65rem; align-items: flex-start; border-left: 4px solid transparent;
-  }
-  .sci-card:hover { background: var(--bg); }
-  .sci-card.active { background: var(--purple-soft); border-left-color: var(--purple); }
-  .sci-card.placeholder { opacity: 0.45; cursor: default; }
-  .sci-card.placeholder:hover { background: transparent; }
-  .sci-year { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; color: var(--text3); min-width: 48px; padding-top: 2px; line-height: 1.4; }
-  .sci-info { flex: 1; min-width: 0; }
-  .sci-name { font-size: 0.83rem; font-weight: 700; color: var(--charcoal); line-height: 1.3; }
-  .sci-card.active .sci-name { color: var(--purple-dark); }
-  .sci-nation { font-size: 0.6rem; color: var(--text3); margin-top: 1px; font-family: 'Gowun Batang', serif; }
-  .sci-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
-  .sci-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; padding: 1px 6px; border-radius: 8px; letter-spacing: 0.03em; }
-
-  /* ── Detail Panel ── */
-  .detail-panel { display: flex; flex-direction: column; height: 100%; overflow: hidden; background: var(--bg); }
-  #detail { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-  #detail::-webkit-scrollbar { width: 4px; }
-  #detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  .detail-content { padding: 1.5rem; max-width: 880px; margin: 0 auto; }
+  /* ── Detail content wrapper ── */
+  .detail-content { max-width: 900px; margin: 0 auto; }
 
   /* Detail Empty */
-  .detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 1.2rem; color: var(--text3); }
+  .detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 1.2rem; color: var(--text3); }
   .icon-ring { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--purple-mid); opacity: 0.4; }
-  .detail-empty p { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; }
+  .detail-empty p { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; }
 
-  /* Hero */
-  .detail-hero {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
-    padding: 1.4rem 1.6rem; margin-bottom: 1.1rem; box-shadow: var(--shadow);
+  /* ── Legacy sidebar classes (kept for buildSidebar() compatibility) ── */
+  .timeline-sidebar { display: none; } /* replaced by #sidebar */
+  .sidebar-section-label { display: none; }
+  .era-header { display: none; }
+  .era-cards { display: contents; }
+  .era-cards.collapsed { display: none; }
+  .sci-card {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 9px 14px; cursor: pointer; border-radius: 8px;
+    margin: 1px 8px; transition: background 0.15s;
   }
+  .sci-card:hover { background: #F0EDF8; }
+  .sci-card.active { background: #EDE7F6; }
+  .sci-card.placeholder { opacity: 0.45; cursor: default; }
+  .sci-card.placeholder:hover { background: transparent; }
+  .sci-year {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--text3);
+    min-width: 32px; padding-top: 2px; line-height: 1.4;
+  }
+  .sci-info { flex: 1; min-width: 0; }
+  .sci-name { font-size: 0.8rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .sci-card.active .sci-name { color: var(--purple-dark); }
+  .sci-nation { font-size: 0.62rem; color: var(--text2); margin-top: 1px; }
+  .sci-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+  .sci-tag { font-family: var(--mono); font-size: 0.52rem; padding: 1px 6px; border-radius: 8px; }
+
+  /* ── Legacy detail-panel (now handled by #main) ── */
+  .detail-panel { display: contents; }
+  #detail { display: contents; }
+
+  /* Detail Empty */
+  .detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 1.2rem; color: var(--text3); }
+  .icon-ring { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--purple-mid); opacity: 0.4; }
+  .detail-empty p { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; }
+
+  /* ── SLIDE HEADER (Module 02 style) ── */
+  .slide-header { margin-bottom: 28px; }
+  .slide-eyebrow {
+    font-size: 0.72rem; font-weight: 700; color: var(--purple);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;
+    font-family: var(--mono);
+  }
+  .slide-title { font-size: 1.9rem; font-weight: 700; color: var(--text); line-height: 1.2; font-family: var(--font); }
+  .slide-title span { color: var(--purple); }
+  .slide-subtitle { margin-top: 8px; font-size: 0.92rem; color: var(--text2); line-height: 1.5; font-family: var(--font); }
+
+  /* Hero — remapped to slide-header style */
+  .detail-hero { margin-bottom: 28px; }
   .detail-era-tag {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.12em;
-    text-transform: uppercase; margin-bottom: 0.5rem; display: inline-flex; align-items: center;
-    gap: 0.4rem; padding: 2px 9px; border-radius: 10px; font-weight: 500;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 6px; display: inline-block;
+    font-weight: 700; color: var(--purple);
   }
   .detail-name {
-    font-family: 'Google Sans', 'Montserrat', sans-serif; font-size: calc(1.7rem * var(--scale));
-    font-weight: 800; line-height: 1.1; color: var(--purple); margin-bottom: 0.1rem; transition: font-size 0.15s ease-out;
+    font-family: var(--font); font-size: calc(1.9rem * var(--scale));
+    font-weight: 700; line-height: 1.2; color: var(--text);
+    transition: font-size 0.15s ease-out;
   }
   .detail-name-kr {
-    font-family: 'Gowun Batang', serif; font-size: calc(0.9rem * var(--scale));
-    color: var(--text2); margin-bottom: 0.6rem; font-weight: 400; transition: font-size 0.15s ease-out;
+    font-family: var(--font); font-size: calc(0.92rem * var(--scale));
+    color: var(--text2); margin-top: 8px; font-weight: 400;
+    line-height: 1.5; transition: font-size 0.15s ease-out;
   }
-  .detail-meta {
-    display: flex; gap: 1.25rem; flex-wrap: wrap;
-    font-family: 'JetBrains Mono', monospace; font-size: calc(0.62rem * var(--scale));
-    color: var(--text2); padding-top: 0.6rem; border-top: 1px solid var(--border2); transition: font-size 0.15s ease-out;
-  }
+  .detail-meta { display: none; }
 
   /* Model Showcase */
   .model-showcase {
@@ -972,50 +1009,74 @@
   #imgPopupImg { max-width: 100%; max-height: 80vh; border-radius: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); object-fit: contain; }
   #imgPopupCaption { color: rgba(255,255,255,0.7); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.06em; text-align: center; }
 
-  @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+  
+  /* ── Callout (used in diagram sections) ── */
+  .callout {
+    background: var(--purple-soft); border-left: 3px solid var(--purple);
+    border-radius: 0 10px 10px 0; padding: 0.75rem 1rem; margin-bottom: 1rem;
+    font-size: 0.85rem; line-height: 1.7; color: var(--purple-dark);
+  }
+  .callout-title { font-weight: 700; margin-bottom: 0.3rem; font-family: var(--font); }
+
+  /* ── d-wrap cards (Module 02 diagram pattern, for consistency) ── */
+  .d-wrap { background: var(--card); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow); }
+  .d-header { background: var(--card-hd); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .d-badge { background: var(--purple); color: #fff; font-size: 0.65rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.05em; text-transform: uppercase; font-family: var(--mono); }
+  .d-badge.green { background: var(--green); }
+  .d-badge.plasma { background: var(--plasma); }
+  .d-title { font-size: 0.9rem; font-weight: 700; color: var(--text); font-family: var(--font); }
+  .d-body { padding: 1.2rem; }
+
+@keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
   @keyframes popupScale { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
 </head>
 
 <body>
 
-<header>
-  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;text-decoration:none;">
-    <img class="header-logo"
-      src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
-      alt="Benedu Insight">
-  </a>
-  <div class="header-divider"></div>
-  <div class="header-title-block">
-    <h1 id="hTitle">RF Transmission Theory for Semiconductor Plasma</h1>
-    <p>CLASS 02 · MODULE 01 · Benedu Insight</p>
+<!-- SIDEBAR (Module 02 style: fixed full-height) -->
+<nav id="sidebar">
+  <div class="sb-brand">
+    <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+         alt="BENEDU INSIGHT"/>
+    <div class="module-tag">RF Lecture Series · Class 02</div>
   </div>
-  <div class="header-actions">
-    <div class="lang-toggle">
-      <button class="lang-btn" onclick="setLang('ko')" id="btnKo">KO</button>
-      <button class="lang-btn active-lang" onclick="setLang('en')" id="btnEn">EN</button>
-    </div>
-    <div class="era-filter">
-      <button class="era-btn active" id="eraAll" onclick="buildSidebar('all');setActive(this)">전체</button>
-      <button class="era-btn" id="eraM1" onclick="buildSidebar('m1');setActive(this)">M01</button>
-    </div>
-    <button class="toolbar-btn" onclick="changeScale(-0.1)">A−</button>
-    <span id="scale-indicator">100%</span>
-    <button class="toolbar-btn" onclick="changeScale(+0.1)">A+</button>
-  </div>
-</header>
 
-<div class="layout">
-  <div class="timeline-sidebar" id="sidebar"></div>
-  <div class="detail-panel">
-    <div id="detail">
-      <div class="detail-empty">
-        <div class="icon-ring"></div>
-        <p id="emptyMsg">좌측 목차에서 강의 모듈을 선택하세요</p>
-      </div>
+  <div class="sb-era" id="sb-era-label">Module 01</div>
+  <div class="sb-era-bar"></div>
+
+  <div id="sidebar-inner"></div>
+
+  <div class="sb-progress"><div class="sb-progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="sb-footer">
+    <div class="sb-lang">
+      <button class="lang-btn" onclick="setLang('ko')" id="btnKo">한국어</button>
+      <button class="lang-btn active-lang" onclick="setLang('en')" id="btnEn">English</button>
+    </div>
+    <div class="sb-tools">
+      <button class="toolbar-btn" onclick="changeScale(-0.1)">A−</button>
+      <span id="scale-indicator">100%</span>
+      <button class="toolbar-btn" onclick="changeScale(+0.1)">A+</button>
     </div>
   </div>
+</nav>
+
+<!-- TOP LOGO BAR (Module 02 style) -->
+<div id="top-logo-bar">
+  <img src="https://benedu-insight.github.io/logo_png/benedu_insight_Symbol.png"
+       alt="Benedu Insight"/>
 </div>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+  <div id="detail">
+    <div class="detail-empty">
+      <div class="icon-ring"></div>
+      <p id="emptyMsg">좌측 목차에서 강의 모듈을 선택하세요</p>
+    </div>
+  </div>
+</main>
 
 <div id="imgPopupOverlay" onclick="closeImgPopup(event)">
   <div id="imgPopupInner" onclick="event.stopPropagation()">
@@ -1417,15 +1478,13 @@ function setLang(l) {
   document.getElementById('btnKo').classList.toggle('active-lang', l === 'ko');
   document.getElementById('btnEn').classList.toggle('active-lang', l === 'en');
   const T = UI[lang];
-  document.getElementById('hTitle').textContent = T.hTitle;
-  document.getElementById('eraAll').textContent  = T.eraAll;
-  document.getElementById('eraM1').textContent   = T.eraM1;
   buildSidebar(currentEraFilter);
   if (currentId) {
     const slide = getSLIDES().find(s => s.id === currentId);
     if (slide) renderDetail(slide);
   } else {
-    document.getElementById('detail').innerHTML =
+    const _main = document.getElementById('main') || document.getElementById('detail');
+    _main.innerHTML =
       `<div class="detail-empty"><div class="icon-ring"></div><p>${T.emptyMsg}</p></div>`;
   }
 }
@@ -1439,58 +1498,45 @@ const eraColors = {
 
 function buildSidebar(filter) {
   currentEraFilter = filter;
-  const sidebar = document.getElementById('sidebar');
-  sidebar.innerHTML = '';
+  const container = document.getElementById('sidebar-inner');
+  if (!container) return;
+  container.innerHTML = '';
   const T = UI[lang];
   const SLIDES = getSLIDES();
-  const eras = ['m1'];
 
-  eras.forEach(eraId => {
-    const slides = SLIDES.filter(s => s.era === eraId && (filter === 'all' || filter === eraId));
-    if (slides.length === 0) return;
-    const grp = document.createElement('div');
-    grp.className = 'era-group';
-    const hdr = document.createElement('div');
-    hdr.className = 'era-header';
-    const ec = eraColors[eraId];
-    hdr.innerHTML = `
-      <span class="era-label" style="color:${ec.tag}">${T.eraLabels[eraId]}</span>
-      <span class="era-line"></span>
-      <span class="era-range">${T.eraRanges[eraId]}</span>
-      <span class="era-toggle">▾</span>`;
-    grp.appendChild(hdr);
-    const cardsWrap = document.createElement('div');
-    cardsWrap.className = 'era-cards';
-    slides.forEach(slide => {
-      const card = document.createElement('div');
-      card.className = 'sci-card' + (currentId === slide.id ? ' active' : '') + (slide.placeholder ? ' placeholder' : '');
-      card.id = `card-${slide.id}`;
-      const tagHtml = slide.tags.slice(0,3).map(t =>
-        `<span class="sci-tag" style="background:${ec.tagBg};color:${ec.tag};border:1px solid ${ec.tagBorder}">${t}</span>`
-      ).join('');
-      card.innerHTML = `
-        <div class="sci-year">${slide.chapter}</div>
-        <div class="sci-info">
-          <div class="sci-name">${slide.nameKr}</div>
-          <div class="sci-nation">${slide.period}</div>
-          <div class="sci-tags">${tagHtml}</div>
-        </div>`;
-      if (!slide.placeholder) card.addEventListener('click', () => selectSlide(slide.id));
-      cardsWrap.appendChild(card);
-    });
-    hdr.addEventListener('click', () => {
-      const isCollapsed = cardsWrap.classList.toggle('collapsed');
-      hdr.classList.toggle('collapsed', isCollapsed);
-    });
-    grp.appendChild(cardsWrap);
-    sidebar.appendChild(grp);
+  SLIDES.forEach((slide, idx) => {
+    if (slide.placeholder) return;
+    const item = document.createElement('div');
+    item.className = 'sb-item' + (currentId === slide.id ? ' active' : '');
+    item.id = `card-${slide.id}`;
+    const dotColor = '#7030A0';
+    // Chapter label as dot badge
+    const chapterNum = slide.chapter || (idx + 1);
+    item.innerHTML = `
+      <div class="sb-dot" style="background:#7030A020;color:${dotColor}">${chapterNum}</div>
+      <div>
+        <div class="sb-label">${slide.nameKr}</div>
+        <div class="sb-sub">${slide.period || ''}</div>
+      </div>`;
+    item.addEventListener('click', () => selectSlide(slide.id));
+    container.appendChild(item);
   });
+  updateProgress();
+}
+
+function updateProgress() {
+  const SLIDES = getSLIDES().filter(s => !s.placeholder);
+  const idx = SLIDES.findIndex(s => s.id === currentId);
+  const pct = SLIDES.length > 1 ? (Math.max(0, idx) / (SLIDES.length - 1)) * 100 : 0;
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = pct + '%';
 }
 
 // ─────────────────────────────────────────────
 //  SELECT SLIDE
 // ─────────────────────────────────────────────
 function selectSlide(id) {
+  document.querySelectorAll('.sb-item').forEach(c => c.classList.remove('active'));
   document.querySelectorAll('.sci-card').forEach(c => c.classList.remove('active'));
   const SLIDES = getSLIDES();
   const slide = SLIDES.find(s => s.id === id);
@@ -1498,15 +1544,14 @@ function selectSlide(id) {
   currentId = id;
   const card = document.getElementById(`card-${id}`);
   if (card) {
-    const wrap = card.closest('.era-cards');
-    if (wrap && wrap.classList.contains('collapsed')) {
-      wrap.classList.remove('collapsed');
-      wrap.previousElementSibling?.classList.remove('collapsed');
-    }
     card.classList.add('active');
     card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
+  updateProgress();
   renderDetail(slide);
+  // Scroll main back to top on slide change
+  const main = document.getElementById('main');
+  if (main) main.scrollTop = 0;
 }
 
 // Helper: wrap text within a max width on canvas (used by ism/matrix/preview diagrams)
@@ -1886,16 +1931,14 @@ function renderDetail(slide) {
     }).join('');
   }
 
-  panel.innerHTML = `
+  const main = document.getElementById('main');
+  const target = main || panel;
+  target.innerHTML = `
     <div class="detail-content">
-      <div class="detail-hero">
-        <span class="detail-era-tag" style="${eraTagStyle[slide.era]}">${UI[lang].eraNames[slide.era]}</span>
-        <div class="detail-name">${slide.name}</div>
-        <div class="detail-name-kr">${slide.nameKr}</div>
-        <div class="detail-meta">
-          <span>${T.periodLabel}${slide.period}</span>
-          <span>${T.tagLabel}${slide.tags.join(' · ')}</span>
-        </div>
+      <div class="slide-header">
+        <div class="slide-eyebrow">${UI[lang].eraNames[slide.era]} · Module 01</div>
+        <div class="slide-title">${slide.name}</div>
+        <div class="slide-subtitle">${slide.nameKr}</div>
       </div>
       ${quoteHtml}
       ${bioHtml}
@@ -1909,10 +1952,11 @@ function renderDetail(slide) {
       ${connectionsHtml ? `<div class="section-title">${T.sectionNav}</div><div class="conn-list">${connectionsHtml}</div>` : ''}
     </div>`;
 
-  panel.scrollTop = 0;
+  if (main) main.scrollTop = 0;
+  else panel.scrollTop = 0;
 
   if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
-    MathJax.typesetPromise([panel]).catch(err => console.log('MathJax: ' + err.message));
+    MathJax.typesetPromise([target]).catch(err => console.log('MathJax: ' + err.message));
   }
 
   if (slide.showDiagram === 'sinewave') {
