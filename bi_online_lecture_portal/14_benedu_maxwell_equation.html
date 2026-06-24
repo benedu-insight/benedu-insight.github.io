@@ -6,45 +6,7 @@
 <title>Maxwell's Equations — Benedu Insight</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;800&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<style id="font-override">
-  /* EN 모드: 모든 요소에 Google Sans 적용 */
-  body[data-lang="en"],
-  body[data-lang="en"] * {
-    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
-  }
-  /* 모노스페이스 요소는 그대로 유지 */
-  body[data-lang="en"] header p,
-  body[data-lang="en"] .lang-btn,
-  body[data-lang="en"] .era-btn,
-  body[data-lang="en"] .toolbar-btn,
-  body[data-lang="en"] #scale-indicator,
-  body[data-lang="en"] .era-range,
-  body[data-lang="en"] .sci-year,
-  body[data-lang="en"] .sci-tag,
-  body[data-lang="en"] .detail-era-tag,
-  body[data-lang="en"] .detail-meta,
-  body[data-lang="en"] .model-img-source,
-  body[data-lang="en"] .quote-attr,
-  body[data-lang="en"] .section-title,
-  body[data-lang="en"] .eq-block,
-  body[data-lang="en"] .theory-year,
-  body[data-lang="en"] .sim-slider-label,
-  body[data-lang="en"] code,
-  body[data-lang="en"] pre {
-    font-family: 'JetBrains Mono', 'Fira Mono', monospace !important;
-  }
-  /* Montserrat 제목류는 Google Sans로 통일 */
-  body[data-lang="en"] header h1,
-  body[data-lang="en"] .detail-name,
-  body[data-lang="en"] .theory-name,
-  body[data-lang="en"] .era-label,
-  body[data-lang="en"] h1,
-  body[data-lang="en"] h2,
-  body[data-lang="en"] h3 {
-    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet"/>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
 
 <!-- MathJax Formula Engine with Safe Loading Config -->
@@ -70,727 +32,804 @@
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 <style>
-  :root {
-    --bg:          #F7F8FA;
-    --bg2:         #FFFFFF;
-    --bg3:         #F0E6F6;
-    --bg4:         #E5F4EC;
-    --green:       #0F8C50;
-    --green-soft:  #E5F4EC;
-    --green-mid:   #cbeadd;
-    --green-dark:  #0a6b3d;
-    --purple:      #2D3748; /* Sophisticated Slate Blue for Electromagnetics theme */
-    --purple-brand:#7030A0; /* Signature Brand Purple */
-    --purple-soft: #F0E6F6;
-    --purple-mid:  #d9b8ed;
-    --purple-dark: #521a78;
-    --blue-em:     #2B6CB0; /* Electric blue accent */
-    --blue-soft:   #EBF8FF;
-    --blue-mid:    #90CDF4;
-    --blue-dark:   #2B6CB0;
-    --charcoal:    #2D2D2D;
-    --text:        #2D2D2D;
-    --text2:       #6B7280;
-    --text3:       #9CA3AF;
-    --border:      #E5E7EB;
-    --border2:     #F3F4F6;
-    --shadow:      0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md:   0 4px 12px rgba(0,0,0,0.08);
-    --max-w:       1400px;
-    --scale:       1.0; /* Dynamic text size scaling factor */
-  }
+/* ═══════════════════════════════════════════════
+   BENEDU INSIGHT — MAXWELL'S EQUATIONS
+   23_impedance 스타일 계승, EM 아이덴티티 추가
+═══════════════════════════════════════════════ */
+:root {
+  --bg:          #F7F8FA;
+  --card:        #F1EFEA;
+  --card-hd:     #E7E4DD;
+  --purple:      #7030A0;
+  --green:       #0F8C50;
+  --green-soft:  #E5F4EC;
+  --green-dark:  #0a6b3d;
+  --blue:        #1A6FB5;
+  --blue-soft:   #EBF8FF;
+  --blue-dark:   #2B6CB0;
+  --teal:        #0891B2;
+  --red:         #C0392B;
+  --charcoal:    #2D2D2D;
+  --text:        #1A1A2E;
+  --text-sub:    #5A5A7A;
+  --text3:       #9CA3AF;
+  --border:      #D8D5CE;
+  --border2:     #F3F4F6;
+  --shadow:      0 2px 12px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.12);
+  --radius:      12px;
+  --font:        'Google Sans', 'Noto Sans KR', sans-serif;
+  --mono:        'JetBrains Mono', monospace;
+  --batang:      'Gowun Batang', serif;
+  --scale:       1.0;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Gowun Batang', serif;
-    min-height: 100vh;
-    width: 100%;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
 
-  /* ── Header ── */
-  header {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    padding: 0.75rem 1.75rem;
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-    box-shadow: var(--shadow);
-    width: 100%;
-    max-width: var(--max-w);
-  }
-  .header-logo {
-    height: 52px;
-    width: auto;
-    flex-shrink: 0;
-  }
-  .header-divider {
-    width: 1px;
-    height: 36px;
-    background: var(--border);
-    flex-shrink: 0;
-  }
-  .header-title-block { flex: 1; min-width: 0; }
-  header h1 {
-    font-family: 'Google Sans', 'Gowun Batang', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--purple-brand);
-    letter-spacing: 0.02em;
-    line-height: 1.2;
-  }
-  header p {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--text3);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-top: 2px;
-  }
-  .era-filter {
-    margin-left: auto;
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  /* Language Toggle */
-  .lang-toggle {
-    display: flex;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-    background: var(--bg);
-  }
-  .lang-btn {
-    padding: 3px 12px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.62rem;
-    font-weight: 500;
-    color: var(--text3);
-    transition: all 0.2s;
-  }
-  .lang-btn.active-lang {
-    background: var(--purple-brand);
-    color: #fff;
-  }
-  .era-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    color: var(--text2);
-    font-family: 'Gowun Batang', serif;
-    font-size: 0.78rem;
-    padding: 4px 14px;
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-  .era-btn:hover {
-    border-color: var(--purple-mid);
-    color: var(--purple-brand);
-    background: var(--purple-soft);
-  }
-  .era-btn.active {
-    background: var(--purple-brand);
-    border-color: var(--purple-brand);
-    color: #fff;
-  }
+/* ── Header ── */
+header {
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow);
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.header-logo { height: 46px; width: auto; flex-shrink: 0; }
+.header-divider { width: 1px; height: 32px; background: var(--border); flex-shrink: 0; }
+.header-title-block { flex: 1; min-width: 0; }
+header h1 {
+  font-family: var(--font);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--purple);
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+header p {
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  color: var(--text3);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
 
-  /* ── Layout ── */
-  .layout {
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    height: calc(100vh - 72px);
-    width: 100%;
-    max-width: var(--max-w);
-  }
+/* Language Toggle */
+.lang-toggle {
+  display: flex;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.lang-btn {
+  flex: 1;
+  padding: 5px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-sub);
+  transition: all 0.15s;
+}
+.lang-btn.active-lang {
+  background: var(--teal);
+  color: #fff;
+  font-weight: 600;
+}
 
-  /* ── Timeline Sidebar ── */
-  .timeline-sidebar {
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-    background: var(--bg2);
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-  .timeline-sidebar::-webkit-scrollbar { width: 4px; }
-  .timeline-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+/* Era filter buttons */
+.era-filter {
+  margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.era-btn {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-sub);
+  font-family: var(--font);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.era-btn:hover { border-color: var(--teal); color: var(--teal); background: #F0FAFF; }
+.era-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; font-weight: 600; }
 
-  .era-header {
-    position: sticky;
-    top: 0;
-    background: var(--bg2);
-    padding: 0.75rem 1rem 0.5rem;
-    border-bottom: 1px solid var(--border2);
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    cursor: pointer;
-    user-select: none;
-  }
-  .era-header:hover { background: var(--bg); }
-  .era-label {
-    font-family: 'Gowun Batang', serif;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-  }
-  .era-line { flex: 1; height: 1px; background: var(--border); }
-  .era-range {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.58rem;
-    color: var(--text3);
-    letter-spacing: 0.06em;
-  }
-  .era-toggle {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--border2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.6rem;
-    color: var(--text3);
-    transition: background 0.15s, transform 0.22s;
-  }
-  .era-header.collapsed .era-toggle {
-    transform: rotate(-90deg);
-  }
-  .era-header:hover .era-toggle {
-    background: var(--border);
-    color: var(--text2);
-  }
-  .era-cards {
-    overflow: hidden;
-    max-height: 2000px;
-    transition: max-height 0.3s ease, opacity 0.25s ease;
-    opacity: 1;
-  }
-  .era-cards.collapsed {
-    max-height: 0;
-    opacity: 0;
-  }
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  height: calc(100vh - 70px);
+  width: 100%;
+}
 
-  /* Lecture Card in Sidebar */
-  .sci-card {
-    padding: 0.75rem 1rem 0.75rem 1.1rem;
-    border-bottom: 1px solid var(--border2);
-    cursor: pointer;
-    position: relative;
-    transition: background 0.15s;
-    display: flex;
-    gap: 0.7rem;
-    align-items: flex-start;
-    border-left: 3px solid transparent;
-  }
-  .sci-card:hover { background: var(--bg); }
-  .sci-card.active { background: var(--purple-soft); border-left-color: var(--purple-brand); }
+/* ── Sidebar ── */
+.timeline-sidebar {
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  background: #FFFFFF;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.timeline-sidebar::-webkit-scrollbar { width: 4px; }
+.timeline-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  .sci-year {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--text3);
-    min-width: 48px;
-    padding-top: 2px;
-    line-height: 1.4;
-  }
-  .sci-info { flex: 1; min-width: 0; }
-  .sci-name {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--charcoal);
-    line-height: 1.3;
-  }
-  .sci-card.active .sci-name { color: var(--purple-dark); }
-  .sci-nation {
-    font-size: 0.68rem;
-    color: var(--text3);
-    margin-top: 1px;
-    font-family: 'Gowun Batang', serif;
-  }
-  .sci-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    margin-top: 4px;
-  }
-  .sci-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.54rem;
-    padding: 1px 6px;
-    border-radius: 8px;
-    letter-spacing: 0.03em;
-  }
+.era-header {
+  position: sticky;
+  top: 0;
+  background: #FFFFFF;
+  padding: 0.7rem 1rem 0.5rem;
+  border-bottom: 1px solid #F0F0EE;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+}
+.era-header:hover { background: var(--bg); }
+.era-label {
+  font-family: var(--font);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-sub);
+}
+.era-line { flex: 1; height: 1px; background: var(--border); }
+.era-range {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
+.era-toggle {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #F0F0EE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: var(--text-sub);
+  transition: background 0.15s, transform 0.22s;
+}
+.era-header.collapsed .era-toggle { transform: rotate(-90deg); }
+.era-header:hover .era-toggle { background: var(--border); }
+.era-cards {
+  overflow: hidden;
+  max-height: 2000px;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+.era-cards.collapsed { max-height: 0; opacity: 0; }
 
-  /* ── Detail Panel & Scroll Wrapper ── */
-  .detail-panel {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg);
-  }
-  
-  /* Sticky Reading Toolbar */
-  .content-toolbar {
-    position: sticky;
-    top: 0;
-    background: rgba(247, 248, 250, 0.95);
-    backdrop-filter: blur(8px);
-    padding: 0.6rem 2.25rem;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0.55rem;
-    border-bottom: 1px solid var(--border);
-    z-index: 10;
-  }
-  .toolbar-btn {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg2);
-    color: var(--text);
-    padding: 4px 10px;
-    font-size: 0.72rem;
-    cursor: pointer;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 500;
-    transition: all 0.15s;
-  }
-  .toolbar-btn:hover {
-    border-color: var(--purple-mid);
-    background: var(--purple-soft);
-    color: var(--purple-dark);
-  }
-  .toolbar-btn:active {
-    transform: scale(0.95);
-  }
+/* Sidebar Cards */
+.sci-card {
+  padding: 0.7rem 1rem 0.7rem 1.1rem;
+  border-bottom: 1px solid #F0F0EE;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  border-left: 3px solid transparent;
+}
+.sci-card:hover { background: var(--bg); }
+.sci-card.active { background: #F0FAFF; border-left-color: var(--teal); }
 
-  #detail {
-    flex: 1;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-  #detail::-webkit-scrollbar { width: 4px; }
-  #detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.sci-year {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text3);
+  min-width: 48px;
+  padding-top: 2px;
+  line-height: 1.4;
+}
+.sci-info { flex: 1; min-width: 0; }
+.sci-name {
+  font-family: var(--font);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--charcoal);
+  line-height: 1.3;
+}
+.sci-card.active .sci-name { color: var(--teal); }
+.sci-nation {
+  font-size: 0.68rem;
+  color: var(--text3);
+  margin-top: 1px;
+  font-family: var(--batang);
+}
+.sci-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.sci-tag {
+  font-family: var(--mono);
+  font-size: 0.54rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  letter-spacing: 0.03em;
+}
 
-  .detail-content { padding: 2.25rem; max-width: 860px; margin: 0 auto; }
+/* ── Detail Panel ── */
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
 
-  /* Hero slide card */
-  .detail-hero {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.75rem 2rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow);
-  }
-  .detail-era-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 0.6rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-weight: 500;
-  }
-  .detail-name {
-    font-family: 'Google Sans', 'Montserrat', sans-serif;
-    font-size: calc(1.8rem * var(--scale));
-    font-weight: 800;
-    line-height: 1.1;
-    color: var(--purple-brand);
-    margin-bottom: 0.15rem;
-    transition: font-size 0.15s ease-out;
-  }
-  .detail-name-kr {
-    font-family: 'Gowun Batang', serif;
-    font-size: calc(1rem * var(--scale));
-    color: var(--text2);
-    margin-bottom: 0.75rem;
-    font-weight: 400;
-    transition: font-size 0.15s ease-out;
-  }
-  .detail-meta {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(0.68rem * var(--scale));
-    color: var(--text2);
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--border2);
-    transition: font-size 0.15s ease-out;
-  }
+/* Toolbar */
+.content-toolbar {
+  position: sticky;
+  top: 0;
+  background: rgba(247, 248, 250, 0.96);
+  backdrop-filter: blur(8px);
+  padding: 0.55rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+.toolbar-btn {
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text-sub);
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.toolbar-btn:hover { border-color: var(--teal); background: #F0FAFF; color: var(--teal); }
+.toolbar-btn:active { transform: scale(0.95); }
 
-  /* Model Graphic Showcase */
-  .model-showcase {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow);
-  }
-  .model-svg-wrapper {
-    width: 100%;
-    max-width: 600px;
-    min-height: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* Sim style enhancements */
-  .sim-container {
-    width: 100%;
-    background: #FAFAFA;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-top: 1rem;
-  }
-  .sim-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-    padding: 0.5rem;
-    background: #FFF;
-    border-radius: 6px;
-    border: 1px solid #E5E7EB;
-    align-items: center;
-    font-size: 0.8rem;
-  }
-  .sim-slider-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: bold;
-    color: var(--purple-brand);
-  }
-  .sim-tab-btns {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-  .sim-tab-btn {
-    flex: 1;
-    padding: 8px;
-    background: #E5E7EB;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: 'Gowun Batang', serif;
-    font-size: 0.78rem;
-    font-weight: bold;
-    transition: all 0.2s;
-  }
-  .sim-tab-btn.active {
-    background: var(--purple-brand);
-    color: #FFF;
-  }
+#detail {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+#detail::-webkit-scrollbar { width: 4px; }
+#detail::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  /* Quote Box */
-  .quote-block {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem 1.1rem;
-    margin-bottom: 1.25rem;
-    box-shadow: var(--shadow);
-  }
-  .quote-badge {
-    flex: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--green-soft);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    margin-top: 2px;
-  }
-  .quote-body { flex: 1; min-width: 0; }
-  .quote-text {
-    font-family: 'Gowun Batang', serif;
-    font-style: italic;
-    font-size: calc(0.9rem * var(--scale));
-    color: var(--green-dark);
-    line-height: 1.78;
-    transition: font-size 0.15s ease-out;
-  }
-  .quote-attr {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(0.6rem * var(--scale));
-    color: var(--text3);
-    margin-top: 0.45rem;
-    letter-spacing: 0.06em;
-    transition: font-size 0.15s ease-out;
-  }
+.detail-content { padding: 2rem 3rem 3rem; max-width: 100%; margin: 0; }
 
-  /* Detailed Lecture notes */
-  .detail-bio {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem 1.5rem;
-    font-size: calc(0.9rem * var(--scale));
-    line-height: 1.9;
-    color: var(--text);
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow);
-    transition: font-size 0.15s ease-out;
-  }
-  .detail-bio p + p { margin-top: 0.85em; }
+/* ── Hero Card ── */
+.detail-hero {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.detail-era-tag {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.detail-name {
+  font-family: var(--font);
+  font-size: calc(1.75rem * var(--scale));
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--purple);
+  margin-bottom: 0.15rem;
+  transition: font-size 0.15s ease-out;
+}
+.detail-name-kr {
+  font-family: var(--batang);
+  font-size: calc(0.95rem * var(--scale));
+  color: var(--text-sub);
+  margin-bottom: 0.7rem;
+  font-weight: 400;
+  transition: font-size 0.15s ease-out;
+}
+.detail-meta {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: calc(0.67rem * var(--scale));
+  color: var(--text-sub);
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+  transition: font-size 0.15s ease-out;
+}
 
-  /* Section Titles */
-  .section-title {
-    font-family: 'Gowun Batang', serif;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text3);
-    margin-top: 2rem;
-    margin-bottom: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* ── Model Showcase ── */
+.model-showcase {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.model-svg-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  /* Equations container */
-  .eq-block {
-    background: var(--charcoal);
-    border-radius: 8px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 0.5rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(0.95rem * var(--scale));
-    color: #a8f5c8;
-    letter-spacing: 0.04em;
-    overflow-x: auto;
-    transition: font-size 0.15s ease-out;
-  }
+/* ── Diagram Card (d-wrap) ── */
+.d-wrap {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.d-header {
+  background: var(--card-hd);
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.d-badge {
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+}
+.d-badge.purple { background: var(--purple); }
+.d-badge.green  { background: var(--green); }
+.d-badge.blue   { background: var(--blue); }
+.d-title { font-size: 0.88rem; font-weight: 700; color: var(--text); font-family: var(--font); }
+.d-body { padding: 1.1rem; }
 
-  /* Grid details card */
-  .theories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-  .theory-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.1rem;
-    transition: box-shadow 0.18s, border-color 0.18s;
-    box-shadow: var(--shadow);
-  }
-  .theory-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--purple-mid);
-  }
-  .theory-year {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: calc(0.6rem * var(--scale));
-    letter-spacing: 0.06em;
-    margin-bottom: 0.3rem;
-    color: var(--blue-dark);
-    font-weight: 500;
-    transition: font-size 0.15s ease-out;
-  }
-  .theory-name {
-    font-size: calc(0.88rem * var(--scale));
-    font-weight: 700;
-    color: var(--charcoal);
-    margin-bottom: 0.35rem;
-    line-height: 1.3;
-    transition: font-size 0.15s ease-out;
-  }
-  .theory-desc {
-    font-size: calc(0.76rem * var(--scale));
-    color: var(--text2);
-    line-height: 1.65;
-    font-family: 'Gowun Batang', serif;
-    transition: font-size 0.15s ease-out;
-  }
+/* ── Equation Block ── */
+.eq-block {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 10px 0;
+  font-family: var(--mono);
+  font-size: calc(0.92rem * var(--scale));
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: font-size 0.15s ease-out;
+}
+.eq-label {
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  text-align: right;
+  margin-top: 4px;
+  font-family: var(--font);
+}
 
-  /* ── Collapsible Classroom Box ── */
-  details.classroom-box {
-    background: #FFFDF0;
-    border: 1px dashed #EEDF8B;
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    cursor: pointer;
-    transition: border 0.15s;
-  }
-  details.classroom-box[open] {
-    border-style: solid;
-    border-color: #D6C359;
-  }
-  details.classroom-box summary {
-    font-family: 'Gowun Batang', serif;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #8C730F;
-    outline: none;
-    user-select: none;
-  }
-  .classroom-body {
-    font-size: calc(0.78rem * var(--scale));
-    line-height: 1.7;
-    color: #6B5B1E;
-    margin-top: 0.75rem;
-    cursor: default;
-    transition: font-size 0.15s ease-out;
-  }
+/* ── Quote Box ── */
+.quote-block {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow);
+}
+.quote-badge {
+  flex: none;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; margin-top: 2px;
+}
+.quote-body { flex: 1; min-width: 0; }
+.quote-text {
+  font-family: var(--batang);
+  font-style: italic;
+  font-size: calc(0.9rem * var(--scale));
+  color: var(--green-dark);
+  line-height: 1.78;
+  transition: font-size 0.15s ease-out;
+}
+.quote-attr {
+  font-family: var(--mono);
+  font-size: calc(0.6rem * var(--scale));
+  color: var(--text3);
+  margin-top: 0.45rem;
+  letter-spacing: 0.06em;
+  transition: font-size 0.15s ease-out;
+}
 
-  /* ── Interactive ELECTROMAGNETIC MODELS Dashboard ── */
-  .overview-container {
-    background: #EAEBED;
-    border-radius: 16px;
-    padding: 2.25rem 1.5rem;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-    margin-bottom: 1.5rem;
-    text-align: center;
-  }
-  .overview-grid {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .overview-card {
-    flex: 1;
-    min-width: 155px;
-    max-width: 185px;
-    background: #FFF;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.2rem 0.5rem;
-    cursor: pointer;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    height: 250px;
-    box-shadow: var(--shadow);
-  }
-  .overview-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--purple-mid);
-  }
-  .overview-card-tag {
-    background: #90CDF4;
-    color: #2D3748;
-    font-size: 0.54rem;
-    font-weight: bold;
-    padding: 3px 6px;
-    border-radius: 4px;
-    width: 100%;
-    text-align: center;
-    margin-top: 0.5rem;
-    font-family: 'JetBrains Mono', monospace;
-  }
+/* ── Callout ── */
+.callout {
+  background: #F0FAFF;
+  border: 1px solid #A8D8E8;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  font-size: calc(0.84rem * var(--scale));
+  line-height: 1.65;
+  color: var(--text);
+  transition: font-size 0.15s ease-out;
+}
+.callout.green  { background: #F0FAF4; border-color: #A8D5B8; }
+.callout.purple { background: #F8F6FF; border-color: #C9B8E8; }
+.callout.blue   { background: #EBF8FF; border-color: #90CDF4; }
+.callout-title {
+  font-weight: 700;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  color: var(--teal);
+  font-family: var(--font);
+}
+.callout.green .callout-title  { color: var(--green); }
+.callout.purple .callout-title { color: var(--purple); }
+.callout.blue .callout-title   { color: var(--blue-dark); }
 
-  /* Summary Matrix Styles (Special Module) */
-  .summary-matrix {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--bg2);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    margin-bottom: 1.5rem;
-  }
-  .summary-matrix th, .summary-matrix td {
-    padding: 0.75rem 1rem;
-    font-size: calc(0.78rem * var(--scale));
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-    transition: font-size 0.15s ease-out;
-  }
-  .summary-matrix th {
-    background: var(--purple-soft);
-    color: var(--purple-dark);
-    font-weight: 700;
-    font-family: 'Gowun Batang', serif;
-  }
+/* ── Detail Bio ── */
+.detail-bio {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  font-size: calc(0.88rem * var(--scale));
+  line-height: 1.9;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  font-family: var(--batang);
+  transition: font-size 0.15s ease-out;
+}
+.detail-bio p + p { margin-top: 0.85em; }
 
-  /* Connections (Next Chapter Navigation) */
-  .conn-list { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 2rem; }
-  .conn-chip {
-    background: var(--purple-soft);
-    border: 1px solid var(--purple-mid);
-    border-radius: 20px;
-    padding: 4px 14px;
-    font-size: calc(0.76rem * var(--scale));
-    color: var(--purple-dark);
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: 'Gowun Batang', serif;
-  }
-  .conn-chip:hover {
-    background: var(--purple-brand);
-    border-color: var(--purple-brand);
-    color: #fff;
-  }
+/* ── Section Title ── */
+.section-title {
+  font-family: var(--font);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* Model Image Formatting and Fit Rules */
-  .model-img-wrapper img {
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: var(--shadow-md);
-  }
+/* ── Theory/Detail Cards Grid ── */
+.theories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.theory-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: box-shadow 0.18s, border-color 0.18s;
+}
+.theory-card:hover { box-shadow: var(--shadow-md); border-color: var(--teal); }
+.theory-year {
+  font-family: var(--mono);
+  font-size: calc(0.6rem * var(--scale));
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+  color: var(--blue-dark);
+  font-weight: 500;
+  transition: font-size 0.15s ease-out;
+}
+.theory-name {
+  font-size: calc(0.87rem * var(--scale));
+  font-weight: 700;
+  color: var(--charcoal);
+  margin-bottom: 0.35rem;
+  line-height: 1.3;
+  font-family: var(--font);
+  transition: font-size 0.15s ease-out;
+}
+.theory-desc {
+  font-size: calc(0.76rem * var(--scale));
+  color: var(--text-sub);
+  line-height: 1.65;
+  font-family: var(--batang);
+  transition: font-size 0.15s ease-out;
+}
 
-  /* Responsive Design */
-  @media (max-width: 860px) {
-    .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
-    header { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.6rem; }
-    .header-logo { height: 38px; }
-    .header-divider { display: none; }
-    header h1 { font-size: 1.15rem; }
-    .era-filter { width: 100%; justify-content: flex-start; }
-    .detail-content { padding: 1.25rem 1rem 3rem; }
-    .detail-name { font-size: 1.5rem; }
-    .model-svg-wrapper { width: 220px; height: 220px; }
-  }
+/* ── Collapsible Classroom Box ── */
+details.classroom-box {
+  background: #FFFDF0;
+  border: 1px dashed #EEDF8B;
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: border 0.15s;
+}
+details.classroom-box[open] { border-style: solid; border-color: #D6C359; }
+details.classroom-box summary {
+  font-family: var(--font);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #8C730F;
+  outline: none;
+  user-select: none;
+}
+.classroom-body {
+  font-size: calc(0.78rem * var(--scale));
+  line-height: 1.7;
+  color: #6B5B1E;
+  margin-top: 0.75rem;
+  cursor: default;
+  font-family: var(--batang);
+  transition: font-size 0.15s ease-out;
+}
+
+/* ── Overview Dashboard ── */
+.overview-container {
+  background: #EAEBED;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.overview-grid {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.overview-card {
+  flex: 1;
+  min-width: 180px;
+  max-width: 260px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s, border-color 0.2s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 250px;
+  box-shadow: var(--shadow);
+}
+.overview-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--teal); }
+.overview-card-tag {
+  background: #90CDF4;
+  color: #1A1A2E;
+  font-size: 0.54rem;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 4px;
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+}
+
+/* ── Sim Container ── */
+.sim-container {
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+.sim-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: var(--bg);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  align-items: center;
+  font-size: 0.8rem;
+}
+.sim-slider-label {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--purple);
+}
+.sim-tab-btns {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+.sim-tab-btn {
+  flex: 1;
+  padding: 8px 18px 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-sub);
+  transition: all 0.15s;
+}
+.sim-tab-btn.active {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+  font-weight: 700;
+}
+.sim-tab-btn:hover:not(.active) { color: var(--text); }
+
+/* ── Summary Matrix Table ── */
+.summary-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+.summary-matrix th, .summary-matrix td {
+  padding: 0.75rem 1rem;
+  font-size: calc(0.78rem * var(--scale));
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  transition: font-size 0.15s ease-out;
+}
+.summary-matrix th {
+  background: var(--card-hd);
+  color: var(--text-sub);
+  font-weight: 700;
+  font-family: var(--font);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.73rem;
+}
+.summary-matrix tr:hover td { background: #F0FAFF; }
+
+/* ── Connections ── */
+.conn-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 2rem; }
+.conn-chip {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: calc(0.75rem * var(--scale));
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--mono);
+  font-weight: 600;
+}
+.conn-chip:hover { border-color: var(--teal); color: var(--teal); background: #F0FAFF; }
+
+/* ── Model Image ── */
+.model-img-wrapper img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+}
+.model-img-source {
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  color: var(--text3);
+  text-align: center;
+}
+
+/* ── Scale indicator ── */
+#scale-indicator {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  margin-right: auto;
+}
+
+/* ── Empty State ── */
+.detail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  color: var(--text3);
+  gap: 1rem;
+  padding: 3rem;
+}
+.detail-empty p {
+  font-family: var(--font);
+  font-size: 0.88rem;
+  color: var(--text3);
+}
+.icon-ring {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 2px dashed var(--border);
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+  header { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.6rem; }
+  .header-logo { height: 36px; }
+  .header-divider { display: none; }
+  header h1 { font-size: 1.1rem; }
+  .era-filter { width: 100%; justify-content: flex-start; }
+  .detail-content { padding: 1.25rem 1rem 3rem; }
+  .detail-name { font-size: 1.4rem; }
+}
 </style>
+
 </head>
 <body>
 
@@ -824,13 +863,13 @@
   <div class="detail-panel">
     <!-- Sticky Reading Toolbar for dynamic sizing -->
     <div class="content-toolbar">
-      <span id="fontSizeLabel" style="font-family: 'Gowun Batang', serif; font-size: 0.75rem; color: var(--text2); font-weight: bold; margin-right: auto; display: flex; align-items: center; gap: 5px;">
+      <span id="fontSizeLabel" style="font-family: var(--batang); font-size: 0.75rem; color: var(--text-sub); font-weight: bold; margin-right: auto; display: flex; align-items: center; gap: 5px;">
         🔍 본문 글자 크기
       </span>
       <button class="toolbar-btn" onclick="adjustScale(-0.1)" id="btnScaleDown" title="작게">- 작게</button>
-      <span id="scale-indicator" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--purple-brand); font-weight: bold; min-width: 45px; text-align: center;">100%</span>
+      <span id="scale-indicator" style="font-family: var(--mono); font-size: 0.78rem; color: var(--purple); font-weight: bold; min-width: 45px; text-align: center;">100%</span>
       <button class="toolbar-btn" onclick="adjustScale(0.1)" id="btnScaleUp" title="크게">+ 크게</button>
-      <button class="toolbar-btn" onclick="adjustScale(0)" id="btnScaleReset" title="기본 크기로 초기화" style="border-color: var(--purple-mid); color: var(--purple-brand);">초기화</button>
+      <button class="toolbar-btn" onclick="adjustScale(0)" id="btnScaleReset" title="기본 크기로 초기화" style="border-color: #C9B8E8; color: var(--purple);">초기화</button>
     </div>
     
     <div id="detail">
@@ -914,7 +953,11 @@ const UI = {
       voltageLabel: 'RF 인가 전압 (쉬스 전압):',
       ccpNote: '(가우스 전기장 적분량 및 Ion 가속도 폭 증가)',
       formulaPrefix: '수식 실시간 연산: ',
-      ccpCanvasText: '가우스 법칙에 의한 양이온 공간전하 쉬스 고전압 전계 가속'
+      ccpCanvasText: '가우스 법칙에 의한 양이온 공간전하 쉬스 고전압 전계 가속',
+      extSimTitle: '심화 인터랙티브 시뮬레이터',
+      extSimDesc: '전기선속 · 가우스 법칙 · 대칭성 E-Field를 4가지 섹션으로 심층 탐구하는 전용 시뮬레이터입니다.',
+      extSimBtn: '전용 시뮬레이터 열기',
+      extSimSections: ['① 전기선속 Φ', '② 가우스 법칙', '③ 대칭 E-Field', '④ 비교표']
     },
     mag: {
       sectionTitle: 'Gauss\'s Law for Magnetism (가우스 자기장 법칙)',
@@ -1014,7 +1057,11 @@ const UI = {
       voltageLabel: 'Applied RF Voltage (Sheath Voltage):',
       ccpNote: '(Increases Gauss field integral and ion acceleration)',
       formulaPrefix: 'Live formula: ',
-      ccpCanvasText: 'Sheath field accelerates positive-ion space charge per Gauss\'s Law'
+      ccpCanvasText: 'Sheath field accelerates positive-ion space charge per Gauss\'s Law',
+      extSimTitle: 'Advanced Interactive Simulator',
+      extSimDesc: 'A dedicated simulator for in-depth exploration of electric flux, Gauss\'s Law, symmetry E-fields, and comparisons across four sections.',
+      extSimBtn: 'Open Dedicated Simulator',
+      extSimSections: ['① Electric Flux Φ', '② Gauss\'s Law', '③ Symmetry E-Field', '④ Comparison']
     },
     mag: {
       sectionTitle: 'Gauss\'s Law for Magnetism',
@@ -1671,9 +1718,9 @@ function buildSidebar(filter) {
   ];
 
   const eraColors = {
-    electrostatics: { tag: '#3182CE', tagBg: '#EBF8FF', tagBorder: '#bee3f8' },
-    dynamics:       { tag: '#7030A0', tagBg: '#F0E6F6', tagBorder: '#d9b8ed' },
-    synthesis:      { tag: '#E53E3E', tagBg: '#FFF5F5', tagBorder: '#fed7d7' }
+    electrostatics: { tag: '#0891B2', tagBg: '#F0FAFF', tagBorder: '#A8D8E8' },
+    dynamics:       { tag: '#7030A0', tagBg: '#F8F6FF', tagBorder: '#C9B8E8' },
+    synthesis:      { tag: '#0F8C50', tagBg: '#F0FAF4', tagBorder: '#A8D5B8' }
   };
 
   eras.forEach(era => {
@@ -1764,9 +1811,9 @@ function renderDetail(slide) {
   const eraNames = T.eraNames;
 
   const eraTagStyle = {
-    electrostatics: 'background:#EBF8FF;color:#2B6CB0',
-    dynamics:       'background:#F0E6F6;color:#521a78',
-    synthesis:      'background:#FFF5F5;color:#9B2C2C'
+    electrostatics: 'background:#F0FAFF;color:#0891B2',
+    dynamics:       'background:#F8F6FF;color:#7030A0',
+    synthesis:      'background:#F0FAF4;color:#0F8C50'
   };
 
   // 1. Build Center content details or Matrix based on chapter type
@@ -1809,7 +1856,7 @@ function renderDetail(slide) {
             </div>
             <div>
               <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussE.name}</div>
-              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussE.sub}</div>
+              <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussE.sub}</div>
             </div>
             <div class="overview-card-tag">$$\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}$$</div>
           </div>
@@ -1825,7 +1872,7 @@ function renderDetail(slide) {
             </div>
             <div>
               <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussB.name}</div>
-              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussB.sub}</div>
+              <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussB.sub}</div>
             </div>
             <div class="overview-card-tag">$$\\nabla \\cdot \\mathbf{B} = 0$$</div>
           </div>
@@ -1843,7 +1890,7 @@ function renderDetail(slide) {
             </div>
             <div>
               <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.faraday.name}</div>
-              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.faraday.sub}</div>
+              <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.faraday.sub}</div>
             </div>
             <div class="overview-card-tag">$$\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$$</div>
           </div>
@@ -1860,7 +1907,7 @@ function renderDetail(slide) {
             </div>
             <div>
               <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.ampere.name}</div>
-              <div style="font-family: 'Gowun Batang', serif; font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.ampere.sub}</div>
+              <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.ampere.sub}</div>
             </div>
             <div class="overview-card-tag" style="font-size:0.43rem">$$\\nabla \\times \\mathbf{B} = \\mu_0(\\mathbf{J} + \\varepsilon_0 \\partial\\mathbf{E}/\\partial t)$$</div>
           </div>
@@ -1926,7 +1973,7 @@ function renderDetail(slide) {
           <div class="sim-controls" id="gauss-controls-classic">
             <span class="sim-slider-label">${T.gauss.chargeLabel}</span>
             <input type="range" id="gauss-charge-slider" min="-10" max="10" value="6" step="1" oninput="updateGaussSimulation()">
-            <span id="gauss-charge-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--blue-dark)">+6 nC</span>
+            <span id="gauss-charge-val" style="font-family: var(--mono); font-weight:bold; color:var(--blue-dark)">+6 nC</span>
             
             <label style="margin-left:auto; display:flex; align-items:center; gap:5px; font-weight:bold; font-size:0.8rem">
               <input type="checkbox" id="gauss-field-toggle" checked onchange="updateGaussSimulation()">
@@ -1936,12 +1983,39 @@ function renderDetail(slide) {
           <div class="sim-controls" id="gauss-controls-ccp" style="display:none;">
             <span class="sim-slider-label">${T.gauss.voltageLabel}</span>
             <input type="range" id="ccp-voltage-slider" min="100" max="1000" value="250" step="50" oninput="updateGaussSimulation()">
-            <span id="ccp-voltage-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:#E53E3E">250 V</span>
-            <div style="font-size:0.75rem; color:var(--text2); margin-left:10px;">${T.gauss.ccpNote}</div>
+            <span id="ccp-voltage-val" style="font-family: var(--mono); font-weight:bold; color:#E53E3E">250 V</span>
+            <div style="font-size:0.75rem; color:var(--text-sub); margin-left:10px;">${T.gauss.ccpNote}</div>
           </div>
-          <div id="gauss-formula-dynamic" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
+          <div id="gauss-formula-dynamic" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
             ${T.gauss.formulaPrefix}$$\Phi = \oint_S \mathbf{E} \cdot d\\mathbf{A} = +6.0 \times 10^2 \text{ N}\cdot\text{m}^2/\text{C}$$
           </div>
+        </div>
+      </div>
+
+      <!-- ── 외부 전용 시뮬레이터 연결 카드 ── -->
+      <div class="d-wrap" style="margin-top:1.5rem;">
+        <div class="d-header">
+          <span class="d-badge" style="background:var(--green);">⚡ LAB</span>
+          <span class="d-title">${T.gauss.extSimTitle}</span>
+        </div>
+        <div class="d-body" style="padding:1.25rem 1.5rem;">
+          <p style="font-size:0.875rem; color:var(--text-sub); line-height:1.65; margin-bottom:1rem;">
+            ${T.gauss.extSimDesc}
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.25rem;">
+            ${T.gauss.extSimSections.map(s => `
+              <span style="display:inline-flex; align-items:center; gap:5px; background:var(--green-soft); color:var(--green-dark); font-size:0.75rem; font-weight:600; padding:4px 12px; border-radius:20px; border:1px solid #A8D5B8; font-family:var(--mono);">${s}</span>
+            `).join('')}
+          </div>
+          <a href="./sims/gauss_electric_flux_sims.html" target="_blank" rel="noopener noreferrer"
+             style="display:inline-flex; align-items:center; gap:8px; background:var(--green); color:#fff; font-size:0.84rem; font-weight:700; padding:10px 22px; border-radius:10px; text-decoration:none; transition:background 0.18s; box-shadow:0 2px 8px rgba(15,140,80,0.25);"
+             onmouseover="this.style.background='var(--green-dark)'"
+             onmouseout="this.style.background='var(--green)'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            ${T.gauss.extSimBtn}
+          </a>
         </div>
       </div>
     `;
@@ -1961,18 +2035,18 @@ function renderDetail(slide) {
           <div class="sim-controls" id="mag-controls-classic">
             <span class="sim-slider-label">${T.mag.angleLabel}</span>
             <input type="range" id="mag-angle-slider" min="0" max="360" value="45" step="5" oninput="updateMagSimulation()">
-            <span id="mag-angle-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--blue-dark)">45°</span>
+            <span id="mag-angle-val" style="font-family: var(--mono); font-weight:bold; color:var(--blue-dark)">45°</span>
 
             <span class="sim-slider-label" style="margin-left: 20px;">${T.mag.strengthLabel}</span>
             <input type="range" id="mag-strength-slider" min="1" max="10" value="5" step="1" oninput="updateMagSimulation()">
-            <span id="mag-strength-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--green)">5 T</span>
+            <span id="mag-strength-val" style="font-family: var(--mono); font-weight:bold; color:var(--green)">5 T</span>
           </div>
           <div class="sim-controls" id="mag-controls-confinement" style="display:none;">
             <span class="sim-slider-label">${T.mag.confLabel}</span>
             <input type="range" id="mag-conf-slider" min="1" max="5" value="3" step="1" oninput="updateMagSimulation()">
-            <span id="mag-conf-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:#E53E3E">Level 3</span>
+            <span id="mag-conf-val" style="font-family: var(--mono); font-weight:bold; color:#E53E3E">Level 3</span>
           </div>
-          <div id="mag-formula-dynamic" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
+          <div id="mag-formula-dynamic" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
             ${T.mag.formulaPrefix}$$\Phi_B = \oint_S \mathbf{B} \cdot d\mathbf{A} = 0 \text{ Wb}$$
           </div>
         </div>
@@ -1999,11 +2073,11 @@ function renderDetail(slide) {
           <div class="sim-controls" id="faraday-controls-icp" style="display:none;">
             <span class="sim-slider-label">${T.faraday.freqLabel}</span>
             <input type="range" id="icp-freq-slider" min="1" max="15" value="13" step="1">
-            <span id="icp-freq-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:var(--purple-brand)">13.56 MHz</span>
-            <div style="font-size:0.72rem; color:var(--text2); margin-left:10px;">${T.faraday.freqNote}</div>
+            <span id="icp-freq-val" style="font-family: var(--mono); font-weight:bold; color:var(--purple)">13.56 MHz</span>
+            <div style="font-size:0.72rem; color:var(--text-sub); margin-left:10px;">${T.faraday.freqNote}</div>
           </div>
-          <div id="faraday-voltage-indicator" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
-            ${T.faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple-brand); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
+          <div id="faraday-voltage-indicator" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
+            ${T.faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
           </div>
         </div>
       </div>
@@ -2029,11 +2103,11 @@ function renderDetail(slide) {
           <div class="sim-controls" id="ampere-controls-transition" style="display:none;">
             <span class="sim-slider-label">${T.ampere.powerLabel}</span>
             <input type="range" id="icp-power-slider" min="0" max="500" value="60" step="10" oninput="updateAmpereSimulation()">
-            <span id="icp-power-val" style="font-family: 'JetBrains Mono', monospace; font-weight:bold; color:#E53E3E">60 W</span>
-            <span id="icp-mode-badge" style="background:#EBF8FF; color:#2B6CB0; font-weight:bold; padding:3px 10px; border-radius:12px; margin-left:auto; font-size:0.75rem;">${T.ampere.modeEmode}</span>
+            <span id="icp-power-val" style="font-family: var(--mono); font-weight:bold; color:#E53E3E">60 W</span>
+            <span id="icp-mode-badge" style="background:#F0FAFF; color:#0891B2; font-weight:bold; padding:3px 10px; border-radius:12px; margin-left:auto; font-size:0.75rem;">${T.ampere.modeEmode}</span>
           </div>
-          <div id="ampere-caption-indicator" style="font-family: 'JetBrains Mono', monospace; font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple-brand); padding-top:5px;">
-            ${T.ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple-brand); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
+          <div id="ampere-caption-indicator" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
+            ${T.ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
           </div>
         </div>
       </div>
@@ -2046,9 +2120,9 @@ function renderDetail(slide) {
     if (isWideInfographic) {
       imgStyle = 'max-height: none; width: 100%; object-fit: contain; border-radius: 8px;';
     } else if (isSquareImage) {
-      imgStyle = 'max-height: 480px; width: 100%; max-width: 480px; object-fit: contain; border-radius: 8px;';
+      imgStyle = 'max-height: 480px; width: 100%; max-width: 600px; object-fit: contain; border-radius: 8px;';
     } else if (slide.imageUrl.includes('electromagnetic_wave_propagation.png')) {
-      imgStyle = 'max-height: 415px; width: 100%; max-width: 716px; object-fit: contain; border-radius: 8px;';
+      imgStyle = 'max-height: 415px; width: 100%; object-fit: contain; border-radius: 8px;';
     }
 
     mediaShowcaseHtml = `
@@ -2734,7 +2808,7 @@ function setFaradayTab(tab) {
     if (iframeEl) iframeEl.style.display = 'block';
     if (canvasEl) canvasEl.style.display = 'none';
     if (indicatorEl) {
-      indicatorEl.innerHTML = `${UI[lang].faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple-brand); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
+      indicatorEl.innerHTML = `${UI[lang].faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
     }
   } else {
     if (controlsLab) controlsLab.style.display = 'none';
@@ -2890,7 +2964,7 @@ function setAmpereTab(tab) {
     if (iframeEl) iframeEl.style.display = 'block';
     if (canvasEl) canvasEl.style.display = 'none';
     if (captionEl) {
-      captionEl.innerHTML = `${UI[lang].ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple-brand); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
+      captionEl.innerHTML = `${UI[lang].ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
     }
   } else {
     if (controlsLab) controlsLab.style.display = 'none';
