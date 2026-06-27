@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Benedu Insight — 평가 시험</title>
+  <link rel="icon" type="image/png"
+    href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --green:      #0F8C50;
+      --green-lt:   #E6F4ED;
+      --green-dk:   #0A6B3C;
+      --purple:     #7030A0;
+      --purple-lt:  #F0E8F8;
+      --purple-mid: #9B59D0;
+      --bg:         #F7F9FC;
+      --card:       #FFFFFF;
+      --text:       #1A1A2E;
+      --text-sub:   #5A6070;
+      --border:     #E2E8F0;
+      --danger:     #D94412;
+      --danger-lt:  #FEF0EC;
+      --warning:    #B45309;
+      --warning-lt: #FEF3C7;
+      --radius:     16px;
+      --radius-sm:  10px;
+      --shadow:     0 2px 16px rgba(15,140,80,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Google Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    .header {
+      width: 100%;
+      background: var(--card);
+      border-bottom: 1.5px solid var(--border);
+      padding: 14px 20px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; }
+    .logo-img { height: 28px; }
+    .logo-fallback { display: none; align-items: center; gap: 8px; }
+    .logo-fallback .bname { font-size: 17px; font-weight: 700; color: var(--purple); }
+    .logo-fallback .bsub  { font-size: 11px; font-weight: 400; color: var(--purple); }
+
+    .lang-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .lang-btn {
+      border: none; cursor: pointer; border-radius: 16px;
+      padding: 4px 12px; font-family: 'Google Sans', sans-serif;
+      font-size: 12px; font-weight: 500;
+      background: transparent; color: var(--text-sub);
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--green); color: #fff;
+    }
+
+    /* ── SCREENS ─────────────────────────────── */
+    .screen {
+      display: none;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px 16px 48px;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .screen.active { display: flex; }
+
+    /* ── CARD ─────────────────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+    }
+    .card-title {
+      font-size: 17px; font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .card-sub {
+      font-size: 13px; color: var(--text-sub);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* ── WELCOME / LOGIN ─────────────────────── */
+    .welcome-logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+    .welcome-logo img { height: 40px; }
+    .welcome-title {
+      font-size: 22px; font-weight: 700;
+      text-align: center; margin-bottom: 4px;
+    }
+    .welcome-sub {
+      font-size: 14px; color: var(--text-sub);
+      text-align: center; margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .form-label {
+      font-size: 12px; font-weight: 600;
+      color: var(--green-dk);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .form-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px 14px;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.2s;
+      outline: none;
+      margin-bottom: 16px;
+    }
+    .form-input:focus { border-color: var(--green); background: #fff; }
+    .form-input.pin {
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 4px;
+      font-size: 20px;
+      text-align: center;
+    }
+    .form-hint {
+      font-size: 12px; color: var(--text-sub);
+      margin-top: -12px; margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* ── BUTTONS ─────────────────────────────── */
+    .btn {
+      width: 100%;
+      border: none; cursor: pointer;
+      border-radius: var(--radius-sm);
+      padding: 15px 20px;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 15px; font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: var(--green); color: #fff;
+    }
+    .btn-primary:hover { background: var(--green-dk); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled {
+      background: #CBD5E0; cursor: not-allowed; transform: none;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-sub);
+    }
+
+    /* ── ERROR MSG ─────────────────────────────── */
+    .err-box {
+      background: var(--danger-lt);
+      border: 1px solid var(--danger);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--danger);
+      display: none;
+    }
+    .err-box.show { display: block; }
+
+    /* ── EXAM INFO ─────────────────────────────── */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-sub); }
+    .info-val { font-weight: 600; color: var(--text); }
+
+    /* ── PROGRESS BAR ─────────────────────────── */
+    .progress-wrap {
+      background: var(--card);
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 57px;
+      z-index: 90;
+    }
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 5px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--purple-mid));
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── TIMER ─────────────────────────────── */
+    .timer-badge {
+      background: var(--green-lt);
+      color: var(--green-dk);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .timer-badge.warn { background: var(--warning-lt); color: var(--warning); }
+    .timer-badge.danger { background: var(--danger-lt); color: var(--danger); }
+
+    /* ── QUESTION CARD ─────────────────────────── */
+    .q-number {
+      font-size: 11px; font-weight: 600;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .q-body {
+      font-size: 16px; font-weight: 500;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .q-type-badge {
+      display: inline-block;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+    .q-type-badge.mcq { background: var(--purple-lt); color: var(--purple); }
+    .q-type-badge.short { background: var(--green-lt); color: var(--green-dk); }
+
+    /* ── MCQ OPTIONS ─────────────────────────── */
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option {
+      display: flex; align-items: center; gap: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: all 0.18s;
+      background: var(--bg);
+    }
+    .option:active { transform: scale(0.99); }
+    .option.selected {
+      border-color: var(--purple);
+      background: var(--purple-lt);
+    }
+    .option-letter {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-sub);
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.18s;
+    }
+    .option.selected .option-letter {
+      background: var(--purple); color: #fff;
+    }
+    .option-text {
+      font-size: 14px; line-height: 1.45;
+      color: var(--text);
+    }
+
+    /* ── SHORT ANSWER ─────────────────────────── */
+    .short-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px 14px;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 15px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s;
+    }
+    .short-input:focus { border-color: var(--purple); background: #fff; }
+
+    /* ── NAV BUTTONS ─────────────────────────── */
+    .nav-row {
+      display: flex; gap: 10px;
+      padding: 16px;
+    }
+    .nav-row .btn { flex: 1; }
+
+    /* ── RESULT SCREEN ─────────────────────────── */
+    .score-circle {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: conic-gradient(var(--green) 0deg, var(--green) var(--pct), var(--border) var(--pct));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+    .score-inner {
+      width: 92px; height: 92px;
+      border-radius: 50%;
+      background: var(--card);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .score-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px; font-weight: 600;
+      color: var(--green);
+      line-height: 1;
+    }
+    .score-label { font-size: 11px; color: var(--text-sub); }
+
+    .result-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row .label { color: var(--text-sub); }
+    .result-row .val { font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--purple); }
+
+    /* ── LOADING OVERLAY ─────────────────────── */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(247,249,252,0.92);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px;
+      z-index: 999;
+      display: none;
+    }
+    .loading-overlay.show { display: flex; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 14px; color: var(--text-sub); }
+
+    /* ── WAITING SCREEN ─────────────────────── */
+    .waiting-pulse {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--green-lt);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.75; }
+    }
+    .waiting-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">연결 중...</div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div></div>
+    <div class="logo-wrap" style="justify-content:center;">
+      <img class="logo-img"
+        src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+        alt="Benedu Insight"
+        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
+      <div class="logo-fallback" id="logoFallback">
+        <svg width="28" height="28" viewBox="0 0 34 34" fill="none">
+          <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+        </svg>
+        <div>
+          <span style="color:#7030A0;font-size:15px;font-weight:700;">bene</span>
+          <span style="color:#7030A0;font-size:15px;font-weight:400;">du</span>
+          <div style="color:#7030A0;font-size:10px;font-weight:400;line-height:1;">insight</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ SCREEN 1: LOGIN ══════════════════════════════════════ -->
+  <div class="screen active" id="screenLogin">
+    <div class="card" style="text-align:center; padding-top:28px;">
+      <div class="welcome-logo">
+        <img src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png"
+          alt="Benedu" style="height:48px;"
+          onerror="this.style.display='none';">
+      </div>
+      <div class="welcome-title" id="loginTitle">Assessment Login</div>
+      <div class="welcome-sub" id="loginSub">Enter your name and PIN to begin the exam.</div>
+    </div>
+
+    <div class="card">
+      <label class="form-label" id="labelName">Full Name</label>
+      <input type="text" class="form-input" id="inputName" autocomplete="off"
+        placeholder="홍길동" inputmode="text">
+
+      <label class="form-label" id="labelPin">4-digit PIN</label>
+      <input type="password" class="form-input pin" id="inputPin"
+        maxlength="4" inputmode="numeric" pattern="[0-9]*"
+        placeholder="••••">
+      <div class="form-hint" id="hintPin">Used to view your personal results after the exam.</div>
+
+      <div class="err-box" id="loginErr"></div>
+
+      <button class="btn btn-primary" id="btnLogin" onclick="doLogin()">
+        <span id="loginBtnText">Enter Exam</span>
+      </button>
+    </div>
+
+    <!-- 오답노트 링크 -->
+    <div style="text-align:center; padding: 4px 0 8px;">
+      <a href="benedu-exam-review.html" id="reviewNavLink" style="
+        display:inline-flex; align-items:center; gap:6px;
+        font-family:'Google Sans',sans-serif; font-size:13px; font-weight:500;
+        color:var(--purple); text-decoration:none;
+        padding: 10px 20px; border-radius:var(--radius-sm);
+        border: 1.5px solid var(--purple-lt);
+        background: var(--purple-lt);
+        transition: all 0.2s;
+      " onmouseover="this.style.background='var(--purple)';this.style.color='#fff';"
+         onmouseout="this.style.background='var(--purple-lt)';this.style.color='var(--purple)';">
+        &#x1F4CB; <span>View My Previous Results</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 2: WAITING (시험 시작 대기) ════════════════════ -->
+  <div class="screen" id="screenWait">
+    <div class="card" style="text-align:center; padding: 32px 20px;">
+      <div class="waiting-pulse"><div class="waiting-dot"></div></div>
+      <div class="card-title" id="waitTitle">Waiting for exam to start</div>
+      <div class="card-sub" id="waitSub">The instructor will start the exam shortly. Please keep this screen open.</div>
+      <div style="margin-top:16px; padding: 12px 16px; background:var(--green-lt); border-radius:var(--radius-sm);">
+        <div style="font-size:12px; color:var(--text-sub); margin-bottom:4px;" id="waitNameLabel">Logged in as</div>
+        <div style="font-size:16px; font-weight:700; color:var(--green-dk);" id="waitName"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 3: EXAM ════════════════════════════════════════ -->
+  <div class="screen" id="screenExam" style="padding: 0 0 80px;">
+
+    <!-- Progress (sticky) -->
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span id="progText">Question 1 of 10</span>
+        <div class="timer-badge" id="timerBadge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+          <span id="timerText">30:00</span>
+        </div>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:10%"></div>
+      </div>
+    </div>
+
+    <!-- Question card -->
+    <div style="padding: 16px 16px 0;">
+      <div class="card">
+        <div class="q-number" id="qNumber">QUESTION 1</div>
+        <div class="q-type-badge mcq" id="qTypeBadge">Multiple Choice</div>
+        <div class="q-body" id="qBody">Loading question...</div>
+        <div id="qAnswerArea"></div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="nav-row">
+      <button class="btn btn-outline" id="btnPrev" onclick="goQuestion(-1)">
+        ← <span id="prevText">Prev</span>
+      </button>
+      <button class="btn btn-primary" id="btnNext" onclick="goQuestion(1)">
+        <span id="nextText">Next</span> →
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 4: SUBMIT CONFIRM ══════════════════════════════ -->
+  <div class="screen" id="screenConfirm">
+    <div class="card">
+      <div class="card-title" id="confirmTitle">Submit your answers?</div>
+      <div class="card-sub" id="confirmSub">Once submitted, you cannot change your answers.</div>
+
+      <div id="confirmStats" style="margin-bottom:20px;"></div>
+      <div class="err-box" id="confirmErr"></div>
+
+      <button class="btn btn-primary" id="btnSubmit" onclick="doSubmit()" style="margin-bottom:10px;">
+        <span id="submitBtnText">Submit Exam</span>
+      </button>
+      <button class="btn btn-outline" onclick="backToExam()">
+        <span id="backBtnText">Go Back</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 5: RESULT ══════════════════════════════════════ -->
+  <div class="screen" id="screenResult">
+    <div class="card" style="text-align:center;">
+      <div class="card-title" id="resultTitle" style="margin-bottom:20px;">Exam Complete!</div>
+      <div class="score-circle" id="scoreCircle" style="--pct:0deg;">
+        <div class="score-inner">
+          <div class="score-num" id="scoreNum">0</div>
+          <div class="score-label" id="scoreLabel">score</div>
+        </div>
+      </div>
+      <div id="resultMsg" style="font-size:14px; color:var(--text-sub); margin-bottom:16px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" id="resultDetailTitle" style="margin-bottom:14px;">Summary</div>
+      <div id="resultRows"></div>
+    </div>
+
+    <div class="card" style="background:var(--green-lt); border:1px solid var(--green);">
+      <div style="font-size:13px; color:var(--green-dk); line-height:1.6; margin-bottom:14px;" id="resultNote">
+        Your results have been saved. You can view your detailed report using your PIN.
+      </div>
+      <a href="benedu-exam-review.html" style="
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        background:var(--green); color:#fff;
+        border-radius:var(--radius-sm); padding:13px 20px;
+        font-family:'Google Sans',sans-serif; font-size:15px; font-weight:600;
+        text-decoration:none; transition:background 0.2s;
+      " onmouseover="this.style.background='var(--green-dk)'" onmouseout="this.style.background='var(--green)'">
+        <span style="font-size:18px;">&#x1F4CB;</span>
+        <span id="reviewLinkText">View My Wrong Answers</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ FIREBASE SDK ══════════════════════════════════════════ -->
+  <script type="module">
+    import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    /* ─── Firebase init ─── */
+    const firebaseConfig = {
+      apiKey:            "AIzaSyBdY3O5gi124THZSd1VC24oiz18OWdHjSQ",
+      authDomain:        "benedu-exam.firebaseapp.com",
+      projectId:         "benedu-exam",
+      storageBucket:     "benedu-exam.firebasestorage.app",
+      messagingSenderId: "825024127174",
+      appId:             "1:825024127174:web:fc6e6cef1e70f47376f7c7"
+    };
+    const app  = initializeApp(firebaseConfig);
+    const db   = getFirestore(app);
+    const auth = getAuth(app);
+
+    /* ─── i18n ─── */
+    const T = {
+      en: {
+        loginTitle:      "Assessment Login",
+        loginSub:        "Enter your name and PIN to begin the exam.",
+        labelName:       "Full Name",
+        labelPin:        "4-digit PIN",
+        hintPin:         "Used to view your personal results after the exam.",
+        loginBtnText:    "Enter Exam",
+        waitTitle:       "Waiting for exam to start",
+        waitSub:         "The instructor will start the exam shortly. Please keep this screen open.",
+        waitNameLabel:   "Logged in as",
+        progOf:          "Question {cur} of {tot}",
+        qNumLabel:       "QUESTION {n}",
+        mcqBadge:        "Multiple Choice",
+        shortBadge:      "Short Answer",
+        prevText:        "Prev",
+        nextText:        "Next",
+        submitBtn:       "Submit Exam",
+        confirmTitle:    "Submit your answers?",
+        confirmSub:      "Once submitted, you cannot change your answers.",
+        submitBtnText:   "Submit Exam",
+        backBtnText:     "Go Back",
+        resultTitle:     "Exam Complete!",
+        scoreLabel:      "score",
+        resultDetailTitle: "Summary",
+        resultNote:      "Your results have been saved. You can view your detailed report using your PIN.",
+        errNameRequired: "Please enter your name.",
+        errPinRequired:  "PIN must be 4 digits.",
+        errNotFound:     "Name not found. Please check your name or contact the instructor.",
+        errPinWrong:     "Incorrect PIN. Please try again.",
+        errNoExam:       "No active exam found. Please contact the instructor.",
+        errSubmit:       "Submission failed. Please try again.",
+        loadingConn:     "Connecting...",
+        loadingSubmit:   "Submitting...",
+        answered:        "Answered",
+        unanswered:      "Unanswered",
+        correctMcq:      "MCQ Score",
+        shortAnswered:   "Short Answer",
+        totalQ:          "Total Questions",
+        timeTaken:       "Time Taken",
+      },
+      ko: {
+        loginTitle:      "평가 로그인",
+        loginSub:        "이름과 4자리 PIN을 입력하여 시험을 시작하세요.",
+        labelName:       "이름",
+        labelPin:        "4자리 PIN",
+        hintPin:         "시험 후 개인 결과를 조회할 때 사용합니다.",
+        loginBtnText:    "시험 입장",
+        waitTitle:       "시험 시작 대기 중",
+        waitSub:         "강사가 곧 시험을 시작합니다. 이 화면을 유지해 주세요.",
+        waitNameLabel:   "로그인:",
+        progOf:          "{tot}문제 중 {cur}번",
+        qNumLabel:       "{n}번 문제",
+        mcqBadge:        "객관식",
+        shortBadge:      "단답형",
+        prevText:        "이전",
+        nextText:        "다음",
+        submitBtn:       "제출하기",
+        confirmTitle:    "답안을 제출하시겠습니까?",
+        confirmSub:      "제출 후에는 답안을 변경할 수 없습니다.",
+        submitBtnText:   "제출하기",
+        backBtnText:     "돌아가기",
+        resultTitle:     "시험 완료!",
+        scoreLabel:      "점수",
+        resultDetailTitle: "결과 요약",
+        resultNote:      "결과가 저장되었습니다. PIN으로 상세 결과를 조회할 수 있습니다.",
+        errNameRequired: "이름을 입력해 주세요.",
+        errPinRequired:  "4자리 PIN을 입력해 주세요.",
+        errNotFound:     "이름을 찾을 수 없습니다. 강사에게 문의하세요.",
+        errPinWrong:     "PIN이 올바르지 않습니다. 다시 확인해 주세요.",
+        errNoExam:       "진행 중인 시험이 없습니다. 강사에게 문의하세요.",
+        errSubmit:       "제출 실패. 다시 시도해 주세요.",
+        loadingConn:     "연결 중...",
+        loadingSubmit:   "제출 중...",
+        answered:        "답변 완료",
+        unanswered:      "미답변",
+        correctMcq:      "객관식 점수",
+        shortAnswered:   "주관식",
+        totalQ:          "총 문제 수",
+        timeTaken:       "소요 시간",
+      }
+    };
+
+    /* ─── State ─── */
+    let lang       = 'en';
+    let currentUser = null;   // { name, uid, docId }
+    let currentExam = null;   // exam document
+    let questions   = [];
+    let answers     = {};     // { qId: answer }
+    let qIndex      = 0;
+    let timerSec    = 0;
+    let timerInterval = null;
+    let examStartTime = null;
+    let examUnsubscribe = null;
+
+    /* ─── Expose to global (onclick handlers) ─── */
+    window.setLang   = setLang;
+    window.doLogin   = doLogin;
+    window.goQuestion= goQuestion;
+    window.doSubmit  = doSubmit;
+    window.backToExam= backToExam;
+
+    /* ─── i18n engine ─── */
+    function setLang(l) {
+      lang = l;
+      document.getElementById('btnEN').classList.toggle('active', l === 'en');
+      document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+      document.documentElement.lang = l;
+      const s = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+      const tx = T[l];
+      s('loginTitle',      tx.loginTitle);
+      s('loginSub',        tx.loginSub);
+      s('labelName',       tx.labelName);
+      s('labelPin',        tx.labelPin);
+      s('hintPin',         tx.hintPin);
+      s('loginBtnText',    tx.loginBtnText);
+      s('waitTitle',       tx.waitTitle);
+      s('waitSub',         tx.waitSub);
+      s('waitNameLabel',   tx.waitNameLabel);
+      s('prevText',        tx.prevText);
+      s('nextText',        tx.nextText);
+      s('submitBtnText',   tx.submitBtnText);
+      s('confirmTitle',    tx.confirmTitle);
+      s('confirmSub',      tx.confirmSub);
+      s('backBtnText',     tx.backBtnText);
+      s('resultTitle',     tx.resultTitle);
+      s('resultDetailTitle', tx.resultDetailTitle);
+      s('resultNote',      tx.resultNote);
+      s('reviewLinkText',  tx.reviewLinkText);
+      const navLink = document.getElementById('reviewNavLink');
+      if (navLink) navLink.innerHTML = '&#x1F4CB; <span>' + (tx.reviewNavText || 'View My Previous Results') + '</span>';
+    }
+
+    /* ─── Helpers ─── */
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+    function showLoading(msg) {
+      document.getElementById('loadingText').textContent = msg;
+      document.getElementById('loadingOverlay').classList.add('show');
+    }
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.remove('show');
+    }
+    function showErr(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+    function hideErr(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+    function fmt2(n) { return String(n).padStart(2,'0'); }
+    function fmtTime(sec) { return `${fmt2(Math.floor(sec/60))}:${fmt2(sec%60)}`; }
+
+    /* ─── Simple PIN hash (SHA-256 via SubtleCrypto) ─── */
+    async function hashPin(pin) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    /* ─── LOGIN ─── */
+    async function doLogin() {
+      hideErr('loginErr');
+      const name = document.getElementById('inputName').value.trim();
+      const pin  = document.getElementById('inputPin').value.trim();
+      const tx   = T[lang];
+
+      if (!name)           { showErr('loginErr', tx.errNameRequired); return; }
+      if (pin.length !== 4 || isNaN(pin)) { showErr('loginErr', tx.errPinRequired); return; }
+
+      showLoading(tx.loadingConn);
+      document.getElementById('btnLogin').disabled = true;
+
+      try {
+        /* 1. Firebase anonymous auth */
+        const cred = await signInAnonymously(auth);
+        const uid  = cred.user.uid;
+
+        /* 2. Check/register user in Firestore */
+        const userRef  = doc(db, 'users', uid);
+        const userSnap = await getDoc(userRef);
+        const pinHash  = await hashPin(pin);
+
+        if (!userSnap.exists()) {
+          /* New user — register */
+          await setDoc(userRef, {
+            name,
+            pinHash,
+            uid,
+            createdAt: new Date()
+          });
+        } else {
+          /* Existing uid — verify pin */
+          const stored = userSnap.data();
+          if (stored.pinHash !== pinHash) {
+            throw new Error('PIN_WRONG');
+          }
+        }
+
+        currentUser = { name, uid, pinHash };
+        document.getElementById('waitName').textContent = name;
+
+        /* 3. Listen for active exam */
+        hideLoading();
+        showScreen('screenWait');
+        listenForExam();
+
+      } catch(e) {
+        hideLoading();
+        document.getElementById('btnLogin').disabled = false;
+        const tx = T[lang];
+        if (e.message === 'PIN_WRONG') showErr('loginErr', tx.errPinWrong);
+        else showErr('loginErr', tx.errNoExam + ' (' + e.message + ')');
+      }
+    }
+
+    /* ─── LISTEN FOR ACTIVE EXAM ─── */
+    function listenForExam() {
+      const examRef = doc(db, 'activeSession', 'current');
+      examUnsubscribe = onSnapshot(examRef, async (snap) => {
+        if (!snap.exists()) return;
+        const session = snap.data();
+        if (session.status === 'running') {
+          if (examUnsubscribe) examUnsubscribe();
+          await loadExam(session.examId);
+        }
+      });
+    }
+
+    /* ─── LOAD EXAM & QUESTIONS ─── */
+    async function loadExam(examId) {
+      showLoading(T[lang].loadingConn);
+      try {
+        const examSnap = await getDoc(doc(db, 'exams', examId));
+        if (!examSnap.exists()) throw new Error('EXAM_NOT_FOUND');
+        currentExam = { id: examId, ...examSnap.data() };
+
+        /* Load questions */
+        const qIds = currentExam.questionIds || [];
+        const qSnaps = await Promise.all(qIds.map(qid => getDoc(doc(db, 'questions', qid))));
+        questions = qSnaps
+          .filter(s => s.exists())
+          .map(s => ({ id: s.id, ...s.data() }));
+
+        /* Record participation */
+        await setDoc(doc(db, 'sessions', examId, 'participants', currentUser.uid), {
+          name:      currentUser.name,
+          startedAt: new Date(),
+          status:    'in_progress'
+        });
+
+        examStartTime = Date.now();
+        timerSec = (currentExam.durationMin || 30) * 60;
+
+        hideLoading();
+        showScreen('screenExam');
+        renderQuestion(0);
+        startTimer();
+      } catch(e) {
+        hideLoading();
+        showScreen('screenWait');
+        document.getElementById('waitSub').textContent = T[lang].errNoExam;
+      }
+    }
+
+    /* ─── RENDER QUESTION ─── */
+    function renderQuestion(idx) {
+      qIndex = idx;
+      const q   = questions[idx];
+      const tot = questions.length;
+      const tx  = T[lang];
+
+      /* Progress */
+      document.getElementById('progText').textContent =
+        tx.progOf.replace('{cur}', idx+1).replace('{tot}', tot);
+      document.getElementById('progressFill').style.width = `${((idx+1)/tot)*100}%`;
+
+      /* Question header */
+      document.getElementById('qNumber').textContent =
+        tx.qNumLabel.replace('{n}', idx+1);
+
+      const badge = document.getElementById('qTypeBadge');
+      if (q.type === 'mcq') {
+        badge.textContent = tx.mcqBadge;
+        badge.className = 'q-type-badge mcq';
+      } else {
+        badge.textContent = tx.shortBadge;
+        badge.className = 'q-type-badge short';
+      }
+      document.getElementById('qBody').textContent = q.body;
+
+      /* Answer area */
+      const area = document.getElementById('qAnswerArea');
+      area.innerHTML = '';
+
+      if (q.type === 'mcq') {
+        const wrap = document.createElement('div');
+        wrap.className = 'options';
+        const letters = ['A','B','C','D','E'];
+        (q.choices || []).forEach((choice, ci) => {
+          const opt = document.createElement('div');
+          opt.className = 'option' + (answers[q.id] === String(ci) ? ' selected' : '');
+          opt.innerHTML = `<div class="option-letter">${letters[ci]}</div>
+                           <div class="option-text">${choice}</div>`;
+          opt.onclick = () => {
+            answers[q.id] = String(ci);
+            renderQuestion(qIndex);
+          };
+          wrap.appendChild(opt);
+        });
+        area.appendChild(wrap);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.className = 'short-input';
+        ta.placeholder = lang === 'ko' ? '답을 입력하세요...' : 'Type your answer here...';
+        ta.value = answers[q.id] || '';
+        ta.oninput = () => { answers[q.id] = ta.value; };
+        area.appendChild(ta);
+      }
+
+      /* Nav buttons */
+      document.getElementById('btnPrev').style.display = idx === 0 ? 'none' : 'flex';
+      const isLast = idx === tot - 1;
+      const nextBtn = document.getElementById('btnNext');
+      nextBtn.innerHTML = isLast
+        ? `<span>${tx.submitBtn}</span>`
+        : `<span>${tx.nextText}</span> →`;
+      nextBtn.style.background = isLast ? 'var(--purple)' : 'var(--green)';
+    }
+
+    /* ─── NAVIGATION ─── */
+    function goQuestion(dir) {
+      const newIdx = qIndex + dir;
+      if (newIdx < 0) return;
+      if (newIdx >= questions.length) {
+        showConfirm();
+        return;
+      }
+      renderQuestion(newIdx);
+    }
+    function backToExam() {
+      showScreen('screenExam');
+      renderQuestion(qIndex);
+    }
+
+    /* ─── CONFIRM SCREEN ─── */
+    function showConfirm() {
+      showScreen('screenConfirm');
+      const tx    = T[lang];
+      const ans   = Object.values(answers).filter(v => v !== '' && v !== undefined).length;
+      const total = questions.length;
+      document.getElementById('confirmStats').innerHTML = `
+        <div class="info-row">
+          <span class="info-label">${tx.answered}</span>
+          <span class="info-val" style="color:var(--green)">${ans} / ${total}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">${tx.unanswered}</span>
+          <span class="info-val" style="color:${total-ans>0?'var(--danger)':'var(--green)'}">${total-ans}</span>
+        </div>
+      `;
+    }
+
+    /* ─── SUBMIT ─── */
+    async function doSubmit() {
+      showLoading(T[lang].loadingSubmit);
+      document.getElementById('btnSubmit').disabled = true;
+
+      try {
+        const elapsed = Math.round((Date.now() - examStartTime) / 1000);
+
+        /* Auto-grade MCQ */
+        let correct = 0;
+        questions.forEach(q => {
+          if (q.type === 'mcq' && answers[q.id] === String(q.answerIdx)) correct++;
+        });
+        const mcqTotal = questions.filter(q => q.type === 'mcq').length;
+        const score    = mcqTotal > 0 ? Math.round((correct / questions.length) * 100) : null;
+
+        const resultData = {
+          uid:          currentUser.uid,
+          name:         currentUser.name,
+          examId:       currentExam.id,
+          examTitle:    currentExam.title || '',
+          answers,
+          correctMcq:   correct,
+          totalMcq:     mcqTotal,
+          totalQ:       questions.length,
+          score,
+          duration:     elapsed,
+          submittedAt:  new Date(),
+          status:       'submitted'
+        };
+
+        /* Save to Firestore */
+        await setDoc(
+          doc(db, 'results', `${currentExam.id}_${currentUser.uid}`),
+          resultData
+        );
+
+        /* Update participant status */
+        await setDoc(
+          doc(db, 'sessions', currentExam.id, 'participants', currentUser.uid),
+          { status: 'submitted', submittedAt: new Date() },
+          { merge: true }
+        );
+
+        stopTimer();
+        hideLoading();
+        showResult(resultData);
+
+      } catch(e) {
+        hideLoading();
+        document.getElementById('btnSubmit').disabled = false;
+        showErr('confirmErr', T[lang].errSubmit);
+      }
+    }
+
+    /* ─── RESULT ─── */
+    function showResult(data) {
+      showScreen('screenResult');
+      const tx = T[lang];
+
+      /* Score circle */
+      const pct = data.score !== null ? data.score : 0;
+      const deg = Math.round(pct * 3.6);
+      document.getElementById('scoreCircle').style.setProperty('--pct', `${deg}deg`);
+      document.getElementById('scoreNum').textContent = data.score !== null ? data.score : '—';
+      document.getElementById('scoreLabel').textContent = tx.scoreLabel;
+
+      /* Result message */
+      let msg = '';
+      if (data.score !== null) {
+        if (data.score >= 90) msg = '🎉 Excellent!';
+        else if (data.score >= 70) msg = '👍 Good job!';
+        else msg = '📚 Keep studying!';
+      }
+      document.getElementById('resultMsg').textContent = msg;
+
+      /* Rows */
+      const elapsed = data.duration;
+      const rows = [];
+      if (data.score !== null) {
+        rows.push({ label: tx.correctMcq, val: `${data.correctMcq} / ${data.totalMcq}` });
+      }
+      if (data.totalQ - data.totalMcq > 0) {
+        rows.push({ label: tx.shortAnswered, val: `${data.totalQ - data.totalMcq}` + (lang === 'ko' ? '문제' : ' question(s)') });
+      }
+      rows.push({ label: tx.totalQ,    val: `${data.totalQ}` });
+      rows.push({ label: tx.timeTaken, val: fmtTime(elapsed) });
+
+      document.getElementById('resultRows').innerHTML = rows.map(r =>
+        `<div class="result-row">
+          <span class="label">${r.label}</span>
+          <span class="val">${r.val}</span>
+        </div>`
+      ).join('');
+    }
+
+    /* ─── TIMER ─── */
+    function startTimer() {
+      clearInterval(timerInterval);
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        timerSec--;
+        updateTimerDisplay();
+        if (timerSec <= 0) {
+          clearInterval(timerInterval);
+          doSubmit();
+        }
+      }, 1000);
+    }
+    function stopTimer() { clearInterval(timerInterval); }
+    function updateTimerDisplay() {
+      const el = document.getElementById('timerBadge');
+      document.getElementById('timerText').textContent = fmtTime(timerSec);
+      el.className = 'timer-badge';
+      if (timerSec < 120) el.classList.add('danger');
+      else if (timerSec < 300) el.classList.add('warn');
+    }
+
+    /* ─── INIT ─── */
+    window.addEventListener('DOMContentLoaded', () => { setLang('en'); });
+
+  </script>
+</body>
+</html>

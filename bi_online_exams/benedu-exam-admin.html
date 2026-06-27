@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benedu Insight — 관리자 대시보드</title>
+  <link rel="icon" type="image/png"
+    href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:      #0F8C50;
+      --green-lt:   #E6F4ED;
+      --green-dk:   #0A6B3C;
+      --purple:     #7030A0;
+      --purple-lt:  #F0E8F8;
+      --purple-mid: #9B59D0;
+      --bg:         #F7F9FC;
+      --card:       #FFFFFF;
+      --text:       #1A1A2E;
+      --text-sub:   #5A6070;
+      --border:     #E2E8F0;
+      --danger:     #D94412;
+      --danger-lt:  #FEF0EC;
+      --warning:    #B45309;
+      --warning-lt: #FEF3C7;
+      --radius:     14px;
+      --radius-sm:  8px;
+      --shadow:     0 2px 16px rgba(15,140,80,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--card);
+      border-bottom: 1.5px solid var(--border);
+      padding: 12px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; }
+    .logo-img { height: 26px; }
+    .logo-fallback { display: none; align-items: center; gap: 8px; }
+    .admin-badge {
+      background: var(--purple-lt); color: var(--purple);
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+    .lang-toggle { display: flex; background: var(--bg); border-radius: 20px; padding: 3px; gap: 2px; }
+    .lang-btn { border: none; cursor: pointer; border-radius: 16px; padding: 4px 12px;
+      font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 500;
+      background: transparent; color: var(--text-sub); transition: all 0.2s; }
+    .lang-btn.active { background: var(--green); color: #fff; }
+
+    /* ── LAYOUT ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── CARDS ── */
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .card-sub { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+    /* ── EXAM CONTROL ── */
+    .exam-info { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .exam-chip {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 8px 14px;
+      font-size: 13px; color: var(--text-sub);
+    }
+    .exam-chip strong { color: var(--text); font-weight: 600; }
+
+    .control-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: none; cursor: pointer; border-radius: var(--radius-sm);
+      padding: 10px 20px; font-family: 'Google Sans', sans-serif;
+      font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 7px;
+      transition: all 0.2s;
+    }
+    .btn-start { background: var(--green); color: #fff; }
+    .btn-start:hover { background: var(--green-dk); }
+    .btn-stop  { background: var(--danger); color: #fff; }
+    .btn-stop:hover { background: #b83310; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-sub); }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Status pill */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .status-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .status-waiting  { background: var(--warning-lt); color: var(--warning); }
+    .status-waiting .dot  { background: var(--warning); }
+    .status-running  { background: var(--green-lt); color: var(--green-dk); }
+    .status-running .dot  { background: var(--green); animation: blink 1.2s ease-in-out infinite; }
+    .status-ended    { background: var(--bg); color: var(--text-sub); border: 1px solid var(--border); }
+    .status-ended .dot    { background: var(--text-sub); }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── STATS ROW ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media(max-width:700px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+    .stat-card {
+      background: var(--bg); border-radius: var(--radius-sm);
+      border: 1px solid var(--border); padding: 14px 16px;
+      text-align: center;
+    }
+    .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 600; color: var(--purple); line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* ── LIVE TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1.5px solid var(--border); }
+    td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg); }
+    .score-chip {
+      display: inline-block; padding: 2px 10px; border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    }
+    .score-high   { background: var(--green-lt);  color: var(--green-dk); }
+    .score-mid    { background: var(--warning-lt); color: var(--warning); }
+    .score-low    { background: var(--danger-lt);  color: var(--danger); }
+    .score-none   { background: var(--bg); color: var(--text-sub); border: 1px solid var(--border); }
+    .status-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 600;
+    }
+    .tag-submitted { background: var(--green-lt); color: var(--green-dk); }
+    .tag-progress  { background: var(--purple-lt); color: var(--purple); }
+    .tag-waiting   { background: var(--bg); color: var(--text-sub); border: 1px solid var(--border); }
+
+    /* ── CHART BAR ── */
+    .bar-wrap { margin-top: 4px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .bar-label { font-size: 12px; color: var(--text-sub); width: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--green), var(--purple-mid)); transition: width 0.6s ease; }
+    .bar-pct   { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--purple); width: 36px; text-align: right; }
+
+    /* ── EXPORT BUTTONS ── */
+    .export-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--text); color: #fff;
+      padding: 10px 20px; border-radius: 24px;
+      font-size: 13px; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+
+    /* ── LOADING ── */
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 32px; color: var(--text-sub); font-size: 13px; }
+
+    /* ── DETAIL MODAL ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(26,26,46,0.5);
+      z-index: 200; display: flex;
+      align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .modal-backdrop.show { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--card); border-radius: var(--radius);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      width: 100%; max-width: 640px;
+      max-height: 85vh; display: flex; flex-direction: column;
+      transform: translateY(12px); transition: transform 0.2s;
+    }
+    .modal-backdrop.show .modal { transform: translateY(0); }
+    .modal-head {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .modal-title { font-size: 15px; font-weight: 700; }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--bg); border: none; cursor: pointer;
+      font-size: 16px; color: var(--text-sub);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: var(--border); }
+    .modal-body { overflow-y: auto; padding: 16px 22px 22px; flex: 1; }
+    .modal-score-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .modal-chip {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 6px 14px;
+      font-size: 12px; color: var(--text-sub);
+    }
+    .modal-chip strong { color: var(--text); font-family: 'JetBrains Mono', monospace; }
+    .q-detail-row {
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 12px 14px; margin-bottom: 10px;
+    }
+    .q-detail-row.correct { border-color: var(--green); background: var(--green-lt); }
+    .q-detail-row.wrong   { border-color: var(--danger); background: var(--danger-lt); }
+    .q-detail-row.short-q { border-color: var(--purple); background: var(--purple-lt); }
+    .q-detail-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .q-num-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 8px;
+      border-radius: 10px; flex-shrink: 0;
+    }
+    .correct .q-num-badge { background: var(--green); color: #fff; }
+    .wrong   .q-num-badge { background: var(--danger); color: #fff; }
+    .short-q .q-num-badge { background: var(--purple); color: #fff; }
+    .q-result-icon { font-size: 14px; margin-left: auto; }
+    .q-body-text { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 8px; }
+    .q-answer-line { font-size: 12px; line-height: 1.6; display: flex; gap: 6px; align-items: flex-start; }
+    .answer-label {
+      font-size: 11px; font-weight: 600; padding: 1px 7px;
+      border-radius: 8px; flex-shrink: 0; margin-top: 1px;
+    }
+    .answer-label.my      { background: var(--danger-lt); color: var(--danger); }
+    .answer-label.correct-l { background: var(--green-lt); color: var(--green-dk); }
+    .answer-label.short-l { background: var(--purple-lt); color: var(--purple); }
+    .answer-text { color: var(--text); }
+    .clickable-row { cursor: pointer; }
+    .clickable-row:hover td { background: var(--purple-lt) !important; }
+
+    /* ── LOGIN SCREEN ── */
+    #screenLogin { max-width: 420px; margin: 60px auto; padding: 0 16px; }
+    .login-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px 28px; }
+    .form-label { font-size: 11px; font-weight: 600; color: var(--green-dk); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+    .form-input { width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 11px 14px;
+      font-family: 'Google Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; margin-bottom: 14px; transition: border-color 0.2s; }
+    .form-input:focus { border-color: var(--green); background: #fff; }
+    .err-box { background: var(--danger-lt); border: 1px solid var(--danger); border-radius: var(--radius-sm);
+      padding: 9px 12px; font-size: 13px; color: var(--danger); display: none; margin-bottom: 12px; }
+    .err-box.show { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo-wrap">
+      <img class="logo-img"
+        src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+        alt="Benedu Insight"
+        onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';">
+      <div class="logo-fallback" id="logoFallback">
+        <svg width="26" height="26" viewBox="0 0 34 34" fill="none">
+          <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+        </svg>
+        <div>
+          <span style="color:#7030A0;font-size:14px;font-weight:700;">bene</span>
+          <span style="color:#7030A0;font-size:14px;font-weight:400;">du</span>
+          <div style="color:#7030A0;font-size:10px;font-weight:400;line-height:1;">insight</div>
+        </div>
+      </div>
+      <span class="admin-badge" id="adminBadge">ADMIN</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="headerExamTitle" style="font-size:13px;color:var(--text-sub);"></span>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ LOGIN SCREEN ══ -->
+  <div id="screenLogin">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-size:20px;font-weight:700;margin-bottom:4px;" id="loginTitle">Admin Login</div>
+        <div style="font-size:13px;color:var(--text-sub);" id="loginSub">Benedu Insight Exam System</div>
+      </div>
+      <label class="form-label" id="labelAdminPw">Admin Password</label>
+      <input type="password" class="form-input" id="inputAdminPw" placeholder="••••••••">
+      <div class="err-box" id="loginErr"></div>
+      <button class="btn btn-start" style="width:100%;" onclick="doAdminLogin()">
+        <span id="loginBtn">Login</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ DASHBOARD ══ -->
+  <div id="screenDashboard" style="display:none;">
+    <div class="main">
+
+      <!-- 1. EXAM CONTROL -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title" id="ctrlTitle">Exam Control</div>
+            <div class="card-sub" id="ctrlSub">Start or stop the exam session</div>
+          </div>
+          <div class="status-pill status-waiting" id="statusPill">
+            <div class="dot"></div>
+            <span id="statusText">Waiting</span>
+          </div>
+        </div>
+        <div class="exam-info" id="examInfo"></div>
+        <div class="control-row">
+          <button class="btn btn-start" id="btnStart" onclick="startExam()">
+            ▶ <span id="startBtnText">Start Exam</span>
+          </button>
+          <button class="btn btn-stop" id="btnStop" onclick="stopExam()" disabled>
+            ⏹ <span id="stopBtnText">End Exam</span>
+          </button>
+          <button class="btn btn-outline" onclick="refreshData()">
+            ↻ <span id="refreshText">Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. LIVE STATS -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label" id="statTotalLabel">Registered</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statSubmitted" style="color:var(--green);">0</div>
+          <div class="stat-label" id="statSubmittedLabel">Submitted</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statInProgress" style="color:var(--purple);">0</div>
+          <div class="stat-label" id="statProgressLabel">In Progress</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="statAvgScore">—</div>
+          <div class="stat-label" id="statAvgLabel">Avg Score</div>
+        </div>
+      </div>
+
+      <!-- 3. RESULTS TABLE -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title" id="tableTitle">Student Results</div>
+            <div class="card-sub" id="tableSub">Live results — updates automatically</div>
+          </div>
+          <div class="export-row">
+            <button class="btn btn-outline" onclick="exportCSV()">
+              ↓ <span id="csvBtn">Export CSV</span>
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th id="thName">Name</th>
+                <th id="thScore">Score</th>
+                <th id="thCorrect">MCQ</th>
+                <th id="thTime">Time</th>
+                <th id="thStatus">Status</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <tr><td colspan="5" class="empty" id="emptyMsg">No results yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. QUESTION ANALYSIS -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title" id="analysisTitle">Question Analysis</div>
+            <div class="card-sub" id="analysisSub">Incorrect answer rate per question</div>
+          </div>
+        </div>
+        <div class="bar-wrap" id="analysisChart">
+          <div class="empty" id="analysisEmpty">Submit results to see analysis</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+    <div class="modal" id="detailModal">
+      <div class="modal-head">
+        <div class="modal-title" id="modalTitle">상세 답안</div>
+        <button class="modal-close" onclick="closeModalDirect()">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-score-row" id="modalScoreRow"></div>
+        <div id="modalQList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ══ FIREBASE SDK ══ -->
+  <script type="module">
+    import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously }
+      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyBdY3O5gi124THZSd1VC24oiz18OWdHjSQ",
+      authDomain:        "benedu-exam.firebaseapp.com",
+      projectId:         "benedu-exam",
+      storageBucket:     "benedu-exam.firebasestorage.app",
+      messagingSenderId: "825024127174",
+      appId:             "1:825024127174:web:fc6e6cef1e70f47376f7c7"
+    };
+    const app  = initializeApp(firebaseConfig);
+    const db   = getFirestore(app);
+    const auth = getAuth(app);
+
+    /* ── Admin password (간단 로컬 인증) ── */
+    const ADMIN_PW = "benedu2026";
+
+    /* ── i18n ── */
+    const T = {
+      en: {
+        loginTitle: "Admin Login", loginSub: "Benedu Insight Exam System",
+        labelAdminPw: "Admin Password", loginBtn: "Login", loginErr: "Incorrect password.",
+        adminBadge: "ADMIN",
+        ctrlTitle: "Exam Control", ctrlSub: "Start or stop the exam session",
+        startBtnText: "Start Exam", stopBtnText: "End Exam", refreshText: "Refresh",
+        statusWaiting: "Waiting", statusRunning: "Running", statusEnded: "Ended",
+        statTotalLabel: "Registered", statSubmittedLabel: "Submitted",
+        statProgressLabel: "In Progress", statAvgLabel: "Avg Score",
+        tableTitle: "Student Results", tableSub: "Live results — updates automatically",
+        csvBtn: "Export CSV",
+        thName: "Name", thScore: "Score", thCorrect: "MCQ", thTime: "Time", thStatus: "Status",
+        emptyMsg: "No results yet",
+        analysisTitle: "Question Analysis", analysisSub: "Incorrect answer rate per question",
+        analysisEmpty: "Submit results to see analysis",
+        tagSubmitted: "Submitted", tagProgress: "In Progress", tagWaiting: "Waiting",
+        toastStarted: "Exam started!", toastStopped: "Exam ended.",
+        toastCsvDone: "CSV exported!",
+        examDuration: "Duration", examQuestions: "Questions", examTitle: "Exam",
+      },
+      ko: {
+        loginTitle: "관리자 로그인", loginSub: "Benedu Insight 평가 시스템",
+        labelAdminPw: "관리자 비밀번호", loginBtn: "로그인", loginErr: "비밀번호가 올바르지 않습니다.",
+        adminBadge: "관리자",
+        ctrlTitle: "시험 제어", ctrlSub: "시험을 시작하거나 종료합니다",
+        startBtnText: "시험 시작", stopBtnText: "시험 종료", refreshText: "새로고침",
+        statusWaiting: "대기 중", statusRunning: "진행 중", statusEnded: "종료됨",
+        statTotalLabel: "접속 수강생", statSubmittedLabel: "제출 완료",
+        statProgressLabel: "진행 중", statAvgLabel: "평균 점수",
+        tableTitle: "수강생 결과", tableSub: "실시간 결과 — 자동 업데이트",
+        csvBtn: "CSV 내보내기",
+        thName: "이름", thScore: "점수", thCorrect: "객관식", thTime: "소요시간", thStatus: "상태",
+        emptyMsg: "결과 없음",
+        analysisTitle: "문제별 분석", analysisSub: "문제별 오답률",
+        analysisEmpty: "결과 제출 후 분석이 표시됩니다",
+        tagSubmitted: "제출완료", tagProgress: "진행중", tagWaiting: "대기",
+        toastStarted: "시험이 시작되었습니다!", toastStopped: "시험이 종료되었습니다.",
+        toastCsvDone: "CSV 내보내기 완료!",
+        examDuration: "시험 시간", examQuestions: "문제 수", examTitle: "시험명",
+      }
+    };
+
+    /* ── State ── */
+    let lang = 'en';
+    let currentSession = null;
+    let currentExam = null;
+    let questions = [];
+    let results = [];
+    let participants = [];
+    let unsubResults = null;
+    let unsubSession = null;
+
+    /* ── Expose globals ── */
+    window.setLang       = setLang;
+    window.doAdminLogin  = doAdminLogin;
+    window.startExam     = startExam;
+    window.stopExam      = stopExam;
+    window.refreshData   = refreshData;
+    window.exportCSV       = exportCSV;
+    window.openDetail      = openDetail;
+    window.closeModal      = closeModal;
+    window.closeModalDirect= closeModalDirect;
+
+    /* ── i18n ── */
+    function setLang(l) {
+      lang = l;
+      document.getElementById('btnEN').classList.toggle('active', l === 'en');
+      document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+      document.documentElement.lang = l;
+      const s = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+      const tx = T[l];
+      s('loginTitle', tx.loginTitle); s('loginSub', tx.loginSub);
+      s('labelAdminPw', tx.labelAdminPw); s('loginBtn', tx.loginBtn);
+      s('adminBadge', tx.adminBadge);
+      s('ctrlTitle', tx.ctrlTitle); s('ctrlSub', tx.ctrlSub);
+      s('startBtnText', tx.startBtnText); s('stopBtnText', tx.stopBtnText);
+      s('refreshText', tx.refreshText);
+      s('statTotalLabel', tx.statTotalLabel); s('statSubmittedLabel', tx.statSubmittedLabel);
+      s('statProgressLabel', tx.statProgressLabel); s('statAvgLabel', tx.statAvgLabel);
+      s('tableTitle', tx.tableTitle); s('tableSub', tx.tableSub);
+      s('csvBtn', tx.csvBtn);
+      s('thName', tx.thName); s('thScore', tx.thScore);
+      s('thCorrect', tx.thCorrect); s('thTime', tx.thTime); s('thStatus', tx.thStatus);
+      s('analysisTitle', tx.analysisTitle); s('analysisSub', tx.analysisSub);
+      renderTable();
+      renderChart();
+    }
+
+    /* ── Helpers ── */
+    function showToast(msg, dur = 2500) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), dur);
+    }
+    function fmt2(n) { return String(n).padStart(2,'0'); }
+    function fmtTime(sec) { return `${fmt2(Math.floor(sec/60))}:${fmt2(sec%60)}`; }
+
+    /* ── LOGIN ── */
+    async function doAdminLogin() {
+      const pw = document.getElementById('inputAdminPw').value;
+      const tx = T[lang];
+      if (pw !== ADMIN_PW) {
+        const err = document.getElementById('loginErr');
+        err.textContent = tx.loginErr; err.classList.add('show'); return;
+      }
+      await signInAnonymously(auth);
+      document.getElementById('screenLogin').style.display = 'none';
+      document.getElementById('screenDashboard').style.display = 'block';
+      await loadAll();
+    }
+
+    /* ── LOAD ALL ── */
+    async function loadAll() {
+      await loadSession();
+      await loadExam();
+      await loadQuestions();
+      listenResults();
+      listenSession();
+    }
+
+    async function loadSession() {
+      const snap = await getDoc(doc(db, 'activeSession', 'current'));
+      if (snap.exists()) {
+        currentSession = snap.data();
+        updateSessionUI(currentSession.status);
+      }
+    }
+
+    async function loadExam() {
+      const snap = await getDoc(doc(db, 'exams', 'exam_001'));
+      if (!snap.exists()) return;
+      currentExam = { id: 'exam_001', ...snap.data() };
+      const tx = T[lang];
+      document.getElementById('headerExamTitle').textContent = currentExam.title || '';
+      document.getElementById('examInfo').innerHTML = `
+        <div class="exam-chip">${tx.examTitle}: <strong>${currentExam.title || 'exam_001'}</strong></div>
+        <div class="exam-chip">${tx.examQuestions}: <strong>${(currentExam.questionIds||[]).length}</strong></div>
+        <div class="exam-chip">${tx.examDuration}: <strong>${currentExam.durationMin || 20} min</strong></div>
+      `;
+    }
+
+    async function loadQuestions() {
+      if (!currentExam) return;
+      const qIds = currentExam.questionIds || [];
+      const snaps = await Promise.all(qIds.map(qid => getDoc(doc(db, 'questions', qid))));
+      questions = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
+    }
+
+    /* ── LISTEN RESULTS (realtime) ── */
+    function listenResults() {
+      if (unsubResults) unsubResults();
+      unsubResults = onSnapshot(collection(db, 'results'), (snap) => {
+        results = snap.docs.map(d => d.data()).filter(r => r.examId === 'exam_001');
+        updateStats();
+        renderTable();
+        renderChart();
+      });
+    }
+
+    /* ── LISTEN SESSION (realtime) ── */
+    function listenSession() {
+      if (unsubSession) unsubSession();
+      unsubSession = onSnapshot(doc(db, 'activeSession', 'current'), (snap) => {
+        if (snap.exists()) {
+          currentSession = snap.data();
+          updateSessionUI(currentSession.status);
+        }
+      });
+    }
+
+    /* ── SESSION UI ── */
+    function updateSessionUI(status) {
+      const tx = T[lang];
+      const pill = document.getElementById('statusPill');
+      const txt  = document.getElementById('statusText');
+      const btnStart = document.getElementById('btnStart');
+      const btnStop  = document.getElementById('btnStop');
+
+      pill.className = 'status-pill';
+      if (status === 'running') {
+        pill.classList.add('status-running');
+        txt.textContent = tx.statusRunning;
+        btnStart.disabled = true; btnStop.disabled = false;
+      } else if (status === 'ended') {
+        pill.classList.add('status-ended');
+        txt.textContent = tx.statusEnded;
+        btnStart.disabled = false; btnStop.disabled = true;
+      } else {
+        pill.classList.add('status-waiting');
+        txt.textContent = tx.statusWaiting;
+        btnStart.disabled = false; btnStop.disabled = true;
+      }
+    }
+
+    /* ── STATS ── */
+    function updateStats() {
+      const submitted  = results.filter(r => r.status === 'submitted').length;
+      const inProgress = results.filter(r => r.status === 'in_progress').length;
+      const total      = results.length;
+      const scores     = results.filter(r => r.score !== null && r.score !== undefined).map(r => r.score);
+      const avg        = scores.length ? Math.round(scores.reduce((a,b) => a+b, 0) / scores.length) : null;
+
+      document.getElementById('statTotal').textContent      = total;
+      document.getElementById('statSubmitted').textContent  = submitted;
+      document.getElementById('statInProgress').textContent = inProgress;
+      document.getElementById('statAvgScore').textContent   = avg !== null ? avg : '—';
+    }
+
+    /* ── TABLE ── */
+    function renderTable() {
+      const tx   = T[lang];
+      const tbody = document.getElementById('resultsBody');
+      if (!results.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty">${tx.emptyMsg}</td></tr>`;
+        return;
+      }
+      const sorted = [...results].sort((a,b) => (b.score||0) - (a.score||0));
+      tbody.innerHTML = sorted.map((r, i) => {
+        const scoreClass  = r.score >= 80 ? 'score-high' : r.score >= 60 ? 'score-mid' : r.score !== null ? 'score-low' : 'score-none';
+        const scoreText   = r.score !== null ? r.score : '—';
+        const correctText = r.totalMcq ? `${r.correctMcq} / ${r.totalMcq}` : '—';
+        const timeText    = r.duration ? fmtTime(r.duration) : '—';
+        const tagClass    = r.status === 'submitted' ? 'tag-submitted' : r.status === 'in_progress' ? 'tag-progress' : 'tag-waiting';
+        const tagText     = r.status === 'submitted' ? tx.tagSubmitted : r.status === 'in_progress' ? tx.tagProgress : tx.tagWaiting;
+        const uid         = r.uid || '';
+        return `<tr class="clickable-row" onclick="openDetail('${uid}')" title="${tx.clickDetail || 'Click for details'}">
+          <td><strong>${i+1}.</strong> ${r.name || '—'} <span style="font-size:11px;color:var(--text-sub);">🔍</span></td>
+          <td><span class="score-chip ${scoreClass}">${scoreText}</span></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${correctText}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">${timeText}</td>
+          <td><span class="status-tag ${tagClass}">${tagText}</span></td>
+        </tr>`;
+      }).join('');
+    }
+
+    /* ── OPEN DETAIL MODAL ── */
+    function openDetail(uid) {
+      const r = results.find(r => r.uid === uid);
+      if (!r || !r.answers) return;
+      const tx = T[lang];
+      const letters = ['①','②','③','④','⑤'];
+
+      document.getElementById('modalTitle').textContent = r.name || '—';
+      document.getElementById('modalScoreRow').innerHTML = `
+        <div class="modal-chip">${tx.thScore}: <strong>${r.score !== null ? r.score : '—'}</strong></div>
+        <div class="modal-chip">${tx.thCorrect}: <strong>${r.totalMcq ? r.correctMcq+'/'+r.totalMcq : '—'}</strong></div>
+        <div class="modal-chip">${tx.thTime}: <strong>${r.duration ? fmtTime(r.duration) : '—'}</strong></div>
+      `;
+
+      const qHtml = questions.map((q, qi) => {
+        const userAns = r.answers[q.id];
+        if (q.type === 'short') {
+          return `<div class="q-detail-row short-q">
+            <div class="q-detail-header">
+              <span class="q-num-badge">Q${qi+1}</span>
+              <span style="font-size:11px;font-weight:600;color:var(--purple);">${tx.shortBadge||'주관식'}</span>
+            </div>
+            <div class="q-body-text">${q.body}</div>
+            <div class="q-answer-line">
+              <span class="answer-label short-l">${tx.myAns||'답변'}</span>
+              <span class="answer-text">${userAns || (tx.noAnswer||'미입력')}</span>
+            </div>
+          </div>`;
+        }
+        const isCorrect = userAns === String(q.answerIdx);
+        const rowClass  = isCorrect ? 'correct' : 'wrong';
+        const icon      = isCorrect ? '✅' : '❌';
+        const userIdx   = userAns !== undefined ? parseInt(userAns) : -1;
+        const userText  = userIdx >= 0 && q.choices ? `${letters[userIdx]} ${q.choices[userIdx]}` : (tx.noAnswer||'미선택');
+        const corrText  = q.choices ? `${letters[q.answerIdx]} ${q.choices[q.answerIdx]}` : '—';
+        return `<div class="q-detail-row ${rowClass}">
+          <div class="q-detail-header">
+            <span class="q-num-badge">Q${qi+1}</span>
+            <span style="font-size:12px;color:var(--text);">${q.body.length>50 ? q.body.substring(0,50)+'…' : q.body}</span>
+            <span class="q-result-icon">${icon}</span>
+          </div>
+          ${!isCorrect ? `
+          <div class="q-answer-line" style="margin-bottom:4px;">
+            <span class="answer-label my">${tx.myAns||'내 답'}</span>
+            <span class="answer-text">${userText}</span>
+          </div>
+          <div class="q-answer-line">
+            <span class="answer-label correct-l">${tx.correctAns||'정답'}</span>
+            <span class="answer-text">${corrText}</span>
+          </div>` : `
+          <div class="q-answer-line">
+            <span class="answer-label correct-l">${tx.correctAns||'정답'}</span>
+            <span class="answer-text">${corrText}</span>
+          </div>`}
+        </div>`;
+      }).join('');
+
+      document.getElementById('modalQList').innerHTML = qHtml;
+      document.getElementById('modalBackdrop').classList.add('show');
+    }
+
+    function closeModal(e) {
+      if (e.target === document.getElementById('modalBackdrop')) closeModalDirect();
+    }
+    function closeModalDirect() {
+      document.getElementById('modalBackdrop').classList.remove('show');
+    }
+
+    /* ── CHART ── */
+    function renderChart() {
+      const tx    = T[lang];
+      const chart = document.getElementById('analysisChart');
+      const submitted = results.filter(r => r.status === 'submitted' && r.answers);
+      if (!submitted.length || !questions.length) {
+        chart.innerHTML = `<div class="empty">${tx.analysisEmpty}</div>`;
+        return;
+      }
+      const mcqQ = questions.filter(q => q.type === 'mcq');
+      const bars = mcqQ.map((q, qi) => {
+        const total   = submitted.length;
+        const wrong   = submitted.filter(r => r.answers && r.answers[q.id] !== String(q.answerIdx)).length;
+        const wrongPct = Math.round((wrong / total) * 100);
+        const label   = `Q${questions.indexOf(q)+1}`;
+        return { label, wrongPct, body: q.body };
+      });
+      chart.innerHTML = bars.map(b => `
+        <div class="bar-row" title="${b.body}">
+          <div class="bar-label">${b.label}. ${b.body.substring(0,28)}…</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${b.wrongPct}%;background:${b.wrongPct>60?'linear-gradient(90deg,var(--danger),#e96040)':'linear-gradient(90deg,var(--green),var(--purple-mid))'}"></div></div>
+          <div class="bar-pct">${b.wrongPct}%</div>
+        </div>
+      `).join('');
+    }
+
+    /* ── START / STOP EXAM ── */
+    async function startExam() {
+      document.getElementById('btnStart').disabled = true;
+      await setDoc(doc(db, 'activeSession', 'current'), {
+        status: 'running', examId: 'exam_001', startedAt: new Date()
+      });
+      showToast(T[lang].toastStarted);
+    }
+
+    async function stopExam() {
+      document.getElementById('btnStop').disabled = true;
+      await setDoc(doc(db, 'activeSession', 'current'), {
+        status: 'ended', examId: 'exam_001', endedAt: new Date()
+      }, { merge: true });
+      showToast(T[lang].toastStopped);
+    }
+
+    async function refreshData() {
+      await loadAll();
+      showToast('✓ Refreshed');
+    }
+
+    /* ── EXPORT CSV ── */
+    function exportCSV() {
+      if (!results.length) return;
+      const tx = T[lang];
+      const headers = [tx.thName, tx.thScore, tx.thCorrect, tx.thTime, tx.thStatus];
+      const rows = results.map(r => [
+        r.name || '',
+        r.score !== null ? r.score : '',
+        r.totalMcq ? `${r.correctMcq}/${r.totalMcq}` : '',
+        r.duration ? fmtTime(r.duration) : '',
+        r.status || ''
+      ]);
+      const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = `benedu_exam_results_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+      showToast(T[lang].toastCsvDone);
+    }
+
+    /* ── INIT ── */
+    setLang('en');
+
+    /* Enter key on password */
+    document.getElementById('inputAdminPw').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doAdminLogin();
+    });
+
+  </script>
+</body>
+</html>
