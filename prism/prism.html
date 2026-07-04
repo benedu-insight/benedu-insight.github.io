@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PRISM — Benedu Insight</title>
+<script>
+/* ── Direct access guard ──
+   prism.html은 index.html의 iframe 안에서만 동작합니다.
+   직접 URL 접근 시 index.html로 리다이렉트.            */
+(function(){
+  if (window.self === window.top) {
+    document.documentElement.style.display = 'none';
+    window.location.replace('index.html');
+  }
+})();
+</script>
 <link rel="icon" type="image/png"
       href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
@@ -101,14 +112,14 @@ html, body {
    HEADER
 ═══════════════════════════ */
 .header {
-  height: 50px;
+  height: 40px;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
+  padding: 0 14px;
   flex-shrink: 0;
   user-select: none;
   position: relative;
@@ -704,35 +715,25 @@ canvas { width: 100%; height: 100%; display: block; }
 </head>
 <body>
 
-<!-- ════════════════════ HEADER ════════════════════ -->
+<!-- ════════════════════ HEADER (functional only) ════════════════════ -->
 <header class="header">
   <div class="header-left">
-    <div style="display:flex;flex-direction:column;gap:1px;line-height:1;">
-      <span class="app-title">PRISM</span>
-      <span class="app-subtitle">Plasma RF Impedance Simulation Matrix</span>
-    </div>
-    <span class="app-ver">v3.2</span>
     <nav class="menu-bar">
       <button class="menu-item" onclick="saveConfig()">Save Config</button>
       <button class="menu-item" onclick="document.getElementById('cfgFile').click()">Load Config</button>
-      <button class="menu-item" onclick="document.getElementById('deepDiveModal').style.display='flex'">📖 Deep Dive</button>
+      <button class="menu-item" onclick="document.getElementById('deepDiveModal').style.display='flex'">Deep Dive</button>
       <input type="file" id="cfgFile" accept=".json" onchange="loadConfig(event)" style="display:none">
     </nav>
   </div>
   <div class="header-right">
-    <!-- Dark mode toggle -->
-    <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode"
-      style="background:none;border:1.5px solid var(--border);border-radius:6px;
-             cursor:pointer;padding:4px 8px;font-size:14px;line-height:1;
-             color:var(--text-muted);transition:all .2s;">🌙</button>
     <div id="statusBadge" class="status-badge matched">
       <div class="status-dot"></div>
       <span id="statusText">MATCHED</span>
     </div>
-    <a href="https://benedu-insight.github.io/" target="_blank" class="logo-link">
-      <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
-           alt="Benedu Insight" onerror="this.style.display='none'">
-    </a>
+    <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode"
+      style="background:none;border:1.5px solid var(--border);border-radius:6px;
+             cursor:pointer;padding:4px 8px;font-size:14px;line-height:1;
+             color:var(--text-muted);transition:all .2s;">🌙</button>
   </div>
 </header>
 
