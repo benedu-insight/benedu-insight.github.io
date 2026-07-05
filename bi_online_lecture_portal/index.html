@@ -321,8 +321,53 @@
     .c2 .syllabus-item svg { fill: var(--color-class2); }
 
     /* ─────────────────────────────────────────────────────────────────────────
-       INSTRUCTOR'S PHILOSOPHY CARD
+   INSTRUCTOR'S PHILOSOPHY CARD
        ───────────────────────────────────────────────────────────────────────── */
+    .arc-promo {
+      position: relative; display: flex; align-items: center; gap: 2.2rem;
+      width: 100%; margin-bottom: 2.5rem; padding: 2.2rem 2.4rem;
+      background: linear-gradient(135deg, #0B0E17 0%, #161B2B 100%);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden;
+      text-decoration: none; color: #fff; box-shadow: 0 18px 46px rgba(0,0,0,0.22);
+      transition: var(--transition-smooth);
+    }
+    .arc-promo:hover { transform: translateY(-4px); box-shadow: 0 24px 56px rgba(0,0,0,0.30); }
+    .arc-promo-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 12% 25%, rgba(139,92,246,0.28), transparent 55%),
+                  radial-gradient(circle at 88% 78%, rgba(16,185,129,0.24), transparent 55%);
+    }
+    .arc-promo-visual { position: relative; flex-shrink: 0; width: 200px; }
+    .portal-arc-bolt { filter: drop-shadow(0 0 4px rgba(167,139,250,0.6)) drop-shadow(0 0 8px rgba(52,211,153,0.4)); opacity: 0; }
+    .portal-arc-bolt.b1 { animation: portalArcFlicker 2.6s infinite; }
+    .portal-arc-bolt.b2 { animation: portalArcFlicker 2.6s infinite; animation-delay: .08s; }
+    .portal-arc-dot { filter: drop-shadow(0 0 6px rgba(255,255,255,0.85)); opacity: 0; animation: portalDotFlicker 2.6s infinite; }
+    @keyframes portalArcFlicker { 0%,40%{opacity:0;} 42%{opacity:1;} 46%{opacity:.3;} 50%{opacity:1;} 58%{opacity:0;} 100%{opacity:0;} }
+    @keyframes portalDotFlicker { 0%,40%{opacity:0;transform:scale(.8);} 42%,55%{opacity:1;transform:scale(1);} 60%,100%{opacity:0;transform:scale(.8);} }
+    @media (prefers-reduced-motion: reduce) { .portal-arc-bolt, .portal-arc-dot { animation: none !important; opacity: .85 !important; } }
+    .arc-promo-body { position: relative; flex: 1; min-width: 0; }
+    .arc-promo-badge {
+      display: inline-flex; align-items: center; font-family: var(--font-mono) !important; font-size: 0.7rem;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #C4B5FD;
+      background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.35);
+      padding: 4px 10px; border-radius: 20px; margin-bottom: 1rem;
+    }
+    .arc-promo-title { font-family: var(--font-title); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.01em; margin-bottom: 0.7rem; }
+    .arc-promo-desc { font-size: 0.9rem; line-height: 1.65; color: rgba(255,255,255,0.65); max-width: 540px; margin-bottom: 1.1rem; }
+    .arc-promo-stats { display: flex; gap: 1.4rem; font-family: var(--font-mono) !important; font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+    .arc-promo-stats b { color: #fff; font-size: 0.95rem; }
+    .arc-promo-cta {
+      position: relative; flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 0.9rem; background: #fff; color: #111827;
+      padding: 12px 20px; border-radius: 12px; white-space: nowrap; transition: var(--transition-smooth);
+    }
+    .arc-promo:hover .arc-promo-cta { background: #A78BFA; color: #fff; gap: 12px; }
+    @media (max-width: 860px) {
+      .arc-promo { flex-direction: column; align-items: flex-start; text-align: left; }
+      .arc-promo-visual { width: 100%; max-width: 260px; }
+      .arc-promo-cta { width: 100%; justify-content: center; }
+    }
+
     .philosophy-card {
       background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 100%);
       border: 1px solid rgba(236, 72, 153, 0.15);
@@ -825,6 +870,37 @@
         </div>
       </div>
 
+      <a class="arc-promo" href="https://benedu-insight.github.io/arc/" target="_blank" rel="noopener noreferrer">
+        <div class="arc-promo-glow"></div>
+        <div class="arc-promo-visual">
+          <svg viewBox="0 0 220 90" style="width:100%;height:auto;overflow:visible;display:block;">
+            <defs>
+              <linearGradient id="portalArcGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#A78BFA"/>
+                <stop offset="100%" stop-color="#34D399"/>
+              </linearGradient>
+            </defs>
+            <rect x="14" y="34" width="10" height="24" rx="2" fill="rgba(255,255,255,0.28)"/>
+            <rect x="196" y="34" width="10" height="24" rx="2" fill="rgba(255,255,255,0.28)"/>
+            <path class="portal-arc-bolt b1" d="M24,44 L64,40 L96,52 L118,42 L140,54 L172,38 L196,46" stroke="url(#portalArcGrad)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="portal-arc-bolt b2" d="M24,50 L58,56 L92,42 L116,58 L146,44 L176,58 L196,50" stroke="#C4B5FD" stroke-width="1" fill="none" opacity="0" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle class="portal-arc-dot" cx="118" cy="48" r="3.2" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="arc-promo-body">
+          <span class="arc-promo-badge" id="lbl-arc-badge">COMPANION TOOL SUITE</span>
+          <h3 class="arc-promo-title" id="lbl-arc-title">ARC — turn the theory into numbers</h3>
+          <p class="arc-promo-desc" id="lbl-arc-desc">Every formula from Class 01 &amp; 02 — Debye length, Smith charts, matching networks — as 46 live interactive calculators. Applied RF &amp; Plasma Calculators, built for the numbers behind the lectures.</p>
+          <div class="arc-promo-stats">
+            <span><b>7</b> phases</span><span><b>46</b> tools</span><span><b>EN/KO</b></span>
+          </div>
+        </div>
+        <div class="arc-promo-cta">
+          <span id="lbl-arc-cta">Launch ARC</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
       <!-- Instructor's Philosophy Banner (Accordion) -->
       <div class="philosophy-card collapsed" id="philosophy-card">
         <div class="phil-header" onclick="togglePhilosophy()">
@@ -860,6 +936,8 @@
       <footer class="portal-footer">
         <div class="footer-links">
           <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer">Homepage</a>
+          <span class="footer-separator">|</span>
+          <a href="https://benedu-insight.github.io/arc/" target="_blank" rel="noopener noreferrer">ARC Lab Tools</a>
           <span class="footer-separator">|</span>
           <a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a>
         </div>
@@ -997,7 +1075,11 @@
         philTitle: "Your Learning Journey is Like a Rose Vine",
         philDesc1: "It is impossible to absorb such a vast and complex amount of engineering theory in just 16 short hours. Please don't rush to memorize everything at once.",
         philDesc2: "Instead, focus on walking with me along the <strong>'Main Vine'</strong>. I will guide you through the core storyline so you can build a solid foundation. From there, use your own curiosity and self-directed learning to grow your own branches, eventually blooming into your own beautiful roses of expertise.",
-        philQuote: "\"I plant the vine. You grow the roses.\""
+        philQuote: "\"I plant the vine. You grow the roses.\"",
+        arcBadge: "Companion Tool Suite",
+        arcTitle: "ARC — turn the theory into numbers",
+        arcDesc: "Every formula from Class 01 &amp; 02 — Debye length, Smith charts, matching networks — as 46 live interactive calculators. Applied RF &amp; Plasma Calculators, built for the numbers behind the lectures.",
+        arcCta: "Launch ARC"
       },
       ko: {
         portalSub: "반도체 및 RF 전송 이론 플라즈마 스쿨",
@@ -1022,7 +1104,11 @@
         philTitle: "배움의 여정은 넝쿨장미를 가꾸는 것과 같습니다",
         philDesc1: "이 어렵고 방대한 주제를 16시간 남짓한 단기간 내에 모두 알려고 욕심내지 마세요.",
         philDesc2: "대신 저와 함께 핵심 스토리라인인 <strong>'굵은 줄기(Main Vine)'</strong>를 따라가며 뼈대를 세우는 데 집중하십시오. 강사인 제가 튼튼한 줄기를 뻗어 나갈 수 있도록 방향을 잡아드리겠습니다. 여러분은 그 스토리 위에서 스스로의 호기심과 심화 학습을 통해 무성한 곁가지를 내고, 마침내 자신만의 아름다운 장미꽃(전문성)을 만개하시길 바랍니다.",
-        philQuote: "\"저는 굵은 줄기를 세우겠습니다. 여러분은 그 위에 자신만의 장미를 피워내십시오.\""
+        philQuote: "\"저는 굵은 줄기를 세우겠습니다. 여러분은 그 위에 자신만의 장미를 피워내십시오.\"",
+        arcBadge: "연계 실습 도구",
+        arcTitle: "ARC — 배운 이론을 숫자로 확인하기",
+        arcDesc: "Class 01·02에서 다룬 디바이 길이, 스미스차트, 매칭 네트워크 같은 공식들을 46개의 실시간 인터랙티브 계산기로 직접 체험해보세요. 강의 이면의 숫자를 위해 만든 Applied RF &amp; Plasma Calculators입니다.",
+        arcCta: "ARC 실행하기"
       }
     };
 
@@ -1105,6 +1191,10 @@
       document.getElementById('lbl-phil-desc1').innerText = T.philDesc1;
       document.getElementById('lbl-phil-desc2').innerHTML = T.philDesc2;
       document.getElementById('lbl-phil-quote').innerText = T.philQuote;
+      document.getElementById('lbl-arc-badge').innerText = T.arcBadge;
+      document.getElementById('lbl-arc-title').innerText = T.arcTitle;
+      document.getElementById('lbl-arc-desc').innerHTML = T.arcDesc;
+      document.getElementById('lbl-arc-cta').innerText = T.arcCta;
 
       const pill = document.getElementById('portal-lang-pill');
       if (pill) pill.className = currentLang === 'en' ? 'lang-toggle-pill lang-en' : 'lang-toggle-pill lang-ko';
