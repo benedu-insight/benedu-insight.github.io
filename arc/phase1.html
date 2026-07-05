@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 1 · Unit &amp; Power Conversion — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* Header */
+.header {
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 12px 32px; display: flex; align-items: center; justify-content: center; gap: 16px;
+  flex-wrap: wrap;
+}
+.logo-img { height: 36px; display: block; }
+#logo-fallback { display:none; align-items:center; gap:8px; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+.lang-toggle {
+  display: flex; align-items: center; background: var(--bg);
+  border: 1.5px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+/* Phase progress strip */
+.phase-strip {
+  max-width: 900px; margin: 18px auto 0; padding: 0 16px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 11px; color: var(--label);
+}
+.phase-pip {
+  width: 22px; height: 22px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
+  font-size: 10px; font-weight: 700; border: 1.5px solid var(--border); color: var(--label); background: var(--card);
+}
+.phase-pip.current { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* Tool tabs */
+.tool-tabs {
+  max-width: 900px; margin: 14px auto 0; padding: 0 16px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.tool-tab {
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 9px 16px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.tool-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.tool-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: var(--shadow); }
+.tool-tab .tnum {
+  width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center; font-size: 10px; font-family:'JetBrains Mono',monospace;
+}
+.tool-tab:not(.active) .tnum { background: var(--bg); border: 1px solid var(--border); }
+
+/* Layout */
+.main { max-width: 900px; margin: 20px auto 56px; padding: 0 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; }
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--green-lt); color: var(--green);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* Controls */
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 100px; }
+.slider-track { flex: 1; min-width: 160px; }
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; cursor: pointer; }
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 110px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.unit-select {
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 500;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 8px; color: var(--text); cursor: pointer; outline: none;
+}
+.unit-select:focus { border-color: var(--green); }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+.qbtn.ism { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+.qbtn.ism.active { background: var(--green); color: #fff; }
+
+/* Mode toggle (sub-tabs inside a tool, e.g. Z->Gamma / Gamma->Z) */
+.mode-toggle { display: flex; gap: 6px; padding: 14px 24px 0; flex-wrap: wrap; }
+.mode-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+  padding: 6px 15px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.mode-btn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.mode-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+.z0-row { display:flex; align-items:center; gap:10px; padding: 14px 24px 0; flex-wrap: wrap; }
+.z0-label { font-size: 12.5px; color: var(--label); font-weight: 500; }
+
+.dual-input { display: flex; gap: 14px; padding: 14px 24px 0; flex-wrap: wrap; }
+.dual-field { flex: 1; min-width: 130px; }
+.dual-field label { display:block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+.dual-field input {
+  width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; text-align: right; outline: none; transition: border-color .2s;
+}
+.dual-field input:focus { border-color: var(--green); }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+
+/* Formula panel */
+.formula-panel { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+footer { text-align: center; padding: 10px 20px 30px; font-size: 11.5px; color: var(--muted); }
+footer a { color: var(--purple); text-decoration: none; }
+
+/* Deep Dive accordion */
+.deepdive { border-top: 1px solid var(--border); }
+.deepdive-toggle {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 14px 24px; background: var(--purple-lt); border: none; cursor: pointer;
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--purple);
+  text-align: left; transition: background .15s;
+}
+.deepdive-toggle:hover { background: #E9DCF5; }
+.deepdive-chevron { transition: transform .2s; font-size: 11px; flex-shrink: 0; }
+.deepdive-toggle.open .deepdive-chevron { transform: rotate(90deg); }
+.deepdive-body { display: none; padding: 18px 24px 22px; background: var(--card); }
+.deepdive-body.open { display: block; }
+.deepdive-body h3 { font-size: 13.5px; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+.deepdive-body h3:first-child { margin-top: 0; }
+.deepdive-body p { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 8px; }
+.deepdive-body ul { margin: 6px 0 10px 18px; }
+.deepdive-body li { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 4px; }
+.deepdive-body code, .deepdive-eq {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--green-dk);
+  background: var(--green-lt); padding: 1px 6px; border-radius: 4px;
+}
+.dd-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12.5px; }
+.dd-table th { text-align: left; padding: 6px 10px; font-size: 11px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); }
+.dd-table td { padding: 6px 10px; border-bottom: 1px solid #F1F5F9; font-family: 'JetBrains Mono', monospace; }
+
+/* Small wave/level graph canvases (Tool 3 & 4) */
+.graph-wrap { padding: 0 24px; }
+.graphCanvas { width: 100%; height: 230px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #FAFBFC; margin-top: 16px; }
+#t3Canvas { height: 210px; }
+.graph-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+/* Velocity Factor reference table (Tool 3, Card 2) */
+.vf-card-head { padding: 14px 24px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.vf-card-head h2 { font-size: 15px; font-weight: 600; }
+.vf-card-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.vf-custom-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 24px 0; }
+.vf-custom-row label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.vf-input {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.vf-input:focus { border-color: var(--green); }
+.vf-range { width: 180px; }
+.vf-tabs { display: flex; gap: 6px; padding: 14px 24px 0; flex-wrap: wrap; }
+.vf-tab {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.vf-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.vf-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+.vf-table-wrap { padding: 12px 24px 20px; overflow-x: auto; }
+.vf-table-wrap table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.vf-table-wrap thead tr { background: #F1F5F9; }
+.vf-table-wrap th {
+  text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--muted);
+  letter-spacing: .05em; white-space: nowrap; border-bottom: 1px solid var(--border);
+}
+.vf-table-wrap td { padding: 8px 10px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; white-space: nowrap; }
+.vf-table-wrap tr:last-child td { border-bottom: none; }
+.vf-table-wrap tr:hover td { background: #F8F9FE; }
+.vf-bar-cell { min-width: 100px; }
+.vf-bar-bg { background: #E2E8F0; border-radius: 3px; height: 6px; overflow: hidden; }
+.vf-bar-fill { height: 6px; border-radius: 3px; background: var(--green); transition: width .4s; }
+.vf-lambda { font-family: 'JetBrains Mono', monospace; color: var(--purple); font-weight: 600; }
+.vf-table-wrap tr.selected td { background: var(--purple-lt) !important; }
+td.cable-name { font-weight: 600; color: var(--text); }
+td.dielectric { color: var(--muted); }
+.badge-ism { font-size: 10px; font-weight: 700; letter-spacing: .05em; background: var(--green-lt); color: var(--green); border-radius: 3px; padding: 1px 5px; margin-left: 5px; }
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; }
+  .controls, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .tool-tab { font-size: 12px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+    <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+         alt="Benedu Insight" class="logo-img"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div id="logo-fallback">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+      </svg>
+      <div style="line-height:1.15;">
+        <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+        <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+        <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+      </div>
+    </div>
+  </a>
+  <div class="header-divider"></div>
+  <span class="header-title" id="pageTitle">Phase 1 — Unit &amp; Power Conversion</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<div class="phase-strip" id="phaseStrip">
+  <span id="phaseStripLabel">Progress:</span>
+  <span class="phase-pip current">1</span>
+  <span class="phase-pip">2</span>
+  <span class="phase-pip">3</span>
+  <span class="phase-pip">4</span>
+  <span class="phase-pip">5</span>
+  <span class="phase-pip">6</span>
+  <span class="phase-pip">7</span>
+  <span id="phaseStripNote">· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma</span>
+</div>
+
+<nav class="tool-tabs">
+  <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">Power / Voltage</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">2</span><span id="tabT2">Γ ↔ Z</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">Freq / Wavelength</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">Vrms / Vpk / Vpp</span></button>
+</nav>
+
+<main class="main">
+
+  <!-- ============ TOOL 1: Power / Voltage / Current Converter ============ -->
+  <div class="card tool-panel" id="panel-t1">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t1Title">dBm / W / V / I Converter</h2>
+        <p id="t1Sub">Convert RF power to voltage and current at a given system impedance</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t1LabelPower">Power (P)</span>
+        <div class="slider-track"><input type="range" id="t1-slider" min="0" max="1000" value="820"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t1-input" class="freq-num" value="1000">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);">W</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t1QuickLabel">Quick select:</span>
+        <button class="qbtn" data-w="0.001">1 mW</button>
+        <button class="qbtn" data-w="1">1 W</button>
+        <button class="qbtn" data-w="100">100 W</button>
+        <button class="qbtn ism" data-w="600">600 W</button>
+        <button class="qbtn ism active" data-w="1000">1 kW</button>
+        <button class="qbtn ism" data-w="2000">2 kW</button>
+        <button class="qbtn ism" data-w="3000">3 kW</button>
+        <button class="qbtn ism" data-w="5000">5 kW</button>
+      </div>
+    </div>
+    <div class="z0-row">
+      <span class="z0-label" id="t1Z0Label">System Impedance Z₀:</span>
+      <button class="qbtn active" data-z0="1" data-tool="t1">50 Ω</button>
+      <button class="qbtn" data-z0="1" data-tool="t1" data-val="75">75 Ω</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t1statP">POWER</div><div><span class="stat-value" id="t1-Wdisp">1.000</span><span class="stat-unit" id="t1-Wunit">kW</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statDbm">dBm</div><div><span class="stat-value" id="t1-dBm">60.00</span><span class="stat-unit">dBm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statVrms">Vrms</div><div><span class="stat-value" id="t1-Vrms">223.6</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statVpk">Vpeak</div><div><span class="stat-value" id="t1-Vpeak">316.2</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statIrms">Irms</div><div><span class="stat-value" id="t1-Irms">4.472</span><span class="stat-unit">A</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statIpk">Ipeak</div><div><span class="stat-value" id="t1-Ipeak">6.325</span><span class="stat-unit">A</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t1f1">dBm</div><div class="formula-eq">P(dBm) = 10·log₁₀(P<sub>mW</sub>)</div></div>
+      <div><div class="formula-label" id="t1f2">Vrms</div><div class="formula-eq">Vrms = √(P · Z₀)</div></div>
+      <div><div class="formula-label" id="t1f3">Vpeak</div><div class="formula-eq">Vpk = Vrms · √2</div></div>
+      <div><div class="formula-label" id="t1f4">Irms</div><div class="formula-eq">Irms = Vrms / Z₀</div></div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd1Btn" onclick="toggleDD('dd1Btn','dd1-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd1Toggle">Deep Dive: What is dBm?</span>
+      </button>
+      <div class="deepdive-body" id="dd1-body"><div id="dd1Content"></div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 2: Reflection Coefficient <-> Impedance ============ -->
+  <div class="card tool-panel" id="panel-t2" style="display:none">
+    <div class="card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);"><span class="badge-dot" style="background:var(--purple);"></span><span id="badge2">S11 ↔ Z</span></span>
+      <div class="card-head-text">
+        <h2 id="t2Title">Reflection Coefficient (Γ) ↔ Impedance (Z)</h2>
+        <p id="t2Sub">Convert between complex impedance and reflection coefficient / S11</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="zg" id="t2ModeZG">Z → Γ</button>
+      <button class="mode-btn" data-mode="gz" id="t2ModeGZ">Γ → Z</button>
+      <button class="mode-btn" data-mode="vz" id="t2ModeVZ">VSWR → Z</button>
+    </div>
+    <div class="z0-row">
+      <span class="z0-label" id="t2Z0Label">System Impedance Z₀:</span>
+      <button class="qbtn active" data-z0="1" data-tool="t2">50 Ω</button>
+      <button class="qbtn" data-z0="1" data-tool="t2" data-val="75">75 Ω</button>
+    </div>
+
+    <!-- Z -> Gamma inputs -->
+    <div class="dual-input" id="t2-zg-inputs">
+      <div class="dual-field"><label id="t2labelReZ">Re(Z) — Resistance (Ω)</label><input type="text" id="t2-reZ" value="75"></div>
+      <div class="dual-field"><label id="t2labelImZ">Im(Z) — Reactance (Ω)</label><input type="text" id="t2-imZ" value="25"></div>
+    </div>
+
+    <!-- Gamma -> Z inputs -->
+    <div class="controls" id="t2-gz-inputs" style="display:none; border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t2labelMag">|Γ| Magnitude</span>
+        <div class="slider-track"><input type="range" id="t2-magSlider" min="0" max="999" value="200"></div>
+        <div class="freq-inputs"><input type="text" id="t2-magInput" class="freq-num" value="0.200"></div>
+      </div>
+      <div class="freq-row">
+        <span class="freq-label" id="t2labelAng">∠Γ Angle (°)</span>
+        <div class="slider-track"><input type="range" id="t2-angSlider" min="-180" max="180" value="30"></div>
+        <div class="freq-inputs"><input type="text" id="t2-angInput" class="freq-num" value="30.0"></div>
+      </div>
+    </div>
+
+    <!-- VSWR -> Z inputs -->
+    <div class="controls" id="t2-vz-inputs" style="display:none; border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t2labelVswrIn">VSWR</span>
+        <div class="slider-track"><input type="range" id="t2-vswrSlider" min="0" max="999" value="164"></div>
+        <div class="freq-inputs"><input type="text" id="t2-vswrInput" class="freq-num" value="1.64">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);">: 1</span></div>
+      </div>
+      <div class="freq-row">
+        <span class="freq-label" id="t2labelVzAng">∠Γ Angle (°)</span>
+        <div class="slider-track"><input type="range" id="t2-vzAngSlider" min="-180" max="180" value="30"></div>
+        <div class="freq-inputs"><input type="text" id="t2-vzAngInput" class="freq-num" value="30.0"></div>
+      </div>
+      <p class="graph-note" id="t2vzNote">VSWR determines |Γ| only. The reflection angle ∠Γ (load phase) cannot be derived from VSWR alone, so it is set manually here.</p>
+    </div>
+
+    <div class="stats" id="t2-zg-stats">
+      <div class="stat"><div class="stat-name" id="t2statMag">|Γ|</div><div><span class="stat-value" id="t2-mag">0.243</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statAng">∠Γ</div><div><span class="stat-value" id="t2-ang">57.5</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statVswr">VSWR</div><div><span class="stat-value" id="t2-vswr">1.64</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statRL">Return Loss</div><div><span class="stat-value" id="t2-rl">12.3</span><span class="stat-unit">dB</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statGre">Γ (Re)</div><div><span class="stat-value" id="t2-gre">0.131</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statGim">Γ (Im)</div><div><span class="stat-value" id="t2-gim">0.205</span></div></div>
+    </div>
+
+    <div class="stats" id="t2-gz-stats" style="display:none">
+      <div class="stat"><div class="stat-name" id="t2statReZ2">Re(Z)</div><div><span class="stat-value" id="t2-reZout">70.7</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statImZ2">Im(Z)</div><div><span class="stat-value" id="t2-imZout">18.9</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statMagZ">|Z|</div><div><span class="stat-value" id="t2-magZout">73.2</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statAngZ">∠Z</div><div><span class="stat-value" id="t2-angZout">15.0</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statMagOut">|Γ|</div><div><span class="stat-value" id="t2-magOut">0.200</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statVswrOut">VSWR</div><div><span class="stat-value" id="t2-vswrOut">1.50</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t2f1">Γ FROM Z</div><div class="formula-eq">Γ = (Z − Z₀) / (Z + Z₀)</div></div>
+      <div><div class="formula-label" id="t2f2">Z FROM Γ</div><div class="formula-eq">Z = Z₀ · (1 + Γ) / (1 − Γ)</div></div>
+      <div><div class="formula-label" id="t2f3">VSWR</div><div class="formula-eq">VSWR = (1+|Γ|) / (1−|Γ|)</div></div>
+      <div><div class="formula-label" id="t2f4b">|Γ| FROM VSWR</div><div class="formula-eq">|Γ| = (VSWR−1) / (VSWR+1)</div></div>
+      <div><div class="formula-label" id="t2f4">RETURN LOSS</div><div class="formula-eq">RL = −20·log₁₀|Γ|</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 3: Frequency / Wavelength / Velocity Factor ============ -->
+  <div class="tool-panel" id="panel-t3" style="display:none">
+
+  <!-- Card A: Frequency / Wavelength Simulator -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge3">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t3Title">Frequency ↔ Wavelength (with Velocity Factor)</h2>
+        <p id="t3Sub">Frequency, period, free-space wavelength and in-cable wavelength</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t3LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t3-slider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t3-input" class="freq-num" value="13.56">
+          <select id="t3-unit" class="unit-select">
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="MHz" selected>MHz</option>
+            <option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t3QuickLabel">Quick select:</span>
+        <button class="qbtn" data-hz="50" data-u="Hz">50 Hz</button>
+        <button class="qbtn" data-hz="60" data-u="Hz">60 Hz</button>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn ism" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+
+    <div class="graph-wrap">
+      <canvas id="t3Canvas" class="graphCanvas"></canvas>
+      <p class="graph-note" id="t3GraphNote">The waveform shows 3 cycles at the selected frequency on a time axis. The green bracket marks one period T; the orange bracket marks λ/4 (in cable) at the current velocity factor.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t3statT">PERIOD (T)</div><div><span class="stat-value" id="t3-T">73.75</span><span class="stat-unit" id="t3-Tunit">ns</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statLam">λ (FREE SPACE)</div><div><span class="stat-value" id="t3-lam">22.12</span><span class="stat-unit" id="t3-lamUnit">m</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statLamC">λ (IN CABLE)</div><div><span class="stat-value" id="t3-lamC">22.12</span><span class="stat-unit" id="t3-lamCUnit">m</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statQ">λ/4 (IN CABLE)</div><div><span class="stat-value" id="t3-q">5.530</span><span class="stat-unit" id="t3-qUnit">m</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t3f1">PERIOD</div><div class="formula-eq">T = 1 / f</div></div>
+      <div><div class="formula-label" id="t3f2">WAVELENGTH</div><div class="formula-eq">λ = c / f</div></div>
+      <div><div class="formula-label" id="t3f3">IN CABLE</div><div class="formula-eq">λ_cable = λ × VF</div></div>
+      <div><div class="formula-label" id="t3f4">QUARTER WAVE</div><div class="formula-eq">λ/4 = λ_cable / 4</div></div>
+    </div>
+  </div><!-- /Card A -->
+
+  <!-- Card B: Velocity Factor — Coaxial Cable Reference -->
+  <div class="card">
+    <div class="vf-card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="badgeVF">VF TABLE</span>
+      </span>
+      <div>
+        <h2 id="vfTitle">Velocity Factor — Coaxial Cable Reference</h2>
+        <p id="vfSub">Click a cable row to apply its VF. The wavelength inside the cable (λ<sub>cable</sub> = VF × λ<sub>free-space</sub>) is shown for the current frequency.</p>
+      </div>
+    </div>
+
+    <div class="vf-custom-row">
+      <label id="labelCustomVF">Custom VF:</label>
+      <input type="range" id="t3vfSlider" class="vf-range" min="0.60" max="1.00" step="0.001" value="1.0">
+      <input type="text" id="t3vfInput" class="vf-input" value="1.000">
+      <span style="font-size:12px;color:var(--muted);"><span id="labelVfLambda">Wavelength in medium:</span> <span id="t3vfLambda" class="vf-lambda">—</span></span>
+    </div>
+
+    <div class="vf-tabs" id="t3vfTabs">
+      <button class="vf-tab active" data-cat="all" id="t3tab-all">All</button>
+      <button class="vf-tab" data-cat="vacuum" id="t3tab-vacuum">Vacuum / Air</button>
+      <button class="vf-tab" data-cat="rg" id="t3tab-rg">RG Series</button>
+      <button class="vf-tab" data-cat="lmr" id="t3tab-lmr">LMR Series</button>
+      <button class="vf-tab" data-cat="semirigid" id="t3tab-semirigid">Semi-Rigid</button>
+      <button class="vf-tab" data-cat="hardline" id="t3tab-hardline">Hardline / Heliax</button>
+    </div>
+
+    <div class="vf-table-wrap">
+      <table id="t3vfTable">
+        <thead>
+          <tr>
+            <th id="thCableModel">Cable Model</th>
+            <th id="thDielectric">Dielectric</th>
+            <th>Z₀ (Ω)</th>
+            <th>VF</th>
+            <th id="thVfBar" style="min-width:110px;">VF Bar</th>
+            <th id="thLambda">λ in Cable</th>
+            <th id="thNotes">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="t3vfTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="fmlCableWave">IN-CABLE WAVELENGTH</div><div class="formula-eq">λ<sub>cable</sub> = VF × (c / f)</div></div>
+      <div><div class="formula-label" id="fmlVfDef">VF DEFINITION</div><div class="formula-eq">VF = v<sub>p</sub> / c = 1 / √ε<sub>r</sub></div></div>
+      <div><div class="formula-label" id="fmlElecLen">ELECTRICAL LENGTH</div><div class="formula-eq">θ = (L / λ<sub>cable</sub>) × 360°</div></div>
+    </div>
+  </div><!-- /Card B -->
+
+  </div><!-- /panel-t3 -->
+
+  <!-- ============ TOOL 4: Vrms / Vpeak / Vpp Converter ============ -->
+  <div class="card tool-panel" id="panel-t4" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge4">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t4Title">Vrms / Vpeak / Vpp Converter</h2>
+        <p id="t4Sub">Convert between RMS, peak and peak-to-peak voltage of a sine wave</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <span class="quick-label" id="t4InputAsLabel" style="align-self:center;margin-right:4px;">Input as:</span>
+      <button class="mode-btn active" data-vmode="rms">Vrms</button>
+      <button class="mode-btn" data-vmode="pk">Vpeak</button>
+      <button class="mode-btn" data-vmode="pp">Vpp</button>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t4Label">Vrms</span>
+        <div class="slider-track"><input type="range" id="t4-slider" min="0" max="1000" step="1" value="150"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t4-input" class="freq-num" value="150.0">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);">V</span>
+        </div>
+      </div>
+    </div>
+    <div class="z0-row">
+      <span class="z0-label" id="t4Z0Label">Reference Z₀ (for bonus power):</span>
+      <button class="qbtn active" data-z0="1" data-tool="t4">50 Ω</button>
+      <button class="qbtn" data-z0="1" data-tool="t4" data-val="75">75 Ω</button>
+    </div>
+
+    <div class="graph-wrap">
+      <canvas id="t4Canvas" class="graphCanvas"></canvas>
+      <p class="graph-note" id="t4GraphNote">Sine wave showing Vpeak (purple dashed line, ±), Vrms level (green dashed line) and Vpp (orange bracket, top-to-bottom span).</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t4statRms">Vrms</div><div><span class="stat-value" id="t4-rms">150.0</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statPk">Vpeak</div><div><span class="stat-value" id="t4-pk">212.1</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statPp">Vpp</div><div><span class="stat-value" id="t4-pp">424.3</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statP">POWER (at Z₀)</div><div><span class="stat-value" id="t4-p">450.0</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statDbm">dBm (at Z₀)</div><div><span class="stat-value" id="t4-dbm">56.5</span><span class="stat-unit">dBm</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t4f1">PEAK</div><div class="formula-eq">Vpk = Vrms × √2</div></div>
+      <div><div class="formula-label" id="t4f2">PEAK-TO-PEAK</div><div class="formula-eq">Vpp = 2 × Vpk</div></div>
+      <div><div class="formula-label" id="t4f3">POWER</div><div class="formula-eq">P = Vrms² / Z₀</div></div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd4Btn" onclick="toggleDD('dd4Btn','dd4-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd4Toggle">Deep Dive: What is Vrms?</span>
+      </button>
+      <div class="deepdive-body" id="dd4-body"><div id="dd4Content"></div></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span id="footerText">Benedu Insight · Lab Tool Series — Phase 1 / 7 (Unit &amp; Power Conversion)</span>
+</footer>
+
+<script>
+/* =========================================================
+   I18N
+   ========================================================= */
+const I18N = {
+  en: {
+    pageTitle: 'Phase 1 — Unit &amp; Power Conversion',
+    phaseStripLabel: 'Progress:',
+    phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
+    tabT1: 'Power / Voltage', tabT2: 'Γ ↔ Z', tabT3: 'Freq / Wavelength', tabT4: 'Vrms / Vpk / Vpp',
+    badge1: 'INTERACTIVE', badge2: 'S11 ↔ Z', badge3: 'INTERACTIVE', badge4: 'INTERACTIVE',
+    t1Title: 'dBm / W / V / I Converter',
+    t1Sub: 'Convert RF power to voltage and current at a given system impedance',
+    t1LabelPower: 'Power (P)', t1QuickLabel: 'Quick select:', t1Z0Label: 'System Impedance Z₀:',
+    t1statP: 'POWER', t1statDbm: 'dBm', t1statVrms: 'Vrms', t1statVpk: 'Vpeak', t1statIrms: 'Irms', t1statIpk: 'Ipeak',
+    t1f1: 'dBm', t1f2: 'Vrms', t1f3: 'Vpeak', t1f4: 'Irms',
+    dd1Toggle: 'Deep Dive: What is dBm?',
+    dd1Content: `
+      <h3>Why a logarithmic unit?</h3>
+      <p>RF power in real systems spans an enormous range — from picowatts of noise floor to kilowatts from a plasma RF generator. Plotting or writing that range in plain watts is unwieldy, so RF engineers use <code>dBm</code>: a logarithmic scale referenced to a fixed 1&nbsp;mW.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">P(dBm) = 10 · log₁₀( P[mW] / 1mW )</div>
+      <h3>Why it's convenient</h3>
+      <ul>
+        <li>Gains and losses of cascaded stages (amplifier, cable, matcher, load) can simply be <b>added or subtracted</b> in dB instead of multiplied/divided in linear watts.</li>
+        <li>+3 dB ≈ ×2 power, −3 dB ≈ ×0.5 power, +10 dB = ×10 power — useful mental shortcuts on the bench.</li>
+        <li>dBm is an <b>absolute</b> unit (always referenced to 1 mW), unlike plain "dB" which is only a relative ratio between two powers.</li>
+      </ul>
+      <h3>Quick reference</h3>
+      <table class="dd-table">
+        <tr><th>dBm</th><th>Power</th></tr>
+        <tr><td>0 dBm</td><td>1 mW</td></tr>
+        <tr><td>10 dBm</td><td>10 mW</td></tr>
+        <tr><td>20 dBm</td><td>100 mW</td></tr>
+        <tr><td>30 dBm</td><td>1 W</td></tr>
+        <tr><td>40 dBm</td><td>10 W</td></tr>
+        <tr><td>50 dBm</td><td>100 W</td></tr>
+        <tr><td>60 dBm</td><td>1 kW</td></tr>
+      </table>
+      <p>In semiconductor RF equipment, a 600 W generator corresponds to roughly <b>57.8 dBm</b>, and a 3 kW unit to about <b>64.8 dBm</b>.</p>
+    `,
+    t2Title: 'Reflection Coefficient (Γ) ↔ Impedance (Z)',
+    t2Sub: 'Convert between complex impedance and reflection coefficient / S11',
+    t2ModeZG: 'Z → Γ', t2ModeGZ: 'Γ → Z', t2ModeVZ: 'VSWR → Z', t2Z0Label: 'System Impedance Z₀:',
+    t2labelReZ: 'Re(Z) — Resistance (Ω)', t2labelImZ: 'Im(Z) — Reactance (Ω)',
+    t2labelMag: '|Γ| Magnitude', t2labelAng: '∠Γ Angle (°)',
+    t2labelVswrIn: 'VSWR', t2labelVzAng: '∠Γ Angle (°)',
+    t2vzNote: 'VSWR determines |Γ| only. The reflection angle ∠Γ (load phase) cannot be derived from VSWR alone, so it is set manually here.',
+    t2statMag:'|Γ|', t2statAng:'∠Γ', t2statVswr:'VSWR', t2statRL:'Return Loss', t2statGre:'Γ (Re)', t2statGim:'Γ (Im)',
+    t2statReZ2:'Re(Z)', t2statImZ2:'Im(Z)', t2statMagZ:'|Z|', t2statAngZ:'∠Z', t2statMagOut:'|Γ|', t2statVswrOut:'VSWR',
+    t2f1:'Γ FROM Z', t2f2:'Z FROM Γ', t2f3:'VSWR', t2f4b:'|Γ| FROM VSWR', t2f4:'RETURN LOSS',
+    t3Title: 'Frequency ↔ Wavelength (with Velocity Factor)',
+    t3Sub: 'Frequency, period, free-space wavelength and in-cable wavelength',
+    t3LabelFreq: 'Frequency (f)', t3QuickLabel: 'Quick select:',
+    t3GraphNote: 'The waveform shows 3 cycles at the selected frequency on a time axis. The green bracket marks one period T; the orange bracket marks λ/4 (in cable) at the current velocity factor.',
+    t3statT:'PERIOD (T)', t3statLam:'λ (FREE SPACE)', t3statLamC:'λ (IN CABLE)', t3statQ:'λ/4 (IN CABLE)',
+    t3f1:'PERIOD', t3f2:'WAVELENGTH', t3f3:'IN CABLE', t3f4:'QUARTER WAVE',
+    badgeVF: 'VF TABLE',
+    vfTitle: 'Velocity Factor — Coaxial Cable Reference',
+    vfSub: 'Click a cable row to apply its VF. The wavelength inside the cable (λ<sub>cable</sub> = VF × λ<sub>free-space</sub>) is shown for the current frequency.',
+    labelCustomVF: 'Custom VF:', labelVfLambda: 'Wavelength in medium:',
+    't3tab-all': 'All', 't3tab-vacuum': 'Vacuum / Air', 't3tab-rg': 'RG Series',
+    't3tab-lmr': 'LMR Series', 't3tab-semirigid': 'Semi-Rigid', 't3tab-hardline': 'Hardline / Heliax',
+    thCableModel: 'Cable Model', thDielectric: 'Dielectric', thVfBar: 'VF Bar', thLambda: 'λ in Cable', thNotes: 'Notes',
+    fmlCableWave: 'IN-CABLE WAVELENGTH', fmlVfDef: 'VF DEFINITION', fmlElecLen: 'ELECTRICAL LENGTH',
+    t4Title: 'Vrms / Vpeak / Vpp Converter',
+    t4Sub: 'Convert between RMS, peak and peak-to-peak voltage of a sine wave',
+    t4InputAsLabel: 'Input as:', t4Z0Label: 'Reference Z₀ (for bonus power):',
+    t4GraphNote: 'Sine wave showing Vpeak (purple dashed line, ±), Vrms level (green dashed line) and Vpp (orange bracket, top-to-bottom span).',
+    t4statRms:'Vrms', t4statPk:'Vpeak', t4statPp:'Vpp', t4statP:'POWER (at Z₀)', t4statDbm:'dBm (at Z₀)',
+    t4f1:'PEAK', t4f2:'PEAK-TO-PEAK', t4f3:'POWER',
+    dd4Toggle: 'Deep Dive: What is Vrms?',
+    dd4Content: `
+      <h3>Root Mean Square — why not just use the peak?</h3>
+      <p>An AC sine wave is constantly changing, so a single "peak" number overstates how much real work the signal can do — the voltage is only at that peak for an instant. <b>Vrms</b> is the equivalent DC voltage that would deliver the <i>same average power</i> into a resistive load.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">Vrms = Vpeak / √2 ≈ 0.707 × Vpeak</div>
+      <h3>Where each value comes from</h3>
+      <ul>
+        <li><b>Vpeak</b> — maximum instantaneous voltage of the sine wave, from 0 to the top of the curve.</li>
+        <li><b>Vpp (peak-to-peak)</b> — full swing from the most negative point to the most positive point: Vpp = 2 × Vpeak.</li>
+        <li><b>Vrms</b> — the value virtually all power, meter and spec-sheet numbers use, because <code>P = Vrms² / Z₀</code> works directly, just like DC power.</li>
+      </ul>
+      <h3>Why RF engineers default to Vrms</h3>
+      <p>Oscilloscopes usually display Vpp or Vpeak directly from the trace, but power calculations, RF generator ratings, and RMS voltmeters all use Vrms. Mixing them up is one of the most common sources of a 2× or 3× error when converting between a scope reading and a power/dBm figure — always check which one you're starting from.</p>
+    `,
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 1 / 7 (Unit &amp; Power Conversion)'
+  },
+  ko: {
+    pageTitle: 'Phase 1 — 단위 및 전력 변환',
+    phaseStripLabel: '진행 단계:',
+    phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
+    tabT1: '전력/전압 변환', tabT2: 'Γ ↔ Z 변환', tabT3: '주파수/파장', tabT4: 'Vrms/Vpk/Vpp',
+    badge1: '인터랙티브', badge2: 'S11 ↔ Z', badge3: '인터랙티브', badge4: '인터랙티브',
+    t1Title: 'dBm / W / V / I 통합 변환기',
+    t1Sub: '시스템 임피던스 기준으로 RF 파워를 전압·전류로 변환합니다',
+    t1LabelPower: '파워 (P)', t1QuickLabel: '빠른 선택:', t1Z0Label: '시스템 임피던스 Z₀:',
+    t1statP: '파워', t1statDbm: 'dBm', t1statVrms: 'Vrms', t1statVpk: 'Vpeak', t1statIrms: 'Irms', t1statIpk: 'Ipeak',
+    t1f1: 'dBm', t1f2: 'Vrms', t1f3: 'Vpeak', t1f4: 'Irms',
+    dd1Toggle: 'Deep Dive: dBm이란 무엇인가?',
+    dd1Content: `
+      <h3>왜 로그 단위를 쓰는가</h3>
+      <p>실제 RF 시스템의 파워 범위는 매우 넓습니다 — 노이즈 플로어의 피코와트 수준부터 플라즈마용 RF Generator의 킬로와트 수준까지 걸쳐 있습니다. 이 넓은 범위를 W 단위로 그대로 표기하면 다루기 어려워서, RF 엔지니어는 1&nbsp;mW를 기준으로 하는 로그 스케일인 <code>dBm</code>을 사용합니다.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">P(dBm) = 10 · log₁₀( P[mW] / 1mW )</div>
+      <h3>왜 편리한가</h3>
+      <ul>
+        <li>증폭기·케이블·매칭망·부하 등 여러 단(cascade)의 이득/손실을 선형 W 단위로 곱하고 나누는 대신, dB 단위에서는 단순히 <b>더하고 빼면</b> 됩니다.</li>
+        <li>+3 dB ≈ 파워 ×2, −3 dB ≈ 파워 ×0.5, +10 dB = 파워 ×10 — 현장에서 암산하기 좋은 기준입니다.</li>
+        <li>dBm은 항상 1 mW를 기준으로 하는 <b>절대 단위</b>이고, 단순 "dB"는 두 파워 간의 상대적인 비율일 뿐이라는 차이가 있습니다.</li>
+      </ul>
+      <h3>빠른 참조표</h3>
+      <table class="dd-table">
+        <tr><th>dBm</th><th>파워</th></tr>
+        <tr><td>0 dBm</td><td>1 mW</td></tr>
+        <tr><td>10 dBm</td><td>10 mW</td></tr>
+        <tr><td>20 dBm</td><td>100 mW</td></tr>
+        <tr><td>30 dBm</td><td>1 W</td></tr>
+        <tr><td>40 dBm</td><td>10 W</td></tr>
+        <tr><td>50 dBm</td><td>100 W</td></tr>
+        <tr><td>60 dBm</td><td>1 kW</td></tr>
+      </table>
+      <p>반도체 RF 장비 기준으로, 600 W급 Generator는 약 <b>57.8 dBm</b>, 3 kW급은 약 <b>64.8 dBm</b>에 해당합니다.</p>
+    `,
+    t2Title: '반사계수(Γ) ↔ 임피던스(Z) 변환기',
+    t2Sub: '복소 임피던스와 반사계수(S11)를 상호 변환합니다',
+    t2ModeZG: 'Z → Γ', t2ModeGZ: 'Γ → Z', t2ModeVZ: 'VSWR → Z', t2Z0Label: '시스템 임피던스 Z₀:',
+    t2labelReZ: 'Re(Z) — 저항 (Ω)', t2labelImZ: 'Im(Z) — 리액턴스 (Ω)',
+    t2labelMag: '|Γ| 크기', t2labelAng: '∠Γ 위상각 (°)',
+    t2labelVswrIn: 'VSWR', t2labelVzAng: '∠Γ 위상각 (°)',
+    t2vzNote: 'VSWR은 |Γ|(크기)만 결정합니다. 반사 위상각 ∠Γ(부하의 위상)은 VSWR만으로는 알 수 없어 별도로 설정해야 합니다.',
+    t2statMag:'|Γ|', t2statAng:'∠Γ', t2statVswr:'VSWR', t2statRL:'Return Loss', t2statGre:'Γ (실수부)', t2statGim:'Γ (허수부)',
+    t2statReZ2:'Re(Z)', t2statImZ2:'Im(Z)', t2statMagZ:'|Z|', t2statAngZ:'∠Z', t2statMagOut:'|Γ|', t2statVswrOut:'VSWR',
+    t2f1:'Γ FROM Z', t2f2:'Z FROM Γ', t2f3:'VSWR', t2f4b:'VSWR로 부터 |Γ|', t2f4:'RETURN LOSS',
+    t3Title: '주파수 ↔ 파장 변환기 (Velocity Factor 포함)',
+    t3Sub: '주파수, 주기, 자유공간 파장 및 케이블 내 파장을 계산합니다',
+    t3LabelFreq: '주파수 (f)', t3QuickLabel: '빠른 선택:',
+    t3GraphNote: '아래 파형은 선택한 주파수에서 3주기(cycle)를 시간 축으로 표시한 것입니다. 초록색 구간은 한 주기(T)를, 주황색 구간은 현재 Velocity Factor 기준 λ/4(케이블 내)를 나타냅니다.',
+    t3statT:'주기 (T)', t3statLam:'λ (자유공간)', t3statLamC:'λ (케이블 내)', t3statQ:'λ/4 (케이블 내)',
+    t3f1:'주기', t3f2:'파장', t3f3:'케이블 내 파장', t3f4:'1/4 파장',
+    badgeVF: 'VF 표',
+    vfTitle: '속도계수 (Velocity Factor) — 동축케이블 참조표',
+    vfSub: '케이블 행을 클릭하면 해당 VF가 적용됩니다. 현재 주파수에서의 케이블 내 파장(λ<sub>cable</sub> = VF × λ<sub>자유공간</sub>)이 표시됩니다.',
+    labelCustomVF: '직접 입력 VF:', labelVfLambda: '매질 내 파장:',
+    't3tab-all': '전체', 't3tab-vacuum': '진공 / 공기', 't3tab-rg': 'RG 시리즈',
+    't3tab-lmr': 'LMR 시리즈', 't3tab-semirigid': '반경성 (Semi-Rigid)', 't3tab-hardline': '하드라인 / Heliax',
+    thCableModel: '케이블 모델', thDielectric: '유전체', thVfBar: 'VF 막대', thLambda: '케이블 내 파장', thNotes: '비고',
+    fmlCableWave: '케이블 내 파장', fmlVfDef: 'VF 정의', fmlElecLen: '전기적 길이',
+    t4Title: 'Vrms / Vpeak / Vpp 변환기',
+    t4Sub: '사인파의 실효값, 피크값, 피크-투-피크 전압을 상호 변환합니다',
+    t4InputAsLabel: '입력 기준:', t4Z0Label: '기준 Z₀ (파워 참고값):',
+    t4GraphNote: '사인파 그래프에 Vpeak(보라색 점선, ±), Vrms 레벨(초록색 점선), Vpp(주황색 괄호, 위-아래 전체 스윙)를 함께 표시합니다.',
+    t4statRms:'Vrms', t4statPk:'Vpeak', t4statPp:'Vpp', t4statP:'파워 (Z₀ 기준)', t4statDbm:'dBm (Z₀ 기준)',
+    t4f1:'피크값', t4f2:'피크-투-피크', t4f3:'파워',
+    dd4Toggle: 'Deep Dive: Vrms란 무엇인가?',
+    dd4Content: `
+      <h3>실효값(RMS) — 왜 피크값을 그대로 쓰지 않는가</h3>
+      <p>AC 사인파는 매순간 값이 변하기 때문에, "피크값" 하나만 놓고 보면 그 신호가 실제로 할 수 있는 일(전달 가능한 평균 파워)을 과대평가하게 됩니다 — 전압이 피크에 머무는 시간은 순간뿐이기 때문입니다. <b>Vrms</b>는 저항 부하에 <i>같은 평균 파워</i>를 전달하는 등가 DC 전압입니다.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">Vrms = Vpeak / √2 ≈ 0.707 × Vpeak</div>
+      <h3>각 값의 정의</h3>
+      <ul>
+        <li><b>Vpeak</b> — 사인파 곡선의 0에서 최고점까지, 순간 최대 전압.</li>
+        <li><b>Vpp (peak-to-peak)</b> — 가장 낮은 지점에서 가장 높은 지점까지 전체 스윙: Vpp = 2 × Vpeak.</li>
+        <li><b>Vrms</b> — 거의 모든 파워·계측·스펙 시트 수치가 사용하는 기준값. DC 파워 공식과 동일하게 <code>P = Vrms² / Z₀</code>가 그대로 성립하기 때문입니다.</li>
+      </ul>
+      <h3>왜 RF 엔지니어는 기본적으로 Vrms를 쓰는가</h3>
+      <p>오실로스코프는 보통 파형에서 바로 Vpp 또는 Vpeak를 표시하지만, 파워 계산·RF Generator 정격·RMS 전압계는 모두 Vrms를 기준으로 합니다. 스코프 판독값을 파워/dBm 수치로 변환할 때 이 둘을 혼동하는 것이 2배·4배 오차의 가장 흔한 원인이므로, 지금 보고 있는 값이 어떤 기준인지 항상 확인해야 합니다.</p>
+    `,
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 1 / 7 (단위 및 전력 변환)'
+  }
+};
+
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  Object.keys(T).forEach(k => set(k, T[k]));
+  if (typeof t3vfRenderTable === 'function') t3vfRenderTable(t3vfCat);
+}
+
+/* =========================================================
+   Tab switching
+   ========================================================= */
+document.querySelectorAll('.tool-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tool;
+    document.querySelectorAll('.tool-panel').forEach(p => p.style.display = (p.id === 'panel-' + id ? 'block' : 'none'));
+    document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b === btn));
+    if (id === 't3' && typeof t3ResizeCanvas === 'function') t3ResizeCanvas();
+    if (id === 't4' && typeof t4ResizeCanvas === 'function') t4ResizeCanvas();
+  });
+});
+
+/* =========================================================
+   Deep Dive accordion toggle
+   ========================================================= */
+function toggleDD(btnId, bodyId) {
+  const btn = document.getElementById(btnId);
+  const body = document.getElementById(bodyId);
+  const open = body.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  body.style.display = open ? 'block' : 'none';
+}
+
+/* =========================================================
+   Shared helpers
+   ========================================================= */
+function cSub(a,b){ return {re:a.re-b.re, im:a.im-b.im}; }
+function cAdd(a,b){ return {re:a.re+b.re, im:a.im+b.im}; }
+function cDiv(a,b){ const d=b.re*b.re+b.im*b.im; return { re:(a.re*b.re+a.im*b.im)/d, im:(a.im*b.re-a.re*b.im)/d }; }
+function cAbs(a){ return Math.sqrt(a.re*a.re+a.im*a.im); }
+function cAngDeg(a){ return Math.atan2(a.im,a.re)*180/Math.PI; }
+
+function fmtPeriod(T) {
+  if (T >= 1)    return { v:+T.toPrecision(5), u:'s' };
+  if (T >= 1e-3) return { v:+(T*1e3).toPrecision(5), u:'ms' };
+  if (T >= 1e-6) return { v:+(T*1e6).toPrecision(5), u:'µs' };
+  if (T >= 1e-9) return { v:+(T*1e9).toPrecision(5), u:'ns' };
+  return               { v:+(T*1e12).toPrecision(5), u:'ps' };
+}
+function fmtLen(m) {
+  if (m >= 1e3)  return { v:+(m/1e3).toPrecision(4), u:'km' };
+  if (m >= 1)    return { v:+m.toPrecision(4), u:'m' };
+  if (m >= 0.01) return { v:+(m*100).toPrecision(4), u:'cm' };
+  if (m >= 1e-3) return { v:+(m*1e3).toPrecision(4), u:'mm' };
+  return               { v:+(m*1e6).toPrecision(4), u:'µm' };
+}
+
+/* =========================================================
+   TOOL 1 — Power / Voltage / Current
+   ========================================================= */
+const T1_LOG_MIN = Math.log10(0.001), T1_LOG_MAX = Math.log10(10000);
+function t1SliderToW(s){ return Math.pow(10, T1_LOG_MIN + (s/1000)*(T1_LOG_MAX-T1_LOG_MIN)); }
+function t1WToSlider(w){ const t=(Math.log10(Math.max(w,0.001))-T1_LOG_MIN)/(T1_LOG_MAX-T1_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+let t1_Z0 = 50;
+
+function t1Update(w, fromSlider) {
+  w = Math.max(0.001, Math.min(10000, w));
+  const dBm = 10*Math.log10(w*1000);
+  const Vrms = Math.sqrt(w*t1_Z0);
+  const Vpeak = Vrms*Math.sqrt(2);
+  const Irms = Vrms/t1_Z0;
+  const Ipeak = Irms*Math.sqrt(2);
+
+  if (!fromSlider) document.getElementById('t1-slider').value = t1WToSlider(w);
+  document.getElementById('t1-input').value = w>=1000? w.toFixed(0) : (w>=1? w.toPrecision(4): w.toPrecision(3));
+  document.getElementById('t1-dBm').textContent = dBm.toFixed(2);
+  document.getElementById('t1-Vrms').textContent = Vrms.toPrecision(4);
+  document.getElementById('t1-Vpeak').textContent = Vpeak.toPrecision(4);
+  document.getElementById('t1-Irms').textContent = Irms.toPrecision(4);
+  document.getElementById('t1-Ipeak').textContent = Ipeak.toPrecision(4);
+  if (w>=1000) { document.getElementById('t1-Wdisp').textContent=(w/1000).toPrecision(4); document.getElementById('t1-Wunit').textContent='kW'; }
+  else { document.getElementById('t1-Wdisp').textContent=w.toPrecision(4); document.getElementById('t1-Wunit').textContent='W'; }
+}
+document.getElementById('t1-slider').addEventListener('input', e => t1Update(t1SliderToW(+e.target.value), true));
+document.getElementById('t1-input').addEventListener('change', e => { const w=parseFloat(e.target.value); if(!isNaN(w)) t1Update(w); });
+document.querySelectorAll('#panel-t1 .qbtn[data-w]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t1 .qbtn[data-w]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t1Update(parseFloat(btn.dataset.w));
+  });
+});
+document.querySelectorAll('#panel-t1 .qbtn[data-z0]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t1 .qbtn[data-z0]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t1_Z0 = btn.dataset.val ? parseFloat(btn.dataset.val) : 50;
+    t1Update(t1SliderToW(+document.getElementById('t1-slider').value), true);
+  });
+});
+t1Update(1000);
+
+/* =========================================================
+   TOOL 2 — Gamma <-> Z
+   ========================================================= */
+let t2_Z0 = 50, t2_mode = 'zg';
+
+document.getElementById('t2ModeZG').addEventListener('click', () => t2SetMode('zg'));
+document.getElementById('t2ModeGZ').addEventListener('click', () => t2SetMode('gz'));
+document.getElementById('t2ModeVZ').addEventListener('click', () => t2SetMode('vz'));
+function t2SetMode(m) {
+  t2_mode = m;
+  document.getElementById('t2ModeZG').classList.toggle('active', m==='zg');
+  document.getElementById('t2ModeGZ').classList.toggle('active', m==='gz');
+  document.getElementById('t2ModeVZ').classList.toggle('active', m==='vz');
+  document.getElementById('t2-zg-inputs').style.display = m==='zg' ? 'flex' : 'none';
+  document.getElementById('t2-gz-inputs').style.display = m==='gz' ? 'block' : 'none';
+  document.getElementById('t2-vz-inputs').style.display = m==='vz' ? 'block' : 'none';
+  document.getElementById('t2-zg-stats').style.display = m==='zg' ? 'grid' : 'none';
+  document.getElementById('t2-gz-stats').style.display = (m==='gz' || m==='vz') ? 'grid' : 'none';
+  t2Compute();
+}
+document.querySelectorAll('#panel-t2 .qbtn[data-z0]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t2 .qbtn[data-z0]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t2_Z0 = btn.dataset.val ? parseFloat(btn.dataset.val) : 50;
+    t2Compute();
+  });
+});
+document.getElementById('t2-reZ').addEventListener('input', t2Compute);
+document.getElementById('t2-imZ').addEventListener('input', t2Compute);
+
+function t2MagSliderToVal(s){ return s/999*0.999; }
+function t2MagValToSlider(v){ return Math.round(Math.min(0.999,Math.max(0,v))/0.999*999); }
+document.getElementById('t2-magSlider').addEventListener('input', e => {
+  const v = t2MagSliderToVal(+e.target.value);
+  document.getElementById('t2-magInput').value = v.toFixed(3);
+  t2Compute();
+});
+document.getElementById('t2-magInput').addEventListener('change', e => {
+  let v = parseFloat(e.target.value); if(isNaN(v)) v=0; v=Math.min(0.999,Math.max(0,v));
+  document.getElementById('t2-magSlider').value = t2MagValToSlider(v);
+  document.getElementById('t2-magInput').value = v.toFixed(3);
+  t2Compute();
+});
+document.getElementById('t2-angSlider').addEventListener('input', e => {
+  document.getElementById('t2-angInput').value = (+e.target.value).toFixed(1);
+  t2Compute();
+});
+document.getElementById('t2-angInput').addEventListener('change', e => {
+  let v = parseFloat(e.target.value); if(isNaN(v)) v=0; v=Math.max(-180,Math.min(180,v));
+  document.getElementById('t2-angSlider').value = v;
+  document.getElementById('t2-angInput').value = v.toFixed(1);
+  t2Compute();
+});
+
+/* VSWR -> Z controls (VSWR range 1.00 ~ 20.00, slider 0-999) */
+function t2VswrSliderToVal(s){ return 1 + (s/999)*19; }
+function t2VswrValToSlider(v){ return Math.round(((Math.min(20,Math.max(1,v))-1)/19)*999); }
+document.getElementById('t2-vswrSlider').addEventListener('input', e => {
+  const v = t2VswrSliderToVal(+e.target.value);
+  document.getElementById('t2-vswrInput').value = v.toFixed(2);
+  t2Compute();
+});
+document.getElementById('t2-vswrInput').addEventListener('change', e => {
+  let v = parseFloat(e.target.value); if(isNaN(v)) v=1; v=Math.min(20,Math.max(1,v));
+  document.getElementById('t2-vswrSlider').value = t2VswrValToSlider(v);
+  document.getElementById('t2-vswrInput').value = v.toFixed(2);
+  t2Compute();
+});
+document.getElementById('t2-vzAngSlider').addEventListener('input', e => {
+  document.getElementById('t2-vzAngInput').value = (+e.target.value).toFixed(1);
+  t2Compute();
+});
+document.getElementById('t2-vzAngInput').addEventListener('change', e => {
+  let v = parseFloat(e.target.value); if(isNaN(v)) v=0; v=Math.max(-180,Math.min(180,v));
+  document.getElementById('t2-vzAngSlider').value = v;
+  document.getElementById('t2-vzAngInput').value = v.toFixed(1);
+  t2Compute();
+});
+
+function t2Compute() {
+  if (t2_mode === 'zg') {
+    const reZ = parseFloat(document.getElementById('t2-reZ').value) || 0;
+    const imZ = parseFloat(document.getElementById('t2-imZ').value) || 0;
+    const Z = {re:reZ, im:imZ}, Z0c = {re:t2_Z0, im:0};
+    const G = cDiv(cSub(Z,Z0c), cAdd(Z,Z0c));
+    const mag = cAbs(G), ang = cAngDeg(G);
+    const vswr = mag>=0.999 ? Infinity : (1+mag)/(1-mag);
+    const rl = mag<=0.00001 ? Infinity : -20*Math.log10(mag);
+    document.getElementById('t2-mag').textContent = mag.toFixed(3);
+    document.getElementById('t2-ang').textContent = ang.toFixed(1);
+    document.getElementById('t2-vswr').textContent = isFinite(vswr) ? vswr.toFixed(2) : '∞';
+    document.getElementById('t2-rl').textContent = isFinite(rl) ? rl.toFixed(1) : '∞';
+    document.getElementById('t2-gre').textContent = G.re.toFixed(3);
+    document.getElementById('t2-gim').textContent = G.im.toFixed(3);
+  } else {
+    let mag, ang;
+    if (t2_mode === 'gz') {
+      mag = parseFloat(document.getElementById('t2-magInput').value) || 0;
+      ang = parseFloat(document.getElementById('t2-angInput').value) || 0;
+    } else { // vz
+      const vswr = parseFloat(document.getElementById('t2-vswrInput').value) || 1;
+      mag = (vswr-1)/(vswr+1);
+      ang = parseFloat(document.getElementById('t2-vzAngInput').value) || 0;
+    }
+    const rad = ang*Math.PI/180;
+    const G = {re: mag*Math.cos(rad), im: mag*Math.sin(rad)};
+    const one = {re:1, im:0};
+    const Zn = cDiv(cAdd(one,G), cSub(one,G));
+    const Z = {re: Zn.re*t2_Z0, im: Zn.im*t2_Z0};
+    const vswrOut = mag>=0.999 ? Infinity : (1+mag)/(1-mag);
+    document.getElementById('t2-reZout').textContent = Z.re.toFixed(2);
+    document.getElementById('t2-imZout').textContent = Z.im.toFixed(2);
+    document.getElementById('t2-magZout').textContent = cAbs(Z).toFixed(2);
+    document.getElementById('t2-angZout').textContent = cAngDeg(Z).toFixed(1);
+    document.getElementById('t2-magOut').textContent = mag.toFixed(3);
+    document.getElementById('t2-vswrOut').textContent = isFinite(vswrOut) ? vswrOut.toFixed(2) : '∞';
+  }
+}
+t2Compute();
+
+/* =========================================================
+   TOOL 3 — Frequency / Wavelength
+   ========================================================= */
+const C_LIGHT = 3e8;
+const T3_LOG_MIN = 0, T3_LOG_MAX = Math.log10(10e9);
+function t3SliderToHz(s){ return Math.pow(10, T3_LOG_MIN + (s/1000)*(T3_LOG_MAX-T3_LOG_MIN)); }
+function t3HzToSlider(f){ const t=(Math.log10(Math.max(f,1))-T3_LOG_MIN)/(T3_LOG_MAX-T3_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+function t3UnitToHz(v,u){ return u==='GHz'? v*1e9 : u==='MHz'? v*1e6 : u==='kHz'? v*1e3 : v; }
+let t3_vf = 1.00;
+let t3_lastHz = 13.56e6;
+const t3Canvas = document.getElementById('t3Canvas');
+const t3Ctx = t3Canvas.getContext('2d');
+
+function t3ResizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t3Canvas.getBoundingClientRect();
+  t3Canvas.width = rect.width * dpr;
+  t3Canvas.height = rect.height * dpr;
+  t3Ctx.setTransform(dpr,0,0,dpr,0,0);
+  t3DrawWave();
+}
+window.addEventListener('resize', t3ResizeCanvas);
+
+function t3DrawWave() {
+  const W = t3Canvas.getBoundingClientRect().width;
+  const H = t3Canvas.getBoundingClientRect().height;
+  const ctx = t3Ctx;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFC';
+  ctx.fillRect(0,0,W,H);
+
+  const pL=44, pR=22, pT=28, pB=46;
+  const gW=W-pL-pR, gH=H-pT-pB, midY=pT+gH/2;
+  const CYCLES=3, cycPx=gW/CYCLES;
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  [0,.5,1].forEach(t=>{
+    const y=pT+t*gH;
+    ctx.beginPath(); ctx.moveTo(pL,y); ctx.lineTo(pL+gW,y); ctx.stroke();
+  });
+
+  ctx.fillStyle='#94A3B8'; ctx.font='11px JetBrains Mono,monospace'; ctx.textAlign='right';
+  ctx.fillText('+1', pL-6, pT+4);
+  ctx.fillText('0',  pL-6, midY+4);
+  ctx.fillText('−1', pL-6, pT+gH+4);
+
+  ctx.strokeStyle='#CBD5E1'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,midY); ctx.lineTo(pL+gW,midY); ctx.stroke();
+
+  ctx.fillStyle='#94A3B8';
+  ctx.beginPath(); ctx.moveTo(pL+gW+2,midY); ctx.lineTo(pL+gW-6,midY-4); ctx.lineTo(pL+gW-6,midY+4); ctx.fill();
+  ctx.font='11px Google Sans,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('t →', pL+gW+4, midY+4);
+
+  /* Period T bracket (identical to the reference simulator) */
+  ctx.strokeStyle='#0F8C50'; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(pL,pT); ctx.lineTo(pL,pT+gH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pL+cycPx,pT); ctx.lineTo(pL+cycPx,pT+gH); ctx.stroke();
+  ctx.setLineDash([]);
+  const barY=pT-7;
+  ctx.strokeStyle='#0F8C50'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(pL+2,barY); ctx.lineTo(pL+cycPx-2,barY); ctx.stroke();
+  ctx.fillStyle='#0F8C50'; ctx.font='bold 13px Google Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('T', pL+cycPx/2, barY-3);
+
+  /* λ/4 (IN CABLE) bracket — the only addition to the reference layout */
+  const qPx = cycPx/4;
+  ctx.strokeStyle='#E08A2E'; ctx.lineWidth=1.5; ctx.setLineDash([3,2]);
+  ctx.beginPath(); ctx.moveTo(pL+qPx,pT); ctx.lineTo(pL+qPx,pT+gH); ctx.stroke();
+  ctx.setLineDash([]);
+  const barY2 = pT+gH+16;
+  ctx.strokeStyle='#E08A2E'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(pL+2,barY2); ctx.lineTo(pL+qPx-2,barY2); ctx.stroke();
+  ctx.fillStyle='#E08A2E'; ctx.font='bold 12px Google Sans,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('λ/4 (cable)', pL+qPx/2, barY2+13);
+
+  ctx.strokeStyle='#7030A0'; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  for (let px=0; px<=gW; px++) {
+    const y = midY - (gH/2-8)*Math.sin((px/gW)*CYCLES*2*Math.PI);
+    px===0 ? ctx.moveTo(pL+px,y) : ctx.lineTo(pL+px,y);
+  }
+  ctx.stroke();
+}
+
+function t3Update(hz, fromSlider) {
+  hz = Math.max(1, Math.min(10e9, hz));
+  t3_lastHz = hz;
+  if (!fromSlider) document.getElementById('t3-slider').value = t3HzToSlider(hz);
+  const u = document.getElementById('t3-unit').value;
+  const disp = u==='GHz'? hz/1e9 : u==='MHz'? hz/1e6 : u==='kHz'? hz/1e3 : hz;
+  document.getElementById('t3-input').value = +disp.toPrecision(6);
+
+  const T = 1/hz;
+  const lam = C_LIGHT/hz;
+  const lamC = lam*t3_vf;
+  const q = lamC/4;
+  const Tf = fmtPeriod(T), Lf = fmtLen(lam), LCf = fmtLen(lamC), Qf = fmtLen(q);
+  document.getElementById('t3-T').textContent = Tf.v; document.getElementById('t3-Tunit').textContent = Tf.u;
+  document.getElementById('t3-lam').textContent = Lf.v; document.getElementById('t3-lamUnit').textContent = Lf.u;
+  document.getElementById('t3-lamC').textContent = LCf.v; document.getElementById('t3-lamCUnit').textContent = LCf.u;
+  document.getElementById('t3-q').textContent = Qf.v; document.getElementById('t3-qUnit').textContent = Qf.u;
+  t3DrawWave();
+  if (typeof t3vfUpdateLambda === 'function') t3vfUpdateLambda();
+  if (typeof t3vfRenderTable === 'function') t3vfRenderTable(t3vfCat);
+}
+document.getElementById('t3-slider').addEventListener('input', e => t3Update(t3SliderToHz(+e.target.value), true));
+document.getElementById('t3-input').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t3-input').value);
+  if (!isNaN(v)) t3Update(t3UnitToHz(v, document.getElementById('t3-unit').value));
+});
+document.getElementById('t3-unit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t3-input').value);
+  if (!isNaN(v)) t3Update(t3UnitToHz(v, document.getElementById('t3-unit').value));
+});
+document.querySelectorAll('#panel-t3 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t3 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t3-unit').value = btn.dataset.u;
+    t3Update(t3UnitToHz(parseFloat(btn.dataset.hz), btn.dataset.u));
+  });
+});
+
+/* =========================================================
+   TOOL 3, Card B — Velocity Factor reference table
+   ========================================================= */
+const CABLES = [
+  { cat:'vacuum',    name:'Vacuum / Free Space',          dielectric:'Vacuum (ε=1.0)',  Z0:'-', vf:1.000 },
+  { cat:'vacuum',    name:'Air-Dielectric Line',          dielectric:'Air (ε≈1.0006)', Z0:50,  vf:0.999 },
+  { cat:'rg',        name:'RG-8/U (PE)',                  dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-8/U Foam (9913)',           dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'rg',        name:'RG-8X (9258)',                 dielectric:'Foam PE',      Z0:50,  vf:0.820 },
+  { cat:'rg',        name:'RG-58/U (PE)',                 dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-58A/U Foam',                dielectric:'Foam PE',      Z0:50,  vf:0.730 },
+  { cat:'rg',        name:'RG-59/U (PE)',                 dielectric:'Solid PE',     Z0:75,  vf:0.660 },
+  { cat:'rg',        name:'RG-59/U Foam',                 dielectric:'Foam PE',      Z0:75,  vf:0.780 },
+  { cat:'rg',        name:'RG-6/U (PE)',                  dielectric:'Solid PE',     Z0:75,  vf:0.660 },
+  { cat:'rg',        name:'RG-6/U Foam',                  dielectric:'Foam PE',      Z0:75,  vf:0.810 },
+  { cat:'rg',        name:'RG-11/U Foam',                 dielectric:'Foam HDPE',    Z0:75,  vf:0.840 },
+  { cat:'rg',        name:'RG-174/U',                     dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-213/U',                     dielectric:'Solid PE',     Z0:50,  vf:0.660 },
+  { cat:'rg',        name:'RG-316/U',                     dielectric:'PTFE',         Z0:50,  vf:0.690 },
+  { cat:'rg',        name:'RG-142/U',                     dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'rg',        name:'RG-400/U',                     dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'lmr',       name:'LMR-100A',                     dielectric:'Foam PE',      Z0:50,  vf:0.800 },
+  { cat:'lmr',       name:'LMR-195',                      dielectric:'Foam PE',      Z0:50,  vf:0.800 },
+  { cat:'lmr',       name:'LMR-200',                      dielectric:'Foam PE',      Z0:50,  vf:0.830 },
+  { cat:'lmr',       name:'LMR-240',                      dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'lmr',       name:'LMR-240UF',                    dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'lmr',       name:'LMR-400',                      dielectric:'Foam PE',      Z0:50,  vf:0.850 },
+  { cat:'lmr',       name:'LMR-400UF',                    dielectric:'Foam PE',      Z0:50,  vf:0.850 },
+  { cat:'lmr',       name:'LMR-600',                      dielectric:'Foam PE',      Z0:50,  vf:0.870 },
+  { cat:'lmr',       name:'LMR-900',                      dielectric:'Foam PE',      Z0:50,  vf:0.870 },
+  { cat:'lmr',       name:'LMR-1200',                     dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'lmr',       name:'LMR-1700',                     dielectric:'Foam PE',      Z0:50,  vf:0.890 },
+  { cat:'semirigid', name:'UT-085 / RG-405',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'UT-141 / RG-402',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695, ism:true },
+  { cat:'semirigid', name:'UT-250 / RG-401',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'UT-141-AL',                    dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'UT-047',                       dielectric:'Solid PTFE',   Z0:50,  vf:0.695 },
+  { cat:'semirigid', name:'RG-405/U (SF)',                dielectric:'Foam PTFE',    Z0:50,  vf:0.780 },
+  { cat:'hardline',  name:'LDF4-50A (½″ Heliax)',         dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'LDF5-50A (⅞″ Heliax)',         dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'LDF6-50A (1¼″ Heliax)',        dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'LDF7-50A (1⅝″ Heliax)',        dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'FSJ1-50A (¼″ SuperFlex)',      dielectric:'Foam PE',      Z0:50,  vf:0.840 },
+  { cat:'hardline',  name:'FSJ4-50B (½″ SuperFlex)',      dielectric:'Foam PE',      Z0:50,  vf:0.880 },
+  { cat:'hardline',  name:'HJ4-50 (½″ Heliax air)',       dielectric:'Air/Foam',     Z0:50,  vf:0.920 },
+  { cat:'hardline',  name:'HJ11-50 (1⅝″ air coax)',       dielectric:'Air disc',     Z0:50,  vf:0.920 },
+];
+const CABLE_NOTES = {
+  en: [
+    'Theoretical maximum','Open-wire or air coax','Common general-purpose','Low-loss RG-8 variant',
+    'Mini-8 flexible','Very common 50 Ω lab cable','Foam version of RG-58','75 Ω video/cable TV',
+    '75 Ω foam version','Cable TV / satellite','Low-loss cable-TV drop','Long-run 75 Ω trunk',
+    'Thin; pigtails, bench wiring','MIL-spec RG-8 equivalent','Flexible PTFE; –65 to +200 °C','Double-shielded PTFE',
+    'Flexible double-shield PTFE','Ultra-flexible; jumper cables','Handheld / patch cord use','Antenna drop; < 300 MHz runs',
+    'Mid-size flexible feedline','Ultra-flex version of LMR-240','Industry standard low-loss','Ultra-flex LMR-400',
+    'Low-loss long-run feedline','High-power tower base cable','Large-diameter trunk cable','Maximum-size LMR trunk',
+    '0.085″ OD; PCB-to-module wiring','0.141″ OD; bench & VNA interconnects','0.250″ OD; moderate power microwave',
+    'Aluminum OC; weight-sensitive apps','0.047″; chip-level RF connections','Semi-flex foam PTFE variant',
+    'Andrew ½″ corrugated hardline','Andrew ⅞″; high-power base station','Andrew 1¼″; broadcast feedline',
+    'Andrew 1⅝″; very high power TX','Andrew ¼″ flexible corrugated','Andrew ½″ flexible hardline',
+    'Air-spaced; ultra-low loss','Largest broadcast hardline',
+  ],
+  ko: [
+    '이론적 최대값','개방 도선 또는 공기 동축','범용 일반 케이블','저손실 RG-8 변형',
+    '미니-8 유연형','가장 일반적인 50 Ω 실험실 케이블','RG-58 폼 유전체 버전','75 Ω 영상/케이블 TV용',
+    '75 Ω 폼 버전','케이블 TV / 위성','저손실 케이블 TV 인입선','장거리 75 Ω 트렁크',
+    '얇은 피그테일·벤치 배선용','MIL 규격 RG-8 동등품','유연 PTFE; –65 ~ +200 °C','이중 차폐 PTFE',
+    '이중 차폐 유연 PTFE','초유연; 점퍼 케이블','핸드헬드 / 패치코드용','안테나 인입; 300 MHz 이하 단거리',
+    '중형 유연 피더라인','LMR-240 초유연 버전','업계 표준 저손실 케이블','LMR-400 초유연 버전',
+    '저손실 장거리 피더라인','고출력 타워 기저부 케이블','대구경 트렁크 케이블','최대 규격 LMR 트렁크',
+    'OD 0.085″; PCB↔모듈 배선','OD 0.141″; 벤치 & VNA 연결','OD 0.250″; 중출력 마이크로파',
+    '알루미늄 외도체; 경량화 응용','OD 0.047″; 칩 레벨 RF 연결','반유연 폼 PTFE 변형',
+    'Andrew ½″ 주름형 하드라인','Andrew ⅞″; 고출력 기지국','Andrew 1¼″; 방송용 피더',
+    'Andrew 1⅝″; 초고출력 TX','Andrew ¼″ 유연 주름형','Andrew ½″ 유연 하드라인',
+    '공기 간격; 초저손실','최대 규격 방송용 하드라인',
+  ]
+};
+let t3vfActiveRow = null, t3vfCat = 'all';
+
+function t3vfUpdateLambda() {
+  const lam = (C_LIGHT / t3_lastHz) * t3_vf;
+  const f = fmtLen(lam);
+  document.getElementById('t3vfLambda').textContent = `${f.v} ${f.u}`;
+}
+
+function t3vfRenderTable(cat) {
+  const tbody = document.getElementById('t3vfTbody');
+  tbody.innerHTML = '';
+  const notes = CABLE_NOTES[lang];
+  const rows = CABLES.filter(c => cat === 'all' || c.cat === cat);
+
+  rows.forEach(c => {
+    const globalIdx = CABLES.indexOf(c);
+    const noteText = notes[globalIdx] || '';
+    const lamCable = (C_LIGHT / t3_lastHz) * c.vf;
+    const f = fmtLen(lamCable);
+    const lStr = `${f.v} ${f.u}`;
+    const pct = ((c.vf - 0.60) / (1.00 - 0.60) * 100).toFixed(1);
+
+    const tr = document.createElement('tr');
+    if (globalIdx === t3vfActiveRow) tr.classList.add('selected');
+    tr.style.cursor = 'pointer';
+
+    const refBadge = c.cat === 'vacuum' ? '<span class="badge-ism" style="background:#E8F4FF;color:#1A6BBF;">REF</span>' : '';
+    const ismBadge = c.ism ? '<span class="badge-ism">ISM</span>' : '';
+
+    tr.innerHTML = `
+      <td class="cable-name">${c.name}${ismBadge}${refBadge}</td>
+      <td class="dielectric">${c.dielectric}</td>
+      <td>${c.Z0}</td>
+      <td><span style="font-family:'JetBrains Mono',monospace;font-weight:600;">${c.vf.toFixed(3)}</span></td>
+      <td class="vf-bar-cell"><div class="vf-bar-bg"><div class="vf-bar-fill" style="width:${pct}%"></div></div></td>
+      <td><span class="vf-lambda">${lStr}</span></td>
+      <td style="color:var(--muted);font-size:11.5px;">${noteText}</td>
+    `;
+
+    tr.addEventListener('click', () => {
+      t3vfActiveRow = globalIdx;
+      t3_vf = c.vf;
+      document.getElementById('t3vfSlider').value = c.vf;
+      document.getElementById('t3vfInput').value = c.vf.toFixed(3);
+      t3vfUpdateLambda();
+      t3vfRenderTable(t3vfCat);
+      t3Update(t3_lastHz, true);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+document.querySelectorAll('#t3vfTabs .vf-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#t3vfTabs .vf-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    t3vfCat = btn.dataset.cat;
+    t3vfRenderTable(t3vfCat);
+  });
+});
+document.getElementById('t3vfSlider').addEventListener('input', function() {
+  t3_vf = parseFloat(this.value);
+  document.getElementById('t3vfInput').value = t3_vf.toFixed(3);
+  t3vfActiveRow = null;
+  t3vfUpdateLambda();
+  t3vfRenderTable(t3vfCat);
+  t3Update(t3_lastHz, true);
+});
+document.getElementById('t3vfInput').addEventListener('change', function() {
+  let v = parseFloat(this.value);
+  if (isNaN(v)) return;
+  v = Math.max(0.5, Math.min(1.0, v));
+  t3_vf = v;
+  this.value = v.toFixed(3);
+  document.getElementById('t3vfSlider').value = v;
+  t3vfActiveRow = null;
+  t3vfUpdateLambda();
+  t3vfRenderTable(t3vfCat);
+  t3Update(t3_lastHz, true);
+});
+t3Update(13.56e6);
+
+/* =========================================================
+   TOOL 4 — Vrms / Vpeak / Vpp
+   ========================================================= */
+let t4_mode = 'rms', t4_Z0 = 50;
+const T4_LABELS = { rms:'Vrms', pk:'Vpeak', pp:'Vpp' };
+let t4_lastVrms = 150;
+
+const t4Canvas = document.getElementById('t4Canvas');
+const t4Ctx = t4Canvas.getContext('2d');
+function t4ResizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t4Canvas.getBoundingClientRect();
+  t4Canvas.width = rect.width * dpr;
+  t4Canvas.height = rect.height * dpr;
+  t4Ctx.setTransform(dpr,0,0,dpr,0,0);
+  t4DrawWave(t4_lastVrms);
+}
+window.addEventListener('resize', t4ResizeCanvas);
+
+function t4DrawWave(Vrms) {
+  const Vpk = Vrms*Math.sqrt(2);
+  const W = t4Canvas.getBoundingClientRect().width;
+  const H = t4Canvas.getBoundingClientRect().height;
+  const ctx = t4Ctx;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFC';
+  ctx.fillRect(0,0,W,H);
+
+  const pL=54, pR=54, pT=24, pB=24;
+  const gW=W-pL-pR, gH=H-pT-pB, midY=pT+gH/2;
+  const CYCLES=2.5;
+  const amp = gH/2-6;
+  const rmsFrac = 1/Math.sqrt(2); // Vrms as a fraction of Vpeak, on the plotted amplitude
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,pT); ctx.lineTo(pL,pT+gH); ctx.stroke();
+
+  /* +Vpeak / -Vpeak dashed lines (purple) */
+  ctx.strokeStyle='#7030A0'; ctx.lineWidth=1.3; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(pL,midY-amp); ctx.lineTo(pL+gW,midY-amp); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pL,midY+amp); ctx.lineTo(pL+gW,midY+amp); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#7030A0'; ctx.font='11px JetBrains Mono,monospace'; ctx.textAlign='left';
+  ctx.fillText('+Vpk', pL+gW+6, midY-amp+4);
+  ctx.fillText('−Vpk', pL+gW+6, midY+amp+4);
+
+  /* +Vrms / -Vrms dashed lines (green) */
+  ctx.strokeStyle='#0F8C50'; ctx.lineWidth=1.3; ctx.setLineDash([3,2]);
+  ctx.beginPath(); ctx.moveTo(pL,midY-amp*rmsFrac); ctx.lineTo(pL+gW,midY-amp*rmsFrac); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#0A6B3C'; ctx.font='bold 11px Google Sans,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Vrms', pL+gW+6, midY-amp*rmsFrac+4);
+
+  /* 0 axis */
+  ctx.strokeStyle='#CBD5E1'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,midY); ctx.lineTo(pL+gW,midY); ctx.stroke();
+  ctx.fillStyle='#94A3B8'; ctx.font='11px JetBrains Mono,monospace'; ctx.textAlign='right';
+  ctx.fillText('0', pL-8, midY+4);
+
+  /* Vpp bracket on the right */
+  const bx = pL+gW+34;
+  ctx.strokeStyle='#E08A2E'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(bx,midY-amp); ctx.lineTo(bx,midY+amp); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bx-4,midY-amp); ctx.lineTo(bx+4,midY-amp); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bx-4,midY+amp); ctx.lineTo(bx+4,midY+amp); ctx.stroke();
+  ctx.fillStyle='#E08A2E'; ctx.font='bold 11px Google Sans,sans-serif'; ctx.textAlign='left';
+  ctx.save(); ctx.translate(bx+14, midY); ctx.rotate(-Math.PI/2); ctx.textAlign='center';
+  ctx.fillText('Vpp', 0, 0); ctx.restore();
+
+  /* Sine wave */
+  ctx.strokeStyle='#1A202C'; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  for (let px=0; px<=gW; px++) {
+    const y = midY - amp*Math.sin((px/gW)*CYCLES*2*Math.PI);
+    px===0 ? ctx.moveTo(pL+px,y) : ctx.lineTo(pL+px,y);
+  }
+  ctx.stroke();
+}
+
+document.querySelectorAll('#panel-t4 .mode-btn[data-vmode]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t4 .mode-btn[data-vmode]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t4_mode = btn.dataset.vmode;
+    document.getElementById('t4Label').textContent = T4_LABELS[t4_mode];
+    t4Update(parseFloat(document.getElementById('t4-input').value) || 0);
+  });
+});
+document.querySelectorAll('#panel-t4 .qbtn[data-z0]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t4 .qbtn[data-z0]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t4_Z0 = btn.dataset.val ? parseFloat(btn.dataset.val) : 50;
+    t4Update(parseFloat(document.getElementById('t4-input').value) || 0);
+  });
+});
+
+function t4Update(val, fromSlider) {
+  val = Math.max(0, val);
+  let Vrms;
+  if (t4_mode==='rms') Vrms = val;
+  else if (t4_mode==='pk') Vrms = val/Math.sqrt(2);
+  else Vrms = (val/2)/Math.sqrt(2);
+
+  const Vpk = Vrms*Math.sqrt(2), Vpp = 2*Vpk;
+  const P = (Vrms*Vrms)/t4_Z0;
+  const dBm = P>0 ? 10*Math.log10(P*1000) : -Infinity;
+
+  if (!fromSlider) document.getElementById('t4-slider').value = Math.min(1000, val);
+  document.getElementById('t4-input').value = val.toFixed(val>=100?1:2);
+  document.getElementById('t4-rms').textContent = Vrms.toFixed(2);
+  document.getElementById('t4-pk').textContent = Vpk.toFixed(2);
+  document.getElementById('t4-pp').textContent = Vpp.toFixed(2);
+  document.getElementById('t4-p').textContent = P>=1000? (P/1000).toFixed(3)+' k' : P.toFixed(3);
+  document.getElementById('t4-dbm').textContent = isFinite(dBm) ? dBm.toFixed(1) : '−∞';
+  t4_lastVrms = Vrms;
+  t4DrawWave(Vrms);
+}
+document.getElementById('t4-slider').addEventListener('input', e => t4Update(+e.target.value, true));
+document.getElementById('t4-input').addEventListener('change', e => { const v=parseFloat(e.target.value); if(!isNaN(v)) t4Update(v); });
+t4Update(150);
+
+/* Default language */
+function goToHashTab() {
+  const hash = location.hash.replace('#','');
+  if (hash) {
+    const btn = document.querySelector('.tool-tab[data-tool="' + hash + '"]');
+    if (btn) btn.click();
+  }
+}
+window.addEventListener('load', () => { setLang('en'); goToHashTab(); });
+window.addEventListener('hashchange', goToHashTab);
+</script>
+</body>
+</html>

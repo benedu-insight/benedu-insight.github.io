@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 6 · Sensors — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.logo-img { height: 36px; display: block; }
+#logo-fallback { display:none; align-items:center; gap:8px; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+.lang-toggle { display: flex; align-items: center; background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; margin-left: 8px; }
+.lang-btn { font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 3px 12px; border-radius: 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all .18s; }
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.phase-strip { max-width: 900px; margin: 18px auto 0; padding: 0 16px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--label); }
+.phase-pip { width: 22px; height: 22px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size: 10px; font-weight: 700; border: 1.5px solid var(--border); color: var(--label); background: var(--card); }
+.phase-pip.current { background: var(--green); border-color: var(--green); color: #fff; }
+.phase-pip.done { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.tool-tabs { max-width: 900px; margin: 14px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tool-tab { font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 7px; }
+.tool-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.tool-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: var(--shadow); }
+.tool-tab .tnum { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; font-size: 10px; font-family:'JetBrains Mono',monospace; }
+.tool-tab:not(.active) .tnum { background: var(--bg); border: 1px solid var(--border); }
+
+.main { max-width: 900px; margin: 20px auto 56px; padding: 0 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; animation: cardFade .3s ease; }
+@keyframes cardFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; background: var(--green-lt); color: var(--green); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 4px; flex-shrink: 0; }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 100px; }
+.slider-track { flex: 1; min-width: 160px; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%); outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; cursor: pointer; }
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 10px; width: 110px; text-align: right; outline: none; transition: border-color .2s; }
+.freq-num:focus { border-color: var(--green); }
+.unit-select { font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 500; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 8px; color: var(--text); cursor: pointer; outline: none; }
+.unit-select:focus { border-color: var(--green); }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn { font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; }
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+.qbtn.ism { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+.qbtn.ism.active { background: var(--green); color: #fff; }
+
+.mode-toggle { display: flex; gap: 6px; padding: 16px 24px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.mode-btn { font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 600; padding: 6px 15px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; }
+.mode-btn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.mode-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+.dual-input { display: flex; gap: 14px; padding: 14px 24px 0; flex-wrap: wrap; }
+.dual-field { flex: 1; min-width: 130px; }
+.dual-field label { display:block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+.dual-field input { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px; text-align: right; outline: none; transition: border-color .2s; }
+.dual-field input:focus { border-color: var(--green); }
+.dual-field-unit { display: flex; gap: 6px; }
+.dual-field-unit input { flex: 1; }
+.dual-field-unit select.unit-select { width: 74px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; transition: background .25s, transform .2s; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+
+.formula-panel { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+.field-hint { font-size: 11.5px; color: var(--muted); padding: 8px 24px 0; }
+
+.callout { margin: 12px 24px 18px; padding: 14px 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(15,23,42,0.05); display: flex; gap: 12px; align-items: flex-start; transition: box-shadow .2s; }
+.callout:hover { box-shadow: 0 3px 10px rgba(15,23,42,0.07); }
+.callout-icon { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+.callout-body { flex: 1; min-width: 0; }
+.callout-title { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; margin-bottom: 3px; }
+.callout-text { font-size: 12.5px; line-height: 1.65; color: var(--muted); }
+.callout-text b { color: var(--text); }
+.callout.c-green  .callout-icon { background: var(--green); } .callout.c-green  .callout-title { color: var(--green-dk); }
+.callout.c-amber  .callout-icon { background: #E08A2E; } .callout.c-amber  .callout-title { color: #C9720C; }
+.callout.c-purple .callout-icon { background: var(--purple); } .callout.c-purple .callout-title { color: var(--purple); }
+
+.vf-card-head { padding: 14px 24px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.vf-card-head h2 { font-size: 15px; font-weight: 600; }
+.vf-card-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.vf-custom-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 24px 0; }
+.vf-custom-row label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.vf-input { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s; }
+.vf-input:focus { border-color: var(--green); }
+.vf-lambda { font-family: 'JetBrains Mono', monospace; color: var(--purple); font-weight: 600; }
+
+.fh-container { padding: 12px 24px 20px; }
+.fh-wrap { overflow-x: auto; }
+.fh-table { table-layout: fixed; border-collapse: collapse; width: 100%; min-width: 560px; font-size: 12.5px; }
+.fh-table th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #F1F5F9; border-bottom: 1px solid var(--border); }
+.fh-body { max-height: 380px; overflow-y: auto; }
+.fh-table td { padding: 7px 10px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--card); }
+.fh-table tr:last-child td { border-bottom: none; }
+.fh-table tr:hover td { background: #F8F9FE; }
+td.cable-name { font-weight: 600; color: var(--text); }
+
+.graph-wrap { padding: 0 24px; }
+.graphCanvas { width: 100%; height: 220px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #FAFBFC; margin: 4px 0; }
+.graph-note { font-size: 11.5px; color: var(--muted); margin: 8px 0 16px; padding: 0 2px; text-align: center; }
+
+.deepdive { border-top: 1px solid var(--border); }
+.deepdive-toggle { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 24px; background: var(--purple-lt); border: none; cursor: pointer; font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--purple); text-align: left; transition: background .15s; }
+.deepdive-toggle:hover { background: #E9DCF5; }
+.deepdive-chevron { transition: transform .2s; font-size: 11px; flex-shrink: 0; }
+.deepdive-toggle.open .deepdive-chevron { transform: rotate(90deg); }
+.deepdive-body { display: none; padding: 18px 24px 22px; background: var(--card); }
+.deepdive-body.open { display: block; }
+.deepdive-body h3 { font-size: 13.5px; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+.deepdive-body h3:first-child { margin-top: 0; }
+.deepdive-body p { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 8px; }
+.deepdive-body ul { margin: 6px 0 10px 18px; }
+.deepdive-body li { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 4px; }
+.deepdive-eq { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--green-dk); background: var(--green-lt); padding: 1px 6px; border-radius: 4px; }
+
+footer { text-align: center; padding: 10px 20px 30px; font-size: 11.5px; color: var(--muted); }
+footer a { color: var(--purple); text-decoration: none; }
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; }
+  .controls, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .tool-tab { font-size: 12px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+    <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+         alt="Benedu Insight" class="logo-img"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div id="logo-fallback">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+      </svg>
+      <div style="line-height:1.15;">
+        <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+        <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+        <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+      </div>
+    </div>
+  </a>
+  <div class="header-divider"></div>
+  <span class="header-title" id="pageTitle">Phase 6 — Sensors</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<div class="phase-strip" id="phaseStrip">
+  <span id="phaseStripLabel">Progress:</span>
+  <span class="phase-pip done">1</span><span class="phase-pip done">2</span><span class="phase-pip done">3</span>
+  <span class="phase-pip done">4</span><span class="phase-pip done">5</span>
+  <span class="phase-pip current">6</span><span class="phase-pip">7</span>
+  <span id="phaseStripNote">· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma</span>
+</div>
+
+<nav class="tool-tabs">
+  <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">VI Sensor</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">2</span><span id="tabT2">Sensor Test</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">Rogowski Coil</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">Integrator</span></button>
+  <button class="tool-tab" data-tool="t5"><span class="tnum">5</span><span id="tabT5">Gain</span></button>
+  <button class="tool-tab" data-tool="t6"><span class="tnum">6</span><span id="tabT6">Magnetic Core</span></button>
+  <button class="tool-tab" data-tool="t7"><span class="tnum">7</span><span id="tabT7">LT-QCM Gap</span></button>
+  <button class="tool-tab" data-tool="t8"><span class="tnum">8</span><span id="tabT8">Pulse</span></button>
+  <button class="tool-tab" data-tool="t9"><span class="tnum">9</span><span id="tabT9">Directional Coupler</span></button>
+</nav>
+
+<main class="main">
+
+  <!-- ============ TOOL 1: VI Sensor ============ -->
+  <div class="card tool-panel" id="panel-t1">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t1Title">VI Sensor — Actual Value from Sensor Output</h2>
+        <p id="t1Sub">Recover the actual RF voltage or current from a sensor's attenuated output signal</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="v" id="t1ModeV">Voltage Channel</button>
+      <button class="mode-btn" data-mode="i" id="t1ModeI">Current Channel</button>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t1labelVsense">Sensor Output (mV)</label><input type="text" id="t1-vsense" value="50"></div>
+      <div class="dual-field"><label id="t1labelAtten">Attenuation (dB)</label><input type="text" id="t1-atten" value="46"></div>
+    </div>
+    <div class="field-hint" id="t1Hint">Attenuation is the sensor's rated divide ratio, e.g. a "−46 dB" voltage probe. Enter it as a positive number of dB.</div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t1statRatio">LINEAR RATIO</div><div><span class="stat-value" id="t1-ratio">199.5</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statActual">ACTUAL VALUE AT LINE</div><div><span class="stat-value" id="t1-actual">9.98</span><span class="stat-unit" id="t1-actualUnit">V</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t1f1">LINEAR RATIO</div><div class="formula-eq">Ratio = 10^(dB/20)</div></div>
+      <div><div class="formula-label" id="t1f2">ACTUAL VALUE</div><div class="formula-eq">X_actual = X_sensor × Ratio</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 2: Sensor Test / Calibration ============ -->
+  <div class="card tool-panel" id="panel-t2" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t2Title">Sensor Test — Calibration Error</h2>
+        <p id="t2Sub">Compare a sensor's measured reading against a known reference to find error and correction factor</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t2labelRef">Reference (True) Value</label><input type="text" id="t2-ref" value="100"></div>
+      <div class="dual-field"><label id="t2labelMeas">Sensor Measured Value</label><input type="text" id="t2-meas" value="97.5"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t2statErrPct">ERROR (%)</div><div><span class="stat-value" id="t2-errpct">-2.50</span><span class="stat-unit">%</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statErrAbs">ERROR (ABSOLUTE)</div><div><span class="stat-value" id="t2-errabs">-2.500</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statCorr">CORRECTION FACTOR</div><div><span class="stat-value" id="t2-corr">1.0256</span></div></div>
+    </div>
+
+    <div class="callout c-green" id="t2QualityNote">
+      <div class="callout-icon" id="t2QualityIcon">✓</div>
+      <div class="callout-body"><div class="callout-title" id="t2QualityTitle">WITHIN TYPICAL SPEC</div><div class="callout-text" id="t2QualityText">Error magnitude is within a typical ±5% sensor tolerance band.</div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t2f1">ERROR</div><div class="formula-eq">Error % = (Measured − Reference) / Reference × 100</div></div>
+      <div><div class="formula-label" id="t2f2">CORRECTION FACTOR</div><div class="formula-eq">k = Reference / Measured</div></div>
+    </div>
+    <p class="field-hint" id="t2Hint">Multiply future raw readings from this sensor by the correction factor k to compensate for this calibration offset.</p>
+  </div>
+
+  <!-- ============ TOOL 3: Rogowski Coil ============ -->
+  <div class="card tool-panel" id="panel-t3" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge3">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t3Title">Rogowski Coil Output</h2>
+        <p id="t3Sub">Induced voltage from a Rogowski coil sensing a sinusoidal RF current</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field">
+        <label id="t3labelM">Mutual Inductance (M)</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t3-m" value="10">
+          <select id="t3-mUnit" class="unit-select">
+            <option value="nH" selected>nH</option>
+            <option value="uH">µH</option>
+          </select>
+        </div>
+      </div>
+      <div class="dual-field"><label id="t3labelIrms">Current, I_rms (A)</label><input type="text" id="t3-irms" value="50"></div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t3LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t3-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t3-fInput" class="freq-num" value="13.56">
+          <select id="t3-fUnit" class="unit-select">
+            <option value="Hz">Hz</option><option value="kHz">kHz</option><option value="MHz" selected>MHz</option><option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t3QuickLabel">Quick select:</span>
+        <button class="qbtn" data-hz="60" data-u="Hz">60 Hz</button>
+        <button class="qbtn" data-hz="430" data-u="kHz">430 kHz</button>
+        <button class="qbtn" data-hz="2" data-u="MHz">2 MHz</button>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="60" data-u="MHz">60 MHz</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t3statVout">OUTPUT VOLTAGE (V_rms)</div><div><span class="stat-value" id="t3-vout">42.60</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statSens">SENSITIVITY AT f</div><div><span class="stat-value" id="t3-sens">0.852</span><span class="stat-unit">V/A</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t3f1">COIL OUTPUT</div><div class="formula-eq">V_rms = M · ω · I_rms</div></div>
+      <div><div class="formula-label" id="t3f2">SENSITIVITY</div><div class="formula-eq">V/A = M · ω</div></div>
+    </div>
+    <p class="field-hint" id="t3Hint">A Rogowski coil senses dI/dt, so its output scales directly with frequency — the same current produces a much larger signal at 40 MHz than at 60 Hz.</p>
+  </div>
+
+  <!-- ============ TOOL 4: Integrator ============ -->
+  <div class="card tool-panel" id="panel-t4" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge4">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t4Title">Active Integrator</h2>
+        <p id="t4Sub">Converts a Rogowski coil's dI/dt output back into a signal proportional to current</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t4labelVin">Input Voltage, Vin (V)</label><input type="text" id="t4-vin" value="1.0"></div>
+      <div class="dual-field">
+        <label id="t4labelR">Resistance, R</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t4-r" value="10">
+          <select id="t4-rUnit" class="unit-select"><option value="kOhm" selected>kΩ</option><option value="Ohm">Ω</option></select>
+        </div>
+      </div>
+      <div class="dual-field">
+        <label id="t4labelC">Capacitance, C</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t4-c" value="1">
+          <select id="t4-cUnit" class="unit-select"><option value="nF" selected>nF</option><option value="pF">pF</option><option value="uF">µF</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t4LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t4-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t4-fInput" class="freq-num" value="13.56">
+          <select id="t4-fUnit" class="unit-select">
+            <option value="Hz">Hz</option><option value="kHz">kHz</option><option value="MHz" selected>MHz</option><option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t4statTau">TIME CONSTANT (RC)</div><div><span class="stat-value" id="t4-tau">10.0</span><span class="stat-unit" id="t4-tauUnit">µs</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statVout">OUTPUT VOLTAGE (Vout)</div><div><span class="stat-value" id="t4-vout">1.174</span><span class="stat-unit">mV</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statPhase">PHASE SHIFT</div><div><span class="stat-value" id="t4-phase">-90.0</span><span class="stat-unit">°</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t4f1">INTEGRATOR GAIN</div><div class="formula-eq">Vout = Vin / (ω·R·C)</div></div>
+      <div><div class="formula-label" id="t4f2">IDEAL PHASE</div><div class="formula-eq">∠Vout = ∠Vin − 90°</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 5: Gain ============ -->
+  <div class="card tool-panel" id="panel-t5" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge5">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t5Title">Non-Inverting Amplifier Gain</h2>
+        <p id="t5Sub">Signal-conditioning stage gain for sensor output amplification</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t5labelVin">Input Voltage, Vin (V)</label><input type="text" id="t5-vin" value="0.5"></div>
+      <div class="dual-field"><label id="t5labelRf">Feedback R, Rf (kΩ)</label><input type="text" id="t5-rf" value="9"></div>
+      <div class="dual-field"><label id="t5labelRin">Input R, Rin (kΩ)</label><input type="text" id="t5-rin" value="1"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t5statAv">GAIN (Av)</div><div><span class="stat-value" id="t5-av">10.00</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statAvDb">GAIN (dB)</div><div><span class="stat-value" id="t5-avdb">20.00</span><span class="stat-unit">dB</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statVout">OUTPUT VOLTAGE (Vout)</div><div><span class="stat-value" id="t5-vout">5.00</span><span class="stat-unit">V</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t5f1">GAIN</div><div class="formula-eq">Av = 1 + Rf/Rin</div></div>
+      <div><div class="formula-label" id="t5f2">GAIN IN dB</div><div class="formula-eq">Av[dB] = 20·log₁₀(Av)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 6: Magnetic Core Loss ============ -->
+  <div class="card tool-panel" id="panel-t6" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge6">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t6Title">Magnetic Core Loss (Steinmetz)</h2>
+        <p id="t6Sub">Estimate core power loss and thermal rise from Steinmetz coefficients</p>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t6PresetLabel">Typical ferrite presets:</span>
+        <button class="qbtn active" data-k="146.59" data-a="1.43" data-b="2.85">N87-like</button>
+        <button class="qbtn" data-k="276.08" data-a="1.36" data-b="2.86">3C90-like</button>
+        <button class="qbtn" data-k="57.27" data-a="1.63" data-b="2.62">MnZn (general)</button>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t6labelK">Steinmetz k</label><input type="text" id="t6-k" value="146.59"></div>
+      <div class="dual-field"><label id="t6labela">Exponent a (freq)</label><input type="text" id="t6-a" value="1.43"></div>
+      <div class="dual-field"><label id="t6labelb">Exponent b (flux)</label><input type="text" id="t6-b" value="2.85"></div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t6labelFreqK">Frequency (kHz)</label><input type="text" id="t6-freqk" value="100"></div>
+      <div class="dual-field"><label id="t6labelBpk">Peak Flux Density, B (mT)</label><input type="text" id="t6-bpk" value="100"></div>
+      <div class="dual-field"><label id="t6labelVol">Core Volume (cm³)</label><input type="text" id="t6-vol" value="5"></div>
+      <div class="dual-field"><label id="t6labelRth">Thermal R, Rth (°C/W)</label><input type="text" id="t6-rth" value="15"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t6statPv">LOSS DENSITY (Pv)</div><div><span class="stat-value" id="t6-pv">150.0</span><span class="stat-unit">mW/cm³</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statPtot">TOTAL CORE LOSS</div><div><span class="stat-value" id="t6-ptot">750.0</span><span class="stat-unit">mW</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statDt">THERMAL RISE (ΔT)</div><div><span class="stat-value" id="t6-dt">11.25</span><span class="stat-unit">°C</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t6f1">STEINMETZ EQUATION</div><div class="formula-eq">Pv = k · f[kHz]^a · (B[mT]/1000)^b (mW/cm³)</div></div>
+      <div><div class="formula-label" id="t6f2">THERMAL RISE</div><div class="formula-eq">ΔT = P_total · R_th</div></div>
+    </div>
+    <p class="field-hint" id="t6Hint">Steinmetz coefficients (k, a, b) are curve-fit constants from a specific manufacturer's datasheet for a specific material — the presets above are illustrative, not exact part numbers.</p>
+  </div>
+
+  <!-- ============ TOOL 7: LT-QCM Gap Capacitance ============ -->
+  <div class="card tool-panel" id="panel-t7" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge7">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t7Title">LT-QCM Gap Capacitance</h2>
+        <p id="t7Sub">Parallel-plate capacitance of a variable vacuum capacitor from its linear-transducer gap reading</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t7labelVlt">LT Sensor Voltage (V)</label><input type="text" id="t7-vlt" value="5.0"></div>
+      <div class="dual-field"><label id="t7labelSlope">Calibration Slope (mm/V)</label><input type="text" id="t7-slope" value="2.0"></div>
+      <div class="dual-field"><label id="t7labelOffset">Calibration Offset (mm)</label><input type="text" id="t7-offset" value="0.5"></div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t7labelArea">Plate Area, A (mm²)</label><input type="text" id="t7-area" value="1500"></div>
+      <div class="dual-field"><label id="t7labelEr">Dielectric, εr (vacuum = 1)</label><input type="text" id="t7-er" value="1.0"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t7statGap">GAP DISTANCE, d</div><div><span class="stat-value" id="t7-gap">10.50</span><span class="stat-unit">mm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t7statC">GAP CAPACITANCE, C</div><div><span class="stat-value" id="t7-c">1.264</span><span class="stat-unit" id="t7-cUnit">pF</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t7f1">GAP FROM LT VOLTAGE</div><div class="formula-eq">d = slope · V_LT + offset</div></div>
+      <div><div class="formula-label" id="t7f2">PARALLEL-PLATE C</div><div class="formula-eq">C = ε₀·εr·A / d</div></div>
+    </div>
+    <p class="field-hint" id="t7Hint">Models the VVC gap as an ideal parallel-plate capacitor — real vacuum capacitors deviate somewhat from this due to fringing fields and electrode geometry.</p>
+  </div>
+
+  <!-- ============ TOOL 8: Pulse ============ -->
+  <div class="card tool-panel" id="panel-t8" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge8">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t8Title">Pulsed RF — Duty Cycle &amp; Average Power</h2>
+        <p id="t8Sub">Duty cycle, repetition frequency, and average power for pulsed RF operation</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t8labelTon">Pulse ON Time (µs)</label><input type="text" id="t8-ton" value="200"></div>
+      <div class="dual-field"><label id="t8labelPeriod">Period, T (µs)</label><input type="text" id="t8-period" value="1000"></div>
+      <div class="dual-field"><label id="t8labelPpeak">Peak Power (W)</label><input type="text" id="t8-ppeak" value="2000"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t8statDuty">DUTY CYCLE</div><div><span class="stat-value" id="t8-duty">20.0</span><span class="stat-unit">%</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statFrep">REPETITION FREQ.</div><div><span class="stat-value" id="t8-frep">1.00</span><span class="stat-unit" id="t8-frepUnit">kHz</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statToff">OFF TIME</div><div><span class="stat-value" id="t8-toff">800</span><span class="stat-unit">µs</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statPavg">AVERAGE POWER</div><div><span class="stat-value" id="t8-pavg">400.0</span><span class="stat-unit">W</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t8f1">DUTY CYCLE</div><div class="formula-eq">Duty = T_on / T × 100%</div></div>
+      <div><div class="formula-label" id="t8f2">AVERAGE POWER</div><div class="formula-eq">P_avg = P_peak × Duty</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 9: Directional Coupler ============ -->
+  <div class="card tool-panel" id="panel-t9" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge9">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t9Title">Directional Coupler</h2>
+        <p id="t9Sub">Coupled, through, and isolated port power from coupling and directivity specifications</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t9labelPin">Input Power (W)</label><input type="text" id="t9-pin" value="1000"></div>
+      <div class="dual-field"><label id="t9labelCoupling">Coupling (dB)</label><input type="text" id="t9-coupling" value="20"></div>
+      <div class="dual-field"><label id="t9labelDirectivity">Directivity (dB)</label><input type="text" id="t9-directivity" value="25"></div>
+      <div class="dual-field"><label id="t9labelIL">Insertion Loss (dB)</label><input type="text" id="t9-il" value="0.2"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t9statPthru">THROUGH PORT POWER</div><div><span class="stat-value" id="t9-pthru">955.0</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t9statPcoup">COUPLED PORT POWER</div><div><span class="stat-value" id="t9-pcoup">10.00</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t9statPiso">ISOLATED PORT POWER</div><div><span class="stat-value" id="t9-piso">31.6</span><span class="stat-unit" id="t9-pisoUnit">mW</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t9f1">THROUGH PORT</div><div class="formula-eq">P_thru = P_in · 10^(−IL/10)</div></div>
+      <div><div class="formula-label" id="t9f2">COUPLED PORT</div><div class="formula-eq">P_coup = P_in · 10^(−Coupling/10)</div></div>
+      <div><div class="formula-label" id="t9f3">ISOLATED PORT</div><div class="formula-eq">P_iso = P_coup · 10^(−Directivity/10)</div></div>
+    </div>
+    <p class="field-hint" id="t9Hint">Directivity describes how well the coupler distinguishes forward from reflected power — higher directivity means a cleaner reflected-power measurement with less forward-power leakage into the isolated port.</p>
+  </div>
+
+</main>
+
+<footer>
+  <span id="footerText">Benedu Insight · Lab Tool Series — Phase 6 / 7 (Sensors)</span>
+</footer>
+
+<script>
+/* =========================================================
+   I18N
+   ========================================================= */
+const I18N = {
+  en: {
+    pageTitle: 'Phase 6 — Sensors',
+    phaseStripLabel: 'Progress:',
+    phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
+    tabT1: 'VI Sensor', tabT2: 'Sensor Test', tabT3: 'Rogowski Coil', tabT4: 'Integrator', tabT5: 'Gain',
+    tabT6: 'Magnetic Core', tabT7: 'LT-QCM Gap', tabT8: 'Pulse', tabT9: 'Directional Coupler',
+    badge1:'INTERACTIVE',badge2:'INTERACTIVE',badge3:'INTERACTIVE',badge4:'INTERACTIVE',badge5:'INTERACTIVE',badge6:'INTERACTIVE',badge7:'INTERACTIVE',badge8:'INTERACTIVE',badge9:'INTERACTIVE',
+    t1Title: 'VI Sensor — Actual Value from Sensor Output',
+    t1Sub: "Recover the actual RF voltage or current from a sensor's attenuated output signal",
+    t1ModeV: 'Voltage Channel', t1ModeI: 'Current Channel',
+    t1labelVsense: 'Sensor Output (mV)', t1labelAtten: 'Attenuation (dB)',
+    t1Hint: 'Attenuation is the sensor\'s rated divide ratio, e.g. a "−46 dB" voltage probe. Enter it as a positive number of dB.',
+    t1statRatio: 'LINEAR RATIO', t1statActual: 'ACTUAL VALUE AT LINE',
+    t1f1: 'LINEAR RATIO', t1f2: 'ACTUAL VALUE',
+    t2Title: 'Sensor Test — Calibration Error',
+    t2Sub: "Compare a sensor's measured reading against a known reference to find error and correction factor",
+    t2labelRef: 'Reference (True) Value', t2labelMeas: 'Sensor Measured Value',
+    t2statErrPct: 'ERROR (%)', t2statErrAbs: 'ERROR (ABSOLUTE)', t2statCorr: 'CORRECTION FACTOR',
+    t2QualityTitle: 'WITHIN TYPICAL SPEC', t2QualityText: 'Error magnitude is within a typical ±5% sensor tolerance band.',
+    t2f1: 'ERROR', t2f2: 'CORRECTION FACTOR',
+    t2Hint: 'Multiply future raw readings from this sensor by the correction factor k to compensate for this calibration offset.',
+    t3Title: 'Rogowski Coil Output',
+    t3Sub: 'Induced voltage from a Rogowski coil sensing a sinusoidal RF current',
+    t3labelM: 'Mutual Inductance (M)', t3labelIrms: 'Current, I_rms (A)',
+    t3LabelFreq: 'Frequency (f)', t3QuickLabel: 'Quick select:',
+    t3statVout: 'OUTPUT VOLTAGE (V_rms)', t3statSens: 'SENSITIVITY AT f',
+    t3f1: 'COIL OUTPUT', t3f2: 'SENSITIVITY',
+    t3Hint: 'A Rogowski coil senses dI/dt, so its output scales directly with frequency — the same current produces a much larger signal at 40 MHz than at 60 Hz.',
+    t4Title: 'Active Integrator',
+    t4Sub: "Converts a Rogowski coil's dI/dt output back into a signal proportional to current",
+    t4labelVin: 'Input Voltage, Vin (V)', t4labelR: 'Resistance, R', t4labelC: 'Capacitance, C',
+    t4LabelFreq: 'Frequency (f)',
+    t4statTau: 'TIME CONSTANT (RC)', t4statVout: 'OUTPUT VOLTAGE (Vout)', t4statPhase: 'PHASE SHIFT',
+    t4f1: 'INTEGRATOR GAIN', t4f2: 'IDEAL PHASE',
+    t5Title: 'Non-Inverting Amplifier Gain',
+    t5Sub: 'Signal-conditioning stage gain for sensor output amplification',
+    t5labelVin: 'Input Voltage, Vin (V)', t5labelRf: 'Feedback R, Rf (kΩ)', t5labelRin: 'Input R, Rin (kΩ)',
+    t5statAv: 'GAIN (Av)', t5statAvDb: 'GAIN (dB)', t5statVout: 'OUTPUT VOLTAGE (Vout)',
+    t5f1: 'GAIN', t5f2: 'GAIN IN dB',
+    t6Title: 'Magnetic Core Loss (Steinmetz)',
+    t6Sub: 'Estimate core power loss and thermal rise from Steinmetz coefficients',
+    t6PresetLabel: 'Typical ferrite presets:',
+    t6labelK: 'Steinmetz k', t6labela: 'Exponent a (freq)', t6labelb: 'Exponent b (flux)',
+    t6labelFreqK: 'Frequency (kHz)', t6labelBpk: 'Peak Flux Density, B (mT)', t6labelVol: 'Core Volume (cm³)', t6labelRth: 'Thermal R, Rth (°C/W)',
+    t6statPv: 'LOSS DENSITY (Pv)', t6statPtot: 'TOTAL CORE LOSS', t6statDt: 'THERMAL RISE (ΔT)',
+    t6f1: 'STEINMETZ EQUATION', t6f2: 'THERMAL RISE',
+    t6Hint: "Steinmetz coefficients (k, a, b) are curve-fit constants from a specific manufacturer's datasheet for a specific material — the presets above are illustrative, not exact part numbers.",
+    t7Title: 'LT-QCM Gap Capacitance',
+    t7Sub: 'Parallel-plate capacitance of a variable vacuum capacitor from its linear-transducer gap reading',
+    t7labelVlt: 'LT Sensor Voltage (V)', t7labelSlope: 'Calibration Slope (mm/V)', t7labelOffset: 'Calibration Offset (mm)',
+    t7labelArea: 'Plate Area, A (mm²)', t7labelEr: 'Dielectric, εr (vacuum = 1)',
+    t7statGap: 'GAP DISTANCE, d', t7statC: 'GAP CAPACITANCE, C',
+    t7f1: 'GAP FROM LT VOLTAGE', t7f2: 'PARALLEL-PLATE C',
+    t7Hint: 'Models the VVC gap as an ideal parallel-plate capacitor — real vacuum capacitors deviate somewhat from this due to fringing fields and electrode geometry.',
+    t8Title: 'Pulsed RF — Duty Cycle &amp; Average Power',
+    t8Sub: 'Duty cycle, repetition frequency, and average power for pulsed RF operation',
+    t8labelTon: 'Pulse ON Time (µs)', t8labelPeriod: 'Period, T (µs)', t8labelPpeak: 'Peak Power (W)',
+    t8statDuty: 'DUTY CYCLE', t8statFrep: 'REPETITION FREQ.', t8statToff: 'OFF TIME', t8statPavg: 'AVERAGE POWER',
+    t8f1: 'DUTY CYCLE', t8f2: 'AVERAGE POWER',
+    t9Title: 'Directional Coupler',
+    t9Sub: 'Coupled, through, and isolated port power from coupling and directivity specifications',
+    t9labelPin: 'Input Power (W)', t9labelCoupling: 'Coupling (dB)', t9labelDirectivity: 'Directivity (dB)', t9labelIL: 'Insertion Loss (dB)',
+    t9statPthru: 'THROUGH PORT POWER', t9statPcoup: 'COUPLED PORT POWER', t9statPiso: 'ISOLATED PORT POWER',
+    t9f1: 'THROUGH PORT', t9f2: 'COUPLED PORT', t9f3: 'ISOLATED PORT',
+    t9Hint: 'Directivity describes how well the coupler distinguishes forward from reflected power — higher directivity means a cleaner reflected-power measurement with less forward-power leakage into the isolated port.',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 6 / 7 (Sensors)'
+  },
+  ko: {
+    pageTitle: 'Phase 6 — 센서',
+    phaseStripLabel: '진행 단계:',
+    phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
+    tabT1: 'VI 센서', tabT2: '센서 테스트', tabT3: '로고스키 코일', tabT4: '적분기', tabT5: '게인',
+    tabT6: '자성체 코어', tabT7: 'LT-QCM 갭', tabT8: '펄스', tabT9: '방향성 커플러',
+    badge1:'인터랙티브',badge2:'인터랙티브',badge3:'인터랙티브',badge4:'인터랙티브',badge5:'인터랙티브',badge6:'인터랙티브',badge7:'인터랙티브',badge8:'인터랙티브',badge9:'인터랙티브',
+    t1Title: 'VI 센서 — 센서 출력으로부터 실제값 환산',
+    t1Sub: '센서의 감쇠된 출력 신호로부터 실제 RF 전압 또는 전류를 역산',
+    t1ModeV: '전압 채널', t1ModeI: '전류 채널',
+    t1labelVsense: '센서 출력 (mV)', t1labelAtten: '감쇠량 (dB)',
+    t1Hint: '감쇠량은 센서의 정격 분배비입니다(예: "−46dB" 전압 프로브). 양수 dB값으로 입력하세요.',
+    t1statRatio: '선형 비율', t1statActual: '실제 라인 값',
+    t1f1: '선형 비율', t1f2: '실제값',
+    t2Title: '센서 테스트 — 교정 오차',
+    t2Sub: '센서의 측정값을 알려진 기준값과 비교하여 오차와 보정계수를 계산',
+    t2labelRef: '기준(참값)', t2labelMeas: '센서 측정값',
+    t2statErrPct: '오차 (%)', t2statErrAbs: '오차 (절대값)', t2statCorr: '보정계수',
+    t2QualityTitle: '전형적 스펙 이내', t2QualityText: '오차 크기가 전형적인 ±5% 센서 공차 범위 이내입니다.',
+    t2f1: '오차', t2f2: '보정계수',
+    t2Hint: '이 센서의 향후 원시 측정값에 보정계수 k를 곱해서 이 교정 오프셋을 보상하세요.',
+    t3Title: '로고스키 코일 출력',
+    t3Sub: '정현파 RF 전류를 감지하는 로고스키 코일의 유도전압',
+    t3labelM: '상호인덕턴스 (M)', t3labelIrms: '전류, I_rms (A)',
+    t3LabelFreq: '주파수 (f)', t3QuickLabel: '빠른 선택:',
+    t3statVout: '출력전압 (V_rms)', t3statSens: 'f에서의 감도',
+    t3f1: '코일 출력', t3f2: '감도',
+    t3Hint: '로고스키 코일은 dI/dt를 감지하므로 출력이 주파수에 정비례합니다 — 같은 전류라도 60Hz보다 40MHz에서 훨씬 큰 신호가 나옵니다.',
+    t4Title: '능동 적분기',
+    t4Sub: '로고스키 코일의 dI/dt 출력을 전류에 비례하는 신호로 되돌림',
+    t4labelVin: '입력전압, Vin (V)', t4labelR: '저항, R', t4labelC: '커패시턴스, C',
+    t4LabelFreq: '주파수 (f)',
+    t4statTau: '시정수 (RC)', t4statVout: '출력전압 (Vout)', t4statPhase: '위상 편이',
+    t4f1: '적분기 이득', t4f2: '이상적 위상',
+    t5Title: '비반전 증폭기 게인',
+    t5Sub: '센서 출력 증폭을 위한 신호조정 단의 게인',
+    t5labelVin: '입력전압, Vin (V)', t5labelRf: '피드백 R, Rf (kΩ)', t5labelRin: '입력 R, Rin (kΩ)',
+    t5statAv: '게인 (Av)', t5statAvDb: '게인 (dB)', t5statVout: '출력전압 (Vout)',
+    t5f1: '게인', t5f2: 'dB 게인',
+    t6Title: '자성체 코어 손실 (Steinmetz)',
+    t6Sub: 'Steinmetz 계수로부터 코어 손실전력과 온도상승 추정',
+    t6PresetLabel: '전형적 페라이트 프리셋:',
+    t6labelK: 'Steinmetz k', t6labela: '지수 a (주파수)', t6labelb: '지수 b (자속)',
+    t6labelFreqK: '주파수 (kHz)', t6labelBpk: '피크 자속밀도, B (mT)', t6labelVol: '코어 부피 (cm³)', t6labelRth: '열저항, Rth (°C/W)',
+    t6statPv: '손실밀도 (Pv)', t6statPtot: '총 코어손실', t6statDt: '온도상승 (ΔT)',
+    t6f1: 'Steinmetz 방정식', t6f2: '온도상승',
+    t6Hint: 'Steinmetz 계수(k,a,b)는 특정 제조사·특정 재료의 데이터시트에서 곡선피팅한 상수입니다 — 위 프리셋은 예시일 뿐 정확한 부품번호가 아닙니다.',
+    t7Title: 'LT-QCM 갭 커패시턴스',
+    t7Sub: '리니어 트랜스듀서(LT)로 측정한 갭으로부터 가변진공콘덴서의 평행판 커패시턴스 계산',
+    t7labelVlt: 'LT 센서 전압 (V)', t7labelSlope: '교정 기울기 (mm/V)', t7labelOffset: '교정 오프셋 (mm)',
+    t7labelArea: '전극 면적, A (mm²)', t7labelEr: '유전체, εr (진공=1)',
+    t7statGap: '갭 거리, d', t7statC: '갭 커패시턴스, C',
+    t7f1: 'LT 전압→갭', t7f2: '평행판 C',
+    t7Hint: 'VVC의 갭을 이상적인 평행판 커패시터로 근사합니다 — 실제 진공콘덴서는 프린징 필드와 전극 형상 때문에 이와 다소 차이가 있습니다.',
+    t8Title: '펄스 RF — 듀티사이클 &amp; 평균전력',
+    t8Sub: '펄스 RF 동작 시 듀티사이클, 반복주파수, 평균전력',
+    t8labelTon: '펄스 ON 시간 (µs)', t8labelPeriod: '주기, T (µs)', t8labelPpeak: '피크 전력 (W)',
+    t8statDuty: '듀티사이클', t8statFrep: '반복주파수', t8statToff: 'OFF 시간', t8statPavg: '평균전력',
+    t8f1: '듀티사이클', t8f2: '평균전력',
+    t9Title: '방향성 커플러',
+    t9Sub: '커플링·방향성 스펙으로부터 커플드/스루/아이솔레이티드 포트 파워 계산',
+    t9labelPin: '입력전력 (W)', t9labelCoupling: '커플링 (dB)', t9labelDirectivity: '방향성 (dB)', t9labelIL: '삽입손실 (dB)',
+    t9statPthru: '스루 포트 전력', t9statPcoup: '커플드 포트 전력', t9statPiso: '아이솔레이티드 포트 전력',
+    t9f1: '스루 포트', t9f2: '커플드 포트', t9f3: '아이솔레이티드 포트',
+    t9Hint: '방향성은 커플러가 순방향/반사 전력을 얼마나 잘 구분하는지를 나타냅니다 — 방향성이 높을수록 아이솔레이티드 포트로 새어드는 순방향 전력이 적어 반사전력 측정이 깨끗해집니다.',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 6 / 7 (센서)'
+  }
+};
+
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  Object.keys(T).forEach(k => set(k, T[k]));
+}
+
+document.querySelectorAll('.tool-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tool;
+    document.querySelectorAll('.tool-panel').forEach(p => p.style.display = (p.id === 'panel-' + id ? 'block' : 'none'));
+    document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b === btn));
+  });
+});
+
+/* =========================================================
+   Shared helpers
+   ========================================================= */
+function fmtAuto(value, units) {
+  for (const u of units) {
+    if (Math.abs(value) >= u.mult) return { v: +(value/u.mult).toPrecision(4), u: u.label };
+  }
+  const last = units[units.length-1];
+  return { v: +(value/last.mult).toPrecision(4), u: last.label };
+}
+const FREQ_LOG_MIN = 0, FREQ_LOG_MAX = Math.log10(10e9);
+function sliderToHz(s){ return Math.pow(10, FREQ_LOG_MIN + (s/1000)*(FREQ_LOG_MAX-FREQ_LOG_MIN)); }
+function hzToSlider(f){ const t=(Math.log10(Math.max(f,1))-FREQ_LOG_MIN)/(FREQ_LOG_MAX-FREQ_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+function unitToHz(v,u){ return u==='GHz'? v*1e9 : u==='MHz'? v*1e6 : u==='kHz'? v*1e3 : v; }
+function hzToUnitVal(hz,u){ return u==='GHz'? hz/1e9 : u==='MHz'? hz/1e6 : u==='kHz'? hz/1e3 : hz; }
+
+/* =========================================================
+   TOOL 1 — VI Sensor
+   ========================================================= */
+let t1_mode = 'v';
+document.getElementById('t1ModeV').addEventListener('click', () => { t1_mode='v'; document.getElementById('t1ModeV').classList.add('active'); document.getElementById('t1ModeI').classList.remove('active'); t1Compute(); });
+document.getElementById('t1ModeI').addEventListener('click', () => { t1_mode='i'; document.getElementById('t1ModeI').classList.add('active'); document.getElementById('t1ModeV').classList.remove('active'); t1Compute(); });
+function t1Compute() {
+  const vsenseMv = parseFloat(document.getElementById('t1-vsense').value) || 0;
+  const attenDb = parseFloat(document.getElementById('t1-atten').value) || 0;
+  const ratio = Math.pow(10, attenDb/20);
+  const actual = (vsenseMv/1000) * ratio;
+  document.getElementById('t1-ratio').textContent = ratio.toFixed(2);
+  document.getElementById('t1-actual').textContent = actual.toFixed(3);
+  document.getElementById('t1-actualUnit').textContent = t1_mode==='v' ? 'V' : 'A';
+}
+['t1-vsense','t1-atten'].forEach(id => document.getElementById(id).addEventListener('input', t1Compute));
+t1Compute();
+
+/* =========================================================
+   TOOL 2 — Sensor Test / Calibration
+   ========================================================= */
+function t2Compute() {
+  const ref = parseFloat(document.getElementById('t2-ref').value) || 0;
+  const meas = parseFloat(document.getElementById('t2-meas').value) || 0;
+  const errPct = ref!==0 ? (meas-ref)/ref*100 : 0;
+  const errAbs = meas-ref;
+  const corr = meas!==0 ? ref/meas : 0;
+  document.getElementById('t2-errpct').textContent = errPct.toFixed(2);
+  document.getElementById('t2-errabs').textContent = errAbs.toFixed(3);
+  document.getElementById('t2-corr').textContent = corr.toFixed(4);
+
+  const note = document.getElementById('t2QualityNote');
+  const icon = document.getElementById('t2QualityIcon');
+  const title = document.getElementById('t2QualityTitle');
+  const txt = document.getElementById('t2QualityText');
+  if (Math.abs(errPct) <= 5) {
+    note.className = 'callout c-green'; icon.textContent = '✓';
+    title.textContent = lang==='en' ? 'WITHIN TYPICAL SPEC' : '전형적 스펙 이내';
+    txt.textContent = lang==='en' ? 'Error magnitude is within a typical ±5% sensor tolerance band.' : '오차 크기가 전형적인 ±5% 센서 공차 범위 이내입니다.';
+  } else {
+    note.className = 'callout c-amber'; icon.textContent = '!';
+    title.textContent = lang==='en' ? 'OUTSIDE TYPICAL SPEC' : '전형적 스펙 초과';
+    txt.textContent = lang==='en' ? 'Error magnitude exceeds a typical ±5% band — consider recalibrating or replacing this sensor.' : '오차 크기가 전형적인 ±5% 범위를 초과했습니다 — 재교정이나 센서 교체를 고려하세요.';
+  }
+}
+['t2-ref','t2-meas'].forEach(id => document.getElementById(id).addEventListener('input', t2Compute));
+t2Compute();
+
+/* =========================================================
+   TOOL 3 — Rogowski Coil
+   ========================================================= */
+let t3_hz = 13.56e6;
+function t3Compute() {
+  const mVal = parseFloat(document.getElementById('t3-m').value) || 0;
+  const mUnit = document.getElementById('t3-mUnit').value;
+  const M = mVal * (mUnit==='uH' ? 1e-6 : 1e-9);
+  const Irms = parseFloat(document.getElementById('t3-irms').value) || 0;
+  const w = 2*Math.PI*t3_hz;
+  const Vout = M*w*Irms;
+  const sens = M*w;
+  document.getElementById('t3-vout').textContent = Vout.toFixed(3);
+  document.getElementById('t3-sens').textContent = sens.toFixed(4);
+}
+document.getElementById('t3-fSlider').addEventListener('input', e => {
+  t3_hz = sliderToHz(+e.target.value);
+  const u = document.getElementById('t3-fUnit').value;
+  document.getElementById('t3-fInput').value = +hzToUnitVal(t3_hz,u).toPrecision(6);
+  t3Compute();
+});
+document.getElementById('t3-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t3-fInput').value);
+  if (!isNaN(v)) { t3_hz = unitToHz(v, document.getElementById('t3-fUnit').value); document.getElementById('t3-fSlider').value = hzToSlider(t3_hz); t3Compute(); }
+});
+document.getElementById('t3-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t3-fInput').value);
+  if (!isNaN(v)) { t3_hz = unitToHz(v, document.getElementById('t3-fUnit').value); t3Compute(); }
+});
+document.querySelectorAll('#panel-t3 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t3 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t3-fUnit').value = btn.dataset.u;
+    t3_hz = unitToHz(parseFloat(btn.dataset.hz), btn.dataset.u);
+    document.getElementById('t3-fSlider').value = hzToSlider(t3_hz);
+    document.getElementById('t3-fInput').value = btn.dataset.hz;
+    t3Compute();
+  });
+});
+['t3-m','t3-mUnit','t3-irms'].forEach(id => document.getElementById(id).addEventListener('input', t3Compute));
+t3Compute();
+
+/* =========================================================
+   TOOL 4 — Active Integrator
+   ========================================================= */
+let t4_hz = 13.56e6;
+function t4Compute() {
+  const Vin = parseFloat(document.getElementById('t4-vin').value) || 0;
+  const rVal = parseFloat(document.getElementById('t4-r').value) || 0;
+  const R = rVal * (document.getElementById('t4-rUnit').value==='kOhm' ? 1e3 : 1);
+  const cVal = parseFloat(document.getElementById('t4-c').value) || 0;
+  const cUnitMult = { pF:1e-12, nF:1e-9, uF:1e-6 };
+  const C = cVal * cUnitMult[document.getElementById('t4-cUnit').value];
+  const w = 2*Math.PI*t4_hz;
+  const tau = R*C;
+  const Vout = (w>0 && tau>0) ? Vin/(w*tau) : 0;
+
+  const tauf = fmtAuto(tau*1e6, [{mult:1e3,label:'ms'},{mult:1,label:'µs'},{mult:1e-3,label:'ns'}]);
+  document.getElementById('t4-tau').textContent = tauf.v; document.getElementById('t4-tauUnit').textContent = tauf.u;
+  document.getElementById('t4-vout').textContent = (Vout*1000).toFixed(3);
+  document.getElementById('t4-phase').textContent = '-90.0';
+}
+document.getElementById('t4-fSlider').addEventListener('input', e => {
+  t4_hz = sliderToHz(+e.target.value);
+  const u = document.getElementById('t4-fUnit').value;
+  document.getElementById('t4-fInput').value = +hzToUnitVal(t4_hz,u).toPrecision(6);
+  t4Compute();
+});
+document.getElementById('t4-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t4-fInput').value);
+  if (!isNaN(v)) { t4_hz = unitToHz(v, document.getElementById('t4-fUnit').value); document.getElementById('t4-fSlider').value = hzToSlider(t4_hz); t4Compute(); }
+});
+document.getElementById('t4-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t4-fInput').value);
+  if (!isNaN(v)) { t4_hz = unitToHz(v, document.getElementById('t4-fUnit').value); t4Compute(); }
+});
+['t4-vin','t4-r','t4-rUnit','t4-c','t4-cUnit'].forEach(id => document.getElementById(id).addEventListener('input', t4Compute));
+t4Compute();
+
+/* =========================================================
+   TOOL 5 — Gain
+   ========================================================= */
+function t5Compute() {
+  const Vin = parseFloat(document.getElementById('t5-vin').value) || 0;
+  const Rf = parseFloat(document.getElementById('t5-rf').value) || 0;
+  const Rin = parseFloat(document.getElementById('t5-rin').value) || 1;
+  const Av = 1 + Rf/Rin;
+  const AvDb = 20*Math.log10(Av);
+  const Vout = Av*Vin;
+  document.getElementById('t5-av').textContent = Av.toFixed(2);
+  document.getElementById('t5-avdb').textContent = AvDb.toFixed(2);
+  document.getElementById('t5-vout').textContent = Vout.toFixed(3);
+}
+['t5-vin','t5-rf','t5-rin'].forEach(id => document.getElementById(id).addEventListener('input', t5Compute));
+t5Compute();
+
+/* =========================================================
+   TOOL 6 — Magnetic Core Loss
+   ========================================================= */
+document.querySelectorAll('#panel-t6 .qbtn[data-k]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t6 .qbtn[data-k]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t6-k').value = btn.dataset.k;
+    document.getElementById('t6-a').value = btn.dataset.a;
+    document.getElementById('t6-b').value = btn.dataset.b;
+    t6Compute();
+  });
+});
+function t6Compute() {
+  const k = parseFloat(document.getElementById('t6-k').value) || 0;
+  const a = parseFloat(document.getElementById('t6-a').value) || 0;
+  const b = parseFloat(document.getElementById('t6-b').value) || 0;
+  const freqK = parseFloat(document.getElementById('t6-freqk').value) || 0;
+  const Bpk = parseFloat(document.getElementById('t6-bpk').value) || 0;
+  const volCm3 = parseFloat(document.getElementById('t6-vol').value) || 0;
+  const Rth = parseFloat(document.getElementById('t6-rth').value) || 0;
+
+  const Bt = Bpk/1000; // mT -> T for the Steinmetz formula
+  const Pv = k * Math.pow(freqK, a) * Math.pow(Bt, b); // mW/cm3
+  const Ptot = Pv * volCm3; // mW
+  const dT = (Ptot/1000) * Rth; // convert mW->W then *Rth
+
+  document.getElementById('t6-pv').textContent = Pv.toPrecision(4);
+  document.getElementById('t6-ptot').textContent = Ptot.toPrecision(4);
+  document.getElementById('t6-dt').textContent = dT.toFixed(2);
+}
+['t6-k','t6-a','t6-b','t6-freqk','t6-bpk','t6-vol','t6-rth'].forEach(id => document.getElementById(id).addEventListener('input', t6Compute));
+t6Compute();
+
+/* =========================================================
+   TOOL 7 — LT-QCM Gap Capacitance
+   ========================================================= */
+const EPS0 = 8.854e-12;
+function t7Compute() {
+  const Vlt = parseFloat(document.getElementById('t7-vlt').value) || 0;
+  const slope = parseFloat(document.getElementById('t7-slope').value) || 0;
+  const offset = parseFloat(document.getElementById('t7-offset').value) || 0;
+  const areaMm2 = parseFloat(document.getElementById('t7-area').value) || 0;
+  const er = parseFloat(document.getElementById('t7-er').value) || 1;
+
+  const gapMm = slope*Vlt + offset;
+  const gapM = gapMm/1000;
+  const areaM2 = areaMm2*1e-6;
+  const C = gapM>0 ? EPS0*er*areaM2/gapM : 0; // Farads
+
+  document.getElementById('t7-gap').textContent = gapMm.toFixed(3);
+  const cf = fmtAuto(C*1e12, [{mult:1e3,label:'nF'},{mult:1,label:'pF'},{mult:1e-3,label:'fF'}]);
+  document.getElementById('t7-c').textContent = cf.v;
+  document.getElementById('t7-cUnit').textContent = cf.u;
+}
+['t7-vlt','t7-slope','t7-offset','t7-area','t7-er'].forEach(id => document.getElementById(id).addEventListener('input', t7Compute));
+t7Compute();
+
+/* =========================================================
+   TOOL 8 — Pulse
+   ========================================================= */
+function t8Compute() {
+  const ton = parseFloat(document.getElementById('t8-ton').value) || 0;
+  const period = parseFloat(document.getElementById('t8-period').value) || 1;
+  const Ppeak = parseFloat(document.getElementById('t8-ppeak').value) || 0;
+  const duty = period>0 ? (ton/period)*100 : 0;
+  const toff = period - ton;
+  const frepHz = period>0 ? 1/(period*1e-6) : 0;
+  const Pavg = Ppeak * (duty/100);
+
+  document.getElementById('t8-duty').textContent = duty.toFixed(1);
+  document.getElementById('t8-toff').textContent = toff.toFixed(0);
+  const frepf = fmtAuto(frepHz, [{mult:1e6,label:'MHz'},{mult:1e3,label:'kHz'},{mult:1,label:'Hz'}]);
+  document.getElementById('t8-frep').textContent = frepf.v; document.getElementById('t8-frepUnit').textContent = frepf.u;
+  document.getElementById('t8-pavg').textContent = Pavg.toFixed(1);
+}
+['t8-ton','t8-period','t8-ppeak'].forEach(id => document.getElementById(id).addEventListener('input', t8Compute));
+t8Compute();
+
+/* =========================================================
+   TOOL 9 — Directional Coupler
+   ========================================================= */
+function t9Compute() {
+  const Pin = parseFloat(document.getElementById('t9-pin').value) || 0;
+  const coupling = parseFloat(document.getElementById('t9-coupling').value) || 0;
+  const directivity = parseFloat(document.getElementById('t9-directivity').value) || 0;
+  const il = parseFloat(document.getElementById('t9-il').value) || 0;
+
+  const Pthru = Pin * Math.pow(10, -il/10);
+  const Pcoup = Pin * Math.pow(10, -coupling/10);
+  const Piso = Pcoup * Math.pow(10, -directivity/10);
+
+  document.getElementById('t9-pthru').textContent = Pthru.toFixed(2);
+  document.getElementById('t9-pcoup').textContent = (Pcoup).toPrecision(4);
+  const pisof = fmtAuto(Piso*1e3, [{mult:1e6,label:'kW'},{mult:1e3,label:'W'},{mult:1,label:'mW'},{mult:1e-3,label:'µW'}]);
+  document.getElementById('t9-piso').textContent = pisof.v;
+  document.getElementById('t9-pisoUnit').textContent = pisof.u;
+}
+['t9-pin','t9-coupling','t9-directivity','t9-il'].forEach(id => document.getElementById(id).addEventListener('input', t9Compute));
+t9Compute();
+
+/* Default language */
+function goToHashTab() {
+  const hash = location.hash.replace('#','');
+  if (hash) {
+    const btn = document.querySelector('.tool-tab[data-tool="' + hash + '"]');
+    if (btn) btn.click();
+  }
+}
+window.addEventListener('load', () => { setLang('en'); goToHashTab(); });
+window.addEventListener('hashchange', goToHashTab);
+</script>
+</body>
+</html>

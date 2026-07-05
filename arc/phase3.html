@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 3 · Transmission Line &amp; Cable — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* Header */
+.header {
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 12px 32px; display: flex; align-items: center; justify-content: center; gap: 16px;
+  flex-wrap: wrap;
+}
+.logo-img { height: 36px; display: block; }
+#logo-fallback { display:none; align-items:center; gap:8px; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+.lang-toggle {
+  display: flex; align-items: center; background: var(--bg);
+  border: 1.5px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+/* Phase progress strip */
+.phase-strip {
+  max-width: 900px; margin: 18px auto 0; padding: 0 16px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 11px; color: var(--label);
+}
+.phase-pip {
+  width: 22px; height: 22px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
+  font-size: 10px; font-weight: 700; border: 1.5px solid var(--border); color: var(--label); background: var(--card);
+}
+.phase-pip.current { background: var(--green); border-color: var(--green); color: #fff; }
+.phase-pip.done { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+/* Tool tabs */
+.tool-tabs {
+  max-width: 900px; margin: 14px auto 0; padding: 0 16px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.tool-tab {
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 9px 16px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.tool-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.tool-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: var(--shadow); }
+.tool-tab .tnum {
+  width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center; font-size: 10px; font-family:'JetBrains Mono',monospace;
+}
+.tool-tab:not(.active) .tnum { background: var(--bg); border: 1px solid var(--border); }
+
+/* Layout */
+.main { max-width: 900px; margin: 20px auto 56px; padding: 0 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; }
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--green-lt); color: var(--green);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* Controls */
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 100px; }
+.slider-track { flex: 1; min-width: 160px; }
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; cursor: pointer; }
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 110px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.unit-select {
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 500;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 8px; color: var(--text); cursor: pointer; outline: none;
+}
+.unit-select:focus { border-color: var(--green); }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+.qbtn.ism { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+.qbtn.ism.active { background: var(--green); color: #fff; }
+
+/* Mode toggle */
+.mode-toggle { display: flex; gap: 6px; padding: 16px 24px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.mode-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+  padding: 6px 15px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.mode-btn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.mode-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+.z0-row { display:flex; align-items:center; gap:10px; padding: 14px 24px 0; flex-wrap: wrap; }
+.z0-label { font-size: 12.5px; color: var(--label); font-weight: 500; }
+
+.dual-input { display: flex; gap: 14px; padding: 14px 24px 0; flex-wrap: wrap; }
+.dual-field { flex: 1; min-width: 130px; }
+.dual-field label { display:block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+.dual-field input {
+  width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; text-align: right; outline: none; transition: border-color .2s;
+}
+.dual-field input:focus { border-color: var(--green); }
+.dual-field-unit { display: flex; gap: 6px; }
+.dual-field-unit input { flex: 1; }
+.dual-field-unit select.unit-select { width: 74px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+
+/* Formula panel */
+.formula-panel { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+.field-hint { font-size: 11.5px; color: var(--muted); padding: 8px 24px 0; }
+.validity-note {
+  margin: 12px 24px 18px; padding: 9px 12px; border-radius: 8px; font-size: 12px; line-height: 1.5;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.validity-note.ok   { background: var(--green-lt); color: var(--green-dk); }
+.validity-note.warn { background: #FFF4E5; color: #9A5B00; }
+
+/* Reference cross-section diagram (built-in SVG, no external image needed) */
+.refdiagram-section { padding: 18px 24px 20px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg); }
+.refdiagram-section svg { display: block; max-width: 360px; margin: 0 auto; }
+.refdiagram-caption { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+
+footer { text-align: center; padding: 10px 20px 30px; font-size: 11.5px; color: var(--muted); }
+footer a { color: var(--purple); text-decoration: none; }
+
+/* Deep Dive accordion */
+.deepdive { border-top: 1px solid var(--border); }
+.deepdive-toggle {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 14px 24px; background: var(--purple-lt); border: none; cursor: pointer;
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--purple);
+  text-align: left; transition: background .15s;
+}
+.deepdive-toggle:hover { background: #E9DCF5; }
+.deepdive-chevron { transition: transform .2s; font-size: 11px; flex-shrink: 0; }
+.deepdive-toggle.open .deepdive-chevron { transform: rotate(90deg); }
+.deepdive-body { display: none; padding: 18px 24px 22px; background: var(--card); }
+.deepdive-body.open { display: block; }
+.deepdive-body h3 { font-size: 13.5px; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+.deepdive-body h3:first-child { margin-top: 0; }
+.deepdive-body p { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 8px; }
+.deepdive-body ul { margin: 6px 0 10px 18px; }
+.deepdive-body li { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 4px; }
+.deepdive-body code, .deepdive-eq {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--green-dk);
+  background: var(--green-lt); padding: 1px 6px; border-radius: 4px;
+}
+.dd-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12.5px; }
+.dd-table th { text-align: left; padding: 6px 10px; font-size: 11px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); background: #F1F5F9; }
+.dd-table td { padding: 6px 10px; border-bottom: 1px solid #F1F5F9; font-family: 'JetBrains Mono', monospace; }
+
+/* Reference table (AWG etc.) */
+.vf-card-head { padding: 14px 24px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.vf-card-head h2 { font-size: 15px; font-weight: 600; }
+.vf-card-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.vf-custom-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 24px 0; }
+.vf-custom-row label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.vf-input {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.vf-input:focus { border-color: var(--green); }
+.vf-tabs { display: flex; gap: 6px; padding: 14px 24px 0; flex-wrap: wrap; }
+.vf-tab {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.vf-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.vf-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+.vf-range { width: 180px; }
+.vf-bar-cell { min-width: 100px; }
+.vf-bar-bg { background: #E2E8F0; border-radius: 3px; height: 6px; overflow: hidden; }
+.vf-bar-fill { height: 6px; border-radius: 3px; background: var(--green); transition: width .4s; }
+.vf-lambda { font-family: 'JetBrains Mono', monospace; color: var(--purple); font-weight: 600; }
+td.dielectric { color: var(--muted); }
+
+/* Smith chart mini-visualization */
+.graph-wrap { padding: 0 24px; }
+.graphCanvas { width: 100%; height: 280px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #FAFBFC; margin: 4px 0; }
+.graph-note { font-size: 11.5px; color: var(--muted); margin: 8px 0 16px; padding: 0 2px; text-align: center; }
+.smith-legend { display: flex; justify-content: center; gap: 20px; padding: 0 24px 4px; font-size: 12px; }
+.smith-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.smith-legend .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.fh-container { padding: 12px 24px 20px; }
+.fh-wrap { overflow-x: auto; }
+.fh-table { table-layout: fixed; border-collapse: collapse; width: 100%; min-width: 600px; font-size: 12.5px; }
+.fh-table th {
+  text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--muted);
+  letter-spacing: .05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: #F1F5F9; border-bottom: 1px solid var(--border);
+}
+.fh-body { max-height: 380px; overflow-y: auto; }
+.fh-table td {
+  padding: 7px 10px; border-bottom: 1px solid #F1F5F9; vertical-align: middle;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--card);
+}
+.fh-table tr:last-child td { border-bottom: none; }
+.fh-table tr:hover td { background: #F8F9FE; }
+.fh-table tr.selected td { background: var(--purple-lt) !important; }
+td.cable-name { font-weight: 600; color: var(--text); }
+.badge-ism { font-size: 10px; font-weight: 700; letter-spacing: .05em; background: var(--green-lt); color: var(--green); border-radius: 3px; padding: 1px 5px; margin-left: 5px; }
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; }
+  .controls, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .tool-tab { font-size: 12px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+    <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+         alt="Benedu Insight" class="logo-img"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div id="logo-fallback">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+      </svg>
+      <div style="line-height:1.15;">
+        <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+        <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+        <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+      </div>
+    </div>
+  </a>
+  <div class="header-divider"></div>
+  <span class="header-title" id="pageTitle">Phase 3 — Transmission Line &amp; Cable</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<div class="phase-strip" id="phaseStrip">
+  <span id="phaseStripLabel">Progress:</span>
+  <span class="phase-pip done">1</span>
+  <span class="phase-pip done">2</span>
+  <span class="phase-pip current">3</span>
+  <span class="phase-pip">4</span>
+  <span class="phase-pip">5</span>
+  <span class="phase-pip">6</span>
+  <span class="phase-pip">7</span>
+  <span id="phaseStripNote">· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma</span>
+</div>
+
+<nav class="tool-tabs">
+  <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">Transmission Line</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">2</span><span id="tabT2">Coaxial Cable</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">Stripline</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">Skin Depth</span></button>
+  <button class="tool-tab" data-tool="t5"><span class="tnum">5</span><span id="tabT5">AWG Table</span></button>
+  <button class="tool-tab" data-tool="t6"><span class="tnum">6</span><span id="tabT6">Cable Loss / Power</span></button>
+</nav>
+
+<main class="main">
+
+  <!-- ============ TOOL 1: Transmission Line (Zin) ============ -->
+  <div class="tool-panel" id="panel-t1">
+
+  <!-- Card A: Transmission line calculator + mini Smith chart -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t1Title">Transmission Line — Input Impedance</h2>
+        <p id="t1Sub">Electrical length and input impedance looking into a line of length l terminated in Z_L</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t1LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t1-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t1-fInput" class="freq-num" value="13.56">
+          <select id="t1-fUnit" class="unit-select">
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="MHz" selected>MHz</option>
+            <option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t1QuickLabel">Quick select:</span>
+        <button class="qbtn" data-hz="430" data-u="kHz">430 kHz</button>
+        <button class="qbtn" data-hz="2" data-u="MHz">2 MHz</button>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="60" data-u="MHz">60 MHz</button>
+        <button class="qbtn" data-hz="100" data-u="MHz">100 MHz</button>
+        <button class="qbtn ism" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t1VfLabel">Velocity factor (VF):</span>
+        <button class="qbtn active" data-vf="1.00">Vacuum · 1.00</button>
+        <button class="qbtn" data-vf="0.66">RG-58/213 · 0.66</button>
+        <button class="qbtn" data-vf="0.695">PTFE Semi-rigid · 0.695</button>
+        <button class="qbtn" data-vf="0.85">LMR-400 · 0.85</button>
+      </div>
+      <div class="freq-row" style="margin-top:10px;">
+        <span class="freq-label" id="t1LabelLen">Physical length (l)</span>
+        <div class="freq-inputs">
+          <input type="text" id="t1-len" class="freq-num" value="3.68">
+          <select id="t1-lenUnit" class="unit-select">
+            <option value="mm">mm</option>
+            <option value="cm">cm</option>
+            <option value="m" selected>m</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t1LenQuickLabel">Quick length:</span>
+        <button class="qbtn" id="t1MinusQuarterBtn">− λ/4</button>
+        <button class="qbtn" id="t1PlusQuarterBtn">+ λ/4</button>
+        <button class="qbtn" id="t1SetQuarterBtn">Set λ/4</button>
+        <button class="qbtn" id="t1SetHalfBtn">Set λ/2</button>
+        <button class="qbtn" id="t1SetFullBtn">Set λ</button>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t1labelZ0">Z₀ — Line Impedance (Ω)</label><input type="text" id="t1-z0" value="50"></div>
+      <div class="dual-field"><label id="t1labelZLr">Re(Z_L) (Ω)</label><input type="text" id="t1-zLr" value="75"></div>
+      <div class="dual-field"><label id="t1labelZLx">Im(Z_L) (Ω)</label><input type="text" id="t1-zLx" value="25"></div>
+    </div>
+
+    <div class="graph-wrap">
+      <canvas id="t1SmithCanvas" class="graphCanvas"></canvas>
+    </div>
+    <div class="smith-legend">
+      <span><span class="dot" style="background:#7030A0;"></span><span id="t1LegendZL">Z_L (load)</span></span>
+      <span><span class="dot" style="background:#E08A2E;"></span><span id="t1LegendZin">Z_in (looking into line)</span></span>
+    </div>
+    <p class="graph-note" id="t1SmithNote">Moving along the line rotates Γ at constant |Γ| (the dashed circle) by 2θ toward the generator.</p>
+
+    <div class="graph-wrap">
+      <canvas id="t1SWRCanvas" class="graphCanvas" style="height:180px;"></canvas>
+    </div>
+    <div class="smith-legend">
+      <span><span class="dot" style="background:#1E88E5;"></span><span id="t1SwrLegendV">|V(θ)| voltage</span></span>
+      <span><span class="dot" style="background:#16A34A;"></span><span id="t1SwrLegendI">|I(θ)| current</span></span>
+      <span><span class="dot" style="background:#7030A0;"></span><span id="t1SwrLegendZL">Z_L (load, θ=0)</span></span>
+      <span><span class="dot" style="background:#E08A2E;"></span><span id="t1SwrLegendPos">Current position</span></span>
+    </div>
+    <p class="graph-note" id="t1SwrNote">Voltage and current standing-wave envelopes over one full wavelength — they are 90° (λ/4) out of phase, so a voltage minimum (near-zero V) always coincides with a current maximum, and vice versa.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t1statTheta">ELECTRICAL LENGTH (θ)</div><div><span class="stat-value" id="t1-theta">62.3</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statLam">λ (IN LINE)</div><div><span class="stat-value" id="t1-lam">14.75</span><span class="stat-unit" id="t1-lamUnit">m</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statVswr">VSWR (constant along line)</div><div><span class="stat-value" id="t1-vswr">1.64</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statZinMag">|Z_in|</div><div><span class="stat-value" id="t1-zinMag">62.4</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statZinAng">∠Z_in</div><div><span class="stat-value" id="t1-zinAng">18.2</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statZinR">Re(Z_in)</div><div><span class="stat-value" id="t1-zinR">59.3</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statZinX">Im(Z_in)</div><div><span class="stat-value" id="t1-zinX">19.5</span><span class="stat-unit">Ω</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t1f1">ELECTRICAL LENGTH</div><div class="formula-eq">θ = (l / λ) × 360°</div></div>
+      <div><div class="formula-label" id="t1f2">INPUT IMPEDANCE</div><div class="formula-eq">Z_in = Z₀(Z_L + jZ₀tanθ)/(Z₀ + jZ_Ltanθ)</div></div>
+      <div><div class="formula-label" id="t1f3">QUARTER-WAVE (θ=90°)</div><div class="formula-eq">Z_in = Z₀² / Z_L</div></div>
+      <div><div class="formula-label" id="t1f4">VSWR</div><div class="formula-eq">VSWR = (1+|Γ_L|) / (1−|Γ_L|)</div></div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd1Btn" onclick="toggleDD('dd1Btn','dd1-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd1Toggle">Deep Dive: What is Electrical Length (θ)?</span>
+      </button>
+      <div class="deepdive-body" id="dd1-body"><div id="dd1Content"></div></div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd1bBtn" onclick="toggleDD('dd1bBtn','dd1b-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd1bToggle">Deep Dive: Why does cable length affect plasma ignition, if load voltage doesn't change?</span>
+      </button>
+      <div class="deepdive-body" id="dd1b-body"><div id="dd1bContent"></div></div>
+    </div>
+  </div><!-- /Card A -->
+
+  <!-- Card B: Velocity Factor reference table -->
+  <div class="card">
+    <div class="vf-card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="badgeVF1">VF TABLE</span>
+      </span>
+      <div>
+        <h2 id="t1vfTitle">Velocity Factor — Coaxial Cable Reference</h2>
+        <p id="t1vfSub">Click a cable row to apply its VF to the transmission line calculator above.</p>
+      </div>
+    </div>
+
+    <div class="vf-custom-row">
+      <label id="t1labelCustomVF">Custom VF:</label>
+      <input type="range" id="t1vfSlider" class="vf-range" min="0.60" max="1.00" step="0.001" value="1.0">
+      <input type="text" id="t1vfInput" class="vf-input" value="1.000">
+      <span style="font-size:12px;color:var(--muted);"><span id="t1labelVfLambda">λ in cable at current f:</span> <span id="t1vfLambda" class="vf-lambda">—</span></span>
+    </div>
+
+    <div class="vf-tabs" id="t1vfTabs">
+      <button class="vf-tab active" data-cat="all" id="t1tab-all">All</button>
+      <button class="vf-tab" data-cat="vacuum" id="t1tab-vacuum">Vacuum / Air</button>
+      <button class="vf-tab" data-cat="rg" id="t1tab-rg">RG Series</button>
+      <button class="vf-tab" data-cat="lmr" id="t1tab-lmr">LMR Series</button>
+      <button class="vf-tab" data-cat="semirigid" id="t1tab-semirigid">Semi-Rigid</button>
+      <button class="vf-tab" data-cat="hardline" id="t1tab-hardline">Hardline / Heliax</button>
+    </div>
+
+    <div class="fh-container">
+      <div class="fh-wrap">
+        <table class="fh-table">
+          <colgroup>
+            <col style="width:20%"><col style="width:13%"><col style="width:8%"><col style="width:7%">
+            <col style="width:14%"><col style="width:13%"><col style="width:25%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th id="thCableModel">Cable Model</th>
+              <th id="thDielectric">Dielectric</th>
+              <th>Z₀ (Ω)</th>
+              <th>VF</th>
+              <th id="thVfBar">VF Bar</th>
+              <th id="thLambda">λ in Cable</th>
+              <th id="thNotes">Notes</th>
+            </tr>
+          </thead>
+        </table>
+        <div class="fh-body">
+          <table class="fh-table">
+            <colgroup>
+              <col style="width:20%"><col style="width:13%"><col style="width:8%"><col style="width:7%">
+              <col style="width:14%"><col style="width:13%"><col style="width:25%">
+            </colgroup>
+            <tbody id="t1vfTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="fmlCableWave">IN-CABLE WAVELENGTH</div><div class="formula-eq">λ<sub>cable</sub> = VF × (c / f)</div></div>
+      <div><div class="formula-label" id="fmlVfDef">VF DEFINITION</div><div class="formula-eq">VF = v<sub>p</sub> / c = 1 / √ε<sub>r</sub></div></div>
+    </div>
+  </div><!-- /Card B -->
+
+  </div><!-- /panel-t1 -->
+
+  <!-- ============ TOOL 2: Coaxial Cable — Z0 <-> Dimensions ============ -->
+  <div class="card tool-panel" id="panel-t2" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t2Title">Coaxial Cable — Z₀ ↔ Physical Dimensions</h2>
+        <p id="t2Sub">Characteristic impedance from conductor geometry, or solve for the required diameter ratio</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="dz" id="t2ModeDZ">Dimensions → Z₀</button>
+      <button class="mode-btn" data-mode="zd" id="t2ModeZD">Z₀ → Dimensions</button>
+    </div>
+
+    <div class="refdiagram-section">
+      <svg viewBox="0 0 350 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrD" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0.8,0.8 L5,3.5 L0.8,6.2" fill="none" stroke="#0F8C50" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrDstart" markerWidth="7" markerHeight="7" refX="2" refY="3.5" orient="auto">
+            <path d="M6.2,0.8 L2,3.5 L6.2,6.2" fill="none" stroke="#0F8C50" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrd" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0.8,0.8 L5,3.5 L0.8,6.2" fill="none" stroke="#7030A0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrdstart" markerWidth="7" markerHeight="7" refX="2" refY="3.5" orient="auto">
+            <path d="M6.2,0.8 L2,3.5 L6.2,6.2" fill="none" stroke="#7030A0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <!-- Outer jacket -->
+        <circle cx="130" cy="100" r="88" fill="#3A3F44"/>
+        <!-- Shield / outer conductor (braid) -->
+        <circle cx="130" cy="100" r="74" fill="#B08D57"/>
+        <!-- Dielectric -->
+        <circle cx="130" cy="100" r="62" fill="#F3E8D2"/>
+        <!-- Inner conductor -->
+        <circle cx="130" cy="100" r="16" fill="#D4915A" stroke="#8A5A2A" stroke-width="1.5"/>
+
+        <!-- D dimension line (shield inner diameter) -->
+        <line x1="70" y1="100" x2="190" y2="100" stroke="#0F8C50" stroke-width="1.4" marker-start="url(#arrDstart)" marker-end="url(#arrD)"/>
+        <rect x="112" y="90" width="36" height="14" fill="#F3E8D2"/>
+        <text x="130" y="101" text-anchor="middle" fill="#0A6B3C" font-size="13" font-weight="700" font-family="JetBrains Mono, monospace">D</text>
+
+        <!-- d dimension line (inner conductor diameter) — offset below on its own tier with extension lines -->
+        <line x1="114" y1="102" x2="114" y2="146" stroke="#C9B8DC" stroke-width="1"/>
+        <line x1="146" y1="102" x2="146" y2="146" stroke="#C9B8DC" stroke-width="1"/>
+        <line x1="114" y1="140" x2="146" y2="140" stroke="#7030A0" stroke-width="1.4" marker-start="url(#arrdstart)" marker-end="url(#arrd)"/>
+        <rect x="120" y="133" width="20" height="14" fill="#FAFBFC"/>
+        <text x="130" y="144" text-anchor="middle" fill="#7030A0" font-size="12" font-weight="700" font-family="JetBrains Mono, monospace">d</text>
+
+        <!-- Labels with leader lines: each line starts at the midpoint of the layer it names -->
+        <line x1="130" y1="84" x2="240" y2="28" stroke="#94A3B8" stroke-width="1"/>
+        <text x="244" y="32" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t2diagLabelInner">Inner Conductor (d)</text>
+
+        <line x1="161" y1="75" x2="270" y2="65" stroke="#94A3B8" stroke-width="1"/>
+        <text x="274" y="69" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t2diagLabelDiel">Dielectric (εr)</text>
+
+        <line x1="198" y1="100" x2="270" y2="100" stroke="#94A3B8" stroke-width="1"/>
+        <text x="274" y="104" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t2diagLabelShield">Shield (D)</text>
+
+        <line x1="193" y1="151" x2="270" y2="155" stroke="#94A3B8" stroke-width="1"/>
+        <text x="274" y="159" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t2diagLabelJacket">Outer Jacket</text>
+      </svg>
+      <p class="refdiagram-caption" id="t2diagCaption">Cross-section of a coaxial cable — d is the inner conductor's outer diameter, D is the inside diameter of the shield (outer conductor). The dielectric fills the annular gap between them.</p>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t2DielLabel">Dielectric (εr):</span>
+        <button class="qbtn" data-er="1.0">Air · 1.0</button>
+        <button class="qbtn active" data-er="2.25">Solid PE · 2.25</button>
+        <button class="qbtn" data-er="2.1">PTFE · 2.1</button>
+        <button class="qbtn" data-er="1.5">Foam PE · 1.5</button>
+      </div>
+    </div>
+
+    <div class="dual-input" id="t2-dzInputs">
+      <div class="dual-field"><label id="t2labelD1">Inner Conductor OD, d (mm)</label><input type="text" id="t2-d" value="0.91"></div>
+      <div class="dual-field"><label id="t2labelD2">Shield Inner Dia., D (mm)</label><input type="text" id="t2-D" value="2.95"></div>
+    </div>
+    <div class="dual-input" id="t2-zdInputs" style="display:none">
+      <div class="dual-field"><label id="t2labelZ0target">Target Z₀ (Ω)</label><input type="text" id="t2-z0target" value="50"></div>
+      <div class="dual-field"><label id="t2labelD3">Inner Conductor OD, d (mm)</label><input type="text" id="t2-d2" value="0.91"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t2statZ0">CHARACTERISTIC Z₀</div><div><span class="stat-value" id="t2-z0">50.1</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statDout">SHIELD I.D. (D)</div><div><span class="stat-value" id="t2-dout">2.95</span><span class="stat-unit">mm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statL">L′ (per meter)</div><div><span class="stat-value" id="t2-lp">253.6</span><span class="stat-unit">nH/m</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statC">C′ (per meter)</div><div><span class="stat-value" id="t2-cp">101.4</span><span class="stat-unit">pF/m</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t2f1">CHARACTERISTIC Z₀</div><div class="formula-eq">Z₀ = (138/√εr) · log₁₀(D/d)</div></div>
+      <div><div class="formula-label" id="t2f2">INDUCTANCE / LENGTH</div><div class="formula-eq">L′ = 200 · ln(D/d)  nH/m</div></div>
+      <div><div class="formula-label" id="t2f3">CAPACITANCE / LENGTH</div><div class="formula-eq">C′ = 55.63·εr / ln(D/d)  pF/m</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 3: Stripline ============ -->
+  <div class="card tool-panel" id="panel-t3" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge3">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t3Title">Stripline Characteristic Impedance</h2>
+        <p id="t3Sub">Symmetric stripline Z₀ from trace geometry (IPC-2141 approximation)</p>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t3DielLabel">Dielectric (εr):</span>
+        <button class="qbtn" data-er="1.0">Air · 1.0</button>
+        <button class="qbtn" data-er="2.1">PTFE · 2.1</button>
+        <button class="qbtn active" data-er="3.38">Rogers RO4003 · 3.38</button>
+        <button class="qbtn" data-er="4.5">FR4 · 4.5</button>
+        <button class="qbtn" data-er="9.8">Alumina · 9.8</button>
+      </div>
+    </div>
+
+    <div class="refdiagram-section">
+      <svg viewBox="-60 0 520 220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrB" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0.8,0.8 L5,3.5 L0.8,6.2" fill="none" stroke="#0F8C50" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrBstart" markerWidth="7" markerHeight="7" refX="2" refY="3.5" orient="auto">
+            <path d="M6.2,0.8 L2,3.5 L6.2,6.2" fill="none" stroke="#0F8C50" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrW" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0.8,0.8 L5,3.5 L0.8,6.2" fill="none" stroke="#7030A0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrWstart" markerWidth="7" markerHeight="7" refX="2" refY="3.5" orient="auto">
+            <path d="M6.2,0.8 L2,3.5 L6.2,6.2" fill="none" stroke="#7030A0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- Dielectric substrate -->
+        <rect x="110" y="45" width="220" height="110" fill="#F0E8F8"/>
+        <!-- Ground planes (top & bottom conductors) -->
+        <rect x="110" y="37" width="220" height="8" fill="#0F8C50"/>
+        <rect x="110" y="155" width="220" height="8" fill="#0F8C50"/>
+        <!-- Signal trace, centered -->
+        <rect x="180" y="93" width="80" height="14" fill="#7030A0" stroke="#4E2070" stroke-width="1"/>
+
+        <!-- w dimension (trace width) -->
+        <line x1="180" y1="117" x2="260" y2="117" stroke="#7030A0" stroke-width="1.4" marker-start="url(#arrWstart)" marker-end="url(#arrW)"/>
+        <rect x="208" y="110" width="24" height="14" fill="#F0E8F8"/>
+        <text x="220" y="121" text-anchor="middle" fill="#7030A0" font-size="12" font-weight="700" font-family="JetBrains Mono, monospace">w</text>
+
+        <!-- t dimension (trace thickness) -->
+        <line x1="268" y1="93" x2="268" y2="107" stroke="#7030A0" stroke-width="1.2" marker-start="url(#arrWstart)" marker-end="url(#arrW)"/>
+        <text x="274" y="103" fill="#7030A0" font-size="11" font-weight="700" font-family="JetBrains Mono, monospace">t</text>
+
+        <!-- b dimension (ground-to-ground spacing) -->
+        <line x1="350" y1="45" x2="350" y2="155" stroke="#0F8C50" stroke-width="1.4" marker-start="url(#arrBstart)" marker-end="url(#arrB)"/>
+        <rect x="342" y="93" width="16" height="14" fill="#FAFBFC"/>
+        <text x="350" y="104" text-anchor="middle" fill="#0A6B3C" font-size="12" font-weight="700" font-family="JetBrains Mono, monospace">b</text>
+
+        <!-- Ground Plane labels: leader lines up / down, matching the physical top/bottom position -->
+        <line x1="160" y1="37" x2="160" y2="18" stroke="#94A3B8" stroke-width="1"/>
+        <text x="160" y="12" text-anchor="middle" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t3diagLabelGnd1">Ground Plane</text>
+
+        <line x1="160" y1="163" x2="160" y2="185" stroke="#94A3B8" stroke-width="1"/>
+        <text x="160" y="198" text-anchor="middle" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t3diagLabelGnd2">Ground Plane</text>
+
+        <!-- Signal Trace label: leader to the right -->
+        <line x1="220" y1="93" x2="370" y2="60" stroke="#94A3B8" stroke-width="1"/>
+        <text x="374" y="64" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t3diagLabelTrace">Signal Trace</text>
+
+        <!-- Dielectric label: leader to the left -->
+        <line x1="126" y1="70" x2="10" y2="70" stroke="#94A3B8" stroke-width="1"/>
+        <text x="6" y="74" text-anchor="end" fill="#1A202C" font-size="11" font-family="Google Sans, sans-serif" id="t3diagLabelDiel">Dielectric (εr)</text>
+      </svg>
+      <p class="refdiagram-caption" id="t3diagCaption">Symmetric stripline cross-section — the signal trace sits centered between two ground planes, embedded in a dielectric of relative permittivity εr.</p>
+    </div>
+    <p class="field-hint" id="t3RangeHint">Typical ranges: w 0.10–1.50 mm · b 0.20–3.00 mm · t 0.010–0.070 mm (e.g. 1 oz copper ≈ 0.035 mm) · εr 2.0–10.0+</p>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t3labelW">Trace Width, w (mm)</label><input type="text" id="t3-w" value="0.30"></div>
+      <div class="dual-field"><label id="t3labelB">Ground Spacing, b (mm)</label><input type="text" id="t3-b" value="0.50"></div>
+      <div class="dual-field"><label id="t3labelT">Trace Thickness, t (mm)</label><input type="text" id="t3-t" value="0.035"></div>
+      <div class="dual-field"><label id="t3labelEr">εr (dielectric const.)</label><input type="text" id="t3-er" value="3.38"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t3statZ0">CHARACTERISTIC Z₀</div><div><span class="stat-value" id="t3-z0">50.2</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statRatio">w / (b−t)</div><div><span class="stat-value" id="t3-ratio">0.646</span></div></div>
+    </div>
+    <div class="validity-note ok" id="t3ValidityNote"><span>✓</span><span id="t3ValidityText">Within the valid range for this approximation (w/(b−t) ≤ 0.35 recommended).</span></div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t3f1">STRIPLINE Z₀</div><div class="formula-eq">Z₀ = (60/√εr)·ln[4b / (0.67πw(0.8+t/w))]</div></div>
+      <div><div class="formula-label" id="t3f2">VALIDITY</div><div class="formula-eq">w / (b−t) ≤ 0.35</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 4: Skin Depth ============ -->
+  <div class="card tool-panel" id="panel-t4" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge4">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t4Title">Skin Depth Calculator</h2>
+        <p id="t4Sub">RF current penetration depth and surface resistance of a conductor</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t4LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t4-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t4-fInput" class="freq-num" value="13.56">
+          <select id="t4-fUnit" class="unit-select">
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="MHz" selected>MHz</option>
+            <option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t4QuickLabel">Quick select:</span>
+        <button class="qbtn" data-hz="60" data-u="Hz">60 Hz</button>
+        <button class="qbtn" data-hz="430" data-u="kHz">430 kHz</button>
+        <button class="qbtn" data-hz="2" data-u="MHz">2 MHz</button>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="60" data-u="MHz">60 MHz</button>
+        <button class="qbtn" data-hz="100" data-u="MHz">100 MHz</button>
+        <button class="qbtn ism" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t4MatLabel">Conductor material:</span>
+        <button class="qbtn" data-cond="6.30e7">Silver</button>
+        <button class="qbtn active" data-cond="5.96e7">Copper</button>
+        <button class="qbtn" data-cond="4.10e7">Gold</button>
+        <button class="qbtn" data-cond="3.77e7">Aluminum</button>
+        <button class="qbtn" data-cond="1.50e7">Brass</button>
+      </div>
+    </div>
+
+    <div class="refdiagram-section">
+      <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" style="max-width:220px;">
+        <defs>
+          <radialGradient id="skinGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="45%" stop-color="#FFFFFF"/>
+            <stop offset="68%" stop-color="#FFD6D6"/>
+            <stop offset="88%" stop-color="#FF7A7A"/>
+            <stop offset="100%" stop-color="#D62828"/>
+          </radialGradient>
+          <marker id="arrDelta" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+            <path d="M0.8,0.8 L5,3.5 L0.8,6.2" fill="none" stroke="#7A1F1F" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <marker id="arrDeltaStart" markerWidth="7" markerHeight="7" refX="2" refY="3.5" orient="auto">
+            <path d="M6.2,0.8 L2,3.5 L6.2,6.2" fill="none" stroke="#7A1F1F" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+        <!-- Conductor cross-section: current density concentrated near the surface (red = high J, white = low J) -->
+        <circle cx="110" cy="110" r="95" fill="url(#skinGrad)"/>
+        <circle cx="110" cy="110" r="95" fill="none" stroke="#B71C1C" stroke-width="1.5"/>
+        <!-- Skin depth boundary (dashed) -->
+        <circle cx="110" cy="110" r="82" fill="none" stroke="#7A1F1F" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <!-- delta dimension arrow -->
+        <line x1="192" y1="110" x2="205" y2="110" stroke="#7A1F1F" stroke-width="1.4" marker-start="url(#arrDeltaStart)" marker-end="url(#arrDelta)"/>
+        <text x="198" y="100" text-anchor="middle" fill="#7A1F1F" font-size="13" font-weight="700" font-family="JetBrains Mono, monospace">δ</text>
+      </svg>
+      <p class="refdiagram-caption" id="t4diagCaption">Cross-section of a round conductor at RF — current density is highest at the surface (red) and falls off toward the center (white). The dashed circle marks the skin depth δ: the layer where current density has fallen to 1/e (≈37%) of its surface value.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t4statDelta">SKIN DEPTH (δ)</div><div><span class="stat-value" id="t4-delta">17.86</span><span class="stat-unit" id="t4-deltaUnit">µm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statRs">SURFACE RESISTANCE (Rs)</div><div><span class="stat-value" id="t4-rs">9.42</span><span class="stat-unit">mΩ/sq</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t4f1">SKIN DEPTH</div><div class="formula-eq">δ = √(1 / (π f μ₀ σ))</div></div>
+      <div><div class="formula-label" id="t4f2">SURFACE RESISTANCE</div><div class="formula-eq">Rs = √(π f μ₀ / σ)</div></div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd4Btn" onclick="toggleDD('dd4Btn','dd4-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd4Toggle">Deep Dive: What is Skin Depth?</span>
+      </button>
+      <div class="deepdive-body" id="dd4-body"><div id="dd4Content"></div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 5: AWG Table ============ -->
+  <div class="card tool-panel" id="panel-t5" style="display:none">
+    <div class="vf-card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="badge5vf">TABLE</span>
+      </span>
+      <div>
+        <h2 id="t5Title">AWG Wire Gauge Reference</h2>
+        <p id="t5Sub">American Wire Gauge — diameter, area, resistance and approximate ampacity</p>
+      </div>
+    </div>
+
+    <div class="vf-custom-row">
+      <label id="t5CustomLabel">Custom AWG:</label>
+      <input type="range" id="t5-awgSlider" class="vf-range" min="-3" max="40" step="1" value="24" style="width:180px;">
+      <input type="text" id="t5-awgInput" class="vf-input" value="24">
+      <span style="font-size:12px;color:var(--muted);"><span id="t5CustomResultLabel">Diameter / Resistance:</span> <span id="t5-customResult" class="vf-lambda">—</span></span>
+    </div>
+
+    <div class="fh-container">
+      <div class="fh-wrap">
+        <table class="fh-table">
+          <colgroup>
+            <col style="width:14%"><col style="width:18%"><col style="width:18%">
+            <col style="width:16%"><col style="width:18%"><col style="width:16%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th id="thAWG">AWG</th>
+              <th id="thDiaMM">Diameter (mm)</th>
+              <th id="thDiaMil">Diameter (mil)</th>
+              <th id="thArea">Area (mm²)</th>
+              <th id="thRes">Resistance (Ω/km)</th>
+              <th id="thAmp">Ampacity (A, free air)</th>
+            </tr>
+          </thead>
+        </table>
+        <div class="fh-body">
+          <table class="fh-table">
+            <colgroup>
+              <col style="width:14%"><col style="width:18%"><col style="width:18%">
+              <col style="width:16%"><col style="width:18%"><col style="width:16%">
+            </colgroup>
+            <tbody id="t5Tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t5f1">DIAMETER</div><div class="formula-eq">d[mm] = 0.127 · 92^((36−AWG)/39)</div></div>
+      <div><div class="formula-label" id="t5f2">RESISTANCE</div><div class="formula-eq">R = ρ_Cu / A  (ρ_Cu = 1.68×10⁻⁸ Ω·m)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 6: Cable Insertion Loss & Power Handling ============ -->
+  <div class="tool-panel" id="panel-t6" style="display:none">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge6">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t6Title">Cable Insertion Loss &amp; Power Handling</h2>
+        <p id="t6Sub">Scale a cable's rated attenuation to your operating frequency and length</p>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t6PresetLabel">Common cable presets (attenuation @ ref. freq):</span>
+        <button class="qbtn" data-aref="33.0" data-fref="400">RG-58 (33dB/100m@400MHz)</button>
+        <button class="qbtn active" data-aref="13.1" data-fref="400">RG-213 (13.1dB/100m@400MHz)</button>
+        <button class="qbtn" data-aref="6.2" data-fref="400">LMR-400 (6.2dB/100m@400MHz)</button>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t6labelAref">Reference Attenuation, α_ref (dB/100m)</label><input type="text" id="t6-aref" value="13.1"></div>
+      <div class="dual-field"><label id="t6labelFref">Reference Frequency, f_ref (MHz)</label><input type="text" id="t6-fref" value="400"></div>
+      <div class="dual-field"><label id="t6labelLen">Cable Length (m)</label><input type="text" id="t6-len" value="20"></div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t6LabelFreq">Operating Freq. (f)</span>
+        <div class="slider-track"><input type="range" id="t6-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t6-fInput" class="freq-num" value="13.56">
+          <select id="t6-fUnit" class="unit-select">
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="MHz" selected>MHz</option>
+            <option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t6QuickLabel">Quick select:</span>
+        <button class="qbtn" data-hz="430" data-u="kHz">430 kHz</button>
+        <button class="qbtn" data-hz="2" data-u="MHz">2 MHz</button>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="60" data-u="MHz">60 MHz</button>
+        <button class="qbtn" data-hz="100" data-u="MHz">100 MHz</button>
+        <button class="qbtn ism" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+
+    <div class="dual-input" style="padding-bottom:14px;">
+      <div class="dual-field"><label id="t6labelPin">Input Power (W)</label><input type="text" id="t6-pin" value="1000"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t6statAlpha">ATTEN. AT f (α)</div><div><span class="stat-value" id="t6-alpha">2.09</span><span class="stat-unit">dB/100m</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statLoss">TOTAL INSERTION LOSS</div><div><span class="stat-value" id="t6-loss">0.418</span><span class="stat-unit">dB</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statPout">OUTPUT POWER</div><div><span class="stat-value" id="t6-pout">908.8</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statPoutDbm">OUTPUT POWER</div><div><span class="stat-value" id="t6-poutdbm">59.6</span><span class="stat-unit">dBm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statPheat">POWER LOST (HEAT)</div><div><span class="stat-value" id="t6-pheat">91.2</span><span class="stat-unit">W</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t6f1">FREQ. SCALING</div><div class="formula-eq">α(f) = α_ref · √(f / f_ref)</div></div>
+      <div><div class="formula-label" id="t6f2">TOTAL LOSS</div><div class="formula-eq">Loss[dB] = α(f) · Length / 100</div></div>
+      <div><div class="formula-label" id="t6f3">OUTPUT POWER</div><div class="formula-eq">P_out = P_in · 10^(−Loss/10)</div></div>
+    </div>
+  </div><!-- /Card A -->
+
+  <!-- Card B: All-cables comparison table, using the same length/frequency/power settings above -->
+  <div class="card">
+    <div class="vf-card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="badgeCmp6">TABLE</span>
+      </span>
+      <div>
+        <h2 id="t6CmpTitle">All Cables — Loss &amp; Power at Current Settings</h2>
+        <p id="t6CmpSub">Every cable from the VF reference table (Tool 1), scaled to the length, operating frequency and input power set above. Attenuation figures are typical/approximate (dB/100m @ 400 MHz) — verify against the manufacturer's datasheet for critical designs.</p>
+      </div>
+    </div>
+    <div class="fh-container">
+      <div class="fh-wrap">
+        <table class="fh-table">
+          <colgroup>
+            <col style="width:24%"><col style="width:13%"><col style="width:11%"><col style="width:12%">
+            <col style="width:14%"><col style="width:14%"><col style="width:12%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th id="t6thCable">Cable Model</th>
+              <th id="t6thA400">α @ 400MHz</th>
+              <th id="t6thAlphaF">α @ f</th>
+              <th id="t6thLoss">Loss</th>
+              <th id="t6thPout">P_out</th>
+              <th id="t6thPoutDbm">P_out</th>
+              <th id="t6thPheat">Heat</th>
+            </tr>
+          </thead>
+        </table>
+        <div class="fh-body">
+          <table class="fh-table">
+            <colgroup>
+              <col style="width:24%"><col style="width:13%"><col style="width:11%"><col style="width:12%">
+              <col style="width:14%"><col style="width:14%"><col style="width:12%">
+            </colgroup>
+            <tbody id="t6CmpTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div><!-- /Card B -->
+
+  </div><!-- /panel-t6 -->
+
+</main>
+
+<footer>
+
+  <span id="footerText">Benedu Insight · Lab Tool Series — Phase 3 / 7 (Transmission Line &amp; Cable)</span>
+</footer>
+
+<script>
+/* =========================================================
+   I18N
+   ========================================================= */
+const I18N = {
+  en: {
+    pageTitle: 'Phase 3 — Transmission Line &amp; Cable',
+    phaseStripLabel: 'Progress:',
+    phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
+    tabT1: 'Transmission Line', tabT2: 'Coaxial Cable', tabT3: 'Stripline', tabT4: 'Skin Depth', tabT5: 'AWG Table', tabT6: 'Cable Loss / Power',
+    badge1: 'INTERACTIVE', badge2: 'INTERACTIVE', badge3: 'INTERACTIVE', badge4: 'INTERACTIVE', badge5vf: 'TABLE', badge6: 'INTERACTIVE',
+    t1Title: 'Transmission Line — Input Impedance',
+    t1Sub: 'Electrical length and input impedance looking into a line of length l terminated in Z_L',
+    t1LabelFreq: 'Frequency (f)', t1QuickLabel: 'Quick select:', t1VfLabel: 'Velocity factor (VF):',
+    t1LabelLen: 'Physical length (l)', t1LenQuickLabel: 'Quick length:',
+    t1MinusQuarterBtn: '− λ/4', t1PlusQuarterBtn: '+ λ/4', t1SetQuarterBtn: 'Set λ/4', t1SetHalfBtn: 'Set λ/2', t1SetFullBtn: 'Set λ',
+    t1labelZ0: 'Z₀ — Line Impedance (Ω)', t1labelZLr: 'Re(Z_L) (Ω)', t1labelZLx: 'Im(Z_L) (Ω)',
+    t1statTheta: 'ELECTRICAL LENGTH (θ)', t1statLam: 'λ (IN LINE)', t1statVswr: 'VSWR (constant along line)', t1statZinMag: '|Z_in|', t1statZinAng: '∠Z_in', t1statZinR: 'Re(Z_in)', t1statZinX: 'Im(Z_in)',
+    t1f1: 'ELECTRICAL LENGTH', t1f2: 'INPUT IMPEDANCE', t1f3: 'QUARTER-WAVE (θ=90°)', t1f4: 'VSWR',
+    dd1Toggle: 'Deep Dive: What is Electrical Length (θ)?',
+    dd1Content: `
+      <h3>Length measured in wavelengths, not meters</h3>
+      <p>Electrical length expresses a line's physical length as an angle — how far along one cycle of the wave that length represents:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">θ = (l / λ) × 360°</div>
+      <p>where l is the physical length and λ is the wavelength <i>inside the line</i> (λ_cable = VF × c/f, from the Frequency/Wavelength tool in Phase 1).</p>
+      <h3>Why physical length alone isn't enough</h3>
+      <p>Voltage and current along a transmission line oscillate like a sine wave with position. What impedance looks like at a given point depends not on how many meters away it is, but on how large that distance is <i>relative to the wavelength</i>.</p>
+      <p>The same "1 m" cable means very different things at different frequencies:</p>
+      <ul>
+        <li>At 60 Hz (λ ≈ 5,000 km), 1 m is about 0.00002% of a wavelength → θ ≈ 0.00007°, essentially just a plain wire with no meaningful phase shift.</li>
+        <li>At 2.45 GHz (λ ≈ 12 cm), 1 m is more than 8 wavelengths → θ wraps around several full turns, and the impedance looks completely different at every point along the line.</li>
+      </ul>
+      <p>Electrical length collapses this frequency-dependence into a single angle, so the same θ always means the same electrical behavior regardless of the actual frequency or cable length involved.</p>
+      <h3>Key reference points</h3>
+      <table class="dd-table">
+        <tr><th>θ</th><th>Physical meaning</th></tr>
+        <tr><td>0°</td><td>No line at all (Z_in = Z_L)</td></tr>
+        <tr><td>90° (λ/4)</td><td><b>Quarter-wave transformer</b> — Z_in = Z₀² / Z_L (impedance is "inverted")</td></tr>
+        <tr><td>180° (λ/2)</td><td>Z_in returns to Z_L exactly (a half-wave section doesn't transform impedance)</td></tr>
+        <tr><td>360° (λ)</td><td>Back to the starting point after one full wrap</td></tr>
+      </table>
+      <h3>Which way does it rotate on the Smith chart?</h3>
+      <p>Along a lossless line, the reflection coefficient rotates at constant magnitude as you move:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">Γ(l) = Γ_L · e^(−j2θ)</div>
+      <p>The minus sign in the exponent is the key: as l (and θ) increases, the phase becomes increasingly negative — and a phase moving in the negative direction is, by definition, a <b>clockwise</b> rotation.</p>
+      <p>Worked example: with Z₀ = 50 Ω and Z_L = 100 Ω (a pure resistance, sitting at 0° on the real axis), Γ_L starts at angle 0°. At θ = 90° (λ/4), Γ_in lands at −180°. Going from 0° to −90° to −180° traces the <b>lower half of the circle — a clockwise path</b>, not the upper half.</p>
+      <ul>
+        <li><b>WTG (Wavelengths Toward Generator)</b> — moving toward the source, i.e. the cable getting longer — <b>clockwise</b>.</li>
+        <li><b>WTL (Wavelengths Toward Load)</b> — moving toward the load, i.e. the cable getting shorter — <b>counter-clockwise</b>.</li>
+      </ul>
+      <p>Memory aid: <b>"toward the generator (longer) = clockwise."</b> The mini Smith chart above follows this same convention — try the +λ/4 / −λ/4 buttons and watch the orange Z_in point rotate.</p>
+    `,
+    dd1bToggle: "Deep Dive: Why does cable length affect plasma ignition, if load voltage doesn't change?",
+    dd1bContent: `
+      <h3>The puzzle</h3>
+      <p>Semiconductor plasma engineers sometimes observe that a chamber's ignition behavior is sensitive to the exact length of the cable between the RF generator and the matcher — even though, as shown above, a lossless line with a perfectly matched source delivers <i>exactly</i> the same voltage and current to a fixed load regardless of cable length. So what's actually going on?</p>
+      <h3>A concrete worked example</h3>
+      <p>Take a 13.56 MHz system with a 22 m (VF=1, exactly one wavelength) cable between generator and matcher, and a pre-ignition load of Z_L = 2 − 15j Ω (a low-resistance, strongly capacitive load — typical of an unstruck or just-igniting plasma). Z₀ = 50 Ω.</p>
+      <table class="dd-table">
+        <tr><th>θ (cable length)</th><th>Z_in (what the generator sees)</th><th>|Z_in|</th></tr>
+        <tr><td>0° (l = 0)</td><td>2 − 15j Ω</td><td>15.1 Ω</td></tr>
+        <tr><td>90° (λ/4, ≈5.5 m)</td><td>21.8 + 163.8j Ω</td><td>165.2 Ω</td></tr>
+        <tr><td>180° (λ/2, ≈11 m)</td><td>2 − 15j Ω</td><td>15.1 Ω</td></tr>
+        <tr><td>270° (3λ/4, ≈16.5 m)</td><td>21.8 + 163.8j Ω</td><td>165.2 Ω</td></tr>
+      </table>
+      <p>The normalized load voltage here is fixed at |V_L| ≈ 0.559 (VSWR ≈ 27:1) for every single row of that table — <b>the electric field the load actually experiences never changes.</b> But what the generator sees swings between roughly 15 Ω and 165 Ω, with opposite reactance sign, purely as a function of cable length.</p>
+      <h3>So it isn't SWR bending the field — it's the generator not being an ideal 50 Ω source</h3>
+      <p>The "load voltage is length-independent" result relies on one assumption: the generator behaves as an ideal Thevenin source with exactly Z₀ output impedance, launching a fixed incident wave V⁺ regardless of what's downstream. Real RF generators depart from that ideal in a few concrete ways, and each one reintroduces a length dependence:</p>
+      <ul>
+        <li><b>Load-pull behavior of the power device</b> — the MOSFET/LDMOS output stage's achievable output power, efficiency and even V⁺ itself are functions of the impedance it is actually driving. Under a ~27:1 VSWR swinging between 15 Ω and 165 Ω, the device's real delivered V⁺ is <i>not</i> constant — this directly breaks the fixed-V⁺ assumption behind the invariance result.</li>
+        <li><b>ALC / reflected-power protection (foldback)</b> — most generators throttle forward power once VSWR crosses a threshold, and both the trigger point and the amount of foldback depend on Z_in — i.e. on cable length.</li>
+        <li><b>Auto-matcher tuning range and settling time</b> — the matcher's variable C/L elements can only cover a finite impedance range, and how quickly (or whether) they converge toward 50 Ω during the ignition transient depends on where Z_in starts out — which is set by cable length. This changes the actual voltage history the electrode sees during the critical ignition window, even though the final matched-state load voltage is the same.</li>
+      </ul>
+      <h3>Two more real-world factors worth knowing</h3>
+      <ul>
+        <li><b>Cable loss</b> — a real cable isn't lossless, so a longer cable attenuates the wave slightly more. This is a small, monotonic effect (see the Cable Loss / Power tool) and is unrelated to the λ/4 periodicity discussed here.</li>
+        <li><b>The load itself isn't static during ignition</b> — a value like 2 − 15j Ω is really a snapshot; as ionization begins, the impedance changes dynamically, so the "worst-case" Z_in the generator must handle can itself shift during the transient.</li>
+      </ul>
+      <h3>Bottom line</h3>
+      <p>Cable length doesn't change the electric field at a fixed load (given a lossless line and ideal source) — but it dramatically changes the impedance the generator has to drive, and real generators respond differently to different impedances. That generator-side non-ideality — not the standing wave pattern itself — is what makes ignition behavior sensitive to cable length in practice. This is also why matcher datasheets specify a cable length, and why auto-matchers need a wide tuning range.</p>
+    `,
+    t1LegendZL: 'Z_L (load)', t1LegendZin: 'Z_in (looking into line)',
+    t1SmithNote: 'Moving along the line rotates Γ at constant |Γ| (the dashed circle) by 2θ toward the generator.',
+    t1SwrLegendV: '|V(θ)| voltage', t1SwrLegendI: '|I(θ)| current',
+    t1SwrLegendZL: 'Z_L (load, θ=0)', t1SwrLegendPos: 'Current position',
+    t1SwrNote: 'Mirrored (±) standing-wave envelopes over one full wavelength, drawn left (Source) to right (load) as is conventional — the spindle shape pinches down to near-zero width at nodes and bulges out at antinodes. Voltage (blue, filled) and current (green, outline) are 90° (λ/4) out of phase, so a voltage node always coincides with a current antinode, and vice versa.',
+    badgeVF1: 'VF TABLE',
+    t1vfTitle: 'Velocity Factor — Coaxial Cable Reference',
+    t1vfSub: 'Click a cable row to apply its VF to the transmission line calculator above.',
+    t1labelCustomVF: 'Custom VF:', t1labelVfLambda: 'λ in cable at current f:',
+    't1tab-all': 'All', 't1tab-vacuum': 'Vacuum / Air', 't1tab-rg': 'RG Series',
+    't1tab-lmr': 'LMR Series', 't1tab-semirigid': 'Semi-Rigid', 't1tab-hardline': 'Hardline / Heliax',
+    thCableModel: 'Cable Model', thDielectric: 'Dielectric', thVfBar: 'VF Bar', thLambda: 'λ in Cable', thNotes: 'Notes',
+    fmlCableWave: 'IN-CABLE WAVELENGTH', fmlVfDef: 'VF DEFINITION',
+    t2Title: 'Coaxial Cable — Z₀ ↔ Physical Dimensions',
+    t2Sub: 'Characteristic impedance from conductor geometry, or solve for the required diameter ratio',
+    t2ModeDZ: 'Dimensions → Z₀', t2ModeZD: 'Z₀ → Dimensions', t2DielLabel: 'Dielectric (εr):',
+    t2diagLabelInner: 'Inner Conductor (d)', t2diagLabelDiel: 'Dielectric (εr)', t2diagLabelShield: 'Shield (D)', t2diagLabelJacket: 'Outer Jacket',
+    t2diagCaption: "Cross-section of a coaxial cable — d is the inner conductor's outer diameter, D is the inside diameter of the shield (outer conductor). The dielectric fills the annular gap between them.",
+    t2labelD1: 'Inner Conductor OD, d (mm)', t2labelD2: 'Shield Inner Dia., D (mm)',
+    t2labelZ0target: 'Target Z₀ (Ω)', t2labelD3: 'Inner Conductor OD, d (mm)',
+    t2statZ0: 'CHARACTERISTIC Z₀', t2statDout: 'SHIELD I.D. (D)', t2statL: 'L′ (per meter)', t2statC: 'C′ (per meter)',
+    t2f1: 'CHARACTERISTIC Z₀', t2f2: 'INDUCTANCE / LENGTH', t2f3: 'CAPACITANCE / LENGTH',
+    t3Title: 'Stripline Characteristic Impedance',
+    t3Sub: 'Symmetric stripline Z₀ from trace geometry (IPC-2141 approximation)',
+    t3DielLabel: 'Dielectric (εr):',
+    t3diagLabelTrace: 'Signal Trace', t3diagLabelGnd1: 'Ground Plane', t3diagLabelGnd2: 'Ground Plane', t3diagLabelDiel: 'Dielectric (εr)',
+    t3diagCaption: 'Symmetric stripline cross-section — the signal trace sits centered between two ground planes, embedded in a dielectric of relative permittivity εr.',
+    t3RangeHint: 'Typical ranges: w 0.10–1.50 mm · b 0.20–3.00 mm · t 0.010–0.070 mm (e.g. 1 oz copper ≈ 0.035 mm) · εr 2.0–10.0+',
+    t3labelW: 'Trace Width, w (mm)', t3labelB: 'Ground Spacing, b (mm)', t3labelT: 'Trace Thickness, t (mm)', t3labelEr: 'εr (dielectric const.)',
+    t3statZ0: 'CHARACTERISTIC Z₀', t3statRatio: 'w / (b−t)',
+    t3ValidityText: 'Within the valid range for this approximation (w/(b−t) ≤ 0.35 recommended).',
+    t3f1: 'STRIPLINE Z₀', t3f2: 'VALIDITY',
+    t4Title: 'Skin Depth Calculator',
+    t4Sub: 'RF current penetration depth and surface resistance of a conductor',
+    t4LabelFreq: 'Frequency (f)', t4QuickLabel: 'Quick select:', t4MatLabel: 'Conductor material:',
+    t4statDelta: 'SKIN DEPTH (δ)', t4statRs: 'SURFACE RESISTANCE (Rs)',
+    t4f1: 'SKIN DEPTH', t4f2: 'SURFACE RESISTANCE',
+    t4diagCaption: 'Cross-section of a round conductor at RF — current density is highest at the surface (red) and falls off toward the center (white). The dashed circle marks the skin depth δ: the layer where current density has fallen to 1/e (≈37%) of its surface value.',
+    dd4Toggle: 'Deep Dive: What is Skin Depth?',
+    dd4Content: `
+      <h3>Why current retreats to the surface at high frequency</h3>
+      <p>At DC, current spreads evenly across a conductor's entire cross-section. At RF, that's no longer true. A changing current induces eddy currents inside the conductor that oppose the current in the interior and reinforce it near the surface — the net effect is that current concentrates in a thin layer close to the surface, leaving the core of the conductor carrying almost no current at all.</p>
+      <h3>The 1/e definition</h3>
+      <p>Skin depth δ is defined as the distance below the surface at which current density has fallen to 1/e (≈37%) of its value right at the surface:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">J(x) = J₀ · e<sup>−x/δ</sup></div>
+      <p>This isn't a hard cutoff — current doesn't stop exactly at depth δ. Roughly 86% of the total current flows within the first 2δ, and about 95% within 3δ. But δ is the standard reference depth engineers use to size conductors and platings.</p>
+      <h3>The formula, and what drives it</h3>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">δ = √(1 / (π f μ₀ σ))</div>
+      <ul>
+        <li><b>Higher frequency (f)</b> → thinner skin depth. This is why skin effect is negligible at 60 Hz but dominant at 13.56 MHz and above.</li>
+        <li><b>Higher conductivity (σ)</b> → thinner skin depth — counterintuitively, better conductors confine current to an even thinner layer.</li>
+        <li><b>Higher permeability (μ)</b> → thinner skin depth — this is why magnetic materials like steel or nickel have a much shallower skin depth than non-magnetic copper at the same frequency.</li>
+      </ul>
+      <h3>Why this matters for RF hardware</h3>
+      <ul>
+        <li><b>Plating is enough</b> — since current only flows in the outer few δ, a silver or gold plating a few skin depths thick performs just as well as a solid silver/gold conductor. This is exactly why RF connectors and cavity walls are plated rather than solid-machined from precious metal.</li>
+        <li><b>Hollow tubing works fine</b> — for RF coils and matcher inductors, a hollow copper tube conducts RF current just as well as a solid rod of the same diameter, since the core carries essentially no current anyway. This also helps with water-cooling designs.</li>
+        <li><b>Surface resistance rises with frequency</b> — since the effective conducting cross-section shrinks as √f, the AC resistance (and resulting I²R loss) of a conductor increases with the square root of frequency, even though the DC resistance stays the same. This is captured directly by the Rs formula in the calculator above.</li>
+        <li><b>Litz wire</b> — at lower RF frequencies where δ is still comparable to practical wire gauges, bundles of thin, individually-insulated strands (Litz wire) are used to keep more of the conductor's cross-section usable, reducing AC resistance compared to a single thick wire.</li>
+      </ul>
+    `,
+    t5Title: 'AWG Wire Gauge Reference',
+    t5Sub: 'American Wire Gauge — diameter, area, resistance and approximate ampacity',
+    t5CustomLabel: 'Custom AWG:', t5CustomResultLabel: 'Diameter / Resistance:',
+    thAWG: 'AWG', thDiaMM: 'Diameter (mm)', thDiaMil: 'Diameter (mil)', thArea: 'Area (mm²)', thRes: 'Resistance (Ω/km)', thAmp: 'Ampacity (A, free air)',
+    t5f1: 'DIAMETER', t5f2: 'RESISTANCE',
+    t6Title: 'Cable Insertion Loss &amp; Power Handling',
+    t6Sub: "Scale a cable's rated attenuation to your operating frequency and length",
+    t6PresetLabel: 'Common cable presets (attenuation @ ref. freq):',
+    t6labelAref: 'Reference Attenuation, α_ref (dB/100m)', t6labelFref: 'Reference Frequency, f_ref (MHz)', t6labelLen: 'Cable Length (m)',
+    t6LabelFreq: 'Operating Freq. (f)', t6QuickLabel: 'Quick select:', t6labelPin: 'Input Power (W)',
+    t6statAlpha: 'ATTEN. AT f (α)', t6statLoss: 'TOTAL INSERTION LOSS', t6statPout: 'OUTPUT POWER', t6statPoutDbm: 'OUTPUT POWER', t6statPheat: 'POWER LOST (HEAT)',
+    t6f1: 'FREQ. SCALING', t6f2: 'TOTAL LOSS', t6f3: 'OUTPUT POWER',
+    badgeCmp6: 'TABLE',
+    t6CmpTitle: 'All Cables — Loss &amp; Power at Current Settings',
+    t6CmpSub: "Every cable from the VF reference table (Tool 1), scaled to the length, operating frequency and input power set above. Attenuation figures are typical/approximate (dB/100m @ 400 MHz) — verify against the manufacturer's datasheet for critical designs.",
+    t6thCable: 'Cable Model', t6thA400: 'α @ 400MHz', t6thAlphaF: 'α @ f', t6thLoss: 'Loss', t6thPout: 'P_out', t6thPoutDbm: 'P_out', t6thPheat: 'Heat',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 3 / 7 (Transmission Line &amp; Cable)'
+  },
+  ko: {
+    pageTitle: 'Phase 3 — 전송선로 &amp; 케이블',
+    phaseStripLabel: '진행 단계:',
+    phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
+    tabT1: '전송선로', tabT2: '동축케이블', tabT3: '스트립라인', tabT4: '표피효과', tabT5: 'AWG 표', tabT6: '케이블 손실/전력',
+    badge1: '인터랙티브', badge2: '인터랙티브', badge3: '인터랙티브', badge4: '인터랙티브', badge5vf: '참조표', badge6: '인터랙티브',
+    t1Title: '전송선로 — 입력 임피던스',
+    t1Sub: 'Z_L로 종단된 길이 l 선로를 바라본 전기적 길이와 입력 임피던스',
+    t1LabelFreq: '주파수 (f)', t1QuickLabel: '빠른 선택:', t1VfLabel: 'Velocity Factor (VF):',
+    t1LabelLen: '물리적 길이 (l)', t1LenQuickLabel: '빠른 길이 설정:',
+    t1MinusQuarterBtn: '− λ/4', t1PlusQuarterBtn: '+ λ/4', t1SetQuarterBtn: 'λ/4로 설정', t1SetHalfBtn: 'λ/2로 설정', t1SetFullBtn: 'λ로 설정',
+    t1labelZ0: 'Z₀ — 선로 임피던스 (Ω)', t1labelZLr: 'Re(Z_L) (Ω)', t1labelZLx: 'Im(Z_L) (Ω)',
+    t1statTheta: '전기적 길이 (θ)', t1statLam: 'λ (선로 내)', t1statVswr: 'VSWR (선로 전체 동일)', t1statZinMag: '|Z_in|', t1statZinAng: '∠Z_in', t1statZinR: 'Re(Z_in)', t1statZinX: 'Im(Z_in)',
+    t1f1: '전기적 길이', t1f2: '입력 임피던스', t1f3: '1/4파장 (θ=90°)', t1f4: 'VSWR',
+    dd1Toggle: 'Deep Dive: 전기적 길이(θ)란 무엇인가?',
+    dd1Content: `
+      <h3>미터가 아니라 파장으로 재는 길이</h3>
+      <p>전기적 길이는 선로의 물리적 길이를 각도로 표현한 것입니다 — 그 길이가 파의 한 주기 중 어디쯤까지 해당하는지를 나타냅니다:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">θ = (l / λ) × 360°</div>
+      <p>여기서 l은 물리적 길이, λ는 <i>선로 내부</i>에서의 파장입니다 (λ_cable = VF × c/f, Phase 1의 Frequency/Wavelength 계산기와 동일).</p>
+      <h3>왜 물리적 길이만으로는 부족한가</h3>
+      <p>전송선로 위의 전압·전류는 위치에 따라 사인파처럼 진동합니다. 특정 지점에서 임피던스가 어떻게 보이는지는 "몇 미터 떨어졌는지"가 아니라 <i>그 거리가 파장에 비해 얼마나 큰지</i>로 결정됩니다.</p>
+      <p>같은 "1m" 케이블이라도 주파수에 따라 전혀 다른 의미를 갖습니다:</p>
+      <ul>
+        <li>60Hz(λ≈5,000km)에서는 1m가 파장의 약 0.00002%에 불과 → θ≈0.00007°, 사실상 위상차가 없는 단순 도선입니다.</li>
+        <li>2.45GHz(λ≈12cm)에서는 1m가 파장의 8배 이상 → θ가 여러 바퀴를 돌아버리고, 선로상 위치마다 임피던스가 완전히 달라집니다.</li>
+      </ul>
+      <p>전기적 길이는 이 주파수 의존성을 하나의 각도로 압축해주기 때문에, 실제 주파수나 케이블 길이가 달라도 같은 θ는 항상 같은 회로적 거동을 의미하게 됩니다.</p>
+      <h3>주요 기준점</h3>
+      <table class="dd-table">
+        <tr><th>θ</th><th>물리적 의미</th></tr>
+        <tr><td>0°</td><td>선로가 없는 것과 동일 (Z_in = Z_L)</td></tr>
+        <tr><td>90° (λ/4)</td><td><b>1/4파장 변환기</b> — Z_in = Z₀² / Z_L (임피던스가 "뒤집힘")</td></tr>
+        <tr><td>180° (λ/2)</td><td>Z_in이 Z_L 그대로 복귀 (반파장 구간은 임피던스를 변환하지 않음)</td></tr>
+        <tr><td>360° (λ)</td><td>한 바퀴 완전히 돌아 처음 상태로 복귀</td></tr>
+      </table>
+      <h3>스미스차트 위에서 어느 방향으로 도는가</h3>
+      <p>무손실 선로를 따라 이동하면 반사계수는 크기는 일정하게 유지한 채 회전합니다:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">Γ(l) = Γ_L · e^(−j2θ)</div>
+      <p>지수의 마이너스 부호가 핵심입니다 — l(그리고 θ)이 커질수록 위상은 점점 더 음의 방향으로 커지는데, 위상이 음의 방향으로 진행하는 것은 정의상 <b>시계방향</b> 회전입니다.</p>
+      <p>예시: Z₀=50Ω, Z_L=100Ω(순저항, 실수축 위 0°)일 때 Γ_L은 각도 0°에서 시작합니다. θ=90°(λ/4)에서 Γ_in은 −180°에 도달합니다. 0°→−90°→−180° 순서로 이동하는 건 원의 윗쪽이 아니라 <b>아래쪽을 지나는 시계방향 경로</b>입니다.</p>
+      <ul>
+        <li><b>WTG (Wavelengths Toward Generator)</b> — 발전기(소스) 쪽으로 이동, 즉 케이블이 길어지는 방향 — <b>시계방향</b>.</li>
+        <li><b>WTL (Wavelengths Toward Load)</b> — 부하 쪽으로 이동, 즉 케이블이 짧아지는 방향 — <b>반시계방향</b>.</li>
+      </ul>
+      <p>암기 팁: <b>"발전기 방향(길어질수록) = 시계방향"</b>. 위의 미니 스미스차트도 이 표준 규칙을 그대로 따르므로, +λ/4 / −λ/4 버튼을 눌러 주황색 Z_in 점이 실제로 회전하는 모습을 확인해보세요.</p>
+    `,
+    dd1bToggle: 'Deep Dive: 부하 전압이 안 변한다면, 케이블 길이는 왜 플라즈마 점화특성에 영향을 줄까?',
+    dd1bContent: `
+      <h3>의문점</h3>
+      <p>반도체 플라즈마 엔지니어들은 가끔 RF Generator와 Matcher 사이 케이블의 정확한 길이에 따라 챔버의 점화 특성이 달라지는 걸 경험합니다. 그런데 앞서 확인했듯, 무손실 선로 + 완벽히 매칭된 소스라면 고정된 부하에 전달되는 전압·전류는 케이블 길이와 <i>완전히</i> 무관합니다. 그렇다면 실제로 무슨 일이 벌어지는 걸까요?</p>
+      <h3>구체적인 계산 예시</h3>
+      <p>13.56MHz 시스템에서 Generator-Matcher 사이 케이블이 22m(VF=1, 정확히 1파장)이고, 점화 전 부하가 Z_L = 2 − 15j Ω (저항은 낮고 용량성 리액턴스가 강한, 미점화 또는 막 점화되는 플라즈마의 전형적인 값)이라고 합시다. Z₀ = 50Ω입니다.</p>
+      <table class="dd-table">
+        <tr><th>θ (케이블 길이)</th><th>Z_in (Generator가 보는 값)</th><th>|Z_in|</th></tr>
+        <tr><td>0° (l=0)</td><td>2 − 15j Ω</td><td>15.1 Ω</td></tr>
+        <tr><td>90° (λ/4, ≈5.5m)</td><td>21.8 + 163.8j Ω</td><td>165.2 Ω</td></tr>
+        <tr><td>180° (λ/2, ≈11m)</td><td>2 − 15j Ω</td><td>15.1 Ω</td></tr>
+        <tr><td>270° (3λ/4, ≈16.5m)</td><td>21.8 + 163.8j Ω</td><td>165.2 Ω</td></tr>
+      </table>
+      <p>이 표의 모든 행에서 정규화된 부하 전압은 |V_L| ≈ 0.559(VSWR≈27:1)로 동일합니다 — <b>부하가 실제로 겪는 전계는 전혀 변하지 않습니다.</b> 하지만 Generator가 보는 값은 케이블 길이만으로 약 15Ω과 165Ω 사이(리액턴스 부호까지 반대로)를 오갑니다.</p>
+      <h3>즉, SWR이 전계를 바꾸는 게 아니라 Generator가 이상적 50Ω 소스가 아니기 때문입니다</h3>
+      <p>"부하 전압이 길이와 무관하다"는 결론은 한 가지 전제에 의존합니다 — Generator가 정확히 Z₀ 출력 임피던스를 갖는 이상적 Thevenin 소스처럼 행동해서, 뒤쪽 상황과 무관하게 항상 고정된 입사파 V⁺를 내보낸다는 전제입니다. 실제 RF Generator는 이 이상적 모델에서 몇 가지 구체적인 방식으로 벗어나는데, 그때마다 길이 의존성이 다시 생겨납니다:</p>
+      <ul>
+        <li><b>파워 디바이스의 Load-Pull 특성</b> — MOSFET/LDMOS 출력단이 실제로 낼 수 있는 출력전력, 효율, 심지어 V⁺ 자체가 그것이 구동하는 임피던스의 함수입니다. 15Ω과 165Ω 사이를 오가는 VSWR≈27:1 조건에서는 디바이스가 실제로 전달하는 V⁺가 <i>고정값이 아니게</i> 되고, 이게 바로 위 불변성 결론의 전제(V⁺ 고정)를 깨뜨립니다.</li>
+        <li><b>ALC / 반사파 보호(foldback)</b> — 대부분의 Generator는 VSWR이 특정 임계값을 넘으면 forward power를 강제로 낮추는데, 이 개입 시점과 정도 모두 Z_in(=케이블 길이)에 따라 달라집니다.</li>
+        <li><b>Auto-Matcher의 튜닝 범위와 정착 시간</b> — 매처의 가변 C/L 소자가 커버할 수 있는 임피던스 범위는 유한하고, 점화 과도구간 동안 50Ω 근처로 얼마나 빨리(혹은 제대로) 수렴하는지는 Z_in의 시작 위치에 좌우되는데, 이 시작 위치가 바로 케이블 길이로 정해집니다. 최종 매칭 상태의 부하 전압은 같더라도, 점화의 결정적 구간 동안 전극이 실제로 겪는 전압의 시간적 이력은 달라집니다.</li>
+      </ul>
+      <h3>추가로 알아둘 만한 실제 요인 두 가지</h3>
+      <ul>
+        <li><b>케이블 손실</b> — 실제 케이블은 무손실이 아니라서 길수록 감쇠가 조금씩 더 생깁니다. 이건 작고 단조증가하는 효과(Cable Loss / Power 계산기 참조)이며, 여기서 다룬 λ/4 주기성과는 무관한 별개의 현상입니다.</li>
+        <li><b>부하 자체가 점화 중에는 정적이지 않음</b> — 2−15j Ω 같은 값은 사실 한 순간의 스냅샷입니다. 이온화가 시작되면 임피던스가 동적으로 변하기 때문에, Generator가 감당해야 할 "최악의" Z_in 자체도 과도구간 동안 이동할 수 있습니다.</li>
+      </ul>
+      <h3>정리</h3>
+      <p>케이블 길이는 (무손실 선로 + 이상적 소스 가정 하에) 고정된 부하가 겪는 전계를 바꾸지 않습니다 — 하지만 Generator가 구동해야 하는 임피던스는 극적으로 바꿉니다. 그리고 실제 Generator는 임피던스에 따라 다르게 반응합니다. 정재파 패턴 자체가 아니라 <b>Generator 쪽의 이런 비이상적 거동</b>이 실무에서 점화 특성을 케이블 길이에 민감하게 만드는 원인입니다. Matcher 데이터시트가 케이블 길이를 명시하고, Auto-Matcher가 넓은 튜닝 범위를 가져야 하는 이유이기도 합니다.</p>
+    `,
+    t1LegendZL: 'Z_L (부하)', t1LegendZin: 'Z_in (선로를 바라본 임피던스)',
+    t1SmithNote: '선로를 따라 이동하면 Γ가 일정한 |Γ|(점선 원) 위에서 발전기 방향으로 2θ만큼 회전합니다.',
+    t1SwrLegendV: '|V(θ)| 전압', t1SwrLegendI: '|I(θ)| 전류',
+    t1SwrLegendZL: 'Z_L (부하, θ=0)', t1SwrLegendPos: '현재 위치',
+    t1SwrNote: '1파장 구간에 걸친 상하 대칭(±) 정재파 포락선입니다 (관례에 따라 좌측=Source, 우측=부하 방향) — 마디(node)에서는 폭이 거의 0으로 좁아지고, 배(antinode)에서는 넓게 부풀어 오르는 방추형(spindle) 모양입니다. 전압(파란색, 채움)과 전류(초록색, 윤곽선)는 90°(λ/4)만큼 위상이 어긋나 있어서, 전압 마디는 항상 전류 배와 일치하고 그 반대도 마찬가지입니다.',
+    badgeVF1: 'VF 표',
+    t1vfTitle: '속도계수 (Velocity Factor) — 동축케이블 참조표',
+    t1vfSub: '케이블 행을 클릭하면 위 전송선로 계산기에 해당 VF가 적용됩니다.',
+    t1labelCustomVF: '직접 입력 VF:', t1labelVfLambda: '현재 f 기준 케이블 내 λ:',
+    't1tab-all': '전체', 't1tab-vacuum': '진공 / 공기', 't1tab-rg': 'RG 시리즈',
+    't1tab-lmr': 'LMR 시리즈', 't1tab-semirigid': '반경성 (Semi-Rigid)', 't1tab-hardline': '하드라인 / Heliax',
+    thCableModel: '케이블 모델', thDielectric: '유전체', thVfBar: 'VF 막대', thLambda: '케이블 내 파장', thNotes: '비고',
+    fmlCableWave: '케이블 내 파장', fmlVfDef: 'VF 정의',
+    t2Title: '동축케이블 — Z₀ ↔ 물리적 치수',
+    t2Sub: '도체 형상으로부터 특성임피던스를 계산하거나, 필요한 직경비를 역산합니다',
+    t2ModeDZ: '치수 → Z₀', t2ModeZD: 'Z₀ → 치수', t2DielLabel: '유전체 (εr):',
+    t2diagLabelInner: '내부도체 (d)', t2diagLabelDiel: '유전체 (εr)', t2diagLabelShield: '실드 (D)', t2diagLabelJacket: '외피(자켓)',
+    t2diagCaption: '동축케이블 단면도 — d는 내부도체의 외경, D는 실드(외부도체)의 내경입니다. 그 사이 환형 공간을 유전체가 채웁니다.',
+    t2labelD1: '내부도체 외경, d (mm)', t2labelD2: '실드 내경, D (mm)',
+    t2labelZ0target: '목표 Z₀ (Ω)', t2labelD3: '내부도체 외경, d (mm)',
+    t2statZ0: '특성 임피던스 Z₀', t2statDout: '실드 내경 (D)', t2statL: 'L′ (단위길이당)', t2statC: 'C′ (단위길이당)',
+    t2f1: '특성 임피던스', t2f2: '단위길이당 인덕턴스', t2f3: '단위길이당 커패시턴스',
+    t3Title: '스트립라인 특성 임피던스',
+    t3Sub: '트레이스 형상으로부터 대칭형 스트립라인 Z₀ 계산 (IPC-2141 근사식)',
+    t3DielLabel: '유전체 (εr):',
+    t3diagLabelTrace: '신호 트레이스', t3diagLabelGnd1: '그라운드 평면', t3diagLabelGnd2: '그라운드 평면', t3diagLabelDiel: '유전체 (εr)',
+    t3diagCaption: '대칭형 스트립라인 단면도 — 신호 트레이스가 두 그라운드 평면 사이 중앙에 위치하며, 비유전율 εr인 유전체에 매립되어 있습니다.',
+    t3RangeHint: '전형적인 범위: w 0.10–1.50mm · b 0.20–3.00mm · t 0.010–0.070mm (예: 1oz 동박 ≈ 0.035mm) · εr 2.0–10.0+',
+    t3labelW: '트레이스 폭, w (mm)', t3labelB: '그라운드 간격, b (mm)', t3labelT: '트레이스 두께, t (mm)', t3labelEr: 'εr (유전율)',
+    t3statZ0: '특성 임피던스 Z₀', t3statRatio: 'w / (b−t)',
+    t3ValidityText: '근사식의 유효 범위 이내입니다 (w/(b−t) ≤ 0.35 권장).',
+    t3f1: '스트립라인 Z₀', t3f2: '유효조건',
+    t4Title: '표피효과(Skin Depth) 계산기',
+    t4Sub: '도체 내 RF 전류의 침투 깊이와 표면저항',
+    t4LabelFreq: '주파수 (f)', t4QuickLabel: '빠른 선택:', t4MatLabel: '도체 재질:',
+    t4statDelta: '표피 깊이 (δ)', t4statRs: '표면저항 (Rs)',
+    t4f1: '표피 깊이', t4f2: '표면저항',
+    t4diagCaption: '고주파에서 원형 도체의 단면입니다 — 전류밀도는 표면(빨강)에서 가장 높고 중심(흰색)으로 갈수록 감소합니다. 점선 원은 표피깊이 δ를 나타냅니다: 전류밀도가 표면값의 1/e(≈37%)로 떨어지는 깊이입니다.',
+    dd4Toggle: 'Deep Dive: 표피효과(Skin Depth)란 무엇인가?',
+    dd4Content: `
+      <h3>왜 고주파에서 전류가 표면으로 몰리는가</h3>
+      <p>직류(DC)에서는 전류가 도체 단면 전체에 고르게 퍼집니다. 하지만 RF에서는 그렇지 않습니다. 시간에 따라 변하는 전류는 도체 내부에 맴돌이전류(eddy current)를 유도하는데, 이 맴돌이전류가 도체 내부의 전류는 상쇄시키고 표면 근처의 전류는 오히려 보강합니다 — 결과적으로 전류가 표면 근처 얇은 층에 집중되고, 도체 중심부는 거의 전류를 나르지 않게 됩니다.</p>
+      <h3>1/e 정의</h3>
+      <p>표피깊이 δ는 표면 바로 아래 전류밀도가 표면값의 1/e(≈37%)로 떨어지는 깊이로 정의됩니다:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">J(x) = J₀ · e<sup>−x/δ</sup></div>
+      <p>이건 어떤 깊이에서 전류가 뚝 끊기는 게 아닙니다 — 전체 전류의 약 86%가 첫 2δ 이내에, 약 95%가 3δ 이내에 흐릅니다. 하지만 δ는 엔지니어들이 도체나 도금 두께를 설계할 때 쓰는 표준 기준 깊이입니다.</p>
+      <h3>공식과 그 안의 변수들</h3>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">δ = √(1 / (π f μ₀ σ))</div>
+      <ul>
+        <li><b>주파수(f)가 높을수록</b> → 표피깊이가 얇아짐. 60Hz에서는 표피효과가 무시할 만하지만 13.56MHz 이상에서는 지배적인 이유입니다.</li>
+        <li><b>전도율(σ)이 높을수록</b> → 표피깊이가 더 얇아짐 — 직관과 달리, 도체가 좋을수록 전류가 더 얇은 층에 갇힙니다.</li>
+        <li><b>투자율(μ)이 높을수록</b> → 표피깊이가 더 얇아짐 — 같은 주파수에서 철·니켈 같은 자성체가 구리 같은 비자성체보다 표피깊이가 훨씬 얕은 이유입니다.</li>
+      </ul>
+      <h3>RF 하드웨어에서 왜 중요한가</h3>
+      <ul>
+        <li><b>도금만으로 충분함</b> — 전류는 바깥쪽 몇 δ 안에서만 흐르기 때문에, 표피깊이 몇 배 두께의 은/금 도금이 통짜 은/금 도체와 성능이 동일합니다. RF 커넥터나 캐비티 벽면을 귀금속으로 통짜 가공하지 않고 도금 처리하는 이유가 바로 이것입니다.</li>
+        <li><b>속이 빈 관(튜브)도 문제없음</b> — RF 코일이나 매처 인덕터에서는 속이 빈 구리 튜브가 같은 직경의 속이 찬 봉과 동일하게 RF 전류를 전도합니다. 어차피 중심부는 전류를 거의 나르지 않기 때문입니다. 수냉 설계에도 유리합니다.</li>
+        <li><b>표면저항은 주파수가 오를수록 커짐</b> — 실효 도전 단면적이 √f에 비례해 줄어들기 때문에, 직류저항은 그대로여도 AC 저항(및 이에 따른 I²R 손실)은 주파수의 제곱근에 비례해 커집니다. 위 계산기의 Rs 공식이 바로 이걸 나타냅니다.</li>
+        <li><b>Litz 와이어</b> — δ가 실용적인 와이어 굵기와 비슷한 저주파 RF 대역에서는, 가늘고 개별 절연된 여러 가닥을 꼬아 만든 Litz 와이어를 써서 도체 단면을 더 많이 활용하고 AC 저항을 굵은 단일 와이어보다 줄입니다.</li>
+      </ul>
+    `,
+    t5Title: 'AWG 와이어 규격 참조표',
+    t5Sub: 'American Wire Gauge — 직경, 단면적, 저항 및 대략적인 허용전류',
+    t5CustomLabel: '사용자 지정 AWG:', t5CustomResultLabel: '직경 / 저항:',
+    thAWG: 'AWG', thDiaMM: '직경 (mm)', thDiaMil: '직경 (mil)', thArea: '단면적 (mm²)', thRes: '저항 (Ω/km)', thAmp: '허용전류 (A, 공중배선)',
+    t5f1: '직경', t5f2: '저항',
+    t6Title: '케이블 삽입손실 &amp; 전력 핸들링',
+    t6Sub: '케이블 정격 감쇠값을 실제 사용 주파수·길이에 맞게 환산합니다',
+    t6PresetLabel: '자주 쓰는 케이블 프리셋 (기준주파수에서의 감쇠):',
+    t6labelAref: '기준 감쇠량, α_ref (dB/100m)', t6labelFref: '기준 주파수, f_ref (MHz)', t6labelLen: '케이블 길이 (m)',
+    t6LabelFreq: '사용 주파수 (f)', t6QuickLabel: '빠른 선택:', t6labelPin: '입력 파워 (W)',
+    t6statAlpha: 'f에서의 감쇠 (α)', t6statLoss: '총 삽입손실', t6statPout: '출력 파워', t6statPoutDbm: '출력 파워', t6statPheat: '손실 파워 (열)',
+    t6f1: '주파수 스케일링', t6f2: '총 손실', t6f3: '출력 파워',
+    badgeCmp6: '참조표',
+    t6CmpTitle: '전체 케이블 — 현재 설정 기준 손실 &amp; 파워',
+    t6CmpSub: 'VF 참조표(Tool 1)의 모든 케이블을 위에서 설정한 길이·사용주파수·입력파워 기준으로 환산한 값입니다. 감쇠값은 전형적/근사치(400MHz 기준 dB/100m)이므로, 중요한 설계에서는 반드시 제조사 데이터시트로 검증하세요.',
+    t6thCable: '케이블 모델', t6thA400: 'α @ 400MHz', t6thAlphaF: 'α @ f', t6thLoss: '손실', t6thPout: 'P_out', t6thPoutDbm: 'P_out', t6thPheat: '발열',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 3 / 7 (전송선로 &amp; 케이블)'
+  }
+};
+
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  Object.keys(T).forEach(k => set(k, T[k]));
+  if (typeof t5RenderTable === 'function') t5RenderTable();
+  if (typeof t1vfRenderTable === 'function') t1vfRenderTable(t1vfCat);
+}
+
+/* =========================================================
+   Tab switching
+   ========================================================= */
+document.querySelectorAll('.tool-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tool;
+    document.querySelectorAll('.tool-panel').forEach(p => p.style.display = (p.id === 'panel-' + id ? 'block' : 'none'));
+    document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b === btn));
+    if (id === 't1' && typeof t1ResizeSmith === 'function') { t1ResizeSmith(); if (typeof t1ResizeSWR === 'function') t1ResizeSWR(); }
+  });
+});
+
+/* =========================================================
+   Deep Dive accordion toggle
+   ========================================================= */
+function toggleDD(btnId, bodyId) {
+  const btn = document.getElementById(btnId);
+  const body = document.getElementById(bodyId);
+  const open = body.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  body.style.display = open ? 'block' : 'none';
+}
+
+/* =========================================================
+   Shared helpers
+   ========================================================= */
+const C_LIGHT = 3e8;
+const MU0 = 4e-7*Math.PI;
+const EPS0 = 8.854e-12;
+
+function cSub(a,b){ return {re:a.re-b.re, im:a.im-b.im}; }
+function cAdd(a,b){ return {re:a.re+b.re, im:a.im+b.im}; }
+function cMul(a,b){ return {re:a.re*b.re-a.im*b.im, im:a.re*b.im+a.im*b.re}; }
+function cDiv(a,b){ const d=b.re*b.re+b.im*b.im; return { re:(a.re*b.re+a.im*b.im)/d, im:(a.im*b.re-a.re*b.im)/d }; }
+function cAbs(a){ return Math.sqrt(a.re*a.re+a.im*a.im); }
+function cAngDeg(a){ return Math.atan2(a.im,a.re)*180/Math.PI; }
+
+function fmtAuto(value, units) {
+  for (const u of units) {
+    if (Math.abs(value) >= u.mult) return { v: +(value/u.mult).toPrecision(4), u: u.label };
+  }
+  const last = units[units.length-1];
+  return { v: +(value/last.mult).toPrecision(4), u: last.label };
+}
+function fmtLen(m) {
+  if (m >= 1e3)  return { v:+(m/1e3).toPrecision(4), u:'km' };
+  if (m >= 1)    return { v:+m.toPrecision(4), u:'m' };
+  if (m >= 0.01) return { v:+(m*100).toPrecision(4), u:'cm' };
+  if (m >= 1e-3) return { v:+(m*1e3).toPrecision(4), u:'mm' };
+  return               { v:+(m*1e6).toPrecision(4), u:'µm' };
+}
+
+/* Generic log-scale frequency slider (0-1000 -> 1Hz..10GHz) */
+const FREQ_LOG_MIN = 0, FREQ_LOG_MAX = Math.log10(10e9);
+function sliderToHz(s){ return Math.pow(10, FREQ_LOG_MIN + (s/1000)*(FREQ_LOG_MAX-FREQ_LOG_MIN)); }
+function hzToSlider(f){ const t=(Math.log10(Math.max(f,1))-FREQ_LOG_MIN)/(FREQ_LOG_MAX-FREQ_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+function unitToHz(v,u){ return u==='GHz'? v*1e9 : u==='MHz'? v*1e6 : u==='kHz'? v*1e3 : v; }
+function hzToUnitVal(hz,u){ return u==='GHz'? hz/1e9 : u==='MHz'? hz/1e6 : u==='kHz'? hz/1e3 : hz; }
+
+/* =========================================================
+   TOOL 1 — Transmission Line (Zin)
+   ========================================================= */
+let t1_hz = 13.56e6, t1_vf = 1.00;
+let t1_lastGL = {re:0,im:0}, t1_lastGin = {re:0,im:0}, t1_lastThetaRad = 0;
+
+function zToGamma(r, x) {
+  const den = (r+1)*(r+1) + x*x;
+  return { re: (r*r + x*x - 1)/den, im: (2*x)/den };
+}
+function rotateGamma(Gr, Gi, theta) {
+  const c = Math.cos(2*theta), s = Math.sin(2*theta);
+  return { re: Gr*c + Gi*s, im: -Gr*s + Gi*c };
+}
+
+function t1Compute() {
+  const Z0 = parseFloat(document.getElementById('t1-z0').value) || 1;
+  const ZLr = parseFloat(document.getElementById('t1-zLr').value) || 0;
+  const ZLx = parseFloat(document.getElementById('t1-zLx').value) || 0;
+  const lenVal = parseFloat(document.getElementById('t1-len').value) || 0;
+  const lenUnit = document.getElementById('t1-lenUnit').value;
+  const l_m = lenUnit==='mm'? lenVal/1000 : lenUnit==='cm'? lenVal/100 : lenVal;
+
+  const lam = (C_LIGHT/t1_hz) * t1_vf; // wavelength in line (m)
+  const thetaDeg = lam>0 ? (l_m/lam)*360 : 0;
+  const thetaRad = thetaDeg*Math.PI/180;
+  const tanT = Math.tan(thetaRad);
+
+  const ZL = {re:ZLr, im:ZLx};
+  const Z0c = {re:Z0, im:0};
+  // Zin = Z0 * (ZL + j*Z0*tanT) / (Z0 + j*ZL*tanT)
+  const num = cAdd(ZL, {re:0, im:Z0*tanT});
+  const den = cAdd(Z0c, cMul({re:0,im:tanT}, ZL));
+  const ratio = cDiv(num, den);
+  const Zin = {re: Z0*ratio.re, im: Z0*ratio.im};
+
+  document.getElementById('t1-theta').textContent = thetaDeg.toFixed(1);
+  const lf = fmtLen(lam);
+  document.getElementById('t1-lam').textContent = lf.v; document.getElementById('t1-lamUnit').textContent = lf.u;
+  document.getElementById('t1-zinMag').textContent = cAbs(Zin).toFixed(2);
+  document.getElementById('t1-zinAng').textContent = cAngDeg(Zin).toFixed(1);
+  document.getElementById('t1-zinR').textContent = Zin.re.toFixed(2);
+  document.getElementById('t1-zinX').textContent = Zin.im.toFixed(2);
+
+  // Smith chart data (normalized to Z0)
+  t1_lastGL = zToGamma(ZLr/Z0, ZLx/Z0);
+  t1_lastThetaRad = thetaRad;
+  t1_lastGin = rotateGamma(t1_lastGL.re, t1_lastGL.im, thetaRad);
+  t1DrawSmith();
+  if (typeof t1DrawSWR === 'function') t1DrawSWR();
+
+  const magGL = cAbs(t1_lastGL);
+  const vswr = magGL >= 0.999 ? Infinity : (1+magGL)/(1-magGL);
+  document.getElementById('t1-vswr').textContent = isFinite(vswr) ? vswr.toFixed(2) : '∞';
+
+  if (typeof t1vfUpdateLambda === 'function') t1vfUpdateLambda();
+  if (typeof t1vfRenderTable === 'function') t1vfRenderTable(t1vfCat);
+}
+document.getElementById('t1-fSlider').addEventListener('input', e => {
+  t1_hz = sliderToHz(+e.target.value);
+  const u = document.getElementById('t1-fUnit').value;
+  document.getElementById('t1-fInput').value = +hzToUnitVal(t1_hz,u).toPrecision(6);
+  t1Compute();
+});
+document.getElementById('t1-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t1-fInput').value);
+  if (!isNaN(v)) {
+    t1_hz = unitToHz(v, document.getElementById('t1-fUnit').value);
+    document.getElementById('t1-fSlider').value = hzToSlider(t1_hz);
+    t1Compute();
+  }
+});
+document.getElementById('t1-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t1-fInput').value);
+  if (!isNaN(v)) { t1_hz = unitToHz(v, document.getElementById('t1-fUnit').value); t1Compute(); }
+});
+document.querySelectorAll('#panel-t1 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t1 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t1-fUnit').value = btn.dataset.u;
+    t1_hz = unitToHz(parseFloat(btn.dataset.hz), btn.dataset.u);
+    document.getElementById('t1-fSlider').value = hzToSlider(t1_hz);
+    document.getElementById('t1-fInput').value = btn.dataset.hz;
+    t1Compute();
+  });
+});
+document.querySelectorAll('#panel-t1 .qbtn[data-vf]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t1 .qbtn[data-vf]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t1_vf = parseFloat(btn.dataset.vf);
+    document.getElementById('t1vfSlider').value = t1_vf;
+    document.getElementById('t1vfInput').value = t1_vf.toFixed(3);
+    t1vfActiveRow = null;
+    t1Compute();
+  });
+});
+function t1GetLenMeters() {
+  const v = parseFloat(document.getElementById('t1-len').value) || 0;
+  const u = document.getElementById('t1-lenUnit').value;
+  return u==='mm'? v/1000 : u==='cm'? v/100 : v;
+}
+function t1SetLenMeters(m) {
+  m = Math.max(0, m);
+  const u = document.getElementById('t1-lenUnit').value;
+  const v = u==='mm'? m*1000 : u==='cm'? m*100 : m;
+  document.getElementById('t1-len').value = +v.toPrecision(6);
+  t1Compute();
+}
+document.getElementById('t1MinusQuarterBtn').addEventListener('click', () => {
+  const lam = (C_LIGHT/t1_hz) * t1_vf;
+  t1SetLenMeters(t1GetLenMeters() - lam/4);
+});
+document.getElementById('t1PlusQuarterBtn').addEventListener('click', () => {
+  const lam = (C_LIGHT/t1_hz) * t1_vf;
+  t1SetLenMeters(t1GetLenMeters() + lam/4);
+});
+document.getElementById('t1SetQuarterBtn').addEventListener('click', () => {
+  const lam = (C_LIGHT/t1_hz) * t1_vf;
+  t1SetLenMeters(lam/4);
+});
+document.getElementById('t1SetHalfBtn').addEventListener('click', () => {
+  const lam = (C_LIGHT/t1_hz) * t1_vf;
+  t1SetLenMeters(lam/2);
+});
+document.getElementById('t1SetFullBtn').addEventListener('click', () => {
+  const lam = (C_LIGHT/t1_hz) * t1_vf;
+  t1SetLenMeters(lam);
+});
+['t1-len','t1-lenUnit','t1-z0','t1-zLr','t1-zLx'].forEach(id => document.getElementById(id).addEventListener('input', t1Compute));
+
+/* ---- Mini Smith chart ---- */
+const t1SmithCanvas = document.getElementById('t1SmithCanvas');
+const t1SmithCtx = t1SmithCanvas.getContext('2d');
+function t1ResizeSmith() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t1SmithCanvas.getBoundingClientRect();
+  t1SmithCanvas.width = rect.width * dpr;
+  t1SmithCanvas.height = rect.height * dpr;
+  t1SmithCtx.setTransform(dpr,0,0,dpr,0,0);
+  t1DrawSmith();
+}
+window.addEventListener('resize', t1ResizeSmith);
+
+function t1ToCanvas(Gr, Gi, cx, cy, R) { return { x: cx + Gr*R, y: cy - Gi*R }; }
+
+function t1DrawSmith() {
+  const W = t1SmithCanvas.getBoundingClientRect().width;
+  const H = t1SmithCanvas.getBoundingClientRect().height;
+  const ctx = t1SmithCtx;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFC'; ctx.fillRect(0,0,W,H);
+  if (W<=0 || H<=0) return;
+
+  const cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 14;
+
+  ctx.strokeStyle = '#94A3B8'; ctx.lineWidth = 1.3;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,2*Math.PI); ctx.stroke();
+
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,2*Math.PI); ctx.clip();
+
+  ctx.strokeStyle = '#E2E8F0'; ctx.lineWidth = 1;
+  [0,0.2,0.5,1,2,5].forEach(r => {
+    const rc = r/(r+1), rad = 1/(r+1);
+    const c = t1ToCanvas(rc,0,cx,cy,R);
+    ctx.beginPath(); ctx.arc(c.x, c.y, rad*R, 0, 2*Math.PI); ctx.stroke();
+  });
+  [0.2,0.5,1,2,5].forEach(x => {
+    [x,-x].forEach(xx => {
+      const c = t1ToCanvas(1, 1/xx, cx, cy, R);
+      ctx.beginPath(); ctx.arc(c.x, c.y, (1/Math.abs(xx))*R, 0, 2*Math.PI); ctx.stroke();
+    });
+  });
+  ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.lineTo(cx+R,cy); ctx.stroke();
+  ctx.restore();
+
+  // Constant-|Gamma| circle (rotation locus) — this is the constant-VSWR circle
+  const magGL = cAbs(t1_lastGL);
+  ctx.strokeStyle = '#9B59D0'; ctx.lineWidth = 1.2; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.arc(cx, cy, Math.min(magGL,1)*R, 0, 2*Math.PI); ctx.stroke();
+  ctx.setLineDash([]);
+  const vswrLabel = magGL >= 0.999 ? '∞' : ((1+magGL)/(1-magGL)).toFixed(2);
+  ctx.font = '10.5px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#9B59D0';
+  ctx.fillText('VSWR ' + vswrLabel, cx + Math.min(magGL,1)*R*0.707 + 4, cy - Math.min(magGL,1)*R*0.707 - 4);
+
+  // Rotation path from Z_L to Z_in
+  ctx.strokeStyle = '#E08A2E'; ctx.lineWidth = 2; ctx.beginPath();
+  const steps = 48;
+  for (let i=0;i<=steps;i++) {
+    const th = (i/steps)*t1_lastThetaRad;
+    const G = rotateGamma(t1_lastGL.re, t1_lastGL.im, th);
+    const c = t1ToCanvas(G.re, G.im, cx, cy, R);
+    i===0 ? ctx.moveTo(c.x,c.y) : ctx.lineTo(c.x,c.y);
+  }
+  ctx.stroke();
+
+  // Points
+  const pL = t1ToCanvas(t1_lastGL.re, t1_lastGL.im, cx, cy, R);
+  const pIn = t1ToCanvas(t1_lastGin.re, t1_lastGin.im, cx, cy, R);
+  ctx.fillStyle = '#7030A0';
+  ctx.beginPath(); ctx.arc(pL.x, pL.y, 5, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = '#E08A2E';
+  ctx.beginPath(); ctx.arc(pIn.x, pIn.y, 5, 0, 2*Math.PI); ctx.fill();
+
+  ctx.font = '11px JetBrains Mono, monospace'; ctx.textAlign='left';
+  ctx.fillStyle = '#7030A0'; ctx.fillText('Z_L', pL.x+8, pL.y-6);
+  ctx.fillStyle = '#E08A2E'; ctx.fillText('Z_in', pIn.x+8, pIn.y-6);
+}
+
+/* ---- Standing wave voltage pattern ---- */
+const t1SWRCanvas = document.getElementById('t1SWRCanvas');
+const t1SWRCtx = t1SWRCanvas.getContext('2d');
+function t1ResizeSWR() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t1SWRCanvas.getBoundingClientRect();
+  t1SWRCanvas.width = rect.width * dpr;
+  t1SWRCanvas.height = rect.height * dpr;
+  t1SWRCtx.setTransform(dpr,0,0,dpr,0,0);
+  t1DrawSWR();
+}
+window.addEventListener('resize', t1ResizeSWR);
+
+function t1DrawSWR() {
+  const W = t1SWRCanvas.getBoundingClientRect().width;
+  const H = t1SWRCanvas.getBoundingClientRect().height;
+  const ctx = t1SWRCtx;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFC'; ctx.fillRect(0,0,W,H);
+  if (W<=0 || H<=0) return;
+
+  const pL=40, pR=16, pT=16, pB=24;
+  const gW=W-pL-pR, gH=H-pT-pB;
+  const magGL = cAbs(t1_lastGL);
+  const vMax = 1+magGL, vMin = Math.max(1-magGL, 0.0001);
+  // |I(theta)| ranges over the same [vMin, vMax] envelope as |V(theta)|, just 90deg (lambda/4) out of phase.
+
+  // |V(theta)| = |1 + Gamma_L * e^{-j2theta}|,  |I(theta)| = |1 - Gamma_L * e^{-j2theta}|
+  // Physical period is 180deg (lambda/2); we sample a full wavelength (0..360deg) for context.
+  const N = 300;
+  const valsV = [], valsI = [];
+  for (let i=0;i<=N;i++) {
+    const th = (i/N)*2*Math.PI; // 0..360deg in radians
+    const G = rotateGamma(t1_lastGL.re, t1_lastGL.im, th);
+    valsV.push(Math.sqrt((1+G.re)*(1+G.re) + G.im*G.im));
+    valsI.push(Math.sqrt((1-G.re)*(1-G.re) + G.im*G.im));
+  }
+  const centerY = pT + gH/2;
+  const scale = (gH/2) / vMax;
+  const yPos = v => centerY - v*scale;   // + envelope
+  const yNeg = v => centerY + v*scale;   // - envelope (mirror)
+  // Flipped so the Source side is on the left and the load is on the right
+  // (theta=0 at the load, increasing theta moves toward the Source = leftward),
+  // matching the conventional Source -- Line -- Load left-to-right diagram.
+  const xOf = i => pL + gW - (i/N)*gW;
+
+  // Zero (center) reference line
+  ctx.strokeStyle = '#CBD5E1'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pL, centerY); ctx.lineTo(pL+gW, centerY); ctx.stroke();
+  // Midpoint marker (lambda/2) — the pattern's actual repeat point
+  ctx.strokeStyle = '#E2E8F0'; ctx.setLineDash([3,2]);
+  ctx.beginPath(); ctx.moveTo(pL+gW/2, pT); ctx.lineTo(pL+gW/2, pT+gH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font = '10px JetBrains Mono, monospace'; ctx.fillStyle = '#94A3B8'; ctx.textAlign = 'right';
+  ctx.fillText('+' + vMax.toFixed(2), pL-4, pT+8);
+  ctx.fillText('0', pL-4, centerY+3);
+  ctx.fillText('−' + vMax.toFixed(2), pL-4, pT+gH-2);
+
+  // Voltage spindle envelope (filled)
+  ctx.fillStyle = 'rgba(30,136,229,0.14)';
+  ctx.beginPath();
+  valsV.forEach((v,i) => { const x=xOf(i), y=yPos(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  for (let i=N;i>=0;i--) { ctx.lineTo(xOf(i), yNeg(valsV[i])); }
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#1E88E5'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); valsV.forEach((v,i)=>{const x=xOf(i),y=yPos(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke();
+  ctx.beginPath(); valsV.forEach((v,i)=>{const x=xOf(i),y=yNeg(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke();
+
+  // Current spindle envelope (outline only, to keep the chart readable)
+  ctx.strokeStyle = '#16A34A'; ctx.lineWidth = 1.6;
+  ctx.beginPath(); valsI.forEach((v,i)=>{const x=xOf(i),y=yPos(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke();
+  ctx.beginPath(); valsI.forEach((v,i)=>{const x=xOf(i),y=yNeg(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}); ctx.stroke();
+
+  // Load position (theta=0, now the right edge after the flip) — shown on the voltage envelope
+  const pLoad = { x: xOf(0), y: yPos(valsV[0]) };
+  ctx.fillStyle = '#7030A0';
+  ctx.beginPath(); ctx.arc(pLoad.x, pLoad.y, 5, 0, 2*Math.PI); ctx.fill();
+
+  // Current position: theta mod 360deg (pattern itself repeats every 180deg)
+  const thetaDegMod = ((t1_lastThetaRad*180/Math.PI) % 360 + 360) % 360;
+  const idx = Math.round((thetaDegMod/360)*N);
+  const xCur = xOf(idx);
+  ctx.strokeStyle = '#E08A2E'; ctx.lineWidth = 1; ctx.setLineDash([3,2]);
+  ctx.beginPath(); ctx.moveTo(xCur, pT); ctx.lineTo(xCur, pT+gH); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#1E88E5';
+  ctx.beginPath(); ctx.arc(xCur, yPos(valsV[idx]), 4.5, 0, 2*Math.PI); ctx.fill();
+  ctx.fillStyle = '#16A34A';
+  ctx.beginPath(); ctx.arc(xCur, yPos(valsI[idx]), 4.5, 0, 2*Math.PI); ctx.fill();
+
+  // x-axis labels (left = toward Source, right = load)
+  ctx.fillStyle = '#94A3B8'; ctx.font = '10px JetBrains Mono, monospace'; ctx.textAlign = 'left';
+  ctx.fillText('← Source', pL, pT+gH+16);
+  ctx.textAlign = 'center';
+  ctx.fillText('λ/2', pL+gW/2, pT+gH+16);
+  ctx.textAlign = 'right';
+  ctx.fillText('Z_L (load) →', pL+gW, pT+gH+16);
+}
+
+/* ---- VF reference table (Card B) ---- */
+const CABLES = [
+  { cat:'vacuum',    name:'Vacuum / Free Space',          dielectric:'Vacuum (ε=1.0)',  Z0:'-', vf:1.000, a400:null },
+  { cat:'vacuum',    name:'Air-Dielectric Line',          dielectric:'Air (ε≈1.0006)', Z0:50,  vf:0.999, a400:null },
+  { cat:'rg',        name:'RG-8/U (PE)',                  dielectric:'Solid PE',     Z0:50,  vf:0.660, a400:32.5 },
+  { cat:'rg',        name:'RG-8/U Foam (9913)',           dielectric:'Foam PE',      Z0:50,  vf:0.840, a400:16.1 },
+  { cat:'rg',        name:'RG-8X (9258)',                 dielectric:'Foam PE',      Z0:50,  vf:0.820, a400:23.0 },
+  { cat:'rg',        name:'RG-58/U (PE)',                 dielectric:'Solid PE',     Z0:50,  vf:0.660, a400:33.0 },
+  { cat:'rg',        name:'RG-58A/U Foam',                dielectric:'Foam PE',      Z0:50,  vf:0.730, a400:28.0 },
+  { cat:'rg',        name:'RG-59/U (PE)',                 dielectric:'Solid PE',     Z0:75,  vf:0.660, a400:24.0 },
+  { cat:'rg',        name:'RG-59/U Foam',                 dielectric:'Foam PE',      Z0:75,  vf:0.780, a400:18.0 },
+  { cat:'rg',        name:'RG-6/U (PE)',                  dielectric:'Solid PE',     Z0:75,  vf:0.660, a400:14.0 },
+  { cat:'rg',        name:'RG-6/U Foam',                  dielectric:'Foam PE',      Z0:75,  vf:0.810, a400:10.0 },
+  { cat:'rg',        name:'RG-11/U Foam',                 dielectric:'Foam HDPE',    Z0:75,  vf:0.840, a400:7.0 },
+  { cat:'rg',        name:'RG-174/U',                     dielectric:'Solid PE',     Z0:50,  vf:0.660, a400:50.0 },
+  { cat:'rg',        name:'RG-213/U',                     dielectric:'Solid PE',     Z0:50,  vf:0.660, a400:13.1 },
+  { cat:'rg',        name:'RG-316/U',                     dielectric:'PTFE',         Z0:50,  vf:0.690, a400:45.0 },
+  { cat:'rg',        name:'RG-142/U',                     dielectric:'Solid PTFE',   Z0:50,  vf:0.695, a400:20.0 },
+  { cat:'rg',        name:'RG-400/U',                     dielectric:'Solid PTFE',   Z0:50,  vf:0.695, a400:20.0 },
+  { cat:'lmr',       name:'LMR-100A',                     dielectric:'Foam PE',      Z0:50,  vf:0.800, a400:59.0 },
+  { cat:'lmr',       name:'LMR-195',                      dielectric:'Foam PE',      Z0:50,  vf:0.800, a400:35.0 },
+  { cat:'lmr',       name:'LMR-200',                      dielectric:'Foam PE',      Z0:50,  vf:0.830, a400:28.0 },
+  { cat:'lmr',       name:'LMR-240',                      dielectric:'Foam PE',      Z0:50,  vf:0.840, a400:21.0 },
+  { cat:'lmr',       name:'LMR-240UF',                    dielectric:'Foam PE',      Z0:50,  vf:0.840, a400:23.0 },
+  { cat:'lmr',       name:'LMR-400',                      dielectric:'Foam PE',      Z0:50,  vf:0.850, a400:12.8 },
+  { cat:'lmr',       name:'LMR-400UF',                    dielectric:'Foam PE',      Z0:50,  vf:0.850, a400:14.7 },
+  { cat:'lmr',       name:'LMR-600',                      dielectric:'Foam PE',      Z0:50,  vf:0.870, a400:8.9 },
+  { cat:'lmr',       name:'LMR-900',                      dielectric:'Foam PE',      Z0:50,  vf:0.870, a400:6.6 },
+  { cat:'lmr',       name:'LMR-1200',                     dielectric:'Foam PE',      Z0:50,  vf:0.880, a400:4.9 },
+  { cat:'lmr',       name:'LMR-1700',                     dielectric:'Foam PE',      Z0:50,  vf:0.890, a400:3.6 },
+  { cat:'semirigid', name:'UT-085 / RG-405',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695, a400:30.0 },
+  { cat:'semirigid', name:'UT-141 / RG-402',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695, ism:true, a400:14.0 },
+  { cat:'semirigid', name:'UT-250 / RG-401',              dielectric:'Solid PTFE',   Z0:50,  vf:0.695, a400:8.0 },
+  { cat:'semirigid', name:'UT-141-AL',                    dielectric:'Solid PTFE',   Z0:50,  vf:0.695, a400:14.0 },
+  { cat:'semirigid', name:'UT-047',                       dielectric:'Solid PTFE',   Z0:50,  vf:0.695, a400:55.0 },
+  { cat:'semirigid', name:'RG-405/U (SF)',                dielectric:'Foam PTFE',    Z0:50,  vf:0.780, a400:26.0 },
+  { cat:'hardline',  name:'LDF4-50A (½″ Heliax)',         dielectric:'Foam PE',      Z0:50,  vf:0.880, a400:3.9 },
+  { cat:'hardline',  name:'LDF5-50A (⅞″ Heliax)',         dielectric:'Foam PE',      Z0:50,  vf:0.880, a400:2.1 },
+  { cat:'hardline',  name:'LDF6-50A (1¼″ Heliax)',        dielectric:'Foam PE',      Z0:50,  vf:0.880, a400:1.5 },
+  { cat:'hardline',  name:'LDF7-50A (1⅝″ Heliax)',        dielectric:'Foam PE',      Z0:50,  vf:0.880, a400:1.1 },
+  { cat:'hardline',  name:'FSJ1-50A (¼″ SuperFlex)',      dielectric:'Foam PE',      Z0:50,  vf:0.840, a400:8.0 },
+  { cat:'hardline',  name:'FSJ4-50B (½″ SuperFlex)',      dielectric:'Foam PE',      Z0:50,  vf:0.880, a400:4.3 },
+  { cat:'hardline',  name:'HJ4-50 (½″ Heliax air)',       dielectric:'Air/Foam',     Z0:50,  vf:0.920, a400:3.5 },
+  { cat:'hardline',  name:'HJ11-50 (1⅝″ air coax)',       dielectric:'Air disc',     Z0:50,  vf:0.920, a400:1.0 },
+];
+const CABLE_NOTES = {
+  en: [
+    'Theoretical maximum','Open-wire or air coax','Common general-purpose','Low-loss RG-8 variant',
+    'Mini-8 flexible','Very common 50 Ω lab cable','Foam version of RG-58','75 Ω video/cable TV',
+    '75 Ω foam version','Cable TV / satellite','Low-loss cable-TV drop','Long-run 75 Ω trunk',
+    'Thin; pigtails, bench wiring','MIL-spec RG-8 equivalent','Flexible PTFE; –65 to +200 °C','Double-shielded PTFE',
+    'Flexible double-shield PTFE','Ultra-flexible; jumper cables','Handheld / patch cord use','Antenna drop; < 300 MHz runs',
+    'Mid-size flexible feedline','Ultra-flex version of LMR-240','Industry standard low-loss','Ultra-flex LMR-400',
+    'Low-loss long-run feedline','High-power tower base cable','Large-diameter trunk cable','Maximum-size LMR trunk',
+    '0.085″ OD; PCB-to-module wiring','0.141″ OD; bench & VNA interconnects','0.250″ OD; moderate power microwave',
+    'Aluminum OC; weight-sensitive apps','0.047″; chip-level RF connections','Semi-flex foam PTFE variant',
+    'Andrew ½″ corrugated hardline','Andrew ⅞″; high-power base station','Andrew 1¼″; broadcast feedline',
+    'Andrew 1⅝″; very high power TX','Andrew ¼″ flexible corrugated','Andrew ½″ flexible hardline',
+    'Air-spaced; ultra-low loss','Largest broadcast hardline',
+  ],
+  ko: [
+    '이론적 최대값','개방 도선 또는 공기 동축','범용 일반 케이블','저손실 RG-8 변형',
+    '미니-8 유연형','가장 일반적인 50 Ω 실험실 케이블','RG-58 폼 유전체 버전','75 Ω 영상/케이블 TV용',
+    '75 Ω 폼 버전','케이블 TV / 위성','저손실 케이블 TV 인입선','장거리 75 Ω 트렁크',
+    '얇은 피그테일·벤치 배선용','MIL 규격 RG-8 동등품','유연 PTFE; –65 ~ +200 °C','이중 차폐 PTFE',
+    '이중 차폐 유연 PTFE','초유연; 점퍼 케이블','핸드헬드 / 패치코드용','안테나 인입; 300 MHz 이하 단거리',
+    '중형 유연 피더라인','LMR-240 초유연 버전','업계 표준 저손실 케이블','LMR-400 초유연 버전',
+    '저손실 장거리 피더라인','고출력 타워 기저부 케이블','대구경 트렁크 케이블','최대 규격 LMR 트렁크',
+    'OD 0.085″; PCB↔모듈 배선','OD 0.141″; 벤치 & VNA 연결','OD 0.250″; 중출력 마이크로파',
+    '알루미늄 외도체; 경량화 응용','OD 0.047″; 칩 레벨 RF 연결','반유연 폼 PTFE 변형',
+    'Andrew ½″ 주름형 하드라인','Andrew ⅞″; 고출력 기지국','Andrew 1¼″; 방송용 피더',
+    'Andrew 1⅝″; 초고출력 TX','Andrew ¼″ 유연 주름형','Andrew ½″ 유연 하드라인',
+    '공기 간격; 초저손실','최대 규격 방송용 하드라인',
+  ]
+};
+let t1vfActiveRow = null, t1vfCat = 'all';
+
+function t1vfUpdateLambda() {
+  const lam = (C_LIGHT / t1_hz) * t1_vf;
+  const f = fmtLen(lam);
+  document.getElementById('t1vfLambda').textContent = `${f.v} ${f.u}`;
+}
+function t1vfRenderTable(cat) {
+  const tbody = document.getElementById('t1vfTbody');
+  tbody.innerHTML = '';
+  const notes = CABLE_NOTES[lang];
+  const rows = CABLES.filter(c => cat === 'all' || c.cat === cat);
+  rows.forEach(c => {
+    const globalIdx = CABLES.indexOf(c);
+    const noteText = notes[globalIdx] || '';
+    const lamCable = (C_LIGHT / t1_hz) * c.vf;
+    const f = fmtLen(lamCable);
+    const lStr = `${f.v} ${f.u}`;
+    const pct = ((c.vf - 0.60) / (1.00 - 0.60) * 100).toFixed(1);
+    const tr = document.createElement('tr');
+    if (globalIdx === t1vfActiveRow) tr.classList.add('selected');
+    tr.style.cursor = 'pointer';
+    const refBadge = c.cat === 'vacuum' ? '<span class="badge-ism" style="background:#E8F4FF;color:#1A6BBF;">REF</span>' : '';
+    const ismBadge = c.ism ? '<span class="badge-ism">ISM</span>' : '';
+    tr.innerHTML = `
+      <td class="cable-name">${c.name}${ismBadge}${refBadge}</td>
+      <td class="dielectric">${c.dielectric}</td>
+      <td>${c.Z0}</td>
+      <td><span style="font-family:'JetBrains Mono',monospace;font-weight:600;">${c.vf.toFixed(3)}</span></td>
+      <td class="vf-bar-cell"><div class="vf-bar-bg"><div class="vf-bar-fill" style="width:${pct}%"></div></div></td>
+      <td><span class="vf-lambda">${lStr}</span></td>
+      <td style="color:var(--muted);font-size:11.5px;white-space:normal;overflow:visible;">${noteText}</td>
+    `;
+    tr.addEventListener('click', () => {
+      t1vfActiveRow = globalIdx;
+      t1_vf = c.vf;
+      document.getElementById('t1vfSlider').value = c.vf;
+      document.getElementById('t1vfInput').value = c.vf.toFixed(3);
+      document.querySelectorAll('#panel-t1 .qbtn[data-vf]').forEach(b=>b.classList.remove('active'));
+      t1Compute();
+    });
+    tbody.appendChild(tr);
+  });
+}
+document.querySelectorAll('#t1vfTabs .vf-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#t1vfTabs .vf-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    t1vfCat = btn.dataset.cat;
+    t1vfRenderTable(t1vfCat);
+  });
+});
+document.getElementById('t1vfSlider').addEventListener('input', function() {
+  t1_vf = parseFloat(this.value);
+  document.getElementById('t1vfInput').value = t1_vf.toFixed(3);
+  t1vfActiveRow = null;
+  document.querySelectorAll('#panel-t1 .qbtn[data-vf]').forEach(b=>b.classList.remove('active'));
+  t1Compute();
+});
+document.getElementById('t1vfInput').addEventListener('change', function() {
+  let v = parseFloat(this.value);
+  if (isNaN(v)) return;
+  v = Math.max(0.5, Math.min(1.0, v));
+  t1_vf = v;
+  this.value = v.toFixed(3);
+  document.getElementById('t1vfSlider').value = v;
+  t1vfActiveRow = null;
+  document.querySelectorAll('#panel-t1 .qbtn[data-vf]').forEach(b=>b.classList.remove('active'));
+  t1Compute();
+});
+
+t1Compute();
+t1ResizeSmith();
+t1ResizeSWR();
+
+/* =========================================================
+   TOOL 2 — Coaxial Cable Z0 <-> Dimensions
+   ========================================================= */
+let t2_mode = 'dz', t2_er = 2.25;
+document.getElementById('t2ModeDZ').addEventListener('click', () => t2SetMode('dz'));
+document.getElementById('t2ModeZD').addEventListener('click', () => t2SetMode('zd'));
+function t2SetMode(m) {
+  t2_mode = m;
+  document.getElementById('t2ModeDZ').classList.toggle('active', m==='dz');
+  document.getElementById('t2ModeZD').classList.toggle('active', m==='zd');
+  document.getElementById('t2-dzInputs').style.display = m==='dz' ? 'flex' : 'none';
+  document.getElementById('t2-zdInputs').style.display = m==='zd' ? 'flex' : 'none';
+  t2Compute();
+}
+document.querySelectorAll('#panel-t2 .qbtn[data-er]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t2 .qbtn[data-er]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t2_er = parseFloat(btn.dataset.er);
+    t2Compute();
+  });
+});
+function t2Compute() {
+  let d, D, Z0;
+  if (t2_mode === 'dz') {
+    d = parseFloat(document.getElementById('t2-d').value) || 0;
+    D = parseFloat(document.getElementById('t2-D').value) || 0;
+    Z0 = (d>0 && D>d) ? (138/Math.sqrt(t2_er)) * Math.log10(D/d) : 0;
+  } else {
+    Z0 = parseFloat(document.getElementById('t2-z0target').value) || 0;
+    d = parseFloat(document.getElementById('t2-d2').value) || 0;
+    D = d * Math.pow(10, (Z0*Math.sqrt(t2_er))/138);
+  }
+  const ratio = (d>0 && D>d) ? D/d : 1;
+  const Lp = 200 * Math.log(ratio); // nH/m
+  const Cp = ratio>1 ? (55.63*t2_er) / Math.log(ratio) : 0; // pF/m
+
+  document.getElementById('t2-z0').textContent = Z0.toFixed(2);
+  document.getElementById('t2-dout').textContent = D.toFixed(3);
+  document.getElementById('t2-lp').textContent = Lp.toFixed(1);
+  document.getElementById('t2-cp').textContent = Cp.toFixed(1);
+}
+['t2-d','t2-D','t2-z0target','t2-d2'].forEach(id => document.getElementById(id).addEventListener('input', t2Compute));
+t2Compute();
+
+/* =========================================================
+   TOOL 3 — Stripline
+   ========================================================= */
+function t3Compute() {
+  const w = parseFloat(document.getElementById('t3-w').value) || 0;
+  const b = parseFloat(document.getElementById('t3-b').value) || 0.0001;
+  const t = parseFloat(document.getElementById('t3-t').value) || 0;
+  const er = parseFloat(document.getElementById('t3-er').value) || 1;
+  const Z0 = (60/Math.sqrt(er)) * Math.log( (4*b) / (0.67*Math.PI*w*(0.8 + t/Math.max(w,1e-6))) );
+  const ratio = w/Math.max(b-t, 1e-6);
+
+  document.getElementById('t3-z0').textContent = isFinite(Z0) ? Z0.toFixed(2) : '—';
+  document.getElementById('t3-ratio').textContent = ratio.toFixed(3);
+
+  const note = document.getElementById('t3ValidityNote');
+  const txt = document.getElementById('t3ValidityText');
+  if (ratio <= 0.35) {
+    note.className = 'validity-note ok';
+    txt.textContent = I18N[lang].t3ValidityText;
+  } else {
+    note.className = 'validity-note warn';
+    txt.textContent = lang==='en'
+      ? 'w/(b−t) exceeds 0.35 — this approximation becomes less accurate for wide traces. Treat the result as a rough estimate.'
+      : 'w/(b−t)가 0.35를 초과했습니다 — 폭이 넓은 트레이스에서는 이 근사식의 정확도가 떨어집니다. 참고용으로만 사용하세요.';
+  }
+}
+document.querySelectorAll('#panel-t3 .qbtn[data-er]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t3 .qbtn[data-er]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t3-er').value = btn.dataset.er;
+    t3Compute();
+  });
+});
+['t3-w','t3-b','t3-t','t3-er'].forEach(id => document.getElementById(id).addEventListener('input', t3Compute));
+t3Compute();
+
+/* =========================================================
+   TOOL 4 — Skin Depth
+   ========================================================= */
+let t4_hz = 13.56e6, t4_sigma = 5.96e7;
+function t4Compute() {
+  const delta = Math.sqrt(1/(Math.PI*t4_hz*MU0*t4_sigma)); // meters
+  const Rs = Math.sqrt(Math.PI*t4_hz*MU0/t4_sigma); // Ohms/sq
+  const df = fmtAuto(delta*1e6, [{mult:1e3,label:'mm'},{mult:1,label:'µm'}]); // base um... fallback below
+  // Use explicit um/nm formatting for clarity
+  let dv, du;
+  if (delta*1e6 >= 1) { dv = (delta*1e6).toPrecision(4); du = 'µm'; }
+  else { dv = (delta*1e9).toPrecision(4); du = 'nm'; }
+  document.getElementById('t4-delta').textContent = dv;
+  document.getElementById('t4-deltaUnit').textContent = du;
+  document.getElementById('t4-rs').textContent = (Rs*1000).toPrecision(4);
+}
+document.getElementById('t4-fSlider').addEventListener('input', e => {
+  t4_hz = sliderToHz(+e.target.value);
+  const u = document.getElementById('t4-fUnit').value;
+  document.getElementById('t4-fInput').value = +hzToUnitVal(t4_hz,u).toPrecision(6);
+  t4Compute();
+});
+document.getElementById('t4-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t4-fInput').value);
+  if (!isNaN(v)) {
+    t4_hz = unitToHz(v, document.getElementById('t4-fUnit').value);
+    document.getElementById('t4-fSlider').value = hzToSlider(t4_hz);
+    t4Compute();
+  }
+});
+document.getElementById('t4-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t4-fInput').value);
+  if (!isNaN(v)) { t4_hz = unitToHz(v, document.getElementById('t4-fUnit').value); t4Compute(); }
+});
+document.querySelectorAll('#panel-t4 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t4 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t4-fUnit').value = btn.dataset.u;
+    t4_hz = unitToHz(parseFloat(btn.dataset.hz), btn.dataset.u);
+    document.getElementById('t4-fSlider').value = hzToSlider(t4_hz);
+    document.getElementById('t4-fInput').value = btn.dataset.hz;
+    t4Compute();
+  });
+});
+document.querySelectorAll('#panel-t4 .qbtn[data-cond]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t4 .qbtn[data-cond]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t4_sigma = parseFloat(btn.dataset.cond);
+    t4Compute();
+  });
+});
+t4Compute();
+
+/* =========================================================
+   TOOL 5 — AWG Table
+   ========================================================= */
+const RHO_CU = 1.68e-8; // Ohm*m at 20C
+function t5DiaMM(awg) { return 0.127 * Math.pow(92, (36-awg)/39); }
+// Approximate ampacity (single conductor, free air, general reference only)
+const AWG_AMPACITY = {
+  '-3':380,'-2':328,'-1':283,'0':245,'1':211,'2':181,'3':158,'4':135,
+  6:101,8:73,10:55,12:41,14:32,16:22,18:16,20:11,
+  22:7,24:3.5,26:2.2,28:1.4,30:0.86,32:0.53,34:0.33,36:0.2,38:0.13,40:0.08
+};
+const AWG_ROWS = [-3,-2,-1,0,1,2,3,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40];
+const AWG_LABEL = {'-3':'0000 (4/0)','-2':'000 (3/0)','-1':'00 (2/0)','0':'0 (1/0)'};
+
+function t5RenderTable() {
+  const tbody = document.getElementById('t5Tbody');
+  tbody.innerHTML = '';
+  AWG_ROWS.forEach(awg => {
+    const d_mm = t5DiaMM(awg);
+    const d_mil = d_mm/0.0254;
+    const area_mm2 = Math.PI/4*d_mm*d_mm;
+    const area_m2 = area_mm2*1e-6;
+    const r_ohm_km = (RHO_CU/area_m2)*1000;
+    const amp = AWG_AMPACITY[String(awg)];
+    const label = AWG_LABEL[String(awg)] || String(awg);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="cable-name">${label}</td>
+      <td>${d_mm.toPrecision(4)}</td>
+      <td>${d_mil.toPrecision(4)}</td>
+      <td>${area_mm2.toPrecision(4)}</td>
+      <td>${r_ohm_km.toPrecision(4)}</td>
+      <td>${amp !== undefined ? amp : '—'}</td>
+    `;
+    tr.style.cursor = 'pointer';
+    tr.addEventListener('click', () => {
+      document.getElementById('t5-awgSlider').value = awg;
+      document.getElementById('t5-awgInput').value = awg;
+      t5UpdateCustom(awg);
+      document.querySelectorAll('#t5Tbody tr').forEach(r=>r.classList.remove('selected'));
+      tr.classList.add('selected');
+    });
+    tbody.appendChild(tr);
+  });
+}
+function t5UpdateCustom(awg) {
+  const d_mm = t5DiaMM(awg);
+  const area_m2 = (Math.PI/4*d_mm*d_mm)*1e-6;
+  const r_ohm_km = (RHO_CU/area_m2)*1000;
+  document.getElementById('t5-customResult').textContent = `${d_mm.toPrecision(4)} mm / ${r_ohm_km.toPrecision(4)} Ω/km`;
+}
+document.getElementById('t5-awgSlider').addEventListener('input', e => {
+  document.getElementById('t5-awgInput').value = e.target.value;
+  t5UpdateCustom(+e.target.value);
+});
+document.getElementById('t5-awgInput').addEventListener('change', () => {
+  let v = parseFloat(document.getElementById('t5-awgInput').value);
+  if (isNaN(v)) return;
+  v = Math.max(-3, Math.min(40, v));
+  document.getElementById('t5-awgSlider').value = v;
+  document.getElementById('t5-awgInput').value = v;
+  t5UpdateCustom(v);
+});
+t5RenderTable();
+t5UpdateCustom(24);
+
+/* =========================================================
+   TOOL 6 — Cable Insertion Loss & Power Handling
+   ========================================================= */
+let t6_hz = 13.56e6;
+function t6Compute() {
+  const aRef = parseFloat(document.getElementById('t6-aref').value) || 0;
+  const fRef = parseFloat(document.getElementById('t6-fref').value) || 1; // MHz
+  const lenM = parseFloat(document.getElementById('t6-len').value) || 0;
+  const pin = parseFloat(document.getElementById('t6-pin').value) || 0;
+  const fMHz = t6_hz/1e6;
+
+  const alpha = aRef * Math.sqrt(Math.max(fMHz,0)/fRef); // dB/100m at operating freq
+  const lossDb = alpha * lenM/100;
+  const pout = pin * Math.pow(10, -lossDb/10);
+  const pheat = pin - pout;
+  const poutDbm = pout>0 ? 10*Math.log10(pout*1000) : -Infinity;
+
+  document.getElementById('t6-alpha').textContent = alpha.toFixed(2);
+  document.getElementById('t6-loss').textContent = lossDb.toFixed(3);
+  document.getElementById('t6-pout').textContent = pout.toFixed(1);
+  document.getElementById('t6-poutdbm').textContent = isFinite(poutDbm) ? poutDbm.toFixed(1) : '−∞';
+  document.getElementById('t6-pheat').textContent = pheat.toFixed(1);
+
+  t6RenderCmpTable(lenM, pin, fMHz);
+}
+function t6RenderCmpTable(lenM, pin, fMHz) {
+  const tbody = document.getElementById('t6CmpTbody');
+  if (!tbody || typeof CABLES === 'undefined') return;
+  tbody.innerHTML = '';
+  CABLES.forEach(c => {
+    if (c.a400 === null || c.a400 === undefined) return; // skip non-cable references (vacuum/air line)
+    const alpha = c.a400 * Math.sqrt(Math.max(fMHz,0)/400);
+    const lossDb = alpha * lenM/100;
+    const pout = pin * Math.pow(10, -lossDb/10);
+    const pheat = pin - pout;
+    const poutDbm = pout>0 ? 10*Math.log10(pout*1000) : -Infinity;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="cable-name">${c.name}</td>
+      <td>${c.a400.toFixed(1)}</td>
+      <td>${alpha.toFixed(2)}</td>
+      <td>${lossDb.toFixed(3)} dB</td>
+      <td>${pout.toFixed(1)} W</td>
+      <td>${isFinite(poutDbm) ? poutDbm.toFixed(1) : '−∞'} dBm</td>
+      <td>${pheat.toFixed(1)} W</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+document.getElementById('t6-fSlider').addEventListener('input', e => {
+  t6_hz = sliderToHz(+e.target.value);
+  const u = document.getElementById('t6-fUnit').value;
+  document.getElementById('t6-fInput').value = +hzToUnitVal(t6_hz,u).toPrecision(6);
+  t6Compute();
+});
+document.getElementById('t6-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t6-fInput').value);
+  if (!isNaN(v)) {
+    t6_hz = unitToHz(v, document.getElementById('t6-fUnit').value);
+    document.getElementById('t6-fSlider').value = hzToSlider(t6_hz);
+    t6Compute();
+  }
+});
+document.getElementById('t6-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t6-fInput').value);
+  if (!isNaN(v)) { t6_hz = unitToHz(v, document.getElementById('t6-fUnit').value); t6Compute(); }
+});
+document.querySelectorAll('#panel-t6 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t6 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t6-fUnit').value = btn.dataset.u;
+    t6_hz = unitToHz(parseFloat(btn.dataset.hz), btn.dataset.u);
+    document.getElementById('t6-fSlider').value = hzToSlider(t6_hz);
+    document.getElementById('t6-fInput').value = btn.dataset.hz;
+    t6Compute();
+  });
+});
+document.querySelectorAll('#panel-t6 .qbtn[data-aref]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t6 .qbtn[data-aref]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t6-aref').value = btn.dataset.aref;
+    document.getElementById('t6-fref').value = btn.dataset.fref;
+    t6Compute();
+  });
+});
+['t6-aref','t6-fref','t6-len','t6-pin'].forEach(id => document.getElementById(id).addEventListener('input', t6Compute));
+t6Compute();
+
+/* Default language */
+function goToHashTab() {
+  const hash = location.hash.replace('#','');
+  if (hash) {
+    const btn = document.querySelector('.tool-tab[data-tool="' + hash + '"]');
+    if (btn) btn.click();
+  }
+}
+window.addEventListener('load', () => { setLang('en'); goToHashTab(); });
+window.addEventListener('hashchange', goToHashTab);
+</script>
+</body>
+</html>

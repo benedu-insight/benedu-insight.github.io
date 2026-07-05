@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 · Passive Components — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* Header */
+.header {
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 12px 32px; display: flex; align-items: center; justify-content: center; gap: 16px;
+  flex-wrap: wrap;
+}
+.logo-img { height: 36px; display: block; }
+#logo-fallback { display:none; align-items:center; gap:8px; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+.lang-toggle {
+  display: flex; align-items: center; background: var(--bg);
+  border: 1.5px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+/* Phase progress strip */
+.phase-strip {
+  max-width: 900px; margin: 18px auto 0; padding: 0 16px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  font-size: 11px; color: var(--label);
+}
+.phase-pip {
+  width: 22px; height: 22px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
+  font-size: 10px; font-weight: 700; border: 1.5px solid var(--border); color: var(--label); background: var(--card);
+}
+.phase-pip.current { background: var(--green); border-color: var(--green); color: #fff; }
+.phase-pip.done { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+/* Tool tabs */
+.tool-tabs {
+  max-width: 900px; margin: 14px auto 0; padding: 0 16px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.tool-tab {
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 9px 16px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.tool-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.tool-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: var(--shadow); }
+.tool-tab .tnum {
+  width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.25);
+  display:flex; align-items:center; justify-content:center; font-size: 10px; font-family:'JetBrains Mono',monospace;
+}
+.tool-tab:not(.active) .tnum { background: var(--bg); border: 1px solid var(--border); }
+
+/* Layout */
+.main { max-width: 900px; margin: 20px auto 56px; padding: 0 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; }
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--green-lt); color: var(--green);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* Controls */
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 100px; }
+.slider-track { flex: 1; min-width: 160px; }
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; cursor: pointer; }
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 110px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.unit-select {
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 500;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 8px; color: var(--text); cursor: pointer; outline: none;
+}
+.unit-select:focus { border-color: var(--green); }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+.qbtn.ism { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+.qbtn.ism.active { background: var(--green); color: #fff; }
+
+/* Mode toggle (sub-tabs inside a tool) */
+.mode-toggle { display: flex; gap: 6px; padding: 14px 24px 0; flex-wrap: wrap; }
+.mode-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+  padding: 6px 15px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.mode-btn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.mode-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+.z0-row { display:flex; align-items:center; gap:10px; padding: 14px 24px 0; flex-wrap: wrap; }
+.z0-label { font-size: 12.5px; color: var(--label); font-weight: 500; }
+
+.dual-input { display: flex; gap: 14px; padding: 14px 24px 0; flex-wrap: wrap; }
+.dual-field { flex: 1; min-width: 130px; }
+.dual-field label { display:block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+.dual-field input {
+  width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; text-align: right; outline: none; transition: border-color .2s;
+}
+.dual-field input:focus { border-color: var(--green); }
+.dual-field-unit { display: flex; gap: 6px; }
+.dual-field-unit input { flex: 1; }
+.dual-field-unit select.unit-select { width: 74px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+
+/* Formula panel */
+.formula-panel { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+footer { text-align: center; padding: 10px 20px 30px; font-size: 11.5px; color: var(--muted); }
+footer a { color: var(--purple); text-decoration: none; }
+
+/* Deep Dive accordion */
+.deepdive { border-top: 1px solid var(--border); }
+.deepdive-toggle {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 14px 24px; background: var(--purple-lt); border: none; cursor: pointer;
+  font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--purple);
+  text-align: left; transition: background .15s;
+}
+.deepdive-toggle:hover { background: #E9DCF5; }
+.deepdive-chevron { transition: transform .2s; font-size: 11px; flex-shrink: 0; }
+.deepdive-toggle.open .deepdive-chevron { transform: rotate(90deg); }
+.deepdive-body { display: none; padding: 18px 24px 22px; background: var(--card); }
+.deepdive-body.open { display: block; }
+.deepdive-body h3 { font-size: 13.5px; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+.deepdive-body h3:first-child { margin-top: 0; }
+.deepdive-body p { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 8px; }
+.deepdive-body ul { margin: 6px 0 10px 18px; }
+.deepdive-body li { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 4px; }
+.deepdive-body code, .deepdive-eq {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--green-dk);
+  background: var(--green-lt); padding: 1px 6px; border-radius: 4px;
+}
+.dd-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12.5px; }
+.dd-table th { text-align: left; padding: 6px 10px; font-size: 11px; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--border); background: #F1F5F9; }
+.dd-table td { padding: 6px 10px; border-bottom: 1px solid #F1F5F9; font-family: 'JetBrains Mono', monospace; }
+.dd-note {
+  display: flex; gap: 8px; align-items: flex-start; margin-top: 10px;
+  background: var(--purple-lt); border: 1px solid #E4CFF2; border-radius: 8px; padding: 10px 12px;
+  font-size: 12.5px; color: var(--purple); line-height: 1.6;
+}
+.dd-note b { color: var(--purple); }
+.dd-refimg { margin-top: 14px; }
+.dd-refimg img { width: 100%; border: 1px solid var(--border); border-radius: 8px; display: block; }
+.dd-refimg .dd-refimg-caption { font-size: 11px; color: var(--muted); margin-top: 6px; text-align: center; }
+.refimg-section { padding: 18px 24px 20px; border-top: 1px solid var(--border); background: var(--bg); }
+.refimg-section .dd-refimg { margin-top: 0; }
+.field-hint { font-size: 11.5px; color: var(--muted); padding: 8px 24px 0; }
+
+/* Resistor color code visual */
+.resistor-visual { padding: 22px 24px 6px; display: flex; justify-content: center; }
+/* Real-time waveform canvas (Johnson Noise simulator) */
+.graph-wrap { padding: 0 24px; }
+.graphCanvas { width: 100%; height: 160px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #FAFBFC; margin-top: 4px; }
+.graph-note { font-size: 11.5px; color: var(--muted); margin: 8px 0 4px; padding: 0 2px; text-align: center; }
+.resistor-body {
+  position: relative; width: 260px; height: 52px;
+  background: linear-gradient(180deg, #EAD6AA 0%, #DABE86 55%, #C9A96C 100%);
+  border-radius: 26px; display: flex; align-items: center; justify-content: center; gap: 9px;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.08);
+}
+.resistor-body::before, .resistor-body::after {
+  content: ''; position: absolute; top: 50%; width: 36px; height: 3px; background: #9AA0A6; transform: translateY(-50%);
+}
+.resistor-body::before { left: -34px; }
+.resistor-body::after  { right: -34px; }
+.rband { width: 13px; height: 52px; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.rband.rband-white { box-shadow: inset 0 0 0 1px #CBD5E1; }
+.rband.rband-none  { background: transparent !important; border: 1.5px dashed #C9A96C; box-shadow: none; }
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; }
+  .controls, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .tool-tab { font-size: 12px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+    <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+         alt="Benedu Insight" class="logo-img"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div id="logo-fallback">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+      </svg>
+      <div style="line-height:1.15;">
+        <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+        <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+        <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+      </div>
+    </div>
+  </a>
+  <div class="header-divider"></div>
+  <span class="header-title" id="pageTitle">Phase 2 — Passive Components</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<div class="phase-strip" id="phaseStrip">
+  <span id="phaseStripLabel">Progress:</span>
+  <span class="phase-pip done">1</span>
+  <span class="phase-pip current">2</span>
+  <span class="phase-pip">3</span>
+  <span class="phase-pip">4</span>
+  <span class="phase-pip">5</span>
+  <span class="phase-pip">6</span>
+  <span class="phase-pip">7</span>
+  <span id="phaseStripNote">· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma</span>
+</div>
+
+<nav class="tool-tabs">
+  <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">Xc / Xl</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">2</span><span id="tabT2">Z → V/I</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">Admittance</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">Resistor Color Code</span></button>
+  <button class="tool-tab" data-tool="t5"><span class="tnum">5</span><span id="tabT5">Inductance</span></button>
+  <button class="tool-tab" data-tool="t6"><span class="tnum">6</span><span id="tabT6">Capacitance</span></button>
+  <button class="tool-tab" data-tool="t7"><span class="tnum">7</span><span id="tabT7">Z₀ = √(L/C)</span></button>
+  <button class="tool-tab" data-tool="t8"><span class="tnum">8</span><span id="tabT8">Johnson Noise</span></button>
+</nav>
+
+<main class="main">
+
+  <!-- ============ TOOL 1: Xc / Xl Reactance Calculator ============ -->
+  <div class="card tool-panel" id="panel-t1">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t1Title">Capacitive / Inductive Reactance (Xc / Xl)</h2>
+        <p id="t1Sub">Reactance of a capacitor or inductor at a given frequency</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="c" id="t1ModeC">Capacitive (Xc)</button>
+      <button class="mode-btn" data-mode="l" id="t1ModeL">Inductive (Xl)</button>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t1LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t1-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t1-fInput" class="freq-num" value="13.56">
+          <select id="t1-fUnit" class="unit-select">
+            <option value="Hz">Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="MHz" selected>MHz</option>
+            <option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t1QuickLabel">Quick select:</span>
+        <button class="qbtn" data-hz="60" data-u="Hz">60 Hz</button>
+        <button class="qbtn" data-hz="430" data-u="kHz">430 kHz</button>
+        <button class="qbtn" data-hz="2" data-u="MHz">2 MHz</button>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="60" data-u="MHz">60 MHz</button>
+        <button class="qbtn" data-hz="100" data-u="MHz">100 MHz</button>
+        <button class="qbtn ism" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+
+    <div class="controls" id="t1-cInputs" style="border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t1LabelC">Capacitance (C)</span>
+        <div class="freq-inputs">
+          <input type="text" id="t1-cVal" class="freq-num" value="1000">
+          <select id="t1-cUnit" class="unit-select">
+            <option value="pF" selected>pF</option>
+            <option value="nF">nF</option>
+            <option value="uF">µF</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="controls" id="t1-lInputs" style="display:none; border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t1LabelL">Inductance (L)</span>
+        <div class="freq-inputs">
+          <input type="text" id="t1-lVal" class="freq-num" value="500">
+          <select id="t1-lUnit" class="unit-select">
+            <option value="nH">nH</option>
+            <option value="uH" selected>µH</option>
+            <option value="mH">mH</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t1statX">REACTANCE</div><div><span class="stat-value" id="t1-x">-11.74</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statOmega">ω = 2πf</div><div><span class="stat-value" id="t1-omega">85.20</span><span class="stat-unit">Mrad/s</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t1f1">CAPACITIVE</div><div class="formula-eq">Xc = 1 / (2π f C)</div></div>
+      <div><div class="formula-label" id="t1f2">INDUCTIVE</div><div class="formula-eq">Xl = 2π f L</div></div>
+      <div><div class="formula-label" id="t1f3">SIGN</div><div class="formula-eq">Xc &lt; 0, Xl &gt; 0</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 2: Complex Z → V/I/Power ============ -->
+  <div class="card tool-panel" id="panel-t2" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t2Title">Complex Impedance → Voltage / Power</h2>
+        <p id="t2Sub">Given current or voltage through R + jX, find impedance, voltage/current and power</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <span class="quick-label" id="t2InputAsLabel" style="align-self:center;margin-right:4px;">Input as:</span>
+      <button class="mode-btn active" data-mode="i" id="t2ModeI">Irms</button>
+      <button class="mode-btn" data-mode="v" id="t2ModeV">Vrms</button>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t2labelIV">Irms (A)</label><input type="text" id="t2-iv" value="7.906"></div>
+      <div class="dual-field"><label id="t2labelR">R — Resistance (Ω)</label><input type="text" id="t2-r" value="1.6"></div>
+      <div class="dual-field"><label id="t2labelX">X — Reactance (Ω)</label><input type="text" id="t2-x" value="7.6"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t2statMagZ">|Z|</div><div><span class="stat-value" id="t2-magZ">7.767</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statAngZ">∠Z</div><div><span class="stat-value" id="t2-angZ">78.11</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statIrms">Irms</div><div><span class="stat-value" id="t2-irmsOut">7.906</span><span class="stat-unit">A</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statVrms">Vrms</div><div><span class="stat-value" id="t2-vrms">61.40</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statVpk">Vpeak</div><div><span class="stat-value" id="t2-vpk">86.82</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statVpp">Vpp</div><div><span class="stat-value" id="t2-vpp">173.6</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statP">REAL POWER (P)</div><div><span class="stat-value" id="t2-p">100.0</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statQ">REACTIVE POWER (Q)</div><div><span class="stat-value" id="t2-q">475.0</span><span class="stat-unit">VAR</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t2f1">MAGNITUDE</div><div class="formula-eq">|Z| = √(R² + X²)</div></div>
+      <div><div class="formula-label" id="t2f2">VOLTAGE</div><div class="formula-eq">Vrms = Irms · |Z|</div></div>
+      <div><div class="formula-label" id="t2f5">PEAK-TO-PEAK</div><div class="formula-eq">Vpp = 2√2 · Vrms</div></div>
+      <div><div class="formula-label" id="t2f3">REAL POWER</div><div class="formula-eq">P = Irms² · R</div></div>
+      <div><div class="formula-label" id="t2f4">REACTIVE POWER</div><div class="formula-eq">Q = Irms² · X</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 3: Admittance (Y = G + jB) ============ -->
+  <div class="card tool-panel" id="panel-t3" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge3">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t3Title">Admittance (Y = G + jB)</h2>
+        <p id="t3Sub">Reciprocal of impedance — Conductance (G) and Susceptance (B)</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t3labelR">R — Resistance (Ω)</label><input type="text" id="t3-r" value="0.2"></div>
+      <div class="dual-field"><label id="t3labelX">X — Reactance (Ω)</label><input type="text" id="t3-x" value="0.2"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t3statMagY">|Y|</div><div><span class="stat-value" id="t3-magY">3.536</span><span class="stat-unit">S</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statAngY">∠Y</div><div><span class="stat-value" id="t3-angY">-45.0</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statG">Conductance (G)</div><div><span class="stat-value" id="t3-g">2.500</span><span class="stat-unit">S</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statB">Susceptance (B)</div><div><span class="stat-value" id="t3-b">-2.500</span><span class="stat-unit">S</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t3f1">ADMITTANCE</div><div class="formula-eq">Y = 1 / Z</div></div>
+      <div><div class="formula-label" id="t3f2">CONDUCTANCE</div><div class="formula-eq">G = R / (R² + X²)</div></div>
+      <div><div class="formula-label" id="t3f3">SUSCEPTANCE</div><div class="formula-eq">B = −X / (R² + X²)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 4: Resistor Color Code Calculator ============ -->
+  <div class="card tool-panel" id="panel-t4" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge4">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t4Title">Resistor Color Code Calculator</h2>
+        <p id="t4Sub">Decode resistor color bands to ohms, or find the color bands for a known resistance</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="fwd" id="t4ModeFwd">Bands → Ω</button>
+      <button class="mode-btn" data-mode="rev" id="t4ModeRev">Ω → Bands</button>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t4BandCountLabel">Number of bands:</span>
+        <button class="qbtn" data-bands="3">3-Band</button>
+        <button class="qbtn active" data-bands="4">4-Band</button>
+        <button class="qbtn" data-bands="5">5-Band</button>
+        <button class="qbtn" data-bands="6">6-Band</button>
+      </div>
+    </div>
+
+    <div class="resistor-visual">
+      <div class="resistor-body" id="t4-resistorBody"></div>
+    </div>
+    <p class="graph-note" id="t4-bandCaption" style="text-align:center;">Yellow – Violet – Red – Gold</p>
+
+    <!-- Forward: Bands -> Ohms -->
+    <div class="dual-input" id="t4-fwdInputs">
+      <div class="dual-field"><label id="t4labelD1">1st Band (digit)</label><select id="t4-d1" class="unit-select" style="width:100%;"></select></div>
+      <div class="dual-field"><label id="t4labelD2">2nd Band (digit)</label><select id="t4-d2" class="unit-select" style="width:100%;"></select></div>
+      <div class="dual-field" id="t4-d3Field" style="display:none"><label id="t4labelD3">3rd Band (digit)</label><select id="t4-d3" class="unit-select" style="width:100%;"></select></div>
+      <div class="dual-field"><label id="t4labelMult">Multiplier</label><select id="t4-mult" class="unit-select" style="width:100%;"></select></div>
+      <div class="dual-field" id="t4-tolField"><label id="t4labelTol">Tolerance</label><select id="t4-tol" class="unit-select" style="width:100%;"></select></div>
+      <div class="dual-field" id="t4-tcField" style="display:none"><label id="t4labelTC">Temp. Coefficient</label><select id="t4-tc" class="unit-select" style="width:100%;"></select></div>
+    </div>
+
+    <!-- Reverse: Ohms -> Bands -->
+    <div class="dual-input" id="t4-revInputs" style="display:none">
+      <div class="dual-field">
+        <label id="t4labelRVal">Resistance</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t4-rval" value="47">
+          <select id="t4-runit" class="unit-select">
+            <option value="1">Ω</option>
+            <option value="1e3" selected>kΩ</option>
+            <option value="1e6">MΩ</option>
+            <option value="1e9">GΩ</option>
+          </select>
+        </div>
+      </div>
+      <div class="dual-field" id="t4-rtolField"><label id="t4labelRTol">Tolerance</label><select id="t4-rtol" class="unit-select" style="width:100%;"></select></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t4statR">RESISTANCE</div><div><span class="stat-value" id="t4-r">47.0</span><span class="stat-unit" id="t4-rUnit">kΩ</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statTol">TOLERANCE</div><div><span class="stat-value" id="t4-tolOut">±5</span><span class="stat-unit">%</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statRange">RANGE</div><div><span class="stat-value" id="t4-range" style="font-size:15px;">44.65 – 49.35 kΩ</span></div></div>
+      <div class="stat" id="t4-tcStat" style="display:none"><div class="stat-name" id="t4statTC">TEMP. COEFFICIENT</div><div><span class="stat-value" id="t4-tcOut">—</span><span class="stat-unit">ppm/K</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t4f1">VALUE</div><div class="formula-eq">R = (digits) × multiplier</div></div>
+      <div><div class="formula-label" id="t4f2">RANGE</div><div class="formula-eq">R × (1 ± tolerance%)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 5: Inductance (shape-based) ============ -->
+  <div class="card tool-panel" id="panel-t5" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge5">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t5Title">Inductance Calculator (Coil Geometry)</h2>
+        <p id="t5Sub">Estimate inductance from physical coil dimensions</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="air" id="t5ModeAir">Air-Core Solenoid</button>
+      <button class="mode-btn" data-mode="tor" id="t5ModeTor">Toroid (AL-based)</button>
+    </div>
+
+    <div class="dual-input" id="t5-airInputs">
+      <div class="dual-field"><label id="t5labelD">Coil Diameter d (mm)</label><input type="text" id="t5-d" value="20"></div>
+      <div class="dual-field"><label id="t5labelLen">Coil Length l (mm)</label><input type="text" id="t5-len" value="30"></div>
+      <div class="dual-field"><label id="t5labelN1">Turns N</label><input type="text" id="t5-n1" value="10"></div>
+    </div>
+    <div class="dual-input" id="t5-torInputs" style="display:none">
+      <div class="dual-field"><label id="t5labelAL">AL (nH / turn²)</label><input type="text" id="t5-al" value="250"></div>
+      <div class="dual-field"><label id="t5labelN2">Turns N</label><input type="text" id="t5-n2" value="8"></div>
+    </div>
+    <p class="field-hint" id="t5ALHint" style="display:none">AL is core-specific and not universal — always check the toroid core manufacturer's datasheet (e.g. Fair-Rite, Micrometals, TDK) for the correct AL value matching your exact core size and material.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t5statL">INDUCTANCE (L)</div><div><span class="stat-value" id="t5-l">2.469</span><span class="stat-unit" id="t5-lUnit">µH</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t5f1">WHEELER (AIR-CORE)</div><div class="formula-eq">L[µH] = r²N² / (9r + 10l), r/l in inches</div></div>
+      <div><div class="formula-label" id="t5f2">TOROID (AL-BASED)</div><div class="formula-eq">L[nH] = AL · N²</div></div>
+    </div>
+
+    <div class="refimg-section">
+      <div class="dd-refimg">
+        <img src="./images/coil_dim_guidelines.png" alt="Coil dimension guidelines — air-core solenoid and toroid (AL-based)">
+        <div class="dd-refimg-caption" id="t5RefImgCaption">Reference: Coil Dimension Guidelines — Air-Core Solenoid (left) and Toroid, AL-based (right)</div>
+      </div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd5aBtn" onclick="toggleDD('dd5aBtn','dd5a-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd5aToggle">Deep Dive: Air-Core Solenoid dimensions</span>
+      </button>
+      <div class="deepdive-body" id="dd5a-body"><div id="dd5aContent"></div></div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd5bBtn" onclick="toggleDD('dd5bBtn','dd5b-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd5bToggle">Deep Dive: Toroid (AL-based) dimensions</span>
+      </button>
+      <div class="deepdive-body" id="dd5b-body"><div id="dd5bContent"></div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 6: Capacitance (shape-based) ============ -->
+  <div class="card tool-panel" id="panel-t6" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge6">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t6Title">Capacitance Calculator (Geometry)</h2>
+        <p id="t6Sub">Estimate capacitance from physical geometry and dielectric</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="plate" id="t6ModePlate">Parallel Plate</button>
+      <button class="mode-btn" data-mode="cyl" id="t6ModeCyl">Cylindrical (Coaxial)</button>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t6DielLabel">Dielectric (εr):</span>
+        <button class="qbtn active" data-er="1.0">Vacuum/Air · 1.0</button>
+        <button class="qbtn" data-er="2.1">PTFE · 2.1</button>
+        <button class="qbtn" data-er="4.5">FR4 · 4.5</button>
+        <button class="qbtn" data-er="9.8">Al₂O₃ · 9.8</button>
+        <button class="qbtn" data-er="25">Ta₂O₅ · 25</button>
+      </div>
+    </div>
+
+    <div class="dual-input" id="t6-plateInputs">
+      <div class="dual-field"><label id="t6labelA">Plate Area A (mm²)</label><input type="text" id="t6-area" value="100"></div>
+      <div class="dual-field"><label id="t6labelD">Gap Distance d (mm)</label><input type="text" id="t6-gap" value="0.5"></div>
+      <div class="dual-field"><label id="t6labelEr1">εr (dielectric const.)</label><input type="text" id="t6-er1" value="1.0"></div>
+    </div>
+    <div class="dual-input" id="t6-cylInputs" style="display:none">
+      <div class="dual-field"><label id="t6labelA1">Inner Radius a (mm)</label><input type="text" id="t6-a" value="5"></div>
+      <div class="dual-field"><label id="t6labelB1">Outer Radius b (mm)</label><input type="text" id="t6-b" value="8"></div>
+      <div class="dual-field"><label id="t6labelLenC">Length L (mm)</label><input type="text" id="t6-lenC" value="50"></div>
+      <div class="dual-field"><label id="t6labelEr2">εr (dielectric const.)</label><input type="text" id="t6-er2" value="1.0"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t6statC">CAPACITANCE (C)</div><div><span class="stat-value" id="t6-c">1.771</span><span class="stat-unit" id="t6-cUnit">pF</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t6f1">PARALLEL PLATE</div><div class="formula-eq">C = ε₀ εr A / d</div></div>
+      <div><div class="formula-label" id="t6f2">CYLINDRICAL</div><div class="formula-eq">C = 2π ε₀ εr L / ln(b/a)</div></div>
+    </div>
+
+    <div class="refimg-section">
+      <div class="dd-refimg">
+        <img src="./images/cap_geometry_guidelines.png" alt="Capacitor geometry guidelines — parallel plate and cylindrical (coaxial)">
+        <div class="dd-refimg-caption" id="t6RefImgCaption">Reference: Capacitor Geometry Guidelines — Parallel Plate (left) and Cylindrical / Coaxial (right)</div>
+      </div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd6Btn" onclick="toggleDD('dd6Btn','dd6-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd6Toggle">Deep Dive: Capacitance in Plasma Reactor</span>
+      </button>
+      <div class="deepdive-body" id="dd6-body"><div id="dd6Content"></div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 7: Characteristic Impedance Z0 = sqrt(L/C) ============ -->
+  <div class="card tool-panel" id="panel-t7" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge7">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t7Title">Characteristic Impedance — Z₀ = √(L / C)</h2>
+        <p id="t7Sub">Lumped-element Z₀, and solve for L or C given the other two values</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="lc" id="t7ModeLC">L, C → Z₀</button>
+      <button class="mode-btn" data-mode="lz" id="t7ModeLZ">L, Z₀ → C</button>
+      <button class="mode-btn" data-mode="cz" id="t7ModeCZ">C, Z₀ → L</button>
+    </div>
+
+    <div class="dual-input" id="t7-lcInputs">
+      <div class="dual-field">
+        <label id="t7labelL">Inductance (L)</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t7-l" value="0.5">
+          <select id="t7-lUnit" class="unit-select">
+            <option value="nH">nH</option>
+            <option value="uH" selected>µH</option>
+            <option value="mH">mH</option>
+          </select>
+        </div>
+      </div>
+      <div class="dual-field">
+        <label id="t7labelC">Capacitance (C)</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t7-c" value="75">
+          <select id="t7-cUnit" class="unit-select">
+            <option value="pF" selected>pF</option>
+            <option value="nF">nF</option>
+            <option value="uF">µF</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="dual-input" id="t7-lzInputs" style="display:none">
+      <div class="dual-field">
+        <label id="t7labelL2">Inductance (L)</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t7-l2" value="0.5">
+          <select id="t7-l2Unit" class="unit-select">
+            <option value="nH">nH</option>
+            <option value="uH" selected>µH</option>
+            <option value="mH">mH</option>
+          </select>
+        </div>
+      </div>
+      <div class="dual-field"><label id="t7labelZ0in1">Characteristic Z₀ (Ω)</label><input type="text" id="t7-z0in1" value="50"></div>
+    </div>
+
+    <div class="dual-input" id="t7-czInputs" style="display:none">
+      <div class="dual-field">
+        <label id="t7labelC2">Capacitance (C)</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t7-c2" value="75">
+          <select id="t7-c2Unit" class="unit-select">
+            <option value="pF" selected>pF</option>
+            <option value="nF">nF</option>
+            <option value="uF">µF</option>
+          </select>
+        </div>
+      </div>
+      <div class="dual-field"><label id="t7labelZ0in2">Characteristic Z₀ (Ω)</label><input type="text" id="t7-z0in2" value="50"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t7statLout">INDUCTANCE (L)</div><div><span class="stat-value" id="t7-lOut">0.500</span><span class="stat-unit" id="t7-lOutUnit">µH</span></div></div>
+      <div class="stat"><div class="stat-name" id="t7statCout">CAPACITANCE (C)</div><div><span class="stat-value" id="t7-cOut">75.00</span><span class="stat-unit" id="t7-cOutUnit">pF</span></div></div>
+      <div class="stat"><div class="stat-name" id="t7statZ0">CHARACTERISTIC Z₀</div><div><span class="stat-value" id="t7-z0">81.65</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t7statF0">RESONANT FREQ. (f₀)</div><div><span class="stat-value" id="t7-f0">26.03</span><span class="stat-unit" id="t7-f0Unit">MHz</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t7f1">CHARACTERISTIC Z₀</div><div class="formula-eq">Z₀ = √(L / C)</div></div>
+      <div><div class="formula-label" id="t7f3">SOLVE FOR C</div><div class="formula-eq">C = L / Z₀²</div></div>
+      <div><div class="formula-label" id="t7f4">SOLVE FOR L</div><div class="formula-eq">L = C × Z₀²</div></div>
+      <div><div class="formula-label" id="t7f2">RESONANT FREQ.</div><div class="formula-eq">f₀ = 1 / (2π√(LC))</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 8: Johnson (Thermal) Noise ============ -->
+  <div class="card tool-panel" id="panel-t8" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge8">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t8Title">Johnson (Thermal) Noise Calculator</h2>
+        <p id="t8Sub">Thermal noise voltage of a resistor over a given bandwidth</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t8labelT">Temperature (T)</span>
+        <div class="slider-track"><input type="range" id="t8-tSlider" min="0" max="1000" value="290"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t8-tInput" class="freq-num" value="290">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);">K</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t8TempLabel">Quick select:</span>
+        <button class="qbtn active" data-t="290">290 K (Room)</button>
+        <button class="qbtn" data-t="300">300 K</button>
+        <button class="qbtn" data-t="350">350 K</button>
+        <button class="qbtn" data-t="400">400 K</button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t8labelR">Resistance (R)</span>
+        <div class="slider-track"><input type="range" id="t8-rSlider" min="0" max="1000" value="386"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t8-r" class="freq-num" value="50">
+          <select id="t8-rUnit" class="unit-select">
+            <option value="ohm" selected>Ω</option>
+            <option value="kohm">kΩ</option>
+            <option value="Mohm">MΩ</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t8labelBW">Bandwidth (BW)</span>
+        <div class="slider-track"><input type="range" id="t8-bwSlider" min="0" max="1000" value="375"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t8-bw" class="freq-num" value="1000">
+          <select id="t8-bwUnit" class="unit-select">
+            <option value="Hz" selected>Hz</option>
+            <option value="kHz">kHz</option>
+            <option value="MHz">MHz</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t8statNPD">NOISE DENSITY (NPD)</div><div><span class="stat-value" id="t8-npd">4.016</span><span class="stat-unit">nV/√Hz</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statVrms">TOTAL Vrms</div><div><span class="stat-value" id="t8-vrms">4.016</span><span class="stat-unit" id="t8-vrmsUnit">µV</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statPdbm">NOISE POWER</div><div><span class="stat-value" id="t8-pdbm">-114.0</span><span class="stat-unit">dBm</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t8f1">NOISE DENSITY</div><div class="formula-eq">NPD = √(4kTR)</div></div>
+      <div><div class="formula-label" id="t8f2">TOTAL NOISE</div><div class="formula-eq">Vrms = NPD · √BW</div></div>
+      <div><div class="formula-label" id="t8f4">AVAILABLE POWER</div><div class="formula-eq">P = k·T·BW  (R-independent)</div></div>
+      <div><div class="formula-label" id="t8f3">BOLTZMANN</div><div class="formula-eq">k = 1.38 × 10⁻²³ J/K</div></div>
+    </div>
+
+    <div class="graph-wrap">
+      <canvas id="t8Canvas" class="graphCanvas"></canvas>
+      <p class="graph-note" id="t8GraphNote">Real-time simulated waveform (zoomed) — illustrative white noise, amplitude not to physical scale.</p>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd8Btn" onclick="toggleDD('dd8Btn','dd8-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd8Toggle">Deep Dive: What is Johnson (Thermal) Noise?</span>
+      </button>
+      <div class="deepdive-body" id="dd8-body"><div id="dd8Content"></div></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span id="footerText">Benedu Insight · Lab Tool Series — Phase 2 / 7 (Passive Components)</span>
+</footer>
+
+<script>
+/* =========================================================
+   I18N
+   ========================================================= */
+const I18N = {
+  en: {
+    pageTitle: 'Phase 2 — Passive Components',
+    phaseStripLabel: 'Progress:',
+    phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
+    tabT1: 'Xc / Xl', tabT2: 'Z → V/I', tabT3: 'Admittance', tabT4: 'Resistor Color Code', tabT5: 'Inductance', tabT6: 'Capacitance', tabT7: 'Z₀ = √(L/C)', tabT8: 'Johnson Noise',
+    badge1: 'INTERACTIVE', badge2: 'INTERACTIVE', badge3: 'INTERACTIVE', badge4: 'INTERACTIVE', badge5: 'INTERACTIVE', badge6: 'INTERACTIVE', badge7: 'INTERACTIVE', badge8: 'INTERACTIVE',
+    t1Title: 'Capacitive / Inductive Reactance (Xc / Xl)',
+    t1Sub: 'Reactance of a capacitor or inductor at a given frequency',
+    t1ModeC: 'Capacitive (Xc)', t1ModeL: 'Inductive (Xl)',
+    t1LabelFreq: 'Frequency (f)', t1QuickLabel: 'Quick select:',
+    t1LabelC: 'Capacitance (C)', t1LabelL: 'Inductance (L)',
+    t1statX: 'REACTANCE', t1statOmega: 'ω = 2πf',
+    t1f1: 'CAPACITIVE', t1f2: 'INDUCTIVE', t1f3: 'SIGN',
+    t2Title: 'Complex Impedance → Voltage / Power',
+    t2Sub: 'Given current or voltage through R + jX, find impedance, voltage/current and power',
+    t2InputAsLabel: 'Input as:', t2ModeI: 'Irms', t2ModeV: 'Vrms',
+    t2labelIV: 'Irms (A)', 't2label_i': 'Irms (A)', 't2label_v': 'Vrms (V)',
+    t2labelR: 'R — Resistance (Ω)', t2labelX: 'X — Reactance (Ω)',
+    t2statMagZ: '|Z|', t2statAngZ: '∠Z', t2statIrms: 'Irms', t2statVrms: 'Vrms', t2statVpk: 'Vpeak', t2statVpp: 'Vpp', t2statP: 'REAL POWER (P)', t2statQ: 'REACTIVE POWER (Q)',
+    t2f1: 'MAGNITUDE', t2f2: 'VOLTAGE', t2f5: 'PEAK-TO-PEAK', t2f3: 'REAL POWER', t2f4: 'REACTIVE POWER',
+    t3Title: 'Admittance (Y = G + jB)',
+    t3Sub: 'Reciprocal of impedance — Conductance (G) and Susceptance (B)',
+    t3labelR: 'R — Resistance (Ω)', t3labelX: 'X — Reactance (Ω)',
+    t3statMagY: '|Y|', t3statAngY: '∠Y', t3statG: 'Conductance (G)', t3statB: 'Susceptance (B)',
+    t3f1: 'ADMITTANCE', t3f2: 'CONDUCTANCE', t3f3: 'SUSCEPTANCE',
+    t4Title: 'Resistor Color Code Calculator',
+    t4Sub: 'Decode resistor color bands to ohms, or find the color bands for a known resistance',
+    t4ModeFwd: 'Bands → Ω', t4ModeRev: 'Ω → Bands', t4BandCountLabel: 'Number of bands:',
+    t4labelD1: '1st Band (digit)', t4labelD2: '2nd Band (digit)', t4labelD3: '3rd Band (digit)',
+    t4labelMult: 'Multiplier', t4labelTol: 'Tolerance', t4labelTC: 'Temp. Coefficient',
+    t4labelRVal: 'Resistance', t4labelRTol: 'Tolerance',
+    t4statR: 'RESISTANCE', t4statTol: 'TOLERANCE', t4statRange: 'RANGE', t4statTC: 'TEMP. COEFFICIENT',
+    t4f1: 'VALUE', t4f2: 'RANGE',
+    t5Title: 'Inductance Calculator (Coil Geometry)',
+    t5Sub: 'Estimate inductance from physical coil dimensions',
+    t5ModeAir: 'Air-Core Solenoid', t5ModeTor: 'Toroid (AL-based)',
+    t5labelD: 'Coil Diameter d (mm)', t5labelLen: 'Coil Length l (mm)', t5labelN1: 'Turns N',
+    t5labelAL: 'AL (nH / turn²)', t5labelN2: 'Turns N',
+    t5statL: 'INDUCTANCE (L)',
+    t5f1: 'WHEELER (AIR-CORE)', t5f2: 'TOROID (AL-BASED)',
+    t5RefImgCaption: 'Reference: Coil Dimension Guidelines — Air-Core Solenoid (left) and Toroid, AL-based (right)',
+    t5ALHint: "AL is core-specific and not universal — always check the toroid core manufacturer's datasheet (e.g. Fair-Rite, Micrometals, TDK) for the correct AL value matching your exact core size and material.",
+    dd5aToggle: 'Deep Dive: Air-Core Solenoid dimensions',
+    dd5aContent: `
+      <h3>Why geometry matters directly</h3>
+      <p>An air-core solenoid has no magnetic core to confine the field — the magnetic field spreads into the surrounding air. That means the coil's exact shape (diameter, length, number of turns) directly determines the inductance; there's no manufacturer constant to shortcut the calculation.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">L[µH] = r² N² / (9r + 10l),  r and l in inches</div>
+      <p>This is <b>Wheeler's approximation</b> for a single-layer, tightly-wound solenoid. r is the coil radius, l is the coil (axial) length, and N is the turn count. It's accurate to within a few percent when the coil length is at least about 0.8× the radius.</p>
+      <h3>Typical dimension guidelines</h3>
+      <table class="dd-table">
+        <tr><th>Diameter d (mm)</th><th>Length l (mm)</th><th>Turns N (typical)</th></tr>
+        <tr><td>5 – 10</td><td>10 – 20</td><td>5 – 20</td></tr>
+        <tr><td>10 – 20</td><td>20 – 40</td><td>10 – 50</td></tr>
+        <tr><td>20 – 30</td><td>30 – 60</td><td>20 – 80</td></tr>
+        <tr><td>30 – 50</td><td>40 – 80</td><td>30 – 120</td></tr>
+      </table>
+      <ul>
+        <li>These ranges are general starting-point recommendations, not hard limits.</li>
+        <li>Actual inductance also depends on wire gauge and winding density (how tightly the turns are packed).</li>
+        <li>Use the calculator above to fine-tune your design once you've picked a starting geometry.</li>
+      </ul>
+    `,
+    dd5bToggle: 'Deep Dive: Toroid (AL-based) dimensions',
+    dd5bContent: `
+      <h3>Why the formula is so simple</h3>
+      <p>A toroid confines almost all of its magnetic field inside the core (a closed magnetic path), so — unlike an air-core solenoid — the exact winding geometry doesn't need to be recalculated by hand. The core's permeability, effective area, and magnetic path length are all pre-baked into a single number the manufacturer publishes: <b>AL</b>.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">L = AL × N²</div>
+      <p>Physically, <code>AL = μ₀ μr Ae / le</code> (Ae = effective core cross-section, le = effective magnetic path length, μr = core relative permeability) — but the manufacturer has already done that calculation for you.</p>
+      <h3>What about OD / ID?</h3>
+      <p>OD (outer diameter) and ID (inner diameter) aren't in the formula itself, because their effect is already folded into AL. But they still matter in practice: the datasheet lists a <i>different AL for every core size and material</i>, indexed by OD/ID/height — so you need OD/ID to look up the right AL in the first place. ID also limits how thick a wire (and how many turns) will physically fit through the center.</p>
+      <div class="dd-note"><span>📋</span><div><b>Always check the manufacturer's datasheet</b> (Fair-Rite, Micrometals, TDK, Ferroxcube, etc.) for the AL value that matches your specific core part number, size, and material — AL varies significantly between core families and is not a value you should guess or reuse across cores.</div></div>
+      <h3>Typical dimension guidelines</h3>
+      <table class="dd-table">
+        <tr><th>OD (mm)</th><th>ID (mm)</th><th>Turns N (typical)</th></tr>
+        <tr><td>10 – 15</td><td>5 – 7</td><td>5 – 20</td></tr>
+        <tr><td>15 – 20</td><td>7 – 10</td><td>10 – 40</td></tr>
+        <tr><td>20 – 30</td><td>10 – 15</td><td>20 – 60</td></tr>
+        <tr><td>30 – 40</td><td>15 – 20</td><td>30 – 100</td></tr>
+      </table>
+      <ul>
+        <li>These ranges are general starting-point recommendations, not hard limits.</li>
+        <li>Inductance also depends on core permeability (μ), wire gauge, and winding density.</li>
+        <li>Use the calculator above (with your datasheet's AL) to fine-tune your design.</li>
+      </ul>
+    `,
+    t6Title: 'Capacitance Calculator (Geometry)',
+    t6Sub: 'Estimate capacitance from physical geometry and dielectric',
+    t6ModePlate: 'Parallel Plate', t6ModeCyl: 'Cylindrical (Coaxial)',
+    t6DielLabel: 'Dielectric (εr):',
+    t6labelA: 'Plate Area A (mm²)', t6labelD: 'Gap Distance d (mm)', t6labelEr1: 'εr (dielectric const.)',
+    t6labelA1: 'Inner Radius a (mm)', t6labelB1: 'Outer Radius b (mm)', t6labelLenC: 'Length L (mm)', t6labelEr2: 'εr (dielectric const.)',
+    t6statC: 'CAPACITANCE (C)',
+    t6f1: 'PARALLEL PLATE', t6f2: 'CYLINDRICAL',
+    t6RefImgCaption: 'Reference: Capacitor Geometry Guidelines — Parallel Plate (left) and Cylindrical / Coaxial (right)',
+    dd6Toggle: 'Deep Dive: Capacitance in Plasma Reactor',
+    dd6Content: `
+      <h3>Why plasma doesn't have a single "εr"</h3>
+      <p>Unlike PTFE or FR4, a plasma is not a fixed dielectric — it contains free electrons, so its permittivity is a <b>complex number that depends on both drive frequency and electron density</b>. Using the cold, collisionless plasma approximation:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">εr(ω) = 1 − ω<sub>pe</sub>² / ω²</div>
+      <p>where ω is the RF drive angular frequency and ω<sub>pe</sub> is the electron plasma angular frequency, ω<sub>pe</sub> = √(n<sub>e</sub> e² / ε₀ m<sub>e</sub>).</p>
+      <h3>A worked example (typical CCP conditions)</h3>
+      <p>For a typical semiconductor CCP with n<sub>e</sub> ≈ 10¹⁰ cm⁻³, the plasma frequency works out to roughly <b>f<sub>pe</sub> ≈ 900 MHz</b> — far above a 13.56 MHz drive. Since ω ≪ ω<sub>pe</sub>:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">εr ≈ 1 − (900MHz / 13.56MHz)² ≈ 1 − 4400 ≈ −4400</div>
+      <p>A large negative permittivity isn't "dielectric" behavior at all — it's the same physics as a metal reflecting light below its own plasma frequency. At typical RF drive frequencies, the plasma <b>bulk</b> behaves like a conductor, not a capacitor dielectric.</p>
+      <h3>How RF engineers actually model it</h3>
+      <p>Rather than one εr for the whole discharge, the plasma is split into two regions with very different equivalent circuits:</p>
+      <table class="dd-table">
+        <tr><th>Region</th><th>Behavior</th><th>Equivalent circuit</th><th>Effective εr</th></tr>
+        <tr><td>Bulk plasma (quasi-neutral)</td><td>Conductor-like at RF drive frequencies</td><td>Resistor + Inductor (series)</td><td>Not meaningful (negative/complex)</td></tr>
+        <tr><td>Sheath (electron-depleted)</td><td>Nearly a vacuum gap</td><td>Capacitor</td><td>≈ 1 (vacuum/air)</td></tr>
+      </table>
+      <p>The sheath is where the "capacitance" that matters for matching actually lives, and because it's depleted of electrons, it behaves almost exactly like a vacuum gap:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">C<sub>sheath</sub> = ε₀ · A / s</div>
+      <p>where s is the sheath thickness (typically hundreds of µm to a few mm).</p>
+      <h3>Practical takeaway for this calculator</h3>
+      <p>If you're estimating plasma-related capacitance (e.g. sheath capacitance) with the tool above, use the <b>Vacuum/Air · 1.0</b> preset. The bulk plasma's inductive/resistive behavior belongs to a different model (RF Generator ↔ CCP Impedance, covered later in Phase 7) — not this εr-based capacitor calculator.</p>
+    `,
+    t7Title: 'Characteristic Impedance — Z₀ = √(L / C)',
+    t7Sub: 'Lumped-element Z₀, and solve for L or C given the other two values',
+    t7ModeLC: 'L, C → Z₀', t7ModeLZ: 'L, Z₀ → C', t7ModeCZ: 'C, Z₀ → L',
+    t7labelL: 'Inductance (L)', t7labelC: 'Capacitance (C)',
+    t7labelL2: 'Inductance (L)', t7labelZ0in1: 'Characteristic Z₀ (Ω)',
+    t7labelC2: 'Capacitance (C)', t7labelZ0in2: 'Characteristic Z₀ (Ω)',
+    t7statLout: 'INDUCTANCE (L)', t7statCout: 'CAPACITANCE (C)',
+    t7statZ0: 'CHARACTERISTIC Z₀', t7statF0: 'RESONANT FREQ. (f₀)',
+    t7f1: 'CHARACTERISTIC Z₀', t7f3: 'SOLVE FOR C', t7f4: 'SOLVE FOR L', t7f2: 'RESONANT FREQ.',
+    t8Title: 'Johnson (Thermal) Noise Calculator',
+    t8Sub: 'Thermal noise voltage of a resistor over a given bandwidth',
+    t8labelT: 'Temperature (T)', t8labelR: 'Resistance (R)', t8labelBW: 'Bandwidth (BW)', t8TempLabel: 'Quick select:',
+    t8statNPD: 'NOISE DENSITY (NPD)', t8statVrms: 'TOTAL Vrms', t8statPdbm: 'NOISE POWER',
+    t8f1: 'NOISE DENSITY', t8f2: 'TOTAL NOISE', t8f4: 'AVAILABLE POWER', t8f3: 'BOLTZMANN',
+    t8GraphNote: 'Real-time simulated waveform (zoomed) — illustrative white noise, amplitude not to physical scale.',
+    dd8Toggle: 'Deep Dive: What is Johnson (Thermal) Noise?',
+    dd8Content: `
+      <h3>The random dance of electrons</h3>
+      <p>Johnson–Nyquist noise, or <b>thermal noise</b>, is one of the most fundamental concepts in physics and electronics — put simply, it's "the random dance of electrons caused by temperature."</p>
+      <p>Even with zero voltage applied across a resistor, as long as its temperature is above absolute zero (0 K, −273.15 °C), the electrons inside are agitated by thermal energy and move randomly. This random motion generates a tiny AC voltage — that's thermal noise.</p>
+      <p>In precision RF systems like RF generators and impedance matchers, this baseline noise — generated even in the matcher's own inductor coils or a 50 Ω termination — sets the absolute <b>noise floor</b> that limits signal processing.</p>
+      <h3>Three key characteristics</h3>
+      <ul>
+        <li><b>Occurs without current</b> — no external power supply is needed; resistance and temperature alone are enough.</li>
+        <li><b>White noise</b> — energy is spread uniformly across all frequencies, with no bias toward any particular band.</li>
+        <li><b>Scales with T, R, and bandwidth</b> — the higher the temperature, the larger the resistance, and the wider the observed bandwidth, the larger the noise.</li>
+      </ul>
+      <h3>The formulas</h3>
+      <p>The RMS noise voltage measured across a resistor:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">V<sub>n</sub> = √(4 k<sub>B</sub> T R Δf)</div>
+      <ul>
+        <li>V<sub>n</sub> — noise voltage (Volts RMS)</li>
+        <li>k<sub>B</sub> — Boltzmann constant (1.38 × 10⁻²³ J/K)</li>
+        <li>T — absolute temperature (Kelvin; room temperature is typically 290 K)</li>
+        <li>R — resistance (Ω)</li>
+        <li>Δf — bandwidth (Hz)</li>
+      </ul>
+      <p>When an RF system is perfectly impedance-matched (e.g. a 50 Ω system), the maximum noise power delivered to the load is independent of R — it depends only on temperature and bandwidth:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">P = k<sub>B</sub> T Δf</div>
+      <p>At room temperature (290 K), the noise power per 1 Hz of bandwidth is about <b>−174 dBm/Hz</b> — one of the most fundamental reference figures in RF and communications system design.</p>
+    `,
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 2 / 7 (Passive Components)'
+  },
+  ko: {
+    pageTitle: 'Phase 2 — 수동소자 기초',
+    phaseStripLabel: '진행 단계:',
+    phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
+    tabT1: 'Xc / Xl', tabT2: 'Z → V/I', tabT3: 'Admittance', tabT4: '저항 색상코드', tabT5: '인덕턴스', tabT6: '커패시턴스', tabT7: 'Z₀ = √(L/C)', tabT8: 'Johnson Noise',
+    badge1: '인터랙티브', badge2: '인터랙티브', badge3: '인터랙티브', badge4: '인터랙티브', badge5: '인터랙티브', badge6: '인터랙티브', badge7: '인터랙티브', badge8: '인터랙티브',
+    t1Title: '용량성 / 유도성 리액턴스 (Xc / Xl)',
+    t1Sub: '주어진 주파수에서 커패시터 또는 인덕터의 리액턴스를 계산합니다',
+    t1ModeC: '용량성 (Xc)', t1ModeL: '유도성 (Xl)',
+    t1LabelFreq: '주파수 (f)', t1QuickLabel: '빠른 선택:',
+    t1LabelC: '커패시턴스 (C)', t1LabelL: '인덕턴스 (L)',
+    t1statX: '리액턴스', t1statOmega: 'ω = 2πf',
+    t1f1: '용량성', t1f2: '유도성', t1f3: '부호',
+    t2Title: '복소 임피던스 → 전압 / 파워',
+    t2Sub: 'R + jX에 흐르는 전류 또는 걸리는 전압을 기준으로 임피던스, 전압/전류, 파워를 계산합니다',
+    t2InputAsLabel: '입력 기준:', t2ModeI: 'Irms', t2ModeV: 'Vrms',
+    t2labelIV: 'Irms (A)', 't2label_i': 'Irms (A)', 't2label_v': 'Vrms (V)',
+    t2labelR: 'R — 저항 (Ω)', t2labelX: 'X — 리액턴스 (Ω)',
+    t2statMagZ: '|Z|', t2statAngZ: '∠Z', t2statIrms: 'Irms', t2statVrms: 'Vrms', t2statVpk: 'Vpeak', t2statVpp: 'Vpp', t2statP: '유효전력 (P)', t2statQ: '무효전력 (Q)',
+    t2f1: '크기', t2f2: '전압', t2f5: '피크-투-피크', t2f3: '유효전력', t2f4: '무효전력',
+    t3Title: '어드미턴스 (Y = G + jB)',
+    t3Sub: '임피던스의 역수 — 컨덕턴스(G)와 서셉턴스(B)',
+    t3labelR: 'R — 저항 (Ω)', t3labelX: 'X — 리액턴스 (Ω)',
+    t3statMagY: '|Y|', t3statAngY: '∠Y', t3statG: '컨덕턴스 (G)', t3statB: '서셉턴스 (B)',
+    t3f1: '어드미턴스', t3f2: '컨덕턴스', t3f3: '서셉턴스',
+    t4Title: '저항 색상코드 계산기',
+    t4Sub: '저항 색상 밴드를 읽어 저항값(Ω)으로 변환하거나, 알고 있는 저항값에 맞는 색상 밴드를 찾습니다',
+    t4ModeFwd: '색상 → Ω', t4ModeRev: 'Ω → 색상', t4BandCountLabel: '밴드 개수:',
+    t4labelD1: '1번째 밴드 (숫자)', t4labelD2: '2번째 밴드 (숫자)', t4labelD3: '3번째 밴드 (숫자)',
+    t4labelMult: '승수 (배율)', t4labelTol: '허용오차', t4labelTC: '온도계수',
+    t4labelRVal: '저항값', t4labelRTol: '허용오차',
+    t4statR: '저항값', t4statTol: '허용오차', t4statRange: '범위', t4statTC: '온도계수',
+    t4f1: '저항값', t4f2: '범위',
+    t5Title: '인덕턴스 계산기 (코일 형상 기반)',
+    t5Sub: '코일의 물리적 치수로부터 인덕턴스를 추정합니다',
+    t5ModeAir: '공심 솔레노이드', t5ModeTor: '토로이드 (AL 기반)',
+    t5labelD: '코일 직경 d (mm)', t5labelLen: '코일 길이 l (mm)', t5labelN1: '권선수 N',
+    t5labelAL: 'AL (nH / 회전²)', t5labelN2: '권선수 N',
+    t5statL: '인덕턴스 (L)',
+    t5f1: 'Wheeler 공식 (공심)', t5f2: '토로이드 (AL 기반)',
+    t5RefImgCaption: '참고: 코일 치수 가이드라인 — 공심 솔레노이드(좌), 토로이드 AL 기반(우)',
+    t5ALHint: 'AL 값은 코어마다 다르며 범용값이 아닙니다 — 반드시 사용 중인 토로이드 코어 제조사(Fair-Rite, Micrometals, TDK 등) 데이터시트에서 정확한 코어 사이즈·재질에 맞는 AL 값을 확인하세요.',
+    dd5aToggle: 'Deep Dive: 공심 솔레노이드 치수 가이드',
+    dd5aContent: `
+      <h3>왜 형상이 직접적으로 영향을 미치는가</h3>
+      <p>공심 솔레노이드는 자기장을 가둬줄 코어가 없어서, 자기장이 주변 공기 중으로 퍼져나갑니다. 그래서 코일의 정확한 형상(직경, 길이, 권선수)이 인덕턴스를 직접 결정하며, 계산을 대신해줄 제조사 상수 같은 것이 존재하지 않습니다.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">L[µH] = r² N² / (9r + 10l),  r, l 단위는 inch</div>
+      <p>이것이 단층으로 촘촘하게 감은 솔레노이드에 대한 <b>Wheeler 근사식</b>입니다. r은 코일 반지름, l은 코일의 축 방향 길이, N은 권선수입니다. 코일 길이가 반지름의 약 0.8배 이상일 때 몇 % 이내의 정확도를 보입니다.</p>
+      <h3>일반적인 치수 가이드</h3>
+      <table class="dd-table">
+        <tr><th>직경 d (mm)</th><th>길이 l (mm)</th><th>권선수 N (typical)</th></tr>
+        <tr><td>5 – 10</td><td>10 – 20</td><td>5 – 20</td></tr>
+        <tr><td>10 – 20</td><td>20 – 40</td><td>10 – 50</td></tr>
+        <tr><td>20 – 30</td><td>30 – 60</td><td>20 – 80</td></tr>
+        <tr><td>30 – 50</td><td>40 – 80</td><td>30 – 120</td></tr>
+      </table>
+      <ul>
+        <li>위 범위는 일반적인 시작점 권장값이며, 절대적인 제한값은 아닙니다.</li>
+        <li>실제 인덕턴스는 와이어 굵기와 권선 밀도(얼마나 촘촘하게 감았는지)에도 영향을 받습니다.</li>
+        <li>시작 형상을 정한 뒤에는 위 계산기로 세부 조정하세요.</li>
+      </ul>
+    `,
+    dd5bToggle: 'Deep Dive: 토로이드 (AL 기반) 치수 가이드',
+    dd5bContent: `
+      <h3>왜 공식이 이렇게 간단한가</h3>
+      <p>토로이드는 자기장의 거의 전부를 코어 내부(폐자로)에 가두기 때문에, 공심 솔레노이드와 달리 권선 형상을 직접 다시 계산할 필요가 없습니다. 코어의 투자율, 유효 단면적, 유효 자로 길이가 모두 제조사가 발표하는 숫자 하나, <b>AL</b>에 미리 압축되어 있습니다.</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">L = AL × N²</div>
+      <p>물리적으로는 <code>AL = μ₀ μr Ae / le</code> (Ae = 코어 유효 단면적, le = 유효 자로 길이, μr = 코어 비투자율) 이지만, 이 계산은 이미 제조사가 대신 해준 것입니다.</p>
+      <h3>OD / ID는 필요 없나?</h3>
+      <p>OD(외경)와 ID(내경)는 공식 자체에는 들어가지 않습니다 — 그 영향이 이미 AL 안에 다 반영돼 있기 때문입니다. 하지만 실무에서는 여전히 중요합니다: 데이터시트는 <i>코어 사이즈·재질마다 다른 AL</i>을 OD/ID/높이 기준으로 나열해두기 때문에, 애초에 올바른 AL을 찾으려면 OD/ID가 필요합니다. ID는 또한 몇 가닥의 굵은 와이어가 물리적으로 들어갈 수 있는지(권선 가능 공간)도 결정합니다.</p>
+      <div class="dd-note"><span>📋</span><div><b>반드시 제조사 데이터시트</b>(Fair-Rite, Micrometals, TDK, Ferroxcube 등)에서 사용 중인 코어의 정확한 부품번호·사이즈·재질에 맞는 AL 값을 확인하세요 — AL은 코어 제품군마다 크게 달라지므로 추측하거나 다른 코어의 값을 재사용해서는 안 됩니다.</div></div>
+      <h3>일반적인 치수 가이드</h3>
+      <table class="dd-table">
+        <tr><th>OD (mm)</th><th>ID (mm)</th><th>권선수 N (typical)</th></tr>
+        <tr><td>10 – 15</td><td>5 – 7</td><td>5 – 20</td></tr>
+        <tr><td>15 – 20</td><td>7 – 10</td><td>10 – 40</td></tr>
+        <tr><td>20 – 30</td><td>10 – 15</td><td>20 – 60</td></tr>
+        <tr><td>30 – 40</td><td>15 – 20</td><td>30 – 100</td></tr>
+      </table>
+      <ul>
+        <li>위 범위는 일반적인 시작점 권장값이며, 절대적인 제한값은 아닙니다.</li>
+        <li>인덕턴스는 코어 투자율(μ), 와이어 굵기, 권선 밀도에도 영향을 받습니다.</li>
+        <li>데이터시트에서 확인한 AL 값을 위 계산기에 넣어 세부 조정하세요.</li>
+      </ul>
+    `,
+    t6Title: '커패시턴스 계산기 (형상 기반)',
+    t6Sub: '물리적 형상과 유전체로부터 커패시턴스를 추정합니다',
+    t6ModePlate: '평행판', t6ModeCyl: '원통형 (동축)',
+    t6DielLabel: '유전체 (εr):',
+    t6labelA: '판 면적 A (mm²)', t6labelD: '간격 d (mm)', t6labelEr1: 'εr (유전율)',
+    t6labelA1: '내경 반지름 a (mm)', t6labelB1: '외경 반지름 b (mm)', t6labelLenC: '길이 L (mm)', t6labelEr2: 'εr (유전율)',
+    t6statC: '커패시턴스 (C)',
+    t6f1: '평행판', t6f2: '원통형',
+    t6RefImgCaption: '참고: 커패시터 형상 가이드라인 — 평행판(좌), 원통형/동축(우)',
+    dd6Toggle: 'Deep Dive: 플라즈마 반응기 내 커패시턴스',
+    dd6Content: `
+      <h3>플라즈마는 왜 단일 "εr" 값을 갖지 않는가</h3>
+      <p>PTFE나 FR4와 달리 플라즈마는 고정된 유전체가 아닙니다 — 자유전자가 존재하기 때문에 유전율이 <b>구동 주파수와 전자밀도에 모두 의존하는 복소수</b>가 됩니다. 콜드·무충돌 플라즈마 근사를 쓰면:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">εr(ω) = 1 − ω<sub>pe</sub>² / ω²</div>
+      <p>여기서 ω는 RF 구동 각주파수, ω<sub>pe</sub>는 전자 플라즈마 각주파수로 ω<sub>pe</sub> = √(n<sub>e</sub> e² / ε₀ m<sub>e</sub>) 입니다.</p>
+      <h3>계산 예시 (전형적인 CCP 조건)</h3>
+      <p>전형적인 반도체 CCP 조건인 n<sub>e</sub> ≈ 10¹⁰ cm⁻³을 넣으면 플라즈마 주파수는 대략 <b>f<sub>pe</sub> ≈ 900 MHz</b>로, 13.56 MHz 구동 주파수보다 훨씬 높습니다. ω ≪ ω<sub>pe</sub>이므로:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">εr ≈ 1 − (900MHz / 13.56MHz)² ≈ 1 − 4400 ≈ −4400</div>
+      <p>이렇게 큰 음의 유전율은 "유전체" 거동이 전혀 아닙니다 — 금속이 자신의 플라즈마 주파수보다 낮은 주파수의 빛을 반사하는 것과 동일한 물리입니다. 일반적인 RF 구동 주파수에서 플라즈마 <b>벌크</b>는 커패시터 유전체가 아니라 도체처럼 행동합니다.</p>
+      <h3>실제 RF 엔지니어링에서의 모델링 방식</h3>
+      <p>방전 전체에 εr 하나를 적용하는 대신, 서로 완전히 다른 등가회로를 갖는 두 영역으로 나눠서 다룹니다:</p>
+      <table class="dd-table">
+        <tr><th>영역</th><th>거동</th><th>등가회로</th><th>실효 εr</th></tr>
+        <tr><td>벌크 플라즈마 (준중성)</td><td>RF 구동 주파수에서 도체처럼 행동</td><td>저항 + 인덕터 (직렬)</td><td>의미 없음 (음수/복소수)</td></tr>
+        <tr><td>시스 (전자 결핍층)</td><td>거의 진공 간극에 가까움</td><td>커패시터</td><td>≈ 1 (진공/공기)</td></tr>
+      </table>
+      <p>매칭 계산에 실제로 중요한 "커패시턴스"는 시스에 있으며, 전자가 빠져 있기 때문에 거의 정확히 진공 간극처럼 행동합니다:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">C<sub>sheath</sub> = ε₀ · A / s</div>
+      <p>여기서 s는 시스 두께(보통 수백 µm ~ 수 mm)입니다.</p>
+      <h3>이 계산기에서의 실무 적용</h3>
+      <p>위 계산기로 플라즈마 관련 커패시턴스(예: 시스 커패시턴스)를 추정할 때는 <b>Vacuum/Air · 1.0</b> 프리셋을 사용하세요. 벌크 플라즈마의 유도성/저항성 거동은 별도의 모델(RF Generator ↔ CCP Impedance, Phase 7에서 다룰 예정)에 속하며, εr 기반의 이 커패시터 계산기 영역이 아닙니다.</p>
+    `,
+    t7Title: '특성 임피던스 — Z₀ = √(L / C)',
+    t7Sub: '집중정수 Z₀를 계산하거나, 나머지 두 값으로부터 L 또는 C를 역산합니다',
+    t7ModeLC: 'L, C → Z₀', t7ModeLZ: 'L, Z₀ → C', t7ModeCZ: 'C, Z₀ → L',
+    t7labelL: '인덕턴스 (L)', t7labelC: '커패시턴스 (C)',
+    t7labelL2: '인덕턴스 (L)', t7labelZ0in1: '특성 임피던스 Z₀ (Ω)',
+    t7labelC2: '커패시턴스 (C)', t7labelZ0in2: '특성 임피던스 Z₀ (Ω)',
+    t7statLout: '인덕턴스 (L)', t7statCout: '커패시턴스 (C)',
+    t7statZ0: '특성 임피던스 Z₀', t7statF0: '공진주파수 (f₀)',
+    t7f1: '특성 임피던스', t7f3: 'C 역산', t7f4: 'L 역산', t7f2: '공진주파수',
+    t8Title: 'Johnson (열) 노이즈 계산기',
+    t8Sub: '주어진 대역폭에서 저항의 열잡음 전압을 계산합니다',
+    t8labelT: '온도 (T)', t8labelR: '저항 (R)', t8labelBW: '대역폭 (BW)', t8TempLabel: '빠른 선택:',
+    t8statNPD: '노이즈 밀도 (NPD)', t8statVrms: '전체 Vrms', t8statPdbm: '노이즈 전력',
+    t8f1: '노이즈 밀도', t8f2: '전체 노이즈', t8f4: '가용 전력', t8f3: '볼츠만 상수',
+    t8GraphNote: '실시간 시뮬레이션 파형 (확대됨) — 예시용 화이트 노이즈이며, 진폭은 실제 물리적 크기와 비례하지 않습니다.',
+    dd8Toggle: 'Deep Dive: Johnson (Thermal) Noise란?',
+    dd8Content: `
+      <h3>전자의 무작위한 춤</h3>
+      <p>존슨-나이퀴스트 노이즈(Johnson-Nyquist Noise), 또는 <b>열잡음(Thermal Noise)</b>은 물리학과 전자공학에서 매우 중요한 개념으로, 아주 쉽게 말하면 "온도 때문에 발생하는 전자의 무작위한 춤"입니다.</p>
+      <p>어떤 저항기에 전압을 전혀 걸지 않고 가만히 두더라도, 절대영도(0 K, −273.15°C)가 아닌 이상 저항 내부의 전자들은 열에너지를 받아 무작위로 진동합니다. 이 전자의 불규칙한 움직임이 미세한 교류(AC) 전압을 만들어내는데, 이것이 바로 열잡음입니다.</p>
+      <p>RF 제너레이터나 임피던스 매처 같은 정밀한 고주파 시스템에서는, 매처 내부의 인덕터 코일이나 50Ω 종단 저항 등에서 발생하는 이 기본 노이즈가 신호 처리의 절대적인 한계선(Noise Floor)을 결정짓는 핵심 요소가 됩니다.</p>
+      <h3>열잡음의 3가지 핵심 특징</h3>
+      <ul>
+        <li><b>전류가 없어도 발생</b> — 외부에서 전원을 공급하지 않아도, 저항 성분과 '온도'만 있다면 무조건 발생합니다.</li>
+        <li><b>화이트 노이즈(White Noise) 형태</b> — 특정 주파수에 편중되지 않고, 모든 주파수 대역에 걸쳐 균일한 에너지를 가집니다.</li>
+        <li><b>온도·저항·대역폭에 비례</b> — 온도가 높을수록, 저항값이 클수록, 관찰하는 대역폭이 넓을수록 노이즈 크기가 커집니다.</li>
+      </ul>
+      <h3>수식으로 보는 열잡음</h3>
+      <p>저항 양단에서 측정되는 실효값(RMS) 노이즈 전압:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">V<sub>n</sub> = √(4 k<sub>B</sub> T R Δf)</div>
+      <ul>
+        <li>V<sub>n</sub> — 노이즈 전압 (Volts RMS)</li>
+        <li>k<sub>B</sub> — 볼츠만 상수 (1.38 × 10⁻²³ J/K)</li>
+        <li>T — 절대온도 (Kelvin, 실온은 보통 290 K)</li>
+        <li>R — 저항값 (Ω)</li>
+        <li>Δf — 주파수 대역폭 (Hz)</li>
+      </ul>
+      <p>임피던스 매칭이 완벽하게 이루어졌을 때(예: 50Ω 시스템), 부하로 전달되는 최대 노이즈 전력은 R과 무관하게 온도와 대역폭만으로 결정됩니다:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">P = k<sub>B</sub> T Δf</div>
+      <p>실온(290K) 기준으로 1Hz 대역폭당 노이즈 전력은 약 <b>−174 dBm/Hz</b>이며, 이는 통신 및 RF 회로 설계에서 가장 기본이 되는 기준값입니다.</p>
+    `,
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 2 / 7 (수동소자 기초)'
+  }
+};
+
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  Object.keys(T).forEach(k => set(k, T[k]));
+  if (typeof t4PopulateAllSelects === 'function') { t4PopulateAllSelects(); t4Render(); }
+  if (typeof t2_mode !== 'undefined') {
+    const el = document.getElementById('t2labelIV');
+    if (el) el.textContent = I18N[l]['t2label_' + t2_mode];
+  }
+}
+
+/* =========================================================
+   Tab switching
+   ========================================================= */
+document.querySelectorAll('.tool-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tool;
+    document.querySelectorAll('.tool-panel').forEach(p => p.style.display = (p.id === 'panel-' + id ? 'block' : 'none'));
+    document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b === btn));
+    if (id === 't8' && typeof t8ResizeCanvas === 'function') t8ResizeCanvas();
+  });
+});
+
+/* =========================================================
+   Deep Dive accordion toggle
+   ========================================================= */
+function toggleDD(btnId, bodyId) {
+  const btn = document.getElementById(btnId);
+  const body = document.getElementById(bodyId);
+  const open = body.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  body.style.display = open ? 'block' : 'none';
+}
+
+/* =========================================================
+   Shared helpers
+   ========================================================= */
+const K_BOLTZ = 1.380649e-23;
+const EPS0 = 8.854e-12;
+
+function fmtAuto(value, units) {
+  // units: array of {mult, label} sorted descending by mult, values already in the base (smallest) unit's ratio
+  for (const u of units) {
+    if (Math.abs(value) >= u.mult) return { v: +(value/u.mult).toPrecision(4), u: u.label };
+  }
+  const last = units[units.length-1];
+  return { v: +(value/last.mult).toPrecision(4), u: last.label };
+}
+
+/* =========================================================
+   TOOL 1 — Xc / Xl Reactance
+   ========================================================= */
+const T1_LOG_MIN = 0, T1_LOG_MAX = Math.log10(10e9);
+function t1SliderToHz(s){ return Math.pow(10, T1_LOG_MIN + (s/1000)*(T1_LOG_MAX-T1_LOG_MIN)); }
+function t1HzToSlider(f){ const t=(Math.log10(Math.max(f,1))-T1_LOG_MIN)/(T1_LOG_MAX-T1_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+function t1UnitToHz(v,u){ return u==='GHz'? v*1e9 : u==='MHz'? v*1e6 : u==='kHz'? v*1e3 : v; }
+let t1_mode = 'c', t1_hz = 13.56e6;
+
+document.getElementById('t1ModeC').addEventListener('click', () => t1SetMode('c'));
+document.getElementById('t1ModeL').addEventListener('click', () => t1SetMode('l'));
+function t1SetMode(m) {
+  t1_mode = m;
+  document.getElementById('t1ModeC').classList.toggle('active', m==='c');
+  document.getElementById('t1ModeL').classList.toggle('active', m==='l');
+  document.getElementById('t1-cInputs').style.display = m==='c' ? 'block' : 'none';
+  document.getElementById('t1-lInputs').style.display = m==='l' ? 'block' : 'none';
+  t1Compute();
+}
+function t1Compute() {
+  const hz = t1_hz;
+  const omega = 2*Math.PI*hz;
+  let X;
+  if (t1_mode === 'c') {
+    const cUnitMult = { pF:1e-12, nF:1e-9, uF:1e-6 };
+    const cVal = parseFloat(document.getElementById('t1-cVal').value) || 0;
+    const C = cVal * cUnitMult[document.getElementById('t1-cUnit').value];
+    X = C>0 ? -1/(omega*C) : 0;
+  } else {
+    const lUnitMult = { nH:1e-9, uH:1e-6, mH:1e-3 };
+    const lVal = parseFloat(document.getElementById('t1-lVal').value) || 0;
+    const L = lVal * lUnitMult[document.getElementById('t1-lUnit').value];
+    X = omega*L;
+  }
+  document.getElementById('t1-x').textContent = X.toFixed(2);
+  const omegaF = fmtAuto(omega, [{mult:1e9,label:'Grad/s'},{mult:1e6,label:'Mrad/s'},{mult:1e3,label:'krad/s'},{mult:1,label:'rad/s'}]);
+  document.getElementById('t1-omega').textContent = omegaF.v;
+  document.getElementById('t1-omega').nextElementSibling.textContent = omegaF.u;
+}
+document.getElementById('t1-fSlider').addEventListener('input', e => {
+  t1_hz = t1SliderToHz(+e.target.value);
+  const u = document.getElementById('t1-fUnit').value;
+  const disp = u==='GHz'? t1_hz/1e9 : u==='MHz'? t1_hz/1e6 : u==='kHz'? t1_hz/1e3 : t1_hz;
+  document.getElementById('t1-fInput').value = +disp.toPrecision(6);
+  t1Compute();
+});
+document.getElementById('t1-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t1-fInput').value);
+  if (!isNaN(v)) {
+    t1_hz = t1UnitToHz(v, document.getElementById('t1-fUnit').value);
+    document.getElementById('t1-fSlider').value = t1HzToSlider(t1_hz);
+    t1Compute();
+  }
+});
+document.getElementById('t1-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t1-fInput').value);
+  if (!isNaN(v)) { t1_hz = t1UnitToHz(v, document.getElementById('t1-fUnit').value); t1Compute(); }
+});
+document.querySelectorAll('#panel-t1 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t1 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t1-fUnit').value = btn.dataset.u;
+    t1_hz = t1UnitToHz(parseFloat(btn.dataset.hz), btn.dataset.u);
+    document.getElementById('t1-fSlider').value = t1HzToSlider(t1_hz);
+    document.getElementById('t1-fInput').value = btn.dataset.hz;
+    t1Compute();
+  });
+});
+document.getElementById('t1-cVal').addEventListener('input', t1Compute);
+document.getElementById('t1-cUnit').addEventListener('change', t1Compute);
+document.getElementById('t1-lVal').addEventListener('input', t1Compute);
+document.getElementById('t1-lUnit').addEventListener('change', t1Compute);
+t1Compute();
+
+/* =========================================================
+   TOOL 2 — Complex Z -> V/I/Power
+   ========================================================= */
+let t2_mode = 'i';
+const T2_LABELS = { i: 'Irms (A)', v: 'Vrms (V)' };
+document.getElementById('t2ModeI').addEventListener('click', () => t2SetMode('i'));
+document.getElementById('t2ModeV').addEventListener('click', () => t2SetMode('v'));
+function t2SetMode(m) {
+  t2_mode = m;
+  document.getElementById('t2ModeI').classList.toggle('active', m==='i');
+  document.getElementById('t2ModeV').classList.toggle('active', m==='v');
+  document.getElementById('t2labelIV').textContent = I18N[lang]['t2label_' + m];
+  t2Compute();
+}
+function t2Compute() {
+  const iv = parseFloat(document.getElementById('t2-iv').value) || 0;
+  const r = parseFloat(document.getElementById('t2-r').value) || 0;
+  const x = parseFloat(document.getElementById('t2-x').value) || 0;
+  const magZ = Math.sqrt(r*r + x*x);
+  const angZ = Math.atan2(x, r) * 180/Math.PI;
+  let irms, vrms;
+  if (t2_mode === 'i') {
+    irms = iv;
+    vrms = irms * magZ;
+  } else {
+    vrms = iv;
+    irms = magZ>0 ? vrms/magZ : 0;
+  }
+  const vpk = vrms * Math.sqrt(2);
+  const vpp = 2 * vpk;
+  const P = irms*irms*r;
+  const Q = irms*irms*x;
+  document.getElementById('t2-magZ').textContent = magZ.toFixed(3);
+  document.getElementById('t2-angZ').textContent = angZ.toFixed(2);
+  document.getElementById('t2-irmsOut').textContent = irms.toFixed(3);
+  document.getElementById('t2-vrms').textContent = vrms.toFixed(2);
+  document.getElementById('t2-vpk').textContent = vpk.toFixed(2);
+  document.getElementById('t2-vpp').textContent = vpp.toFixed(2);
+  document.getElementById('t2-p').textContent = P.toFixed(2);
+  document.getElementById('t2-q').textContent = Q.toFixed(2);
+}
+['t2-iv','t2-r','t2-x'].forEach(id => document.getElementById(id).addEventListener('input', t2Compute));
+t2Compute();
+
+/* =========================================================
+   TOOL 3 — Admittance
+   ========================================================= */
+function t3Compute() {
+  const r = parseFloat(document.getElementById('t3-r').value) || 0;
+  const x = parseFloat(document.getElementById('t3-x').value) || 0;
+  const denom = r*r + x*x;
+  const g = denom>0 ? r/denom : 0;
+  const b = denom>0 ? -x/denom : 0;
+  const magY = Math.sqrt(g*g + b*b);
+  const angY = Math.atan2(b, g) * 180/Math.PI;
+  document.getElementById('t3-magY').textContent = magY.toFixed(3);
+  document.getElementById('t3-angY').textContent = angY.toFixed(2);
+  document.getElementById('t3-g').textContent = g.toFixed(3);
+  document.getElementById('t3-b').textContent = b.toFixed(3);
+}
+['t3-r','t3-x'].forEach(id => document.getElementById(id).addEventListener('input', t3Compute));
+t3Compute();
+
+/* =========================================================
+   TOOL 4 — Resistor Color Code Calculator
+   ========================================================= */
+const RCOLORS = [
+  { name:'black',  hex:'#1A1A1A', digit:0, mult:1 },
+  { name:'brown',  hex:'#8B4513', digit:1, mult:10,          tol:1,    tc:100 },
+  { name:'red',    hex:'#E53935', digit:2, mult:100,         tol:2,    tc:50  },
+  { name:'orange', hex:'#FB8C00', digit:3, mult:1e3,         tol:0.05, tc:15  },
+  { name:'yellow', hex:'#FDD835', digit:4, mult:1e4,         tol:0.02, tc:25  },
+  { name:'green',  hex:'#43A047', digit:5, mult:1e5,         tol:0.5,  tc:20  },
+  { name:'blue',   hex:'#1E88E5', digit:6, mult:1e6,         tol:0.25, tc:10  },
+  { name:'violet', hex:'#8E24AA', digit:7, mult:1e7,         tol:0.1,  tc:5   },
+  { name:'grey',   hex:'#9E9E9E', digit:8, mult:1e8,         tol:0.01, tc:1   },
+  { name:'white',  hex:'#FFFFFF', digit:9, mult:1e9 },
+  { name:'gold',   hex:'#D4AF37', mult:0.1,  tol:5  },
+  { name:'silver', hex:'#C7CBD1', mult:0.01, tol:10 },
+  { name:'none',   hex:'transparent', tol:20 },
+];
+const RC = {};
+RCOLORS.forEach(c => RC[c.name] = c);
+const DIGIT_COLORS = RCOLORS.filter(c => c.digit !== undefined);
+const MULT_COLORS  = RCOLORS.filter(c => c.mult  !== undefined);
+const TOL_COLORS   = RCOLORS.filter(c => c.tol   !== undefined && c.name !== 'black');
+const TC_COLORS    = RCOLORS.filter(c => c.tc    !== undefined);
+
+const RCOLOR_LABEL = {
+  en: { black:'Black', brown:'Brown', red:'Red', orange:'Orange', yellow:'Yellow', green:'Green', blue:'Blue', violet:'Violet', grey:'Grey', white:'White', gold:'Gold', silver:'Silver', none:'None (±20%)' },
+  ko: { black:'검정', brown:'갈색', red:'빨강', orange:'주황', yellow:'노랑', green:'초록', blue:'파랑', violet:'보라', grey:'회색', white:'흰색', gold:'금색', silver:'은색', none:'없음 (±20%)' }
+};
+function rMultLabel(c, l) {
+  if (c.name==='gold') return l==='en' ? 'Gold (×0.1)' : '금색 (×0.1)';
+  if (c.name==='silver') return l==='en' ? 'Silver (×0.01)' : '은색 (×0.01)';
+  const exp = Math.round(Math.log10(c.mult));
+  return `${RCOLOR_LABEL[l][c.name]} (×10^${exp})`;
+}
+function rTolLabel(c, l) { return c.name==='none' ? RCOLOR_LABEL[l].none : `${RCOLOR_LABEL[l][c.name]} (±${c.tol}%)`; }
+function rTcLabel(c, l) { return `${RCOLOR_LABEL[l][c.name]} (${c.tc} ppm/K)`; }
+
+function t4PopulateSelect(id, colors, labelFn) {
+  const sel = document.getElementById(id);
+  const prevVal = sel.value;
+  sel.innerHTML = '';
+  colors.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.name;
+    opt.textContent = labelFn(c, lang);
+    sel.appendChild(opt);
+  });
+  if (colors.some(c => c.name === prevVal)) sel.value = prevVal;
+}
+function t4PopulateAllSelects() {
+  t4PopulateSelect('t4-d1', DIGIT_COLORS, (c,l)=>RCOLOR_LABEL[l][c.name]);
+  t4PopulateSelect('t4-d2', DIGIT_COLORS, (c,l)=>RCOLOR_LABEL[l][c.name]);
+  t4PopulateSelect('t4-d3', DIGIT_COLORS, (c,l)=>RCOLOR_LABEL[l][c.name]);
+  t4PopulateSelect('t4-mult', MULT_COLORS, rMultLabel);
+  t4PopulateSelect('t4-tol', TOL_COLORS, rTolLabel);
+  t4PopulateSelect('t4-rtol', TOL_COLORS, rTolLabel);
+  t4PopulateSelect('t4-tc', TC_COLORS, rTcLabel);
+}
+
+let t4_mode = 'fwd', t4_bands = 4;
+document.getElementById('t4ModeFwd').addEventListener('click', () => t4SetMode('fwd'));
+document.getElementById('t4ModeRev').addEventListener('click', () => t4SetMode('rev'));
+function t4SetMode(m) {
+  t4_mode = m;
+  document.getElementById('t4ModeFwd').classList.toggle('active', m==='fwd');
+  document.getElementById('t4ModeRev').classList.toggle('active', m==='rev');
+  document.getElementById('t4-fwdInputs').style.display = m==='fwd' ? 'flex' : 'none';
+  document.getElementById('t4-revInputs').style.display = m==='rev' ? 'flex' : 'none';
+  t4Render();
+}
+document.querySelectorAll('#panel-t4 .qbtn[data-bands]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t4 .qbtn[data-bands]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t4_bands = parseInt(btn.dataset.bands, 10);
+    t4UpdateFieldVisibility();
+    t4Render();
+  });
+});
+function t4UpdateFieldVisibility() {
+  const threeSigFig = t4_bands >= 5;
+  const hasTol = t4_bands >= 4;
+  const hasTC  = t4_bands === 6;
+  document.getElementById('t4-d3Field').style.display = threeSigFig ? 'block' : 'none';
+  document.getElementById('t4-tolField').style.display = hasTol ? 'block' : 'none';
+  document.getElementById('t4-tcField').style.display = hasTC ? 'block' : 'none';
+  document.getElementById('t4-rtolField').style.display = hasTol ? 'block' : 'none';
+  document.getElementById('t4-tcStat').style.display = (hasTC && t4_mode==='fwd') ? 'block' : 'none';
+}
+
+function fmtOhm(v) {
+  if (v >= 1e9) return { val: +(v/1e9).toPrecision(4), unit: 'GΩ' };
+  if (v >= 1e6) return { val: +(v/1e6).toPrecision(4), unit: 'MΩ' };
+  if (v >= 1e3) return { val: +(v/1e3).toPrecision(4), unit: 'kΩ' };
+  return { val: +v.toPrecision(4), unit: 'Ω' };
+}
+function fmtOhmStr(v) { const f = fmtOhm(v); return `${f.val} ${f.unit}`; }
+
+function t4RenderBar(colorNames) {
+  const body = document.getElementById('t4-resistorBody');
+  body.innerHTML = '';
+  colorNames.forEach(name => {
+    const c = RC[name];
+    const band = document.createElement('div');
+    band.className = 'rband' + (name==='white' ? ' rband-white' : name==='none' ? ' rband-none' : '');
+    if (name !== 'none') band.style.background = c.hex;
+    body.appendChild(band);
+  });
+  const caption = colorNames.map(n => RCOLOR_LABEL[lang][n]).join(' – ');
+  document.getElementById('t4-bandCaption').textContent = caption;
+}
+
+function t4Render() {
+  const threeSigFig = t4_bands >= 5;
+  const hasTol = t4_bands >= 4;
+  const hasTC  = t4_bands === 6;
+  let value, tolPct, tcVal, bandColors;
+
+  if (t4_mode === 'fwd') {
+    const d1 = RC[document.getElementById('t4-d1').value].digit;
+    const d2 = RC[document.getElementById('t4-d2').value].digit;
+    const d3 = threeSigFig ? RC[document.getElementById('t4-d3').value].digit : null;
+    const multC = RC[document.getElementById('t4-mult').value];
+    const tolC = hasTol ? RC[document.getElementById('t4-tol').value] : RC['none'];
+    const tcC = hasTC ? RC[document.getElementById('t4-tc').value] : null;
+
+    const mantissa = threeSigFig ? (d1*100 + d2*10 + d3) : (d1*10 + d2);
+    value = mantissa * multC.mult;
+    tolPct = tolC.tol;
+    tcVal = tcC ? tcC.tc : null;
+
+    bandColors = threeSigFig
+      ? [document.getElementById('t4-d1').value, document.getElementById('t4-d2').value, document.getElementById('t4-d3').value, multC.name]
+      : [document.getElementById('t4-d1').value, document.getElementById('t4-d2').value, multC.name];
+    if (hasTol) bandColors.push(tolC.name);
+    if (hasTC) bandColors.push(tcC.name);
+  } else {
+    const rval = parseFloat(document.getElementById('t4-rval').value) || 0;
+    const runit = parseFloat(document.getElementById('t4-runit').value);
+    value = rval * runit;
+    const tolC = hasTol ? RC[document.getElementById('t4-rtol').value] : RC['none'];
+    tolPct = tolC.tol;
+    tcVal = null;
+
+    const nDigits = threeSigFig ? 3 : 2;
+    let exp = value > 0 ? Math.floor(Math.log10(value)) - (nDigits - 1) : 0;
+    exp = Math.max(-2, Math.min(9, exp));
+    let mantissa = value > 0 ? Math.round(value / Math.pow(10, exp)) : 0;
+    const maxMantissa = Math.pow(10, nDigits) - 1;
+    if (mantissa > maxMantissa && exp < 9) { exp += 1; mantissa = Math.round(value / Math.pow(10, exp)); }
+    mantissa = Math.min(mantissa, maxMantissa);
+    const mantissaStr = String(mantissa).padStart(nDigits, '0');
+    const digits = mantissaStr.split('').map(ch => DIGIT_COLORS[parseInt(ch,10)].name);
+    const multColor = MULT_COLORS.find(c => Math.abs(Math.log10(c.mult) - exp) < 1e-6) || RC['black'];
+
+    bandColors = digits.concat([multColor.name]);
+    if (hasTol) bandColors.push(tolC.name);
+  }
+
+  t4RenderBar(bandColors);
+
+  const vf = fmtOhm(value);
+  document.getElementById('t4-r').textContent = vf.val;
+  document.getElementById('t4-rUnit').textContent = vf.unit;
+  document.getElementById('t4-tolOut').textContent = '±' + tolPct;
+  const lo = value * (1 - tolPct/100), hi = value * (1 + tolPct/100);
+  document.getElementById('t4-range').textContent = `${fmtOhmStr(lo)} – ${fmtOhmStr(hi)}`;
+  document.getElementById('t4-tcOut').textContent = tcVal !== null ? tcVal : '—';
+}
+
+document.querySelectorAll('#t4-fwdInputs select').forEach(sel => sel.addEventListener('change', t4Render));
+document.getElementById('t4-rval').addEventListener('input', t4Render);
+document.getElementById('t4-runit').addEventListener('change', t4Render);
+document.getElementById('t4-rtol').addEventListener('change', t4Render);
+
+t4PopulateAllSelects();
+document.getElementById('t4-d1').value = 'yellow';
+document.getElementById('t4-d2').value = 'violet';
+document.getElementById('t4-mult').value = 'red';
+document.getElementById('t4-tol').value = 'gold';
+t4UpdateFieldVisibility();
+t4Render();
+
+/* =========================================================
+   TOOL 5 — Inductance (shape-based)
+   ========================================================= */
+let t5_mode = 'air';
+document.getElementById('t5ModeAir').addEventListener('click', () => t5SetMode('air'));
+document.getElementById('t5ModeTor').addEventListener('click', () => t5SetMode('tor'));
+function t5SetMode(m) {
+  t5_mode = m;
+  document.getElementById('t5ModeAir').classList.toggle('active', m==='air');
+  document.getElementById('t5ModeTor').classList.toggle('active', m==='tor');
+  document.getElementById('t5-airInputs').style.display = m==='air' ? 'flex' : 'none';
+  document.getElementById('t5-torInputs').style.display = m==='tor' ? 'flex' : 'none';
+  document.getElementById('t5ALHint').style.display = m==='tor' ? 'block' : 'none';
+  t5Compute();
+}
+function t5Compute() {
+  let L_uH;
+  if (t5_mode === 'air') {
+    const d = parseFloat(document.getElementById('t5-d').value) || 0;
+    const len = parseFloat(document.getElementById('t5-len').value) || 0;
+    const N = parseFloat(document.getElementById('t5-n1').value) || 0;
+    const r_in = (d/2)/25.4, l_in = len/25.4;
+    L_uH = (9*r_in + 10*l_in) > 0 ? (r_in*r_in*N*N)/(9*r_in + 10*l_in) : 0;
+  } else {
+    const AL = parseFloat(document.getElementById('t5-al').value) || 0;
+    const N = parseFloat(document.getElementById('t5-n2').value) || 0;
+    L_uH = (AL*N*N)/1000; // AL in nH -> convert to uH
+  }
+  const f = fmtAuto(L_uH*1000, [{mult:1e6,label:'mH'},{mult:1e3,label:'µH'},{mult:1,label:'nH'}]); // work in nH base
+  document.getElementById('t5-l').textContent = f.v;
+  document.getElementById('t5-lUnit').textContent = f.u;
+}
+['t5-d','t5-len','t5-n1','t5-al','t5-n2'].forEach(id => document.getElementById(id).addEventListener('input', t5Compute));
+t5Compute();
+
+/* =========================================================
+   TOOL 6 — Capacitance (shape-based)
+   ========================================================= */
+let t6_mode = 'plate', t6_er = 1.0;
+document.getElementById('t6ModePlate').addEventListener('click', () => t6SetMode('plate'));
+document.getElementById('t6ModeCyl').addEventListener('click', () => t6SetMode('cyl'));
+function t6SetMode(m) {
+  t6_mode = m;
+  document.getElementById('t6ModePlate').classList.toggle('active', m==='plate');
+  document.getElementById('t6ModeCyl').classList.toggle('active', m==='cyl');
+  document.getElementById('t6-plateInputs').style.display = m==='plate' ? 'flex' : 'none';
+  document.getElementById('t6-cylInputs').style.display = m==='cyl' ? 'flex' : 'none';
+  t6Compute();
+}
+document.querySelectorAll('#panel-t6 .qbtn[data-er]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t6 .qbtn[data-er]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t6_er = parseFloat(btn.dataset.er);
+    document.getElementById('t6-er1').value = t6_er;
+    document.getElementById('t6-er2').value = t6_er;
+    t6Compute();
+  });
+});
+function t6Compute() {
+  let C_F;
+  if (t6_mode === 'plate') {
+    const A_mm2 = parseFloat(document.getElementById('t6-area').value) || 0;
+    const d_mm = parseFloat(document.getElementById('t6-gap').value) || 0;
+    const er = parseFloat(document.getElementById('t6-er1').value) || 1;
+    const A_m2 = A_mm2 * 1e-6, d_m = d_mm * 1e-3;
+    C_F = d_m>0 ? (EPS0*er*A_m2)/d_m : 0;
+  } else {
+    const a = parseFloat(document.getElementById('t6-a').value) || 0;
+    const b = parseFloat(document.getElementById('t6-b').value) || 0;
+    const len_mm = parseFloat(document.getElementById('t6-lenC').value) || 0;
+    const er = parseFloat(document.getElementById('t6-er2').value) || 1;
+    const len_m = len_mm * 1e-3;
+    C_F = (a>0 && b>a) ? (2*Math.PI*EPS0*er*len_m)/Math.log(b/a) : 0;
+  }
+  const f = fmtAuto(C_F*1e12, [{mult:1e6,label:'µF'},{mult:1e3,label:'nF'},{mult:1,label:'pF'}]); // base pF
+  document.getElementById('t6-c').textContent = f.v;
+  document.getElementById('t6-cUnit').textContent = f.u;
+}
+['t6-area','t6-gap','t6-er1','t6-a','t6-b','t6-lenC','t6-er2'].forEach(id => document.getElementById(id).addEventListener('input', t6Compute));
+t6Compute();
+
+/* =========================================================
+   TOOL 7 — Characteristic Impedance Z0 = sqrt(L/C)
+   ========================================================= */
+/* =========================================================
+   TOOL 7 — Characteristic Impedance Z0 = sqrt(L/C)
+   ========================================================= */
+const T7_L_UNIT_MULT = { nH:1e-9, uH:1e-6, mH:1e-3 };
+const T7_C_UNIT_MULT = { pF:1e-12, nF:1e-9, uF:1e-6 };
+let t7_mode = 'lc';
+
+document.getElementById('t7ModeLC').addEventListener('click', () => t7SetMode('lc'));
+document.getElementById('t7ModeLZ').addEventListener('click', () => t7SetMode('lz'));
+document.getElementById('t7ModeCZ').addEventListener('click', () => t7SetMode('cz'));
+function t7SetMode(m) {
+  t7_mode = m;
+  document.getElementById('t7ModeLC').classList.toggle('active', m==='lc');
+  document.getElementById('t7ModeLZ').classList.toggle('active', m==='lz');
+  document.getElementById('t7ModeCZ').classList.toggle('active', m==='cz');
+  document.getElementById('t7-lcInputs').style.display = m==='lc' ? 'flex' : 'none';
+  document.getElementById('t7-lzInputs').style.display = m==='lz' ? 'flex' : 'none';
+  document.getElementById('t7-czInputs').style.display = m==='cz' ? 'flex' : 'none';
+  t7Compute();
+}
+function t7fmtL(L_henry) {
+  return fmtAuto(L_henry*1e9, [{mult:1e6,label:'mH'},{mult:1e3,label:'µH'},{mult:1,label:'nH'}]); // base nH
+}
+function t7fmtC(C_farad) {
+  return fmtAuto(C_farad*1e12, [{mult:1e6,label:'µF'},{mult:1e3,label:'nF'},{mult:1,label:'pF'}]); // base pF
+}
+function t7Compute() {
+  let L = 0, C = 0, Z0 = 0;
+  if (t7_mode === 'lc') {
+    const lVal = parseFloat(document.getElementById('t7-l').value) || 0;
+    const cVal = parseFloat(document.getElementById('t7-c').value) || 0;
+    L = lVal * T7_L_UNIT_MULT[document.getElementById('t7-lUnit').value];
+    C = cVal * T7_C_UNIT_MULT[document.getElementById('t7-cUnit').value];
+    Z0 = (L>0 && C>0) ? Math.sqrt(L/C) : 0;
+  } else if (t7_mode === 'lz') {
+    const lVal = parseFloat(document.getElementById('t7-l2').value) || 0;
+    L = lVal * T7_L_UNIT_MULT[document.getElementById('t7-l2Unit').value];
+    Z0 = parseFloat(document.getElementById('t7-z0in1').value) || 0;
+    C = (L>0 && Z0>0) ? L/(Z0*Z0) : 0;
+  } else {
+    const cVal = parseFloat(document.getElementById('t7-c2').value) || 0;
+    C = cVal * T7_C_UNIT_MULT[document.getElementById('t7-c2Unit').value];
+    Z0 = parseFloat(document.getElementById('t7-z0in2').value) || 0;
+    L = C * Z0 * Z0;
+  }
+  const f0 = (L>0 && C>0) ? 1/(2*Math.PI*Math.sqrt(L*C)) : 0;
+
+  const lf = t7fmtL(L), cf = t7fmtC(C);
+  document.getElementById('t7-lOut').textContent = lf.v; document.getElementById('t7-lOutUnit').textContent = lf.u;
+  document.getElementById('t7-cOut').textContent = cf.v; document.getElementById('t7-cOutUnit').textContent = cf.u;
+  document.getElementById('t7-z0').textContent = Z0.toFixed(2);
+  const f0f = fmtAuto(f0, [{mult:1e9,label:'GHz'},{mult:1e6,label:'MHz'},{mult:1e3,label:'kHz'},{mult:1,label:'Hz'}]);
+  document.getElementById('t7-f0').textContent = f0f.v;
+  document.getElementById('t7-f0Unit').textContent = f0f.u;
+}
+['t7-l','t7-lUnit','t7-c','t7-cUnit','t7-l2','t7-l2Unit','t7-z0in1','t7-c2','t7-c2Unit','t7-z0in2']
+  .forEach(id => document.getElementById(id).addEventListener('input', t7Compute));
+t7Compute();
+
+/* =========================================================
+   TOOL 8 — Johnson (Thermal) Noise
+   ========================================================= */
+let t8_T = 290;
+
+/* Temperature: linear slider, 0-1000 K */
+document.getElementById('t8-tSlider').addEventListener('input', e => {
+  t8_T = +e.target.value;
+  document.getElementById('t8-tInput').value = t8_T;
+  document.querySelectorAll('#panel-t8 .qbtn[data-t]').forEach(b=>b.classList.remove('active'));
+  t8Compute();
+});
+document.getElementById('t8-tInput').addEventListener('input', () => {
+  let v = parseFloat(document.getElementById('t8-tInput').value);
+  if (isNaN(v) || v<0) return;
+  t8_T = v;
+  document.getElementById('t8-tSlider').value = Math.min(1000, v);
+  document.querySelectorAll('#panel-t8 .qbtn[data-t]').forEach(b=>b.classList.remove('active'));
+  t8Compute();
+});
+document.querySelectorAll('#panel-t8 .qbtn[data-t]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t8 .qbtn[data-t]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t8_T = parseFloat(btn.dataset.t);
+    document.getElementById('t8-tInput').value = t8_T;
+    document.getElementById('t8-tSlider').value = t8_T;
+    t8Compute();
+  });
+});
+
+/* Resistance: log slider, 0.1 Ω .. 1 MΩ (displayed value converted via unit select) */
+const T8R_LOG_MIN = Math.log10(0.1), T8R_LOG_MAX = Math.log10(1e6);
+function t8RSliderToOhm(s){ return Math.pow(10, T8R_LOG_MIN + (s/1000)*(T8R_LOG_MAX-T8R_LOG_MIN)); }
+function t8OhmToRSlider(v){ const t=(Math.log10(Math.max(v,0.1))-T8R_LOG_MIN)/(T8R_LOG_MAX-T8R_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+const T8_R_UNIT_MULT = { ohm:1, kohm:1e3, Mohm:1e6 };
+function t8SetROhm(ohm, fromSlider) {
+  if (!fromSlider) document.getElementById('t8-rSlider').value = t8OhmToRSlider(ohm);
+  const u = document.getElementById('t8-rUnit').value;
+  document.getElementById('t8-r').value = +(ohm / T8_R_UNIT_MULT[u]).toPrecision(6);
+}
+document.getElementById('t8-rSlider').addEventListener('input', e => {
+  t8SetROhm(t8RSliderToOhm(+e.target.value), true);
+  t8Compute();
+});
+document.getElementById('t8-r').addEventListener('input', () => {
+  const v = parseFloat(document.getElementById('t8-r').value);
+  if (isNaN(v)) return;
+  t8SetROhm(v * T8_R_UNIT_MULT[document.getElementById('t8-rUnit').value]);
+  t8Compute();
+});
+document.getElementById('t8-rUnit').addEventListener('change', () => {
+  const ohm = t8RSliderToOhm(+document.getElementById('t8-rSlider').value);
+  t8SetROhm(ohm, true);
+  t8Compute();
+});
+
+/* Bandwidth: log slider, 1 Hz .. 100 MHz */
+const T8BW_LOG_MIN = 0, T8BW_LOG_MAX = Math.log10(1e8);
+function t8BwSliderToHz(s){ return Math.pow(10, T8BW_LOG_MIN + (s/1000)*(T8BW_LOG_MAX-T8BW_LOG_MIN)); }
+function t8HzToBwSlider(v){ const t=(Math.log10(Math.max(v,1))-T8BW_LOG_MIN)/(T8BW_LOG_MAX-T8BW_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+const T8_BW_UNIT_MULT = { Hz:1, kHz:1e3, MHz:1e6 };
+function t8SetBwHz(hz, fromSlider) {
+  if (!fromSlider) document.getElementById('t8-bwSlider').value = t8HzToBwSlider(hz);
+  const u = document.getElementById('t8-bwUnit').value;
+  document.getElementById('t8-bw').value = +(hz / T8_BW_UNIT_MULT[u]).toPrecision(6);
+}
+document.getElementById('t8-bwSlider').addEventListener('input', e => {
+  t8SetBwHz(t8BwSliderToHz(+e.target.value), true);
+  t8Compute();
+});
+document.getElementById('t8-bw').addEventListener('input', () => {
+  const v = parseFloat(document.getElementById('t8-bw').value);
+  if (isNaN(v)) return;
+  t8SetBwHz(v * T8_BW_UNIT_MULT[document.getElementById('t8-bwUnit').value]);
+  t8Compute();
+});
+document.getElementById('t8-bwUnit').addEventListener('change', () => {
+  const hz = t8BwSliderToHz(+document.getElementById('t8-bwSlider').value);
+  t8SetBwHz(hz, true);
+  t8Compute();
+});
+
+let t8_vrmsUv = 4.016, t8_pdbm = -114;
+function t8Compute() {
+  const R = parseFloat(document.getElementById('t8-r').value) * T8_R_UNIT_MULT[document.getElementById('t8-rUnit').value] || 0;
+  const BW = parseFloat(document.getElementById('t8-bw').value) * T8_BW_UNIT_MULT[document.getElementById('t8-bwUnit').value] || 0;
+  const npd = Math.sqrt(4*K_BOLTZ*t8_T*R); // V/sqrt(Hz)
+  const vrms = npd * Math.sqrt(BW); // V
+  const npd_nV = npd*1e9;
+  document.getElementById('t8-npd').textContent = npd_nV.toFixed(3);
+  const vf = fmtAuto(vrms*1e6, [{mult:1e6,label:'V'},{mult:1e3,label:'mV'},{mult:1,label:'µV'}]); // base uV
+  document.getElementById('t8-vrms').textContent = vf.v;
+  document.getElementById('t8-vrmsUnit').textContent = vf.u;
+
+  // Available noise power (matched load), independent of R: P = k*T*BW
+  const P_watts = K_BOLTZ * t8_T * BW;
+  const P_dbm = P_watts > 0 ? 10*Math.log10(P_watts*1000) : -Infinity;
+  document.getElementById('t8-pdbm').textContent = isFinite(P_dbm) ? P_dbm.toFixed(1) : '−∞';
+
+  t8_vrmsUv = vrms*1e6;   // store for waveform amplitude scaling
+  t8_pdbm = isFinite(P_dbm) ? P_dbm : -200;
+}
+t8SetROhm(50, false);
+t8SetBwHz(1000, false);
+t8Compute();
+
+/* Real-time simulated noise waveform */
+const t8Canvas = document.getElementById('t8Canvas');
+const t8Ctx = t8Canvas.getContext('2d');
+let t8_buffer = [];
+const T8_BUFFER_LEN = 180;
+for (let i=0;i<T8_BUFFER_LEN;i++) t8_buffer.push((Math.random()*2-1));
+
+function t8ResizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t8Canvas.getBoundingClientRect();
+  t8Canvas.width = rect.width * dpr;
+  t8Canvas.height = rect.height * dpr;
+  t8Ctx.setTransform(dpr,0,0,dpr,0,0);
+  t8DrawNoise();
+}
+window.addEventListener('resize', t8ResizeCanvas);
+
+/* Amplitude is driven directly by the noise power in dBm, which spans a huge
+   but well-defined range (~ -200 dBm floor to ~ -80 dBm for large R/T/BW).
+   This gives a clearly visible, monotonic response as T, R or BW change. */
+function t8AmpNorm() {
+  const P8_MIN = -190, P8_MAX = -90; // dBm range mapped to 0..1
+  const t = (t8_pdbm - P8_MIN) / (P8_MAX - P8_MIN);
+  return Math.max(0.04, Math.min(1, t));
+}
+
+function t8DrawNoise() {
+  const W = t8Canvas.getBoundingClientRect().width;
+  const H = t8Canvas.getBoundingClientRect().height;
+  const ctx = t8Ctx;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFC';
+  ctx.fillRect(0,0,W,H);
+  if (W<=0 || H<=0) return;
+
+  const midY = H/2;
+  const amp = (H*0.42) * t8AmpNorm();
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,midY); ctx.lineTo(W,midY); ctx.stroke();
+
+  ctx.strokeStyle='#3B5BDB'; ctx.lineWidth=1.4; ctx.beginPath();
+  const step = W / (T8_BUFFER_LEN-1);
+  for (let i=0;i<T8_BUFFER_LEN;i++) {
+    const x = i*step, y = midY - t8_buffer[i]*amp;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+
+function t8AnimateNoise() {
+  t8_buffer.shift();
+  t8_buffer.push((Math.random()*2-1) * (0.6 + Math.random()*0.4));
+  const panel = document.getElementById('panel-t8');
+  if (panel.style.display !== 'none') t8DrawNoise();
+  t8_rafId = requestAnimationFrame(t8AnimateNoise);
+}
+t8AnimateNoise();
+
+/* Default language */
+function goToHashTab() {
+  const hash = location.hash.replace('#','');
+  if (hash) {
+    const btn = document.querySelector('.tool-tab[data-tool="' + hash + '"]');
+    if (btn) btn.click();
+  }
+}
+window.addEventListener('load', () => { setLang('en'); goToHashTab(); });
+window.addEventListener('hashchange', goToHashTab);
+</script>
+</body>
+</html>

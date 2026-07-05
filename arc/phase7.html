@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 7 · Plasma Basics — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.logo-img { height: 36px; display: block; }
+#logo-fallback { display:none; align-items:center; gap:8px; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+.lang-toggle { display: flex; align-items: center; background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; margin-left: 8px; }
+.lang-btn { font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 3px 12px; border-radius: 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all .18s; }
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.phase-strip { max-width: 900px; margin: 18px auto 0; padding: 0 16px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--label); }
+.phase-pip { width: 22px; height: 22px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size: 10px; font-weight: 700; border: 1.5px solid var(--border); color: var(--label); background: var(--card); }
+.phase-pip.current { background: var(--green); border-color: var(--green); color: #fff; }
+.phase-pip.done { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.tool-tabs { max-width: 900px; margin: 14px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tool-tab { font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 7px; }
+.tool-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.tool-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: var(--shadow); }
+.tool-tab .tnum { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; font-size: 10px; font-family:'JetBrains Mono',monospace; }
+.tool-tab:not(.active) .tnum { background: var(--bg); border: 1px solid var(--border); }
+
+.main { max-width: 900px; margin: 20px auto 56px; padding: 0 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; animation: cardFade .3s ease; }
+@keyframes cardFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; background: var(--green-lt); color: var(--green); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 4px; flex-shrink: 0; }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 100px; }
+.slider-track { flex: 1; min-width: 160px; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%); outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; cursor: pointer; }
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 10px; width: 110px; text-align: right; outline: none; transition: border-color .2s; }
+.freq-num:focus { border-color: var(--green); }
+.unit-select { font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 500; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 8px; color: var(--text); cursor: pointer; outline: none; }
+.unit-select:focus { border-color: var(--green); }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn { font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; }
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+.qbtn.ism { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+.qbtn.ism.active { background: var(--green); color: #fff; }
+
+.mode-toggle { display: flex; gap: 6px; padding: 16px 24px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.mode-btn { font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 600; padding: 6px 15px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; }
+.mode-btn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.mode-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+.dual-input { display: flex; gap: 14px; padding: 14px 24px 0; flex-wrap: wrap; }
+.dual-field { flex: 1; min-width: 130px; }
+.dual-field label { display:block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+.dual-field input { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px; text-align: right; outline: none; transition: border-color .2s; }
+.dual-field input:focus { border-color: var(--green); }
+.dual-field-unit { display: flex; gap: 6px; }
+.dual-field-unit input { flex: 1; }
+.dual-field-unit select.unit-select { width: 74px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; transition: background .25s, transform .2s; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+
+.formula-panel { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+.field-hint { font-size: 11.5px; color: var(--muted); padding: 8px 24px 0; }
+
+.callout { margin: 12px 24px 18px; padding: 14px 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(15,23,42,0.05); display: flex; gap: 12px; align-items: flex-start; transition: box-shadow .2s; }
+.callout:hover { box-shadow: 0 3px 10px rgba(15,23,42,0.07); }
+.callout-icon { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+.callout-body { flex: 1; min-width: 0; }
+.callout-title { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; margin-bottom: 3px; }
+.callout-text { font-size: 12.5px; line-height: 1.65; color: var(--muted); }
+.callout-text b { color: var(--text); }
+.callout.c-green  .callout-icon { background: var(--green); } .callout.c-green  .callout-title { color: var(--green-dk); }
+.callout.c-amber  .callout-icon { background: #E08A2E; } .callout.c-amber  .callout-title { color: #C9720C; }
+.callout.c-purple .callout-icon { background: var(--purple); } .callout.c-purple .callout-title { color: var(--purple); }
+
+.vf-card-head { padding: 14px 24px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.vf-card-head h2 { font-size: 15px; font-weight: 600; }
+.vf-card-head p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.vf-custom-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 24px 0; }
+.vf-custom-row label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.vf-input { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s; }
+
+.vf-tabs { display: flex; gap: 6px; padding: 14px 24px 0; flex-wrap: wrap; }
+.vf-tab { font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; }
+.vf-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.vf-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+
+.fh-container { padding: 12px 24px 20px; }
+.fh-wrap { overflow-x: auto; }
+.fh-table { table-layout: fixed; border-collapse: collapse; width: 100%; min-width: 640px; font-size: 12.5px; }
+.fh-table th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: #F1F5F9; border-bottom: 1px solid var(--border); }
+.fh-body { max-height: 420px; overflow-y: auto; }
+.fh-table td { padding: 7px 10px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--card); }
+.fh-table tr:last-child td { border-bottom: none; }
+.fh-table tr:hover td { background: #F8F9FE; }
+td.cable-name { font-weight: 600; color: var(--text); }
+
+.deepdive { border-top: 1px solid var(--border); }
+.deepdive-toggle { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 24px; background: var(--purple-lt); border: none; cursor: pointer; font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--purple); text-align: left; transition: background .15s; }
+.deepdive-toggle:hover { background: #E9DCF5; }
+.deepdive-chevron { transition: transform .2s; font-size: 11px; flex-shrink: 0; }
+.deepdive-toggle.open .deepdive-chevron { transform: rotate(90deg); }
+.deepdive-body { display: none; padding: 18px 24px 22px; background: var(--card); }
+.deepdive-body.open { display: block; }
+.deepdive-body h3 { font-size: 13.5px; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+.deepdive-body h3:first-child { margin-top: 0; }
+.deepdive-body p { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 8px; }
+.deepdive-body ul { margin: 6px 0 10px 18px; }
+.deepdive-body li { font-size: 13px; line-height: 1.7; color: var(--muted); margin-bottom: 4px; }
+.deepdive-eq { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--green-dk); background: var(--green-lt); padding: 1px 6px; border-radius: 4px; }
+
+footer { text-align: center; padding: 10px 20px 30px; font-size: 11.5px; color: var(--muted); }
+footer a { color: var(--purple); text-decoration: none; }
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; }
+  .controls, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .tool-tab { font-size: 12px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+    <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+         alt="Benedu Insight" class="logo-img"
+         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div id="logo-fallback">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+      </svg>
+      <div style="line-height:1.15;">
+        <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+        <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+        <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+      </div>
+    </div>
+  </a>
+  <div class="header-divider"></div>
+  <span class="header-title" id="pageTitle">Phase 7 — Plasma Basics</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<div class="phase-strip" id="phaseStrip">
+  <span id="phaseStripLabel">Progress:</span>
+  <span class="phase-pip done">1</span><span class="phase-pip done">2</span><span class="phase-pip done">3</span>
+  <span class="phase-pip done">4</span><span class="phase-pip done">5</span><span class="phase-pip done">6</span>
+  <span class="phase-pip current">7</span>
+  <span id="phaseStripNote">· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma</span>
+</div>
+
+<nav class="tool-tabs">
+  <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">Plasma Parameters</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">2</span><span id="tabT2">CCP Impedance</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">Gas Reference</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">DC Self-Bias</span></button>
+  <button class="tool-tab" data-tool="t5"><span class="tnum">5</span><span id="tabT5">Ion Energy</span></button>
+</nav>
+
+<main class="main">
+
+  <!-- ============ TOOL 1: Basic Plasma Parameters ============ -->
+  <div class="card tool-panel" id="panel-t1">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t1Title">Basic Plasma Parameters</h2>
+        <p id="t1Sub">Debye length, plasma frequency, and Bohm velocity from electron temperature and density</p>
+      </div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="quick-row">
+        <span class="quick-label" id="t1IonLabel">Ion species:</span>
+        <button class="qbtn" data-amu="1">H⁺ (1 amu)</button>
+        <button class="qbtn" data-amu="4">He⁺ (4 amu)</button>
+        <button class="qbtn active" data-amu="40">Ar⁺ (40 amu)</button>
+        <button class="qbtn" data-amu="70">CF3⁺ (~70 amu)</button>
+        <button class="qbtn" data-amu="154">SF6⁺ (~146 amu)</button>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t1labelTe">Electron Temp., Te (eV)</label><input type="text" id="t1-te" value="3"></div>
+      <div class="dual-field">
+        <label id="t1labelN">Electron Density, n</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t1-n" value="1">
+          <select id="t1-nExp" class="unit-select">
+            <option value="9">×10⁹</option><option value="10">×10¹⁰</option><option value="11" selected>×10¹¹</option>
+            <option value="12">×10¹²</option><option value="13">×10¹³</option>
+          </select>
+        </div>
+      </div>
+      <div class="dual-field"><label id="t1labelAmu">Ion Mass (amu)</label><input type="text" id="t1-amu" value="40"></div>
+    </div>
+    <p class="field-hint" id="t1DensHint">Density is entered in cm⁻³ (a common processing-plasma convention): n × 10^exponent cm⁻³.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t1statDebye">DEBYE LENGTH (λ_D)</div><div><span class="stat-value" id="t1-debye">40.7</span><span class="stat-unit" id="t1-debyeUnit">µm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statFpe">PLASMA FREQ. (f_pe)</div><div><span class="stat-value" id="t1-fpe">2.84</span><span class="stat-unit" id="t1-fpeUnit">GHz</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statBohm">BOHM VELOCITY (u_B)</div><div><span class="stat-value" id="t1-bohm">2.69</span><span class="stat-unit" id="t1-bohmUnit">km/s</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t1f1">DEBYE LENGTH</div><div class="formula-eq">λ_D = √(ε₀kTe / (n·e²))</div></div>
+      <div><div class="formula-label" id="t1f2">PLASMA FREQUENCY</div><div class="formula-eq">ω_pe = √(n·e² / (ε₀m_e))</div></div>
+      <div><div class="formula-label" id="t1f3">BOHM VELOCITY</div><div class="formula-eq">u_B = √(kTe / M_ion)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 2: CCP Impedance ============ -->
+  <div class="card tool-panel" id="panel-t2" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t2Title">CCP Sheath Impedance (Simplified)</h2>
+        <p id="t2Sub">Capacitive sheath model: the plasma sheath approximated as a parallel-plate capacitor</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t2labelArea">Electrode Area, A (cm²)</label><input type="text" id="t2-area" value="200"></div>
+      <div class="dual-field"><label id="t2labelGap">Sheath Thickness, s (mm)</label><input type="text" id="t2-gap" value="2"></div>
+    </div>
+
+    <div class="controls" style="border-bottom:none;">
+      <div class="freq-row">
+        <span class="freq-label" id="t2LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t2-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t2-fInput" class="freq-num" value="13.56">
+          <select id="t2-fUnit" class="unit-select">
+            <option value="Hz">Hz</option><option value="kHz">kHz</option><option value="MHz" selected>MHz</option><option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t2QuickLabel">Quick select:</span>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="60" data-u="MHz">60 MHz</button>
+        <button class="qbtn ism" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t2statC">SHEATH CAPACITANCE, C</div><div><span class="stat-value" id="t2-c">88.5</span><span class="stat-unit">pF</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statXc">SHEATH REACTANCE, |Z|</div><div><span class="stat-value" id="t2-xc">132.6</span><span class="stat-unit">Ω</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t2f1">SHEATH CAPACITANCE</div><div class="formula-eq">C = ε₀·A / s</div></div>
+      <div><div class="formula-label" id="t2f2">SHEATH IMPEDANCE</div><div class="formula-eq">|Z| = 1 / (ωC)</div></div>
+    </div>
+    <p class="field-hint" id="t2Hint">This is a strongly simplified educational model — real CCP sheaths are nonlinear, time-varying, and better described by more advanced sheath models (e.g. Child-Langmuir / Lieberman).</p>
+  </div>
+
+  <!-- ============ TOOL 3: Gas Reference Table ============ -->
+  <div class="card tool-panel" id="panel-t3" style="display:none">
+    <div class="vf-card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="badge3vf">TABLE</span>
+      </span>
+      <div>
+        <h2 id="t3Title">Process Gas Reference Table</h2>
+        <p id="t3Sub">First ionization energy and common role for gases used in semiconductor plasma processing</p>
+      </div>
+    </div>
+
+    <div class="vf-tabs" id="t3Tabs">
+      <button class="vf-tab active" data-cat="all" id="t3tab-all">All</button>
+      <button class="vf-tab" data-cat="noble" id="t3tab-noble">Noble</button>
+      <button class="vf-tab" data-cat="halogen" id="t3tab-halogen">Halogen-based</button>
+      <button class="vf-tab" data-cat="other" id="t3tab-other">Other</button>
+    </div>
+
+    <div class="fh-container">
+      <div class="fh-wrap">
+        <table class="fh-table">
+          <colgroup><col style="width:14%"><col style="width:16%"><col style="width:35%"><col style="width:35%"></colgroup>
+          <thead><tr><th id="thGas">Gas</th><th id="thEi">Ionization Energy (eV)</th><th id="thUse">Common Process Use</th><th id="thNotes">Notes</th></tr></thead>
+        </table>
+        <div class="fh-body">
+          <table class="fh-table">
+            <colgroup><col style="width:14%"><col style="width:16%"><col style="width:35%"><col style="width:35%"></colgroup>
+            <tbody id="t3Tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p class="field-hint" id="t3Hint">First ionization energies are well-established atomic/molecular physics values. Actual dissociation and reaction chemistry in a real plasma is far more complex and process-specific.</p>
+  </div>
+
+  <!-- ============ TOOL 4: DC Self-Bias ============ -->
+  <div class="card tool-panel" id="panel-t4" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge4">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t4Title">DC Self-Bias (Area-Ratio Approximation)</h2>
+        <p id="t4Sub">Koenig-Maissel-style estimate of self-bias voltage from electrode area asymmetry</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t4labelAp">Powered Electrode Area, Ap (cm²)</label><input type="text" id="t4-ap" value="200"></div>
+      <div class="dual-field"><label id="t4labelAg">Grounded Electrode Area, Ag (cm²)</label><input type="text" id="t4-ag" value="800"></div>
+      <div class="dual-field"><label id="t4labelVrf">Applied RF Voltage, Vrf (V, peak)</label><input type="text" id="t4-vrf" value="500"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t4statRatio">AREA RATIO (Ag/Ap)</div><div><span class="stat-value" id="t4-ratio">4.00</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statVdc">ESTIMATED DC SELF-BIAS</div><div><span class="stat-value" id="t4-vdc">-496.1</span><span class="stat-unit">V</span></div></div>
+    </div>
+
+    <div class="callout c-amber">
+      <div class="callout-icon">!</div>
+      <div class="callout-body">
+        <div class="callout-title" id="t4CautionTitle">SIMPLIFIED / EDUCATIONAL MODEL</div>
+        <div class="callout-text" id="t4CautionText">The classic 4th-power area-ratio law is a strong idealization (planar, collisionless sheaths, no parasitic capacitance). Real self-bias also depends on sheath capacitance ratio, chamber geometry, and process conditions — use this for intuition, not for predicting an exact tool's DC bias reading.</div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t4f1">SELF-BIAS ESTIMATE</div><div class="formula-eq">V_dc ≈ −Vrf · [(Ag/Ap)⁴ − 1] / [(Ag/Ap)⁴ + 1]</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 5: Ion Energy / Sheath Voltage ============ -->
+  <div class="card tool-panel" id="panel-t5" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge5">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t5Title">Ion Energy from Sheath Voltage</h2>
+        <p id="t5Sub">Simplified collisionless-sheath estimate of ion bombardment energy at the electrode</p>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t5labelVsheath">Sheath Voltage, V_sheath (V)</label><input type="text" id="t5-vsheath" value="500"></div>
+      <div class="dual-field"><label id="t5labelZ">Ion Charge State, Z</label><input type="text" id="t5-z" value="1"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t5statEion">ION ENERGY ESTIMATE</div><div><span class="stat-value" id="t5-eion">500.0</span><span class="stat-unit">eV</span></div></div>
+    </div>
+
+    <div class="callout c-purple">
+      <div class="callout-icon">i</div>
+      <div class="callout-body">
+        <div class="callout-title" id="t5NoteTitle">ABOUT THE IEDF</div>
+        <div class="callout-text" id="t5NoteText">Real ions arrive with a distribution of energies (the Ion Energy Distribution Function, IEDF), not a single sharp value. At low RF frequency relative to the ion transit time, the IEDF is broad (bimodal); at high frequency, ions respond only to the time-averaged sheath field and the IEDF narrows toward this estimate.</div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t5f1">ION ENERGY (SIMPLIFIED)</div><div class="formula-eq">E_ion [eV] ≈ Z · V_sheath [V]</div></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span id="footerText">Benedu Insight · Lab Tool Series — Phase 7 / 7 (Plasma Basics)</span>
+</footer>
+
+<script>
+/* =========================================================
+   I18N
+   ========================================================= */
+const I18N = {
+  en: {
+    pageTitle: 'Phase 7 — Plasma Basics',
+    phaseStripLabel: 'Progress:',
+    phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
+    tabT1: 'Plasma Parameters', tabT2: 'CCP Impedance', tabT3: 'Gas Reference', tabT4: 'DC Self-Bias', tabT5: 'Ion Energy',
+    badge1:'INTERACTIVE',badge2:'INTERACTIVE',badge4:'INTERACTIVE',badge5:'INTERACTIVE',badge3vf:'TABLE',
+    t1Title: 'Basic Plasma Parameters',
+    t1Sub: 'Debye length, plasma frequency, and Bohm velocity from electron temperature and density',
+    t1IonLabel: 'Ion species:',
+    t1labelTe: 'Electron Temp., Te (eV)', t1labelN: 'Electron Density, n', t1labelAmu: 'Ion Mass (amu)',
+    t1DensHint: 'Density is entered in cm⁻³ (a common processing-plasma convention): n × 10^exponent cm⁻³.',
+    t1statDebye: 'DEBYE LENGTH (λ_D)', t1statFpe: 'PLASMA FREQ. (f_pe)', t1statBohm: 'BOHM VELOCITY (u_B)',
+    t1f1: 'DEBYE LENGTH', t1f2: 'PLASMA FREQUENCY', t1f3: 'BOHM VELOCITY',
+    t2Title: 'CCP Sheath Impedance (Simplified)',
+    t2Sub: 'Capacitive sheath model: the plasma sheath approximated as a parallel-plate capacitor',
+    t2labelArea: 'Electrode Area, A (cm²)', t2labelGap: 'Sheath Thickness, s (mm)',
+    t2LabelFreq: 'Frequency (f)', t2QuickLabel: 'Quick select:',
+    t2statC: 'SHEATH CAPACITANCE, C', t2statXc: 'SHEATH REACTANCE, |Z|',
+    t2f1: 'SHEATH CAPACITANCE', t2f2: 'SHEATH IMPEDANCE',
+    t2Hint: 'This is a strongly simplified educational model — real CCP sheaths are nonlinear, time-varying, and better described by more advanced sheath models (e.g. Child-Langmuir / Lieberman).',
+    t3Title: 'Process Gas Reference Table',
+    t3Sub: 'First ionization energy and common role for gases used in semiconductor plasma processing',
+    thGas: 'Gas', thEi: 'Ionization Energy (eV)', thUse: 'Common Process Use', thNotes: 'Notes',
+    't3tab-all': 'All', 't3tab-noble': 'Noble', 't3tab-halogen': 'Halogen-based', 't3tab-other': 'Other',
+    t3Hint: 'First ionization energies are well-established atomic/molecular physics values. Actual dissociation and reaction chemistry in a real plasma is far more complex and process-specific.',
+    t4Title: 'DC Self-Bias (Area-Ratio Approximation)',
+    t4Sub: 'Koenig-Maissel-style estimate of self-bias voltage from electrode area asymmetry',
+    t4labelAp: 'Powered Electrode Area, Ap (cm²)', t4labelAg: 'Grounded Electrode Area, Ag (cm²)', t4labelVrf: 'Applied RF Voltage, Vrf (V, peak)',
+    t4statRatio: 'AREA RATIO (Ag/Ap)', t4statVdc: 'ESTIMATED DC SELF-BIAS',
+    t4CautionTitle: 'SIMPLIFIED / EDUCATIONAL MODEL',
+    t4CautionText: 'The classic 4th-power area-ratio law is a strong idealization (planar, collisionless sheaths, no parasitic capacitance). Real self-bias also depends on sheath capacitance ratio, chamber geometry, and process conditions — use this for intuition, not for predicting an exact tool\'s DC bias reading.',
+    t4f1: 'SELF-BIAS ESTIMATE',
+    t5Title: 'Ion Energy from Sheath Voltage',
+    t5Sub: 'Simplified collisionless-sheath estimate of ion bombardment energy at the electrode',
+    t5labelVsheath: 'Sheath Voltage, V_sheath (V)', t5labelZ: 'Ion Charge State, Z',
+    t5statEion: 'ION ENERGY ESTIMATE',
+    t5NoteTitle: 'ABOUT THE IEDF',
+    t5NoteText: 'Real ions arrive with a distribution of energies (the Ion Energy Distribution Function, IEDF), not a single sharp value. At low RF frequency relative to the ion transit time, the IEDF is broad (bimodal); at high frequency, ions respond only to the time-averaged sheath field and the IEDF narrows toward this estimate.',
+    t5f1: 'ION ENERGY (SIMPLIFIED)',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 7 / 7 (Plasma Basics)'
+  },
+  ko: {
+    pageTitle: 'Phase 7 — 플라즈마 기초',
+    phaseStripLabel: '진행 단계:',
+    phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
+    tabT1: '플라즈마 변수', tabT2: 'CCP 임피던스', tabT3: '가스 참조표', tabT4: 'DC 셀프바이어스', tabT5: '이온 에너지',
+    badge1:'인터랙티브',badge2:'인터랙티브',badge4:'인터랙티브',badge5:'인터랙티브',badge3vf:'참조표',
+    t1Title: '기본 플라즈마 변수',
+    t1Sub: '전자온도·밀도로부터 디바이 길이, 플라즈마 주파수, Bohm 속도 계산',
+    t1IonLabel: '이온 종류:',
+    t1labelTe: '전자온도, Te (eV)', t1labelN: '전자밀도, n', t1labelAmu: '이온 질량 (amu)',
+    t1DensHint: '밀도는 cm⁻³ 단위로 입력합니다(공정 플라즈마에서 흔한 관례): n × 10^지수 cm⁻³.',
+    t1statDebye: '디바이 길이 (λ_D)', t1statFpe: '플라즈마 주파수 (f_pe)', t1statBohm: 'Bohm 속도 (u_B)',
+    t1f1: '디바이 길이', t1f2: '플라즈마 주파수', t1f3: 'Bohm 속도',
+    t2Title: 'CCP 시스 임피던스 (단순화)',
+    t2Sub: '용량성 시스 모델: 플라즈마 시스를 평행판 커패시터로 근사',
+    t2labelArea: '전극 면적, A (cm²)', t2labelGap: '시스 두께, s (mm)',
+    t2LabelFreq: '주파수 (f)', t2QuickLabel: '빠른 선택:',
+    t2statC: '시스 커패시턴스, C', t2statXc: '시스 리액턴스, |Z|',
+    t2f1: '시스 커패시턴스', t2f2: '시스 임피던스',
+    t2Hint: '이건 상당히 단순화된 교육용 모델입니다 — 실제 CCP 시스는 비선형·시변 특성을 가지며 Child-Langmuir나 Lieberman 같은 더 정교한 시스 모델로 설명해야 합니다.',
+    t3Title: '공정 가스 참조표',
+    t3Sub: '반도체 플라즈마 공정에 쓰이는 가스들의 1차 이온화에너지와 일반적 역할',
+    thGas: '가스', thEi: '이온화 에너지 (eV)', thUse: '일반적 공정 용도', thNotes: '비고',
+    't3tab-all': '전체', 't3tab-noble': '비활성 기체', 't3tab-halogen': '할로겐계', 't3tab-other': '기타',
+    t3Hint: '1차 이온화에너지는 잘 정립된 원자·분자물리 값입니다. 실제 플라즈마 내 해리·반응 화학은 훨씬 복잡하고 공정별로 다릅니다.',
+    t4Title: 'DC 셀프바이어스 (면적비 근사)',
+    t4Sub: '전극 면적 비대칭으로부터 셀프바이어스 전압을 추정하는 Koenig-Maissel 방식',
+    t4labelAp: '전원측 전극 면적, Ap (cm²)', t4labelAg: '접지측 전극 면적, Ag (cm²)', t4labelVrf: '인가 RF 전압, Vrf (V, peak)',
+    t4statRatio: '면적비 (Ag/Ap)', t4statVdc: '추정 DC 셀프바이어스',
+    t4CautionTitle: '단순화된 / 교육용 모델',
+    t4CautionText: '고전적인 4제곱 면적비 법칙은 강한 이상화입니다(평면·무충돌 시스, 기생 커패시턴스 무시). 실제 셀프바이어스는 시스 커패시턴스비, 챔버 형상, 공정조건에도 좌우됩니다 — 직관을 위한 참고용이지, 실제 장비의 정확한 DC 바이어스 값을 예측하는 용도가 아닙니다.',
+    t4f1: '셀프바이어스 추정',
+    t5Title: '시스 전압으로부터의 이온 에너지',
+    t5Sub: '무충돌 시스 가정 하의 전극 이온충격 에너지 단순 추정',
+    t5labelVsheath: '시스 전압, V_sheath (V)', t5labelZ: '이온 전하수, Z',
+    t5statEion: '이온 에너지 추정값',
+    t5NoteTitle: 'IEDF에 대하여',
+    t5NoteText: '실제 이온은 단일 값이 아니라 에너지 분포(Ion Energy Distribution Function, IEDF)를 갖고 도달합니다. 이온 통과시간 대비 RF 주파수가 낮으면 IEDF가 넓게(이중봉) 퍼지고, 주파수가 높으면 이온이 시간평균 시스 전기장에만 반응해 IEDF가 이 추정값 쪽으로 좁아집니다.',
+    t5f1: '이온 에너지 (단순화)',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 7 / 7 (플라즈마 기초)'
+  }
+};
+
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  Object.keys(T).forEach(k => set(k, T[k]));
+  if (typeof t3RenderTable === 'function') t3RenderTable(t3_cat);
+}
+
+document.querySelectorAll('.tool-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tool;
+    document.querySelectorAll('.tool-panel').forEach(p => p.style.display = (p.id === 'panel-' + id ? 'block' : 'none'));
+    document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b === btn));
+  });
+});
+
+/* =========================================================
+   Shared helpers
+   ========================================================= */
+function fmtAuto(value, units) {
+  for (const u of units) {
+    if (Math.abs(value) >= u.mult) return { v: +(value/u.mult).toPrecision(4), u: u.label };
+  }
+  const last = units[units.length-1];
+  return { v: +(value/last.mult).toPrecision(4), u: last.label };
+}
+const FREQ_LOG_MIN = 0, FREQ_LOG_MAX = Math.log10(10e9);
+function sliderToHz(s){ return Math.pow(10, FREQ_LOG_MIN + (s/1000)*(FREQ_LOG_MAX-FREQ_LOG_MIN)); }
+function hzToSlider(f){ const t=(Math.log10(Math.max(f,1))-FREQ_LOG_MIN)/(FREQ_LOG_MAX-FREQ_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+function unitToHz(v,u){ return u==='GHz'? v*1e9 : u==='MHz'? v*1e6 : u==='kHz'? v*1e3 : v; }
+function hzToUnitVal(hz,u){ return u==='GHz'? hz/1e9 : u==='MHz'? hz/1e6 : u==='kHz'? hz/1e3 : hz; }
+
+const EPS0 = 8.854e-12, ECHG = 1.602e-19, ME = 9.109e-31, AMU = 1.66054e-27;
+
+/* =========================================================
+   TOOL 1 — Basic Plasma Parameters
+   ========================================================= */
+document.querySelectorAll('#panel-t1 .qbtn[data-amu]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t1 .qbtn[data-amu]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t1-amu').value = btn.dataset.amu;
+    t1Compute();
+  });
+});
+function t1Compute() {
+  const Te = parseFloat(document.getElementById('t1-te').value) || 0; // eV
+  const nMant = parseFloat(document.getElementById('t1-n').value) || 0;
+  const nExp = parseFloat(document.getElementById('t1-nExp').value) || 0;
+  const n_cm3 = nMant * Math.pow(10, nExp);
+  const n_m3 = n_cm3 * 1e6; // cm^-3 -> m^-3
+  const amu = parseFloat(document.getElementById('t1-amu').value) || 1;
+  const Mion = amu * AMU;
+
+  const kTe_J = Te * ECHG;
+  const debye = (n_m3>0) ? Math.sqrt(EPS0*kTe_J/(n_m3*ECHG*ECHG)) : 0; // meters
+  const wpe = Math.sqrt(n_m3*ECHG*ECHG/(EPS0*ME));
+  const fpe = wpe/(2*Math.PI);
+  const uB = Math.sqrt(kTe_J/Mion);
+
+  const debyeF = fmtAuto(debye*1e6, [{mult:1e3,label:'mm'},{mult:1,label:'µm'},{mult:1e-3,label:'nm'}]);
+  document.getElementById('t1-debye').textContent = debyeF.v; document.getElementById('t1-debyeUnit').textContent = debyeF.u;
+  const fpeF = fmtAuto(fpe, [{mult:1e9,label:'GHz'},{mult:1e6,label:'MHz'},{mult:1e3,label:'kHz'},{mult:1,label:'Hz'}]);
+  document.getElementById('t1-fpe').textContent = fpeF.v; document.getElementById('t1-fpeUnit').textContent = fpeF.u;
+  const uBF = fmtAuto(uB, [{mult:1e3,label:'km/s'},{mult:1,label:'m/s'}]);
+  document.getElementById('t1-bohm').textContent = uBF.v; document.getElementById('t1-bohmUnit').textContent = uBF.u;
+}
+['t1-te','t1-n','t1-nExp','t1-amu'].forEach(id => document.getElementById(id).addEventListener('input', t1Compute));
+t1Compute();
+
+/* =========================================================
+   TOOL 2 — CCP Sheath Impedance
+   ========================================================= */
+let t2_hz = 13.56e6;
+function t2Compute() {
+  const areaCm2 = parseFloat(document.getElementById('t2-area').value) || 0;
+  const gapMm = parseFloat(document.getElementById('t2-gap').value) || 0.001;
+  const areaM2 = areaCm2 * 1e-4;
+  const gapM = gapMm / 1000;
+  const C = EPS0*areaM2/gapM; // Farads
+  const w = 2*Math.PI*t2_hz;
+  const Xc = (w>0 && C>0) ? 1/(w*C) : 0;
+  document.getElementById('t2-c').textContent = (C*1e12).toFixed(2);
+  document.getElementById('t2-xc').textContent = Xc.toFixed(2);
+}
+document.getElementById('t2-fSlider').addEventListener('input', e => {
+  t2_hz = sliderToHz(+e.target.value);
+  const u = document.getElementById('t2-fUnit').value;
+  document.getElementById('t2-fInput').value = +hzToUnitVal(t2_hz,u).toPrecision(6);
+  t2Compute();
+});
+document.getElementById('t2-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t2-fInput').value);
+  if (!isNaN(v)) { t2_hz = unitToHz(v, document.getElementById('t2-fUnit').value); document.getElementById('t2-fSlider').value = hzToSlider(t2_hz); t2Compute(); }
+});
+document.getElementById('t2-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t2-fInput').value);
+  if (!isNaN(v)) { t2_hz = unitToHz(v, document.getElementById('t2-fUnit').value); t2Compute(); }
+});
+document.querySelectorAll('#panel-t2 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t2 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t2-fUnit').value = btn.dataset.u;
+    t2_hz = unitToHz(parseFloat(btn.dataset.hz), btn.dataset.u);
+    document.getElementById('t2-fSlider').value = hzToSlider(t2_hz);
+    document.getElementById('t2-fInput').value = btn.dataset.hz;
+    t2Compute();
+  });
+});
+['t2-area','t2-gap'].forEach(id => document.getElementById(id).addEventListener('input', t2Compute));
+t2Compute();
+
+/* =========================================================
+   TOOL 3 — Gas Reference Table
+   ========================================================= */
+const GASES = [
+  { cat:'noble', name:'Argon (Ar)', ei:15.76, use:'Sputtering, dilutant, ion bombardment carrier' },
+  { cat:'noble', name:'Helium (He)', ei:24.59, use:'Carrier gas, thermal conduction, backside cooling' },
+  { cat:'noble', name:'Neon (Ne)', ei:21.56, use:'Occasional dilutant, specialty processes' },
+  { cat:'halogen', name:'CF4', ei:'~12–16 (fragments)', use:'Oxide/nitride etch, F-based chemistry' },
+  { cat:'halogen', name:'CHF3', ei:'~13 (fragments)', use:'Polymer-forming oxide etch (higher selectivity to Si)' },
+  { cat:'halogen', name:'SF6', ei:'~15.3', use:'Si deep etch (Bosch process), F-rich isotropic etch' },
+  { cat:'halogen', name:'Cl2', ei:11.48, use:'Metal/poly-Si etch (Al, W, poly-gate)' },
+  { cat:'halogen', name:'HBr', ei:11.67, use:'Poly-Si gate etch, high selectivity to oxide' },
+  { cat:'halogen', name:'BCl3', ei:'~11.6', use:'Al etch, native-oxide removal (scavenges O/H2O)' },
+  { cat:'halogen', name:'NF3', ei:'~13', use:'Chamber clean (remote plasma), F source' },
+  { cat:'other', name:'Oxygen (O2)', ei:12.07, use:'Photoresist ash/strip, oxidation, polymer removal' },
+  { cat:'other', name:'Nitrogen (N2)', ei:15.58, use:'Nitridation, dilutant, purge' },
+  { cat:'other', name:'Hydrogen (H2)', ei:15.43, use:'Reduction chemistry, native oxide removal' },
+  { cat:'other', name:'Ammonia (NH3)', ei:'~10.2', use:'Nitride deposition/treatment' },
+  { cat:'other', name:'Silane (SiH4)', ei:'~11.0', use:'Si-based CVD/PECVD deposition' },
+];
+let t3_cat = 'all';
+function t3RenderTable(cat) {
+  t3_cat = cat;
+  const tbody = document.getElementById('t3Tbody');
+  tbody.innerHTML = '';
+  GASES.filter(g => cat==='all' || g.cat===cat).forEach(g => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="cable-name">${g.name}</td><td>${g.ei}</td><td style="white-space:normal;">${g.use}</td><td style="color:var(--muted);font-size:11.5px;white-space:normal;"></td>`;
+    tbody.appendChild(tr);
+  });
+}
+document.querySelectorAll('#t3Tabs .vf-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#t3Tabs .vf-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    t3RenderTable(btn.dataset.cat);
+  });
+});
+t3RenderTable('all');
+
+/* =========================================================
+   TOOL 4 — DC Self-Bias
+   ========================================================= */
+function t4Compute() {
+  const Ap = parseFloat(document.getElementById('t4-ap').value) || 1;
+  const Ag = parseFloat(document.getElementById('t4-ag').value) || 1;
+  const Vrf = parseFloat(document.getElementById('t4-vrf').value) || 0;
+  const ratio = Ag/Ap;
+  const ratio4 = Math.pow(ratio, 4);
+  const Vdc = -Vrf * (ratio4-1)/(ratio4+1);
+  document.getElementById('t4-ratio').textContent = ratio.toFixed(2);
+  document.getElementById('t4-vdc').textContent = Vdc.toFixed(1);
+}
+['t4-ap','t4-ag','t4-vrf'].forEach(id => document.getElementById(id).addEventListener('input', t4Compute));
+t4Compute();
+
+/* =========================================================
+   TOOL 5 — Ion Energy
+   ========================================================= */
+function t5Compute() {
+  const Vsheath = parseFloat(document.getElementById('t5-vsheath').value) || 0;
+  const Z = parseFloat(document.getElementById('t5-z').value) || 1;
+  const Eion = Z*Vsheath;
+  document.getElementById('t5-eion').textContent = Eion.toFixed(1);
+}
+['t5-vsheath','t5-z'].forEach(id => document.getElementById(id).addEventListener('input', t5Compute));
+t5Compute();
+
+/* Default language */
+function goToHashTab() {
+  const hash = location.hash.replace('#','');
+  if (hash) {
+    const btn = document.querySelector('.tool-tab[data-tool="' + hash + '"]');
+    if (btn) btn.click();
+  }
+}
+window.addEventListener('load', () => { setLang('en'); goToHashTab(); });
+window.addEventListener('hashchange', goToHashTab);
+</script>
+</body>
+</html>

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 5 · Smith Chart &amp; Matching Tools — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #0F8C50; --green-lt: #E6F4ED; --green-dk: #0A6B3C;
+  --purple: #7030A0; --purple-lt: #F0E8F8; --purple-mid: #9B59D0;
+  --bg: #F8FAFB; --card: #FFFFFF; --border: #E2E8F0;
+  --text: #1A202C; --muted: #64748B; --label: #94A3B8;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.logo-img { height: 36px; display: block; }
+#logo-fallback { display:none; align-items:center; gap:8px; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+.lang-toggle { display: flex; align-items: center; background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px; margin-left: 8px; }
+.lang-btn { font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600; padding: 3px 12px; border-radius: 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: all .18s; }
+.lang-btn.active { background: var(--purple); color: #fff; }
+.phase-strip { max-width: 900px; margin: 18px auto 0; padding: 0 16px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--label); }
+.phase-pip { width: 22px; height: 22px; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size: 10px; font-weight: 700; border: 1.5px solid var(--border); color: var(--label); background: var(--card); }
+.phase-pip.current { background: var(--green); border-color: var(--green); color: #fff; }
+.phase-pip.done { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+.tool-tabs { max-width: 900px; margin: 14px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tool-tab { font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 7px; }
+.tool-tab:hover { border-color: var(--purple-mid); color: var(--purple); }
+.tool-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; box-shadow: var(--shadow); }
+.tool-tab .tnum { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; font-size: 10px; font-family:'JetBrains Mono',monospace; }
+.tool-tab:not(.active) .tnum { background: var(--bg); border: 1px solid var(--border); }
+.main { max-width: 900px; margin: 20px auto 56px; padding: 0 16px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px; animation: cardFade .3s ease; }
+@keyframes cardFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; background: var(--green-lt); color: var(--green); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 4px; flex-shrink: 0; }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 100px; }
+.slider-track { flex: 1; min-width: 160px; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px; background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%); outline: none; cursor: pointer; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s; }
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--green); border: 2px solid #fff; cursor: pointer; }
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 10px; width: 110px; text-align: right; outline: none; transition: border-color .2s; }
+.freq-num:focus { border-color: var(--green); }
+.unit-select { font-family: 'Google Sans', sans-serif; font-size: 13px; font-weight: 500; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 5px 8px; color: var(--text); cursor: pointer; outline: none; }
+.unit-select:focus { border-color: var(--green); }
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn { font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; }
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+.qbtn.ism { border-color: var(--green); color: var(--green); background: var(--green-lt); }
+.qbtn.ism.active { background: var(--green); color: #fff; }
+.mode-toggle { display: flex; gap: 6px; padding: 16px 24px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.mode-btn { font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 600; padding: 6px 15px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s; }
+.mode-btn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.mode-btn.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+.dual-input { display: flex; gap: 14px; padding: 14px 24px 0; flex-wrap: wrap; }
+.dual-field { flex: 1; min-width: 130px; }
+.dual-field label { display:block; font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+.dual-field input { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px; text-align: right; outline: none; transition: border-color .2s; }
+.dual-field input:focus { border-color: var(--green); }
+.dual-field-unit { display: flex; gap: 6px; }
+.dual-field-unit input { flex: 1; }
+.dual-field-unit select.unit-select { width: 74px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 18px 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; transition: background .25s, transform .2s; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+.formula-panel { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+.field-hint { font-size: 11.5px; color: var(--muted); padding: 8px 24px 0; }
+.callout { margin: 12px 24px 18px; padding: 14px 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(15,23,42,0.05); display: flex; gap: 12px; align-items: flex-start; transition: box-shadow .2s; }
+.callout:hover { box-shadow: 0 3px 10px rgba(15,23,42,0.07); }
+.callout-icon { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+.callout-body { flex: 1; min-width: 0; }
+.callout-title { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; margin-bottom: 3px; }
+.callout-text { font-size: 12.5px; line-height: 1.65; color: var(--muted); }
+.callout.c-green .callout-icon { background: var(--green); } .callout.c-green .callout-title { color: var(--green-dk); }
+.callout.c-amber .callout-icon { background: #E08A2E; } .callout.c-amber .callout-title { color: #C9720C; }
+.callout.c-purple .callout-icon { background: var(--purple); } .callout.c-purple .callout-title { color: var(--purple); }
+.graph-wrap { padding: 0 24px; }
+.graphCanvas { width: 100%; height: 280px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #FAFBFC; margin: 4px 0; }
+.graph-note { font-size: 11.5px; color: var(--muted); margin: 8px 0 16px; padding: 0 2px; text-align: center; }
+.vf-card-head { padding: 14px 24px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.vf-table-wrap { padding: 12px 24px 20px; overflow-x: auto; }
+.vf-table-wrap table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.vf-table-wrap th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: .05em; white-space: nowrap; border-bottom: 1px solid var(--border); background: #F1F5F9; }
+.vf-table-wrap td { padding: 7px 10px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; white-space: nowrap; }
+footer { text-align: center; padding: 10px 20px 30px; font-size: 11.5px; color: var(--muted); }
+footer a { color: var(--purple); text-decoration: none; }
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; }
+  .controls, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .tool-tab { font-size: 12px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
+    <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true" alt="Benedu Insight" class="logo-img" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+    <div id="logo-fallback">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/></svg>
+      <div style="line-height:1.15;"><span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span><span style="color:#7030A0;font-size:18px;font-weight:400;">du</span><span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span></div>
+    </div>
+  </a>
+  <div class="header-divider"></div>
+  <span class="header-title" id="pageTitle">Phase 5 — Smith Chart &amp; Matching Tools</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<div class="phase-strip" id="phaseStrip">
+  <span id="phaseStripLabel">Progress:</span>
+  <span class="phase-pip done">1</span><span class="phase-pip done">2</span><span class="phase-pip done">3</span><span class="phase-pip done">4</span>
+  <span class="phase-pip current">5</span><span class="phase-pip">6</span><span class="phase-pip">7</span>
+  <span id="phaseStripNote">· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma</span>
+</div>
+
+<nav class="tool-tabs">
+  <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">Smith Chart</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">2</span><span id="tabT2">VSWR</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">I_V_CAL</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">PVI</span></button>
+  <button class="tool-tab" data-tool="t5"><span class="tnum">5</span><span id="tabT5">Power Calc</span></button>
+  <button class="tool-tab" data-tool="t6"><span class="tnum">6</span><span id="tabT6">Z Analysis</span></button>
+  <button class="tool-tab" data-tool="t7"><span class="tnum">7</span><span id="tabT7">Auto-Match Range</span></button>
+  <button class="tool-tab" data-tool="t8"><span class="tnum">8</span><span id="tabT8">Fwd/Refl Efficiency</span></button>
+</nav>
+
+<main class="main">
+
+  <!-- ============ TOOL 1: Smith Chart ============ -->
+  <div class="card tool-panel" id="panel-t1">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t1Title">Smith Chart</h2>
+        <p id="t1Sub">Plot a complex impedance on the Smith chart and read off Γ, VSWR and return loss</p>
+      </div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t1labelZ0">Z₀ — Reference Impedance (Ω)</label><input type="text" id="t1-z0" value="50"></div>
+      <div class="dual-field"><label id="t1labelZr">Re(Z) (Ω)</label><input type="text" id="t1-zr" value="75"></div>
+      <div class="dual-field"><label id="t1labelZx">Im(Z) (Ω)</label><input type="text" id="t1-zx" value="25"></div>
+    </div>
+    <div class="graph-wrap"><canvas id="t1Canvas" class="graphCanvas" style="height:320px;"></canvas></div>
+    <p class="graph-note" id="t1GraphNote">The purple point shows the normalized impedance z = Z/Z₀ on the chart.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t1statMag">|Γ|</div><div><span class="stat-value" id="t1-mag">0.243</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statAng">∠Γ</div><div><span class="stat-value" id="t1-ang">57.5</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statVswr">VSWR</div><div><span class="stat-value" id="t1-vswr">1.64</span></div></div>
+      <div class="stat"><div class="stat-name" id="t1statRL">Return Loss</div><div><span class="stat-value" id="t1-rl">12.3</span><span class="stat-unit">dB</span></div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t1f1">REFLECTION COEFFICIENT</div><div class="formula-eq">Γ = (Z − Z₀) / (Z + Z₀)</div></div>
+      <div><div class="formula-label" id="t1f2">VSWR</div><div class="formula-eq">VSWR = (1+|Γ|)/(1−|Γ|)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 2: VSWR ============ -->
+  <div class="card tool-panel" id="panel-t2" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t2Title">VSWR Calculator</h2>
+        <p id="t2Sub">Compute VSWR and return loss from |Γ|, from Z/Z₀, or from forward/reflected power</p>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="gamma" id="t2ModeGamma">From |Γ|</button>
+      <button class="mode-btn" data-mode="z" id="t2ModeZ">From Z, Z₀</button>
+      <button class="mode-btn" data-mode="power" id="t2ModePower">From Pfwd, Prefl</button>
+    </div>
+    <div class="dual-input" id="t2-gammaInputs">
+      <div class="dual-field"><label id="t2labelGamma">|Γ|</label><input type="text" id="t2-gamma" value="0.3"></div>
+    </div>
+    <div class="dual-input" id="t2-zInputs" style="display:none">
+      <div class="dual-field"><label id="t2labelZ0">Z₀ (Ω)</label><input type="text" id="t2-z0" value="50"></div>
+      <div class="dual-field"><label id="t2labelZr">Re(Z) (Ω)</label><input type="text" id="t2-zr" value="75"></div>
+      <div class="dual-field"><label id="t2labelZx">Im(Z) (Ω)</label><input type="text" id="t2-zx" value="25"></div>
+    </div>
+    <div class="dual-input" id="t2-powerInputs" style="display:none">
+      <div class="dual-field"><label id="t2labelPfwd">Forward Power (W)</label><input type="text" id="t2-pfwd" value="1000"></div>
+      <div class="dual-field"><label id="t2labelPrefl">Reflected Power (W)</label><input type="text" id="t2-prefl" value="40"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t2statGamma">|Γ|</div><div><span class="stat-value" id="t2-gammaOut">0.300</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statVswr">VSWR</div><div><span class="stat-value" id="t2-vswr">1.857</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statRL">Return Loss</div><div><span class="stat-value" id="t2-rl">10.46</span><span class="stat-unit">dB</span></div></div>
+      <div class="stat"><div class="stat-name" id="t2statMM">Mismatch Loss</div><div><span class="stat-value" id="t2-mm">0.394</span><span class="stat-unit">dB</span></div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t2f1">VSWR</div><div class="formula-eq">VSWR = (1+|Γ|)/(1−|Γ|)</div></div>
+      <div><div class="formula-label" id="t2f2">RETURN LOSS</div><div class="formula-eq">RL = −20·log₁₀|Γ|</div></div>
+      <div><div class="formula-label" id="t2f3">MISMATCH LOSS</div><div class="formula-eq">ML = −10·log₁₀(1−|Γ|²)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 3: I_V_CAL ============ -->
+  <div class="card tool-panel" id="panel-t3" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge3">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t3Title">I_V_CAL — Load Voltage &amp; Current from Forward Power</h2>
+        <p id="t3Sub">Given forward power into a line and the load impedance, find the actual V, I and phase at the load</p>
+      </div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t3labelPfwd">Forward Power (W)</label><input type="text" id="t3-pfwd" value="1000"></div>
+      <div class="dual-field"><label id="t3labelZ0">Z₀ (Ω)</label><input type="text" id="t3-z0" value="50"></div>
+      <div class="dual-field"><label id="t3labelZr">Re(Z_L) (Ω)</label><input type="text" id="t3-zr" value="75"></div>
+      <div class="dual-field"><label id="t3labelZx">Im(Z_L) (Ω)</label><input type="text" id="t3-zx" value="25"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t3statVrms">Vrms AT LOAD</div><div><span class="stat-value" id="t3-vrms">248.7</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statIrms">Irms AT LOAD</div><div><span class="stat-value" id="t3-irms">3.14</span><span class="stat-unit">A</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statPhase">PHASE (V rel. I)</div><div><span class="stat-value" id="t3-phase">18.4</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statPdel">DELIVERED POWER</div><div><span class="stat-value" id="t3-pdel">923.1</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t3statVswr">VSWR</div><div><span class="stat-value" id="t3-vswr">1.766</span></div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t3f1">LOAD VOLTAGE</div><div class="formula-eq">Vrms = √(P_fwd·Z₀) · |1+Γ|</div></div>
+      <div><div class="formula-label" id="t3f2">LOAD CURRENT</div><div class="formula-eq">Irms = √(P_fwd/Z₀) · |1−Γ|</div></div>
+      <div><div class="formula-label" id="t3f3">DELIVERED POWER</div><div class="formula-eq">P_del = P_fwd·(1−|Γ|²)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 4: PVI ============ -->
+  <div class="card tool-panel" id="panel-t4" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge4">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t4Title">PVI — Power ↔ Voltage ↔ Current Hub</h2>
+        <p id="t4Sub">Matched Z₀ system: enter any one of P, Vrms or Irms to get the other two, plus dBm</p>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="p" id="t4ModeP">From Power</button>
+      <button class="mode-btn" data-mode="v" id="t4ModeV">From Vrms</button>
+      <button class="mode-btn" data-mode="i" id="t4ModeI">From Irms</button>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t4labelZ0">System Z₀ (Ω)</label><input type="text" id="t4-z0" value="50"></div>
+      <div class="dual-field">
+        <label id="t4labelInput">Power (W)</label>
+        <input type="text" id="t4-input" value="1000">
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t4statP">POWER</div><div><span class="stat-value" id="t4-p">1000</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statDbm">dBm</div><div><span class="stat-value" id="t4-dbm">60.0</span><span class="stat-unit">dBm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statVrms">Vrms</div><div><span class="stat-value" id="t4-vrms">223.6</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statVpk">Vpeak</div><div><span class="stat-value" id="t4-vpk">316.2</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statIrms">Irms</div><div><span class="stat-value" id="t4-irms">4.47</span><span class="stat-unit">A</span></div></div>
+      <div class="stat"><div class="stat-name" id="t4statIpk">Ipeak</div><div><span class="stat-value" id="t4-ipk">6.32</span><span class="stat-unit">A</span></div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t4f1">POWER-VOLTAGE</div><div class="formula-eq">P = Vrms² / Z₀</div></div>
+      <div><div class="formula-label" id="t4f2">POWER-CURRENT</div><div class="formula-eq">P = Irms² · Z₀</div></div>
+      <div><div class="formula-label" id="t4f3">dBm</div><div class="formula-eq">P(dBm) = 10·log₁₀(P·1000)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 5: Power Calculation ============ -->
+  <div class="card tool-panel" id="panel-t5" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge5">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t5Title">Power Calculation from V, I and Phase</h2>
+        <p id="t5Sub">Real, reactive and apparent power from Vrms, Irms and the phase angle between them</p>
+      </div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t5labelVrms">Vrms (V)</label><input type="text" id="t5-vrms" value="230"></div>
+      <div class="dual-field"><label id="t5labelIrms">Irms (A)</label><input type="text" id="t5-irms" value="4.5"></div>
+      <div class="dual-field"><label id="t5labelPhase">Phase Angle, θ (°)</label><input type="text" id="t5-phase" value="20"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t5statP">REAL POWER (P)</div><div><span class="stat-value" id="t5-p">972.5</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statQ">REACTIVE POWER (Q)</div><div><span class="stat-value" id="t5-q">354.0</span><span class="stat-unit">VAR</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statS">APPARENT POWER (S)</div><div><span class="stat-value" id="t5-s">1035.0</span><span class="stat-unit">VA</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statPF">POWER FACTOR</div><div><span class="stat-value" id="t5-pf">0.940</span></div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t5f1">REAL POWER</div><div class="formula-eq">P = Vrms·Irms·cos(θ)</div></div>
+      <div><div class="formula-label" id="t5f2">REACTIVE POWER</div><div class="formula-eq">Q = Vrms·Irms·sin(θ)</div></div>
+      <div><div class="formula-label" id="t5f3">POWER FACTOR</div><div class="formula-eq">PF = cos(θ)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 6: Measured Impedance Analysis ============ -->
+  <div class="card tool-panel" id="panel-t6" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge6">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t6Title">Measured Impedance Analysis</h2>
+        <p id="t6Sub">Compare a network-analyzer measured impedance against a target, and check match quality</p>
+      </div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t6labelZ0">Z₀ (Ω)</label><input type="text" id="t6-z0" value="50"></div>
+      <div class="dual-field"><label id="t6labelZmr">Measured Re(Z) (Ω)</label><input type="text" id="t6-zmr" value="52"></div>
+      <div class="dual-field"><label id="t6labelZmx">Measured Im(Z) (Ω)</label><input type="text" id="t6-zmx" value="6"></div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t6labelZtr">Target Re(Z) (Ω)</label><input type="text" id="t6-ztr" value="50"></div>
+      <div class="dual-field"><label id="t6labelZtx">Target Im(Z) (Ω)</label><input type="text" id="t6-ztx" value="0"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t6statVswrM">MEASURED VSWR</div><div><span class="stat-value" id="t6-vswrM">1.15</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statRLM">MEASURED RETURN LOSS</div><div><span class="stat-value" id="t6-rlM">21.8</span><span class="stat-unit">dB</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statVswrT">TARGET VSWR</div><div><span class="stat-value" id="t6-vswrT">1.00</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statDevZ">|Z DEVIATION|</div><div><span class="stat-value" id="t6-devZ">6.3</span><span class="stat-unit">Ω</span></div></div>
+    </div>
+    <div class="callout c-green" id="t6QualityNote">
+      <div class="callout-icon" id="t6QualityIcon">✓</div>
+      <div class="callout-body"><div class="callout-title" id="t6QualityTitle">GOOD MATCH</div><div class="callout-text" id="t6QualityText">Measured VSWR is close to the target.</div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t6f1">DEVIATION</div><div class="formula-eq">|ΔZ| = |Z_measured − Z_target|</div></div>
+      <div><div class="formula-label" id="t6f2">VSWR</div><div class="formula-eq">VSWR = (1+|Γ|)/(1−|Γ|)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 7: Auto-Matcher Tuning Range ============ -->
+  <div class="card tool-panel" id="panel-t7" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge7">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t7Title">Auto-Matcher Tuning Range</h2>
+        <p id="t7Sub">For a fixed load and a series inductor, sweep the shunt tuning capacitor across its range and find the best achievable match</p>
+      </div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t7labelZ0">Z₀ (Ω)</label><input type="text" id="t7-z0" value="50"></div>
+      <div class="dual-field"><label id="t7labelZr">Load Re(Z_L) (Ω)</label><input type="text" id="t7-zr" value="20"></div>
+      <div class="dual-field"><label id="t7labelZx">Load Im(Z_L) (Ω)</label><input type="text" id="t7-zx" value="30"></div>
+    </div>
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t7LabelFreq">Frequency (f)</span>
+        <div class="slider-track"><input type="range" id="t7-fSlider" min="0" max="1000" value="613"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t7-fInput" class="freq-num" value="13.56">
+          <select id="t7-fUnit" class="unit-select">
+            <option value="Hz">Hz</option><option value="kHz">kHz</option><option value="MHz" selected>MHz</option><option value="GHz">GHz</option>
+          </select>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="t7QuickLabel">Quick select:</span>
+        <button class="qbtn" data-hz="430" data-u="kHz">430 kHz</button>
+        <button class="qbtn" data-hz="2" data-u="MHz">2 MHz</button>
+        <button class="qbtn ism" data-hz="13.56" data-u="MHz">13.56 MHz</button>
+        <button class="qbtn ism" data-hz="27.12" data-u="MHz">27.12 MHz</button>
+        <button class="qbtn ism" data-hz="40.68" data-u="MHz">40.68 MHz</button>
+        <button class="qbtn" data-hz="60" data-u="MHz">60 MHz</button>
+        <button class="qbtn" data-hz="100" data-u="MHz">100 MHz</button>
+        <button class="qbtn ism" data-hz="2.45" data-u="GHz">2.45 GHz</button>
+      </div>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field">
+        <label id="t7labelL">Series L (fixed)</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t7-l" value="300">
+          <select id="t7-lUnit" class="unit-select"><option value="nH" selected>nH</option><option value="uH">µH</option></select>
+        </div>
+      </div>
+      <div class="dual-field">
+        <label id="t7labelCmin">Shunt C — Min</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t7-cmin" value="20">
+          <select id="t7-cminUnit" class="unit-select"><option value="pF" selected>pF</option><option value="nF">nF</option></select>
+        </div>
+      </div>
+      <div class="dual-field">
+        <label id="t7labelCmax">Shunt C — Max</label>
+        <div class="dual-field-unit">
+          <input type="text" id="t7-cmax" value="500">
+          <select id="t7-cmaxUnit" class="unit-select"><option value="pF" selected>pF</option><option value="nF">nF</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="graph-wrap"><canvas id="t7Canvas" class="graphCanvas"></canvas></div>
+    <p class="graph-note" id="t7GraphNote">VSWR seen by the source as the shunt tuning capacitor sweeps from C_min to C_max. The lowest point is the best achievable match within this matcher's range.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t7statBestC">BEST SHUNT C</div><div><span class="stat-value" id="t7-bestC">365.6</span><span class="stat-unit" id="t7-bestCUnit">pF</span></div></div>
+      <div class="stat"><div class="stat-name" id="t7statBestVswr">BEST VSWR ACHIEVABLE</div><div><span class="stat-value" id="t7-bestVswr">1.03</span></div></div>
+      <div class="stat"><div class="stat-name" id="t7statWorstVswr">WORST VSWR IN RANGE</div><div><span class="stat-value" id="t7-worstVswr">5.38</span></div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t7f1">SHUNT C ADMITTANCE</div><div class="formula-eq">Y_shunt = 1/R_L + j(ωC − X_L,load⁻¹ terms)</div></div>
+      <div><div class="formula-label" id="t7f2">SWEEP</div><div class="formula-eq">Z_in(C) = jωL + 1/(Y_load + jωC)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TOOL 8: Forward/Reflected Power Efficiency ============ -->
+  <div class="card tool-panel" id="panel-t8" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge8">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t8Title">Forward / Reflected Power Efficiency</h2>
+        <p id="t8Sub">How much of the forward power actually reaches the load, given the reflected power or VSWR</p>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="power" id="t8ModePower">From Pfwd, Prefl</button>
+      <button class="mode-btn" data-mode="vswr" id="t8ModeVswr">From Pfwd, VSWR</button>
+    </div>
+    <div class="dual-input" id="t8-powerInputs">
+      <div class="dual-field"><label id="t8labelPfwd">Forward Power (W)</label><input type="text" id="t8-pfwd" value="1000"></div>
+      <div class="dual-field"><label id="t8labelPrefl">Reflected Power (W)</label><input type="text" id="t8-prefl" value="40"></div>
+    </div>
+    <div class="dual-input" id="t8-vswrInputs" style="display:none">
+      <div class="dual-field"><label id="t8labelPfwd2">Forward Power (W)</label><input type="text" id="t8-pfwd2" value="1000"></div>
+      <div class="dual-field"><label id="t8labelVswr">VSWR</label><input type="text" id="t8-vswrIn" value="1.5"></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t8statPnet">NET (DELIVERED) POWER</div><div><span class="stat-value" id="t8-pnet">960.0</span><span class="stat-unit">W</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statEta">EFFICIENCY (η)</div><div><span class="stat-value" id="t8-eta">96.0</span><span class="stat-unit">%</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statGamma">|Γ|</div><div><span class="stat-value" id="t8-gamma">0.200</span></div></div>
+      <div class="stat"><div class="stat-name" id="t8statLossDb">MISMATCH LOSS</div><div><span class="stat-value" id="t8-lossdb">0.177</span><span class="stat-unit">dB</span></div></div>
+    </div>
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t8f1">NET POWER</div><div class="formula-eq">P_net = P_fwd − P_refl</div></div>
+      <div><div class="formula-label" id="t8f2">EFFICIENCY</div><div class="formula-eq">η = P_net / P_fwd = 1 − |Γ|²</div></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span id="footerText">Benedu Insight · Lab Tool Series — Phase 5 / 7 (Smith Chart &amp; Matching Tools)</span>
+</footer>
+
+<script>
+const I18N = {
+  en: {
+    pageTitle: 'Phase 5 — Smith Chart &amp; Matching Tools',
+    phaseStripLabel: 'Progress:', phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
+    tabT1: 'Smith Chart', tabT2: 'VSWR', tabT3: 'I_V_CAL', tabT4: 'PVI', tabT5: 'Power Calc', tabT6: 'Z Analysis', tabT7: 'Auto-Match Range', tabT8: 'Fwd/Refl Efficiency',
+    badge1:'INTERACTIVE',badge2:'INTERACTIVE',badge3:'INTERACTIVE',badge4:'INTERACTIVE',badge5:'INTERACTIVE',badge6:'INTERACTIVE',badge7:'INTERACTIVE',badge8:'INTERACTIVE',
+    t1Title: 'Smith Chart', t1Sub: 'Plot a complex impedance on the Smith chart and read off Γ, VSWR and return loss',
+    t1labelZ0: 'Z₀ — Reference Impedance (Ω)', t1labelZr: 'Re(Z) (Ω)', t1labelZx: 'Im(Z) (Ω)',
+    t1GraphNote: 'The purple point shows the normalized impedance z = Z/Z₀ on the chart.',
+    t1statMag:'|Γ|', t1statAng:'∠Γ', t1statVswr:'VSWR', t1statRL:'Return Loss',
+    t1f1:'REFLECTION COEFFICIENT', t1f2:'VSWR',
+    t2Title: 'VSWR Calculator', t2Sub: 'Compute VSWR and return loss from |Γ|, from Z/Z₀, or from forward/reflected power',
+    t2ModeGamma:'From |Γ|', t2ModeZ:'From Z, Z₀', t2ModePower:'From Pfwd, Prefl',
+    t2labelGamma:'|Γ|', t2labelZ0:'Z₀ (Ω)', t2labelZr:'Re(Z) (Ω)', t2labelZx:'Im(Z) (Ω)', t2labelPfwd:'Forward Power (W)', t2labelPrefl:'Reflected Power (W)',
+    t2statGamma:'|Γ|', t2statVswr:'VSWR', t2statRL:'Return Loss', t2statMM:'Mismatch Loss',
+    t2f1:'VSWR', t2f2:'RETURN LOSS', t2f3:'MISMATCH LOSS',
+    t3Title: 'I_V_CAL — Load Voltage &amp; Current from Forward Power',
+    t3Sub: 'Given forward power into a line and the load impedance, find the actual V, I and phase at the load',
+    t3labelPfwd:'Forward Power (W)', t3labelZ0:'Z₀ (Ω)', t3labelZr:'Re(Z_L) (Ω)', t3labelZx:'Im(Z_L) (Ω)',
+    t3statVrms:'Vrms AT LOAD', t3statIrms:'Irms AT LOAD', t3statPhase:'PHASE (V rel. I)', t3statPdel:'DELIVERED POWER', t3statVswr:'VSWR',
+    t3f1:'LOAD VOLTAGE', t3f2:'LOAD CURRENT', t3f3:'DELIVERED POWER',
+    t4Title: 'PVI — Power ↔ Voltage ↔ Current Hub', t4Sub: 'Matched Z₀ system: enter any one of P, Vrms or Irms to get the other two, plus dBm',
+    t4ModeP:'From Power', t4ModeV:'From Vrms', t4ModeI:'From Irms',
+    t4labelZ0:'System Z₀ (Ω)', t4labelInput:'Power (W)',
+    t4statP:'POWER', t4statDbm:'dBm', t4statVrms:'Vrms', t4statVpk:'Vpeak', t4statIrms:'Irms', t4statIpk:'Ipeak',
+    t4f1:'POWER-VOLTAGE', t4f2:'POWER-CURRENT', t4f3:'dBm',
+    t5Title: 'Power Calculation from V, I and Phase', t5Sub: 'Real, reactive and apparent power from Vrms, Irms and the phase angle between them',
+    t5labelVrms:'Vrms (V)', t5labelIrms:'Irms (A)', t5labelPhase:'Phase Angle, θ (°)',
+    t5statP:'REAL POWER (P)', t5statQ:'REACTIVE POWER (Q)', t5statS:'APPARENT POWER (S)', t5statPF:'POWER FACTOR',
+    t5f1:'REAL POWER', t5f2:'REACTIVE POWER', t5f3:'POWER FACTOR',
+    t6Title: 'Measured Impedance Analysis', t6Sub: 'Compare a network-analyzer measured impedance against a target, and check match quality',
+    t6labelZ0:'Z₀ (Ω)', t6labelZmr:'Measured Re(Z) (Ω)', t6labelZmx:'Measured Im(Z) (Ω)', t6labelZtr:'Target Re(Z) (Ω)', t6labelZtx:'Target Im(Z) (Ω)',
+    t6statVswrM:'MEASURED VSWR', t6statRLM:'MEASURED RETURN LOSS', t6statVswrT:'TARGET VSWR', t6statDevZ:'|Z DEVIATION|',
+    t6QualityTitle:'GOOD MATCH', t6QualityText:'Measured VSWR is close to the target.',
+    t6f1:'DEVIATION', t6f2:'VSWR',
+    t7Title: 'Auto-Matcher Tuning Range', t7Sub: "For a fixed load and a series inductor, sweep the shunt tuning capacitor across its range and find the best achievable match",
+    t7labelZ0:'Z₀ (Ω)', t7labelZr:'Load Re(Z_L) (Ω)', t7labelZx:'Load Im(Z_L) (Ω)',
+    t7LabelFreq:'Frequency (f)', t7QuickLabel:'Quick select:',
+    t7labelL:'Series L (fixed)', t7labelCmin:'Shunt C — Min', t7labelCmax:'Shunt C — Max',
+    t7GraphNote: "VSWR seen by the source as the shunt tuning capacitor sweeps from C_min to C_max. The lowest point is the best achievable match within this matcher's range.",
+    t7statBestC:'BEST SHUNT C', t7statBestVswr:'BEST VSWR ACHIEVABLE', t7statWorstVswr:'WORST VSWR IN RANGE',
+    t7f1:'SHUNT C ADMITTANCE', t7f2:'SWEEP',
+    t8Title: 'Forward / Reflected Power Efficiency', t8Sub: 'How much of the forward power actually reaches the load, given the reflected power or VSWR',
+    t8ModePower:'From Pfwd, Prefl', t8ModeVswr:'From Pfwd, VSWR',
+    t8labelPfwd:'Forward Power (W)', t8labelPrefl:'Reflected Power (W)', t8labelPfwd2:'Forward Power (W)', t8labelVswr:'VSWR',
+    t8statPnet:'NET (DELIVERED) POWER', t8statEta:'EFFICIENCY (η)', t8statGamma:'|Γ|', t8statLossDb:'MISMATCH LOSS',
+    t8f1:'NET POWER', t8f2:'EFFICIENCY',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 5 / 7 (Smith Chart &amp; Matching Tools)'
+  },
+  ko: {
+    pageTitle: 'Phase 5 — 스미스차트 &amp; 매칭 도구',
+    phaseStripLabel: '진행 단계:', phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
+    tabT1: '스미스차트', tabT2: 'VSWR', tabT3: 'I_V_CAL', tabT4: 'PVI', tabT5: '파워 계산', tabT6: 'Z 분석', tabT7: '자동매처 범위', tabT8: '순방향/반사 효율',
+    badge1:'인터랙티브',badge2:'인터랙티브',badge3:'인터랙티브',badge4:'인터랙티브',badge5:'인터랙티브',badge6:'인터랙티브',badge7:'인터랙티브',badge8:'인터랙티브',
+    t1Title: '스미스차트', t1Sub: '복소 임피던스를 스미스차트에 표시하고 Γ, VSWR, Return Loss를 확인합니다',
+    t1labelZ0: 'Z₀ — 기준 임피던스 (Ω)', t1labelZr: 'Re(Z) (Ω)', t1labelZx: 'Im(Z) (Ω)',
+    t1GraphNote: '보라색 점이 정규화 임피던스 z = Z/Z₀를 차트 위에 나타냅니다.',
+    t1statMag:'|Γ|', t1statAng:'∠Γ', t1statVswr:'VSWR', t1statRL:'Return Loss',
+    t1f1:'반사계수', t1f2:'VSWR',
+    t2Title: 'VSWR 계산기', t2Sub: '|Γ|, Z/Z₀, 또는 순방향/반사 파워로부터 VSWR과 Return Loss를 계산합니다',
+    t2ModeGamma:'|Γ|로부터', t2ModeZ:'Z, Z₀로부터', t2ModePower:'Pfwd, Prefl로부터',
+    t2labelGamma:'|Γ|', t2labelZ0:'Z₀ (Ω)', t2labelZr:'Re(Z) (Ω)', t2labelZx:'Im(Z) (Ω)', t2labelPfwd:'순방향 파워 (W)', t2labelPrefl:'반사 파워 (W)',
+    t2statGamma:'|Γ|', t2statVswr:'VSWR', t2statRL:'Return Loss', t2statMM:'부정합 손실',
+    t2f1:'VSWR', t2f2:'RETURN LOSS', t2f3:'부정합 손실',
+    t3Title: 'I_V_CAL — 순방향 파워로부터 부하 전압·전류',
+    t3Sub: '선로에 걸리는 순방향 파워와 부하 임피던스로부터 부하단 실제 V, I, 위상을 구합니다',
+    t3labelPfwd:'순방향 파워 (W)', t3labelZ0:'Z₀ (Ω)', t3labelZr:'Re(Z_L) (Ω)', t3labelZx:'Im(Z_L) (Ω)',
+    t3statVrms:'부하단 Vrms', t3statIrms:'부하단 Irms', t3statPhase:'위상 (V 기준 I)', t3statPdel:'전달 파워', t3statVswr:'VSWR',
+    t3f1:'부하 전압', t3f2:'부하 전류', t3f3:'전달 파워',
+    t4Title: 'PVI — 파워 ↔ 전압 ↔ 전류 통합허브', t4Sub: '매칭된 Z₀ 시스템: P, Vrms, Irms 중 하나만 입력하면 나머지와 dBm까지 계산',
+    t4ModeP:'파워로부터', t4ModeV:'Vrms로부터', t4ModeI:'Irms로부터',
+    t4labelZ0:'시스템 Z₀ (Ω)', t4labelInput:'파워 (W)',
+    t4statP:'파워', t4statDbm:'dBm', t4statVrms:'Vrms', t4statVpk:'Vpeak', t4statIrms:'Irms', t4statIpk:'Ipeak',
+    t4f1:'파워-전압', t4f2:'파워-전류', t4f3:'dBm',
+    t5Title: 'V, I, 위상으로부터 파워 계산', t5Sub: 'Vrms, Irms, 그 사이 위상각으로부터 유효/무효/피상 전력을 계산합니다',
+    t5labelVrms:'Vrms (V)', t5labelIrms:'Irms (A)', t5labelPhase:'위상각, θ (°)',
+    t5statP:'유효전력 (P)', t5statQ:'무효전력 (Q)', t5statS:'피상전력 (S)', t5statPF:'역률',
+    t5f1:'유효전력', t5f2:'무효전력', t5f3:'역률',
+    t6Title: '실측 임피던스 분석', t6Sub: '네트워크 애널라이저로 측정한 임피던스를 목표값과 비교하고 매칭 품질을 확인합니다',
+    t6labelZ0:'Z₀ (Ω)', t6labelZmr:'측정 Re(Z) (Ω)', t6labelZmx:'측정 Im(Z) (Ω)', t6labelZtr:'목표 Re(Z) (Ω)', t6labelZtx:'목표 Im(Z) (Ω)',
+    t6statVswrM:'측정 VSWR', t6statRLM:'측정 Return Loss', t6statVswrT:'목표 VSWR', t6statDevZ:'|Z 편차|',
+    t6QualityTitle:'양호한 매칭', t6QualityText:'측정 VSWR이 목표값에 가깝습니다.',
+    t6f1:'편차', t6f2:'VSWR',
+    t7Title: '자동매처 튜닝 범위', t7Sub: '고정 부하와 직렬 인덕터에서, 병렬 튜닝 커패시터를 범위 전체로 스윕해 최적 매칭점을 찾습니다',
+    t7labelZ0:'Z₀ (Ω)', t7labelZr:'부하 Re(Z_L) (Ω)', t7labelZx:'부하 Im(Z_L) (Ω)',
+    t7LabelFreq:'주파수 (f)', t7QuickLabel:'빠른 선택:',
+    t7labelL:'직렬 L (고정)', t7labelCmin:'병렬 C — 최소', t7labelCmax:'병렬 C — 최대',
+    t7GraphNote: '병렬 튜닝 커패시터가 C_min에서 C_max까지 스윕할 때 소스가 보는 VSWR입니다. 최저점이 이 매처의 튜닝 범위 내에서 달성 가능한 최적 매칭입니다.',
+    t7statBestC:'최적 병렬 C', t7statBestVswr:'달성 가능한 최적 VSWR', t7statWorstVswr:'범위 내 최악 VSWR',
+    t7f1:'병렬 C 어드미턴스', t7f2:'스윕',
+    t8Title: '순방향/반사 파워 효율', t8Sub: '반사파워 또는 VSWR이 주어졌을 때, 순방향 파워 중 실제로 부하에 도달하는 비율',
+    t8ModePower:'Pfwd, Prefl로부터', t8ModeVswr:'Pfwd, VSWR로부터',
+    t8labelPfwd:'순방향 파워 (W)', t8labelPrefl:'반사 파워 (W)', t8labelPfwd2:'순방향 파워 (W)', t8labelVswr:'VSWR',
+    t8statPnet:'순 전달 파워', t8statEta:'효율 (η)', t8statGamma:'|Γ|', t8statLossDb:'부정합 손실',
+    t8f1:'순 전달 파워', t8f2:'효율',
+    footerText: 'Benedu Insight · Lab Tool Series — Phase 5 / 7 (스미스차트 &amp; 매칭 도구)'
+  }
+};
+
+let lang = 'en';
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  Object.keys(T).forEach(k => set(k, T[k]));
+}
+
+document.querySelectorAll('.tool-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tool;
+    document.querySelectorAll('.tool-panel').forEach(p => p.style.display = (p.id === 'panel-' + id ? 'block' : 'none'));
+    document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b === btn));
+    if (id === 't1' && typeof t1ResizeCanvas === 'function') t1ResizeCanvas();
+    if (id === 't7' && typeof t7ResizeCanvas === 'function') t7ResizeCanvas();
+  });
+});
+
+/* Shared helpers */
+function cAdd(a,b){ return {re:a.re+b.re, im:a.im+b.im}; }
+function cSub(a,b){ return {re:a.re-b.re, im:a.im-b.im}; }
+function cMul(a,b){ return {re:a.re*b.re-a.im*b.im, im:a.re*b.im+a.im*b.re}; }
+function cDiv(a,b){ const d=b.re*b.re+b.im*b.im; return {re:(a.re*b.re+a.im*b.im)/d, im:(a.im*b.re-a.re*b.im)/d}; }
+function cAbs(a){ return Math.sqrt(a.re*a.re+a.im*a.im); }
+function cAng(a){ return Math.atan2(a.im,a.re)*180/Math.PI; }
+function zToGamma(r,x,Z0){ const den=(r+Z0)*(r+Z0)+x*x; return {re:(r*r+x*x-Z0*Z0)/den, im:(2*x*Z0)/den}; }
+function fmtAuto(value, units) {
+  for (const u of units) { if (Math.abs(value) >= u.mult) return { v: +(value/u.mult).toPrecision(4), u: u.label }; }
+  const last = units[units.length-1];
+  return { v: +(value/last.mult).toPrecision(4), u: last.label };
+}
+const FREQ_LOG_MIN = 0, FREQ_LOG_MAX = Math.log10(10e9);
+function sliderToHz(s){ return Math.pow(10, FREQ_LOG_MIN + (s/1000)*(FREQ_LOG_MAX-FREQ_LOG_MIN)); }
+function hzToSlider(f){ const t=(Math.log10(Math.max(f,1))-FREQ_LOG_MIN)/(FREQ_LOG_MAX-FREQ_LOG_MIN); return Math.round(Math.max(0,Math.min(1000,t*1000))); }
+function unitToHz(v,u){ return u==='GHz'? v*1e9 : u==='MHz'? v*1e6 : u==='kHz'? v*1e3 : v; }
+function hzToUnitVal(hz,u){ return u==='GHz'? hz/1e9 : u==='MHz'? hz/1e6 : u==='kHz'? hz/1e3 : hz; }
+
+/* =========================================================
+   TOOL 1 — Smith Chart
+   ========================================================= */
+const t1Canvas = document.getElementById('t1Canvas');
+const t1Ctx = t1Canvas.getContext('2d');
+function t1ResizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t1Canvas.getBoundingClientRect();
+  t1Canvas.width = rect.width * dpr; t1Canvas.height = rect.height * dpr;
+  t1Ctx.setTransform(dpr,0,0,dpr,0,0);
+  t1Draw();
+}
+window.addEventListener('resize', t1ResizeCanvas);
+function t1ToCanvas(Gr, Gi, cx, cy, R) { return { x: cx + Gr*R, y: cy - Gi*R }; }
+function t1Draw() {
+  const W = t1Canvas.getBoundingClientRect().width, H = t1Canvas.getBoundingClientRect().height;
+  const ctx = t1Ctx;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle = '#FAFBFC'; ctx.fillRect(0,0,W,H);
+  if (W<=0||H<=0) return;
+  const cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 16;
+  ctx.strokeStyle = '#94A3B8'; ctx.lineWidth = 1.3;
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,2*Math.PI); ctx.stroke();
+  ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R,0,2*Math.PI); ctx.clip();
+  ctx.strokeStyle = '#E2E8F0'; ctx.lineWidth = 1;
+  [0,0.2,0.5,1,2,5].forEach(r => { const rc=r/(r+1), rad=1/(r+1); const c=t1ToCanvas(rc,0,cx,cy,R); ctx.beginPath(); ctx.arc(c.x,c.y,rad*R,0,2*Math.PI); ctx.stroke(); });
+  [0.2,0.5,1,2,5].forEach(x => { [x,-x].forEach(xx => { const c=t1ToCanvas(1,1/xx,cx,cy,R); ctx.beginPath(); ctx.arc(c.x,c.y,(1/Math.abs(xx))*R,0,2*Math.PI); ctx.stroke(); }); });
+  ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.lineTo(cx+R,cy); ctx.stroke();
+  ctx.restore();
+
+  const Z0 = parseFloat(document.getElementById('t1-z0').value) || 50;
+  const Zr = parseFloat(document.getElementById('t1-zr').value) || 0;
+  const Zx = parseFloat(document.getElementById('t1-zx').value) || 0;
+  const G = zToGamma(Zr, Zx, Z0);
+  const p = t1ToCanvas(G.re, G.im, cx, cy, R);
+  ctx.fillStyle = '#7030A0';
+  ctx.beginPath(); ctx.arc(p.x,p.y,6,0,2*Math.PI); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6; ctx.stroke();
+  ctx.font = '11px JetBrains Mono, monospace'; ctx.fillStyle = '#7030A0'; ctx.textAlign='left';
+  ctx.fillText('z = ' + (Zr/Z0).toFixed(2) + (Zx>=0?'+':'') + (Zx/Z0).toFixed(2) + 'j', p.x+9, p.y-8);
+}
+function t1Compute() {
+  const Z0 = parseFloat(document.getElementById('t1-z0').value) || 50;
+  const Zr = parseFloat(document.getElementById('t1-zr').value) || 0;
+  const Zx = parseFloat(document.getElementById('t1-zx').value) || 0;
+  const G = zToGamma(Zr, Zx, Z0);
+  const mag = cAbs(G), ang = cAng(G);
+  const vswr = mag>=0.999 ? Infinity : (1+mag)/(1-mag);
+  const rl = mag<=1e-5 ? Infinity : -20*Math.log10(mag);
+  document.getElementById('t1-mag').textContent = mag.toFixed(3);
+  document.getElementById('t1-ang').textContent = ang.toFixed(1);
+  document.getElementById('t1-vswr').textContent = isFinite(vswr)?vswr.toFixed(2):'∞';
+  document.getElementById('t1-rl').textContent = isFinite(rl)?rl.toFixed(1):'∞';
+  t1Draw();
+}
+['t1-z0','t1-zr','t1-zx'].forEach(id => document.getElementById(id).addEventListener('input', t1Compute));
+t1Compute(); t1ResizeCanvas();
+
+/* =========================================================
+   TOOL 2 — VSWR Calculator
+   ========================================================= */
+let t2_mode = 'gamma';
+function t2SetMode(m) {
+  t2_mode = m;
+  ['Gamma','Z','Power'].forEach(k => document.getElementById('t2Mode'+k).classList.toggle('active', k.toLowerCase()===m));
+  document.getElementById('t2-gammaInputs').style.display = m==='gamma'?'flex':'none';
+  document.getElementById('t2-zInputs').style.display = m==='z'?'flex':'none';
+  document.getElementById('t2-powerInputs').style.display = m==='power'?'flex':'none';
+  t2Compute();
+}
+document.getElementById('t2ModeGamma').addEventListener('click', () => t2SetMode('gamma'));
+document.getElementById('t2ModeZ').addEventListener('click', () => t2SetMode('z'));
+document.getElementById('t2ModePower').addEventListener('click', () => t2SetMode('power'));
+function t2Compute() {
+  let mag;
+  if (t2_mode === 'gamma') {
+    mag = Math.abs(parseFloat(document.getElementById('t2-gamma').value)) || 0;
+  } else if (t2_mode === 'z') {
+    const Z0 = parseFloat(document.getElementById('t2-z0').value) || 50;
+    const Zr = parseFloat(document.getElementById('t2-zr').value) || 0;
+    const Zx = parseFloat(document.getElementById('t2-zx').value) || 0;
+    mag = cAbs(zToGamma(Zr,Zx,Z0));
+  } else {
+    const Pf = parseFloat(document.getElementById('t2-pfwd').value) || 0;
+    const Pr = parseFloat(document.getElementById('t2-prefl').value) || 0;
+    mag = Pf>0 ? Math.sqrt(Math.max(Pr,0)/Pf) : 0;
+  }
+  mag = Math.min(mag, 0.9999);
+  const vswr = (1+mag)/(1-mag);
+  const rl = mag<=1e-5 ? Infinity : -20*Math.log10(mag);
+  const ml = -10*Math.log10(Math.max(1-mag*mag,1e-9));
+  document.getElementById('t2-gammaOut').textContent = mag.toFixed(3);
+  document.getElementById('t2-vswr').textContent = vswr.toFixed(3);
+  document.getElementById('t2-rl').textContent = isFinite(rl)?rl.toFixed(2):'∞';
+  document.getElementById('t2-mm').textContent = ml.toFixed(3);
+}
+['t2-gamma','t2-z0','t2-zr','t2-zx','t2-pfwd','t2-prefl'].forEach(id => document.getElementById(id).addEventListener('input', t2Compute));
+t2Compute();
+
+/* =========================================================
+   TOOL 3 — I_V_CAL
+   ========================================================= */
+function t3Compute() {
+  const Pfwd = parseFloat(document.getElementById('t3-pfwd').value) || 0;
+  const Z0 = parseFloat(document.getElementById('t3-z0').value) || 50;
+  const Zr = parseFloat(document.getElementById('t3-zr').value) || 0;
+  const Zx = parseFloat(document.getElementById('t3-zx').value) || 0;
+  const G = zToGamma(Zr, Zx, Z0);
+  const magG = cAbs(G);
+  const onePlusG = cAdd({re:1,im:0}, G), oneMinusG = cSub({re:1,im:0}, G);
+  const Vrms = Math.sqrt(Pfwd*Z0) * cAbs(onePlusG);
+  const Irms = Math.sqrt(Math.max(Pfwd,0)/Z0) * cAbs(oneMinusG);
+  const phase = cAng(onePlusG) - cAng(oneMinusG);
+  const Pdel = Pfwd*(1-magG*magG);
+  const vswr = magG>=0.999?Infinity:(1+magG)/(1-magG);
+  document.getElementById('t3-vrms').textContent = Vrms.toFixed(2);
+  document.getElementById('t3-irms').textContent = Irms.toFixed(3);
+  document.getElementById('t3-phase').textContent = phase.toFixed(1);
+  document.getElementById('t3-pdel').textContent = Pdel.toFixed(1);
+  document.getElementById('t3-vswr').textContent = isFinite(vswr)?vswr.toFixed(3):'∞';
+}
+['t3-pfwd','t3-z0','t3-zr','t3-zx'].forEach(id => document.getElementById(id).addEventListener('input', t3Compute));
+t3Compute();
+
+/* =========================================================
+   TOOL 4 — PVI
+   ========================================================= */
+let t4_mode = 'p';
+const T4_LABELS = { p:'Power (W)', v:'Vrms (V)', i:'Irms (A)' };
+function t4SetMode(m) {
+  t4_mode = m;
+  ['P','V','I'].forEach(k => document.getElementById('t4Mode'+k).classList.toggle('active', k.toLowerCase()===m));
+  document.getElementById('t4labelInput').textContent = T4_LABELS[m];
+  t4Compute();
+}
+document.getElementById('t4ModeP').addEventListener('click', () => t4SetMode('p'));
+document.getElementById('t4ModeV').addEventListener('click', () => t4SetMode('v'));
+document.getElementById('t4ModeI').addEventListener('click', () => t4SetMode('i'));
+function t4Compute() {
+  const Z0 = parseFloat(document.getElementById('t4-z0').value) || 50;
+  const val = parseFloat(document.getElementById('t4-input').value) || 0;
+  let P, Vrms, Irms;
+  if (t4_mode === 'p') { P = val; Vrms = Math.sqrt(P*Z0); Irms = Math.sqrt(P/Z0); }
+  else if (t4_mode === 'v') { Vrms = val; P = Vrms*Vrms/Z0; Irms = Vrms/Z0; }
+  else { Irms = val; P = Irms*Irms*Z0; Vrms = Irms*Z0; }
+  const dBm = P>0 ? 10*Math.log10(P*1000) : -Infinity;
+  document.getElementById('t4-p').textContent = P.toFixed(2);
+  document.getElementById('t4-dbm').textContent = isFinite(dBm)?dBm.toFixed(1):'−∞';
+  document.getElementById('t4-vrms').textContent = Vrms.toFixed(2);
+  document.getElementById('t4-vpk').textContent = (Vrms*Math.SQRT2).toFixed(2);
+  document.getElementById('t4-irms').textContent = Irms.toFixed(3);
+  document.getElementById('t4-ipk').textContent = (Irms*Math.SQRT2).toFixed(3);
+}
+['t4-z0','t4-input'].forEach(id => document.getElementById(id).addEventListener('input', t4Compute));
+t4Compute();
+
+/* =========================================================
+   TOOL 5 — Power Calculation
+   ========================================================= */
+function t5Compute() {
+  const Vrms = parseFloat(document.getElementById('t5-vrms').value) || 0;
+  const Irms = parseFloat(document.getElementById('t5-irms').value) || 0;
+  const theta = (parseFloat(document.getElementById('t5-phase').value) || 0) * Math.PI/180;
+  const P = Vrms*Irms*Math.cos(theta), Q = Vrms*Irms*Math.sin(theta), S = Vrms*Irms;
+  document.getElementById('t5-p').textContent = P.toFixed(1);
+  document.getElementById('t5-q').textContent = Q.toFixed(1);
+  document.getElementById('t5-s').textContent = S.toFixed(1);
+  document.getElementById('t5-pf').textContent = Math.cos(theta).toFixed(3);
+}
+['t5-vrms','t5-irms','t5-phase'].forEach(id => document.getElementById(id).addEventListener('input', t5Compute));
+t5Compute();
+
+/* =========================================================
+   TOOL 6 — Measured Impedance Analysis
+   ========================================================= */
+function t6Compute() {
+  const Z0 = parseFloat(document.getElementById('t6-z0').value) || 50;
+  const Zmr = parseFloat(document.getElementById('t6-zmr').value) || 0, Zmx = parseFloat(document.getElementById('t6-zmx').value) || 0;
+  const Ztr = parseFloat(document.getElementById('t6-ztr').value) || 0, Ztx = parseFloat(document.getElementById('t6-ztx').value) || 0;
+  const Gm = zToGamma(Zmr,Zmx,Z0), Gt = zToGamma(Ztr,Ztx,Z0);
+  const magM = cAbs(Gm), magT = cAbs(Gt);
+  const vswrM = magM>=0.999?Infinity:(1+magM)/(1-magM);
+  const vswrT = magT>=0.999?Infinity:(1+magT)/(1-magT);
+  const rlM = magM<=1e-5?Infinity:-20*Math.log10(magM);
+  const devZ = Math.sqrt((Zmr-Ztr)*(Zmr-Ztr) + (Zmx-Ztx)*(Zmx-Ztx));
+  document.getElementById('t6-vswrM').textContent = isFinite(vswrM)?vswrM.toFixed(2):'∞';
+  document.getElementById('t6-rlM').textContent = isFinite(rlM)?rlM.toFixed(1):'∞';
+  document.getElementById('t6-vswrT').textContent = isFinite(vswrT)?vswrT.toFixed(2):'∞';
+  document.getElementById('t6-devZ').textContent = devZ.toFixed(2);
+
+  const note = document.getElementById('t6QualityNote');
+  const icon = document.getElementById('t6QualityIcon');
+  const title = document.getElementById('t6QualityTitle');
+  const text = document.getElementById('t6QualityText');
+  if (vswrM <= 1.5) {
+    note.className = 'callout c-green'; icon.textContent = '✓';
+    title.textContent = lang==='en' ? 'GOOD MATCH' : '양호한 매칭';
+    text.textContent = lang==='en' ? 'Measured VSWR is close to the target — this is a solid match.' : '측정 VSWR이 목표값에 가깝습니다 — 양호한 매칭입니다.';
+  } else if (vswrM <= 3) {
+    note.className = 'callout c-amber'; icon.textContent = '!';
+    title.textContent = lang==='en' ? 'MODERATE MISMATCH' : '중간 정도 부정합';
+    text.textContent = lang==='en' ? 'Some mismatch present — usable, but consider retuning.' : '어느 정도 부정합이 있습니다 — 사용은 가능하나 재조정을 고려하세요.';
+  } else {
+    note.className = 'callout c-amber'; icon.textContent = '✕';
+    title.textContent = lang==='en' ? 'POOR MATCH' : '불량 매칭';
+    text.textContent = lang==='en' ? 'Significant mismatch — retuning strongly recommended.' : '심각한 부정합입니다 — 재조정을 강력히 권장합니다.';
+  }
+}
+['t6-z0','t6-zmr','t6-zmx','t6-ztr','t6-ztx'].forEach(id => document.getElementById(id).addEventListener('input', t6Compute));
+t6Compute();
+
+/* =========================================================
+   TOOL 7 — Auto-Matcher Tuning Range
+   ========================================================= */
+let t7_hz = 13.56e6;
+const t7Canvas = document.getElementById('t7Canvas');
+const t7Ctx = t7Canvas.getContext('2d');
+function t7ResizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t7Canvas.getBoundingClientRect();
+  t7Canvas.width = rect.width*dpr; t7Canvas.height = rect.height*dpr;
+  t7Ctx.setTransform(dpr,0,0,dpr,0,0);
+  t7Compute();
+}
+window.addEventListener('resize', t7ResizeCanvas);
+function t7Compute() {
+  const Z0 = parseFloat(document.getElementById('t7-z0').value) || 50;
+  const ZLr = parseFloat(document.getElementById('t7-zr').value) || 0;
+  const ZLx = parseFloat(document.getElementById('t7-zx').value) || 0;
+  const Lval = parseFloat(document.getElementById('t7-l').value) || 0;
+  const LunitMult = { nH:1e-9, uH:1e-6 };
+  const L = Lval * LunitMult[document.getElementById('t7-lUnit').value];
+  const CunitMult = { pF:1e-12, nF:1e-9 };
+  const Cmin = (parseFloat(document.getElementById('t7-cmin').value)||0) * CunitMult[document.getElementById('t7-cminUnit').value];
+  const Cmax = (parseFloat(document.getElementById('t7-cmax').value)||0) * CunitMult[document.getElementById('t7-cmaxUnit').value];
+  const w = 2*Math.PI*t7_hz;
+
+  const ZL = {re:ZLr, im:ZLx};
+  const YL = cDiv({re:1,im:0}, ZL);
+
+  const N = 150;
+  let bestVswr = Infinity, bestC = Cmin, worstVswr = 0;
+  const vals = [];
+  for (let i=0;i<=N;i++) {
+    const C = Cmin + (i/N)*(Cmax-Cmin);
+    const Yc = {re:0, im: w*C};
+    const Ytot = cAdd(YL, Yc);
+    const Zshunt = cDiv({re:1,im:0}, Ytot);
+    const Zin = cAdd({re:0,im:w*L}, Zshunt);
+    const G = cDiv(cSub(Zin,{re:Z0,im:0}), cAdd(Zin,{re:Z0,im:0}));
+    const mag = cAbs(G);
+    const vswr = mag>=0.999?100:(1+mag)/(1-mag);
+    vals.push(vswr);
+    if (vswr < bestVswr) { bestVswr = vswr; bestC = C; }
+    if (vswr > worstVswr) worstVswr = vswr;
+  }
+  const bestCf = fmtAuto(bestC*1e12, [{mult:1e3,label:'nF'},{mult:1,label:'pF'}]);
+  document.getElementById('t7-bestC').textContent = bestCf.v; document.getElementById('t7-bestCUnit').textContent = bestCf.u;
+  document.getElementById('t7-bestVswr').textContent = bestVswr.toFixed(2);
+  document.getElementById('t7-worstVswr').textContent = worstVswr>=100?'>100':worstVswr.toFixed(2);
+
+  t7Draw(vals, Cmin, Cmax);
+}
+function t7Draw(vals, Cmin, Cmax) {
+  const W = t7Canvas.getBoundingClientRect().width, H = t7Canvas.getBoundingClientRect().height;
+  const ctx = t7Ctx;
+  ctx.clearRect(0,0,W,H); ctx.fillStyle = '#FAFBFC'; ctx.fillRect(0,0,W,H);
+  if (W<=0||H<=0) return;
+  const pL=44,pR=16,pT=16,pB=26; const gW=W-pL-pR, gH=H-pT-pB;
+  const yMax = Math.min(Math.max(...vals), 20);
+  const yOf = v => pT+gH - (Math.min(v,yMax)/yMax)*gH;
+  const xOf = i => pL + (i/(vals.length-1))*gW;
+  ctx.strokeStyle = '#E2E8F0'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pL,yOf(1)); ctx.lineTo(pL+gW,yOf(1)); ctx.stroke();
+  ctx.fillStyle='#94A3B8'; ctx.font='10px JetBrains Mono, monospace'; ctx.textAlign='right';
+  ctx.fillText('VSWR=1', pL-4, yOf(1)+3);
+  ctx.strokeStyle = '#7030A0'; ctx.lineWidth=2; ctx.beginPath();
+  vals.forEach((v,i) => { const x=xOf(i), y=yOf(v); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.stroke();
+  ctx.textAlign='left'; ctx.fillText('C_min', pL, pT+gH+16);
+  ctx.textAlign='right'; ctx.fillText('C_max', pL+gW, pT+gH+16);
+}
+document.getElementById('t7-fSlider').addEventListener('input', e => {
+  t7_hz = sliderToHz(+e.target.value);
+  const u = document.getElementById('t7-fUnit').value;
+  document.getElementById('t7-fInput').value = +hzToUnitVal(t7_hz,u).toPrecision(6);
+  t7Compute();
+});
+document.getElementById('t7-fInput').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t7-fInput').value);
+  if (!isNaN(v)) { t7_hz = unitToHz(v, document.getElementById('t7-fUnit').value); document.getElementById('t7-fSlider').value = hzToSlider(t7_hz); t7Compute(); }
+});
+document.getElementById('t7-fUnit').addEventListener('change', () => {
+  const v = parseFloat(document.getElementById('t7-fInput').value);
+  if (!isNaN(v)) { t7_hz = unitToHz(v, document.getElementById('t7-fUnit').value); t7Compute(); }
+});
+document.querySelectorAll('#panel-t7 .qbtn[data-hz]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t7 .qbtn[data-hz]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t7-fUnit').value = btn.dataset.u;
+    t7_hz = unitToHz(parseFloat(btn.dataset.hz), btn.dataset.u);
+    document.getElementById('t7-fSlider').value = hzToSlider(t7_hz);
+    document.getElementById('t7-fInput').value = btn.dataset.hz;
+    t7Compute();
+  });
+});
+['t7-z0','t7-zr','t7-zx','t7-l','t7-lUnit','t7-cmin','t7-cminUnit','t7-cmax','t7-cmaxUnit'].forEach(id => document.getElementById(id).addEventListener('input', t7Compute));
+t7Compute(); t7ResizeCanvas();
+
+/* =========================================================
+   TOOL 8 — Forward/Reflected Power Efficiency
+   ========================================================= */
+let t8_mode = 'power';
+function t8SetMode(m) {
+  t8_mode = m;
+  document.getElementById('t8ModePower').classList.toggle('active', m==='power');
+  document.getElementById('t8ModeVswr').classList.toggle('active', m==='vswr');
+  document.getElementById('t8-powerInputs').style.display = m==='power'?'flex':'none';
+  document.getElementById('t8-vswrInputs').style.display = m==='vswr'?'flex':'none';
+  t8Compute();
+}
+document.getElementById('t8ModePower').addEventListener('click', () => t8SetMode('power'));
+document.getElementById('t8ModeVswr').addEventListener('click', () => t8SetMode('vswr'));
+function t8Compute() {
+  let Pfwd, Pnet, magG;
+  if (t8_mode === 'power') {
+    Pfwd = parseFloat(document.getElementById('t8-pfwd').value) || 0;
+    const Prefl = parseFloat(document.getElementById('t8-prefl').value) || 0;
+    Pnet = Pfwd - Prefl;
+    magG = Pfwd>0 ? Math.sqrt(Math.max(Prefl,0)/Pfwd) : 0;
+  } else {
+    Pfwd = parseFloat(document.getElementById('t8-pfwd2').value) || 0;
+    const vswr = parseFloat(document.getElementById('t8-vswrIn').value) || 1;
+    magG = (vswr-1)/(vswr+1);
+    Pnet = Pfwd*(1-magG*magG);
+  }
+  const eta = Pfwd>0 ? Pnet/Pfwd*100 : 0;
+  const lossDb = -10*Math.log10(Math.max(1-magG*magG,1e-9));
+  document.getElementById('t8-pnet').textContent = Pnet.toFixed(1);
+  document.getElementById('t8-eta').textContent = eta.toFixed(1);
+  document.getElementById('t8-gamma').textContent = magG.toFixed(3);
+  document.getElementById('t8-lossdb').textContent = lossDb.toFixed(3);
+}
+['t8-pfwd','t8-prefl','t8-pfwd2','t8-vswrIn'].forEach(id => document.getElementById(id).addEventListener('input', t8Compute));
+t8Compute();
+
+function goToHashTab() {
+  const hash = location.hash.replace('#','');
+  if (hash) {
+    const btn = document.querySelector('.tool-tab[data-tool="' + hash + '"]');
+    if (btn) btn.click();
+  }
+}
+window.addEventListener('load', () => { setLang('en'); goToHashTab(); });
+window.addEventListener('hashchange', goToHashTab);
+</script>
+</body>
+</html>
