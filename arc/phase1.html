@@ -300,10 +300,11 @@ td.dielectric { color: var(--muted); }
 
 <nav class="tool-tabs">
   <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">Power / Voltage</span></button>
-  <button class="tool-tab" data-tool="t5"><span class="tnum">2</span><span id="tabT5">V,I → Z (Euler)</span></button>
-  <button class="tool-tab" data-tool="t2"><span class="tnum">3</span><span id="tabT2">Γ ↔ Z</span></button>
-  <button class="tool-tab" data-tool="t3"><span class="tnum">4</span><span id="tabT3">Freq / Wavelength</span></button>
-  <button class="tool-tab" data-tool="t4"><span class="tnum">5</span><span id="tabT4">Vrms / Vpk / Vpp</span></button>
+  <button class="tool-tab" data-tool="t6"><span class="tnum">2</span><span id="tabT6">Power → V,I (Custom Z)</span></button>
+  <button class="tool-tab" data-tool="t5"><span class="tnum">3</span><span id="tabT5">V,I → Z (Euler)</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">4</span><span id="tabT2">Γ ↔ Z</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">5</span><span id="tabT3">Freq / Wavelength</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">6</span><span id="tabT4">Vrms / Vpk / Vpp</span></button>
 </nav>
 
 <main class="main">
@@ -684,7 +685,55 @@ td.dielectric { color: var(--muted); }
       <div><div class="formula-label" id="t5f2">EULER'S FORMULA</div><div class="formula-eq">Z = |Z|·(cos θZ + j·sin θZ)</div></div>
       <div><div class="formula-label" id="t5f3">RECTANGULAR</div><div class="formula-eq">R = |Z|·cos θZ,  X = |Z|·sin θZ</div></div>
     </div>
-    <p class="field-hint" id="t5Hint">If your measured voltage is Vpp (e.g. straight off a scope) instead of Vrms, use the Vpp toggle above — it's converted internally as Vrms = Vpp / (2√2) before the impedance is computed.</p>
+  </div>
+
+  <!-- ============ TOOL 6 (shown as 2): Power → V, I at Custom Impedance Z ============ -->
+  <div class="card tool-panel" id="panel-t6" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge6">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t6Title">Power → V, I at a Custom Impedance</h2>
+        <p id="t6Sub">Unlike Tool 1's fixed 50/75 Ω system reference, specify any real or complex load Z = R + jX</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="t6LabelPower">Power (P)</span>
+        <div class="slider-track"><input type="range" id="t6-slider" min="0" max="1000" value="820"></div>
+        <div class="freq-inputs">
+          <input type="text" id="t6-input" class="freq-num" value="1000">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);">W</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t6labelR">Load Re(Z), R (Ω)</label><input type="text" id="t6-r" value="38.302"></div>
+      <div class="dual-field"><label id="t6labelX">Load Im(Z), X (Ω)</label><input type="text" id="t6-x" value="32.139"></div>
+    </div>
+    <div class="quick-row" style="padding: 14px 24px 0;">
+      <span class="quick-label" id="t6QuickLabel">Quick load presets:</span>
+      <button class="qbtn" data-r="50" data-x="0">50 + j0 Ω (matched)</button>
+      <button class="qbtn" data-r="2" data-x="-15">2 − j15 Ω (plasma-like)</button>
+      <button class="qbtn active" data-r="38.302" data-x="32.139">38.3 + j32.1 Ω</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t6statZmag">|Z|</div><div><span class="stat-value" id="t6-zmag">50.000</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statZang">∠Z (V leads I by)</div><div><span class="stat-value" id="t6-zang">40.00</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statDbm">dBm</div><div><span class="stat-value" id="t6-dbm">60.00</span><span class="stat-unit">dBm</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statVrms">Vrms</div><div><span class="stat-value" id="t6-vrms">255.48</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statVpk">Vpeak</div><div><span class="stat-value" id="t6-vpk">361.23</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statIrms">Irms</div><div><span class="stat-value" id="t6-irms">5.110</span><span class="stat-unit">A</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t6f1">CURRENT (from real power)</div><div class="formula-eq">Irms = √(P / R)</div></div>
+      <div><div class="formula-label" id="t6f2">VOLTAGE MAGNITUDE</div><div class="formula-eq">Vrms = Irms · |Z|</div></div>
+      <div><div class="formula-label" id="t6f3">V–I PHASE</div><div class="formula-eq">∠Z = atan2(X, R)</div></div>
+    </div>
+    <p class="field-hint" id="t6Hint">Only the resistive part R dissipates real power — the reactive part X shapes the V/I phase relationship and raises |Z|, but doesn't consume power itself. Set X = 0 and this reduces exactly to Tool 1's formula.</p>
   </div>
 
 </main>
@@ -702,8 +751,8 @@ const I18N = {
     pageTitle: 'Phase 1 — Unit &amp; Power Conversion',
     phaseStripLabel: 'Progress:',
     phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
-    tabT1: 'Power / Voltage', tabT2: 'Γ ↔ Z', tabT3: 'Freq / Wavelength', tabT4: 'Vrms / Vpk / Vpp', tabT5: 'V,I → Z (Euler)',
-    badge1: 'INTERACTIVE', badge2: 'S11 ↔ Z', badge3: 'INTERACTIVE', badge4: 'INTERACTIVE', badge5: 'INTERACTIVE',
+    tabT1: 'Power / Voltage', tabT2: 'Γ ↔ Z', tabT3: 'Freq / Wavelength', tabT4: 'Vrms / Vpk / Vpp', tabT5: 'V,I → Z (Euler)', tabT6: 'Power → V,I (Custom Z)',
+    badge1: 'INTERACTIVE', badge2: 'S11 ↔ Z', badge3: 'INTERACTIVE', badge4: 'INTERACTIVE', badge5: 'INTERACTIVE', badge6: 'INTERACTIVE',
     t1Title: 'dBm / W / V / I Converter',
     t1Sub: 'Convert RF power to voltage and current at a given system impedance',
     t1LabelPower: 'Power (P)', t1QuickLabel: 'Quick select:', t1Z0Label: 'System Impedance Z₀:',
@@ -789,15 +838,22 @@ const I18N = {
     t5statVrms: 'V (rms, used)', t5statIrms: 'I (rms, used)', t5statZmag: '|Z|', t5statZphase: 'θZ = θV − θI',
     t5statR: 'RESISTANCE (R)', t5statX: 'REACTANCE (X)',
     t5f1: 'PHASOR DIVISION', t5f2: "EULER'S FORMULA", t5f3: 'RECTANGULAR',
-    t5Hint: "If your measured voltage is Vpp (e.g. straight off a scope) instead of Vrms, use the Vpp toggle above — it's converted internally as Vrms = Vpp / (2√2) before the impedance is computed.",
+    t6Title: 'Power → V, I at a Custom Impedance',
+    t6Sub: "Unlike Tool 1's fixed 50/75 Ω system reference, specify any real or complex load Z = R + jX",
+    t6LabelPower: 'Power (P)',
+    t6labelR: 'Load Re(Z), R (Ω)', t6labelX: 'Load Im(Z), X (Ω)',
+    t6QuickLabel: 'Quick load presets:',
+    t6statZmag: '|Z|', t6statZang: '∠Z (V leads I by)', t6statDbm: 'dBm', t6statVrms: 'Vrms', t6statVpk: 'Vpeak', t6statIrms: 'Irms',
+    t6f1: 'CURRENT (from real power)', t6f2: 'VOLTAGE MAGNITUDE', t6f3: 'V–I PHASE',
+    t6Hint: "Only the resistive part R dissipates real power — the reactive part X shapes the V/I phase relationship and raises |Z|, but doesn't consume power itself. Set X = 0 and this reduces exactly to Tool 1's formula.",
     footerText: 'Benedu Insight · Lab Tool Series — Phase 1 / 7 (Unit &amp; Power Conversion)'
   },
   ko: {
     pageTitle: 'Phase 1 — 단위 및 전력 변환',
     phaseStripLabel: '진행 단계:',
     phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
-    tabT1: '전력/전압 변환', tabT2: 'Γ ↔ Z 변환', tabT3: '주파수/파장', tabT4: 'Vrms/Vpk/Vpp', tabT5: 'V,I → Z (오일러)',
-    badge1: '인터랙티브', badge2: 'S11 ↔ Z', badge3: '인터랙티브', badge4: '인터랙티브', badge5: '인터랙티브',
+    tabT1: '전력/전압 변환', tabT2: 'Γ ↔ Z 변환', tabT3: '주파수/파장', tabT4: 'Vrms/Vpk/Vpp', tabT5: 'V,I → Z (오일러)', tabT6: 'Power → V,I (임의 Z)',
+    badge1: '인터랙티브', badge2: 'S11 ↔ Z', badge3: '인터랙티브', badge4: '인터랙티브', badge5: '인터랙티브', badge6: '인터랙티브',
     t1Title: 'dBm / W / V / I 통합 변환기',
     t1Sub: '시스템 임피던스 기준으로 RF 파워를 전압·전류로 변환합니다',
     t1LabelPower: '파워 (P)', t1QuickLabel: '빠른 선택:', t1Z0Label: '시스템 임피던스 Z₀:',
@@ -883,7 +939,14 @@ const I18N = {
     t5statVrms: 'V (rms, 사용값)', t5statIrms: 'I (rms, 사용값)', t5statZmag: '|Z|', t5statZphase: 'θZ = θV − θI',
     t5statR: '저항 (R)', t5statX: '리액턴스 (X)',
     t5f1: '페이저 나눗셈', t5f2: '오일러 공식', t5f3: '직교형식',
-    t5Hint: '측정한 전압이 Vrms가 아니라 스코프에서 바로 읽은 Vpp라면 위의 Vpp 토글을 사용하세요 — 임피던스 계산 전에 내부적으로 Vrms = Vpp / (2√2)로 변환됩니다.',
+    t6Title: '임의 임피던스에서 Power → V, I',
+    t6Sub: 'Tool 1의 고정된 50/75Ω 시스템 기준과 달리, 임의의 실수 또는 복소 부하 Z = R + jX를 직접 지정합니다',
+    t6LabelPower: '파워 (P)',
+    t6labelR: '부하 Re(Z), R (Ω)', t6labelX: '부하 Im(Z), X (Ω)',
+    t6QuickLabel: '빠른 부하 프리셋:',
+    t6statZmag: '|Z|', t6statZang: '∠Z (V가 I보다 앞서는 정도)', t6statDbm: 'dBm', t6statVrms: 'Vrms', t6statVpk: 'Vpeak', t6statIrms: 'Irms',
+    t6f1: '전류 (실전력 기준)', t6f2: '전압 크기', t6f3: 'V–I 위상',
+    t6Hint: '실전력을 소비하는 건 저항 성분 R뿐입니다 — 리액턴스 성분 X는 V/I 위상 관계를 만들고 |Z|를 키우지만 그 자체로는 전력을 소비하지 않습니다. X=0으로 두면 Tool 1의 공식과 정확히 같아집니다.',
     footerText: 'Benedu Insight · Lab Tool Series — Phase 1 / 7 (단위 및 전력 변환)'
   }
 };
@@ -1558,6 +1621,47 @@ function t5Compute() {
 }
 ['t5-vmag','t5-vphase','t5-imag','t5-iphase'].forEach(id => document.getElementById(id).addEventListener('input', t5Compute));
 t5Compute();
+
+/* =========================================================
+   TOOL 6 (shown as 2) — Power → V, I at a Custom Impedance
+   ========================================================= */
+function t6Update(Pval, fromSlider) {
+  Pval = Math.max(0, Pval);
+  const R = parseFloat(document.getElementById('t6-r').value) || 0.0001;
+  const X = parseFloat(document.getElementById('t6-x').value) || 0;
+  const Zmag = Math.sqrt(R*R + X*X);
+  const Zang = Math.atan2(X, R)*180/Math.PI;
+  const Irms = R>0 ? Math.sqrt(Pval/R) : 0;
+  const Vrms = Irms*Zmag;
+  const Vpk = Vrms*Math.sqrt(2);
+  const dBm = Pval>0 ? 10*Math.log10(Pval*1000) : -Infinity;
+
+  if (!fromSlider) document.getElementById('t6-slider').value = Math.min(1000, Pval);
+  document.getElementById('t6-input').value = Pval.toFixed(Pval>=100?1:3);
+  document.getElementById('t6-zmag').textContent = Zmag.toFixed(3);
+  document.getElementById('t6-zang').textContent = Zang.toFixed(2);
+  document.getElementById('t6-dbm').textContent = isFinite(dBm) ? dBm.toFixed(2) : '−∞';
+  document.getElementById('t6-vrms').textContent = Vrms.toFixed(2);
+  document.getElementById('t6-vpk').textContent = Vpk.toFixed(2);
+  document.getElementById('t6-irms').textContent = Irms.toFixed(3);
+}
+document.getElementById('t6-slider').addEventListener('input', e => t6Update(+e.target.value, true));
+document.getElementById('t6-input').addEventListener('change', e => { const v=parseFloat(e.target.value); if(!isNaN(v)) t6Update(v); });
+['t6-r','t6-x'].forEach(id => document.getElementById(id).addEventListener('input', () => {
+  const v = parseFloat(document.getElementById('t6-input').value) || 0;
+  t6Update(v);
+}));
+document.querySelectorAll('#panel-t6 .qbtn[data-r]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t6 .qbtn[data-r]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t6-r').value = btn.dataset.r;
+    document.getElementById('t6-x').value = btn.dataset.x;
+    const v = parseFloat(document.getElementById('t6-input').value) || 0;
+    t6Update(v);
+  });
+});
+t6Update(1000);
 
 /* Default language */
 function goToHashTab() {
