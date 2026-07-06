@@ -164,6 +164,14 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 
 /* Formula panel */
 .formula-panel { border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt); display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; }
+
+.result-cols { display: flex; gap: 14px; padding: 14px 24px 4px; flex-wrap: wrap; }
+.result-col { flex: 1; min-width: 220px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+.result-col h3 { font-size: 12.5px; font-weight: 700; color: var(--purple); margin-bottom: 10px; letter-spacing: .03em; }
+.result-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #EEF1F5; font-size: 13px; }
+.result-row:last-child { border-bottom: none; }
+.result-row .rlabel { color: var(--muted); }
+.result-row .rvalue { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text); }
 .formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
 .formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
 
@@ -292,9 +300,10 @@ td.dielectric { color: var(--muted); }
 
 <nav class="tool-tabs">
   <button class="tool-tab active" data-tool="t1"><span class="tnum">1</span><span id="tabT1">Power / Voltage</span></button>
-  <button class="tool-tab" data-tool="t2"><span class="tnum">2</span><span id="tabT2">Γ ↔ Z</span></button>
-  <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">Freq / Wavelength</span></button>
-  <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">Vrms / Vpk / Vpp</span></button>
+  <button class="tool-tab" data-tool="t5"><span class="tnum">2</span><span id="tabT5">V,I → Z (Euler)</span></button>
+  <button class="tool-tab" data-tool="t2"><span class="tnum">3</span><span id="tabT2">Γ ↔ Z</span></button>
+  <button class="tool-tab" data-tool="t3"><span class="tnum">4</span><span id="tabT3">Freq / Wavelength</span></button>
+  <button class="tool-tab" data-tool="t4"><span class="tnum">5</span><span id="tabT4">Vrms / Vpk / Vpp</span></button>
 </nav>
 
 <main class="main">
@@ -616,6 +625,68 @@ td.dielectric { color: var(--muted); }
     </div>
   </div>
 
+  <!-- ============ TOOL 5(shown as 2): V, I Phasor → Z (Euler Form) ============ -->
+  <div class="card tool-panel" id="panel-t5" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge5">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t5Title">V, I Phasor → Impedance Z</h2>
+        <p id="t5Sub">Enter voltage and current as magnitude + phase; get the complex impedance Z = V/I via Euler's formula</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <span class="quick-label" id="t5VBasisLabel" style="align-self:center;margin-right:4px;">Voltage input as:</span>
+      <button class="mode-btn active" data-vbasis="rms" id="t5VModeRms">Vrms</button>
+      <button class="mode-btn" data-vbasis="pp" id="t5VModePp">Vpp</button>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t5labelVmag">Voltage magnitude, |V|</label><input type="text" id="t5-vmag" value="100"></div>
+      <div class="dual-field"><label id="t5labelVphase">Voltage phase, θV (deg)</label><input type="text" id="t5-vphase" value="30"></div>
+    </div>
+
+    <div class="mode-toggle">
+      <span class="quick-label" id="t5IBasisLabel" style="align-self:center;margin-right:4px;">Current input as:</span>
+      <button class="mode-btn active" data-ibasis="rms" id="t5IModeRms">Irms</button>
+      <button class="mode-btn" data-ibasis="pp" id="t5IModePp">Ipp</button>
+    </div>
+    <div class="dual-input">
+      <div class="dual-field"><label id="t5labelImag">Current magnitude, |I|</label><input type="text" id="t5-imag" value="2"></div>
+      <div class="dual-field"><label id="t5labelIphase">Current phase, θI (deg)</label><input type="text" id="t5-iphase" value="-10"></div>
+    </div>
+
+    <div class="result-cols">
+      <div class="result-col">
+        <h3 id="t5PolarTitle">POLAR</h3>
+        <div class="result-row"><span class="rlabel" id="t5PolarLabel">|Z| ∠ θZ</span><span class="rvalue" id="t5-polarDisplay">50.000 Ω ∠ 40.00°</span></div>
+      </div>
+      <div class="result-col">
+        <h3 id="t5ExpTitle">EXPONENTIAL (EULER)</h3>
+        <div class="result-row"><span class="rlabel" id="t5ExpLabel">|Z|·e^(jθZ)</span><span class="rvalue" id="t5-expDisplay">50.000 Ω · e^(j0.6981)</span></div>
+      </div>
+      <div class="result-col">
+        <h3 id="t5RectTitle">RECTANGULAR (COMPLEX Z)</h3>
+        <div class="result-row"><span class="rlabel" id="t5RectLabel">R + jX</span><span class="rvalue" id="t5-rectDisplay">38.302 + j32.139 Ω</span></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t5statVrms">V (rms, used)</div><div><span class="stat-value" id="t5-vrmsOut">100.000</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statIrms">I (rms, used)</div><div><span class="stat-value" id="t5-irmsOut">2.000</span><span class="stat-unit">A</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statZmag">|Z|</div><div><span class="stat-value" id="t5-zmag">50.000</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statZphase">θZ = θV − θI</div><div><span class="stat-value" id="t5-zphase">40.00</span><span class="stat-unit">°</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statR">RESISTANCE (R)</div><div><span class="stat-value" id="t5-rOut">38.302</span><span class="stat-unit">Ω</span></div></div>
+      <div class="stat"><div class="stat-name" id="t5statX">REACTANCE (X)</div><div><span class="stat-value" id="t5-xOut">32.139</span><span class="stat-unit">Ω</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t5f1">PHASOR DIVISION</div><div class="formula-eq">Z = V/I = |V|/|I| ∠ (θV − θI)</div></div>
+      <div><div class="formula-label" id="t5f2">EULER'S FORMULA</div><div class="formula-eq">Z = |Z|·(cos θZ + j·sin θZ)</div></div>
+      <div><div class="formula-label" id="t5f3">RECTANGULAR</div><div class="formula-eq">R = |Z|·cos θZ,  X = |Z|·sin θZ</div></div>
+    </div>
+    <p class="field-hint" id="t5Hint">If your measured voltage is Vpp (e.g. straight off a scope) instead of Vrms, use the Vpp toggle above — it's converted internally as Vrms = Vpp / (2√2) before the impedance is computed.</p>
+  </div>
+
 </main>
 
 <footer>
@@ -631,8 +702,8 @@ const I18N = {
     pageTitle: 'Phase 1 — Unit &amp; Power Conversion',
     phaseStripLabel: 'Progress:',
     phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
-    tabT1: 'Power / Voltage', tabT2: 'Γ ↔ Z', tabT3: 'Freq / Wavelength', tabT4: 'Vrms / Vpk / Vpp',
-    badge1: 'INTERACTIVE', badge2: 'S11 ↔ Z', badge3: 'INTERACTIVE', badge4: 'INTERACTIVE',
+    tabT1: 'Power / Voltage', tabT2: 'Γ ↔ Z', tabT3: 'Freq / Wavelength', tabT4: 'Vrms / Vpk / Vpp', tabT5: 'V,I → Z (Euler)',
+    badge1: 'INTERACTIVE', badge2: 'S11 ↔ Z', badge3: 'INTERACTIVE', badge4: 'INTERACTIVE', badge5: 'INTERACTIVE',
     t1Title: 'dBm / W / V / I Converter',
     t1Sub: 'Convert RF power to voltage and current at a given system impedance',
     t1LabelPower: 'Power (P)', t1QuickLabel: 'Quick select:', t1Z0Label: 'System Impedance Z₀:',
@@ -706,14 +777,27 @@ const I18N = {
       <h3>Why RF engineers default to Vrms</h3>
       <p>Oscilloscopes usually display Vpp or Vpeak directly from the trace, but power calculations, RF generator ratings, and RMS voltmeters all use Vrms. Mixing them up is one of the most common sources of a 2× or 3× error when converting between a scope reading and a power/dBm figure — always check which one you're starting from.</p>
     `,
+    t5Title: 'V, I Phasor → Impedance Z',
+    t5Sub: "Enter voltage and current as magnitude + phase; get the complex impedance Z = V/I via Euler's formula",
+    t5VBasisLabel: 'Voltage input as:', t5VModeRms: 'Vrms', t5VModePp: 'Vpp',
+    t5labelVmag: 'Voltage magnitude, |V|', t5labelVphase: 'Voltage phase, θV (deg)',
+    t5IBasisLabel: 'Current input as:', t5IModeRms: 'Irms', t5IModePp: 'Ipp',
+    t5labelImag: 'Current magnitude, |I|', t5labelIphase: 'Current phase, θI (deg)',
+    t5PolarTitle: 'POLAR', t5PolarLabel: '|Z| ∠ θZ',
+    t5ExpTitle: 'EXPONENTIAL (EULER)', t5ExpLabel: '|Z|·e^(jθZ)',
+    t5RectTitle: 'RECTANGULAR (COMPLEX Z)', t5RectLabel: 'R + jX',
+    t5statVrms: 'V (rms, used)', t5statIrms: 'I (rms, used)', t5statZmag: '|Z|', t5statZphase: 'θZ = θV − θI',
+    t5statR: 'RESISTANCE (R)', t5statX: 'REACTANCE (X)',
+    t5f1: 'PHASOR DIVISION', t5f2: "EULER'S FORMULA", t5f3: 'RECTANGULAR',
+    t5Hint: "If your measured voltage is Vpp (e.g. straight off a scope) instead of Vrms, use the Vpp toggle above — it's converted internally as Vrms = Vpp / (2√2) before the impedance is computed.",
     footerText: 'Benedu Insight · Lab Tool Series — Phase 1 / 7 (Unit &amp; Power Conversion)'
   },
   ko: {
     pageTitle: 'Phase 1 — 단위 및 전력 변환',
     phaseStripLabel: '진행 단계:',
     phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
-    tabT1: '전력/전압 변환', tabT2: 'Γ ↔ Z 변환', tabT3: '주파수/파장', tabT4: 'Vrms/Vpk/Vpp',
-    badge1: '인터랙티브', badge2: 'S11 ↔ Z', badge3: '인터랙티브', badge4: '인터랙티브',
+    tabT1: '전력/전압 변환', tabT2: 'Γ ↔ Z 변환', tabT3: '주파수/파장', tabT4: 'Vrms/Vpk/Vpp', tabT5: 'V,I → Z (오일러)',
+    badge1: '인터랙티브', badge2: 'S11 ↔ Z', badge3: '인터랙티브', badge4: '인터랙티브', badge5: '인터랙티브',
     t1Title: 'dBm / W / V / I 통합 변환기',
     t1Sub: '시스템 임피던스 기준으로 RF 파워를 전압·전류로 변환합니다',
     t1LabelPower: '파워 (P)', t1QuickLabel: '빠른 선택:', t1Z0Label: '시스템 임피던스 Z₀:',
@@ -787,6 +871,19 @@ const I18N = {
       <h3>왜 RF 엔지니어는 기본적으로 Vrms를 쓰는가</h3>
       <p>오실로스코프는 보통 파형에서 바로 Vpp 또는 Vpeak를 표시하지만, 파워 계산·RF Generator 정격·RMS 전압계는 모두 Vrms를 기준으로 합니다. 스코프 판독값을 파워/dBm 수치로 변환할 때 이 둘을 혼동하는 것이 2배·4배 오차의 가장 흔한 원인이므로, 지금 보고 있는 값이 어떤 기준인지 항상 확인해야 합니다.</p>
     `,
+    t5Title: 'V, I 페이저 → 임피던스 Z',
+    t5Sub: '전압·전류를 크기+위상으로 입력하면, 오일러 공식을 통해 복소 임피던스 Z = V/I를 계산합니다',
+    t5VBasisLabel: '전압 입력 기준:', t5VModeRms: 'Vrms', t5VModePp: 'Vpp',
+    t5labelVmag: '전압 크기, |V|', t5labelVphase: '전압 위상, θV (도)',
+    t5IBasisLabel: '전류 입력 기준:', t5IModeRms: 'Irms', t5IModePp: 'Ipp',
+    t5labelImag: '전류 크기, |I|', t5labelIphase: '전류 위상, θI (도)',
+    t5PolarTitle: '극형식', t5PolarLabel: '|Z| ∠ θZ',
+    t5ExpTitle: '지수형식 (오일러)', t5ExpLabel: '|Z|·e^(jθZ)',
+    t5RectTitle: '직교형식 (복소수 Z)', t5RectLabel: 'R + jX',
+    t5statVrms: 'V (rms, 사용값)', t5statIrms: 'I (rms, 사용값)', t5statZmag: '|Z|', t5statZphase: 'θZ = θV − θI',
+    t5statR: '저항 (R)', t5statX: '리액턴스 (X)',
+    t5f1: '페이저 나눗셈', t5f2: '오일러 공식', t5f3: '직교형식',
+    t5Hint: '측정한 전압이 Vrms가 아니라 스코프에서 바로 읽은 Vpp라면 위의 Vpp 토글을 사용하세요 — 임피던스 계산 전에 내부적으로 Vrms = Vpp / (2√2)로 변환됩니다.',
     footerText: 'Benedu Insight · Lab Tool Series — Phase 1 / 7 (단위 및 전력 변환)'
   }
 };
@@ -1422,6 +1519,45 @@ function t4Update(val, fromSlider) {
 document.getElementById('t4-slider').addEventListener('input', e => t4Update(+e.target.value, true));
 document.getElementById('t4-input').addEventListener('change', e => { const v=parseFloat(e.target.value); if(!isNaN(v)) t4Update(v); });
 t4Update(150);
+
+/* =========================================================
+   TOOL 5 (shown as 2) — V, I Phasor → Impedance Z (Euler Form)
+   ========================================================= */
+let t5_vBasis = 'rms', t5_iBasis = 'rms';
+document.getElementById('t5VModeRms').addEventListener('click', () => { t5_vBasis='rms'; document.getElementById('t5VModeRms').classList.add('active'); document.getElementById('t5VModePp').classList.remove('active'); t5Compute(); });
+document.getElementById('t5VModePp').addEventListener('click', () => { t5_vBasis='pp'; document.getElementById('t5VModePp').classList.add('active'); document.getElementById('t5VModeRms').classList.remove('active'); t5Compute(); });
+document.getElementById('t5IModeRms').addEventListener('click', () => { t5_iBasis='rms'; document.getElementById('t5IModeRms').classList.add('active'); document.getElementById('t5IModePp').classList.remove('active'); t5Compute(); });
+document.getElementById('t5IModePp').addEventListener('click', () => { t5_iBasis='pp'; document.getElementById('t5IModePp').classList.add('active'); document.getElementById('t5IModeRms').classList.remove('active'); t5Compute(); });
+
+function t5Compute() {
+  const vMagIn = parseFloat(document.getElementById('t5-vmag').value) || 0;
+  const vPhaseDeg = parseFloat(document.getElementById('t5-vphase').value) || 0;
+  const iMagIn = parseFloat(document.getElementById('t5-imag').value) || 0;
+  const iPhaseDeg = parseFloat(document.getElementById('t5-iphase').value) || 0;
+
+  const Vrms = t5_vBasis==='pp' ? vMagIn/(2*Math.SQRT2) : vMagIn;
+  const Irms = t5_iBasis==='pp' ? iMagIn/(2*Math.SQRT2) : iMagIn;
+
+  const Zmag = Irms>0 ? Vrms/Irms : 0;
+  const ZphaseDeg = vPhaseDeg - iPhaseDeg;
+  const ZphaseRad = ZphaseDeg*Math.PI/180;
+  const R = Zmag*Math.cos(ZphaseRad);
+  const X = Zmag*Math.sin(ZphaseRad);
+
+  document.getElementById('t5-vrmsOut').textContent = Vrms.toFixed(3);
+  document.getElementById('t5-irmsOut').textContent = Irms.toFixed(3);
+  document.getElementById('t5-zmag').textContent = Zmag.toFixed(3);
+  document.getElementById('t5-zphase').textContent = ZphaseDeg.toFixed(2);
+  document.getElementById('t5-rOut').textContent = R.toFixed(3);
+  document.getElementById('t5-xOut').textContent = X.toFixed(3);
+
+  const sign = X>=0 ? '+' : '−';
+  document.getElementById('t5-polarDisplay').textContent = `${Zmag.toFixed(3)} Ω ∠ ${ZphaseDeg.toFixed(2)}°`;
+  document.getElementById('t5-expDisplay').textContent = `${Zmag.toFixed(3)} Ω · e^(j${ZphaseRad.toFixed(4)})`;
+  document.getElementById('t5-rectDisplay').textContent = `${R.toFixed(3)} ${sign} j${Math.abs(X).toFixed(3)} Ω`;
+}
+['t5-vmag','t5-vphase','t5-imag','t5-iphase'].forEach(id => document.getElementById(id).addEventListener('input', t5Compute));
+t5Compute();
 
 /* Default language */
 function goToHashTab() {
