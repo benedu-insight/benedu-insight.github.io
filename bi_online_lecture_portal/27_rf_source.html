@@ -1,0 +1,2671 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Module 07 — RF Source & Its Application | Benedu Insight RF Lecture Series</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet"/>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'],['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<style>
+/* ═══════════════════════════════════════════════
+   BENEDU INSIGHT — MODULE 05 BASE STYLES
+   Module 05 구조 계승, Module 07(RF Source & Its Application) 아이덴티티 추가
+═══════════════════════════════════════════════ */
+:root {
+  --bg: #F7F8FA;
+  --card: #F1EFEA;
+  --card-hd: #E7E4DD;
+  --purple: #7030A0;
+  --green: #0F8C50;
+  --plasma: #E87B1E;
+  --blue: #1A6FB5;
+  --red: #C0392B;
+  --teal: #7030A0;
+  --amber: #7030A0;
+  --text: #1A1A2E;
+  --text-sub: #5A5A7A;
+  --border: #D8D5CE;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --font: 'Google Sans', 'Noto Sans KR', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --batang: 'Gowun Batang', serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 260px;
+  height: 100vh;
+  background: #FFFFFF;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.sb-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-brand .module-tag {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--text-sub);
+}
+.sb-era {
+  padding: 10px 14px 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.sb-era-bar {
+  height: 3px;
+  border-radius: 2px;
+  margin: 4px 14px 8px;
+  background: var(--teal);
+  opacity: 0.4;
+}
+.sb-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 1px 8px;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.sb-item:hover { background: #E8F7F2; }
+.sb-item.active { background: #D1F0E6; }
+.sb-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sb-label { font-size: 0.78rem; line-height: 1.35; color: var(--text); }
+.sb-sub { font-size: 0.68rem; color: var(--text-sub); margin-top: 2px; }
+
+/* ── TOP-BAR LANGUAGE TOGGLE ── */
+.top-lang-toggle {
+  display: flex; align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2px;
+  gap: 1px;
+}
+.top-lang-btn {
+  font-family: var(--font);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.top-lang-btn:hover:not(.active) { color: var(--text); }
+.top-lang-btn.active {
+  background: var(--teal);
+  color: #fff;
+}
+
+/* ── TOP LOGO BAR ── */
+#top-logo-bar {
+  position: fixed;
+  top: 0; left: 260px; right: 0;
+  height: 44px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 0 28px;
+  z-index: 150;
+}
+#top-logo-bar img {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.88;
+}
+
+/* ── MAIN CONTENT ── */
+#main {
+  margin-left: 260px;
+  flex: 1;
+  padding: 64px 36px 32px;
+  max-width: calc(100vw - 260px);
+}
+
+/* ── SLIDE HEADER ── */
+.slide-header { margin-bottom: 28px; }
+.slide-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.slide-title {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+.slide-title span { color: var(--teal); }
+.slide-subtitle {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  color: var(--text-sub);
+  line-height: 1.5;
+}
+
+/* ── TAB SYSTEM ── */
+.tab-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0;
+}
+.tab-btn {
+  padding: 8px 18px 10px;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--text-sub);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+.tab-btn.active {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+  font-weight: 700;
+}
+.tab-btn:hover:not(.active) { color: var(--text); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ── DIAGRAM CARD ── */
+.sim-link-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, var(--purple) 0%, #9B59D0 100%);
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 14px rgba(112,48,160,0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.sim-link-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(112,48,160,0.36);
+}
+.sim-link-icon { font-size: 1.6rem; flex-shrink: 0; }
+.sim-link-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.sim-link-label {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
+  opacity: 0.85; font-family: var(--mono); text-transform: uppercase;
+}
+.sim-link-title { font-size: 0.95rem; font-weight: 700; }
+.sim-link-arrow { font-size: 1.3rem; opacity: 0.85; flex-shrink: 0; }
+
+.zone-sim-links { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.zone-sim-link {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff;
+  border: 1.3px solid var(--zone-color, var(--purple));
+  border-radius: 8px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: var(--zone-color, var(--purple));
+  font-size: 0.76rem; font-weight: 600;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.zone-sim-link:hover {
+  background: var(--zone-color-fade, rgba(112,48,160,0.1));
+  transform: translateX(2px);
+}
+.zone-sim-link .zsl-icon { font-size: 0.95rem; flex-shrink: 0; }
+.zone-sim-link .zsl-title { flex: 1; }
+.zone-sim-link .zsl-arrow { font-size: 0.85rem; opacity: 0.75; flex-shrink: 0; }
+
+.d-wrap {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.d-header {
+  background: var(--card-hd);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.d-badge {
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+}
+.d-badge.purple { background: var(--purple); }
+.d-badge.green  { background: var(--green); }
+.d-badge.plasma { background: var(--plasma); }
+.d-badge.red    { background: var(--red); }
+.d-title { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.d-body { padding: 1.2rem; }
+
+/* ── THEORY CARDS ── */
+.theory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.theory-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.theory-card h4 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin-bottom: 7px;
+  display: flex; align-items: center; gap: 6px;
+}
+.theory-card p { font-size: 0.82rem; color: var(--text-sub); line-height: 1.55; }
+
+/* ── ZONE CARDS (diagram-linked) ── */
+.zone-cards-label {
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 18px 0 10px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+.zone-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  scroll-margin-top: 20px;
+}
+.zone-card h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 7px;
+  display: flex; align-items: center; gap: 7px;
+}
+.zone-card p { font-size: 0.82rem; color: var(--text-sub); line-height: 1.6; }
+.zone-card.zone-active {
+  border-color: var(--zone-color, var(--purple));
+  box-shadow: 0 0 0 3px var(--zone-color-fade, rgba(112,48,160,0.18)), 0 4px 14px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+.zone-block { cursor: pointer; }
+.zone-block:hover rect { filter: brightness(0.97); }
+
+/* ── EQUATION BLOCK ── */
+.eq-block {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 10px 0;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.eq-label {
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  text-align: right;
+  margin-top: 4px;
+  font-family: var(--font);
+}
+
+/* ── CALLOUT ── */
+.callout {
+  background: #F0FAFF;
+  border: 1px solid #A8D8E8;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 14px 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+.callout.green  { background: #F0FAF4; border-color: #A8D5B8; }
+.callout.plasma { background: #FFF8F0; border-color: #F5C89A; }
+.callout.purple { background: #F8F6FF; border-color: #C9B8E8; }
+.callout.red    { background: #FDF0EE; border-color: #EAB0A8; }
+.callout-title {
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  color: var(--teal);
+}
+.callout.green  .callout-title { color: var(--green); }
+.callout.plasma .callout-title { color: var(--plasma); }
+.callout.purple .callout-title { color: var(--purple); }
+.callout.red    .callout-title { color: var(--red); }
+
+/* ── QUIZ ── */
+.quiz-card {
+  background: #fff;
+  border: 1.5px solid #A8D8E8;
+  border-radius: 10px;
+  padding: 18px;
+  margin-top: 10px;
+}
+.quiz-q {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  transition: all 0.15s;
+  background: var(--bg);
+}
+.quiz-opt:hover { border-color: var(--teal); background: #F0FAFF; }
+.quiz-opt.correct { border-color: var(--green); background: #F0FAF4; color: var(--green); }
+.quiz-opt.wrong   { border-color: var(--red); background: #FDF0EE; color: var(--red); }
+.quiz-opt span.opt-key {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.75rem;
+  width: 20px; flex-shrink: 0;
+}
+.quiz-feedback {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  display: none;
+  line-height: 1.5;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: #F0FAF4; color: var(--green); }
+.quiz-feedback.ng { background: #FDF0EE; color: var(--red); }
+
+/* ── CONNECTIONS ── */
+.connections { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.conn-chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  font-weight: 600;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: #fff;
+  color: var(--text-sub);
+}
+.conn-chip:hover { border-color: var(--teal); color: var(--teal); background: #F0FAFF; }
+
+/* ── DEEP STUDY ── */
+.deep-section h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #A8D8E8;
+}
+.deep-section p  { font-size: 0.84rem; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+.deep-section ul { padding-left: 18px; margin-bottom: 10px; }
+.deep-section ul li { font-size: 0.83rem; line-height: 1.65; color: var(--text); margin-bottom: 4px; }
+
+/* ── TABLE ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 10px 0; }
+.data-table th {
+  background: var(--card-hd);
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.data-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); line-height: 1.4; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #F0FAFF; }
+
+/* ── CANVAS SIMULATOR ── */
+.sim-wrap { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin: 10px 0; }
+.sim-canvas {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: #0D1117;
+  display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  box-sizing: border-box;
+}
+.sim-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; align-items: center; }
+.sim-ctrl-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 140px; }
+.sim-ctrl-label { font-size: 0.72rem; font-weight: 700; color: var(--text-sub); display: flex; justify-content: space-between; }
+.sim-ctrl-val { font-family: var(--mono); font-size: 0.72rem; color: var(--teal); font-weight: 600; }
+.sim-slider {
+  -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px;
+  background: var(--border); outline: none;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--teal); cursor: pointer;
+}
+.sim-btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.sim-btn {
+  padding: 7px 16px; border-radius: 8px;
+  border: 1.5px solid var(--teal);
+  background: transparent; color: var(--teal);
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.sim-btn:hover, .sim-btn.active { background: var(--teal); color: #fff; }
+.sim-btn.purple-btn { border-color: var(--purple); color: var(--purple); }
+.sim-btn.purple-btn:hover, .sim-btn.purple-btn.active { background: var(--purple); color: #fff; }
+.sim-info {
+  margin-top: 10px; padding: 10px 14px;
+  background: var(--bg); border-radius: 8px;
+  font-size: 0.78rem; color: var(--text-sub); line-height: 1.5; min-height: 36px;
+}
+
+/* ── L-NETWORK SHARED SIMULATOR (Topic 2~5) — checkbox chips ── */
+.lnet-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+}
+.lnet-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+@media (max-width: 760px) {
+  .lnet-main-grid { grid-template-columns: 1fr; }
+}
+.lnet-chip {
+  display: flex; align-items: center; gap: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.15s;
+  user-select: none;
+}
+.lnet-chip:hover { background: var(--bg); }
+.lnet-chip.active { background: #FFF8EC; border-color: var(--teal); box-shadow: 0 0 0 1px var(--teal) inset; }
+.lnet-chip-box {
+  flex-shrink: 0;
+  width: 18px; height: 18px;
+  border: 1.6px solid var(--border-strong, #B8AC92);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 900; color: #fff;
+  background: #fff;
+}
+.lnet-chip.active .lnet-chip-box { background: var(--teal); border-color: var(--teal); }
+
+/* ── REVEAL BLOCK (함께 생각해 보기) ── */
+.reveal-wrap {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.reveal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.reveal-header:hover { background: #F4F6FB; }
+.reveal-q {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  flex: 1;
+}
+.reveal-badge {
+  flex-shrink: 0;
+  background: var(--teal);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+  margin-right: 12px;
+}
+.reveal-chevron { flex-shrink: 0; font-size: 0.8rem; color: var(--text-sub); transition: transform 0.22s; }
+.reveal-header.open .reveal-chevron { transform: rotate(180deg); }
+.reveal-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 0;
+  border-top: 1px solid transparent;
+}
+.reveal-body.open {
+  max-height: 2000px;
+  opacity: 1;
+  border-top-color: var(--border);
+}
+.reveal-inner { padding: 18px; }
+
+/* ── Journey Key Block styles (Step 2) ── */
+.jkey-block {
+  display: block;
+  margin-bottom: 0;
+}
+.jkey-spacer {
+  display: block;
+  height: 14px;
+}
+.jkey-h {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #E8EEF8;
+  font-family: 'Google Sans', sans-serif;
+  line-height: 1.7;
+}
+.jkey-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #A0BBCC;
+  font-family: 'Google Sans', sans-serif;
+}
+.jkey-f {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #E8EEF8;
+  font-family: 'Google Sans', sans-serif;
+  line-height: 1.8;
+  padding-left: 18px;
+}
+.jkey-f sup {
+  font-size: 0.72em;
+  vertical-align: super;
+}
+
+#img-popup {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.85); z-index: 9999;
+  align-items: center; justify-content: center;
+  overflow: hidden;
+}
+#img-popup.open { display: flex; }
+#img-popup-viewport {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  overflow: auto;
+  cursor: zoom-in;
+}
+#img-popup-viewport.zoomed {
+  cursor: grab;
+  align-items: flex-start; justify-content: flex-start;
+}
+#img-popup-viewport.zoomed:active { cursor: grabbing; }
+#img-popup img {
+  max-width: 90vw; max-height: 85vh;
+  border-radius: 10px; box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  transition: max-width 0.2s ease, max-height 0.2s ease, width 0.2s ease;
+  user-select: none;
+}
+#img-popup-viewport.zoomed img {
+  max-width: none; max-height: none;
+  width: 220%;
+  border-radius: 6px;
+  transition: none;
+}
+#img-popup-cap {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7); color: #fff;
+  padding: 8px 18px; border-radius: 20px; font-size: 0.8rem;
+  pointer-events: none;
+  z-index: 2;
+}
+#img-popup-close {
+  position: fixed; top: 20px; right: 28px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.12); color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  font-size: 1.3rem; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+#img-popup-close:hover { background: rgba(255,255,255,0.25); }
+#img-popup-hint {
+  position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.6); color: #fff;
+  padding: 6px 14px; border-radius: 16px; font-size: 0.74rem;
+  pointer-events: none; z-index: 2;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar { position: fixed; top: 44px; left: 260px; right: 0; height: 3px; background: var(--border); z-index: 200; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width 0.3s ease; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; padding: 64px 16px 20px; max-width: 100vw; }
+  .progress-bar { left: 0; }
+  #top-logo-bar { left: 0; }
+}
+
+/* ── 임피던스 페이저 다이어그램 ── */
+.phasor-legend {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-top: 10px; align-items: center;
+}
+.phasor-dot {
+  display: inline-block; width: 12px; height: 12px;
+  border-radius: 50%; margin-right: 5px; vertical-align: middle;
+}
+
+/* ── Z 표기 큰 수식 ── */
+.z-formula-block {
+  display: flex; align-items: center; gap: 0;
+  background: #fff; border: 2px solid #C9B8E8;
+  border-radius: 14px; padding: 20px 28px;
+  margin: 16px 0; flex-wrap: wrap; justify-content: center;
+}
+.z-formula-block .z-sym {
+  font-size: 3rem; font-weight: 900;
+  color: var(--purple); font-family: var(--mono);
+  margin-right: 12px;
+}
+.z-formula-block .z-eq { font-size: 2.2rem; color: var(--text-sub); margin: 0 10px; }
+.z-formula-block .z-r  { font-size: 2.2rem; font-weight: 700; color: var(--blue); }
+.z-formula-block .z-pm { font-size: 2rem; color: var(--text-sub); margin: 0 8px; }
+.z-formula-block .z-x  { font-size: 2.2rem; font-weight: 700; color: var(--purple); }
+.z-formula-block .z-j  { font-size: 2.2rem; font-weight: 700; color: var(--purple); }
+.z-sub-label {
+  font-size: 0.72rem; color: var(--text-sub); text-align: center;
+  margin-top: 4px; font-family: var(--mono);
+}
+
+/* ── PORTED FROM vi_sensing_principles.html (Topic 3 rich content) ── */
+.vi-case-num {
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+  background: #F0E8F8; color: #7030A0; font-weight: 700; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
+.vi-case-num.amber { background: #FFF3E0; color: #C8860D; }
+.vi-case-num.red { background: #FDF0EE; color: #C0392B; }
+.vi-case-num.green { background: #E6F4ED; color: #0F8C50; }
+.vi-steps { padding: 4px 0 8px; }
+.vi-step { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px dashed #E2E8F0; }
+.vi-step:last-child { border-bottom: none; }
+.vi-step-num { flex-shrink:0; width: 22px; height: 22px; border-radius: 50%; background: #F8FAFB; border: 1.5px solid #E2E8F0; color: #64748B; font-size: 11px; font-weight: 700; display:flex; align-items:center; justify-content:center; }
+.vi-step-text { font-size: 13px; line-height: 1.55; padding-top: 1px; color: #1A202C; }
+.vi-step-text b { color: #7030A0; }
+.vi-formula-panel { border-top: 1px solid #E2E8F0; border-radius: 0 0 10px 10px; padding: 14px 18px; margin-top: 10px; background: #E6F4ED; display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: center; }
+.vi-formula-label { font-size: 10.5px; font-weight: 600; color: #0F8C50; letter-spacing: .08em; margin-bottom: 1px; }
+.vi-formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: #0A6B3C; }
+.vi-info-note { margin: 14px 0 0; padding: 14px 18px 14px 44px; background: #F0E8F8; border: 1px solid #E2D3EF; border-radius: 10px; position: relative; }
+.vi-info-note::before { content: '💡'; position: absolute; left: 15px; top: 15px; font-size: 14px; line-height: 1; }
+.vi-info-note-label { display: block; font-size: 10px; font-weight: 700; color: #7030A0; letter-spacing: .09em; margin-bottom: 5px; }
+.vi-info-note p { font-size: 12.5px; color: #1A202C; line-height: 1.65; margin: 0; }
+.vi-link-note { margin: 14px 0 0; padding: 12px 16px; background: #E5F0FA; border: 1px solid #C9E0F5; border-radius: 8px; font-size: 12.5px; color: #1D5A8A; text-align: center; }
+.vi-link-note a { color: #378ADD; font-weight: 700; }
+.vi-ref-trigger {
+  margin: 14px 0 0; padding: 10px 14px; background: #F8FAFB;
+  border: 1.5px solid #E2E8F0; border-radius: 10px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.vi-ref-trigger:hover { border-color: #C8860D; background: #FFF3E0; }
+.vi-ref-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid #E2E8F0; flex-shrink: 0; background: #fff; }
+.vi-ref-trigger-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.vi-ref-trigger-label { font-size: 10px; font-weight: 700; color: #C8860D; letter-spacing: .08em; }
+.vi-ref-trigger-desc { font-size: 12px; color: #64748B; }
+.vi-ref-trigger-icon { font-size: 16px; color: #C8860D; flex-shrink: 0; }
+.vi-ref-source { margin: 6px 0 0; font-size: 11px; color: #94A3B8; text-align: right; }
+.vi-ref-source a { color: #64748B; }
+.vi-lightbox-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(20,20,30,0.82);
+  z-index: 1000; align-items: center; justify-content: center; padding: 30px;
+  cursor: zoom-out;
+}
+.vi-lightbox-overlay.open { display: flex; }
+.vi-lightbox-overlay img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,.4); cursor: default; }
+.vi-lightbox-close {
+  position: absolute; top: 22px; right: 28px; width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); color: #fff; border: none; font-size: 20px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.vi-lightbox-close:hover { background: rgba(255,255,255,0.3); }
+.vi-summary-table { width: 100%; border-collapse: collapse; margin: 4px 0; }
+.vi-summary-table th, .vi-summary-table td { padding: 11px 14px; text-align: left; font-size: 12.5px; border-bottom: 1px solid #E2E8F0; }
+.vi-summary-table th { background: #F8FAFB; font-weight: 700; color: #64748B; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.vi-summary-table td.center, .vi-summary-table th.center { text-align: center; }
+.vi-summary-table tr:last-child td { border-bottom: none; }
+.vi-pill { display:inline-block; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.vi-pill.yes { background: #E6F4ED; color: #0A6B3C; }
+.vi-pill.no { background: #FDF0EE; color: #C0392B; }
+.vi-case-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.vi-case-head-text h3 { font-size: 15px; font-weight: 700; color: #1A202C; }
+.vi-case-head-text p { font-size: 12px; color: #64748B; margin-top: 2px; }
+@media (max-width: 640px) {
+  .vi-info-note, .vi-link-note, .vi-ref-trigger { margin-left: 0; margin-right: 0; }
+  .vi-summary-table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+</style>
+<body>
+
+<!-- IMAGE POPUP -->
+<div id="img-popup">
+  <button id="img-popup-close" onclick="closeImgPopup()" aria-label="Close">✕</button>
+  <div id="img-popup-hint">🔍 클릭해서 확대 / 다시 클릭하면 축소 · ✕ 또는 Esc로 닫기</div>
+  <div id="img-popup-viewport" onclick="toggleImgZoom(event)">
+    <img id="img-popup-img" src="" alt=""/>
+  </div>
+  <div id="img-popup-cap"></div>
+</div>
+
+<!-- TOP LOGO BAR -->
+<div id="top-logo-bar">
+  <div class="top-lang-toggle">
+    <button class="top-lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+    <button class="top-lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+  <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="BENEDU INSIGHT"/>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-brand">
+    <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+         alt="BENEDU INSIGHT"
+         style="height:28px;width:auto;display:block;margin-bottom:6px;object-fit:contain"/>
+    <div class="module-tag">RF Lecture Series · Class 02 · Module 07</div>
+  </div>
+  <div class="sb-era">Module 07</div>
+  <div class="sb-era-bar"></div>
+  <div id="nav-list"></div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+  <div id="slide-area"></div>
+</main>
+
+<script>
+/* ═══════════════════════════════════════════
+   HiDPI Canvas Utility
+═══════════════════════════════════════════ */
+function setupHiDPI(canvas) {
+  const dpr  = window.devicePixelRatio || 1;
+  const cssW = canvas.offsetWidth  || canvas.parentElement && canvas.parentElement.offsetWidth || 680;
+  const attrH = parseInt(canvas.getAttribute('data-h') || canvas.height || 260);
+  const attrW = parseInt(canvas.getAttribute('data-w') || canvas.width  || 680);
+  const cssH  = Math.round(attrH * (cssW / attrW));
+  canvas.width  = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  canvas.style.width  = '100%';
+  canvas.style.height = cssH + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return { ctx, W: cssW, H: cssH, dpr };
+}
+/* ═══════════════════════════════════════════
+
+/* ═══════════════════════════════════════════
+   MODULE 6 — INLINE DIAGRAM CONSTANTS
+═══════════════════════════════════════════ */
+const DIAG_M6OV_HTML_KO = `<div class="d-wrap">
+  <div class="d-header"><span class="d-badge purple">OVERVIEW</span><span class="d-title">RF Generator — 5대 구역 블록다이어그램 (스위칭 계열 기준)</span></div>
+  <div class="d-body">
+    <svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+      <defs>
+        <marker id="ov-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#5A5A7A" stroke-width="1.5"/>
+        </marker>
+      </defs>
+      <style>
+        .w{stroke:#2A2A3A;stroke-width:1.6;fill:none;}
+        .wd{stroke:#5A5A7A;stroke-width:1.4;fill:none;stroke-dasharray:4 3;}
+        .t{font-size:12px;fill:#1A1A2E;}
+        .ts{font-size:10.5px;fill:#5A5A7A;}
+        .tb{font-size:13px;fill:#1A1A2E;font-weight:700;}
+        .zone-label{font-size:11px;font-weight:700;letter-spacing:0.04em;}
+        .box{fill:#FFFFFF;stroke:#2A2A3A;stroke-width:1.3;}
+      </style>
+
+      <!-- ═══ ZONE BACKGROUNDS ═══ -->
+      <g class="zone-block" onclick="highlightZoneCard('zone1')">
+      <rect x="20" y="60" width="190" height="260" rx="14" fill="#1A6FB512" stroke="#1A6FB5" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="115" y="45" text-anchor="middle" class="zone-label" fill="#1A6FB5">① 신호발생부</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone2')">
+      <rect x="230" y="60" width="190" height="260" rx="14" fill="#E87B1E12" stroke="#E87B1E" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="325" y="45" text-anchor="middle" class="zone-label" fill="#C8650F">② 신호처리부</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone3')">
+      <rect x="440" y="60" width="330" height="260" rx="14" fill="#0F8C5012" stroke="#0F8C50" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="605" y="45" text-anchor="middle" class="zone-label" fill="#0F8C50">③ 파워생성부</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone4')">
+      <rect x="790" y="60" width="390" height="260" rx="14" fill="#7030A012" stroke="#7030A0" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="985" y="45" text-anchor="middle" class="zone-label" fill="#7030A0">④ 정형출력부</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone5')">
+      <rect x="20" y="400" width="1160" height="200" rx="14" fill="#C0392B10" stroke="#C0392B" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="60" y="425" class="zone-label" fill="#C0392B">⑤ 전원제어부</text>
+      </g>
+
+      <!-- ═══ ZONE 1: Signal Generation ═══ -->
+      <rect x="45" y="165" width="75" height="44" rx="7" class="box"/>
+      <text x="82" y="183" text-anchor="middle" class="t" font-size="9.5">Ref. Clock</text>
+      <text x="82" y="197" text-anchor="middle" class="ts" font-size="8.5">40.68 MHz</text>
+
+      <rect x="130" y="165" width="60" height="44" rx="7" class="box" fill="#1A6FB512"/>
+      <text x="160" y="183" text-anchor="middle" class="t" font-size="9.5">DDS</text>
+      <text x="160" y="197" text-anchor="middle" class="ts" font-size="8">합성</text>
+      <line x1="120" y1="187" x2="130" y2="187" class="w" marker-end="url(#ov-arrow)"/>
+      <text x="160" y="228" text-anchor="middle" class="ts" font-size="8.5">→ 13.56 MHz</text>
+      <text x="160" y="242" text-anchor="middle" class="ts" font-size="8" fill="#5A5A7A">사인파 기준신호</text>
+      <g transform="translate(152,250)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <path d="M190 187 L210 187 L210 111 L255 111" class="w" marker-end="url(#ov-arrow)"/>
+
+      <!-- ═══ ZONE 2: Gate Drive ═══ -->
+      <rect x="255" y="90" width="140" height="42" rx="8" class="box" fill="#1A6FB512"/>
+      <text x="325" y="108" text-anchor="middle" class="t" font-size="10">Comparator</text>
+      <text x="325" y="122" text-anchor="middle" class="ts" font-size="8">사인파 → 사각파</text>
+      <line x1="325" y1="132" x2="325" y2="142" class="w" marker-end="url(#ov-arrow)"/>
+      <g transform="translate(400,131)"><path d="M0,6 L0,2 L4,2 L4,6 L8,6 L8,2 L12,2 L12,6 L16,6" stroke="#C8650F" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <rect x="255" y="142" width="140" height="30" rx="7" class="box" fill="#E87B1E12"/>
+      <text x="325" y="161" text-anchor="middle" class="t" font-size="9.5">RF Enable</text>
+      <line x1="325" y1="172" x2="325" y2="188" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="255" y="188" width="140" height="48" rx="8" class="box" stroke="#1A6FB5" stroke-width="1.4"/>
+      <text x="325" y="209" text-anchor="middle" class="t" font-size="10.5">Splitter</text>
+      <text x="325" y="224" text-anchor="middle" class="ts" font-size="8.5">1→2 · 디지털 팬아웃</text>
+      <g transform="translate(400,208)"><path d="M0,6 L0,2 L4,2 L4,6 L8,6 L8,2 L12,2 L12,6 L16,6" stroke="#C8650F" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <path d="M395 200 L410 200 L410 127 L455 127" class="w" marker-end="url(#ov-arrow)"/>
+      <line x1="395" y1="222" x2="455" y2="222" class="w" marker-end="url(#ov-arrow)"/>
+
+      <!-- ═══ ZONE 3: Power Generation ═══ -->
+      <rect x="455" y="105" width="70" height="45" rx="8" class="box" fill="#E87B1E12"/>
+      <text x="490" y="123" text-anchor="middle" class="t" font-size="9">Gate Driver</text>
+      <text x="490" y="137" text-anchor="middle" class="ts" font-size="8">0°</text>
+      <line x1="525" y1="127" x2="565" y2="127" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="455" y="200" width="70" height="45" rx="8" class="box" fill="#E87B1E12"/>
+      <text x="490" y="218" text-anchor="middle" class="t" font-size="9">Gate Driver</text>
+      <text x="490" y="232" text-anchor="middle" class="ts" font-size="8">180°</text>
+      <line x1="525" y1="222" x2="565" y2="222" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="565" y="105" width="90" height="45" rx="8" class="box"/>
+      <text x="610" y="124" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+      <text x="610" y="138" text-anchor="middle" class="ts" style="font-size:7.5px">스위칭 계열 · 0°</text>
+      <rect x="565" y="200" width="90" height="45" rx="8" class="box"/>
+      <text x="610" y="219" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+      <text x="610" y="233" text-anchor="middle" class="ts" style="font-size:7.5px">스위칭 계열 · 180°</text>
+      <text x="610" y="163" text-anchor="middle" class="ts" style="font-size:8px">공진망(Lr·Cr) 내장 · ZVS</text>
+      <text x="610" y="258" text-anchor="middle" class="ts" style="font-size:8px">공진망(Lr·Cr) 내장 · ZVS</text>
+
+      <line x1="655" y1="128" x2="666" y2="138" class="w"/>
+      <circle cx="672" cy="144" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+      <path d="M668 144 L676 144 M673 140 L676 144 L673 148" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+      <line x1="678" y1="150" x2="695" y2="165" class="w" marker-end="url(#ov-arrow)"/>
+      <text x="672" y="130" text-anchor="middle" class="ts" font-size="7.5" fill="#C8860D">격리</text>
+
+      <line x1="655" y1="222" x2="666" y2="212" class="w"/>
+      <circle cx="672" cy="206" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+      <path d="M668 206 L676 206 M673 202 L676 206 L673 210" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+      <line x1="678" y1="200" x2="695" y2="185" class="w" marker-end="url(#ov-arrow)"/>
+      <text x="672" y="222" text-anchor="middle" class="ts" font-size="7.5" fill="#C8860D">격리</text>
+
+      <rect x="695" y="150" width="65" height="50" rx="8" class="box"/>
+      <text x="727" y="172" text-anchor="middle" class="t" font-size="10.5">Combiner</text>
+      <text x="727" y="186" text-anchor="middle" class="ts" font-size="9.5">2→1</text>
+
+      <!-- ═══ ZONE 4: Output Conditioning ═══ -->
+      <line x1="760" y1="175" x2="805" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+      <g transform="translate(774,171)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <rect x="805" y="145" width="95" height="60" rx="8" class="box"/>
+      <text x="852" y="167" text-anchor="middle" class="t" font-size="9.5">Matching</text>
+      <text x="852" y="180" text-anchor="middle" class="t" font-size="9.5">Network</text>
+      <text x="852" y="193" text-anchor="middle" class="ts" font-size="8">50Ω 정합</text>
+
+      <line x1="900" y1="175" x2="915" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="915" y="150" width="65" height="50" rx="8" class="box"/>
+      <text x="947" y="172" text-anchor="middle" class="t" font-size="10.5">LPF</text>
+      <text x="947" y="186" text-anchor="middle" class="ts" font-size="7.5">고조파 억제</text>
+
+      <line x1="980" y1="175" x2="995" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="995" y="144" width="95" height="62" rx="8" class="box"/>
+      <text x="1042" y="169" text-anchor="middle" class="t" font-size="10.5">RF Sensor</text>
+      <text x="1042" y="183" text-anchor="middle" class="ts" font-size="9">Fwd/Refl 검출</text>
+
+      <line x1="1090" y1="175" x2="1139" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+
+      <circle cx="1150" cy="175" r="11" fill="#fff" stroke="#2A2A3A" stroke-width="1.3"/>
+      <text x="1150" y="145" text-anchor="middle" class="tb" font-size="11">RF OUT</text>
+      <text x="1150" y="204" text-anchor="middle" class="ts" font-size="9">to Matcher</text>
+
+      <!-- ═══ ZONE 5: Power / Control ═══ -->
+      <rect x="45" y="450" width="90" height="120" rx="8" class="box"/>
+      <text x="90" y="475" text-anchor="middle" class="t" font-size="10">AC IN</text>
+      <text x="90" y="490" text-anchor="middle" class="ts" font-size="9">3φ 208V</text>
+
+      <rect x="175" y="475" width="80" height="46" rx="8" class="box"/>
+      <text x="215" y="495" text-anchor="middle" class="t" font-size="10">Noise</text>
+      <text x="215" y="509" text-anchor="middle" class="t" font-size="10">Filter</text>
+      <line x1="135" y1="498" x2="175" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="295" y="465" width="110" height="66" rx="8" class="box" stroke="#C0392B" stroke-width="1.5"/>
+      <text x="350" y="487" text-anchor="middle" class="t" font-size="10">가변 HV</text>
+      <text x="350" y="501" text-anchor="middle" class="t" font-size="10">DC-DC 전원</text>
+      <line x1="255" y1="498" x2="295" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+      <text x="350" y="545" text-anchor="middle" class="ts" font-size="9.5">Vdd → Main Amp (가변)</text>
+      <path d="M370 465 L370 448 L610 448 L610 245" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="990" y="465" width="130" height="70" rx="8" fill="#FFFFFF" stroke="#C0392B" stroke-width="1.4"/>
+      <text x="1055" y="490" text-anchor="middle" class="t" font-size="10.5">Digital</text>
+      <text x="1055" y="505" text-anchor="middle" class="t" font-size="10.5">Controller</text>
+      <text x="1055" y="519" text-anchor="middle" class="ts" font-size="9">FPGA · 디지털 피드백</text>
+
+      <path d="M1042 206 L1042 430 L1055 430 L1055 465" class="wd" marker-end="url(#ov-arrow)"/>
+      <path d="M990 500 L370 500 L370 465" class="wd" marker-end="url(#ov-arrow)"/>
+
+      <text x="600" y="615" text-anchor="middle" class="ts" font-size="10.5">점선 = 제어/피드백 신호 · 실선 = RF 신호 / 전원(Vdd) 경로</text>
+    </svg>
+    <div class="zone-cards-label">ZONE 상세 설명 · 위 다이어그램의 구역을 클릭하면 해당 카드가 강조됩니다</div>
+    <div class="theory-grid">
+      <div class="zone-card" id="card-zone1" style="--zone-color:#1A6FB5;--zone-color-fade:#1A6FB52E">
+        <h4>① 신호발생부 — 정확한 주파수를 만든다</h4>
+        <p>40.68MHz 기준 클럭(Ref. Clock)을 DDS(Direct Digital Synthesis)가 받아 13.56MHz 기준 신호를 디지털 합성으로 만들어냅니다. 이 신호는 아직 사인파에 가까운 형태이며, 진폭이 아니라 주파수·위상의 정확도가 핵심입니다 — 스위칭 계열은 이 신호의 크기를 조절해서 파워를 내는 게 아니라, 다음 단(신호처리부)에서 이 신호를 있는 그대로 스위칭 명령으로 바꿔 쓰기 때문입니다.</p>
+        <div class="zone-sim-links">
+          <a href="./sims/dds_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">DDS 파형 생성 시뮬레이터</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone2" style="--zone-color:#C8650F;--zone-color-fade:#C8650F2E">
+        <h4>② 신호처리부 — 신호를 다듬고, 아날로그 정합 없이 나눈다</h4>
+        <p>선형 방식의 Driver Amp와는 임무가 다릅니다. Comparator가 DDS의 사인파 기준신호를 깨끗한 구형파(로직 레벨의 On/Off 신호)로 정리한 뒤, RF Enable로 On/Off 타이밍을 관리하고, Splitter가 이 구형파를 두 경로(0°/180°)로 복제합니다. 이 Splitter는 RF 전력을 나누는 협대역 소자가 아니라 순수한 디지털 팬아웃(fan-out)입니다 — 사각파에는 고조파 성분이 섞여 있는데, 여기서 λ/4 전송선로 기반의 협대역 RF Splitter를 쓰면 고조파가 감쇠·반사되며 애써 만든 각진 엣지가 다시 뭉개집니다. 그래서 분기는 반드시 아직 로직 레벨일 때 이루어져야 합니다.</p>
+        <div class="zone-sim-links">
+          <a href="./sims/e_gate_driver_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">Comparator·Gate Driver 시뮬레이터</span><span class="zsl-arrow">↗</span>
+          </a>
+          <a href="./sims/splitter_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">RF 전자기 에너지 흐름 시뮬레이터 (Splitter·Combiner 공통 원리)</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone3" style="--zone-color:#0F8C50;--zone-color-fade:#0F8C502E">
+        <h4>③ 파워생성부 — 실제 전력이 만들어지는 곳</h4>
+        <p>Splitter가 나눈 두 경로(0°/180°)는 이제 각자 자기만의 Gate Driver를 갖습니다 — 스위치 바로 앞에 드라이버를 둬야 구동 루프 인덕턴스가 최소화되고, 엣지 품질도 스위치 각각에 맞춰 보장되기 때문입니다. 각 Switching Power Amp(Class D/E) 내부에는 ZVS를 위한 공진망(Lr·Cr)이 포함되어 있고, 두 경로의 실제 RF 출력이 Combiner에서 합쳐질 때 비로소 격리(Isolator)가 필요해집니다 — 반사·불균형이 생길 수 있는 RF 전력 지점이 바로 여기이기 때문입니다. 발열·고장이 가장 많이 발생하는 구역입니다.</p>
+        <div class="zone-sim-links">
+          <a href="./sims/e_component_design_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">Class E 부품값·전류파형 계산기</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone4" style="--zone-color:#7030A0;--zone-color-fade:#7030A02E">
+        <h4>④ 정형출력부 — 50Ω 표준에 맞추고, 남은 고조파까지 걸러낸다</h4>
+        <p>파형을 사인파에 가깝게 정형하는 일은 이미 ③ 파워생성부의 Main Amp 내부(공진망)에서 상당 부분 끝나 있지만, 단일 공진 스테이지만으로는 고조파 억제에 한계가 있습니다. 그래서 Matching Network가 Combiner 출력을 표준 50Ω 임피던스로 변환한 뒤, LPF가 남은 고조파를 규제 수준까지 걸러냅니다. RF Sensor는 이 뒤에서 진행파/반사파를 실시간 측정하는데, 이 측정이 정확하려면 그 앞단이 기본파 하나만 남은 깨끗한 신호여야 합니다 — LPF가 규제 대응뿐 아니라 제어 루프의 측정 정밀도를 위해서도 필요한 이유입니다.</p>
+        <div class="zone-sim-links">
+          <a href="./sims/e_lpf_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">LPF 설계·고조파 감쇠 시뮬레이터</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone5" style="--zone-color:#C0392B;--zone-color-fade:#C0392B2E">
+        <h4>⑤ 전원제어부 — 파워를 조절하는 "방식" 자체가 다르다</h4>
+        <p>3상 AC가 Noise Filter를 거쳐 가변(Variable) 고전압 DC-DC 전원으로 변환됩니다. 스위칭 계열의 가장 큰 특징이 여기 있습니다 — 파워 조절을 신호 크기가 아니라 이 Vdd 전압 자체를 실시간으로 바꿔서 수행합니다. Digital Controller(FPGA)가 RF Sensor의 피드백을 받아 이 가변 전원에 직접 지령을 내리는 디지털 폐루프를 운영합니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+const DIAG_M6OV_HTML_EN = `<div class="d-wrap">
+  <div class="d-header"><span class="d-badge purple">OVERVIEW</span><span class="d-title">RF Generator — Block Diagram in 5 Zones (Switching Family)</span></div>
+  <div class="d-body">
+    <svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+      <defs>
+        <marker id="ov-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="#5A5A7A" stroke-width="1.5"/>
+        </marker>
+      </defs>
+      <style>
+        .w{stroke:#2A2A3A;stroke-width:1.6;fill:none;}
+        .wd{stroke:#5A5A7A;stroke-width:1.4;fill:none;stroke-dasharray:4 3;}
+        .t{font-size:12px;fill:#1A1A2E;}
+        .ts{font-size:10.5px;fill:#5A5A7A;}
+        .tb{font-size:13px;fill:#1A1A2E;font-weight:700;}
+        .zone-label{font-size:11px;font-weight:700;letter-spacing:0.04em;}
+        .box{fill:#FFFFFF;stroke:#2A2A3A;stroke-width:1.3;}
+      </style>
+
+      <!-- ═══ ZONE BACKGROUNDS ═══ -->
+      <g class="zone-block" onclick="highlightZoneCard('zone1')">
+      <rect x="20" y="60" width="190" height="260" rx="14" fill="#1A6FB512" stroke="#1A6FB5" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="115" y="45" text-anchor="middle" class="zone-label" fill="#1A6FB5">① Signal Generation</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone2')">
+      <rect x="230" y="60" width="190" height="260" rx="14" fill="#E87B1E12" stroke="#E87B1E" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="325" y="45" text-anchor="middle" class="zone-label" fill="#C8650F">② Signal Conditioning</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone3')">
+      <rect x="440" y="60" width="330" height="260" rx="14" fill="#0F8C5012" stroke="#0F8C50" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="605" y="45" text-anchor="middle" class="zone-label" fill="#0F8C50">③ Power Generation</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone4')">
+      <rect x="790" y="60" width="390" height="260" rx="14" fill="#7030A012" stroke="#7030A0" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="985" y="45" text-anchor="middle" class="zone-label" fill="#7030A0">④ Output Conditioning</text>
+      </g>
+
+      <g class="zone-block" onclick="highlightZoneCard('zone5')">
+      <rect x="20" y="400" width="1160" height="200" rx="14" fill="#C0392B10" stroke="#C0392B" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <text x="60" y="425" class="zone-label" fill="#C0392B">⑤ Power / Control</text>
+      </g>
+
+      <!-- ═══ ZONE 1: Signal Generation ═══ -->
+      <rect x="45" y="165" width="75" height="44" rx="7" class="box"/>
+      <text x="82" y="183" text-anchor="middle" class="t" font-size="9.5">Ref. Clock</text>
+      <text x="82" y="197" text-anchor="middle" class="ts" font-size="8.5">40.68 MHz</text>
+
+      <rect x="130" y="165" width="60" height="44" rx="7" class="box" fill="#1A6FB512"/>
+      <text x="160" y="183" text-anchor="middle" class="t" font-size="9.5">DDS</text>
+      <text x="160" y="197" text-anchor="middle" class="ts" font-size="8">synth</text>
+      <line x1="120" y1="187" x2="130" y2="187" class="w" marker-end="url(#ov-arrow)"/>
+      <text x="160" y="228" text-anchor="middle" class="ts" font-size="8.5">→ 13.56 MHz</text>
+      <text x="160" y="242" text-anchor="middle" class="ts" font-size="8" fill="#5A5A7A">sine reference</text>
+      <g transform="translate(152,250)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <path d="M190 187 L210 187 L210 111 L255 111" class="w" marker-end="url(#ov-arrow)"/>
+
+      <!-- ═══ ZONE 2: Gate Drive ═══ -->
+      <rect x="255" y="90" width="140" height="42" rx="8" class="box" fill="#1A6FB512"/>
+      <text x="325" y="108" text-anchor="middle" class="t" font-size="10">Comparator</text>
+      <text x="325" y="122" text-anchor="middle" class="ts" font-size="8">sine → square</text>
+      <line x1="325" y1="132" x2="325" y2="142" class="w" marker-end="url(#ov-arrow)"/>
+      <g transform="translate(400,131)"><path d="M0,6 L0,2 L4,2 L4,6 L8,6 L8,2 L12,2 L12,6 L16,6" stroke="#C8650F" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <rect x="255" y="142" width="140" height="30" rx="7" class="box" fill="#E87B1E12"/>
+      <text x="325" y="161" text-anchor="middle" class="t" font-size="9.5">RF Enable</text>
+      <line x1="325" y1="172" x2="325" y2="188" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="255" y="188" width="140" height="48" rx="8" class="box" stroke="#1A6FB5" stroke-width="1.4"/>
+      <text x="325" y="209" text-anchor="middle" class="t" font-size="10.5">Splitter</text>
+      <text x="325" y="224" text-anchor="middle" class="ts" font-size="8.5">1→2 · digital fan-out</text>
+      <g transform="translate(400,208)"><path d="M0,6 L0,2 L4,2 L4,6 L8,6 L8,2 L12,2 L12,6 L16,6" stroke="#C8650F" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <path d="M395 200 L410 200 L410 127 L455 127" class="w" marker-end="url(#ov-arrow)"/>
+      <line x1="395" y1="222" x2="455" y2="222" class="w" marker-end="url(#ov-arrow)"/>
+
+      <!-- ═══ ZONE 3: Power Generation ═══ -->
+      <rect x="455" y="105" width="70" height="45" rx="8" class="box" fill="#E87B1E12"/>
+      <text x="490" y="123" text-anchor="middle" class="t" font-size="9">Gate Driver</text>
+      <text x="490" y="137" text-anchor="middle" class="ts" font-size="8">0°</text>
+      <line x1="525" y1="127" x2="565" y2="127" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="455" y="200" width="70" height="45" rx="8" class="box" fill="#E87B1E12"/>
+      <text x="490" y="218" text-anchor="middle" class="t" font-size="9">Gate Driver</text>
+      <text x="490" y="232" text-anchor="middle" class="ts" font-size="8">180°</text>
+      <line x1="525" y1="222" x2="565" y2="222" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="565" y="105" width="90" height="45" rx="8" class="box"/>
+      <text x="610" y="124" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+      <text x="610" y="138" text-anchor="middle" class="ts" style="font-size:7.5px">Switching · 0°</text>
+      <rect x="565" y="200" width="90" height="45" rx="8" class="box"/>
+      <text x="610" y="219" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+      <text x="610" y="233" text-anchor="middle" class="ts" style="font-size:7.5px">Switching · 180°</text>
+      <text x="610" y="163" text-anchor="middle" class="ts" style="font-size:8px">built-in Lr·Cr · ZVS</text>
+      <text x="610" y="258" text-anchor="middle" class="ts" style="font-size:8px">built-in Lr·Cr · ZVS</text>
+
+      <line x1="655" y1="128" x2="666" y2="138" class="w"/>
+      <circle cx="672" cy="144" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+      <path d="M668 144 L676 144 M673 140 L676 144 L673 148" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+      <line x1="678" y1="150" x2="695" y2="165" class="w" marker-end="url(#ov-arrow)"/>
+      <text x="672" y="130" text-anchor="middle" class="ts" font-size="7.5" fill="#C8860D">Isolator</text>
+
+      <line x1="655" y1="222" x2="666" y2="212" class="w"/>
+      <circle cx="672" cy="206" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+      <path d="M668 206 L676 206 M673 202 L676 206 L673 210" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+      <line x1="678" y1="200" x2="695" y2="185" class="w" marker-end="url(#ov-arrow)"/>
+      <text x="672" y="222" text-anchor="middle" class="ts" font-size="7.5" fill="#C8860D">Isolator</text>
+
+      <rect x="695" y="150" width="65" height="50" rx="8" class="box"/>
+      <text x="727" y="172" text-anchor="middle" class="t" font-size="10.5">Combiner</text>
+      <text x="727" y="186" text-anchor="middle" class="ts" font-size="9.5">2→1</text>
+
+      <!-- ═══ ZONE 4: Output Conditioning ═══ -->
+      <line x1="760" y1="175" x2="805" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+      <g transform="translate(774,171)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+      <rect x="805" y="145" width="95" height="60" rx="8" class="box"/>
+      <text x="852" y="167" text-anchor="middle" class="t" font-size="9.5">Matching</text>
+      <text x="852" y="180" text-anchor="middle" class="t" font-size="9.5">Network</text>
+      <text x="852" y="193" text-anchor="middle" class="ts" font-size="8">50Ω match</text>
+
+      <line x1="900" y1="175" x2="915" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="915" y="150" width="65" height="50" rx="8" class="box"/>
+      <text x="947" y="172" text-anchor="middle" class="t" font-size="10.5">LPF</text>
+      <text x="947" y="186" text-anchor="middle" class="ts" font-size="7.5">harmonic suppression</text>
+
+      <line x1="980" y1="175" x2="995" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="995" y="144" width="95" height="62" rx="8" class="box"/>
+      <text x="1042" y="169" text-anchor="middle" class="t" font-size="10.5">RF Sensor</text>
+      <text x="1042" y="183" text-anchor="middle" class="ts" font-size="9">Fwd/Refl detect</text>
+
+      <line x1="1090" y1="175" x2="1139" y2="175" class="w" marker-end="url(#ov-arrow)"/>
+
+      <circle cx="1150" cy="175" r="11" fill="#fff" stroke="#2A2A3A" stroke-width="1.3"/>
+      <text x="1150" y="145" text-anchor="middle" class="tb" font-size="11">RF OUT</text>
+      <text x="1150" y="204" text-anchor="middle" class="ts" font-size="9">to Matcher</text>
+
+      <!-- ═══ ZONE 5: Power / Control ═══ -->
+      <rect x="45" y="450" width="90" height="120" rx="8" class="box"/>
+      <text x="90" y="475" text-anchor="middle" class="t" font-size="10">AC IN</text>
+      <text x="90" y="490" text-anchor="middle" class="ts" font-size="9">3φ 208V</text>
+
+      <rect x="175" y="475" width="80" height="46" rx="8" class="box"/>
+      <text x="215" y="495" text-anchor="middle" class="t" font-size="10">Noise</text>
+      <text x="215" y="509" text-anchor="middle" class="t" font-size="10">Filter</text>
+      <line x1="135" y1="498" x2="175" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="295" y="465" width="110" height="66" rx="8" class="box" stroke="#C0392B" stroke-width="1.5"/>
+      <text x="350" y="487" text-anchor="middle" class="t" font-size="10">Variable HV</text>
+      <text x="350" y="501" text-anchor="middle" class="t" font-size="10">DC-DC Supply</text>
+      <line x1="255" y1="498" x2="295" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+      <text x="350" y="545" text-anchor="middle" class="ts" font-size="9.5">Vdd → Main Amp (variable)</text>
+      <path d="M370 465 L370 448 L610 448 L610 245" class="w" marker-end="url(#ov-arrow)"/>
+
+      <rect x="990" y="465" width="130" height="70" rx="8" fill="#FFFFFF" stroke="#C0392B" stroke-width="1.4"/>
+      <text x="1055" y="490" text-anchor="middle" class="t" font-size="10.5">Digital</text>
+      <text x="1055" y="505" text-anchor="middle" class="t" font-size="10.5">Controller</text>
+      <text x="1055" y="519" text-anchor="middle" class="ts" font-size="9">FPGA · digital feedback</text>
+
+      <path d="M1042 206 L1042 430 L1055 430 L1055 465" class="wd" marker-end="url(#ov-arrow)"/>
+      <path d="M990 500 L370 500 L370 465" class="wd" marker-end="url(#ov-arrow)"/>
+
+      <text x="600" y="615" text-anchor="middle" class="ts" font-size="10.5">dashed = control/feedback signal · solid = RF signal / power (Vdd) path</text>
+    </svg>
+    <div class="zone-cards-label">ZONE DETAILS · Click a zone in the diagram above to highlight its card</div>
+    <div class="theory-grid">
+      <div class="zone-card" id="card-zone1" style="--zone-color:#1A6FB5;--zone-color-fade:#1A6FB52E">
+        <h4>① Signal Generation — Producing a Precise Frequency</h4>
+        <p>A 40.68 MHz reference clock feeds a DDS (Direct Digital Synthesis) stage, which digitally synthesizes a 13.56 MHz reference signal. This signal is still close to a sine wave, and this zone's focus isn't amplitude but frequency and phase accuracy — the switching family doesn't control power by varying this signal's size; instead, this signal is converted into a switching command as-is in the next zone (Gate Drive).</p>
+        <div class="zone-sim-links">
+          <a href="./sims/dds_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">DDS Waveform Generation Simulator</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone2" style="--zone-color:#C8650F;--zone-color-fade:#C8650F2E">
+        <h4>② Signal Conditioning — Preparing and Splitting the Signal, Without Analog Matching</h4>
+        <p>This zone's job differs from the linear "Driver Amp." A Comparator cleans up the DDS's sine reference into a crisp square wave (a logic-level on/off signal), RF Enable manages on/off timing, and the Splitter then duplicates that square wave into two paths (0°/180°). This Splitter isn't a narrowband RF power-splitting device — it's a pure digital fan-out. A square wave carries harmonic content alongside its fundamental, and if a narrowband RF splitter (built on λ/4 transmission lines) were used here, those harmonics would be attenuated and reflected, blurring the sharp edges just created. So the split has to happen while the signal is still at logic level.</p>
+        <div class="zone-sim-links">
+          <a href="./sims/e_gate_driver_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">Comparator &amp; Gate Driver Simulator</span><span class="zsl-arrow">↗</span>
+          </a>
+          <a href="./sims/splitter_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">RF Electromagnetic Energy Flow Simulator (shared Splitter/Combiner physics)</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone3" style="--zone-color:#0F8C50;--zone-color-fade:#0F8C502E">
+        <h4>③ Power Generation — Where the Actual Power Is Made</h4>
+        <p>Each of the two paths (0°/180°) the Splitter created now has its own Gate Driver — putting the driver right next to its switch minimizes drive-loop inductance and guarantees edge quality is tuned to that specific device. Each Switching Power Amp (Class D/E) has a built-in resonant network (Lr·Cr) that achieves ZVS (Zero Voltage Switching). Isolation only becomes necessary where the Combiner merges the two paths' actual RF outputs — that's the point where reflection or imbalance in real RF power can occur. This is where heat and failures occur most in an RF Generator.</p>
+        <div class="zone-sim-links">
+          <a href="./sims/e_component_design_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">Class E Component &amp; Current Waveform Calculator</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone4" style="--zone-color:#7030A0;--zone-color-fade:#7030A02E">
+        <h4>④ Output Conditioning — Matching to 50Ω, Then Filtering What's Left</h4>
+        <p>Shaping the waveform into something close to a sine wave already happens largely inside the Main Amp's resonant network back in ③ Power Generation, but a single resonant stage only suppresses harmonics so far. So the Matching Network first transforms the Combiner's output to the standard 50Ω impedance, and the LPF then filters the remaining harmonics down to regulatory levels. The RF Sensor downstream measures forward/reflected power in real time — and for that measurement to be accurate, the signal reaching it needs to be a clean fundamental with nothing else mixed in. That's why the LPF matters not just for compliance, but for the accuracy of the control loop's own numbers.</p>
+        <div class="zone-sim-links">
+          <a href="./sims/e_lpf_sims.html" target="_blank" rel="noopener" class="zone-sim-link">
+            <span class="zsl-icon">🖥️</span><span class="zsl-title">LPF Design &amp; Harmonic Attenuation Simulator</span><span class="zsl-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+      <div class="zone-card" id="card-zone5" style="--zone-color:#C0392B;--zone-color-fade:#C0392B2E">
+        <h4>⑤ Power/Control — The Power Control "Method" Itself Is Different</h4>
+        <p>Three-phase AC passes through the Noise Filter to become a variable, high-voltage DC-DC supply. This is where the switching family's most fundamental trait lives — power is controlled not by signal size, but by varying this Vdd voltage itself in real time. The Digital Controller (FPGA) receives feedback from the RF Sensor and runs a digital closed loop that commands this variable supply directly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+const DIAG_M7T2_HTML_KO = `<div class="d-wrap">
+  <div class="d-header"><span class="d-badge purple">OVERVIEW</span><span class="d-title">RF Generator &#8212; 5대 구역 블록다이어그램 (Class AB 계열 기준)</span></div>
+  <div class="d-body">
+    <svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<defs>
+  <marker id="ov-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#5A5A7A" stroke-width="1.5"/>
+  </marker>
+</defs>
+<style>
+  .w{stroke:#2A2A3A;stroke-width:1.6;fill:none;}
+  .wd{stroke:#5A5A7A;stroke-width:1.4;fill:none;stroke-dasharray:4 3;}
+  .t{font-size:12px;fill:#1A1A2E;}
+  .ts{font-size:10.5px;fill:#5A5A7A;}
+  .tb{font-size:13px;fill:#1A1A2E;font-weight:700;}
+  .zone-label{font-size:11px;font-weight:700;letter-spacing:0.04em;}
+  .box{fill:#FFFFFF;stroke:#2A2A3A;stroke-width:1.3;}
+</style>
+<g class="zone-block" onclick="highlightZoneCard('zone1')">
+<rect x="20" y="60" width="190" height="260" rx="14" fill="#1A6FB512" stroke="#1A6FB5" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="115" y="45" text-anchor="middle" class="zone-label" fill="#1A6FB5">① 신호발생부</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone2')">
+<rect x="230" y="60" width="190" height="260" rx="14" fill="#E87B1E12" stroke="#E87B1E" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="325" y="45" text-anchor="middle" class="zone-label" fill="#E87B1E">② 신호처리부</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone3')">
+<rect x="440" y="60" width="330" height="260" rx="14" fill="#0F8C5012" stroke="#0F8C50" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="605" y="45" text-anchor="middle" class="zone-label" fill="#0F8C50">③ 파워생성부</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone4')">
+<rect x="790" y="60" width="390" height="260" rx="14" fill="#7030A012" stroke="#7030A0" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="985" y="45" text-anchor="middle" class="zone-label" fill="#7030A0">④ 정형출력부</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone5')">
+<rect x="20" y="400" width="1160" height="200" rx="14" fill="#C0392B10" stroke="#C0392B" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="60" y="425" class="zone-label" fill="#C0392B">⑤ 전원제어부</text>
+</g>
+
+<rect x="45" y="165" width="75" height="44" rx="7" class="box"/>
+<text x="82" y="183" text-anchor="middle" class="t" font-size="9.5">Ref. Clock</text>
+<text x="82" y="197" text-anchor="middle" class="ts" font-size="8.5">40.68 MHz</text>
+<rect x="130" y="165" width="60" height="44" rx="7" class="box" fill="#1A6FB512"/>
+<text x="160" y="183" text-anchor="middle" class="t" font-size="9.5">DDS</text>
+<text x="160" y="197" text-anchor="middle" class="ts" font-size="8">합성</text>
+<line x1="120" y1="187" x2="130" y2="187" class="w" marker-end="url(#ov-arrow)"/>
+<text x="160" y="228" text-anchor="middle" class="ts" font-size="8.5">&#8594; 13.56 MHz</text>
+<text x="160" y="242" text-anchor="middle" class="ts" font-size="8" fill="#5A5A7A">사인파 기준신호</text>
+<g transform="translate(152,250)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+<path d="M190 187 L210 187 L210 111 L255 111" class="w" marker-end="url(#ov-arrow)"/>
+
+
+<rect x="255" y="75" width="140" height="40" rx="8" class="box" fill="#FDF0EE" stroke="#C0392B" stroke-width="1.5"/>
+<text x="325" y="93" text-anchor="middle" class="t" font-size="10">Exciter</text>
+<text x="325" y="107" text-anchor="middle" class="ts" font-size="8">Buffer+VVA+ON/OFF &#183; PWR_CTL</text>
+<line x1="325" y1="115" x2="325" y2="127" class="w" marker-end="url(#ov-arrow)"/>
+<rect x="255" y="127" width="140" height="40" rx="8" class="box" fill="#E87B1E12"/>
+<text x="325" y="145" text-anchor="middle" class="t" font-size="10">Driver Amp</text>
+<text x="325" y="159" text-anchor="middle" class="ts" font-size="8">1차 증폭 (분기 전 단일단)</text>
+<line x1="325" y1="167" x2="325" y2="179" class="w" marker-end="url(#ov-arrow)"/>
+<g transform="translate(400,144)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+<rect x="255" y="179" width="140" height="52" rx="8" class="box" stroke="#1A6FB5" stroke-width="1.4"/>
+<text x="325" y="201" text-anchor="middle" class="t" font-size="10.5">Splitter</text>
+<text x="325" y="216" text-anchor="middle" class="ts" font-size="8.5">1&#8594;3 &#183; 컨벤셔널 LC</text>
+<g transform="translate(400,200)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+<path d="M395 195 L420 195 L420 100 L455 100" class="w" marker-end="url(#ov-arrow)"/>
+<line x1="395" y1="205" x2="455" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<path d="M395 215 L420 215 L420 290 L455 290" class="w" marker-end="url(#ov-arrow)"/>
+
+
+<rect x="455" y="78" width="200" height="44" rx="8" class="box"/>
+<text x="555" y="96" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+<text x="555" y="110" text-anchor="middle" class="ts" style="font-size:7.5px">Class AB &#183; LDMOS &#183; 수동 입력정합</text>
+
+
+<rect x="455" y="183" width="200" height="44" rx="8" class="box"/>
+<text x="555" y="201" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+<text x="555" y="215" text-anchor="middle" class="ts" style="font-size:7.5px">Class AB &#183; LDMOS &#183; 수동 입력정합</text>
+
+
+<rect x="455" y="268" width="200" height="44" rx="8" class="box"/>
+<text x="555" y="286" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+<text x="555" y="300" text-anchor="middle" class="ts" style="font-size:7.5px">Class AB &#183; LDMOS &#183; 수동 입력정합</text>
+
+<text x="610" y="240" text-anchor="middle" class="ts" style="font-size:8px">게이트 바이어스(IDQ) &#183; +48V 고정</text>
+<line x1="655" y1="100" x2="672" y2="152.5" class="w"/>
+<circle cx="672" cy="152.5" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+<path d="M668 152.5 L676 152.5 M673 148.5 L676 152.5 L673 156.5" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+<line x1="678" y1="152.5" x2="695" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<line x1="655" y1="205" x2="695" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<circle cx="672" cy="205" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+<path d="M668 205 L676 205 M673 201 L676 205 L673 209" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+<line x1="655" y1="290" x2="672" y2="247.5" class="w"/>
+<circle cx="672" cy="247.5" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+<path d="M668 247.5 L676 247.5 M673 243.5 L676 247.5 L673 251.5" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+<line x1="678" y1="247.5" x2="695" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="695" y="175" width="65" height="60" rx="8" class="box"/>
+<text x="727" y="202" text-anchor="middle" class="t" font-size="10.5">Combiner</text>
+<text x="727" y="217" text-anchor="middle" class="ts" font-size="9.5">3&#8594;1</text>
+
+
+<line x1="760" y1="205" x2="805" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<g transform="translate(774,201)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+<rect x="805" y="175" width="95" height="60" rx="8" class="box"/>
+<text x="852" y="197" text-anchor="middle" class="t" font-size="9.5">Matching</text>
+<text x="852" y="210" text-anchor="middle" class="t" font-size="9.5">Network</text>
+<text x="852" y="223" text-anchor="middle" class="ts" font-size="8">50&#937; 정합</text>
+
+<line x1="900" y1="205" x2="915" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="915" y="180" width="65" height="50" rx="8" class="box"/>
+<text x="947" y="202" text-anchor="middle" class="t" font-size="10.5">LPF</text>
+<text x="947" y="216" text-anchor="middle" class="ts" font-size="7.5">고조파 억제</text>
+
+<line x1="980" y1="205" x2="995" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="995" y="174" width="95" height="62" rx="8" class="box"/>
+<text x="1042" y="199" text-anchor="middle" class="t" font-size="10.5">RF Sensor</text>
+<text x="1042" y="213" text-anchor="middle" class="ts" font-size="9">Fwd/Refl 검출</text>
+
+<line x1="1090" y1="205" x2="1139" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<circle cx="1150" cy="205" r="11" fill="#fff" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="1150" y="175" text-anchor="middle" class="tb" font-size="11">RF OUT</text>
+<text x="1150" y="234" text-anchor="middle" class="ts" font-size="9">to Matcher</text>
+
+
+<rect x="45" y="450" width="90" height="120" rx="8" class="box"/>
+<text x="90" y="475" text-anchor="middle" class="t" font-size="10">AC IN</text>
+<text x="90" y="490" text-anchor="middle" class="ts" font-size="9">3&#966; 208V</text>
+
+<rect x="175" y="475" width="80" height="46" rx="8" class="box"/>
+<text x="215" y="495" text-anchor="middle" class="t" font-size="10">Noise</text>
+<text x="215" y="509" text-anchor="middle" class="t" font-size="10">Filter</text>
+<line x1="135" y1="498" x2="175" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="295" y="465" width="110" height="66" rx="8" class="box"/>
+<text x="350" y="487" text-anchor="middle" class="t" font-size="10">고정 HV</text>
+<text x="350" y="501" text-anchor="middle" class="t" font-size="10">DC-DC 전원</text>
+<text x="350" y="519" text-anchor="middle" class="ts" font-size="8">+48V 고정</text>
+<line x1="255" y1="498" x2="295" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+<text x="350" y="545" text-anchor="middle" class="ts" font-size="9.5">Vdd &#8594; Main Amp (고정)</text>
+<path d="M370 465 L370 448 L610 448 L610 245" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="990" y="465" width="130" height="70" rx="8" fill="#FFFFFF" stroke="#C0392B" stroke-width="1.4"/>
+<text x="1055" y="490" text-anchor="middle" class="t" font-size="10.5">Digital</text>
+<text x="1055" y="505" text-anchor="middle" class="t" font-size="10.5">Controller</text>
+<text x="1055" y="519" text-anchor="middle" class="ts" font-size="9">FPGA &#183; 디지털 피드백</text>
+
+<path d="M1042 236 L1042 430 L1055 430 L1055 465" class="wd" marker-end="url(#ov-arrow)"/>
+<path d="M990 500 L230 500 L230 95 L255 95" class="wd" marker-end="url(#ov-arrow)"/>
+
+<text x="600" y="615" text-anchor="middle" class="ts" font-size="10.5">점선 = 제어/피드백 신호 &#183; 실선 = RF 신호 / 전원(Vdd) 경로</text>
+
+    </svg>
+<div class="zone-cards-label">ZONE 상세 설명 &#183; 위 다이어그램의 구역을 클릭하면 해당 카드가 강조됩니다</div>
+<div class="theory-grid">
+<div class="zone-card" id="card-zone1" style="--zone-color:#1A6FB5;--zone-color-fade:#1A6FB52E">
+  <h4>① 신호발생부 — 정확한 주파수를 만든다</h4>
+  <p>40.68MHz 기준 클럭을 DDS가 받아 13.56MHz 기준 신호를 디지털 합성으로 만들어내는 과정은 Class AB에서도 그대로입니다. 다만 이 신호의 위상·주파수 정확도가 여전히 핵심인 건 같지만, 스위칭 계열과 달리 이 신호의 진폭도 이번엔 무의미하지 않습니다 — 다음 단(신호처리부)의 VVA가 이 신호 경로 위에서 진폭을 직접 조절해 파워를 제어하기 때문입니다.</p>
+</div>
+<div class="zone-card" id="card-zone2" style="--zone-color:#E87B1E;--zone-color-fade:#E87B1E2E">
+  <h4>② 신호처리부 — 진폭을 조절하고, 증폭한 뒤 나눈다</h4>
+  <p>스위칭 계열의 Comparator(사인파→사각파)는 없습니다. 대신 Exciter 보드가 버퍼링·VVA(PWR_CTL 입력으로 진폭 실시간 조절 — 이게 Class AB의 파워 제어 지점입니다)·RF ON/OFF(EXT_ON)를 한 보드에서 처리합니다. 그다음 Driver Amp가 분기 전에 딱 한 번 신호를 충분한 레벨로 끌어올리고, 그제서야 Splitter가 3개 경로로 나눕니다 — 즉 증폭은 분기 이전에 한 번만 일어나고, 분기 이후 3개 경로는 증폭 없이 그대로 각 Main Amp로 들어갑니다. 흥미로운 대조점 — 스위칭 계열에서는 "협대역 RF Splitter를 쓰면 사각파 엣지가 뭉개진다"는 제약이 있었는데, Class AB는 애초에 깨끗한 사인파라 그 제약이 사라집니다. 그래서 여기서는 평범한 컨벤셔널 LC Splitter를 그대로 씁니다.</p>
+</div>
+<div class="zone-card" id="card-zone3" style="--zone-color:#0F8C50;--zone-color-fade:#0F8C502E">
+  <h4>③ 파워생성부 — 3-way 병렬 증폭, 그리고 새로운 변수: 바이어스</h4>
+  <p>Splitter가 나눈 3개 경로는 각자 증폭 없이 곧바로 Main Amp(Class AB LDMOS)로 들어갑니다 — 신호를 끌어올리는 능동 게인은 이미 ②신호처리부의 Driver Amp가 분기 전에 끝냈고, Main Amp 자체의 입력단은 트랜스포머 기반 수동 정합망뿐입니다. 스위칭 계열의 ZVS 공진망은 없는 대신, 게이트 바이어스(IDQ, 정지전류)라는 완전히 새로운 변수가 생깁니다 — 이 바이어스 포인트가 Class A/AB/B/C를 가르는 정의 그 자체이고, 온도에 따라 흔들리면 왜곡·열폭주로 이어지기 때문에 안정화가 중요합니다. 3개 경로의 RF 출력은 Isolator를 거쳐 Combiner(3→1)에서 합쳐지는데, 여기서 반사·불균형이 생기면 바로 발열·고장으로 이어지는 건 스위칭 계열과 동일합니다.</p>
+</div>
+<div class="zone-card" id="card-zone4" style="--zone-color:#7030A0;--zone-color-fade:#7030A02E">
+  <h4>④ 정형출력부 — 구조는 같지만, 짊어질 짐은 더 가볍다</h4>
+  <p>Matching Network → LPF → RF Sensor로 이어지는 구조 자체는 스위칭 계열과 동일합니다. 다만 Class AB는 선형 증폭이라 애초에 고조파 함량이 스위칭 계열보다 낮은 경향이 있어 — 물론 바이어스가 A에 가까울수록 더 그렇고, AB~B 쪽으로 갈수록 다시 늘어나긴 합니다 — LPF가 짊어져야 할 감쇠량 자체는 상대적으로 가벼워질 수 있습니다. RF Sensor가 정확한 값을 읽어야 한다는 요구사항은 그대로입니다.</p>
+</div>
+<div class="zone-card" id="card-zone5" style="--zone-color:#C0392B;--zone-color-fade:#C0392B2E">
+  <h4>⑤ 전원제어부 — 이번엔 Vdd가 고정되고, 제어는 앞단으로 간다</h4>
+  <p>스위칭 계열과 가장 크게 갈라지는 지점입니다. AC가 Noise Filter를 거쳐 이번엔 고정(Fixed) HV DC-DC 전원(+48V)으로 변환되고, 이 전압은 실시간으로 바뀌지 않습니다. Digital Controller(FPGA)가 RF Sensor의 피드백을 받는 것까지는 같지만, 그 지령이 향하는 곳이 다릅니다 — 이 전원 블록이 아니라, ②신호처리부의 VVA(PWR_CTL)로 되돌아갑니다. 즉 "파워를 조절하는 방식"이 Vdd 변조에서 Drive Level 변조로 완전히 바뀌는 지점이 바로 여기입니다.</p>
+</div>
+</div>
+  </div>
+</div>`;
+
+const DIAG_M7T2_HTML_EN = `<div class="d-wrap">
+  <div class="d-header"><span class="d-badge purple">OVERVIEW</span><span class="d-title">RF Generator &#8212; 5-Zone Block Diagram (Class AB Family)</span></div>
+  <div class="d-body">
+    <svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<defs>
+  <marker id="ov-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#5A5A7A" stroke-width="1.5"/>
+  </marker>
+</defs>
+<style>
+  .w{stroke:#2A2A3A;stroke-width:1.6;fill:none;}
+  .wd{stroke:#5A5A7A;stroke-width:1.4;fill:none;stroke-dasharray:4 3;}
+  .t{font-size:12px;fill:#1A1A2E;}
+  .ts{font-size:10.5px;fill:#5A5A7A;}
+  .tb{font-size:13px;fill:#1A1A2E;font-weight:700;}
+  .zone-label{font-size:11px;font-weight:700;letter-spacing:0.04em;}
+  .box{fill:#FFFFFF;stroke:#2A2A3A;stroke-width:1.3;}
+</style>
+<g class="zone-block" onclick="highlightZoneCard('zone1')">
+<rect x="20" y="60" width="190" height="260" rx="14" fill="#1A6FB512" stroke="#1A6FB5" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="115" y="45" text-anchor="middle" class="zone-label" fill="#1A6FB5">① Signal Generation</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone2')">
+<rect x="230" y="60" width="190" height="260" rx="14" fill="#E87B1E12" stroke="#E87B1E" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="325" y="45" text-anchor="middle" class="zone-label" fill="#E87B1E">② Signal Conditioning</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone3')">
+<rect x="440" y="60" width="330" height="260" rx="14" fill="#0F8C5012" stroke="#0F8C50" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="605" y="45" text-anchor="middle" class="zone-label" fill="#0F8C50">③ Power Generation</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone4')">
+<rect x="790" y="60" width="390" height="260" rx="14" fill="#7030A012" stroke="#7030A0" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="985" y="45" text-anchor="middle" class="zone-label" fill="#7030A0">④ Output Conditioning</text>
+</g>
+<g class="zone-block" onclick="highlightZoneCard('zone5')">
+<rect x="20" y="400" width="1160" height="200" rx="14" fill="#C0392B10" stroke="#C0392B" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="60" y="425" class="zone-label" fill="#C0392B">⑤ Power / Control</text>
+</g>
+
+<rect x="45" y="165" width="75" height="44" rx="7" class="box"/>
+<text x="82" y="183" text-anchor="middle" class="t" font-size="9.5">Ref. Clock</text>
+<text x="82" y="197" text-anchor="middle" class="ts" font-size="8.5">40.68 MHz</text>
+<rect x="130" y="165" width="60" height="44" rx="7" class="box" fill="#1A6FB512"/>
+<text x="160" y="183" text-anchor="middle" class="t" font-size="9.5">DDS</text>
+<text x="160" y="197" text-anchor="middle" class="ts" font-size="8">Synthesis</text>
+<line x1="120" y1="187" x2="130" y2="187" class="w" marker-end="url(#ov-arrow)"/>
+<text x="160" y="228" text-anchor="middle" class="ts" font-size="8.5">&#8594; 13.56 MHz</text>
+<text x="160" y="242" text-anchor="middle" class="ts" font-size="8" fill="#5A5A7A">sine reference signal</text>
+<g transform="translate(152,250)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+<path d="M190 187 L210 187 L210 111 L255 111" class="w" marker-end="url(#ov-arrow)"/>
+
+
+<rect x="255" y="75" width="140" height="40" rx="8" class="box" fill="#FDF0EE" stroke="#C0392B" stroke-width="1.5"/>
+<text x="325" y="93" text-anchor="middle" class="t" font-size="10">Exciter</text>
+<text x="325" y="107" text-anchor="middle" class="ts" font-size="8">Buffer+VVA+ON/OFF &#183; PWR_CTL</text>
+<line x1="325" y1="115" x2="325" y2="127" class="w" marker-end="url(#ov-arrow)"/>
+<rect x="255" y="127" width="140" height="40" rx="8" class="box" fill="#E87B1E12"/>
+<text x="325" y="145" text-anchor="middle" class="t" font-size="10">Driver Amp</text>
+<text x="325" y="159" text-anchor="middle" class="ts" font-size="8">1st-stage gain (before split)</text>
+<line x1="325" y1="167" x2="325" y2="179" class="w" marker-end="url(#ov-arrow)"/>
+<g transform="translate(400,144)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+<rect x="255" y="179" width="140" height="52" rx="8" class="box" stroke="#1A6FB5" stroke-width="1.4"/>
+<text x="325" y="201" text-anchor="middle" class="t" font-size="10.5">Splitter</text>
+<text x="325" y="216" text-anchor="middle" class="ts" font-size="8.5">1&#8594;3 &#183; conventional LC</text>
+<g transform="translate(400,200)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+<path d="M395 195 L420 195 L420 100 L455 100" class="w" marker-end="url(#ov-arrow)"/>
+<line x1="395" y1="205" x2="455" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<path d="M395 215 L420 215 L420 290 L455 290" class="w" marker-end="url(#ov-arrow)"/>
+
+
+<rect x="455" y="78" width="200" height="44" rx="8" class="box"/>
+<text x="555" y="96" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+<text x="555" y="110" text-anchor="middle" class="ts" style="font-size:7.5px">Class AB &#183; LDMOS &#183; passive input match</text>
+
+
+<rect x="455" y="183" width="200" height="44" rx="8" class="box"/>
+<text x="555" y="201" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+<text x="555" y="215" text-anchor="middle" class="ts" style="font-size:7.5px">Class AB &#183; LDMOS &#183; passive input match</text>
+
+
+<rect x="455" y="268" width="200" height="44" rx="8" class="box"/>
+<text x="555" y="286" text-anchor="middle" class="t" font-size="10">Main Amp</text>
+<text x="555" y="300" text-anchor="middle" class="ts" style="font-size:7.5px">Class AB &#183; LDMOS &#183; passive input match</text>
+
+<text x="610" y="240" text-anchor="middle" class="ts" style="font-size:8px">Gate bias (IDQ) &#183; fixed +48V</text>
+<line x1="655" y1="100" x2="672" y2="152.5" class="w"/>
+<circle cx="672" cy="152.5" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+<path d="M668 152.5 L676 152.5 M673 148.5 L676 152.5 L673 156.5" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+<line x1="678" y1="152.5" x2="695" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<line x1="655" y1="205" x2="695" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<circle cx="672" cy="205" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+<path d="M668 205 L676 205 M673 201 L676 205 L673 209" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+<line x1="655" y1="290" x2="672" y2="247.5" class="w"/>
+<circle cx="672" cy="247.5" r="6" fill="#FFF3E0" stroke="#C8860D" stroke-width="1.3"/>
+<path d="M668 247.5 L676 247.5 M673 243.5 L676 247.5 L673 251.5" fill="none" stroke="#C8860D" stroke-width="1.1"/>
+<line x1="678" y1="247.5" x2="695" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="695" y="175" width="65" height="60" rx="8" class="box"/>
+<text x="727" y="202" text-anchor="middle" class="t" font-size="10.5">Combiner</text>
+<text x="727" y="217" text-anchor="middle" class="ts" font-size="9.5">3&#8594;1</text>
+
+
+<line x1="760" y1="205" x2="805" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+<g transform="translate(774,201)"><path d="M0,4 C1.3,0 2.7,0 4,4 C5.3,8 6.7,8 8,4 C9.3,0 10.7,0 12,4 C13.3,8 14.7,8 16,4" stroke="#1A6FB5" stroke-width="1.3" fill="none" stroke-linecap="round"/></g>
+
+<rect x="805" y="175" width="95" height="60" rx="8" class="box"/>
+<text x="852" y="197" text-anchor="middle" class="t" font-size="9.5">Matching</text>
+<text x="852" y="210" text-anchor="middle" class="t" font-size="9.5">Network</text>
+<text x="852" y="223" text-anchor="middle" class="ts" font-size="8">50&#937; match</text>
+
+<line x1="900" y1="205" x2="915" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="915" y="180" width="65" height="50" rx="8" class="box"/>
+<text x="947" y="202" text-anchor="middle" class="t" font-size="10.5">LPF</text>
+<text x="947" y="216" text-anchor="middle" class="ts" font-size="7.5">harmonic suppression</text>
+
+<line x1="980" y1="205" x2="995" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="995" y="174" width="95" height="62" rx="8" class="box"/>
+<text x="1042" y="199" text-anchor="middle" class="t" font-size="10.5">RF Sensor</text>
+<text x="1042" y="213" text-anchor="middle" class="ts" font-size="9">Fwd/Refl detect</text>
+
+<line x1="1090" y1="205" x2="1139" y2="205" class="w" marker-end="url(#ov-arrow)"/>
+
+<circle cx="1150" cy="205" r="11" fill="#fff" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="1150" y="175" text-anchor="middle" class="tb" font-size="11">RF OUT</text>
+<text x="1150" y="234" text-anchor="middle" class="ts" font-size="9">to Matcher</text>
+
+
+<rect x="45" y="450" width="90" height="120" rx="8" class="box"/>
+<text x="90" y="475" text-anchor="middle" class="t" font-size="10">AC IN</text>
+<text x="90" y="490" text-anchor="middle" class="ts" font-size="9">3&#966; 208V</text>
+
+<rect x="175" y="475" width="80" height="46" rx="8" class="box"/>
+<text x="215" y="495" text-anchor="middle" class="t" font-size="10">Noise</text>
+<text x="215" y="509" text-anchor="middle" class="t" font-size="10">Filter</text>
+<line x1="135" y1="498" x2="175" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="295" y="465" width="110" height="66" rx="8" class="box"/>
+<text x="350" y="487" text-anchor="middle" class="t" font-size="10">Fixed HV</text>
+<text x="350" y="501" text-anchor="middle" class="t" font-size="10">DC-DC Supply</text>
+<text x="350" y="519" text-anchor="middle" class="ts" font-size="8">Fixed +48V</text>
+<line x1="255" y1="498" x2="295" y2="498" class="w" marker-end="url(#ov-arrow)"/>
+
+<text x="350" y="545" text-anchor="middle" class="ts" font-size="9.5">Vdd &#8594; Main Amp (fixed)</text>
+<path d="M370 465 L370 448 L610 448 L610 245" class="w" marker-end="url(#ov-arrow)"/>
+
+<rect x="990" y="465" width="130" height="70" rx="8" fill="#FFFFFF" stroke="#C0392B" stroke-width="1.4"/>
+<text x="1055" y="490" text-anchor="middle" class="t" font-size="10.5">Digital</text>
+<text x="1055" y="505" text-anchor="middle" class="t" font-size="10.5">Controller</text>
+<text x="1055" y="519" text-anchor="middle" class="ts" font-size="9">FPGA &#183; digital feedback</text>
+
+<path d="M1042 236 L1042 430 L1055 430 L1055 465" class="wd" marker-end="url(#ov-arrow)"/>
+<path d="M990 500 L230 500 L230 95 L255 95" class="wd" marker-end="url(#ov-arrow)"/>
+
+<text x="600" y="615" text-anchor="middle" class="ts" font-size="10.5">Dashed = control/feedback signal &#183; Solid = RF signal / power (Vdd) path</text>
+
+    </svg>
+<div class="zone-cards-label">ZONE DETAILS &#183; Click a zone in the diagram above to highlight its card</div>
+<div class="theory-grid">
+<div class="zone-card" id="card-zone1" style="--zone-color:#1A6FB5;--zone-color-fade:#1A6FB52E">
+  <h4>① Signal Generation — Making an Accurate Frequency</h4>
+  <p>The DDS still takes the 40.68MHz reference clock and digitally synthesizes a 13.56MHz reference, exactly as before. Phase and frequency accuracy still matter just as much -- but unlike the switching family, this signal's amplitude isn't irrelevant anymore either. Downstream, the VVA in Signal Conditioning directly adjusts amplitude along this same signal path to control power.</p>
+</div>
+<div class="zone-card" id="card-zone2" style="--zone-color:#E87B1E;--zone-color-fade:#E87B1E2E">
+  <h4>② Signal Conditioning — Adjust the Amplitude, Amplify, Then Split</h4>
+  <p>There's no Comparator here (no sine-to-square conversion). Instead, the Exciter board handles buffering, VVA (adjusts amplitude in real time via the PWR_CTL input -- this is Class AB's power control point), and RF ON/OFF (EXT_ON), all on one board. Then a Driver Amp boosts the signal to a sufficient level exactly once, before the split -- only after that does the Splitter divide it into 3 paths. In other words, amplification happens once upstream of the split; the 3 paths downstream carry that same level straight into their respective Main Amps with no further gain. An interesting contrast: the switching family had a hard constraint -- a narrowband RF splitter would mangle the square wave's sharp edges. Class AB starts as a clean sine wave, so that constraint disappears. A perfectly ordinary conventional LC splitter works fine here.</p>
+</div>
+<div class="zone-card" id="card-zone3" style="--zone-color:#0F8C50;--zone-color-fade:#0F8C502E">
+  <h4>③ Power Generation — 3-Way Parallel Amplification, Plus a New Variable: Bias</h4>
+  <p>Each of the 3 paths the Splitter creates goes straight into its own Main Amp (Class AB LDMOS) with no further amplification -- the active gain that gets the signal up to level was already handled upstream by ② Signal Conditioning's Driver Amp, before the split. The Main Amp's own input side is just a transformer-based passive matching network. There's no ZVS resonant network like the switching family -- instead there's an entirely new variable: gate bias (IDQ, quiescent current). This bias point is literally what defines Class A/AB/B/C, and because it drifts with temperature, stabilizing it matters -- drift here leads straight to distortion or thermal runaway. The 3 paths' RF outputs pass through isolators before combining (3→1) -- and just like the switching family, reflection or imbalance here shows up immediately as heat and failures.</p>
+</div>
+<div class="zone-card" id="card-zone4" style="--zone-color:#7030A0;--zone-color-fade:#7030A02E">
+  <h4>④ Output Conditioning — Same Structure, Lighter Load to Carry</h4>
+  <p>The Matching Network &#8594; LPF &#8594; RF Sensor chain is architecturally identical to the switching family. But Class AB is linear amplification, so it tends to generate fewer harmonics to begin with -- more so the closer the bias sits to Class A, and less so moving toward AB/B -- which means the LPF's job can be relatively lighter. The requirement for the RF Sensor to read accurate values doesn't change at all.</p>
+</div>
+<div class="zone-card" id="card-zone5" style="--zone-color:#C0392B;--zone-color-fade:#C0392B2E">
+  <h4>⑤ Power / Control — Vdd Is Now Fixed; Control Moves Upstream</h4>
+  <p>This is where the two families diverge the most. AC still passes through a Noise Filter, but this time it becomes a fixed HV DC-DC supply (+48V) -- one that doesn't change in real time. The Digital Controller (FPGA) still takes feedback from the RF Sensor, but its command now goes somewhere different -- not back to this power block, but back to the VVA (PWR_CTL) in Signal Conditioning. This is exactly where "how power gets controlled" flips from Vdd modulation to drive-level modulation.</p>
+</div>
+</div>
+  </div>
+</div>`;
+
+const DIAG_M7T3_HTML_KO = `<div class="d-wrap">
+  <div class="d-header"><span class="d-badge amber">CASE 1</span><span class="d-title">Bruene형 &#8212; 고정 아날로그 회로</span></div>
+  <div class="d-body">
+    <div class="vi-case-head"><div class="vi-case-num amber">1</div><div class="vi-case-head-text"><h3>Bruene형 &#8212; 고정 아날로그 회로</h3><p>고정형 리플렉토미터 보드: 전류 트랜스포머 + 캡 디바이더를 하드웨어로 합성</p></div></div>
+    <svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<line x1="40" y1="25" x2="655" y2="25" stroke="#2A2A3A" stroke-width="1.8"/>
+<path d="M655,25 L648,21 L648,29 Z" fill="#2A2A3A"/>
+<text x="20" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">IN</text>
+<text x="665" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">OUT</text>
+<text x="350" y="15" text-anchor="middle" font-size="9" font-weight="500" fill="#5A5A7A">Transmission Line</text>
+<line x1="350" y1="25" x2="350" y2="40" stroke="#2A2A3A" stroke-width="1.4"/>
+<circle cx="350" cy="25" r="3" fill="#2A2A3A"/>
+<line x1="245" y1="40" x2="455" y2="40" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="245" y1="40" x2="245" y2="45" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="455" y1="40" x2="455" y2="45" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="180" y="45" width="130" height="35" rx="6" fill="#FFF3E0" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="245.0" y="60.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">Current Transformer</text>
+<text x="245.0" y="73.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(I to voltage)</text>
+<rect x="390" y="45" width="130" height="35" rx="6" fill="#E6F4ED" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="455.0" y="60.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">Cap Divider</text>
+<text x="455.0" y="73.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(V to voltage)</text>
+<line x1="210" y1="80" x2="210" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="222" y="145" text-anchor="start" font-size="9.5" font-weight="700" fill="#C8860D">+I&#183;Z0</text>
+<line x1="280" y1="80" x2="280" y2="150" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="280" y1="150" x2="430" y2="150" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="430" y1="150" x2="430" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="355" y="142" text-anchor="middle" font-size="9.5" font-weight="700" fill="#C8860D">&#8722;I&#183;Z0</text>
+<line x1="455" y1="80" x2="455" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="455" y1="165" x2="250" y2="165" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M424,165 A6,6 0 0 1 436,165" fill="none" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="165" x2="250" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="330" y="178" text-anchor="middle" font-size="10" font-weight="700" fill="#0A6B3C">V</text>
+<text x="238" y="150" text-anchor="start" font-size="9.5" font-weight="700" fill="#0A6B3C">V</text>
+<rect x="185" y="195" width="90" height="35" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="230.0" y="216.5" text-anchor="middle" font-size="13" font-weight="600" fill="#1A202C">&#931; (+)</text>
+<rect x="405" y="195" width="90" height="35" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="450.0" y="216.5" text-anchor="middle" font-size="13" font-weight="600" fill="#1A202C">&#931; (&#8722;)</text>
+<line x1="230" y1="230" x2="230" y2="250" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="230" x2="450" y2="250" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M221.0,253.0 L239.0,253.0 L230,271.0 Z" fill="none" stroke="#7030A0" stroke-width="1.4"/><line x1="221.0" y1="271.0" x2="239.0" y2="271.0" stroke="#7030A0" stroke-width="1.6"/>
+<path d="M441.0,253.0 L459.0,253.0 L450,271.0 Z" fill="none" stroke="#7030A0" stroke-width="1.4"/><line x1="441.0" y1="271.0" x2="459.0" y2="271.0" stroke="#7030A0" stroke-width="1.6"/>
+<line x1="230" y1="271" x2="230" y2="285" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="271" x2="450" y2="285" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="230" y="300" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7030A0">Pfwd</text>
+<text x="450" y="300" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7030A0">Prefl</text>
+<text x="230" y="240" text-anchor="middle" font-size="7.5" font-weight="500" fill="#5A5A7A">Vfwd=(V+IZ0)/2</text>
+<text x="450" y="240" text-anchor="middle" font-size="7.5" font-weight="500" fill="#5A5A7A">Vrefl=(V-IZ0)/2</text>
+</svg><div class="vi-steps"><div class="vi-step"><div class="vi-step-num">1</div><div class="vi-step-text">라인을 <b>한 지점에서만 탭</b>합니다 — 전류 트랜스포머는 라인 전류 I에 비례하는 전압을, 캡 디바이더는 라인 전압 V에 비례하는 전압을 픽업합니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">2</div><div class="vi-step-text">이 시점에선 둘 다 여전히 <b>실제 RF 파형</b>입니다 — 아직 측정되거나 디지털화된 적이 없습니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">3</div><div class="vi-step-text">트랜스포머의 2차 권선은 <b>center-tap 구조</b>입니다 — 한쪽 끝은 V와 동위상, 반대쪽 끝은 180&#176; 반대위상입니다. 한쪽에 배선하면 (V+IZ0), 반대쪽이면 (V&#8722;IZ0)이 나옵니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">4</div><div class="vi-step-text">합쳐진 각 신호는 <b>다이오드 검파기</b>로 갑니다. Square-law 영역에서 다이오드 출력은 (입력)&#178;에 비례합니다 — 바로 이 단계가 전압을 파워로 바꿉니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">5</div><div class="vi-step-text">결과: <b>Pfwd와 Prefl</b>, 스칼라 숫자 두 개. V와 I의 위상관계는 계산에 쓰였지만, 읽어낼 수 있는 숫자로 변환된 적은 없습니다.</div></div></div>
+    <div class="vi-ref-trigger" onclick="openViLightbox('./images/bruene_meter_circuit.jpg')">
+      <img src="./images/bruene_meter_circuit.jpg" alt="Bruene meter reference circuit" class="vi-ref-thumb"/>
+      <div class="vi-ref-trigger-text">
+        <span class="vi-ref-trigger-label">실제 회로</span>
+        <span class="vi-ref-trigger-desc">이 회로의 실전(practical) 버전을 확인해보세요 &#8212; 클릭하면 확대됩니다</span>
+      </div>
+      <span class="vi-ref-trigger-icon">&#8599;</span>
+    </div>
+    <p class="vi-ref-source">출처: <a href="https://www.collinsradio.org/wp-content/uploads/2015/05/Understanding-the-Bruene-Coupler-Transmission-Line-Bold.pdf" target="_blank" rel="noopener">"Understanding the Bruene Coupler — Transmission Line," Collins Radio Amateur Radio Club</a></p>
+    <div class="vi-formula-panel">
+      <div><div class="vi-formula-label">방향 분리 (선형)</div><div class="vi-formula-eq">Vfwd = (V+I&#183;Z0)/2 &#160;&#160; Vrefl = (V&#8722;I&#183;Z0)/2</div></div>
+      <div><div class="vi-formula-label">파워 (비선형, 다이오드 square-law)</div><div class="vi-formula-eq">P = |V|&#178; / Z0</div></div>
+    </div>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>+/&#8722; 부호는 계산이 아니라, 트랜스포머의 center-tap 2차 권선 중 배선이 어느 쪽 끝에 연결되어 있는가의 문제입니다. Forward와 Reflected는 서로 다른 두 설계가 아니라, 물리적으로 거울에 비친 형제입니다.</p>
+    </div>
+    </div>
+</div>
+
+<div class="d-wrap">
+  <div class="d-header"><span class="d-badge red">CASE 2</span><span class="d-title">Bird형 &#8212; 회전식 슬러그</span></div>
+  <div class="d-body">
+    <div class="vi-case-head"><div class="vi-case-num red">2</div><div class="vi-case-head-text"><h3>Bird형 &#8212; 회전식 슬러그</h3><p>회전식 슬러그 전력계: Case 1과 같은 원리, 부품은 절반</p></div></div>
+    <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<defs><marker id="arrLoopUp" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C8860D"/></marker><marker id="arrLoopDn" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C8860D"/></marker></defs>
+<line x1="40" y1="25" x2="300" y2="25" stroke="#2A2A3A" stroke-width="1.6"/>
+<text x="170" y="15" text-anchor="middle" font-size="8.5" font-weight="500" fill="#5A5A7A">line</text>
+<circle cx="170" cy="43" r="14" fill="none" stroke="#E9EEF3" stroke-width="10"/>
+<path d="M164,43 A10,10 0 1 1 176,43" fill="none" stroke="#C8860D" stroke-width="1.8" marker-end="url(#arrLoopUp)"/>
+<text x="170" y="70" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C8860D">I loop</text>
+<line x1="250" y1="25" x2="250" y2="55" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="258" y="45" text-anchor="start" font-size="8.5" font-weight="700" fill="#0A6B3C">V tap</text>
+<line x1="170" y1="57" x2="170" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="55" x2="250" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="110" y="70" width="160" height="30" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="190.0" y="89.0" text-anchor="middle" font-size="11" font-weight="600" fill="#1A202C">V + I&#183;Z0</text>
+<line x1="190.0" y1="100" x2="190.0" y2="120" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M181.0,123.0 L199.0,123.0 L190.0,141.0 Z" fill="none" stroke="#7030A0" stroke-width="1.4"/><line x1="181.0" y1="141.0" x2="199.0" y2="141.0" stroke="#7030A0" stroke-width="1.6"/>
+<line x1="190.0" y1="141" x2="190.0" y2="155" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="190.0" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="#7030A0">Pfwd</text>
+<text x="170" y="50" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1A202C">Slug: forward position</text>
+<line x1="400" y1="25" x2="660" y2="25" stroke="#2A2A3A" stroke-width="1.6"/>
+<text x="530" y="15" text-anchor="middle" font-size="8.5" font-weight="500" fill="#5A5A7A">line</text>
+<circle cx="530" cy="43" r="14" fill="none" stroke="#E9EEF3" stroke-width="10"/>
+<path d="M536,43 A10,10 0 1 1 524,43" fill="none" stroke="#C8860D" stroke-width="1.8" marker-end="url(#arrLoopDn)"/>
+<text x="530" y="70" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C8860D">I loop</text>
+<line x1="610" y1="25" x2="610" y2="55" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="618" y="45" text-anchor="start" font-size="8.5" font-weight="700" fill="#0A6B3C">V tap</text>
+<line x1="530" y1="57" x2="530" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="610" y1="55" x2="610" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="470" y="70" width="160" height="30" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="550.0" y="89.0" text-anchor="middle" font-size="11" font-weight="600" fill="#1A202C">V &#8722; I&#183;Z0</text>
+<line x1="550.0" y1="100" x2="550.0" y2="120" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M541.0,123.0 L559.0,123.0 L550.0,141.0 Z" fill="none" stroke="#C0392B" stroke-width="1.4"/><line x1="541.0" y1="141.0" x2="559.0" y2="141.0" stroke="#C0392B" stroke-width="1.6"/>
+<line x1="550.0" y1="141" x2="550.0" y2="155" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="550.0" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="#C0392B">Prefl</text>
+<text x="530" y="50" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1A202C">Slug: rotated 180 deg</text>
+</svg><div class="vi-steps"><div class="vi-step"><div class="vi-step-num">1</div><div class="vi-step-text">Case 1과 같은 두 샘플(전압 샘플, 전류 샘플)이지만, 하나의 물리적이고 <b>회전 가능한 슬러그</b> 안에 함께 들어있습니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">2</div><div class="vi-step-text">슬러그를 한 방향으로 꽂으면: 루프가 <b>정방향</b>으로 전류를 읽음 &#8594; (V+IZ0) 조합 &#8594; 다이오드 &#8594; <b>Pfwd</b>.</div></div>
+<div class="vi-step"><div class="vi-step-num">3</div><div class="vi-step-text">슬러그를 180&#176; 돌려서 다시 꽂으면: 루프의 극성만 <b>반전</b>되고 전압 샘플은 그대로 &#8594; (V&#8722;IZ0) 조합 &#8594; 다이오드 &#8594; <b>Prefl</b>.</div></div>
+<div class="vi-step"><div class="vi-step-num">4</div><div class="vi-step-text">부품 하나, 검파회로 하나로 두 가지 판독값 — 전류를 어느 방향으로 샘플링하는지만 물리적으로 뒤집으면 됩니다.</div></div></div>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>슬러그를 180&#176; 돌리면 전류 루프의 극성만 물리적으로 반전되고 전압 샘플은 그대로입니다 &#8212; 그래서 같은 소자 하나가 방향에 따라 Forward도, Reflected도 읽어냅니다. Case 1의 +/&#8722; 트릭을, 트랜스포머 두 리드 대신 기계적으로 구현한 것뿐입니다.</p>
+    </div>
+    </div>
+</div>
+
+<div class="d-wrap">
+  <div class="d-header"><span class="d-badge green">CASE 3</span><span class="d-title">동기식 디지털 V/I 센서</span></div>
+  <div class="d-body">
+    <div class="vi-case-head"><div class="vi-case-num green">3</div><div class="vi-case-head-text"><h3>동기식 디지털 V/I 센서</h3><p>V와 I를 독립적으로 디지털화한 뒤 소프트웨어로 조합</p></div></div>
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<line x1="40" y1="25" x2="655" y2="25" stroke="#2A2A3A" stroke-width="1.8"/>
+<path d="M655,25 L648,21 L648,29 Z" fill="#2A2A3A"/>
+<text x="20" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">IN</text>
+<text x="665" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">OUT</text>
+<text x="350" y="15" text-anchor="middle" font-size="9" font-weight="500" fill="#5A5A7A">Transmission Line</text>
+<line x1="250" y1="25" x2="250" y2="50" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="25" x2="450" y2="50" stroke="#2A2A3A" stroke-width="1.4"/>
+<circle cx="250" cy="25" r="3" fill="#2A2A3A"/>
+<circle cx="450" cy="25" r="3" fill="#2A2A3A"/>
+<rect x="190" y="50" width="120" height="35" rx="6" fill="#E6F4ED" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="250.0" y="65.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">V probe</text>
+<text x="250.0" y="78.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(cap divider)</text>
+<rect x="390" y="50" width="120" height="35" rx="6" fill="#FFF3E0" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="450.0" y="65.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">I probe</text>
+<text x="450.0" y="78.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(current xfmr)</text>
+<rect x="300" y="103" width="100" height="30" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="350.0" y="116.0" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1A202C">SENSOR_LO</text>
+<text x="350.0" y="129.0" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1A202C">(shared)</text>
+<line x1="250" y1="85" x2="250" y2="154" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="85" x2="450" y2="154" stroke="#2A2A3A" stroke-width="1.4"/>
+<circle cx="250" cy="167" r="13" fill="#fff" stroke="#378ADD" stroke-width="1.6"/><line x1="240.9" y1="157.9" x2="259.1" y2="176.1" stroke="#378ADD" stroke-width="1.6"/><line x1="240.9" y1="176.1" x2="259.1" y2="157.9" stroke="#378ADD" stroke-width="1.6"/>
+<circle cx="450" cy="167" r="13" fill="#fff" stroke="#378ADD" stroke-width="1.6"/><line x1="440.9" y1="157.9" x2="459.1" y2="176.1" stroke="#378ADD" stroke-width="1.6"/><line x1="440.9" y1="176.1" x2="459.1" y2="157.9" stroke="#378ADD" stroke-width="1.6"/>
+<text x="250" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#378ADD">Mixer</text>
+<text x="450" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#378ADD">Mixer</text>
+<line x1="300" y1="118" x2="263" y2="167" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="400" y1="118" x2="437" y2="167" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="180" x2="250" y2="205" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="180" x2="450" y2="205" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="190" y="205" width="120" height="35" rx="6" fill="#E6F4ED" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="250.0" y="220.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">ADC</text>
+<text x="250.0" y="233.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">(16-bit)</text>
+<rect x="390" y="205" width="120" height="35" rx="6" fill="#FFF3E0" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="450.0" y="220.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">ADC</text>
+<text x="450.0" y="233.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">(16-bit)</text>
+<line x1="250" y1="240" x2="250" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="240" x2="450" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="260" x2="320" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="260" x2="380" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="250" y="260" width="200" height="35" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="350.0" y="275.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">FPGA:  Z = V / I</text>
+<text x="350.0" y="288.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(phase preserved -- coherent LO)</text>
+<text x="350" y="308" text-anchor="middle" font-size="13" font-weight="700" fill="#7030A0">R + jX</text>
+<line x1="350" y1="295" x2="350" y2="300" stroke="#2A2A3A" stroke-width="1.4"/>
+</svg><div class="vi-steps"><div class="vi-step"><div class="vi-step-num">1</div><div class="vi-step-text">라인을 <b>서로 다른 두 지점(혹은 두 개의 별도 센싱 소자)</b>에서 탭합니다 — 한 경로는 V를, 다른 경로는 I를 샘플링합니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">2</div><div class="vi-step-text">두 경로 모두 <b>완전히 같은 국부발진기(공유 LO, 트랜스포머로 두 채널에 분배)</b>로 다운컨버전됩니다 — 이게 상대위상을 그대로 유지시키는 핵심입니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">3</div><div class="vi-step-text">다운컨버전된 각 신호는 독립적으로 <b>디지털화</b>됩니다(16비트 ADC) — 이제 V와 I는 크기<i>와</i> 위상을 가진 명시적 숫자로 존재합니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">4</div><div class="vi-step-text">FPGA가 복소수 영역에서 직접 <b>Z = V / I</b>를 계산합니다 — 조합이 아니라 나눗셈 — 이건 위상이 보존되고 디지털화됐기 때문에만 의미가 있습니다.</div></div>
+<div class="vi-step"><div class="vi-step-num">5</div><div class="vi-step-text">결과: 완전한 <b>복소 임피던스 R + jX</b>. Fwd/Refl 파워도 여전히 얻을 수 있습니다(Case 1과 같은 공식) — 다만 하드웨어 대신 소프트웨어로 계산할 뿐입니다.</div></div></div>
+    <div class="vi-formula-panel">
+      <div><div class="vi-formula-label">임피던스 (조합이 아니라 나눗셈)</div><div class="vi-formula-eq">Z = V / I = R + jX</div></div>
+      <div><div class="vi-formula-label">필요하면 여전히 얻을 수 있음</div><div class="vi-formula-eq">Vfwd=(V+IZ0)/2 &#160; Vrefl=(V&#8722;IZ0)/2</div></div>
+    </div>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>V&#183;I 믹서가 국부발진기 하나를 공유한다는 게 이 방식의 전부입니다 &#8212; 다운컨버전을 거치는 동안 V와 I의 상대위상을 그대로 지켜주는 게 바로 이것입니다. 이 공유 LO가 깨지면 Case 1과 같은 문제로 돌아갑니다 &#8212; 위상관계를 신뢰할 수 없는 숫자 두 개만 남고, Z=V/I는 의미를 잃습니다.</p>
+    </div>
+    <div class="vi-link-note">이 수식을 직접 손으로 만져보고 싶으신가요? <a href="./sims/e_vi_sensor_sims.html" target="_blank" rel="noopener">V/I 센서 페이저 시뮬레이터</a>에서 부하를 바꿔가며 Z=V/I가 실시간으로 복원되는 걸 확인해보세요.</div>
+    </div>
+</div>
+
+<div class="d-wrap">
+  <div class="d-header"><span class="d-badge green">SUMMARY</span><span class="d-title">같은 V, I; 세 가지 다른 질문</span></div>
+  <div class="d-body">
+    <table class="vi-summary-table">
+      <thead><tr><th>구분</th><th>조합 방식</th><th class="center">위상을 아는가?</th><th>얻는 값</th></tr></thead>
+      <tbody>
+        <tr><td><b>1. Bruene</b></td><td>아날로그 덧셈/뺄셈 (고정 배선)</td><td class="center"><span class="vi-pill no">아니오</span></td><td>Fwd/Refl 파워 (스칼라)</td></tr>
+        <tr><td><b>2. Bird</b></td><td>아날로그 덧셈/뺄셈 (기계적 반전)</td><td class="center"><span class="vi-pill no">아니오</span></td><td>Fwd/Refl 파워 (스칼라)</td></tr>
+        <tr><td><b>3. 동기식 디지털</b></td><td>디지털 나눗셈 (FPGA 연산)</td><td class="center"><span class="vi-pill yes">예</span></td><td>복소 임피던스 Z=R+jX</td></tr>
+      </tbody>
+    </table>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>Case 1, 2는 위상 정보를 잃어버리는 게 아닙니다 &#8212; 아날로그 파형 안에 계속 실려 있습니다 &#8212; 다만 그걸 숫자로 바꾸는 일을 한 번도 하지 않을 뿐입니다. Case 3만 위상을 명시적으로 디지털화하고, 그래서 Case 3만 "파워가 얼마나 흐르는가"를 넘어 "부하가 어떤 임피던스인가"에 답할 수 있습니다.</p>
+    </div>
+  </div>
+</div>`;
+
+const DIAG_M7T3_HTML_EN = `<div class="d-wrap">
+  <div class="d-header"><span class="d-badge amber">CASE 1</span><span class="d-title">Bruene-type &#8212; Fixed Analog Circuit</span></div>
+  <div class="d-body">
+    <div class="vi-case-head"><div class="vi-case-num amber">1</div><div class="vi-case-head-text"><h3>Bruene-type &#8212; Fixed Analog Circuit</h3><p>A fixed reflectometer board: current transformer + cap divider, combined in hardware</p></div></div>
+    <svg viewBox="0 0 700 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<line x1="40" y1="25" x2="655" y2="25" stroke="#2A2A3A" stroke-width="1.8"/>
+<path d="M655,25 L648,21 L648,29 Z" fill="#2A2A3A"/>
+<text x="20" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">IN</text>
+<text x="665" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">OUT</text>
+<text x="350" y="15" text-anchor="middle" font-size="9" font-weight="500" fill="#5A5A7A">Transmission Line</text>
+<line x1="350" y1="25" x2="350" y2="40" stroke="#2A2A3A" stroke-width="1.4"/>
+<circle cx="350" cy="25" r="3" fill="#2A2A3A"/>
+<line x1="245" y1="40" x2="455" y2="40" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="245" y1="40" x2="245" y2="45" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="455" y1="40" x2="455" y2="45" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="180" y="45" width="130" height="35" rx="6" fill="#FFF3E0" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="245.0" y="60.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">Current Transformer</text>
+<text x="245.0" y="73.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(I to voltage)</text>
+<rect x="390" y="45" width="130" height="35" rx="6" fill="#E6F4ED" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="455.0" y="60.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">Cap Divider</text>
+<text x="455.0" y="73.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(V to voltage)</text>
+<line x1="210" y1="80" x2="210" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="222" y="145" text-anchor="start" font-size="9.5" font-weight="700" fill="#C8860D">+I&#183;Z0</text>
+<line x1="280" y1="80" x2="280" y2="150" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="280" y1="150" x2="430" y2="150" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="430" y1="150" x2="430" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="355" y="142" text-anchor="middle" font-size="9.5" font-weight="700" fill="#C8860D">&#8722;I&#183;Z0</text>
+<line x1="455" y1="80" x2="455" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="455" y1="165" x2="250" y2="165" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M424,165 A6,6 0 0 1 436,165" fill="none" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="165" x2="250" y2="195" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="330" y="178" text-anchor="middle" font-size="10" font-weight="700" fill="#0A6B3C">V</text>
+<text x="238" y="150" text-anchor="start" font-size="9.5" font-weight="700" fill="#0A6B3C">V</text>
+<rect x="185" y="195" width="90" height="35" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="230.0" y="216.5" text-anchor="middle" font-size="13" font-weight="600" fill="#1A202C">&#931; (+)</text>
+<rect x="405" y="195" width="90" height="35" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="450.0" y="216.5" text-anchor="middle" font-size="13" font-weight="600" fill="#1A202C">&#931; (&#8722;)</text>
+<line x1="230" y1="230" x2="230" y2="250" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="230" x2="450" y2="250" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M221.0,253.0 L239.0,253.0 L230,271.0 Z" fill="none" stroke="#7030A0" stroke-width="1.4"/><line x1="221.0" y1="271.0" x2="239.0" y2="271.0" stroke="#7030A0" stroke-width="1.6"/>
+<path d="M441.0,253.0 L459.0,253.0 L450,271.0 Z" fill="none" stroke="#7030A0" stroke-width="1.4"/><line x1="441.0" y1="271.0" x2="459.0" y2="271.0" stroke="#7030A0" stroke-width="1.6"/>
+<line x1="230" y1="271" x2="230" y2="285" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="271" x2="450" y2="285" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="230" y="300" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7030A0">Pfwd</text>
+<text x="450" y="300" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7030A0">Prefl</text>
+<text x="230" y="240" text-anchor="middle" font-size="7.5" font-weight="500" fill="#5A5A7A">Vfwd=(V+IZ0)/2</text>
+<text x="450" y="240" text-anchor="middle" font-size="7.5" font-weight="500" fill="#5A5A7A">Vrefl=(V-IZ0)/2</text>
+</svg><div class="vi-steps"><div class="vi-step"><div class="vi-step-num">1</div><div class="vi-step-text">The line is <b>tapped once</b>: a current transformer picks up a voltage proportional to line current I; a cap divider picks up a voltage proportional to line voltage V.</div></div>
+<div class="vi-step"><div class="vi-step-num">2</div><div class="vi-step-text">Both are still <b>real RF waveforms</b> at this point -- nothing has been measured or digitized yet.</div></div>
+<div class="vi-step"><div class="vi-step-num">3</div><div class="vi-step-text">The transformer's secondary is <b>center-tapped</b>: one end is in phase with V, the other is 180&#176; out of phase. Wiring to one end gives (V+IZ0); the other gives (V&#8722;IZ0).</div></div>
+<div class="vi-step"><div class="vi-step-num">4</div><div class="vi-step-text">Each combined signal is fed to a <b>diode detector</b>. In its square-law region, diode output &#8733; (input)&#178; -- this is the step that turns a voltage into a power reading.</div></div>
+<div class="vi-step"><div class="vi-step-num">5</div><div class="vi-step-text">Result: <b>Pfwd and Prefl</b>, two scalar numbers. The phase relationship between V and I was used but never turned into a number you could read out.</div></div></div>
+    <div class="vi-ref-trigger" onclick="openViLightbox('./images/bruene_meter_circuit.jpg')">
+      <img src="./images/bruene_meter_circuit.jpg" alt="Bruene meter reference circuit" class="vi-ref-thumb"/>
+      <div class="vi-ref-trigger-text">
+        <span class="vi-ref-trigger-label">REAL CIRCUIT</span>
+        <span class="vi-ref-trigger-desc">See the practical version of this circuit -- click to enlarge</span>
+      </div>
+      <span class="vi-ref-trigger-icon">&#8599;</span>
+    </div>
+    <p class="vi-ref-source">Source: <a href="https://www.collinsradio.org/wp-content/uploads/2015/05/Understanding-the-Bruene-Coupler-Transmission-Line-Bold.pdf" target="_blank" rel="noopener">"Understanding the Bruene Coupler -- Transmission Line," Collins Radio Amateur Radio Club</a></p>
+    <div class="vi-formula-panel">
+      <div><div class="vi-formula-label">DIRECTIONAL SEPARATION (linear)</div><div class="vi-formula-eq">Vfwd = (V+I&#183;Z0)/2 &#160;&#160; Vrefl = (V&#8722;I&#183;Z0)/2</div></div>
+      <div><div class="vi-formula-label">POWER (nonlinear, diode square-law)</div><div class="vi-formula-eq">P = |V|&#178; / Z0</div></div>
+    </div>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>The +/&#8722; sign isn't a calculation -- it's which end of the transformer's center-tapped secondary the wire happens to connect to. Forward and Reflected are built as physical mirror images of each other, not as two separate designs.</p>
+    </div>
+    </div>
+</div>
+
+<div class="d-wrap">
+  <div class="d-header"><span class="d-badge red">CASE 2</span><span class="d-title">Bird-type &#8212; Rotating Slug</span></div>
+  <div class="d-body">
+    <div class="vi-case-head"><div class="vi-case-num red">2</div><div class="vi-case-head-text"><h3>Bird-type &#8212; Rotating Slug</h3><p>A classic rotating-slug wattmeter: same principle as Case 1, one part instead of two</p></div></div>
+    <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<defs><marker id="arrLoopUp" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C8860D"/></marker><marker id="arrLoopDn" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C8860D"/></marker></defs>
+<line x1="40" y1="25" x2="300" y2="25" stroke="#2A2A3A" stroke-width="1.6"/>
+<text x="170" y="15" text-anchor="middle" font-size="8.5" font-weight="500" fill="#5A5A7A">line</text>
+<circle cx="170" cy="43" r="14" fill="none" stroke="#E9EEF3" stroke-width="10"/>
+<path d="M164,43 A10,10 0 1 1 176,43" fill="none" stroke="#C8860D" stroke-width="1.8" marker-end="url(#arrLoopUp)"/>
+<text x="170" y="70" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C8860D">I loop</text>
+<line x1="250" y1="25" x2="250" y2="55" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="258" y="45" text-anchor="start" font-size="8.5" font-weight="700" fill="#0A6B3C">V tap</text>
+<line x1="170" y1="57" x2="170" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="55" x2="250" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="110" y="70" width="160" height="30" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="190.0" y="89.0" text-anchor="middle" font-size="11" font-weight="600" fill="#1A202C">V + I&#183;Z0</text>
+<line x1="190.0" y1="100" x2="190.0" y2="120" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M181.0,123.0 L199.0,123.0 L190.0,141.0 Z" fill="none" stroke="#7030A0" stroke-width="1.4"/><line x1="181.0" y1="141.0" x2="199.0" y2="141.0" stroke="#7030A0" stroke-width="1.6"/>
+<line x1="190.0" y1="141" x2="190.0" y2="155" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="190.0" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="#7030A0">Pfwd</text>
+<text x="170" y="50" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1A202C">Slug: forward position</text>
+<line x1="400" y1="25" x2="660" y2="25" stroke="#2A2A3A" stroke-width="1.6"/>
+<text x="530" y="15" text-anchor="middle" font-size="8.5" font-weight="500" fill="#5A5A7A">line</text>
+<circle cx="530" cy="43" r="14" fill="none" stroke="#E9EEF3" stroke-width="10"/>
+<path d="M536,43 A10,10 0 1 1 524,43" fill="none" stroke="#C8860D" stroke-width="1.8" marker-end="url(#arrLoopDn)"/>
+<text x="530" y="70" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C8860D">I loop</text>
+<line x1="610" y1="25" x2="610" y2="55" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="618" y="45" text-anchor="start" font-size="8.5" font-weight="700" fill="#0A6B3C">V tap</text>
+<line x1="530" y1="57" x2="530" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="610" y1="55" x2="610" y2="70" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="470" y="70" width="160" height="30" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="550.0" y="89.0" text-anchor="middle" font-size="11" font-weight="600" fill="#1A202C">V &#8722; I&#183;Z0</text>
+<line x1="550.0" y1="100" x2="550.0" y2="120" stroke="#2A2A3A" stroke-width="1.4"/>
+<path d="M541.0,123.0 L559.0,123.0 L550.0,141.0 Z" fill="none" stroke="#C0392B" stroke-width="1.4"/><line x1="541.0" y1="141.0" x2="559.0" y2="141.0" stroke="#C0392B" stroke-width="1.6"/>
+<line x1="550.0" y1="141" x2="550.0" y2="155" stroke="#2A2A3A" stroke-width="1.4"/>
+<text x="550.0" y="170" text-anchor="middle" font-size="12" font-weight="700" fill="#C0392B">Prefl</text>
+<text x="530" y="50" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1A202C">Slug: rotated 180 deg</text>
+</svg><div class="vi-steps"><div class="vi-step"><div class="vi-step-num">1</div><div class="vi-step-text">Same two samples as Case 1: a voltage sample (capacitive) and a current sample (magnetic loop) -- but built into one physical, reversible <b>slug</b>.</div></div>
+<div class="vi-step"><div class="vi-step-num">2</div><div class="vi-step-text">Insert the slug one way: the loop reads current in the <b>forward</b> sense &#8594; combination gives (V+IZ0) &#8594; diode &#8594; <b>Pfwd</b>.</div></div>
+<div class="vi-step"><div class="vi-step-num">3</div><div class="vi-step-text">Rotate the slug 180&#176; and reinsert: the loop's polarity <b>reverses</b>, the voltage sample doesn't &#8594; combination gives (V&#8722;IZ0) &#8594; diode &#8594; <b>Prefl</b>.</div></div>
+<div class="vi-step"><div class="vi-step-num">4</div><div class="vi-step-text">One part, one detector circuit, two readings -- just by physically flipping which way current is being sampled.</div></div></div>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>Rotating the slug 180&#176; physically flips the current loop's polarity while the voltage sample stays untouched -- so the same single element reads Forward in one orientation and Reflected in the other. It's Case 1's +/&#8722; trick, done mechanically instead of with two separate transformer leads.</p>
+    </div>
+    </div>
+</div>
+
+<div class="d-wrap">
+  <div class="d-header"><span class="d-badge green">CASE 3</span><span class="d-title">Coherent Digital V/I Sensor</span></div>
+  <div class="d-body">
+    <div class="vi-case-head"><div class="vi-case-num green">3</div><div class="vi-case-head-text"><h3>Coherent Digital V/I Sensor</h3><p>V and I digitized independently, combined in software</p></div></div>
+    <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:'Google Sans',sans-serif;">
+<line x1="40" y1="25" x2="655" y2="25" stroke="#2A2A3A" stroke-width="1.8"/>
+<path d="M655,25 L648,21 L648,29 Z" fill="#2A2A3A"/>
+<text x="20" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">IN</text>
+<text x="665" y="29" text-anchor="start" font-size="9" font-weight="500" fill="#5A5A7A">OUT</text>
+<text x="350" y="15" text-anchor="middle" font-size="9" font-weight="500" fill="#5A5A7A">Transmission Line</text>
+<line x1="250" y1="25" x2="250" y2="50" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="25" x2="450" y2="50" stroke="#2A2A3A" stroke-width="1.4"/>
+<circle cx="250" cy="25" r="3" fill="#2A2A3A"/>
+<circle cx="450" cy="25" r="3" fill="#2A2A3A"/>
+<rect x="190" y="50" width="120" height="35" rx="6" fill="#E6F4ED" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="250.0" y="65.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">V probe</text>
+<text x="250.0" y="78.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(cap divider)</text>
+<rect x="390" y="50" width="120" height="35" rx="6" fill="#FFF3E0" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="450.0" y="65.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">I probe</text>
+<text x="450.0" y="78.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(current xfmr)</text>
+<rect x="300" y="103" width="100" height="30" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="350.0" y="116.0" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1A202C">SENSOR_LO</text>
+<text x="350.0" y="129.0" text-anchor="middle" font-size="9.5" font-weight="600" fill="#1A202C">(shared)</text>
+<line x1="250" y1="85" x2="250" y2="154" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="85" x2="450" y2="154" stroke="#2A2A3A" stroke-width="1.4"/>
+<circle cx="250" cy="167" r="13" fill="#fff" stroke="#378ADD" stroke-width="1.6"/><line x1="240.9" y1="157.9" x2="259.1" y2="176.1" stroke="#378ADD" stroke-width="1.6"/><line x1="240.9" y1="176.1" x2="259.1" y2="157.9" stroke="#378ADD" stroke-width="1.6"/>
+<circle cx="450" cy="167" r="13" fill="#fff" stroke="#378ADD" stroke-width="1.6"/><line x1="440.9" y1="157.9" x2="459.1" y2="176.1" stroke="#378ADD" stroke-width="1.6"/><line x1="440.9" y1="176.1" x2="459.1" y2="157.9" stroke="#378ADD" stroke-width="1.6"/>
+<text x="250" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#378ADD">Mixer</text>
+<text x="450" y="197" text-anchor="middle" font-size="9" font-weight="700" fill="#378ADD">Mixer</text>
+<line x1="300" y1="118" x2="263" y2="167" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="400" y1="118" x2="437" y2="167" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="180" x2="250" y2="205" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="180" x2="450" y2="205" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="190" y="205" width="120" height="35" rx="6" fill="#E6F4ED" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="250.0" y="220.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">ADC</text>
+<text x="250.0" y="233.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">(16-bit)</text>
+<rect x="390" y="205" width="120" height="35" rx="6" fill="#FFF3E0" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="450.0" y="220.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">ADC</text>
+<text x="450.0" y="233.5" text-anchor="middle" font-size="10" font-weight="600" fill="#1A202C">(16-bit)</text>
+<line x1="250" y1="240" x2="250" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="240" x2="450" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="250" y1="260" x2="320" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<line x1="450" y1="260" x2="380" y2="260" stroke="#2A2A3A" stroke-width="1.4"/>
+<rect x="250" y="260" width="200" height="35" rx="6" fill="#F0E8F8" stroke="#2A2A3A" stroke-width="1.3"/>
+<text x="350.0" y="275.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">FPGA:  Z = V / I</text>
+<text x="350.0" y="288.5" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1A202C">(phase preserved -- coherent LO)</text>
+<text x="350" y="308" text-anchor="middle" font-size="13" font-weight="700" fill="#7030A0">R + jX</text>
+<line x1="350" y1="295" x2="350" y2="300" stroke="#2A2A3A" stroke-width="1.4"/>
+</svg><div class="vi-steps"><div class="vi-step"><div class="vi-step-num">1</div><div class="vi-step-text">The line is tapped at <b>two separate points</b> (or via two separate sensing elements): one path samples V, the other samples I.</div></div>
+<div class="vi-step"><div class="vi-step-num">2</div><div class="vi-step-text">Both paths are downconverted using <b>the exact same local oscillator</b> (a shared LO, split by a transformer to both channels) -- this is what keeps their relative phase intact.</div></div>
+<div class="vi-step"><div class="vi-step-num">3</div><div class="vi-step-text">Each downconverted signal is independently <b>digitized</b> (16-bit ADC) -- so V and I now exist as explicit numbers, magnitude <i>and</i> phase.</div></div>
+<div class="vi-step"><div class="vi-step-num">4</div><div class="vi-step-text">The FPGA computes <b>Z = V / I</b> directly in the complex domain -- division, not combination -- which is only meaningful because phase was preserved and digitized.</div></div>
+<div class="vi-step"><div class="vi-step-num">5</div><div class="vi-step-text">Result: the full <b>complex impedance R + jX</b>. Fwd/Refl power is still available too (same formulas as Case 1), just computed in software instead of hardware.</div></div></div>
+    <div class="vi-formula-panel">
+      <div><div class="vi-formula-label">IMPEDANCE (division, not combination)</div><div class="vi-formula-eq">Z = V / I = R + jX</div></div>
+      <div><div class="vi-formula-label">STILL AVAILABLE IF NEEDED</div><div class="vi-formula-eq">Vfwd=(V+IZ0)/2 &#160; Vrefl=(V&#8722;IZ0)/2</div></div>
+    </div>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>Sharing one local oscillator between the V and I mixers is the whole trick -- it's what keeps the relative phase between V and I intact through the downconversion. Break that shared LO and you're back to Case 1's problem: you'd have two numbers with no reliable phase relationship between them, and Z=V/I would be meaningless.</p>
+    </div>
+    <div class="vi-link-note">Want to explore this math hands-on? Try the <a href="./sims/e_vi_sensor_sims.html" target="_blank" rel="noopener">V/I Sensor Phasor Simulator</a> -- adjust the load and watch Z=V/I recover it in real time.</div>
+    </div>
+</div>
+
+<div class="d-wrap">
+  <div class="d-header"><span class="d-badge green">SUMMARY</span><span class="d-title">Same V, I; Three Different Questions</span></div>
+  <div class="d-body">
+    <table class="vi-summary-table">
+      <thead><tr><th>Case</th><th>Combining method</th><th class="center">Phase known?</th><th>What you get</th></tr></thead>
+      <tbody>
+        <tr><td><b>1. Bruene</b></td><td>Analog add/subtract (fixed wiring)</td><td class="center"><span class="vi-pill no">No</span></td><td>Fwd / Refl power (scalar)</td></tr>
+        <tr><td><b>2. Bird</b></td><td>Analog add/subtract (mechanical flip)</td><td class="center"><span class="vi-pill no">No</span></td><td>Fwd / Refl power (scalar)</td></tr>
+        <tr><td><b>3. Coherent digital</b></td><td>Digital division (FPGA math)</td><td class="center"><span class="vi-pill yes">Yes</span></td><td>Complex impedance Z=R+jX</td></tr>
+      </tbody>
+    </table>
+    <div class="vi-info-note">
+      <span class="vi-info-note-label">INSIGHT</span>
+      <p>Cases 1 and 2 never lose the phase information -- it's baked into the analog waveform the whole time -- they just never turn it into a number. Only Case 3 explicitly digitizes phase, which is exactly why only Case 3 can answer "what does the load look like," not just "how much power is flowing."</p>
+    </div>
+  </div>
+</div>`;
+
+const SLIDES_KO = [
+  {
+    id: 'm6ov', era: 'm6',
+    eyebrow: 'Topic 1 · Module 07',
+    title: 'RF Generator 기본 구성 — 5대 구역으로 보는 전체 그림',
+    subtitle: '박스 하나하나를 외우기 전에, 스위칭 계열(Class D/E) RF Generator에서 신호가 어느 구역을 거쳐 파워로 완성되는지부터 잡는다',
+    diagram: DIAG_M6OV_HTML_KO,
+    theories: [
+      { icon: '🧭', title: '왜 "구역"으로 먼저 나누는가', body: 'RF Generator 블록다이어그램은 보통 7~9개의 박스로 그려집니다. 이 박스를 하나씩 순서대로 외우면 각 박스가 왜 그 자리에 있는지, 서로 어떤 역할 분담을 하는지 놓치기 쉽습니다. 이 강의는 스위칭 계열(Class D/E) RF Generator를 기준으로, 전체를 5개의 큰 구역 — ① 신호발생부 ② 신호처리부 ③ 파워생성부 ④ 정형출력부 ⑤ 전원제어부 — 로 묶어서, "이 구역은 무엇을 위해 존재하는가"부터 잡고 들어갑니다.' },
+      { icon: '①', title: '신호발생부 — 정확한 주파수를 만든다', body: '40.68MHz 기준 클럭(Ref. Clock)을 DDS(Direct Digital Synthesis)가 받아 13.56MHz 기준 신호를 디지털 합성으로 만들어냅니다. 이 신호는 아직 사인파에 가까운 아날로그성 신호이며, 이 구역의 임무는 "얼마나 강하게"가 아니라 "얼마나 정확하게" — 주파수 정밀도와 위상 안정성입니다. 스위칭 계열에서는 이 신호의 진폭을 조절해 파워를 내는 방식(선형 계열의 VVA식 게인 제어)을 쓰지 않습니다 — 파워 제어는 훨씬 뒤쪽인 전원제어부(⑤)에서 이루어집니다.' },
+      { icon: '②', title: '신호처리부 — 신호를 다듬고, 아날로그 정합 없이 나눈다', body: '선형 방식의 Driver Amp와는 임무가 다릅니다. Comparator가 DDS의 사인파 기준신호를 깨끗한 구형파(로직 레벨의 On/Off 신호)로 정리하고, RF Enable이 On/Off 타이밍을 관리한 뒤, Splitter가 이 구형파를 두 경로(0°/180°)로 복제합니다. 이 Splitter는 RF 전력을 나누는 협대역 소자가 아니라 순수한 디지털 팬아웃입니다 — 사각파에는 고조파 성분이 섞여 있어서, 여기서 λ/4 전송선로 기반의 협대역 RF Splitter를 쓰면 고조파가 감쇠·반사되며 애써 만든 각진 엣지가 다시 뭉개지기 때문입니다. 그래서 분기는 반드시 아직 로직 레벨일 때 이루어져야 합니다. 실제 Gate Driver는 분기 이후 각 경로에 하나씩 배치되며, 이는 다음 ③ 파워생성부에서 다룹니다.' },
+      { icon: '③', title: '파워생성부 — 실제 전력이 만들어지는 곳', body: 'Splitter가 나눈 두 경로(0°/180°)는 이제 각자 자기만의 Gate Driver를 갖습니다 — 스위치 바로 앞에 드라이버를 둬야 구동 루프 인덕턴스가 최소화되고, 엣지 품질도 스위치 각각에 맞춰 보장되기 때문입니다. 각 Switching Power Amp(Class D/E) 내부에는 ZVS를 구현하기 위한 공진망(Lr·Cr)이 포함되어, 스위치가 켜지는 순간 전압을 0에 가깝게 만듦과 동시에 왜곡된 스위칭 파형에서 기본파(13.56MHz) 성분을 추출·성형합니다. 두 경로의 실제 RF 출력이 Combiner에서 합쳐질 때 비로소 격리(Isolator)가 필요해집니다 — 반사·불균형이 생길 수 있는 RF 전력 지점이 바로 여기이기 때문입니다. RF Generator에서 발열과 고장이 가장 많이 발생하는 구역입니다.' },
+      { icon: '④', title: '정형출력부 — 50Ω 표준에 맞추고, 남은 고조파까지 걸러낸다', body: '파형을 사인파에 가깝게 정형하는 일은 이미 ③ 파워생성부의 Main Amp 내부(공진망)에서 상당 부분 끝나 있지만, 단일 공진 스테이지만으로는 고조파 억제에 한계가 있습니다. 그래서 Matching Network가 Combiner 출력을 표준 50Ω 임피던스로 변환한 뒤, LPF가 남은 고조파를 규제 수준까지 걸러냅니다. RF Sensor는 이 뒤에서 진행파/반사파 파워를 실시간 측정하는데, 측정이 정확하려면 그 앞단이 기본파 하나만 남은 깨끗한 신호여야 합니다 — LPF가 규제 대응뿐 아니라 ⑤ 전원제어부의 ALC 폐루프가 정확한 값을 보게 하기 위해서도 필요한 이유입니다.' },
+      { icon: '⑤', title: '전원제어부 — 파워를 조절하는 "방식" 자체가 다르다', body: '3상 AC가 Noise Filter를 거쳐 가변(Variable) 고전압 DC-DC 전원으로 변환됩니다. 스위칭 계열의 가장 근본적인 특징이 바로 여기 있습니다 — 파워 조절을 신호 크기가 아니라 이 Vdd 전압 자체를 실시간으로 바꿔서 수행합니다. Digital Controller(FPGA)가 RF Sensor의 피드백을 받아 이 가변 전원에 직접 지령을 내리는 디지털 폐루프를 운영합니다.' },
+      { icon: '🔗', title: '이후의 로드맵', body: '이 5대 구역 지도를 기준으로, 앞으로 각 구역을 하나씩 더 깊이 들여다보는 토픽들을 이어서 준비할 예정입니다.' },
+    ],
+    classroom: [
+      {
+        q: '5대 구역 중, RF Sensor가 측정한 진행파/반사파 정보가 최종적으로 전달되어 "무엇을 조절할지" 판단하는 구역은?',
+        opts: [
+          { key:'A', text:'① 신호발생부', correct: false },
+          { key:'B', text:'② 신호처리부', correct: false },
+          { key:'C', text:'⑤ 전원제어부 (Digital Controller)', correct: true },
+          { key:'D', text:'④ 정형출력부 자체에서 모든 판단이 끝난다', correct: false },
+        ],
+        feedback_ok: '정확합니다! RF Sensor(④ 정형출력부에 위치)는 데이터를 "측정"할 뿐이고, 그 데이터를 받아 가변 Vdd 전원에 어떻게 지령할지 "판단"하는 것은 ⑤ 전원제어부의 Digital Controller(FPGA)입니다. 스위칭 계열은 이 Vdd 조절이 파워 제어의 핵심 수단입니다.',
+        feedback_ng: '힌트: 다이어그램에서 RF Sensor로부터 점선이 어디로 향하는지 따라가 보세요. 그 점선이 도착하는 박스가 "판단"을 담당합니다.',
+      },
+    ],
+  },
+  {
+    id: 'm7t2ab', era: 'm6',
+    eyebrow: 'Topic 2 · Module 07',
+    title: 'RF Generator 기본 구성 — Class AB 계열로 다시 보는 5대 구역',
+    subtitle: 'Topic 1과 같은 5개 구역, 다른 답 — 스위칭 대신 선형 증폭이 골라내는 회로들',
+    diagram: DIAG_M7T2_HTML_KO,
+    connections: ['m6ov'],
+  },
+  {
+    id: 'm7t3vi', era: 'm6',
+    eyebrow: 'Topic 3 · Module 07',
+    title: '방향성 센싱 — V와 I를 읽어내는 세 가지 방법',
+    subtitle: '모든 RF 센서는 결국 같은 질문에 답한다 — 이 지점에서 V와 I가 어떻게 되는가. 재료는 같은데 레시피가 셋이다',
+    simLink: { file: "./sims/e_vi_sensor_sims.html", label: "V/I 센서 페이저 시뮬레이터" },
+    diagram: DIAG_M7T3_HTML_KO,
+    theories: [
+      { icon: "🧭", title: "왜 V, I 두 개만 있으면 되는가", body: "모든 RF 센서는 결국 같은 질문에 답합니다 — 이 지점에서 전압(V)과 전류(I)가 어떻게 되는가. 진행파/반사파 파워도, 부하 임피던스도 전부 V와 I 두 값에서 유도됩니다. 다만 그 두 값을 \"어떻게 조합하느냐\"에 따라 완전히 다른 하드웨어 세 가지가 나옵니다." },
+      { icon: "1️⃣", title: "Case 1 — Bruene형: 고정 아날로그 회로", body: "전류 트랜스포머가 라인 전류 I에 비례하는 전압을, 캡 디바이더가 라인 전압 V에 비례하는 전압을 만듭니다. 이 시점까진 둘 다 실제 RF 파형이며, 측정된 적이 없습니다. 트랜스포머의 2차 권선이 center-tap 구조라, 한쪽 끝에 배선하면 (V+IZ0), 반대쪽이면 (V−IZ0)이 그냥 키르히호프 전압법칙만으로 자동으로 나옵니다. 이 합쳐진 신호를 다이오드(square-law 검파)에 태우면 비로소 전압이 파워(P∝V²)로 바뀝니다. 결과는 Pfwd, Prefl — 스칼라 숫자 두 개뿐입니다. V·I의 위상관계는 계산에 쓰였지만, 읽어낼 수 있는 숫자로 변환된 적은 없습니다." },
+      { icon: "2️⃣", title: "Case 2 — Bird형: 회전식 슬러그", body: "원리는 Case 1과 완전히 같습니다 — 전압 샘플(캡시티브)과 전류 샘플(자기루프)을 하나의 물리적 슬러그 안에 함께 넣은 것뿐입니다. 슬러그를 한 방향으로 꽂으면 루프가 정방향으로 전류를 읽어 (V+IZ0) 조합이 나오고, 180° 돌려 꽂으면 루프의 극성만 반전되어(전압 샘플은 그대로) (V−IZ0) 조합이 나옵니다. 부품 하나, 검파회로 하나로 Forward/Reflected 둘 다 — 방향만 기계적으로 뒤집으면 됩니다." },
+      { icon: "3️⃣", title: "Case 3 — 동기식 디지털 V/I 센서", body: "라인을 서로 다른 두 지점에서 탭해서 V 경로와 I 경로를 끝까지 분리 유지합니다. 두 경로 모두 완전히 같은 국부발진기(LO)로 다운컨버전되는데, 이게 핵심입니다 — 공유 LO가 다운컨버전 내내 V·I의 상대위상을 그대로 보존시킵니다. 각각 독립적으로 ADC에서 디지털화되면 V, I는 이제 크기와 위상을 가진 명시적 숫자가 되고, 여기서 FPGA가 Z=V/I를 직접 계산합니다 — 조합이 아니라 나눗셈이고, 위상이 디지털화됐기 때문에만 의미가 있는 연산입니다. 결과는 완전한 복소 임피던스 R+jX. Fwd/Refl 파워도 여전히 같은 공식으로 얻을 수 있습니다 — 다만 하드웨어가 아니라 소프트웨어로 계산할 뿐입니다." },
+      { icon: "💡", title: "정리 — 같은 V, I; 세 가지 다른 질문", body: "Case 1, 2는 위상 정보를 잃어버리는 게 아닙니다 — 아날로그 파형 안에 계속 실려 있습니다 — 다만 그걸 숫자로 바꾸는 일을 한 번도 하지 않을 뿐입니다. Case 3만 위상을 명시적으로 디지털화하고, 그래서 Case 3만 \"파워가 얼마나 흐르는가\"를 넘어 \"부하가 어떤 임피던스인가\"에 답할 수 있습니다. RF Generator는 대개 Case 1/2(속도·비용 우선)를, Matcher는 Case 3(임피던스가 반드시 필요)을 씁니다." },
+    ],
+    equations: [
+      { label: "방향 분리 (선형 결합)", tex: "V_{fwd} = \\frac{V+IZ_0}{2}\\,,\\qquad V_{refl} = \\frac{V-IZ_0}{2}" },
+      { label: "파워 (비선형, 다이오드 square-law)", tex: "P = \\frac{|V|^2}{Z_0}" },
+      { label: "복소 임피던스 (나눗셈, 위상 보존 필요)", tex: "Z = \\frac{V}{I} = R + jX" },
+    ],
+    classroom: [
+      {
+        q: "Case 1(Bruene형)과 Case 3(동기식 디지털)는 둘 다 V와 I를 이용하는데, 왜 Case 1은 임피던스(R+jX)를 절대 얻을 수 없을까요?",
+        opts: [
+          { key:"A", text:"Case 1은 전류를 측정하지 않기 때문에", correct: false },
+          { key:"B", text:"Case 1은 V·I를 아날로그로 합친 뒤 다이오드로 검파해서, 위상이 숫자로 남지 않고 스칼라 파워 하나로 붕괴되기 때문에", correct: true },
+          { key:"C", text:"Case 1은 주파수가 너무 낮아서", correct: false },
+          { key:"D", text:"Case 1은 트랜스포머를 안 쓰기 때문에", correct: false },
+        ],
+        feedback_ok: "정확합니다! Case 1도 위상 관계를 '사용'하긴 합니다 — center-tap에서 V와 I가 실시간 아날로그로 더해지거나 빼질 때 위상이 자동 반영됩니다. 하지만 그 결과가 다이오드에서 스칼라 파워(P∝V²)로 검파되는 순간, 원래 있었던 위상 정보는 계산에 다시 쓸 수 있는 숫자로 남지 않고 사라집니다. Case 3만 V, I를 각각 디지털화해서 위상을 명시적 숫자로 보존하기 때문에 Z=V/I 나눗셈이 가능합니다.",
+        feedback_ng: "힌트: Case 1의 신호가 다이오드를 통과하기 '직전'과 '직후'를 비교해보세요. 다이오드가 파형에 어떤 연산(선형? 비선형?)을 하는지 떠올려보시면 답이 보입니다.",
+      },
+    ],
+    connections: ['m6ov'],
+  },
+];
+
+const SLIDES_EN = [
+  {
+    id: 'm6ov', era: 'm6',
+    eyebrow: 'Topic 1 · Module 07',
+    title: 'RF Generator Fundamentals — The Big Picture in 5 Zones',
+    subtitle: 'Before memorizing each box, understand how a signal moves through each zone to become power in a switching-family (Class D/E) RF Generator',
+    diagram: DIAG_M6OV_HTML_EN,
+    theories: [
+      { icon: '🧭', title: 'Why Group Into "Zones" First', body: 'RF Generator block diagrams are usually drawn with 7–9 boxes. Memorizing these boxes one by one in sequence makes it easy to miss why each box sits where it does, and how they divide responsibilities. This lecture uses a switching-family (Class D/E) RF Generator as the baseline, grouping the whole diagram into 5 broad zones — ① Signal Generation ② Signal Conditioning ③ Power Generation ④ Output Conditioning ⑤ Power/Control — and starting by understanding what each zone exists to do.' },
+      { icon: '①', title: 'Signal Generation — Producing a Precise Frequency', body: 'A 40.68 MHz reference clock feeds a DDS (Direct Digital Synthesis) stage, which digitally synthesizes a 13.56 MHz reference signal. This signal is still close to an analog sine wave, and this zone\'s job isn\'t "how strong" but "how precise" — frequency accuracy and phase stability. The switching family doesn\'t control power by varying this signal\'s amplitude (the way a linear amplifier\'s VVA-style gain control would) — power control happens much further downstream, in Power/Control (⑤).' },
+      { icon: '②', title: 'Signal Conditioning — Preparing and Splitting the Signal, Without Analog Matching', body: 'This zone\'s job differs from the linear "Driver Amp." A Comparator cleans up the DDS\'s sine reference into a crisp square wave (a logic-level on/off signal), RF Enable manages on/off timing, and the Splitter then duplicates that square wave into two paths (0°/180°). This Splitter isn\'t a narrowband RF power-splitting device — it\'s a pure digital fan-out. A square wave carries harmonic content alongside its fundamental, and a narrowband RF splitter (built on λ/4 transmission lines) would attenuate and reflect those harmonics, blurring the sharp edges just created. So the split has to happen while the signal is still at logic level. The actual Gate Driver sits downstream of the split, one per path — covered next in ③ Power Generation.' },
+      { icon: '③', title: 'Power Generation — Where the Actual Power Is Made', body: 'Each of the two paths (0°/180°) the Splitter created now has its own Gate Driver — putting the driver right next to its switch minimizes drive-loop inductance and guarantees edge quality is tuned to that specific device. Each Switching Power Amp (Class D/E) has a built-in resonant network (Lr·Cr) that achieves ZVS (Zero Voltage Switching) — bringing the voltage to near-zero the instant the switch turns on — while also extracting and shaping the fundamental (13.56 MHz) component out of the otherwise distorted switching waveform. Isolation only becomes necessary where the Combiner merges the two paths\' actual RF outputs — that\'s the point where reflection or imbalance in real RF power can occur. This is where heat and failures occur most in an RF Generator.' },
+      { icon: '④', title: 'Output Conditioning — Matching to 50Ω, Then Filtering What\'s Left', body: 'Shaping the waveform into something close to a sine wave already happens largely inside the Main Amp\'s resonant network back in ③ Power Generation, but a single resonant stage only suppresses harmonics so far. So the Matching Network first transforms the Combiner\'s output to the standard 50Ω impedance, and the LPF then filters the remaining harmonics down to regulatory levels. The RF Sensor downstream measures forward/reflected power in real time — and for that measurement to be accurate, the signal reaching it needs to be a clean fundamental with nothing else mixed in. That\'s why the LPF matters not just for compliance, but for the accuracy of ⑤ Power/Control\'s ALC closed loop as well.' },
+      { icon: '⑤', title: 'Power/Control — The Power Control "Method" Itself Is Different', body: 'Three-phase AC passes through the Noise Filter to become a variable, high-voltage DC-DC supply. This is where the switching family\'s most fundamental trait lives — power is controlled not by signal size, but by varying this Vdd voltage itself in real time. The Digital Controller (FPGA) receives feedback from the RF Sensor and runs a digital closed loop that commands this variable supply directly.' },
+      { icon: '🔗', title: 'The Roadmap From Here', body: 'Using this 5-zone map as a baseline, upcoming topics will zoom into each zone one at a time for a deeper look.' },
+    ],
+    classroom: [
+      {
+        q: 'Of the 5 zones, which one ultimately receives the forward/reflected power data measured by the RF Sensor and decides "what to adjust"?',
+        opts: [
+          { key:'A', text:'① Signal Generation', correct: false },
+          { key:'B', text:'② Signal Conditioning', correct: false },
+          { key:'C', text:'⑤ Power/Control (Digital Controller)', correct: true },
+          { key:'D', text:'④ Output Conditioning handles all the decision-making itself', correct: false },
+        ],
+        feedback_ok: 'Correct! The RF Sensor (located in ④ Output Conditioning) only "measures" the data. It\'s the Digital Controller (FPGA) in ⑤ Power/Control that "decides" how to command the variable Vdd supply based on that data. In the switching family, this Vdd adjustment is the core mechanism of power control.',
+        feedback_ng: 'Hint: Follow the dashed line from the RF Sensor in the diagram — see where it leads. The box it arrives at is the one responsible for "deciding."',
+      },
+    ],
+  },
+  {
+    id: 'm7t2ab', era: 'm6',
+    eyebrow: 'Topic 2 · Module 07',
+    title: 'RF Generator Fundamentals — The Same 5 Zones, the Class AB Way',
+    subtitle: 'Same 5 zones as Topic 1, different answers -- the circuits linear amplification chooses instead of switching',
+    diagram: DIAG_M7T2_HTML_EN,
+    connections: ['m6ov'],
+  },
+  {
+    id: 'm7t3vi', era: 'm6',
+    eyebrow: 'Topic 3 · Module 07',
+    title: 'Directional Sensing — Three Ways to Read V and I',
+    subtitle: 'Every RF sensor answers the same underlying question -- what are V and I doing at this point on the line. Same two ingredients, three different recipes',
+    simLink: { file: "./sims/e_vi_sensor_sims.html", label: "V/I Sensor Phasor Simulator" },
+    diagram: DIAG_M7T3_HTML_EN,
+    theories: [
+      { icon: "🧭", title: "Why Just V and I Is Enough", body: "Every RF sensor answers the same underlying question -- what are the voltage (V) and current (I) doing at this point on the line. Forward/reflected power and load impedance are both derived from just these two values. What differs completely across three real families of hardware is how those two values get combined." },
+      { icon: "1️⃣", title: "Case 1 -- Bruene-type: Fixed Analog Circuit", body: "A current transformer produces a voltage proportional to line current I; a cap divider produces a voltage proportional to line voltage V. At this point both are still real RF waveforms -- nothing has been measured yet. The transformer's secondary is center-tapped, so wiring to one end gives (V+IZ0) and the other gives (V-IZ0), purely from Kirchhoff's voltage law. Feeding this combined signal to a diode (square-law detection) is what finally turns voltage into power (P∝V²). The result is Pfwd and Prefl -- two scalar numbers. The phase relationship between V and I was used but never turned into a number you could read out." },
+      { icon: "2️⃣", title: "Case 2 -- Bird-type: Rotating Slug", body: "Exactly the same principle as Case 1 -- a voltage sample (capacitive) and current sample (magnetic loop) built into one physical, reversible slug. Insert it one way and the loop reads current in the forward sense, giving (V+IZ0). Rotate it 180° and only the loop's polarity reverses (the voltage sample doesn't), giving (V-IZ0). One part, one detector circuit, both readings -- just by physically flipping which way current is sampled." },
+      { icon: "3️⃣", title: "Case 3 -- Coherent Digital V/I Sensor", body: "The line is tapped at two separate points, keeping the V and I paths fully separate all the way through. Both are downconverted using the exact same local oscillator -- this is the key move, since a shared LO is what keeps V and I's relative phase intact through the downconversion. Once independently digitized, V and I exist as explicit numbers with both magnitude and phase, and the FPGA computes Z=V/I directly -- division, not combination, and only meaningful because phase was preserved and digitized. The result is the full complex impedance R+jX. Fwd/Refl power is still available too, using the same formulas as Case 1 -- just computed in software instead of hardware." },
+      { icon: "💡", title: "Summary -- Same V, I; Three Different Questions", body: "Cases 1 and 2 never lose the phase information -- it stays baked into the analog waveform the whole time -- they just never turn it into a number. Only Case 3 explicitly digitizes phase, which is exactly why only Case 3 can answer \"what does the load look like,\" not just \"how much power is flowing.\" RF Generators typically use Case 1/2 (speed and cost matter more), while Matchers need Case 3 (impedance is the whole point)." },
+    ],
+    equations: [
+      { label: "Directional separation (linear combine)", tex: "V_{fwd} = \\frac{V+IZ_0}{2}\\,,\\qquad V_{refl} = \\frac{V-IZ_0}{2}" },
+      { label: "Power (nonlinear, diode square-law)", tex: "P = \\frac{|V|^2}{Z_0}" },
+      { label: "Complex impedance (division, needs preserved phase)", tex: "Z = \\frac{V}{I} = R + jX" },
+    ],
+    classroom: [
+      {
+        q: "Case 1 (Bruene-type) and Case 3 (coherent digital) both use V and I -- so why can Case 1 never produce a complex impedance (R+jX)?",
+        opts: [
+          { key:"A", text:"Because Case 1 doesn't measure current at all", correct: false },
+          { key:"B", text:"Because Case 1 combines V and I in analog form and then detects with a diode, collapsing phase into a single scalar power number instead of keeping it as a readable value", correct: true },
+          { key:"C", text:"Because Case 1 operates at too low a frequency", correct: false },
+          { key:"D", text:"Because Case 1 doesn't use a transformer", correct: false },
+        ],
+        feedback_ok: "Correct! Case 1 does 'use' the phase relationship -- it's automatically reflected when V and I are added or subtracted in real time at the center tap. But the instant that result gets detected by a diode into scalar power (P∝V²), the phase information that was there is gone -- it never survives as a number you can compute with again. Only Case 3 digitizes V and I separately, explicitly preserving phase as a number, which is what makes Z=V/I possible.",
+        feedback_ng: "Hint: Compare Case 1's signal right before and right after the diode. Think about what kind of operation (linear? nonlinear?) the diode performs on the waveform -- that's where the answer is.",
+      },
+    ],
+    connections: ['m6ov'],
+  },
+];
+
+/* ═══════════════════════════════════════════
+   MODULE 6 — STATE & SIDEBAR
+═══════════════════════════════════════════ */
+let currentLang = 'en';
+let currentId   = 'm6ov';
+let currentTab  = 'diagram';
+
+function slides() { return currentLang === 'ko' ? SLIDES_KO : SLIDES_EN; }
+function getSlide(id) { return slides().find(s => s.id === id); }
+
+const ERA_COLORS = { m6: '#7030A0' };
+const SB_ICONS = {
+  m6ov:'🧭',
+  m7t2ab:'📶',
+  m7t3vi:'📡',
+};
+const SB_SUBS_KO = {
+  m6ov:'5대 구역으로 보는 전체 그림 (스위칭 계열, 시뮬레이터 포함)',
+  m7t2ab:'같은 5대 구역, Class AB로 다시 — VVA·바이어스·3-way 합성',
+  m7t3vi:'V, I를 읽어내는 세 가지 방식 — Bruene · Bird · 동기식 디지털',
+};
+const SB_SUBS_EN = {
+  m6ov:'The big picture in 5 zones (switching family, with simulators)',
+  m7t2ab:'Same 5 zones, done in Class AB -- VVA, bias, 3-way combining',
+  m7t3vi:'Three ways to read V and I — Bruene · Bird · coherent digital',
+};
+
+function renderSidebar() {
+  const sl = slides();
+  const nl = document.getElementById('nav-list');
+  nl.innerHTML = '';
+  sl.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'sb-item' + (s.id === currentId ? ' active' : '');
+    div.onclick = () => navigateTo(s.id);
+    const color = ERA_COLORS[s.era] || '#7030A0';
+    const sub = currentLang === 'ko' ? SB_SUBS_KO[s.id] : SB_SUBS_EN[s.id];
+    div.innerHTML = `
+      <div class="sb-dot" style="background:${color}20;color:${color}">${SB_ICONS[s.id]||'●'}</div>
+      <div>
+        <div class="sb-label">${s.title}</div>
+        <div class="sb-sub">${sub||''}</div>
+      </div>`;
+    nl.appendChild(div);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  const sl = slides();
+  const idx = sl.findIndex(s => s.id === currentId);
+  const pct = sl.length > 1 ? (idx / (sl.length - 1)) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+/* ═══════════════════════════════════════════
+   RENDER DETAIL
+═══════════════════════════════════════════ */
+function renderDetail(id) {
+  const s = getSlide(id);
+  if (!s) return;
+  const isEn = currentLang === 'en';
+  const area = document.getElementById('slide-area');
+
+  const theoriesHtml = (s.theories||[]).map(t => `
+    <div class="theory-card">
+      <h4>${t.icon} ${t.title}</h4>
+      <p>${t.body}</p>
+    </div>`).join('');
+
+  const equationsHtml = s.equations && s.equations.length ? s.equations.map(e => `
+    <div class="eq-block">
+      $$${e.tex}$$
+      ${e.label ? `<div class="eq-label">${e.label}</div>` : ''}
+    </div>`).join('') : '';
+
+  const classroomList = s.classroom ? (Array.isArray(s.classroom) ? s.classroom : [s.classroom]) : [];
+  const classroomHtml = classroomList.length ? classroomList.map((cq, qi) => `
+    <div class="quiz-card" ${qi > 0 ? 'style="margin-top:14px"' : ''}>
+      <div class="quiz-q">🎓 ${isEn ? 'Comprehension Check' : '이해 점검'}${classroomList.length > 1 ? ' ' + (qi+1) : ''}: ${cq.q}</div>
+      <div class="quiz-opts">
+        ${cq.opts.map(o => `
+          <div class="quiz-opt" onclick="checkQuiz(this, ${o.correct}, '${id}', ${qi})">
+            <span class="opt-key">${o.key}</span>
+            <span>${o.text}</span>
+          </div>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="qfb-${id}-${qi}"></div>
+    </div>`).join('') : '';
+
+  const connHtml = s.connections && s.connections.length ? `
+    <div style="margin-top:20px">
+      <div style="font-size:0.72rem;color:var(--text-sub);margin-bottom:8px;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em">
+        ${isEn ? 'Connected Topics' : '연결 토픽'}
+      </div>
+      <div class="connections">
+        ${s.connections.map(c => {
+          const cs = getSlide(c);
+          return cs ? `<div class="conn-chip" onclick="navigateTo('${c}')">${cs.eyebrow || c}</div>` : '';
+        }).join('')}
+      </div>
+    </div>` : '';
+
+  const diagramHtml = s.diagram || `<div class="d-wrap"><div class="d-body"><p style="color:var(--text-sub);font-size:0.85rem">${isEn ? 'No diagram for this topic.' : '이 토픽에는 다이어그램이 없습니다.'}</p></div></div>`;
+
+  const simLinkHtml = s.simLink ? `
+    <a href="${s.simLink.file}" target="_blank" rel="noopener" class="sim-link-card">
+      <span class="sim-link-icon">🖥️</span>
+      <span class="sim-link-text">
+        <span class="sim-link-label">${isEn ? 'INTERACTIVE SIMULATOR' : '인터랙티브 시뮬레이터'}</span>
+        <span class="sim-link-title">${s.simLink.label}</span>
+      </span>
+      <span class="sim-link-arrow">↗</span>
+    </a>` : '';
+
+  area.innerHTML = `
+    <div class="slide-header">
+      <div class="slide-eyebrow">${s.eyebrow}</div>
+      <div class="slide-title">${s.title}</div>
+      ${s.subtitle ? `<div class="slide-subtitle">${s.subtitle}</div>` : ''}
+    </div>
+
+    ${simLinkHtml}
+
+    <div class="tab-row">
+      ${s.diagram ? `
+      <button class="tab-btn ${currentTab==='diagram'?'active':''}" onclick="switchTab('diagram')">
+        📊 ${isEn ? 'Diagram' : '다이어그램'}
+      </button>` : ''}
+      <button class="tab-btn ${currentTab==='concepts'?'active':''}" onclick="switchTab('concepts')">
+        📖 ${isEn ? 'Key Concepts' : '핵심 개념'}
+      </button>
+      ${equationsHtml ? `
+      <button class="tab-btn ${currentTab==='equations'?'active':''}" onclick="switchTab('equations')">
+        🔢 ${isEn ? 'Equations' : '수식'}
+      </button>` : ''}
+      ${classroomHtml ? `
+      <button class="tab-btn ${currentTab==='classroom'?'active':''}" onclick="switchTab('classroom')">
+        🎓 ${isEn ? 'Classroom' : '교실'}
+      </button>` : ''}
+    </div>
+
+    ${s.diagram ? `<div id="tab-diagram" class="tab-pane ${currentTab==='diagram'?'active':''}">${diagramHtml}</div>` : ''}
+    <div id="tab-concepts" class="tab-pane ${currentTab==='concepts'?'active':''}">
+      <div class="theory-grid">${theoriesHtml}</div>
+      ${connHtml}
+    </div>
+    ${equationsHtml ? `<div id="tab-equations" class="tab-pane ${currentTab==='equations'?'active':''}">${equationsHtml}</div>` : ''}
+    ${classroomHtml ? `<div id="tab-classroom" class="tab-pane ${currentTab==='classroom'?'active':''}">${classroomHtml}</div>` : ''}
+  `;
+
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION & EVENTS
+═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   SPLITTER WIDGET (inline, Topic 4)
+═══════════════════════════════════════════ */
+let splitterScenario = 'balanced';
+
+const SPLITTER_TXT = {
+  ko: {
+    isoNoteBalanced: '두 포트가 동일하게 매칭되어 있으면, 두 출력 경로 사이의 격리저항에는 전류가 거의 흐르지 않습니다.',
+    isoNoteMismatch: 'Port 2의 부하가 어긋나 반사파가 발생하면, 격리저항이 그 반사 에너지를 흡수해 Port 1(다른 출력)로 새어 들어가지 않도록 막아줍니다.',
+    timeLabel: '위상 →',
+  },
+  en: {
+    isoNoteBalanced: 'With both ports equally matched, almost no current flows through the isolation resistor between the two output branches.',
+    isoNoteMismatch: 'When Port 2\u2019s load is mismatched and reflects power, the isolation resistor absorbs that reflected energy, keeping it from leaking into Port 1 (the other output).',
+    timeLabel: 'Phase \u2192',
+  },
+};
+
+function drawSplitterCanvas() {
+  const canvas = document.getElementById('splitterCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = 220;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 46, padR = 16, padT = 16, padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const midY = padT + plotH / 2;
+
+  ctx.strokeStyle = '#E9EEF3';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (plotH / 4) * i;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + plotW, y); ctx.stroke();
+  }
+  ctx.strokeStyle = '#CBD5E1';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + plotH); ctx.lineTo(padL + plotW, padT + plotH);
+  ctx.stroke();
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(padL, midY); ctx.lineTo(padL + plotW, midY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('+1', padL - 8, padT + 4);
+  ctx.fillText('0', padL - 8, midY + 4);
+  ctx.fillText('-1', padL - 8, padT + plotH + 4);
+
+  const steps = 240;
+  const xAt = (i) => padL + (i / steps) * plotW;
+  const amp = 0.92 * (plotH / 2);
+
+  ctx.strokeStyle = '#1A6FB5';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const theta = (i / steps) * 2 * Math.PI;
+    const y = midY - Math.sin(theta) * amp;
+    const x = xAt(i);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  const outAmp = amp / Math.SQRT2;
+  ctx.strokeStyle = '#0F8C50';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const theta = (i / steps) * 2 * Math.PI;
+    const y = midY - Math.sin(theta) * outAmp;
+    const x = xAt(i);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  if (splitterScenario === 'mismatch') {
+    ctx.strokeStyle = 'rgba(192,57,43,0.55)';
+    ctx.lineWidth = 1.4;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+      const theta = (i / steps) * 2 * Math.PI;
+      const ripple = 0.12 * amp * Math.sin(theta * 3);
+      const y = midY - Math.sin(theta) * outAmp * 0.4 + ripple;
+      const x = xAt(i);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.fillStyle = '#64748B';
+  ctx.font = '10.5px "Google Sans", sans-serif';
+  ctx.textAlign = 'left';
+  const t = SPLITTER_TXT[currentLang] || SPLITTER_TXT.en;
+  ctx.fillText(t.timeLabel, padL, H - 8);
+}
+
+function setSplitterScenario(scenario) {
+  splitterScenario = scenario;
+  const t = SPLITTER_TXT[currentLang] || SPLITTER_TXT.en;
+  const btnB = document.getElementById('splitterBtnBalanced');
+  const btnM = document.getElementById('splitterBtnMismatch');
+  if (btnB) btnB.className = 'class-btn' + (scenario === 'balanced' ? ' active-b' : '');
+  if (btnM) btnM.className = 'class-btn' + (scenario === 'mismatch' ? ' active-a' : '');
+  const note = document.getElementById('splitterIsoNote');
+  if (note) note.textContent = scenario === 'balanced' ? t.isoNoteBalanced : t.isoNoteMismatch;
+  drawSplitterCanvas();
+}
+
+function initSplitterWidget() {
+  const canvas = document.getElementById('splitterCanvas');
+  if (!canvas) return;
+  splitterScenario = 'balanced';
+  setSplitterScenario('balanced');
+}
+
+function navigateTo(id) {
+  currentId = id;
+  currentTab = (getSlide(id) && getSlide(id).diagram) ? 'diagram' : 'concepts';
+  renderDetail(id);
+  renderSidebar();
+  window.scrollTo(0, 0);
+  initSplitterWidget();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const pane = document.getElementById('tab-' + tab);
+  if (pane) pane.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.getAttribute('onclick') === `switchTab('${tab}')`) b.classList.add('active');
+  });
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+  if (tab === 'diagram') drawSplitterCanvas();
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  renderDetail(currentId);
+  renderSidebar();
+  initSplitterWidget();
+}
+
+function checkQuiz(el, correct, id, qi) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.style.pointerEvents = 'none');
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = document.getElementById('qfb-' + id + '-' + qi);
+  const s  = getSlide(id);
+  if (fb && s) {
+    const cqList = Array.isArray(s.classroom) ? s.classroom : [s.classroom];
+    const cq = cqList[qi];
+    fb.textContent = correct ? cq.feedback_ok : cq.feedback_ng;
+    fb.className   = 'quiz-feedback show ' + (correct ? 'ok' : 'ng');
+  }
+}
+
+function highlightZoneCard(zoneId) {
+  document.querySelectorAll('.zone-card').forEach(c => c.classList.remove('zone-active'));
+  const card = document.getElementById('card-' + zoneId);
+  if (card) card.classList.add('zone-active');
+}
+
+function openImgPopup(src, cap) {
+  var img = document.getElementById('img-popup-img');
+  var viewport = document.getElementById('img-popup-viewport');
+  img.src = src;
+  document.getElementById('img-popup-cap').textContent = cap;
+  viewport.classList.remove('zoomed');
+  viewport.scrollTop = 0;
+  viewport.scrollLeft = 0;
+  document.getElementById('img-popup').classList.add('open');
+  document.addEventListener('keydown', handleImgPopupKey);
+}
+function closeImgPopup() {
+  document.getElementById('img-popup').classList.remove('open');
+  document.getElementById('img-popup-viewport').classList.remove('zoomed');
+  document.removeEventListener('keydown', handleImgPopupKey);
+}
+function handleImgPopupKey(e) {
+  if (e.key === 'Escape') closeImgPopup();
+}
+function toggleImgZoom(e) {
+  var viewport = document.getElementById('img-popup-viewport');
+  var isZoomed = viewport.classList.contains('zoomed');
+  if (!isZoomed) {
+    var img = document.getElementById('img-popup-img');
+    var rect = img.getBoundingClientRect();
+    var relX = (e.clientX - rect.left) / rect.width;
+    var relY = (e.clientY - rect.top) / rect.height;
+    viewport.classList.add('zoomed');
+    requestAnimationFrame(function() {
+      var img2 = document.getElementById('img-popup-img');
+      var targetX = relX * img2.offsetWidth - viewport.clientWidth / 2;
+      var targetY = relY * img2.offsetHeight - viewport.clientHeight / 2;
+      viewport.scrollLeft = Math.max(0, targetX);
+      viewport.scrollTop = Math.max(0, targetY);
+    });
+  } else {
+    viewport.classList.remove('zoomed');
+    viewport.scrollTop = 0;
+    viewport.scrollLeft = 0;
+  }
+}
+
+function openViLightbox(src) {
+  document.getElementById('viLightboxImg').src = src;
+  document.getElementById('viLightboxOverlay').classList.add('open');
+}
+function closeViLightbox(e) {
+  if (e && e.target.id !== 'viLightboxOverlay' && e.target.tagName !== 'BUTTON') return;
+  document.getElementById('viLightboxOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') {
+    const ov = document.getElementById('viLightboxOverlay');
+    if (ov) ov.classList.remove('open');
+  }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderSidebar();
+  renderDetail(currentId);
+});
+
+</script>
+<div class="vi-lightbox-overlay" id="viLightboxOverlay" onclick="closeViLightbox(event)">
+  <button class="vi-lightbox-close" onclick="closeViLightbox(event)">&#10005;</button>
+  <img id="viLightboxImg" src="" alt="Reference circuit, enlarged">
+</div>
+</body>
+</html>
