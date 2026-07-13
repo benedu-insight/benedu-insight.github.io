@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V/I Sensor Phasor Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --amber:      #C8860D;
+  --amber-lt:   #FFF3E0;
+  --red:        #C0392B;
+  --red-lt:     #FDF0EE;
+  --blue:       #378ADD;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.logo-img { height: 36px; display: block; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+.lang-toggle {
+  display: flex; align-items: center;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.main { max-width: 900px; margin: 28px auto 56px; padding: 0 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-lt); color: var(--purple);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge.green { background: var(--green-lt); color: var(--green); }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); animation: pulse 2s infinite; }
+.badge.green .badge-dot { background: var(--green); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 130px; }
+.slider-track { flex: 1; min-width: 160px; }
+
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; cursor: pointer;
+}
+
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.freq-unit { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); min-width: 26px; }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.canvas-wrap { padding: 0 24px; }
+canvas.sim-canvas {
+  width: 100%; height: 280px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC; margin-top: 16px;
+}
+.canvas-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 24px 22px; }
+.stats.four { grid-template-columns: repeat(4, 1fr); }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+.stat-value.warn { color: #C0392B; }
+.stat-value.ok { color: var(--green); }
+
+.formula-panel {
+  border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt);
+  display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: center;
+}
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: var(--green-dk); }
+
+.info-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--purple-lt);
+  border: 1px solid #E2D3EF;
+  border-radius: 10px;
+  position: relative;
+}
+.info-note::before {
+  content: '💡';
+  position: absolute; left: 15px; top: 15px;
+  font-size: 14px; line-height: 1;
+}
+.info-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--purple);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.info-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+.check-note {
+  margin: 0 24px 22px;
+  padding: 12px 16px;
+  background: var(--green-lt); border: 1px solid #CFE9D9; border-radius: 8px;
+  font-size: 12px; color: var(--green-dk); text-align: center;
+}
+
+@media (max-width: 640px) {
+  .stats, .stats.four { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+  .controls, .canvas-wrap, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .info-note { margin: 18px 12px 18px; padding: 14px 16px 14px 40px; }
+  .check-note { margin: 0 12px 18px; }
+  .freq-label { min-width: 100px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback" style="display:none; align-items:center; gap:8px;">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+      <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="headerTitle">V/I Sensor Phasor Simulator — Module 07</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- CARD 1: LOAD -> V,I PHASORS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">Load → V, I Phasors</h2>
+        <p id="card1Sub">What a coherent V/I sensor actually sees for a given load</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelR">Load R</span>
+        <div class="slider-track"><input type="range" id="rSlider" min="5" max="150" step="1" value="80"></div>
+        <div class="freq-inputs">
+          <input type="text" id="rInput" class="freq-num" value="80" readonly>
+          <span class="freq-unit">Ω</span>
+        </div>
+      </div>
+      <div class="freq-row" style="margin-top:6px">
+        <span class="freq-label" id="labelX">Load X</span>
+        <div class="slider-track"><input type="range" id="xSlider" min="-100" max="100" step="1" value="40"></div>
+        <div class="freq-inputs">
+          <input type="text" id="xInput" class="freq-num" value="40" readonly>
+          <span class="freq-unit">Ω</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick1">Quick select:</span>
+        <button class="qbtn" data-r="50" data-x="0">Matched (50+j0)</button>
+        <button class="qbtn active" data-r="80" data-x="40">Inductive (80+j40)</button>
+        <button class="qbtn" data-r="30" data-x="-20">Capacitive (30-j20)</button>
+        <button class="qbtn" data-r="25" data-x="0">Resistive mismatch (25+j0)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="phasorCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note1">Gray dashed = forward voltage (reference, phase 0). Amber = reflected voltage. Purple (thick) = total V the sensor measures. Blue (thick) = I x Z0, scaled so it's directly comparable to V -- the angle between purple and blue *is* the load's impedance phase.</p>
+
+    <div class="stats four">
+      <div class="stat">
+        <div class="stat-name" id="statNameGammaMag">|GAMMA|</div>
+        <div><span class="stat-value" id="dispGammaMag">0.368</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameGammaPh">GAMMA PHASE</div>
+        <div><span class="stat-value" id="dispGammaPh">36.0</span><span class="stat-unit">deg</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameVswr">VSWR</div>
+        <div><span class="stat-value" id="dispVswr">2.16</span><span class="stat-unit">:1</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameVIPhase">V-I PHASE ANGLE</div>
+        <div><span class="stat-value" id="dispVIPhase">26.6</span><span class="stat-unit">deg</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlGamma">REFLECTION COEFFICIENT</div>
+        <div class="formula-eq">Gamma = (Z - Z0) / (Z + Z0)</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlVI">V, I AT THE SENSOR</div>
+        <div class="formula-eq">V = Vfwd(1+Gamma) ; I = Vfwd(1-Gamma)/Z0</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight1">INSIGHT</span>
+      <p id="infoNote1">This is exactly why a coherent V/I sensor board mixes V and I with the same LO (split by a transformer to both channels): if the two channels didn't share a local oscillator, the relative phase between V and I would be scrambled by the downconversion itself, and this whole angle -- the only place the load's reactance shows up -- would be lost.</p>
+    </div>
+  </div>
+
+  <!-- CARD 2: SENSOR MATH -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge green"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card2Title">Sensor Math — two ways to read the same V, I</h2>
+        <p id="card2Sub">Uses the same V, I from Card 1 above</p>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" style="padding-top:16px">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div style="border:1px solid var(--border); border-radius:8px; padding:14px; background:#FAFBFC;">
+          <div style="font-size:12px; font-weight:600; color:var(--amber); margin-bottom:10px;" id="pathALabel">PATH A -- Coupler-style (Generator)</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:12px; line-height:2;">
+            <div id="pathAFwd">Fwd Power: 200.0</div>
+            <div id="pathARefl">Refl Power: 27.0</div>
+            <div id="pathAVswr">VSWR: 2.16</div>
+          </div>
+        </div>
+        <div style="border:1px solid var(--border); border-radius:8px; padding:14px; background:#FAFBFC;">
+          <div style="font-size:12px; font-weight:600; color:var(--blue); margin-bottom:10px;" id="pathBLabel">PATH B -- Direct division (Matcher)</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:12px; line-height:2;">
+            <div id="pathBZ">Z = 80.0 + j40.0</div>
+            <div id="pathBMag">|Z| = 89.4</div>
+            <div id="pathBPhase">angle(Z) = 26.6 deg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-note" id="checkNote">✓ Path B recovers R=80.0Ω, X=40.0Ω -- exactly the load from Card 1. Same V, I; two different questions answered.</div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlPathA">PATH A</div>
+        <div class="formula-eq">Vfwd=(V+I*Z0)/2 ; Vrefl=(V-I*Z0)/2 ; P=|V|^2/Z0</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlPathB">PATH B</div>
+        <div class="formula-eq">Z = V / I</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight2">INSIGHT</span>
+      <p id="infoNote2">Same two numbers, V and I, feed both paths. The RF Generator's directional coupler is really just Path A hard-wired in analog form (the coupler's physical geometry does the add/subtract). The Matcher's V/I sensor keeps V and I separate all the way to the FPGA and lets digital math pick whichever path -- or both -- it needs. Neither sensor is "better" -- they're built for different questions: how much power is flowing (Generator) vs. what does the load look like (Matcher).</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let lang = 'en';
+const Z0 = 50.0;
+const VFWD = 100.0;
+
+let loadR = 80, loadX = 40;
+
+function computePhasors() {
+  const R = loadR, X = loadX;
+  function cAdd(a,b){ return [a[0]+b[0], a[1]+b[1]]; }
+  function cSub(a,b){ return [a[0]-b[0], a[1]-b[1]]; }
+  function cMul(a,b){ return [a[0]*b[0]-a[1]*b[1], a[0]*b[1]+a[1]*b[0]]; }
+  function cDiv(a,b){ const d=b[0]*b[0]+b[1]*b[1]; return [(a[0]*b[0]+a[1]*b[1])/d, (a[1]*b[0]-a[0]*b[1])/d]; }
+  function cAbs(a){ return Math.hypot(a[0],a[1]); }
+  function cArgDeg(a){ return Math.atan2(a[1],a[0])*180/Math.PI; }
+  function cScale(a,s){ return [a[0]*s, a[1]*s]; }
+
+  const Z = [R, X];
+  const Z0c = [Z0, 0];
+  const Gamma = cDiv(cSub(Z,Z0c), cAdd(Z,Z0c));
+  const Vfwd = [VFWD, 0];
+  const Vrefl = cMul(Gamma, Vfwd);
+  const V = cAdd(Vfwd, Vrefl);
+  const I = cScale(cSub(Vfwd, Vrefl), 1/Z0);
+
+  const IZ0 = cScale(I, Z0);
+  const VfwdRec = cScale(cAdd(V, IZ0), 0.5);
+  const VreflRec = cScale(cSub(V, IZ0), 0.5);
+  const Pfwd = (VfwdRec[0]*VfwdRec[0]+VfwdRec[1]*VfwdRec[1]) / Z0;
+  const Prefl = (VreflRec[0]*VreflRec[0]+VreflRec[1]*VreflRec[1]) / Z0;
+  const GammaRec = cDiv(VreflRec, VfwdRec);
+  const VSWR = (1+cAbs(GammaRec))/(1-cAbs(GammaRec));
+
+  const Zmeas = cDiv(V, I);
+
+  return { Gamma, Vfwd, Vrefl, V, I, IZ0, Pfwd, Prefl, VSWR, Zmeas, cAbs, cArgDeg };
+}
+
+const I18N = {
+  en: {
+    headerTitle: "V/I Sensor Phasor Simulator — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "Load \u2192 V, I Phasors",
+    card1Sub: "What a coherent V/I sensor actually sees for a given load",
+    labelR: "Load R", labelX: "Load X", labelQuick1: "Quick select:",
+    note1: "Gray dashed = forward voltage (reference, phase 0). Amber = reflected voltage. Purple (thick) = total V the sensor measures. Blue (thick) = I x Z0, scaled so it's directly comparable to V -- the angle between purple and blue *is* the load's impedance phase.",
+    statNameGammaMag: "|GAMMA|", statNameGammaPh: "GAMMA PHASE", statNameVswr: "VSWR", statNameVIPhase: "V-I PHASE ANGLE",
+    fmlGamma: "REFLECTION COEFFICIENT", fmlVI: "V, I AT THE SENSOR",
+    infoNote1: "This is exactly why a coherent V/I sensor board mixes V and I with the same LO (split by a transformer to both channels): if the two channels didn't share a local oscillator, the relative phase between V and I would be scrambled by the downconversion itself, and this whole angle -- the only place the load's reactance shows up -- would be lost.",
+    card2Title: "Sensor Math \u2014 two ways to read the same V, I",
+    card2Sub: "Uses the same V, I from Card 1 above",
+    pathALabel: "PATH A -- Coupler-style (Generator)", pathBLabel: "PATH B -- Direct division (Matcher)",
+    fmlPathA: "PATH A", fmlPathB: "PATH B",
+    infoNote2: "Same two numbers, V and I, feed both paths. The RF Generator's directional coupler is really just Path A hard-wired in analog form (the coupler's physical geometry does the add/subtract). The Matcher's V/I sensor keeps V and I separate all the way to the FPGA and lets digital math pick whichever path -- or both -- it needs. Neither sensor is \"better\" -- they're built for different questions: how much power is flowing (Generator) vs. what does the load look like (Matcher).",
+    fwdLabel: "Fwd Power", reflLabel: "Refl Power", vswrLabel: "VSWR",
+    checkPrefix: "\u2713 Path B recovers R=", checkMid: "\u03A9, X=", checkSuffix: "\u03A9 -- exactly the load from Card 1. Same V, I; two different questions answered.",
+  },
+  ko: {
+    headerTitle: "V/I 센서 페이저 시뮬레이터 — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "부하 → V, I 페이저",
+    card1Sub: "주어진 부하에 대해 동기식 V/I 센서가 실제로 보는 것",
+    labelR: "부하 R", labelX: "부하 X", labelQuick1: "빠른 선택:",
+    note1: "회색 점선 = 진행전압(기준, 위상 0). 주황 = 반사전압. 보라(굵게) = 센서가 측정하는 총 V. 파랑(굵게) = I×Z0 — V와 직접 비교할 수 있도록 스케일한 것입니다. 보라와 파랑 사이의 각도가 바로 부하 임피던스의 위상각입니다.",
+    statNameGammaMag: "|Γ|", statNameGammaPh: "Γ 위상", statNameVswr: "VSWR", statNameVIPhase: "V-I 위상각",
+    fmlGamma: "반사계수", fmlVI: "센서에서의 V, I",
+    infoNote1: "이게 정확히 동기식 V/I 센서 보드가 V와 I를 같은 LO(공유 국부발진기, 트랜스포머로 두 채널에 분배)로 믹싱하는 이유입니다 — 두 채널이 LO를 공유하지 않으면, V와 I 사이의 상대 위상이 다운컨버전 과정 자체에서 흐트러져 버립니다. 그런데 부하의 리액턴스가 드러나는 곳은 바로 이 각도 하나뿐입니다.",
+    card2Title: "센서 수학 — 같은 V, I를 읽는 두 가지 방법",
+    card2Sub: "위 Card 1의 같은 V, I를 그대로 사용합니다",
+    pathALabel: "경로 A — 커플러 방식 (Generator)", pathBLabel: "경로 B — 직접 나눗셈 (Matcher)",
+    fmlPathA: "경로 A", fmlPathB: "경로 B",
+    infoNote2: "V와 I라는 같은 두 숫자가 두 경로 모두에 들어갑니다. RF Generator의 방향성 커플러는 사실 경로 A를 아날로그 회로(커플러의 물리적 형상이 덧셈/뺄셈을 대신 함)로 하드와이어링한 것뿐입니다. Matcher의 V/I 센서는 V와 I를 FPGA까지 분리된 채로 유지하면서, 디지털 연산으로 필요한 경로(혹은 둘 다)를 골라 씁니다. 어느 센서가 더 나은 게 아니라 — 서로 다른 질문에 답하도록 만들어진 겁니다: 파워가 얼마나 흐르는가(Generator) vs 부하가 어떤 임피던스인가(Matcher).",
+    fwdLabel: "진행파워", reflLabel: "반사파워", vswrLabel: "VSWR",
+    checkPrefix: "✓ 경로 B가 R=", checkMid: "Ω, X=", checkSuffix: "Ω을 복원했습니다 — Card 1의 부하와 정확히 일치합니다. 같은 V, I인데 서로 다른 질문에 답한 것입니다.",
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('headerTitle', T.headerTitle);
+  set('badge1', T.badge1); set('badge2', T.badge2);
+  set('card1Title', T.card1Title); set('card1Sub', T.card1Sub);
+  set('labelR', T.labelR); set('labelX', T.labelX); set('labelQuick1', T.labelQuick1);
+  set('note1', T.note1);
+  set('statNameGammaMag', T.statNameGammaMag); set('statNameGammaPh', T.statNameGammaPh);
+  set('statNameVswr', T.statNameVswr); set('statNameVIPhase', T.statNameVIPhase);
+  set('fmlGamma', T.fmlGamma); set('fmlVI', T.fmlVI);
+  set('infoNote1', T.infoNote1); set('labelInsight1', 'INSIGHT');
+  set('card2Title', T.card2Title); set('card2Sub', T.card2Sub);
+  set('pathALabel', T.pathALabel); set('pathBLabel', T.pathBLabel);
+  set('fmlPathA', T.fmlPathA); set('fmlPathB', T.fmlPathB);
+  set('infoNote2', T.infoNote2); set('labelInsight2', 'INSIGHT');
+  updateAll();
+}
+
+function drawPhasor(d) {
+  const canvas = document.getElementById('phasorCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 280;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+  const scale = Math.min(W,H)/2 / 160;
+
+  ctx.strokeStyle = '#E9EEF3'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+  ctx.strokeStyle = '#F0F2F5';
+  for (let r=50; r<=150; r+=50) {
+    ctx.beginPath(); ctx.arc(cx,cy,r*scale,0,2*Math.PI); ctx.stroke();
+  }
+
+  function toXY(v) { return [cx + v[0]*scale, cy - v[1]*scale]; }
+
+  function arrow(from, to, color, width, dashed) {
+    const p1 = toXY(from), p2 = toXY(to);
+    const x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1];
+    ctx.strokeStyle = color; ctx.lineWidth = width;
+    if (dashed) ctx.setLineDash([4,3]); else ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.setLineDash([]);
+    const ang = Math.atan2(y2-y1, x2-x1);
+    const ah = 8;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-ah*Math.cos(ang-0.4), y2-ah*Math.sin(ang-0.4));
+    ctx.lineTo(x2-ah*Math.cos(ang+0.4), y2-ah*Math.sin(ang+0.4));
+    ctx.closePath(); ctx.fill();
+  }
+
+  arrow([0,0], d.Vfwd, '#94A3B8', 1.6, true);
+  arrow(d.Vfwd, d.V, '#C8860D', 2, false);
+  arrow([0,0], d.V, '#7030A0', 2.6, false);
+  arrow([0,0], d.IZ0, '#378ADD', 2.6, false);
+
+  const vXY = toXY(d.V), izXY = toXY(d.IZ0), vfXY = toXY(d.Vfwd);
+  ctx.font = '10px "JetBrains Mono", monospace'; ctx.textAlign='left';
+  ctx.fillStyle = '#7030A0'; ctx.fillText('V', vXY[0]+8, vXY[1]);
+  ctx.fillStyle = '#378ADD'; ctx.fillText('I\u00D7Z0', izXY[0]+8, izXY[1]);
+  ctx.fillStyle = '#C8860D'; ctx.fillText('Vrefl', vXY[0]+8, vXY[1]+14);
+  ctx.fillStyle = '#94A3B8'; ctx.fillText('Vfwd', vfXY[0]+8, vfXY[1]-6);
+}
+
+function updateAll() {
+  const d = computePhasors();
+  const T = I18N[lang];
+  const cAbs = d.cAbs, cArgDeg = d.cArgDeg;
+
+  document.getElementById('dispGammaMag').textContent = cAbs(d.Gamma).toFixed(3);
+  document.getElementById('dispGammaPh').textContent = cArgDeg(d.Gamma).toFixed(1);
+  document.getElementById('dispVswr').textContent = d.VSWR.toFixed(2);
+  const viPhase = cArgDeg(d.V) - cArgDeg(d.I);
+  document.getElementById('dispVIPhase').textContent = viPhase.toFixed(1);
+
+  document.getElementById('pathAFwd').textContent = T.fwdLabel + ': ' + d.Pfwd.toFixed(1);
+  document.getElementById('pathARefl').textContent = T.reflLabel + ': ' + d.Prefl.toFixed(1);
+  document.getElementById('pathAVswr').textContent = T.vswrLabel + ': ' + d.VSWR.toFixed(2);
+
+  document.getElementById('pathBZ').textContent = 'Z = ' + d.Zmeas[0].toFixed(1) + ' + j' + d.Zmeas[1].toFixed(1);
+  document.getElementById('pathBMag').textContent = '|Z| = ' + cAbs(d.Zmeas).toFixed(1);
+  document.getElementById('pathBPhase').textContent = 'angle(Z) = ' + cArgDeg(d.Zmeas).toFixed(1) + ' deg';
+
+  document.getElementById('checkNote').textContent = T.checkPrefix + d.Zmeas[0].toFixed(1) + T.checkMid + d.Zmeas[1].toFixed(1) + T.checkSuffix;
+
+  drawPhasor(d);
+}
+
+/* EVENTS */
+document.getElementById('rSlider').addEventListener('input', function(e){
+  loadR = +e.target.value;
+  document.getElementById('rInput').value = loadR;
+  document.querySelectorAll('[data-r]').forEach(function(b){b.classList.remove('active');});
+  updateAll();
+});
+document.getElementById('xSlider').addEventListener('input', function(e){
+  loadX = +e.target.value;
+  document.getElementById('xInput').value = loadX;
+  document.querySelectorAll('[data-r]').forEach(function(b){b.classList.remove('active');});
+  updateAll();
+});
+document.querySelectorAll('[data-r]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    loadR = +btn.dataset.r; loadX = +btn.dataset.x;
+    document.getElementById('rSlider').value = loadR;
+    document.getElementById('xSlider').value = loadX;
+    document.getElementById('rInput').value = loadR;
+    document.getElementById('xInput').value = loadX;
+    document.querySelectorAll('[data-r]').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    updateAll();
+  });
+});
+
+window.addEventListener('resize', function(){ updateAll(); });
+window.addEventListener('load', function(){
+  setLang('en');
+});
+</script>
+</body>
+</html>

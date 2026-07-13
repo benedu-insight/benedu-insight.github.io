@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LPF Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --amber:      #C8860D;
+  --amber-lt:   #FFF3E0;
+  --red:        #C0392B;
+  --red-lt:     #FDF0EE;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.logo-img { height: 36px; display: block; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+.lang-toggle {
+  display: flex; align-items: center;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.main { max-width: 900px; margin: 28px auto 56px; padding: 0 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-lt); color: var(--purple);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge.green { background: var(--green-lt); color: var(--green); }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); animation: pulse 2s infinite; }
+.badge.green .badge-dot { background: var(--green); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 130px; }
+.slider-track { flex: 1; min-width: 160px; }
+
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; cursor: pointer;
+}
+
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.freq-unit { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); min-width: 26px; }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.canvas-wrap { padding: 0 24px; }
+canvas.sim-canvas {
+  width: 100%; height: 230px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC; margin-top: 16px;
+}
+.schematic-wrap {
+  padding: 16px 24px 0; background: #FAFBFC;
+}
+svg.schematic {
+  width: 100%; height: auto; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC; margin-top: 0;
+}
+.canvas-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+.stat-value.warn { color: #C0392B; }
+.stat-value.ok { color: var(--green); }
+
+.formula-panel {
+  border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt);
+  display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: center;
+}
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: var(--green-dk); }
+
+.info-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--purple-lt);
+  border: 1px solid #E2D3EF;
+  border-radius: 10px;
+  position: relative;
+}
+.info-note::before {
+  content: '💡';
+  position: absolute; left: 15px; top: 15px;
+  font-size: 14px; line-height: 1;
+}
+.info-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--purple);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.info-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+  .controls, .canvas-wrap, .stats, .schematic-wrap { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .info-note { margin: 18px 12px 18px; padding: 14px 16px 14px 40px; }
+  .freq-label { min-width: 100px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback" style="display:none; align-items:center; gap:8px;">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+      <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="headerTitle">LPF Simulator — Module 07</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- CARD 1: CIRCUIT -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">LPF Circuit — Pi-type Butterworth LC ladder</h2>
+        <p id="card1Sub">The standard, general-purpose low-pass topology (50Ω to 50Ω)</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelCutoff">Cutoff (fc / f0)</span>
+        <div class="slider-track"><input type="range" id="cutoffSlider" min="11" max="25" step="1" value="12"></div>
+        <div class="freq-inputs">
+          <input type="text" id="cutoffInput" class="freq-num" value="1.2" readonly>
+          <span class="freq-unit">x f0</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuickCutoff">Quick select:</span>
+        <button class="qbtn active" data-cutoff="12">1.2x f0</button>
+        <button class="qbtn" data-cutoff="15">1.5x f0</button>
+        <button class="qbtn" data-cutoff="20">2x f0</button>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick1">Filter order:</span>
+        <button class="qbtn" data-order="3" id="btnOrder3">3-pole</button>
+        <button class="qbtn active" data-order="5" id="btnOrder5">5-pole</button>
+      </div>
+    </div>
+
+    <div class="schematic-wrap">
+      <svg class="schematic" id="schematicSvg" viewBox="0 0 600 150"></svg>
+    </div>
+    <p class="canvas-note" id="note1">3-way combiner on the left feeds the Pi-ladder LPF. Each shunt node is drawn as 3 parallel caps -- power handling, not extra filter order (they still sum to one C value in the math).</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameFc">CUTOFF FREQUENCY</div>
+        <div><span class="stat-value" id="dispFc">16.3</span><span class="stat-unit">MHz</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameC1">C1, C3 (shunt)</div>
+        <div><span class="stat-value" id="dispC1">121</span><span class="stat-unit">pF</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameL2">L2 (series)</div>
+        <div><span class="stat-value" id="dispL2">791</span><span class="stat-unit">nH</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlC">SHUNT CAPACITOR</div>
+        <div class="formula-eq">C_k = g_k / (omega_c x R0)</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlL">SERIES INDUCTOR</div>
+        <div class="formula-eq">L_k = g_k x R0 / omega_c</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight1">INSIGHT</span>
+      <p id="infoNote1">The schematic now mirrors a real board: a 3-way input combiner (isolation resistors on each leg, same idea as the Splitter/Combiner discussed earlier) feeding the LPF, and each shunt node split into 3 parallel physical capacitors rather than one -- real designs do this purely for current handling at high power, not to add filter order. A real reference unit uses 220/68/47pF at the input node and 180/68/56pF at the output node (asymmetric, not equal like the textbook g-values) -- that asymmetry almost certainly comes from tuning against real parasitics, which this calculator's ideal formulas can't reproduce.</p>
+    </div>
+  </div>
+
+  <!-- CARD 2: FREQUENCY RESPONSE -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge green"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card2Title">Frequency Response — where the harmonics land</h2>
+        <p id="card2Sub">Uses the cutoff and order chosen in Card 1 above</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="quick-row">
+        <span class="quick-label" id="labelNotchToggle">2nd-harmonic notch trap:</span>
+        <button class="qbtn" id="btnNotchOff">Off</button>
+        <button class="qbtn active" id="btnNotchOn">On</button>
+      </div>
+      <div class="freq-row" style="margin-top:10px">
+        <span class="freq-label" id="labelNotchDepth">Trap Q</span>
+        <div class="slider-track"><input type="range" id="notchDepthSlider" min="15" max="100" step="1" value="33"></div>
+        <div class="freq-inputs">
+          <input type="text" id="notchDepthInput" class="freq-num" value="33" readonly>
+          <span class="freq-unit"></span>
+        </div>
+      </div>
+      <p class="canvas-note" style="margin:6px 0 0; padding:0" id="trapDepthReadout">Depth at 2f0: 28.0 dB (assumes a 200nH trap inductor)</p>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="respCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note2">Dashed line = -50dBc spec limit. Each dot is a harmonic's true dBc (source content + filter rejection combined) -- green clears the spec, red doesn't. The light gray curve behind them is the filter's own rolloff alone, for reference.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameDbc2f0">dBc AT 2f0</div>
+        <div><span class="stat-value ok" id="dispDbc2f0">-55.3</span><span class="stat-unit">dBc</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameWorst">WORST HARMONIC</div>
+        <div><span class="stat-value ok" id="dispWorst">-55.3 (2f0)</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameSpec">-50dBc SPEC</div>
+        <div><span class="stat-value ok" style="font-size:14px" id="dispSpec">Pass</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlIL">FILTER INSERTION LOSS</div>
+        <div class="formula-eq">IL(f) = 10 x log10(1 + (f/fc)^(2n))</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlNotch">NOTCH TRAP (shunt, at 2f0)</div>
+        <div class="formula-eq">depth = 20log10(1+R0Q/2omegaL) ; extra(f) = depth/(1+Q^2(f/fn-fn/f)^2)</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlDbc">TRUE dBc</div>
+        <div class="formula-eq">dBc(h) = source_dBc(h) - [IL(hf0) - IL(f0)]</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight2">INSIGHT</span>
+      <p id="infoNote2">This design point (5-pole, 1.2x f0 cutoff, 28dB notch at 2f0) clears -50dBc on every harmonic 2f0-5f0, with margin -- the tighter cutoff and higher order do the broadband work at 3f0/4f0/5f0, and the notch handles 2f0, which stays the hardest one since the source itself is weakest there (-5.7dBc). Loosen the cutoff back toward 2x f0 or drop to 3-pole and watch 3f0 fail again -- that's the same tradeoff as before, just moved to a point that actually meets spec.</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let lang = 'en';
+const F0 = 13.56;
+const R0 = 50.0;
+
+let cutoffRatio = 1.2, order = 5;
+let notchOn = true, trapQ = 33;
+const L_TRAP_NH = 200;  // assumed real trap inductor value at 2f0, for the Q-to-depth physics
+
+function gValues(n) {
+  const g = [];
+  for (let k=1; k<=n; k++) g.push(2*Math.sin((2*k-1)*Math.PI/(2*n)));
+  return g;
+}
+
+function computeDesign() {
+  const fc = F0*cutoffRatio;
+  const omegaC = 2*Math.PI*fc*1e6;
+  const g = gValues(order);
+  const comps = [];
+  for (let i=0;i<g.length;i++){
+    const k = i+1;
+    if (k % 2 === 1) comps.push({type:'C', k, val: g[i]/(omegaC*R0)*1e12});
+    else comps.push({type:'L', k, val: g[i]*R0/omegaC*1e9});
+  }
+  return { fc, comps };
+}
+
+function ILdB(f, fc, n) {
+  const Omega = f/fc;
+  return 10*Math.log10(1+Math.pow(Omega, 2*n));
+}
+
+function trapDepthDB(Q) {
+  const fn = 2*F0*1e6;
+  const omegaN = 2*Math.PI*fn;
+  const Resr = omegaN*(L_TRAP_NH*1e-9)/Q;
+  return 20*Math.log10(1 + R0/(2*Resr));
+}
+
+function notchExtraDB(f) {
+  if (!notchOn) return 0;
+  const fn = 2*F0;
+  const depth = trapDepthDB(trapQ);
+  const x = trapQ*(f/fn - fn/f);
+  return depth/(1+x*x);
+}
+
+function combinedILdB(f, fc, n) {
+  return ILdB(f, fc, n) + notchExtraDB(f);
+}
+
+// Source harmonic content of the switch-node voltage waveform, relative to
+// the fundamental, BEFORE any filtering -- from a Fourier decomposition of
+// the same v(theta) derived for the ZVS simulator (K_OPT, PHI_OPT).
+// These numbers don't depend on the LPF design -- they're a property of the
+// switch waveform itself, so they're fixed constants here.
+const SOURCE_DBC = {1: 0, 2: -5.7, 3: -17.4, 4: -21.2, 5: -26.2};
+const SPEC_DBC = -50;
+
+function trueDBc(h, fc, n) {
+  const diff = combinedILdB(h*F0, fc, n) - combinedILdB(F0, fc, n);
+  return SOURCE_DBC[h] - diff;
+}
+
+const I18N = {
+  en: {
+    headerTitle: "LPF Simulator — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "LPF Circuit — Pi-type Butterworth LC ladder",
+    card1Sub: "The standard, general-purpose low-pass topology (50\u03A9 to 50\u03A9)",
+    labelCutoff: "Cutoff (fc / f0)", labelQuick1: "Filter order:", labelQuickCutoff: "Quick select:",
+    note1: "3-way combiner on the left feeds the Pi-ladder LPF. Each shunt node is drawn as 3 parallel caps -- power handling, not extra filter order (they still sum to one C value in the math).",
+    statNameFc: "CUTOFF FREQUENCY", statNameC1: "C1, C3 (shunt)", statNameL2: "L2 (series)",
+    fmlC: "SHUNT CAPACITOR", fmlL: "SERIES INDUCTOR",
+    infoNote1: "The schematic now mirrors a real board: a 3-way input combiner (isolation resistors on each leg, same idea as the Splitter/Combiner discussed earlier) feeding the LPF, and each shunt node split into 3 parallel physical capacitors rather than one -- real designs do this purely for current handling at high power, not to add filter order. A real reference unit uses 220/68/47pF at the input node and 180/68/56pF at the output node (asymmetric, not equal like the textbook g-values) -- that asymmetry almost certainly comes from tuning against real parasitics, which this calculator's ideal formulas can't reproduce.",
+    card2Title: "Frequency Response — where the harmonics land",
+    card2Sub: "Uses the cutoff and order chosen in Card 1 above",
+    labelNotchToggle: "2nd-harmonic notch trap:", labelNotchDepth: "Trap Q",
+    trapDepthReadout: function(depth) { return "Depth at 2f0: " + depth + " dB (assumes a " + L_TRAP_NH + "nH trap inductor)"; },
+    note2: "Dashed line = -50dBc spec limit. Each dot is a harmonic's true dBc (source content + filter rejection combined) -- green clears the spec, red doesn't. The light gray curve behind them is the filter's own rolloff alone, for reference.",
+    statNameDbc2f0: "dBc AT 2f0", statNameWorst: "WORST HARMONIC", statNameSpec: "-50dBc SPEC",
+    specPass: "Pass", specFail: "Fail",
+    fmlIL: "FILTER INSERTION LOSS", fmlNotch: "NOTCH TRAP (shunt, at 2f0, Q-derived)", fmlDbc: "TRUE dBc",
+    infoNote2: "This design point (5-pole, 1.2x f0 cutoff, 28dB notch at 2f0) clears -50dBc on every harmonic 2f0-5f0, with margin -- the tighter cutoff and higher order do the broadband work at 3f0/4f0/5f0, and the notch handles 2f0, which stays the hardest one since the source itself is weakest there (-5.7dBc). Loosen the cutoff back toward 2x f0 or drop to 3-pole and watch 3f0 fail again -- that's the same tradeoff as before, just moved to a point that actually meets spec.",
+    sourceLabel: "Source 50\u03A9", loadLabel: "Load 50\u03A9", combinedLabel: "combined 50\u03A9",
+  },
+  ko: {
+    headerTitle: "LPF 시뮬레이터 — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "LPF 회로 — Pi형 버터워스 LC 래더",
+    card1Sub: "가장 표준적인 범용 저역통과 토폴로지 (50Ω → 50Ω)",
+    labelCutoff: "차단주파수 (fc / f0)", labelQuick1: "필터 차수:", labelQuickCutoff: "빠른 선택:",
+    note1: "왼쪽 3-way 컴바이너가 Pi-래더 LPF로 이어집니다. 각 션트 노드는 캐패시터 3개 병렬로 그려져 있는데, 필터 차수를 늘리는 게 아니라 전류 분산용입니다(계산상으로는 여전히 하나의 C 값으로 합산됩니다).",
+    statNameFc: "차단주파수", statNameC1: "C1, C3 (션트)", statNameL2: "L2 (직렬)",
+    fmlC: "션트 커패시터", fmlL: "직렬 인덕터",
+    infoNote1: "이제 회로도가 실제 보드를 반영합니다 — 3-way 입력 컴바이너(각 경로마다 격리저항, 앞서 얘기한 Splitter/Combiner와 같은 원리)가 LPF 앞단에 붙고, 각 션트 노드는 캐패시터 1개가 아니라 3개 병렬로 나뉘어 있습니다 — 실제 설계에서는 필터 차수를 늘리려는 게 아니라 순전히 고출력에서의 전류 분산 때문입니다. 실제 레퍼런스 제품은 입력 노드에 220/68/47pF, 출력 노드에 180/68/56pF를 씁니다(교과서 g값처럼 대칭이 아닙니다) — 이 비대칭은 실제 기생성분에 맞춰 튜닝한 결과일 가능성이 높고, 이 계산기의 이상적 공식으로는 재현할 수 없는 부분입니다.",
+    card2Title: "주파수 응답 — 고조파가 어디에 걸리는가",
+    card2Sub: "위 Card 1에서 선택한 차단주파수·차수를 그대로 사용합니다",
+    labelNotchToggle: "2차 고조파 노치 트랩:", labelNotchDepth: "트랩 Q",
+    trapDepthReadout: function(depth) { return "2f0에서의 깊이: " + depth + " dB (트랩 인덕터 " + L_TRAP_NH + "nH 가정)"; },
+    note2: "점선 = -50dBc 스펙 기준선입니다. 점 하나하나가 각 고조파의 진짜 dBc(소스 함량 + 필터 감쇠를 합친 값)이며, 초록은 스펙 통과, 빨강은 미달입니다. 뒤에 옅게 깔린 곡선은 필터 자체의 롤오프만 보여주는 참고선입니다.",
+    statNameDbc2f0: "2f0의 dBc", statNameWorst: "최악 고조파", statNameSpec: "-50dBc 스펙",
+    specPass: "통과", specFail: "미달",
+    fmlIL: "필터 삽입손실", fmlNotch: "노치 트랩 (션트, 2f0, Q에서 유도)", fmlDbc: "진짜 dBc",
+    infoNote2: "이 설계점(5-pole, 차단주파수 1.2×f0, 2f0 노치 28dB)은 2f0~5f0 전 구간에서 -50dBc를 여유 있게 통과합니다 — 차단주파수를 타이트하게 당기고 차수를 올린 게 3f0/4f0/5f0의 광대역 감쇠를 맡고, 노치는 소스 자체가 가장 강한(-5.7dBc) 2f0 하나를 담당합니다. 차단주파수를 2×f0 쪽으로 다시 풀거나 3-pole로 내려보면 3f0가 다시 미달되는 걸 확인하실 수 있습니다 — 트레이드오프 자체는 그대로고, 스펙을 만족하는 지점으로 옮겨온 것뿐입니다.",
+    sourceLabel: "소스 50Ω", loadLabel: "부하 50Ω", combinedLabel: "합성 50Ω",
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('headerTitle', T.headerTitle);
+  set('badge1', T.badge1); set('badge2', T.badge2);
+  set('card1Title', T.card1Title); set('card1Sub', T.card1Sub);
+  set('labelCutoff', T.labelCutoff); set('labelQuick1', T.labelQuick1); set('labelQuickCutoff', T.labelQuickCutoff);
+  set('note1', T.note1);
+  set('statNameFc', T.statNameFc); set('statNameC1', T.statNameC1); set('statNameL2', T.statNameL2);
+  set('fmlC', T.fmlC); set('fmlL', T.fmlL);
+  set('infoNote1', T.infoNote1); set('labelInsight1', 'INSIGHT');
+  set('card2Title', T.card2Title); set('card2Sub', T.card2Sub);
+  set('labelNotchToggle', T.labelNotchToggle); set('labelNotchDepth', T.labelNotchDepth);
+  set('note2', T.note2);
+  set('statNameDbc2f0', T.statNameDbc2f0); set('statNameWorst', T.statNameWorst); set('statNameSpec', T.statNameSpec);
+  set('fmlIL', T.fmlIL); set('fmlNotch', T.fmlNotch); set('fmlDbc', T.fmlDbc);
+  set('infoNote2', T.infoNote2); set('labelInsight2', 'INSIGHT');
+  updateAll();
+}
+
+function updateAll() {
+  const d = computeDesign();
+  const T = I18N[lang];
+  const readoutEl = document.getElementById('trapDepthReadout');
+  if (readoutEl) readoutEl.textContent = T.trapDepthReadout(trapDepthDB(trapQ).toFixed(1));
+  document.getElementById('dispFc').textContent = d.fc.toFixed(1);
+  const c1 = d.comps.find(c=>c.k===1);
+  const l2 = d.comps.find(c=>c.k===2);
+  document.getElementById('dispC1').textContent = c1.val.toFixed(0);
+  document.getElementById('dispL2').textContent = l2.val.toFixed(0);
+
+  const dbc2f0 = trueDBc(2, d.fc, order);
+  document.getElementById('dispDbc2f0').textContent = dbc2f0.toFixed(1);
+  const dbc2f0El = document.getElementById('dispDbc2f0');
+  dbc2f0El.classList.toggle('ok', dbc2f0 <= SPEC_DBC);
+  dbc2f0El.classList.toggle('warn', dbc2f0 > SPEC_DBC);
+
+  let worstH = 2, worstVal = trueDBc(2, d.fc, order);
+  for (let h=3; h<=5; h++){
+    const v = trueDBc(h, d.fc, order);
+    if (v > worstVal) { worstVal = v; worstH = h; }
+  }
+  document.getElementById('dispWorst').textContent = worstVal.toFixed(1) + ' (' + worstH + 'f0)';
+  const worstEl = document.getElementById('dispWorst');
+  worstEl.classList.toggle('ok', worstVal <= SPEC_DBC);
+  worstEl.classList.toggle('warn', worstVal > SPEC_DBC);
+
+  const passAll = worstVal <= SPEC_DBC;
+  const specEl = document.getElementById('dispSpec');
+  specEl.textContent = passAll ? T.specPass : T.specFail;
+  specEl.classList.toggle('ok', passAll);
+  specEl.classList.toggle('warn', !passAll);
+
+  drawSchematic(d);
+  drawResponse(d);
+}
+
+function resistorZig(x1, x2, y) {
+  const seg = (x2-x1)/6;
+  return `M${x1},${y} L${x1+seg},${y-4} L${x1+2*seg},${y+4} L${x1+3*seg},${y-4} L${x1+4*seg},${y+4} L${x1+5*seg},${y-4} L${x2},${y}`;
+}
+
+function drawSchematic(d) {
+  const svg = document.getElementById('schematicSvg');
+  const T = I18N[lang];
+  const comps = d.comps;
+  const n = order;
+  const midY = 55;
+  let parts = [];
+
+  // Realistic 3-way input combiner (like the reference PCB: IN-1/2/3, isolation R, combined bus)
+  const rows = [25, 55, 85];
+  const inLabels = ['IN-1','IN-2','IN-3'];
+  const rLabels = ['R1','R2','R3'];
+  rows.forEach((ry, i) => {
+    parts.push(`<text x="8" y="${ry-4}" class="ts" font-size="8" fill="#5A5A7A">${inLabels[i]}</text>`);
+    parts.push(`<path d="${resistorZig(30,55,ry)}" fill="none" stroke="#2A2A3A" stroke-width="1.2"/>`);
+    parts.push(`<text x="42" y="${ry-9}" class="ts" font-size="6.5" text-anchor="middle" fill="#5A5A7A">${rLabels[i]}</text>`);
+    parts.push(`<line x1="55" y1="${ry}" x2="70" y2="${ry}" stroke="#2A2A3A" stroke-width="1.2"/>`);
+  });
+  parts.push(`<line x1="70" y1="25" x2="70" y2="85" stroke="#2A2A3A" stroke-width="1.2"/>`);
+  const startX = 175;
+  parts.push(`<line x1="70" y1="${midY}" x2="${startX}" y2="${midY}" stroke="#2A2A3A" stroke-width="1.4"/>`);
+  parts.push(`<text x="122" y="${midY-8}" class="ts" font-size="7.5" text-anchor="middle" fill="#5A5A7A">${T.combinedLabel}</text>`);
+
+  let x = startX;
+
+  function shuntBranch(bx, val) {
+    return [
+      `<line x1="${bx}" y1="${midY}" x2="${bx}" y2="${midY+10}" stroke="#2A2A3A" stroke-width="1.1"/>`,
+      `<line x1="${bx-5}" y1="${midY+10}" x2="${bx+5}" y2="${midY+10}" stroke="#7030A0" stroke-width="1.3"/>`,
+      `<line x1="${bx-5}" y1="${midY+13}" x2="${bx+5}" y2="${midY+13}" stroke="#7030A0" stroke-width="1.3"/>`,
+      `<line x1="${bx}" y1="${midY+13}" x2="${bx}" y2="${midY+22}" stroke="#2A2A3A" stroke-width="1.1"/>`,
+      `<line x1="${bx-6}" y1="${midY+22}" x2="${bx+6}" y2="${midY+22}" stroke="#2A2A3A" stroke-width="1.1"/>`,
+      `<line x1="${bx-3.5}" y1="${midY+26}" x2="${bx+3.5}" y2="${midY+26}" stroke="#2A2A3A" stroke-width="1.1"/>`,
+      `<line x1="${bx-1.5}" y1="${midY+30}" x2="${bx+1.5}" y2="${midY+30}" stroke="#2A2A3A" stroke-width="1.1"/>`,
+    ].join('');
+  }
+
+  comps.forEach((c, idx) => {
+    if (c.type === 'C') {
+      const ratios = [0.6, 0.25, 0.15];
+      const offsets = [-16, 0, 16];
+      offsets.forEach((off, j) => {
+        parts.push(shuntBranch(x+off, c.val*ratios[j]));
+      });
+      parts.push(`<text x="${x}" y="${midY+42}" class="t" font-size="9.5" text-anchor="middle" font-weight="700">C${c.k}</text>`);
+      parts.push(`<text x="${x}" y="${midY+53}" class="ts" font-size="8" text-anchor="middle" fill="#5A5A7A">${c.val.toFixed(0)}pF total (x3)</text>`);
+    } else {
+      const totalSpan = 78;
+      const coilWidth = 39;
+      const leadIn = (totalSpan - coilWidth)/2;
+      const bumps = 3;
+      const amp = 3;
+      const segW = coilWidth/bumps;
+      const coilStartX = x + leadIn;
+      let path = `M${x} ${midY} L${coilStartX} ${midY} `;
+      for (let b=0;b<bumps;b++){
+        const segMid = coilStartX + b*segW + segW/2;
+        const segEnd = coilStartX + (b+1)*segW;
+        path += `Q${segMid} ${midY-2*amp} ${segEnd} ${midY} `;
+      }
+      path += `L${x+totalSpan} ${midY}`;
+      parts.push(`<path d="${path}" fill="none" stroke="#C8860D" stroke-width="1.5"/>`);
+      parts.push(`<text x="${x+totalSpan/2}" y="${midY-2*amp-8}" class="t" font-size="9.5" text-anchor="middle" font-weight="700">L${c.k}</text>`);
+      parts.push(`<text x="${x+totalSpan/2}" y="${midY-2*amp-19}" class="ts" font-size="8" text-anchor="middle" fill="#5A5A7A">${c.val.toFixed(0)}nH</text>`);
+      x = x + totalSpan;
+    }
+  });
+
+  parts.push(`<line x1="${x}" y1="${midY}" x2="${x+35}" y2="${midY}" stroke="#2A2A3A" stroke-width="1.4"/>`);
+  parts.push(`<text x="${x+65}" y="${midY+5}" class="ts" font-size="9" text-anchor="middle" fill="#5A5A7A">${T.loadLabel}</text>`);
+
+  const totalW = x + 100;
+  svg.setAttribute('viewBox', `0 0 ${Math.max(totalW, 400)} 150`);
+  svg.innerHTML = parts.join('');
+}
+
+function drawResponse(d) {
+  const canvas = document.getElementById('respCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 230;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const padL=42, padR=16, padT=18, padB=26;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const baseY=padT+plotH, topY=padT;
+  const fMin=0, fMax=6*F0;
+  const yMin=-70;
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,topY); ctx.lineTo(padL,baseY); ctx.lineTo(padL+plotW,baseY); ctx.stroke();
+
+  ctx.fillStyle='#94A3B8'; ctx.font='9px "JetBrains Mono", monospace'; ctx.textAlign='right';
+  ctx.fillText('0', padL-6, topY+8);
+  ctx.fillText(yMin.toFixed(0), padL-6, baseY+3);
+  ctx.textAlign='center';
+  ctx.fillText('0', padL, baseY+15);
+  ctx.fillText(fMax.toFixed(0)+'MHz', padL+plotW, baseY+15);
+
+  const xAt = f => padL + (f/fMax)*plotW;
+  const yAt = dbc => topY + Math.min(Math.max(-dbc,0),-yMin)/(-yMin)*plotH;
+
+  const specY = yAt(SPEC_DBC);
+  ctx.strokeStyle='#C0392B'; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(padL,specY); ctx.lineTo(padL+plotW,specY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#C0392B'; ctx.font='8.5px "Google Sans", sans-serif'; ctx.textAlign='left';
+  ctx.fillText(SPEC_DBC+'dBc spec', padL+plotW-70, specY-4);
+
+  ctx.strokeStyle='#B8AC92'; ctx.lineWidth=1.3; ctx.setLineDash([3,3]);
+  ctx.beginPath();
+  const steps=200;
+  for (let i=0;i<=steps;i++){
+    const f = fMin + (fMax-fMin)*i/steps;
+    const ref = -(combinedILdB(f, d.fc, order) - combinedILdB(F0, d.fc, order));
+    const x = xAt(f), y = yAt(ref);
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  for (let h=1; h<=5; h++){
+    const f = h*F0;
+    if (f>fMax) continue;
+    const dbc = h===1 ? 0 : trueDBc(h, d.fc, order);
+    const x = xAt(f), y = yAt(dbc);
+    const pass = dbc <= SPEC_DBC || h===1;
+    ctx.fillStyle = pass ? '#0F8C50' : '#C0392B';
+    ctx.beginPath(); ctx.arc(x,y,4,0,2*Math.PI); ctx.fill();
+    ctx.font='8.5px "JetBrains Mono", monospace'; ctx.textAlign='center';
+    ctx.fillStyle='#5A5A7A';
+    ctx.fillText((h===1?'f0':h+'f0'), x, y-10);
+  }
+}
+
+/* EVENTS */
+document.getElementById('cutoffSlider').addEventListener('input', function(e){
+  cutoffRatio = (+e.target.value)/10;
+  document.getElementById('cutoffInput').value = cutoffRatio.toFixed(1);
+  document.querySelectorAll('[data-cutoff]').forEach(function(b){b.classList.remove('active');});
+  updateAll();
+});
+document.querySelectorAll('[data-cutoff]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    const v = +btn.dataset.cutoff;
+    cutoffRatio = v/10;
+    document.getElementById('cutoffSlider').value = v;
+    document.getElementById('cutoffInput').value = cutoffRatio.toFixed(1);
+    document.querySelectorAll('[data-cutoff]').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    updateAll();
+  });
+});
+
+document.getElementById('btnNotchOff').addEventListener('click', function(){
+  notchOn = false;
+  document.getElementById('btnNotchOff').classList.add('active');
+  document.getElementById('btnNotchOn').classList.remove('active');
+  updateAll();
+});
+document.getElementById('btnNotchOn').addEventListener('click', function(){
+  notchOn = true;
+  document.getElementById('btnNotchOn').classList.add('active');
+  document.getElementById('btnNotchOff').classList.remove('active');
+  updateAll();
+});
+document.getElementById('notchDepthSlider').addEventListener('input', function(e){
+  trapQ = +e.target.value;
+  document.getElementById('notchDepthInput').value = trapQ;
+  updateAll();
+});
+
+document.getElementById('btnOrder3').addEventListener('click', function(){
+  order = 3;
+  document.getElementById('btnOrder3').classList.add('active');
+  document.getElementById('btnOrder5').classList.remove('active');
+  updateAll();
+});
+document.getElementById('btnOrder5').addEventListener('click', function(){
+  order = 5;
+  document.getElementById('btnOrder5').classList.add('active');
+  document.getElementById('btnOrder3').classList.remove('active');
+  updateAll();
+});
+
+window.addEventListener('resize', function(){ updateAll(); });
+window.addEventListener('load', function(){
+  setLang('en');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Amp Bias Point Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --amber:      #C8860D;
+  --amber-lt:   #FFF3E0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+  --radius:     12px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Google Sans', 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.logo-img       { height: 36px; display: block; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title   { font-size: 14px; font-weight: 500; color: var(--muted); }
+#logo-fallback  { display: none; align-items: center; gap: 8px; }
+
+.lang-toggle {
+  display: flex; align-items: center; background: var(--bg);
+  border: 1.5px solid var(--border); border-radius: 20px; padding: 3px; gap: 2px;
+  margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', 'Noto Sans KR', sans-serif;
+  font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px;
+  border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+/* ── LAYOUT ── */
+.main { max-width: 980px; margin: 28px auto 56px; padding: 0 16px; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--green-lt); color: var(--green);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ── CARD HEAD ── */
+.card-head {
+  padding: 16px 24px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.card-head-text h2 { font-size: 16px; font-weight: 700; }
+.card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+/* ── CONTROLS ── */
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 130px; }
+.slider-track { flex: 1; min-width: 160px; }
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 80px; text-align: right; outline: none;
+  transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.unit-tag {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+  color: var(--muted); min-width: 20px;
+}
+
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, #C0392B 0%, var(--amber) 33%, var(--green) 66%, var(--purple-mid) 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--purple); border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgba(0,0,0,.3); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--purple); border: 3px solid #fff; cursor: pointer;
+}
+
+.btn-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+.class-btn {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+  padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.class-btn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.class-btn.active-a  { background: #FDEDEC; border-color: #C0392B; color: #C0392B; }
+.class-btn.active-ab { background: var(--amber-lt); border-color: var(--amber); color: var(--amber); }
+.class-btn.active-b  { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+.class-btn.active-c  { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+/* ── STATUS PANEL ── */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; padding: 20px 24px;
+}
+.stat {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 13px 14px; text-align: center;
+}
+.stat-name  { font-size: 10.5px; color: var(--label); font-weight: 600; letter-spacing: .05em; margin-bottom: 6px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600; color: var(--purple); line-height: 1.15; }
+.stat-unit  { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--muted); margin-left: 2px; }
+.class-pill {
+  display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+  padding: 2px 10px; border-radius: 12px; margin-top: 2px;
+}
+
+/* ── STAGE ── */
+.stage-wrap { padding: 20px 24px; border-top: 1px solid var(--border); }
+.stage-title { display: flex; align-items: center; gap: 9px; margin-bottom: 4px; }
+.stage-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--purple); color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+.stage-title h3 { font-size: 14.5px; font-weight: 700; }
+.stage-desc { font-size: 12px; color: var(--muted); margin: 3px 0 16px 31px; line-height: 1.55; }
+
+.fet-grid { display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: center; }
+@media (max-width: 640px) { .fet-grid { grid-template-columns: 1fr; } }
+#fetSchematic { width: 100%; max-width: 180px; height: auto; margin: 0 auto; display: block; }
+
+/* ── CANVAS ── */
+.canvas-wrap { padding: 0; margin-top: 6px; }
+#waveCanvas {
+  width: 100%; height: 300px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC;
+}
+#tankCanvas {
+  width: 100%; height: 260px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC;
+}
+.canvas-legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 18px; height: 3px; border-radius: 2px; }
+
+/* ── FORMULA PANEL ── */
+.formula-panel {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px; background: var(--green-lt);
+  display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center;
+}
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 2px; }
+.formula-eq    { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: var(--green-dk); }
+
+@media (max-width: 640px) {
+  .stats  { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+  .controls, .stage-wrap, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+      <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-title" id="headerTitle">Driver Amp Bias Point Simulator</div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn"        id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badgeInteractive">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">Driver Amp Bias Point — Conduction Angle &amp; Output Waveform</h2>
+        <p id="card1Desc">A single FET driver stage. Sweep the gate bias (Vgs) and watch how the conduction angle and drain current waveform shift across the Class A–AB–B–C spectrum.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelVbias">Gate Bias (V_bias)</span>
+        <div class="slider-track">
+          <input type="range" id="vbiasSlider" min="-1.0" max="5.0" step="0.05" value="2.0">
+        </div>
+        <div class="freq-inputs">
+          <input type="text" id="vbiasInput" class="freq-num" value="2.00">
+          <span class="unit-tag">V</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <span id="labelQuickSet" style="font-size:11.5px;color:var(--label);font-weight:500;margin-right:4px;">QUICK SET</span>
+        <button class="class-btn" id="btnClassA" onclick="setClassPreset('A')">Class A</button>
+        <button class="class-btn" id="btnClassAB" onclick="setClassPreset('AB')">Class AB</button>
+        <button class="class-btn" id="btnClassB" onclick="setClassPreset('B')">Class B</button>
+        <button class="class-btn" id="btnClassC" onclick="setClassPreset('C')">Class C</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameClass">AMPLIFIER CLASS</div>
+        <div><span class="class-pill" id="statClassPill">AB</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameAngle">CONDUCTION ANGLE</div>
+        <div><span class="stat-value" id="statAngle">180.0</span><span class="stat-unit">°</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameVbias">GATE BIAS (Q-POINT)</div>
+        <div><span class="stat-value" id="statVbias">2.00</span><span class="stat-unit">V</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameEff">THEORETICAL MAX EFFICIENCY</div>
+        <div><span class="stat-value" id="statEff">78.5</span><span class="stat-unit">%</span></div>
+      </div>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage-title"><span class="stage-num">1</span><h3 id="stage1Title">Single FET Driver Stage</h3></div>
+      <div class="stage-desc" id="stage1Desc">A single-ended FET amplifies the RF drive signal. Where the gate bias sits relative to the threshold voltage (V_th) determines how much of each cycle the device conducts current.</div>
+
+      <div class="fet-grid">
+        <svg id="fetSchematic" viewBox="0 0 180 220"></svg>
+
+        <div>
+          <div class="canvas-wrap">
+            <canvas id="waveCanvas"></canvas>
+            <div class="canvas-legend">
+              <div class="legend-item"><span class="legend-swatch" style="background:#1A6FB5;"></span><span id="legendVgs">Gate Voltage V_gs(t)</span></div>
+              <div class="legend-item"><span class="legend-swatch" style="background:#C0392B;border-top:2px dashed #C0392B;height:0;"></span><span id="legendVth">Threshold V_th</span></div>
+              <div class="legend-item"><span class="legend-swatch" style="background:#0F8C50;border-radius:50%;height:8px;width:8px;"></span><span id="legendQ">Q-point (bias)</span></div>
+              <div class="legend-item"><span class="legend-swatch" style="background:var(--purple);"></span><span id="legendId">Drain Current I_d(t)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage-title"><span class="stage-num">2</span><h3 id="stage2Title">Tank Circuit — Reconstructing the Sine Wave</h3></div>
+      <div class="stage-desc" id="stage2Desc">The drain current pulse only exists for part of the cycle. A resonant LC tank at the drain stores energy while the pulse is on, then rings freely at its natural frequency while the FET is off — filling in the rest of the sine wave on its own.</div>
+
+      <div class="controls" style="padding:0 0 14px;border-bottom:none;">
+        <div class="freq-row" style="margin-bottom:0;">
+          <span class="freq-label" id="labelQfactor">Tank Quality Factor (Q)</span>
+          <div class="slider-track">
+            <input type="range" id="qSlider" min="1" max="25" step="0.5" value="8">
+          </div>
+          <div class="freq-inputs">
+            <input type="text" id="qInput" class="freq-num" value="8.0">
+            <span class="unit-tag">&nbsp;</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fet-grid">
+        <svg id="tankSchematic" viewBox="0 0 180 220"></svg>
+
+        <div>
+          <div class="canvas-wrap">
+            <canvas id="tankCanvas"></canvas>
+            <div class="canvas-legend">
+              <div class="legend-item"><span class="legend-swatch" style="background:var(--purple);"></span><span id="legendIdTank">Drain Current I_d(t) (drive pulses)</span></div>
+              <div class="legend-item"><span class="legend-swatch" style="background:#0F8C50;"></span><span id="legendTankV">Tank Voltage V_tank(t) (reconstructed sine)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlAngle">CONDUCTION ANGLE</div>
+        <div class="formula-eq">cos(θ_c/2) = (V_th − V_bias) / V_in</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlDrain">DRAIN CURRENT (CLIPPED)</div>
+        <div class="formula-eq">I_d(t) = k·max(V_gs(t) − V_th, 0)</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlEff">MAX EFFICIENCY (θ_c)</div>
+        <div class="formula-eq">η = (θ_c − sinθ_c) / [4(sin(θ_c/2) − (θ_c/2)cos(θ_c/2))]</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlTank">TANK RESPONSE (2ND-ORDER)</div>
+        <div class="formula-eq">d²V/dt² + (ω₀/Q)dV/dt + ω₀²V = ω₀²·I_d(t)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="badgeNote">NOTE</span>
+      </span>
+      <div class="card-head-text">
+        <h2 id="card2Title">Why Single-Ended Driver Stages Often Run Class B</h2>
+        <p id="card2Desc">A single device can only conduct current for part of the cycle once biased below Class A — a push-pull pair would normally split the two halves between two devices, but a single-ended stage has no partner to hand off to. RF circuits tolerate this far better than audio does, since the resonant tank shown in Stage 2 below reconstructs the missing half of the cycle on its own. That's what lets a single-ended driver bias right at V_th — Class B — without leaving a gap in the output waveform.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════
+   DRIVER AMP BIAS SIMULATOR — CORE LOGIC
+═══════════════════════════════════════════ */
+
+const Vth = 2.0;       // gate threshold voltage (V)
+const Vin_amp = 3.0;   // RF drive signal amplitude (V)
+const kFactor = 1.0;   // transconductance-like scale (arbitrary units)
+
+let lang = 'en';
+let state = { vbias: 2.0 };
+
+/* ═══════════════════════════════════════════
+   I18N
+═══════════════════════════════════════════ */
+const I18N = {
+  en: {
+    pageTitle: 'Driver Amp Bias Point Simulator — Benedu Insight',
+    headerTitle: 'Driver Amp Bias Point Simulator',
+    badgeInteractive: 'INTERACTIVE',
+    card1Title: 'Driver Amp Bias Point — Conduction Angle &amp; Output Waveform',
+    card1Desc: 'A single FET driver stage. Sweep the gate bias (Vgs) and watch how the conduction angle and drain current waveform shift across the Class A\u2013AB\u2013B\u2013C spectrum.',
+    labelVbias: 'Gate Bias (V_bias)',
+    labelQuickSet: 'QUICK SET',
+    btnClassA: 'Class A',
+    btnClassAB: 'Class AB',
+    btnClassB: 'Class B',
+    btnClassC: 'Class C',
+    statNameClass: 'AMPLIFIER CLASS',
+    statNameAngle: 'CONDUCTION ANGLE',
+    statNameVbias: 'GATE BIAS (Q-POINT)',
+    statNameEff: 'THEORETICAL MAX EFFICIENCY',
+    stage1Title: 'Single FET Driver Stage',
+    stage1Desc: 'A single-ended FET amplifies the RF drive signal. Where the gate bias sits relative to the threshold voltage (V_th) determines how much of each cycle the device conducts current.',
+    legendVgs: 'Gate Voltage V_gs(t)',
+    legendVth: 'Threshold V_th',
+    legendQ: 'Q-point (bias)',
+    legendId: 'Drain Current I_d(t)',
+    fmlAngle: 'CONDUCTION ANGLE',
+    fmlDrain: 'DRAIN CURRENT (CLIPPED)',
+    fmlEff: 'MAX EFFICIENCY (\u03b8_c)',
+    badgeNote: 'NOTE',
+    card2Title: 'Why Single-Ended Driver Stages Often Run Class B',
+    card2Desc: 'A single device can only conduct current for part of the cycle once biased below Class A \u2014 a push-pull pair would normally split the two halves between two devices, but a single-ended stage has no partner to hand off to. RF circuits tolerate this far better than audio does, since the resonant tank shown in Stage 2 below reconstructs the missing half of the cycle on its own. That\u2019s what lets a single-ended driver bias right at V_th \u2014 Class B \u2014 without leaving a gap in the output waveform.',
+    stage2Title: 'Tank Circuit \u2014 Reconstructing the Sine Wave',
+    stage2Desc: 'The drain current pulse only exists for part of the cycle. A resonant LC tank at the drain stores energy while the pulse is on, then rings freely at its natural frequency while the FET is off \u2014 filling in the rest of the sine wave on its own.',
+    labelQfactor: 'Tank Quality Factor (Q)',
+    legendIdTank: 'Drain Current I_d(t) (drive pulses)',
+    legendTankV: 'Tank Voltage V_tank(t) (reconstructed sine)',
+    fmlTank: 'TANK RESPONSE (2ND-ORDER)',
+    canvasTimeLabel: 'Phase \u2192',
+    fetLabels: { gate: 'Gate', drain: 'Drain', source: 'Source', vbiasLabel: 'V_bias', rfin: 'RF in' },
+    tankLabels: { drainNode: 'Drain Node', fromQ1: 'from Q1', load: 'Load 50Ω', labelL: 'L', labelC: 'C' },
+  },
+  ko: {
+    pageTitle: 'Driver Amp 바이어스 포인트 시뮬레이터 — Benedu Insight',
+    headerTitle: 'Driver Amp 바이어스 포인트 시뮬레이터',
+    badgeInteractive: '인터랙티브',
+    card1Title: 'Driver Amp 바이어스 포인트 — Conduction Angle과 출력 파형',
+    card1Desc: '단일 FET 드라이버 단. 게이트 바이어스(Vgs)를 조절하면서 Class A–AB–B–C 스펙트럼에 따라 Conduction Angle과 드레인 전류 파형이 어떻게 변하는지 관찰합니다.',
+    labelVbias: '게이트 바이어스 (V_bias)',
+    labelQuickSet: '빠른 설정',
+    btnClassA: 'Class A',
+    btnClassAB: 'Class AB',
+    btnClassB: 'Class B',
+    btnClassC: 'Class C',
+    statNameClass: '증폭기 클래스',
+    statNameAngle: 'CONDUCTION ANGLE',
+    statNameVbias: '게이트 바이어스 (Q-point)',
+    statNameEff: '이론상 최대 효율',
+    stage1Title: '단일 FET 드라이버 단',
+    stage1Desc: '단일 종단(single-ended) FET가 RF 구동 신호를 증폭합니다. 게이트 바이어스가 문턱전압(V_th) 대비 어디에 위치하는가에 따라 한 주기 중 소자가 도통하는 구간(Conduction Angle)이 결정됩니다.',
+    legendVgs: '게이트 전압 V_gs(t)',
+    legendVth: '문턱전압 V_th',
+    legendQ: 'Q-point (동작점)',
+    legendId: '드레인 전류 I_d(t)',
+    fmlAngle: 'CONDUCTION ANGLE',
+    fmlDrain: '드레인 전류 (클리핑됨)',
+    fmlEff: '최대 효율 (\u03b8_c)',
+    badgeNote: '참고',
+    card2Title: '왜 단일 종단 Driver 단은 흔히 Class B로 동작하는가',
+    card2Desc: 'Class A보다 낮게 바이어스되면 소자 하나는 한 주기 중 일부 구간만 도통합니다. 원래 푸시풀 구조라면 두 소자가 절반씩 나눠 맡지만, 단일 종단 구조는 그 짝이 없습니다. RF 회로는 이 문제를 audio 회로보다 훨씬 잘 견디는데, 아래 Stage 2에서 보여드릴 공진 탱크 회로가 나머지 반주기를 스스로 채워 넣기 때문입니다. 바로 이 덕분에 단일 종단 Driver는 정확히 V_th 지점, 즉 Class B로 바이어스해도 출력 파형에 빈틈이 생기지 않습니다.',
+    stage2Title: '탱크 회로 \u2014 사인파 복원',
+    stage2Desc: '드레인 전류 펄스는 한 주기 중 일부 구간에서만 존재합니다. 드레인에 연결된 공진 LC 탱크가 펄스가 흐르는 동안 에너지를 저장했다가, FET가 꺼진 나머지 구간에서는 자체 고유주파수로 자유 진동(ringing)하며 사인파의 나머지 부분을 스스로 채워 넣습니다.',
+    labelQfactor: '탱크 품질계수 (Q)',
+    legendIdTank: '드레인 전류 I_d(t) (구동 펄스)',
+    legendTankV: '탱크 전압 V_tank(t) (복원된 사인파)',
+    fmlTank: '탱크 응답 (2차 시스템)',
+    canvasTimeLabel: '위상 \u2192',
+    fetLabels: { gate: '게이트', drain: '드레인', source: '소스', vbiasLabel: 'V_bias', rfin: 'RF 입력' },
+    tankLabels: { drainNode: '드레인 노드', fromQ1: 'Q1으로부터', load: '부하 50Ω', labelL: 'L', labelC: 'C' },
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+
+  document.title = T.pageTitle;
+  set('headerTitle', T.headerTitle);
+  set('badgeInteractive', T.badgeInteractive);
+  set('card1Title', T.card1Title);
+  set('card1Desc', T.card1Desc);
+  set('labelVbias', T.labelVbias);
+  set('labelQuickSet', T.labelQuickSet);
+  set('btnClassA', T.btnClassA);
+  set('btnClassAB', T.btnClassAB);
+  set('btnClassB', T.btnClassB);
+  set('btnClassC', T.btnClassC);
+  set('statNameClass', T.statNameClass);
+  set('statNameAngle', T.statNameAngle);
+  set('statNameVbias', T.statNameVbias);
+  set('statNameEff', T.statNameEff);
+  set('stage1Title', T.stage1Title);
+  set('stage1Desc', T.stage1Desc);
+  set('legendVgs', T.legendVgs);
+  set('legendVth', T.legendVth);
+  set('legendQ', T.legendQ);
+  set('legendId', T.legendId);
+  set('stage2Title', T.stage2Title);
+  set('stage2Desc', T.stage2Desc);
+  set('labelQfactor', T.labelQfactor);
+  set('legendIdTank', T.legendIdTank);
+  set('legendTankV', T.legendTankV);
+  set('fmlTank', T.fmlTank);
+  set('fmlAngle', T.fmlAngle);
+  set('fmlDrain', T.fmlDrain);
+  set('fmlEff', T.fmlEff);
+  set('badgeNote', T.badgeNote);
+  set('card2Title', T.card2Title);
+  set('card2Desc', T.card2Desc);
+
+  drawFetSchematic();
+  drawTankSchematic();
+  drawWaveCanvas();
+  drawTankCanvas();
+}
+
+/* ═══════════════════════════════════════════
+   PHYSICS MODEL
+═══════════════════════════════════════════ */
+function conductionAngleDeg(vbias) {
+  let x = (Vth - vbias) / Vin_amp;
+  x = Math.max(-1, Math.min(1, x));
+  return Math.acos(x) * 2 * 180 / Math.PI;
+}
+
+function classify(thetaC) {
+  if (thetaC >= 359.5) return 'A';
+  if (thetaC >= 180.5) return 'AB';
+  if (thetaC >= 179.5) return 'B';
+  return 'C';
+}
+
+function maxEfficiency(thetaCdeg) {
+  const th = thetaCdeg * Math.PI / 180;
+  if (th <= 0.001) return 0;
+  const num = th - Math.sin(th);
+  const den = 4 * (Math.sin(th/2) - (th/2)*Math.cos(th/2));
+  if (Math.abs(den) < 1e-9) return 0;
+  return Math.max(0, Math.min(1, num/den));
+}
+
+function drainCurrent(vbias, phaseDeg) {
+  const rad = phaseDeg * Math.PI / 180;
+  const vgs = vbias + Vin_amp * Math.sin(rad);
+  return kFactor * Math.max(vgs - Vth, 0);
+}
+
+/* ═══════════════════════════════════════════
+   FET SCHEMATIC (SVG)
+═══════════════════════════════════════════ */
+function drawFetSchematic() {
+  const svg = document.getElementById('fetSchematic');
+  const T = I18N[lang].fetLabels;
+  svg.innerHTML = `
+    <style>
+      .fw{stroke:#2A2A3A;stroke-width:1.6;fill:none;}
+      .ft{font-size:12px;fill:#1A1A2E;font-family:'JetBrains Mono',monospace;font-weight:600;}
+      .fts{font-size:9.5px;fill:#5A5A7A;font-family:'JetBrains Mono',monospace;}
+    </style>
+
+    <!-- ═══ Envelope circle ═══ -->
+    <circle cx="113" cy="107" r="58" fill="none" stroke="#2A2A3A" stroke-width="1.6"/>
+
+    <!-- ═══ Drain lead + terminal ═══ -->
+    <line x1="113" y1="49" x2="113" y2="74" class="fw"/>
+    <line x1="113" y1="18" x2="113" y2="49" class="fw"/>
+    <circle cx="113" cy="18" r="3.5" fill="#fff" stroke="#2A2A3A" stroke-width="1.6"/>
+    <text x="128" y="22" class="ft">${T.drain}</text>
+
+    <!-- ═══ Channel bar (continuous, right side inside circle) ═══ -->
+    <line x1="124" y1="74" x2="124" y2="140" stroke="#2A2A3A" stroke-width="2.8"/>
+    <line x1="113" y1="74" x2="124" y2="74" class="fw"/>
+    <line x1="113" y1="140" x2="124" y2="140" class="fw"/>
+
+    <!-- ═══ Gate plate (parallel, left of channel, shorter/centered) ═══ -->
+    <line x1="103" y1="84" x2="103" y2="130" stroke="#2A2A3A" stroke-width="2.8"/>
+
+    <!-- ═══ Gate lead (from outside circle) + arrow into channel ═══ -->
+    <line x1="55" y1="107" x2="103" y2="107" class="fw"/>
+    <text x="30" y="102" class="ft">${T.gate}</text>
+    <path d="M103 107 L119 107 M111 100 L119 107 L111 114" fill="none" stroke="#2A2A3A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- ═══ Source lead + terminal ═══ -->
+    <line x1="113" y1="140" x2="113" y2="165" class="fw"/>
+    <line x1="113" y1="165" x2="113" y2="196" class="fw"/>
+    <circle cx="113" cy="196" r="3.5" fill="#fff" stroke="#2A2A3A" stroke-width="1.6"/>
+    <text x="128" y="200" class="ft">${T.source}</text>
+
+    <!-- ═══ Bias network: Vbias DC feed to gate lead ═══ -->
+    <line x1="55" y1="107" x2="55" y2="140" class="fw"/>
+    <line x1="42" y1="140" x2="68" y2="140" class="fw"/>
+    <text x="18" y="153" class="fts">${T.vbiasLabel}</text>
+
+    <!-- ═══ RF input (AC-coupled via cap, into gate lead) ═══ -->
+    <line x1="55" y1="65" x2="55" y2="107" class="fw"/>
+    <line x1="48" y1="58" x2="48" y2="72" class="fw"/>
+    <line x1="40" y1="58" x2="40" y2="72" class="fw"/>
+    <line x1="15" y1="65" x2="40" y2="65" class="fw"/>
+    <text x="5" y="55" class="fts">${T.rfin}</text>
+
+    <!-- ═══ ground for source ═══ -->
+    <line x1="113" y1="196" x2="113" y2="205" class="fw"/>
+    <line x1="98" y1="205" x2="128" y2="205" class="fw"/>
+    <line x1="104" y1="211" x2="122" y2="211" class="fw"/>
+    <line x1="109" y1="217" x2="117" y2="217" class="fw"/>
+  `;
+}
+
+/* ═══════════════════════════════════════════
+   WAVEFORM CANVAS
+═══════════════════════════════════════════ */
+const canvas = document.getElementById('waveCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(300 * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawWaveCanvas();
+}
+window.addEventListener('resize', resizeCanvas);
+
+function drawWaveCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = 300;
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 46, padR = 16, padT = 18, padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  // Two horizontal bands: top = Vgs & Vth, bottom = Id
+  const bandGap = 14;
+  const bandH = (plotH - bandGap) / 2;
+  const vgsMidY = padT + bandH / 2;
+  const idBaseY = padT + bandH + bandGap + bandH;
+
+  // grid
+  ctx.strokeStyle = '#E9EEF3';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y1 = padT + (bandH/4)*i;
+    ctx.beginPath(); ctx.moveTo(padL, y1); ctx.lineTo(padL+plotW, y1); ctx.stroke();
+    const y2 = padT + bandH + bandGap + (bandH/4)*i;
+    ctx.beginPath(); ctx.moveTo(padL, y2); ctx.lineTo(padL+plotW, y2); ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle = '#CBD5E1';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT); ctx.lineTo(padL, padT+bandH);
+  ctx.moveTo(padL, padT+bandH+bandGap); ctx.lineTo(padL, padT+bandH+bandGap+bandH);
+  ctx.lineTo(padL+plotW, padT+bandH+bandGap+bandH);
+  ctx.stroke();
+
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('Vgs', padL-8, vgsMidY+3);
+  ctx.fillText('Id', padL-8, padT+bandH+bandGap+bandH/2+3);
+
+  ctx.textAlign = 'left';
+  ctx.font = '10.5px "Google Sans", sans-serif';
+  ctx.fillStyle = '#64748B';
+  ctx.fillText(I18N[lang].canvasTimeLabel, padL, H-8);
+
+  const vbias = state.vbias;
+  const vMax = Vth + Vin_amp + 1.5, vMin = -Vin_amp - 1.5;
+  const vToY = (v) => padT + bandH - ((v - vMin) / (vMax - vMin)) * bandH;
+
+  const steps = 360;
+  const phaseToX = (p) => padL + (p/360) * plotW;
+
+  // Vgs waveform
+  ctx.strokeStyle = '#1A6FB5';
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const p = i;
+    const vgs = vbias + Vin_amp * Math.sin(p * Math.PI/180);
+    const x = phaseToX(p), y = vToY(vgs);
+    if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Vth threshold dashed line
+  ctx.strokeStyle = '#C0392B';
+  ctx.lineWidth = 1.6;
+  ctx.setLineDash([5,4]);
+  const vthY = vToY(Vth);
+  ctx.beginPath(); ctx.moveTo(padL, vthY); ctx.lineTo(padL+plotW, vthY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Q-point marker: DC bias level, shown at the left edge of the Vgs band (phase=0 reference)
+  const qY = vToY(vbias);
+  const qX = padL;
+  ctx.strokeStyle = '#0F8C50';
+  ctx.lineWidth = 1.4;
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(padL, qY); ctx.lineTo(padL+plotW, qY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#0F8C50';
+  ctx.beginPath();
+  ctx.arc(qX, qY, 5, 0, Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#0F8C50';
+  ctx.font = 'bold 10px "JetBrains Mono", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('Q', qX + 9, qY - 6);
+
+  // shade conduction region on Vgs band
+  ctx.fillStyle = 'rgba(112,48,160,0.08)';
+  let inConduction = false, regionStartX = null;
+  for (let i = 0; i <= steps; i++) {
+    const vgs = vbias + Vin_amp * Math.sin(i * Math.PI/180);
+    const conducting = vgs > Vth;
+    const x = phaseToX(i);
+    if (conducting && !inConduction) { regionStartX = x; inConduction = true; }
+    if ((!conducting || i === steps) && inConduction) {
+      ctx.fillRect(regionStartX, padT, x - regionStartX, bandH);
+      inConduction = false;
+    }
+  }
+
+  // Id waveform (bottom band)
+  const idMax = kFactor * (Vin_amp + Math.max(0, vbias - Vth) + 0.5) || 1;
+  const idToY = (id) => padT+bandH+bandGap+bandH - (id/idMax)*bandH;
+  ctx.strokeStyle = '#7030A0';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const id_ = drainCurrent(vbias, i);
+    const x = phaseToX(i), y = idToY(id_);
+    if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  // fill under Id curve
+  ctx.lineTo(padL+plotW, padT+bandH+bandGap+bandH);
+  ctx.lineTo(padL, padT+bandH+bandGap+bandH);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(112,48,160,0.12)';
+  ctx.fill();
+}
+
+/* ═══════════════════════════════════════════
+   STAGE 2 — TANK CIRCUIT (2nd-order resonant response)
+═══════════════════════════════════════════ */
+const tankCanvas = document.getElementById('tankCanvas');
+const tankCtx = tankCanvas.getContext('2d');
+let tankState = { Q: 8, showCycles: 4 };
+let tankData = null;  // { phases: [...], ids: [...], vs: [...] }
+
+function drawTankSchematic() {
+  const svg = document.getElementById('tankSchematic');
+  const T = I18N[lang].tankLabels;
+  svg.innerHTML = `
+    <style>
+      .fw{stroke:#2A2A3A;stroke-width:1.6;fill:none;}
+      .ft{font-size:11px;fill:#1A1A2E;font-family:'JetBrains Mono',monospace;font-weight:600;}
+      .fts{font-size:9.5px;fill:#5A5A7A;font-family:'JetBrains Mono',monospace;}
+    </style>
+
+    <!-- ═══ Vdd supply (top) ═══ -->
+    <text x="110" y="16" text-anchor="middle" class="ft">Vdd</text>
+    <circle cx="110" cy="24" r="3" fill="#0F8C50"/>
+    <line x1="110" y1="24" x2="110" y2="40" class="fw"/>
+    <line x1="75" y1="40" x2="145" y2="40" class="fw"/>
+
+    <!-- ═══ Inductor L (coil/loop symbol, left branch, vertical) ═══ -->
+    <path d="M75 40 C87 40 87 52.5 75 52.5 C87 52.5 87 65 75 65 C87 65 87 77.5 75 77.5 C87 77.5 87 90 75 90"
+          fill="none" stroke="#2A2A3A" stroke-width="1.6"/>
+    <line x1="75" y1="90" x2="75" y2="115" class="fw"/>
+    <text x="45" y="68" class="ft">${T.labelL}</text>
+
+    <!-- ═══ Capacitor C (parallel plates, right branch, vertical) ═══ -->
+    <line x1="145" y1="40" x2="145" y2="65" class="fw"/>
+    <line x1="133" y1="65" x2="157" y2="65" class="fw"/>
+    <line x1="133" y1="72" x2="157" y2="72" class="fw"/>
+    <line x1="145" y1="72" x2="145" y2="115" class="fw"/>
+    <text x="158" y="62" class="ft">${T.labelC}</text>
+
+    <!-- ═══ Bottom rail joining L and C (drain node) ═══ -->
+    <line x1="75" y1="115" x2="145" y2="115" class="fw"/>
+    <circle cx="110" cy="115" r="3" fill="#7030A0"/>
+
+    <!-- ═══ Drain node label + dashed lead from Q1 ═══ -->
+    <text x="122" y="130" class="ft">${T.drainNode}</text>
+    <line x1="15" y1="115" x2="75" y2="115" class="fw" stroke-dasharray="3 3"/>
+    <text x="8" y="128" class="fts">${T.fromQ1}</text>
+
+    <!-- ═══ Down to Load (tap off drain node) ═══ -->
+    <line x1="110" y1="115" x2="110" y2="150" class="fw"/>
+    <circle cx="110" cy="163" r="12" fill="#fff" stroke="#2A2A3A" stroke-width="1.3"/>
+    <circle cx="110" cy="163" r="4.5" fill="#fff" stroke="#2A2A3A" stroke-width="1"/>
+    <text x="132" y="167" class="fts">${T.load}</text>
+
+    <!-- ═══ Load return down to its own ground (clearly separated) ═══ -->
+    <line x1="110" y1="175" x2="110" y2="200" class="fw"/>
+    <line x1="95" y1="200" x2="125" y2="200" class="fw"/>
+    <line x1="101" y1="207" x2="119" y2="207" class="fw"/>
+    <line x1="107" y1="214" x2="113" y2="214" class="fw"/>
+  `;
+}
+
+function simulateTank(vbias, Q, nCycles, stepsPerCycle) {
+  stepsPerCycle = stepsPerCycle || 240;
+  const dt = 2*Math.PI/stepsPerCycle;  // tank natural freq w0=1 (normalized), matched to drive fundamental
+  let v = 0, dv = 0;
+  const phases = [], ids = [], vs = [];
+  const total = nCycles * stepsPerCycle;
+  for (let n = 0; n < total; n++) {
+    const phaseDeg = n % stepsPerCycle * (360/stepsPerCycle);
+    const id_ = drainCurrent(vbias, phaseDeg);
+    const ddv = kFactor*id_ - (1.0/Q)*dv - v;
+    dv += ddv*dt;
+    v  += dv*dt;
+    phases.push(n * (360/stepsPerCycle));
+    ids.push(id_);
+    vs.push(v);
+  }
+  return { phases, ids, vs };
+}
+
+function recomputeTank() {
+  const Q = tankState.Q;
+  const showCycles = tankState.showCycles;
+  // Simulate long enough for the envelope to settle (empirically, ~Q cycles reaches >95%),
+  // then keep only the last `showCycles` cycles — so the graph always shows steady state,
+  // never the growing transient.
+  const settleCycles = Math.max(Math.ceil(Q) + 3, showCycles + 1);
+  const stepsPerCycle = 240;
+  const full = simulateTank(state.vbias, Q, settleCycles, stepsPerCycle);
+
+  const keepSteps = showCycles * stepsPerCycle;
+  const startIdx = full.phases.length - keepSteps;
+  const phaseOffset = full.phases[startIdx];
+
+  tankData = {
+    phases: full.phases.slice(startIdx).map(p => p - phaseOffset),
+    ids:    full.ids.slice(startIdx),
+    vs:     full.vs.slice(startIdx),
+  };
+}
+
+function resizeTankCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = tankCanvas.getBoundingClientRect();
+  tankCanvas.width = Math.round(rect.width * dpr);
+  tankCanvas.height = Math.round(260 * dpr);
+  tankCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  drawTankCanvas();
+}
+window.addEventListener('resize', resizeTankCanvas);
+
+function drawTankCanvas() {
+  if (!tankData) return;
+  const rect = tankCanvas.getBoundingClientRect();
+  const W = rect.width, H = 260;
+  tankCtx.clearRect(0, 0, W, H);
+
+  const padL = 46, padR = 16, padT = 16, padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const midY = padT + plotH/2;
+
+  tankCtx.strokeStyle = '#E9EEF3';
+  tankCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (plotH/4)*i;
+    tankCtx.beginPath(); tankCtx.moveTo(padL, y); tankCtx.lineTo(padL+plotW, y); tankCtx.stroke();
+  }
+  tankCtx.strokeStyle = '#CBD5E1';
+  tankCtx.lineWidth = 1.2;
+  tankCtx.beginPath();
+  tankCtx.moveTo(padL, padT); tankCtx.lineTo(padL, padT+plotH); tankCtx.lineTo(padL+plotW, padT+plotH);
+  tankCtx.stroke();
+  tankCtx.setLineDash([3,3]);
+  tankCtx.strokeStyle = '#CBD5E1';
+  tankCtx.beginPath(); tankCtx.moveTo(padL, midY); tankCtx.lineTo(padL+plotW, midY); tankCtx.stroke();
+  tankCtx.setLineDash([]);
+
+  tankCtx.fillStyle = '#64748B';
+  tankCtx.font = '10.5px "Google Sans", sans-serif';
+  tankCtx.textAlign = 'left';
+  tankCtx.fillText(I18N[lang].canvasTimeLabel, padL, H-8);
+
+  const totalPhase = tankState.showCycles * 360;
+  const phaseToX = (p) => padL + (p/totalPhase) * plotW;
+
+  const ids = tankData.ids, vs = tankData.vs, phases = tankData.phases;
+  const idMax = Math.max(...ids, 0.5);
+  const vMax = Math.max(...vs.map(Math.abs), 0.5);
+
+  // drain current pulses (purple, filled, bottom-anchored small amplitude reference)
+  const idToY = (id) => padT + plotH - (id/idMax) * (plotH*0.32);
+  tankCtx.strokeStyle = 'rgba(112,48,160,0.55)';
+  tankCtx.lineWidth = 1.6;
+  tankCtx.beginPath();
+  for (let i = 0; i < phases.length; i++) {
+    const x = phaseToX(phases[i]), y = idToY(ids[i]);
+    if (i === 0) tankCtx.moveTo(x,y); else tankCtx.lineTo(x,y);
+  }
+  tankCtx.lineTo(phaseToX(phases[phases.length-1]), padT+plotH);
+  tankCtx.lineTo(phaseToX(phases[0]), padT+plotH);
+  tankCtx.closePath();
+  tankCtx.fillStyle = 'rgba(112,48,160,0.14)';
+  tankCtx.fill();
+  tankCtx.stroke();
+
+  // tank voltage (green, the reconstructed sine)
+  const vToY = (v) => midY - (v/vMax) * (plotH*0.46);
+  tankCtx.strokeStyle = '#0F8C50';
+  tankCtx.lineWidth = 2.4;
+  tankCtx.beginPath();
+  for (let i = 0; i < phases.length; i++) {
+    const x = phaseToX(phases[i]), y = vToY(vs[i]);
+    if (i === 0) tankCtx.moveTo(x,y); else tankCtx.lineTo(x,y);
+  }
+  tankCtx.stroke();
+
+  // y-axis labels
+  tankCtx.fillStyle = '#94A3B8';
+  tankCtx.font = '10px "JetBrains Mono", monospace';
+  tankCtx.textAlign = 'right';
+  tankCtx.fillText('Id', padL-8, padT+plotH*0.85);
+  tankCtx.fillText('V', padL-8, midY+4);
+}
+
+/* ═══════════════════════════════════════════
+   UI UPDATE
+═══════════════════════════════════════════ */
+const CLASS_COLORS = {
+  A:  { bg:'#FDEDEC', border:'#C0392B', text:'#C0392B' },
+  AB: { bg:'#FFF3E0', border:'#C8860D', text:'#C8860D' },
+  B:  { bg:'#E6F4ED', border:'#0F8C50', text:'#0F8C50' },
+  C:  { bg:'#F0E8F8', border:'#7030A0', text:'#7030A0' },
+};
+
+function updateAll() {
+  const vbias = state.vbias;
+  const thetaC = conductionAngleDeg(vbias);
+  const cls = classify(thetaC);
+  const eff = maxEfficiency(thetaC) * 100;
+
+  document.getElementById('statAngle').textContent = thetaC.toFixed(1);
+  document.getElementById('statVbias').textContent = vbias.toFixed(2);
+  document.getElementById('statEff').textContent = eff.toFixed(1);
+
+  const pill = document.getElementById('statClassPill');
+  pill.textContent = cls === 'AB' ? 'Class AB' : ('Class ' + cls);
+  const c = CLASS_COLORS[cls];
+  pill.style.background = c.bg; pill.style.color = c.text; pill.style.border = '1.5px solid ' + c.border;
+
+  vbiasSlider.value = vbias;
+  vbiasInput.value = vbias.toFixed(2);
+
+  document.querySelectorAll('.class-btn').forEach(b => b.className = 'class-btn');
+  if (cls === 'A')  document.getElementById('btnClassA').classList.add('active-a');
+  if (cls === 'AB') document.getElementById('btnClassAB').classList.add('active-ab');
+  if (cls === 'B')  document.getElementById('btnClassB').classList.add('active-b');
+  if (cls === 'C')  document.getElementById('btnClassC').classList.add('active-c');
+
+  drawWaveCanvas();
+  recomputeTank();
+  drawTankCanvas();
+}
+
+/* ═══════════════════════════════════════════
+   EVENTS
+═══════════════════════════════════════════ */
+const vbiasSlider = document.getElementById('vbiasSlider');
+const vbiasInput  = document.getElementById('vbiasInput');
+const qSlider = document.getElementById('qSlider');
+const qInput  = document.getElementById('qInput');
+
+function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+function onVbiasChange(fromSlider) {
+  let v = fromSlider ? parseFloat(vbiasSlider.value) : parseFloat(vbiasInput.value);
+  if (isNaN(v)) v = state.vbias;
+  v = clamp(v, -1.0, 5.0);
+  state.vbias = v;
+  updateAll();
+}
+
+vbiasSlider.addEventListener('input', () => onVbiasChange(true));
+vbiasInput.addEventListener('change', () => onVbiasChange(false));
+
+function onQChange(fromSlider) {
+  let q = fromSlider ? parseFloat(qSlider.value) : parseFloat(qInput.value);
+  if (isNaN(q)) q = tankState.Q;
+  q = clamp(q, 1, 25);
+  tankState.Q = q;
+  qSlider.value = q;
+  qInput.value = q.toFixed(1);
+  recomputeTank();
+  drawTankCanvas();
+}
+
+qSlider.addEventListener('input', () => onQChange(true));
+qInput.addEventListener('change', () => onQChange(false));
+
+function setClassPreset(cls) {
+  // Representative bias points for each class along the spectrum
+  const presets = { A: 5.0, AB: 3.0, B: 2.0, C: 0.5 };
+  state.vbias = presets[cls];
+  updateAll();
+}
+
+window.addEventListener('load', () => {
+  resizeCanvas();
+  resizeTankCanvas();
+  drawFetSchematic();
+  updateAll();
+  setLang('en');
+});
+</script>
+
+</body>
+</html>

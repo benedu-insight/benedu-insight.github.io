@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RF Sensor Detector Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --amber:      #C8860D;
+  --amber-lt:   #FFF3E0;
+  --red:        #C0392B;
+  --red-lt:     #FDF0EE;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.logo-img { height: 36px; display: block; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+.lang-toggle {
+  display: flex; align-items: center;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.main { max-width: 900px; margin: 28px auto 56px; padding: 0 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-lt); color: var(--purple);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge.green { background: var(--green-lt); color: var(--green); }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); animation: pulse 2s infinite; }
+.badge.green .badge-dot { background: var(--green); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 150px; }
+.slider-track { flex: 1; min-width: 160px; }
+
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; cursor: pointer;
+}
+
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.freq-unit { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); min-width: 26px; }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.canvas-wrap { padding: 0 24px; }
+canvas.sim-canvas {
+  width: 100%; height: 230px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC; margin-top: 16px;
+}
+.canvas-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+.stat-value.warn { color: #C0392B; }
+.stat-value.ok { color: var(--green); }
+
+.formula-panel {
+  border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt);
+  display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: center;
+}
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: var(--green-dk); }
+
+.info-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--purple-lt);
+  border: 1px solid #E2D3EF;
+  border-radius: 10px;
+  position: relative;
+}
+.info-note::before {
+  content: '💡';
+  position: absolute; left: 15px; top: 15px;
+  font-size: 14px; line-height: 1;
+}
+.info-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--purple);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.info-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+.warn-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--amber-lt);
+  border: 1px solid #F0DCA8;
+  border-radius: 10px;
+  position: relative;
+}
+.warn-note::before {
+  content: '⚠️';
+  position: absolute; left: 15px; top: 14px;
+  font-size: 14px; line-height: 1;
+}
+.warn-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--amber);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.warn-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+  .controls, .canvas-wrap, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .info-note, .warn-note { margin: 18px 12px 18px; padding: 14px 16px 14px 40px; }
+  .freq-label { min-width: 110px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback" style="display:none; align-items:center; gap:8px;">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+      <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="headerTitle">RF Sensor Detector Simulator — Module 07</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- CARD 1: SPEED -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">Response Speed — why arc handling uses the diode</h2>
+        <p id="card1Sub">Step response to a sudden reflected-power jump (an arc event)</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelDiodeTau">Diode video filter (tau)</span>
+        <div class="slider-track"><input type="range" id="diodeTauSlider" min="50" max="1000" step="10" value="200"></div>
+        <div class="freq-inputs">
+          <input type="text" id="diodeTauInput" class="freq-num" value="200" readonly>
+          <span class="freq-unit">ns</span>
+        </div>
+      </div>
+      <div class="freq-row" style="margin-top:6px">
+        <span class="freq-label" id="labelSawDelay">SAW group delay</span>
+        <div class="slider-track"><input type="range" id="sawDelaySlider" min="100" max="3000" step="50" value="800"></div>
+        <div class="freq-inputs">
+          <input type="text" id="sawDelayInput" class="freq-num" value="800" readonly>
+          <span class="freq-unit">ns</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="stepCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note1">Amber = diode detector output (RC-limited envelope follower). Blue = heterodyne chain output (delayed by the SAW filter's group delay, then the AD8310 itself settles in under 15ns -- negligible next to the SAW). Dashed line = a representative arc-trip threshold.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameDiodeTrip">DIODE TRIP TIME</div>
+        <div><span class="stat-value ok" id="dispDiodeTrip">139</span><span class="stat-unit">ns</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameHetTrip">HETERODYNE TRIP TIME</div>
+        <div><span class="stat-value warn" id="dispHetTrip">815</span><span class="stat-unit">ns</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameGap">SPEED GAP</div>
+        <div><span class="stat-value warn" id="dispGap">5.9x</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlDiode">DIODE STEP RESPONSE</div>
+        <div class="formula-eq">V(t) = Vfinal x (1 - e^(-t/tau))</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlHet">HETERODYNE STEP RESPONSE</div>
+        <div class="formula-eq">V(t) = Vfinal, for t &gt; SAW delay (else 0)</div>
+      </div>
+    </div>
+
+    <div class="warn-note">
+      <span class="warn-note-label" id="labelWarn1">VERIFIED vs ILLUSTRATIVE</span>
+      <p id="warnNote1">The AD8310's own speed (rise time &lt;15ns, from the Analog Devices datasheet) is real and verified -- it is not the bottleneck. SAW filter group delay is the real bottleneck, but it depends on the specific part's bandwidth and order; the slider above is a reasonable illustrative range for a narrowband IF filter like this one, not a datasheet value for the exact "361013" part on this board.</p>
+    </div>
+  </div>
+
+  <!-- CARD 2: DYNAMIC RANGE -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge green"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card2Title">Dynamic Range — why reporting uses the heterodyne</h2>
+        <p id="card2Sub">A well-matched load makes reflected power very small</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelVswr">Match quality (VSWR)</span>
+        <div class="slider-track"><input type="range" id="vswrSlider" min="105" max="300" step="5" value="105"></div>
+        <div class="freq-inputs">
+          <input type="text" id="vswrInput" class="freq-num" value="1.05" readonly>
+          <span class="freq-unit">:1</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick2">Quick select:</span>
+        <button class="qbtn active" data-vswr="105">1.05 (well matched)</button>
+        <button class="qbtn" data-vswr="150">1.5</button>
+        <button class="qbtn" data-vswr="300">3.0 (badly matched)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="rangeCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note2">0dB = forward power. The marker shows where this VSWR's reflected power sits. Green band = AD8310's documented usable range (90dB at +/-1dB accuracy). Amber band = an illustrative diode usable range -- once the marker falls below a band, that detector's reading gets unreliable.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameReflLevel">REFLECTED POWER</div>
+        <div><span class="stat-value" id="dispReflLevel">-32.3</span><span class="stat-unit">dB</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameDiodeOk">DIODE READING</div>
+        <div><span class="stat-value" style="font-size:14px" id="dispDiodeOk">Marginal</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameHetOk">HETERODYNE READING</div>
+        <div><span class="stat-value ok" style="font-size:14px" id="dispHetOk">Accurate</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlRefl">REFLECTED POWER vs VSWR</div>
+        <div class="formula-eq">Gamma = (VSWR-1)/(VSWR+1) ; P_refl(dB) = 20log10(Gamma)</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlAd">AD8310 RANGE (datasheet)</div>
+        <div class="formula-eq">90dB @ +/-1dB, 95dB @ +/-3dB, slope 24mV/dB</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight2">INSIGHT</span>
+      <p id="infoNote2">A properly matched plasma process (VSWR around 1.05) puts reflected power more than 30dB below forward -- deep inside the AD8310's verified 90dB range, but pushing against a typical diode detector's practical floor (noise, offset, and the thermistor's imperfect temperature compensation all matter more as the signal gets small). This is exactly why the number that gets reported to the host comes from the heterodyne channel, not the fast diode channel that protects against arcs.</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let lang = 'en';
+
+let diodeTau = 200;   // ns
+let sawDelay = 800;   // ns
+let vswr = 1.05;
+
+const AD8310_RISE_NS = 15;       // verified, datasheet
+const AD8310_RANGE_DB = 90;      // verified, +/-1dB, datasheet
+const DIODE_RANGE_DB = 35;       // illustrative, not a datasheet value for HSMS-2800 in this bias network
+const TRIP_FRACTION = 0.5;       // trip threshold as fraction of final value
+
+function stepTime() {
+  return {
+    diodeTrip: -diodeTau * Math.log(1 - TRIP_FRACTION),
+    hetTrip: sawDelay + AD8310_RISE_NS
+  };
+}
+
+const I18N = {
+  en: {
+    headerTitle: "RF Sensor Detector Simulator — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "Response Speed — why arc handling uses the diode",
+    card1Sub: "Step response to a sudden reflected-power jump (an arc event)",
+    labelDiodeTau: "Diode video filter (tau)", labelSawDelay: "SAW group delay",
+    note1: "Amber = diode detector output (RC-limited envelope follower). Blue = heterodyne chain output (delayed by the SAW filter's group delay, then the AD8310 itself settles in under 15ns -- negligible next to the SAW). Dashed line = a representative arc-trip threshold.",
+    statNameDiodeTrip: "DIODE TRIP TIME", statNameHetTrip: "HETERODYNE TRIP TIME", statNameGap: "SPEED GAP",
+    fmlDiode: "DIODE STEP RESPONSE", fmlHet: "HETERODYNE STEP RESPONSE",
+    labelWarn1: "VERIFIED vs ILLUSTRATIVE",
+    warnNote1: "The AD8310's own speed (rise time <15ns, from the Analog Devices datasheet) is real and verified -- it is not the bottleneck. SAW filter group delay is the real bottleneck, but it depends on the specific part's bandwidth and order; the slider above is a reasonable illustrative range for a narrowband IF filter like this one, not a datasheet value for the exact \"361013\" part on this board.",
+    card2Title: "Dynamic Range — why reporting uses the heterodyne",
+    card2Sub: "A well-matched load makes reflected power very small",
+    labelVswr: "Match quality (VSWR)", labelQuick2: "Quick select:",
+    note2: "0dB = forward power. The marker shows where this VSWR's reflected power sits. Green band = AD8310's documented usable range (90dB at +/-1dB accuracy). Amber band = an illustrative diode usable range -- once the marker falls below a band, that detector's reading gets unreliable.",
+    statNameReflLevel: "REFLECTED POWER", statNameDiodeOk: "DIODE READING", statNameHetOk: "HETERODYNE READING",
+    readingGood: "Accurate", readingMarginal: "Marginal", readingBad: "Unreliable",
+    fmlRefl: "REFLECTED POWER vs VSWR", fmlAd: "AD8310 RANGE (datasheet)",
+    infoNote2: "A properly matched plasma process (VSWR around 1.05) puts reflected power more than 30dB below forward -- deep inside the AD8310's verified 90dB range, but pushing against a typical diode detector's practical floor (noise, offset, and the thermistor's imperfect temperature compensation all matter more as the signal gets small). This is exactly why the number that gets reported to the host comes from the heterodyne channel, not the fast diode channel that protects against arcs.",
+    switchOff: "before step", switchOn: "after step", tripLabel: "trip threshold",
+    diodeLabel: "diode", hetLabel: "heterodyne",
+  },
+  ko: {
+    headerTitle: "RF Sensor 검출기 시뮬레이터 — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "응답 속도 — 왜 Arc handling엔 다이오드를 쓰는가",
+    card1Sub: "반사파가 갑자기 튀는 상황(아크 이벤트)에 대한 스텝응답",
+    labelDiodeTau: "다이오드 비디오필터 (tau)", labelSawDelay: "SAW Group Delay",
+    note1: "주황색 = 다이오드 검출기 출력(RC 시정수로 제한된 포락선 추종). 파란색 = 헤테로다인 체인 출력(SAW 필터 group delay만큼 지연된 뒤, AD8310 자체는 15ns 이내로 정착 — SAW 지연에 비하면 무시할 만큼 작음). 점선 = 예시 아크 트립 기준선.",
+    statNameDiodeTrip: "다이오드 트립 시간", statNameHetTrip: "헤테로다인 트립 시간", statNameGap: "속도 격차",
+    fmlDiode: "다이오드 스텝응답", fmlHet: "헤테로다인 스텝응답",
+    labelWarn1: "검증된 값 vs 예시 값",
+    warnNote1: "AD8310 자체의 속도(상승시간 <15ns, Analog Devices 데이터시트 기준)는 실제로 검증된 값이며 — 병목이 아닙니다. 진짜 병목은 SAW 필터의 group delay인데, 이건 실제 사용된 부품의 대역폭·차수에 따라 달라집니다. 위 슬라이더는 이런 협대역 IF 필터에 흔한 예시 범위이지, 이 보드의 실제 \"361013\" 부품 데이터시트 값이 아닙니다.",
+    card2Title: "다이나믹레인지 — 왜 리포팅엔 헤테로다인을 쓰는가",
+    card2Sub: "매칭이 잘 잡힐수록 반사파는 아주 작아집니다",
+    labelVswr: "매칭 품질 (VSWR)", labelQuick2: "빠른 선택:",
+    note2: "0dB = 진행파 기준. 마커가 이 VSWR의 반사파 위치를 보여줍니다. 초록 밴드 = AD8310의 데이터시트상 사용 가능 범위(±1dB 정확도 기준 90dB). 주황 밴드 = 예시용 다이오드 사용 가능 범위 — 마커가 그 밴드 아래로 내려가면 해당 검출기 측정값은 신뢰하기 어려워집니다.",
+    statNameReflLevel: "반사파 레벨", statNameDiodeOk: "다이오드 판독", statNameHetOk: "헤테로다인 판독",
+    readingGood: "정확", readingMarginal: "경계", readingBad: "신뢰불가",
+    fmlRefl: "VSWR 대 반사파", fmlAd: "AD8310 범위 (데이터시트)",
+    infoNote2: "제대로 매칭된 플라즈마 공정(VSWR 약 1.05)에서는 반사파가 진행파보다 30dB 이상 낮습니다 — AD8310의 검증된 90dB 범위 안쪽 깊숙이 들어가지만, 통상적인 다이오드 검출기의 실용 한계(노이즈, 오프셋, 그리고 서미스터 온도보상의 불완전함이 신호가 작아질수록 더 크게 작용)에는 부담스러운 지점입니다. 호스트로 리포팅되는 숫자가 아크 보호용 빠른 다이오드 채널이 아니라 헤테로다인 채널에서 나오는 이유가 바로 이것입니다.",
+    switchOff: "스텝 이전", switchOn: "스텝 이후", tripLabel: "트립 기준선",
+    diodeLabel: "다이오드", hetLabel: "헤테로다인",
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('headerTitle', T.headerTitle);
+  set('badge1', T.badge1); set('badge2', T.badge2);
+  set('card1Title', T.card1Title); set('card1Sub', T.card1Sub);
+  set('labelDiodeTau', T.labelDiodeTau); set('labelSawDelay', T.labelSawDelay);
+  set('note1', T.note1);
+  set('statNameDiodeTrip', T.statNameDiodeTrip); set('statNameHetTrip', T.statNameHetTrip); set('statNameGap', T.statNameGap);
+  set('fmlDiode', T.fmlDiode); set('fmlHet', T.fmlHet);
+  set('labelWarn1', T.labelWarn1); set('warnNote1', T.warnNote1);
+  set('card2Title', T.card2Title); set('card2Sub', T.card2Sub);
+  set('labelVswr', T.labelVswr); set('labelQuick2', T.labelQuick2);
+  set('note2', T.note2);
+  set('statNameReflLevel', T.statNameReflLevel); set('statNameDiodeOk', T.statNameDiodeOk); set('statNameHetOk', T.statNameHetOk);
+  set('fmlRefl', T.fmlRefl); set('fmlAd', T.fmlAd);
+  set('infoNote2', T.infoNote2); set('labelInsight2', 'INSIGHT');
+  updateAll();
+}
+
+/* CARD 1 */
+function drawStep() {
+  const canvas = document.getElementById('stepCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 230;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const padL=40, padR=16, padT=18, padB=26;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const baseY=padT+plotH, topY=padT;
+  const tMax = Math.max(sawDelay + AD8310_RISE_NS, diodeTau*4) * 1.25;
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,topY); ctx.lineTo(padL,baseY); ctx.lineTo(padL+plotW,baseY); ctx.stroke();
+
+  const T = I18N[lang];
+  ctx.fillStyle='#94A3B8'; ctx.font='9px "JetBrains Mono", monospace'; ctx.textAlign='right';
+  ctx.fillText('1.0', padL-6, topY+8);
+  ctx.fillText('0', padL-6, baseY+3);
+  ctx.textAlign='center';
+  ctx.fillText('0ns', padL, baseY+15);
+  ctx.fillText(tMax.toFixed(0)+'ns', padL+plotW, baseY+15);
+
+  const xAt = t => padL + (t/tMax)*plotW;
+  const yAt = v => baseY - v*plotH;
+
+  const tripY = yAt(TRIP_FRACTION);
+  ctx.strokeStyle='#C0392B'; ctx.lineWidth=1.2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(padL,tripY); ctx.lineTo(padL+plotW,tripY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#C0392B'; ctx.font='8.5px "Google Sans", sans-serif'; ctx.textAlign='left';
+  ctx.fillText(T.tripLabel, padL+6, tripY-4);
+
+  ctx.strokeStyle='#C8860D'; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  const steps=200;
+  for (let i=0;i<=steps;i++){
+    const t = tMax*i/steps;
+    const v = 1 - Math.exp(-t/diodeTau);
+    const x = xAt(t), y = yAt(v);
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle='#378ADD'; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  const hetStart = sawDelay + AD8310_RISE_NS;
+  ctx.moveTo(xAt(0), yAt(0));
+  ctx.lineTo(xAt(hetStart), yAt(0));
+  ctx.lineTo(xAt(hetStart), yAt(1));
+  ctx.lineTo(xAt(tMax), yAt(1));
+  ctx.stroke();
+
+  ctx.font='9px "Google Sans", sans-serif'; ctx.textAlign='left';
+  ctx.fillStyle='#C8860D'; ctx.fillText(T.diodeLabel, padL+6, topY+12);
+  ctx.fillStyle='#378ADD'; ctx.fillText(T.hetLabel, padL+6, topY+26);
+}
+
+function updateStepStats() {
+  const st = stepTime();
+  document.getElementById('dispDiodeTrip').textContent = st.diodeTrip.toFixed(0);
+  document.getElementById('dispHetTrip').textContent = st.hetTrip.toFixed(0);
+  document.getElementById('dispGap').textContent = (st.hetTrip/st.diodeTrip).toFixed(1)+'x';
+}
+
+/* CARD 2 */
+function reflectedDB(v) {
+  const gamma = (v-1)/(v+1);
+  return 20*Math.log10(gamma);
+}
+
+function drawRange() {
+  const canvas = document.getElementById('rangeCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 230;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const padL=42, padR=16, padT=30, padB=40;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const dbMin=-100, dbMax=0;
+  const yAt = db => padT + ((dbMax-db)/(dbMax-dbMin))*plotH;
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+plotH); ctx.stroke();
+
+  ctx.fillStyle='#94A3B8'; ctx.font='9px "JetBrains Mono", monospace'; ctx.textAlign='right';
+  ctx.fillText('0dB', padL-6, yAt(0)+3);
+  ctx.fillText('-100dB', padL-6, yAt(-100)+3);
+
+  const barW = 70;
+  const hetX = padL+50, diodeX = hetX+110;
+
+  ctx.fillStyle = 'rgba(15,140,80,0.18)';
+  const hetTop = yAt(0), hetBot = yAt(-AD8310_RANGE_DB);
+  ctx.fillRect(hetX, hetTop, barW, hetBot-hetTop);
+  ctx.strokeStyle = '#0F8C50'; ctx.lineWidth=1.3;
+  ctx.strokeRect(hetX, hetTop, barW, hetBot-hetTop);
+
+  ctx.fillStyle = 'rgba(200,134,13,0.18)';
+  const dTop = yAt(0), dBot = yAt(-DIODE_RANGE_DB);
+  ctx.fillRect(diodeX, dTop, barW, dBot-dTop);
+  ctx.strokeStyle = '#C8860D'; ctx.lineWidth=1.3;
+  ctx.strokeRect(diodeX, dTop, barW, dBot-dTop);
+
+  const T = I18N[lang];
+  ctx.font='9px "Google Sans", sans-serif'; ctx.textAlign='center'; ctx.fillStyle='#5A5A7A';
+  ctx.fillText(T.hetLabel, hetX+barW/2, padT-10);
+  ctx.fillText(T.diodeLabel, diodeX+barW/2, padT-10);
+
+  const refl = reflectedDB(vswr);
+  const markerY = yAt(Math.max(refl, dbMin));
+  ctx.strokeStyle='#C0392B'; ctx.lineWidth=1.6; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(padL, markerY); ctx.lineTo(diodeX+barW+30, markerY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#C0392B'; ctx.font='9px "JetBrains Mono", monospace'; ctx.textAlign='left';
+  ctx.fillText(refl.toFixed(1)+'dB (VSWR '+vswr.toFixed(2)+')', diodeX+barW+34, markerY+3);
+}
+
+function updateRangeStats() {
+  const refl = reflectedDB(vswr);
+  const T = I18N[lang];
+  document.getElementById('dispReflLevel').textContent = refl.toFixed(1);
+
+  const hetEl = document.getElementById('dispHetOk');
+  if (refl >= -AD8310_RANGE_DB) { hetEl.textContent = T.readingGood; hetEl.classList.remove('warn'); hetEl.classList.add('ok'); }
+  else { hetEl.textContent = T.readingBad; hetEl.classList.remove('ok'); hetEl.classList.add('warn'); }
+
+  const dEl = document.getElementById('dispDiodeOk');
+  if (refl >= -DIODE_RANGE_DB*0.7) { dEl.textContent = T.readingGood; dEl.classList.remove('warn'); }
+  else if (refl >= -DIODE_RANGE_DB) { dEl.textContent = T.readingMarginal; dEl.classList.add('warn'); }
+  else { dEl.textContent = T.readingBad; dEl.classList.add('warn'); }
+}
+
+function updateAll() {
+  updateStepStats();
+  updateRangeStats();
+  drawStep();
+  drawRange();
+}
+
+/* EVENTS */
+document.getElementById('diodeTauSlider').addEventListener('input', function(e){
+  diodeTau = +e.target.value;
+  document.getElementById('diodeTauInput').value = diodeTau;
+  updateAll();
+});
+document.getElementById('sawDelaySlider').addEventListener('input', function(e){
+  sawDelay = +e.target.value;
+  document.getElementById('sawDelayInput').value = sawDelay;
+  updateAll();
+});
+
+document.getElementById('vswrSlider').addEventListener('input', function(e){
+  vswr = (+e.target.value)/100;
+  document.getElementById('vswrInput').value = vswr.toFixed(2);
+  document.querySelectorAll('[data-vswr]').forEach(function(b){b.classList.remove('active');});
+  updateAll();
+});
+document.querySelectorAll('[data-vswr]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    vswr = (+btn.dataset.vswr)/100;
+    document.getElementById('vswrSlider').value = btn.dataset.vswr;
+    document.getElementById('vswrInput').value = vswr.toFixed(2);
+    document.querySelectorAll('[data-vswr]').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    updateAll();
+  });
+});
+
+window.addEventListener('resize', function(){ drawStep(); drawRange(); });
+window.addEventListener('load', function(){
+  setLang('en');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gate Drive Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --amber:      #C8860D;
+  --amber-lt:   #FFF3E0;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.logo-img { height: 36px; display: block; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+.lang-toggle {
+  display: flex; align-items: center;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.main { max-width: 900px; margin: 28px auto 56px; padding: 0 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--green-lt); color: var(--green);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge.amber { background: var(--amber-lt); color: var(--amber); }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+.badge.amber .badge-dot { background: var(--amber); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 120px; }
+.slider-track { flex: 1; min-width: 160px; }
+
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; cursor: pointer;
+}
+
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.freq-unit { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); min-width: 26px; }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.toggle-switch {
+  position: relative; width: 40px; height: 22px; border-radius: 11px;
+  background: var(--border); cursor: pointer; transition: background .18s; flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--green); }
+.toggle-knob {
+  position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .18s;
+}
+.toggle-switch.on .toggle-knob { transform: translateX(18px); }
+.toggle-text { font-size: 12.5px; color: var(--muted); }
+
+.canvas-wrap { padding: 0 24px; }
+canvas.sim-canvas {
+  width: 100%; height: 220px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC; margin-top: 16px;
+}
+.canvas-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 21px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+.stat-value.warn { color: #C0392B; }
+
+.formula-panel {
+  border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt);
+  display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center;
+}
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+.info-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--purple-lt);
+  border: 1px solid #E2D3EF;
+  border-radius: 10px;
+  position: relative;
+}
+.info-note::before {
+  content: '💡';
+  position: absolute; left: 15px; top: 15px;
+  font-size: 14px; line-height: 1;
+}
+.info-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--purple);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.info-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+  .controls, .canvas-wrap, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .info-note { margin: 18px 12px 18px; padding: 14px 16px 14px 40px; }
+  .freq-label { min-width: 90px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback" style="display:none; align-items:center; gap:8px;">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+      <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="headerTitle">Gate Drive Simulator — Module 07</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- CARD 1: COMPARATOR / SQUARING -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">Comparator / Squaring — sine to square</h2>
+        <p id="card1Sub">How a DDS sine reference becomes a switching command</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelThreshold">Threshold offset</span>
+        <div class="slider-track"><input type="range" id="thSlider" min="-90" max="90" step="1" value="0"></div>
+        <div class="freq-inputs">
+          <input type="text" id="thInput" class="freq-num" value="0" readonly>
+          <span class="freq-unit">%</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick1">Quick select:</span>
+        <button class="qbtn" data-th="-40">-40%</button>
+        <button class="qbtn active" data-th="0">0% (centered)</button>
+        <button class="qbtn" data-th="40">+40%</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="compCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note1">Blue = sine reference from the DDS. Amber = comparator output driving the switch. The dashed line is the comparator threshold — every crossing becomes a square-wave edge.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameDuty">DUTY CYCLE</div>
+        <div><span class="stat-value" id="dispDuty">50.0</span><span class="stat-unit">%</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameTh">THRESHOLD</div>
+        <div><span class="stat-value" id="dispTh">0</span><span class="stat-unit">%</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameFP">FREQ / PHASE</div>
+        <div><span class="stat-value" style="font-size:15px" id="dispFP">preserved</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlDuty">DUTY CYCLE</div>
+        <div class="formula-eq">D = 50% − asin(V_th/A) / π × 100</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight1">INSIGHT</span>
+      <p id="infoNote1">A perfectly centered threshold (0%) gives a clean 50/50 duty cycle — exactly what push-pull switching needs. Any DC offset or bias drift in the comparator shifts the threshold off-center and skews the duty cycle, which is why threshold precision matters for ZVS timing downstream.</p>
+    </div>
+  </div>
+
+  <!-- CARD 2: GATE DRIVER -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge amber"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card2Title">Gate Driver — drive current vs switching speed</h2>
+        <p id="card2Sub">Faster gate charge/discharge, shorter transition window</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelCurrent">Drive current (I)</span>
+        <div class="slider-track"><input type="range" id="iSlider" min="2" max="20" step="0.5" value="10"></div>
+        <div class="freq-inputs">
+          <input type="text" id="iInput" class="freq-num" value="10.0" readonly>
+          <span class="freq-unit">A</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick2">Quick select:</span>
+        <button class="qbtn" data-i="5">5 A</button>
+        <button class="qbtn active" data-i="10">10 A (typ)</button>
+        <button class="qbtn" data-i="20">20 A (peak)</button>
+      </div>
+
+      <div class="freq-row" style="margin-top:6px">
+        <span class="freq-label" id="labelCharge">Gate charge (Qg)</span>
+        <div class="slider-track"><input type="range" id="qSlider" min="10" max="100" step="1" value="40"></div>
+        <div class="freq-inputs">
+          <input type="text" id="qInput" class="freq-num" value="40" readonly>
+          <span class="freq-unit">nC</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick3">Quick select:</span>
+        <button class="qbtn" data-q="20">20 nC (small)</button>
+        <button class="qbtn active" data-q="40">40 nC (mid)</button>
+        <button class="qbtn" data-q="80">80 nC (large)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="gateCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note2">The window mapped is exactly one RF period at 13.56 MHz. The shaded region is the transition window — the time the gate spends charging from 0 to the drive rail. The dashed mid-line marks the half-period boundary the opposite switch must respect.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNameRise">RISE TIME</div>
+        <div><span class="stat-value" id="dispRise">4.0</span><span class="stat-unit">ns</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNamePct">% OF RF PERIOD</div>
+        <div><span class="stat-value" id="dispPct">5.4</span><span class="stat-unit">%</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameFit">HALF-PERIOD FIT</div>
+        <div><span class="stat-value" style="font-size:15px" id="dispFit">OK</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlRise">RISE TIME</div>
+        <div class="formula-eq">t_rise = Qg / I_drive</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlPeriod">RF PERIOD (13.56 MHz)</div>
+        <div class="formula-eq">T = 1/f ≈ 73.75 ns</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight2">INSIGHT</span>
+      <p id="infoNote2">This models the gate-charge transition only, not the full ZVS turn-on behavior. The point stands regardless: a weak driver that can't finish charging the gate within a fraction of the RF period leaves the switch in a partially-on state for longer, which is exactly the window where switching loss and duty-cycle distortion creep in.</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let lang = 'en';
+let threshold = 0;      // -90..90 (%)
+let driveCurrentA = 10.0;
+let gateChargeNC = 40;
+
+const I18N = {
+  en: {
+    headerTitle: 'Gate Drive Simulator — Module 07',
+    badge1: 'INTERACTIVE', badge2: 'INTERACTIVE',
+    card1Title: 'Comparator / Squaring — sine to square',
+    card1Sub: 'How a DDS sine reference becomes a switching command',
+    labelThreshold: 'Threshold offset',
+    labelQuick1: 'Quick select:',
+    note1: 'Blue = sine reference from the DDS. Amber = comparator output driving the switch. The dashed line is the comparator threshold — every crossing becomes a square-wave edge.',
+    statNameDuty: 'DUTY CYCLE', statNameTh: 'THRESHOLD', statNameFP: 'FREQ / PHASE',
+    dispFP: 'preserved',
+    fmlDuty: 'DUTY CYCLE',
+    insightLabel: 'INSIGHT',
+    infoNote1: 'A perfectly centered threshold (0%) gives a clean 50/50 duty cycle — exactly what push-pull switching needs. Any DC offset or bias drift in the comparator shifts the threshold off-center and skews the duty cycle, which is why threshold precision matters for ZVS timing downstream.',
+    card2Title: 'Gate Driver — drive current vs switching speed',
+    card2Sub: 'Faster gate charge/discharge, shorter transition window',
+    labelCurrent: 'Drive current (I)', labelCharge: 'Gate charge (Qg)',
+    labelQuick2: 'Quick select:', labelQuick3: 'Quick select:',
+    note2: 'The window mapped is exactly one RF period at 13.56 MHz. The shaded region is the transition window — the time the gate spends charging from 0 to the drive rail. The dashed mid-line marks the half-period boundary the opposite switch must respect.',
+    statNameRise: 'RISE TIME', statNamePct: '% OF RF PERIOD', statNameFit: 'HALF-PERIOD FIT',
+    fitOK: 'OK', fitTight: 'TIGHT', fitFail: 'TOO SLOW',
+    fmlRise: 'RISE TIME', fmlPeriod: 'RF PERIOD (13.56 MHz)',
+    infoNote2: 'This models the gate-charge transition only, not the full ZVS turn-on behavior. The point stands regardless: a weak driver that can\'t finish charging the gate within a fraction of the RF period leaves the switch in a partially-on state for longer, which is exactly the window where switching loss and duty-cycle distortion creep in. The IXYS DEIC420 (a real driver paired with DE375-102N12A MOSFETs in Class D/E RF designs) is rated 20A peak, 8-30V supply, sub-4ns rise/fall — the 20A quick-select above reflects its actual limit.',
+    sineLabel: 'sine (DDS)', squareLabel: 'square (to switch)', thresholdLabel: 'threshold',
+    gateLabel: 'Vgs', windowLabel: 'transition window', halfLabel: 'half-period',
+  },
+  ko: {
+    headerTitle: 'Gate Drive 시뮬레이터 — Module 07',
+    badge1: 'INTERACTIVE', badge2: 'INTERACTIVE',
+    card1Title: '비교기 / 스퀘어링 — 사인파에서 사각파로',
+    card1Sub: 'DDS 사인파 기준신호가 스위칭 명령으로 바뀌는 과정',
+    labelThreshold: '문턱전압 오프셋',
+    labelQuick1: '빠른 선택:',
+    note1: '파란색 = DDS 사인파 기준신호. 주황색 = 스위치를 구동하는 비교기 출력. 점선은 비교기 문턱전압 — 이 선을 넘는 순간마다 사각파의 엣지가 만들어집니다.',
+    statNameDuty: '듀티 사이클', statNameTh: '문턱전압', statNameFP: '주파수/위상',
+    dispFP: '유지됨',
+    fmlDuty: '듀티 사이클',
+    insightLabel: '인사이트',
+    infoNote1: '문턱전압이 정확히 중앙(0%)에 있으면 깨끗한 50/50 듀티 사이클이 나옵니다 — 푸시풀 스위칭에 정확히 필요한 조건입니다. 비교기의 DC 오프셋이나 바이어스 드리프트가 문턱을 중심에서 벗어나게 하면 듀티 사이클이 왜곡되는데, 이게 바로 문턱전압 정밀도가 뒤쪽 ZVS 타이밍에 중요한 이유입니다.',
+    card2Title: '게이트 드라이버 — 구동전류와 전환 속도',
+    card2Sub: '충·방전이 빠를수록 전환 구간이 짧아진다',
+    labelCurrent: '구동 전류 (I)', labelCharge: '게이트 전하량 (Qg)',
+    labelQuick2: '빠른 선택:', labelQuick3: '빠른 선택:',
+    note2: '표시된 구간은 정확히 13.56MHz 기준 1주기입니다. 음영 영역이 전환 구간 — 게이트가 0에서 구동 레일까지 충전되는 시간입니다. 점선 중앙선은 반대쪽 스위치가 지켜야 할 절반 주기 경계입니다.',
+    statNameRise: '상승 시간', statNamePct: 'RF 주기 대비 비율', statNameFit: '절반주기 적합도',
+    fitOK: '적합', fitTight: '타이트', fitFail: '너무 느림',
+    fmlRise: '상승 시간', fmlPeriod: 'RF 주기 (13.56 MHz)',
+    infoNote2: '이 모델은 게이트 충전 전환 구간만 표현하며, ZVS 턴온 전 과정을 다루지는 않습니다. 그래도 핵심은 동일합니다 — 구동력이 약한 드라이버는 게이트 충전을 RF 주기의 작은 일부 안에 끝내지 못해 스위치가 "어중간하게 켜진" 상태로 더 오래 머물고, 바로 그 구간에서 스위칭 손실과 듀티 왜곡이 생겨납니다. 실제로 DE375-102N12A MOSFET과 함께 Class D/E RF 설계에 쓰이는 IXYS DEIC420 드라이버는 20A 피크·8~30V 공급·상승/하강시간 4ns 이하 정격입니다 — 위 "20A (peak)" 퀵버튼이 바로 이 실제 정격입니다.',
+    sineLabel: '사인파 (DDS)', squareLabel: '사각파 (스위치로)', thresholdLabel: '문턱전압',
+    gateLabel: 'Vgs', windowLabel: '전환 구간', halfLabel: '절반주기',
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('headerTitle', T.headerTitle);
+  set('badge1', T.badge1); set('badge2', T.badge2);
+  set('card1Title', T.card1Title); set('card1Sub', T.card1Sub);
+  set('labelThreshold', T.labelThreshold); set('labelQuick1', T.labelQuick1);
+  set('note1', T.note1);
+  set('statNameDuty', T.statNameDuty); set('statNameTh', T.statNameTh); set('statNameFP', T.statNameFP);
+  set('dispFP', T.dispFP);
+  set('fmlDuty', T.fmlDuty);
+  set('infoNote1', T.infoNote1);
+  set('labelInsight1', T.insightLabel);
+  set('card2Title', T.card2Title); set('card2Sub', T.card2Sub);
+  set('labelCurrent', T.labelCurrent); set('labelCharge', T.labelCharge);
+  set('labelQuick2', T.labelQuick2); set('labelQuick3', T.labelQuick3);
+  set('note2', T.note2);
+  set('statNameRise', T.statNameRise); set('statNamePct', T.statNamePct); set('statNameFit', T.statNameFit);
+  set('fmlRise', T.fmlRise); set('fmlPeriod', T.fmlPeriod);
+  set('infoNote2', T.infoNote2);
+  set('labelInsight2', T.insightLabel);
+  updateFit();
+  drawComparator();
+  drawGate();
+}
+
+/* ── CARD 1: COMPARATOR ── */
+function computeDutyPct(offsetPct) {
+  const offset = Math.max(-0.95, Math.min(0.95, offsetPct / 100));
+  const theta1 = Math.asin(offset);
+  return 50 - (theta1 / Math.PI) * 100;
+}
+
+function computeSegments(offsetPct, periods) {
+  const offset = Math.max(-0.95, Math.min(0.95, offsetPct / 100));
+  const theta1 = Math.asin(offset);
+  const totalTheta = 2 * Math.PI * periods;
+  let crossings = [];
+  for (let k = -1; k <= Math.ceil(periods) + 1; k++) {
+    const tr = theta1 + 2 * Math.PI * k;
+    const tf = (Math.PI - theta1) + 2 * Math.PI * k;
+    if (tr >= 0 && tr <= totalTheta) crossings.push({ theta: tr, type: 'rise' });
+    if (tf >= 0 && tf <= totalTheta) crossings.push({ theta: tf, type: 'fall' });
+  }
+  crossings.sort((a, b) => a.theta - b.theta);
+  let state = Math.sin(0) > offset ? 'H' : 'L';
+  let prevTheta = 0;
+  const segments = [];
+  crossings.forEach(c => {
+    segments.push({ t0: prevTheta, t1: c.theta, state });
+    state = c.type === 'rise' ? 'H' : 'L';
+    prevTheta = c.theta;
+  });
+  segments.push({ t0: prevTheta, t1: totalTheta, state });
+  return { segments, offset };
+}
+
+function drawComparator() {
+  const canvas = document.getElementById('compCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 220;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 46, padR = 16;
+  const plotW = W - padL - padR;
+  const periods = 2.5;
+
+  const sineCY = 52, sineAmp = 30;
+  const sqHigh = 128, sqLow = 178;
+
+  ctx.strokeStyle = '#E9EEF3'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, 20); ctx.lineTo(padL, 86); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(padL, 120); ctx.lineTo(padL, 186); ctx.stroke();
+
+  const T = I18N[lang];
+  ctx.fillStyle = '#94A3B8'; ctx.font = '10px "JetBrains Mono", monospace'; ctx.textAlign = 'right';
+  ctx.fillText('+A', padL - 6, sineCY - sineAmp + 4);
+  ctx.fillText('0', padL - 6, sineCY + 4);
+  ctx.fillText('-A', padL - 6, sineCY + sineAmp + 4);
+
+  const { segments, offset } = computeSegments(threshold, periods);
+  const thY = sineCY - sineAmp * offset;
+  ctx.strokeStyle = '#C0392B'; ctx.lineWidth = 1.2; ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(padL, thY); ctx.lineTo(padL + plotW, thY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#C0392B'; ctx.font = '10.5px "Google Sans", sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(T.thresholdLabel, padL + plotW - 70, thY - 6);
+
+  ctx.strokeStyle = '#7030A0'; ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  const steps = 300;
+  for (let i = 0; i <= steps; i++) {
+    const theta = (i / steps) * 2 * Math.PI * periods;
+    const x = padL + (theta / (2 * Math.PI * periods)) * plotW;
+    const y = sineCY - sineAmp * Math.sin(theta);
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = '#C8860D'; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  segments.forEach((seg, idx) => {
+    const x0 = padL + (seg.t0 / (2 * Math.PI * periods)) * plotW;
+    const x1 = padL + (seg.t1 / (2 * Math.PI * periods)) * plotW;
+    const y = seg.state === 'H' ? sqHigh : sqLow;
+    if (idx === 0) ctx.moveTo(Math.max(x0, padL), y); else ctx.lineTo(Math.max(x0, padL), y);
+    ctx.lineTo(Math.min(x1, padL + plotW), y);
+    if (idx < segments.length - 1) {
+      const nextY = segments[idx + 1].state === 'H' ? sqHigh : sqLow;
+      ctx.lineTo(Math.min(x1, padL + plotW), nextY);
+    }
+  });
+  ctx.stroke();
+
+  ctx.fillStyle = '#7030A0'; ctx.font = '10.5px "Google Sans", sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(T.sineLabel, padL + 4, 24);
+  ctx.fillStyle = '#C8860D';
+  ctx.fillText(T.squareLabel, padL + 4, 200);
+}
+
+/* ── CARD 2: GATE DRIVER ── */
+function computeRiseNs() { return gateChargeNC / driveCurrentA; }
+const RF_PERIOD_NS = 1000 / 13.56;
+
+function drawGate() {
+  const canvas = document.getElementById('gateCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 220;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 46, padR = 16, padT = 20, padB = 26;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+  const baseY = padT + plotH;
+  const topY = padT;
+
+  const tRise = computeRiseNs();
+  const tDelay = RF_PERIOD_NS * 0.04;
+  const xAt = ns => padL + (ns / RF_PERIOD_NS) * plotW;
+
+  ctx.strokeStyle = '#E9EEF3'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, topY); ctx.lineTo(padL, baseY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(padL, baseY); ctx.lineTo(padL + plotW, baseY); ctx.stroke();
+
+  const halfX = xAt(RF_PERIOD_NS / 2);
+  ctx.strokeStyle = '#94A3B8'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(halfX, topY); ctx.lineTo(halfX, baseY); ctx.stroke();
+  ctx.setLineDash([]);
+  const T = I18N[lang];
+  ctx.fillStyle = '#94A3B8'; ctx.font = '9.5px "Google Sans", sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(T.halfLabel, halfX, baseY + 16);
+
+  const x0 = xAt(0), x1 = xAt(tDelay), x2 = xAt(Math.min(tDelay + tRise, RF_PERIOD_NS));
+  ctx.fillStyle = 'rgba(200,134,13,0.16)';
+  ctx.fillRect(x1, topY, Math.max(x2 - x1, 1), plotH);
+
+  ctx.strokeStyle = '#7030A0'; ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  ctx.moveTo(x0, baseY);
+  ctx.lineTo(x1, baseY);
+  if (tDelay + tRise <= RF_PERIOD_NS) {
+    ctx.lineTo(x2, topY);
+    ctx.lineTo(padL + plotW, topY);
+  } else {
+    const partial = (RF_PERIOD_NS - tDelay) / tRise;
+    const yPartial = baseY - partial * plotH;
+    ctx.lineTo(padL + plotW, yPartial);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = '#94A3B8'; ctx.font = '10px "JetBrains Mono", monospace'; ctx.textAlign = 'right';
+  ctx.fillText('Vdd', padL - 6, topY + 4);
+  ctx.fillText('0', padL - 6, baseY + 4);
+
+  ctx.fillStyle = '#C8860D'; ctx.font = '10.5px "Google Sans", sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(T.windowLabel, (x1 + x2) / 2, topY - 6);
+  ctx.fillStyle = '#7030A0'; ctx.textAlign = 'left';
+  ctx.fillText(T.gateLabel, padL + 4, topY + 14);
+}
+
+function updateFit() {
+  const tRise = computeRiseNs();
+  const T = I18N[lang];
+  const pct = (tRise / RF_PERIOD_NS) * 100;
+  document.getElementById('dispRise').textContent = tRise.toFixed(1);
+  document.getElementById('dispPct').textContent = pct.toFixed(1);
+  const fitEl = document.getElementById('dispFit');
+  const pctEl = document.getElementById('dispPct');
+  if (pct < 30) { fitEl.textContent = T.fitOK; fitEl.classList.remove('warn'); pctEl.classList.remove('warn'); }
+  else if (pct < 55) { fitEl.textContent = T.fitTight; fitEl.classList.remove('warn'); pctEl.classList.add('warn'); }
+  else { fitEl.textContent = T.fitFail; fitEl.classList.add('warn'); pctEl.classList.add('warn'); }
+}
+
+/* ── EVENTS ── */
+document.getElementById('thSlider').addEventListener('input', e => {
+  threshold = +e.target.value;
+  document.getElementById('thInput').value = threshold;
+  document.getElementById('dispTh').textContent = threshold;
+  document.getElementById('dispDuty').textContent = computeDutyPct(threshold).toFixed(1);
+  document.querySelectorAll('[data-th]').forEach(b => b.classList.remove('active'));
+  drawComparator();
+});
+document.querySelectorAll('[data-th]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    threshold = +btn.dataset.th;
+    document.getElementById('thSlider').value = threshold;
+    document.getElementById('thInput').value = threshold;
+    document.getElementById('dispTh').textContent = threshold;
+    document.getElementById('dispDuty').textContent = computeDutyPct(threshold).toFixed(1);
+    document.querySelectorAll('[data-th]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    drawComparator();
+  });
+});
+
+document.getElementById('iSlider').addEventListener('input', e => {
+  driveCurrentA = +e.target.value;
+  document.getElementById('iInput').value = driveCurrentA.toFixed(1);
+  document.querySelectorAll('[data-i]').forEach(b => b.classList.remove('active'));
+  updateFit(); drawGate();
+});
+document.querySelectorAll('[data-i]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    driveCurrentA = +btn.dataset.i;
+    document.getElementById('iSlider').value = btn.dataset.i;
+    document.getElementById('iInput').value = driveCurrentA.toFixed(1);
+    document.querySelectorAll('[data-i]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateFit(); drawGate();
+  });
+});
+
+document.getElementById('qSlider').addEventListener('input', e => {
+  gateChargeNC = +e.target.value;
+  document.getElementById('qInput').value = gateChargeNC;
+  document.querySelectorAll('[data-q]').forEach(b => b.classList.remove('active'));
+  updateFit(); drawGate();
+});
+document.querySelectorAll('[data-q]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    gateChargeNC = +btn.dataset.q;
+    document.getElementById('qSlider').value = gateChargeNC;
+    document.getElementById('qInput').value = gateChargeNC;
+    document.querySelectorAll('[data-q]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateFit(); drawGate();
+  });
+});
+
+window.addEventListener('resize', () => { drawComparator(); drawGate(); });
+window.addEventListener('load', () => {
+  setLang('en');
+  document.getElementById('dispDuty').textContent = computeDutyPct(threshold).toFixed(1);
+});
+</script>
+</body>
+</html>

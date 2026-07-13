@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power Control &amp; ZVS Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --amber:      #C8860D;
+  --amber-lt:   #FFF3E0;
+  --red:        #C0392B;
+  --red-lt:     #FDF0EE;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.logo-img { height: 36px; display: block; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+.lang-toggle {
+  display: flex; align-items: center;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.main { max-width: 900px; margin: 28px auto 56px; padding: 0 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-lt); color: var(--purple);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge.green { background: var(--green-lt); color: var(--green); }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); animation: pulse 2s infinite; }
+.badge.green .badge-dot { background: var(--green); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 130px; }
+.slider-track { flex: 1; min-width: 160px; }
+
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; cursor: pointer;
+}
+
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.freq-unit { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); min-width: 26px; }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.canvas-wrap { padding: 0 24px; }
+canvas.sim-canvas {
+  width: 100%; height: 230px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC; margin-top: 16px;
+}
+.canvas-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 24px 22px; }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+.stat-value.warn { color: #C0392B; }
+.stat-value.ok { color: var(--green); }
+
+.formula-panel {
+  border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt);
+  display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center;
+}
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; font-weight: 500; color: var(--green-dk); }
+
+.info-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--purple-lt);
+  border: 1px solid #E2D3EF;
+  border-radius: 10px;
+  position: relative;
+}
+.info-note::before {
+  content: '💡';
+  position: absolute; left: 15px; top: 15px;
+  font-size: 14px; line-height: 1;
+}
+.info-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--purple);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.info-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+.warn-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--red-lt);
+  border: 1px solid #F0C7C0;
+  border-radius: 10px;
+  position: relative;
+}
+.warn-note::before {
+  content: '⚠️';
+  position: absolute; left: 15px; top: 14px;
+  font-size: 14px; line-height: 1;
+}
+.warn-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--red);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.warn-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+.bridge-note {
+  margin: 0 24px 24px; padding: 12px 16px;
+  background: var(--bg); border: 1px dashed var(--border); border-radius: 8px;
+  font-size: 12px; color: var(--muted); line-height: 1.6; text-align: center;
+}
+
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+  .controls, .canvas-wrap, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .info-note, .warn-note { margin: 18px 12px 18px; padding: 14px 16px 14px 40px; }
+  .bridge-note { margin: 0 12px 20px; }
+  .freq-label { min-width: 100px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback" style="display:none; align-items:center; gap:8px;">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+      <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="headerTitle">Power Control &amp; ZVS Simulator — Module 07</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- CARD 1: POWER CONTROL VIA VDD -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">Power Control via Vdd — the RF Power MOSFET's real throttle</h2>
+        <p id="card1Sub">Why switching-family amps vary the rail voltage instead of the drive level</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelVdd1">Vdd (supply)</span>
+        <div class="slider-track"><input type="range" id="pwrVddSlider" min="100" max="280" step="5" value="180"></div>
+        <div class="freq-inputs">
+          <input type="text" id="pwrVddInput" class="freq-num" value="180" readonly>
+          <span class="freq-unit">V</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick1">Quick select:</span>
+        <button class="qbtn" data-pvdd="100">100V (idle)</button>
+        <button class="qbtn active" data-pvdd="180">180V (nominal)</button>
+        <button class="qbtn" data-pvdd="220">220V (near max)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="powerCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note1">P-Vdd curve calibrated to a real paralleled RF Power MOSFET module (IXYS DE375-102N12A, ~2-5 kW class), reference point: 180V to 3500W. Shape is what matters: power tracks Vdd squared, not Vdd.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNamePout">OUTPUT POWER</div>
+        <div><span class="stat-value" id="dispPout">3500</span><span class="stat-unit">W</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameIdc">DC CURRENT (Idc)</div>
+        <div><span class="stat-value" id="dispIdc">19.4</span><span class="stat-unit">A</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNamePct">% OF SLIDER MAX</div>
+        <div><span class="stat-value" id="dispPct">41.3</span><span class="stat-unit">%</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlPower">POWER vs Vdd</div>
+        <div class="formula-eq">P_out = P_ref x (Vdd / Vdd_ref)^2</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlIdc">DC CURRENT</div>
+        <div class="formula-eq">I_dc = P_out / Vdd</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight1">INSIGHT</span>
+      <p id="infoNote1">The gate never sees anything but a full-swing on/off command (Zone 2), so there is no drive level to turn down the way a linear amp would. Instead, C1 and omega are fixed by the resonant design, which fixes Idc/Vdd, so the only knob left is Vdd itself, and P = Vdd times Idc turns that into a squared relationship. This is why Zone 5's power supply has to be variable, not fixed, for a switching-family generator.</p>
+    </div>
+  </div>
+
+  <!-- CARD 2: ZVS RESONANT NETWORK -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge green"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card2Title">ZVS Resonant Network — why the voltage must return to zero</h2>
+        <p id="card2Sub">The built-in Lr-Cr network inside each Main Amp, modeled from first principles</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelVdd2">Vdd (supply)</span>
+        <div class="slider-track"><input type="range" id="zvsVddSlider" min="100" max="280" step="5" value="180"></div>
+        <div class="freq-inputs">
+          <input type="text" id="zvsVddInput" class="freq-num" value="180" readonly>
+          <span class="freq-unit">V</span>
+        </div>
+      </div>
+      <div class="freq-row" style="margin-top:6px">
+        <span class="freq-label" id="labelTuning">Tuning error</span>
+        <div class="slider-track"><input type="range" id="tuneSlider" min="-15" max="5" step="0.5" value="0"></div>
+        <div class="freq-inputs">
+          <input type="text" id="tuneInput" class="freq-num" value="0" readonly>
+          <span class="freq-unit">%</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick2">Quick select:</span>
+        <button class="qbtn" data-tune="-15">-15%</button>
+        <button class="qbtn" data-tune="-8">-8%</button>
+        <button class="qbtn active" data-tune="0">0% (ZVS)</button>
+        <button class="qbtn" data-tune="3">+3%</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="zvsCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note2">One full 13.56 MHz cycle. Left half (shaded) = switch OFF, drain voltage swells per the resonant network. Right half = switch ON, voltage collapses to 0. The dot marks the turn-on instant, it should land at zero.</p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-name" id="statNamePeak">PEAK VOLTAGE</div>
+        <div><span class="stat-value" id="dispPeak">641</span><span class="stat-unit">V</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameTurnOn">TURN-ON VOLTAGE</div>
+        <div><span class="stat-value ok" id="dispTurnOn">0.0</span><span class="stat-unit">V</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameZVS">ZVS STATUS</div>
+        <div><span class="stat-value ok" style="font-size:14px" id="dispZVS">Achieved</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlPeak">PEAK VOLTAGE (optimum)</div>
+        <div class="formula-eq">V_peak ~ 3.562 x Vdd</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlTurnOn">TURN-ON VOLTAGE</div>
+        <div class="formula-eq">V_turn-on / Vdd ~ -(pi^2/2) x d</div>
+      </div>
+    </div>
+
+    <div class="warn-note">
+      <span class="warn-note-label" id="labelWarn">DEVICE RATING CHECK</span>
+      <p id="warnNote">Calibrated to a real device: the IXYS DE375-102N12A used in this hardware is rated VDSS = 1000V. At this rail, peak switch voltage reaches about 641V, within the recommended 750V (75% of VDSS) reliability margin. This value updates live with the Vdd slider above.</p>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight2">INSIGHT</span>
+      <p id="infoNote2">Derived directly from the two ZVS boundary conditions (v=0 and dv/dt=0 at turn-on), not just quoted: with 50% duty, I_R/I_dc is about 1.862 and phi is about -32.5 degrees. Notice how small the tuning error is on the x-axis but how much turn-on voltage it produces. Class E is inherently more sensitive to component tolerance and load variation than a linear (Class AB) amplifier, which is exactly why some manufacturers still choose linear for reflection-heavy loads.</p>
+    </div>
+  </div>
+
+  <div class="bridge-note" id="bridgeNote">Once shaped by this resonant network, the near-fundamental waveform moves on to Zone 4's Matching Network for 50 ohm impedance transformation, a separate topic covered by the PRISM matching simulator.</div>
+
+</main>
+
+<script>
+let lang = 'en';
+
+// Derived optimum Class-E constants (see chat derivation)
+const K_OPT = 1.8620958891185866;   // I_R / I_dc
+const PHI_OPT = -0.5669115049410094; // rad
+const VDD_REF = 180, P_REF = 3500;   // reference point: 180V nominal rail -> 3500W, calibrated to a paralleled DE375-102N12A module
+const SAFE_MARGIN_V = 750;           // 75% of VDSS, common reliability derating guideline
+const DEVICE_VOLTAGE_CLASS = 1000;   // IXYS DE375-102N12A VDSS (real datasheet value)
+
+let pwrVdd = 180;
+let zvsVdd = 180, tuning = 0;
+
+const I18N = {
+  en: {
+    headerTitle: "Power Control &amp; ZVS Simulator — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "Power Control via Vdd — the RF Power MOSFET's real throttle",
+    card1Sub: "Why switching-family amps vary the rail voltage instead of the drive level",
+    labelVdd1: "Vdd (supply)", labelQuick1: "Quick select:",
+    note1: "P-Vdd curve calibrated to a real paralleled RF Power MOSFET module (IXYS DE375-102N12A, ~2-5 kW class), reference point: 180V to 3500W. Shape is what matters: power tracks Vdd squared, not Vdd.",
+    statNamePout: "OUTPUT POWER", statNameIdc: "DC CURRENT (Idc)", statNamePct: "% OF SLIDER MAX",
+    fmlPower: "POWER vs Vdd", fmlIdc: "DC CURRENT",
+    infoNote1: "The gate never sees anything but a full-swing on/off command (Zone 2), so there is no drive level to turn down the way a linear amp would. Instead, C1 and omega are fixed by the resonant design, which fixes Idc/Vdd, so the only knob left is Vdd itself, and P = Vdd times Idc turns that into a squared relationship. This is why Zone 5's power supply has to be variable, not fixed, for a switching-family generator.",
+    card2Title: "ZVS Resonant Network — why the voltage must return to zero",
+    card2Sub: "The built-in Lr-Cr network inside each Main Amp, modeled from first principles",
+    labelVdd2: "Vdd (supply)", labelTuning: "Tuning error", labelQuick2: "Quick select:",
+    note2: "One full 13.56 MHz cycle. Left half (shaded) = switch OFF, drain voltage swells per the resonant network. Right half = switch ON, voltage collapses to 0. The dot marks the turn-on instant, it should land at zero.",
+    statNamePeak: "PEAK VOLTAGE", statNameTurnOn: "TURN-ON VOLTAGE", statNameZVS: "ZVS STATUS",
+    zvsAchieved: "Achieved", zvsHard: "Hard-Switching", zvsReverse: "Reverse Conduction",
+    fmlPeak: "PEAK VOLTAGE (optimum)", fmlTurnOn: "TURN-ON VOLTAGE",
+    labelWarn: "DEVICE RATING CHECK",
+    warnNote: function(peak) {
+      let cmp;
+      if (peak < SAFE_MARGIN_V) cmp = "within the recommended " + SAFE_MARGIN_V + "V (75% of VDSS) reliability margin";
+      else if (peak < DEVICE_VOLTAGE_CLASS) cmp = "inside the device's " + DEVICE_VOLTAGE_CLASS + "V absolute rating, but eating into the safety margin";
+      else cmp = "exceeding the device's " + DEVICE_VOLTAGE_CLASS + "V absolute maximum rating";
+      return "Calibrated to a real device: the IXYS DE375-102N12A used in this hardware is rated VDSS = " + DEVICE_VOLTAGE_CLASS + "V. At this rail, peak switch voltage reaches about " + peak + "V, " + cmp + ". This value updates live with the Vdd slider above.";
+    },
+    infoNote2: "Derived directly from the two ZVS boundary conditions (v=0 and dv/dt=0 at turn-on), not just quoted: with 50% duty, I_R/I_dc is about 1.862 and phi is about -32.5 degrees. Notice how small the tuning error is on the x-axis but how much turn-on voltage it produces. Class E is inherently more sensitive to component tolerance and load variation than a linear (Class AB) amplifier, which is exactly why some manufacturers still choose linear for reflection-heavy loads.",
+    bridgeNote: "Once shaped by this resonant network, the near-fundamental waveform moves on to Zone 4's Matching Network for 50 ohm impedance transformation, a separate topic covered by the PRISM matching simulator.",
+    switchOff: "switch OFF", switchOn: "switch ON", turnOnLabel: "turn-on",
+  },
+  ko: {
+    headerTitle: "파워 제어 및 ZVS 시뮬레이터 — Module 07",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "Vdd를 통한 파워 제어 — RF Power MOSFET의 진짜 스로틀",
+    card1Sub: "스위칭 계열이 구동 레벨 대신 전원전압을 조절하는 이유",
+    labelVdd1: "Vdd (전원전압)", labelQuick1: "빠른 선택:",
+    note1: "실제 파라렐 구성 RF Power MOSFET 모듈(IXYS DE375-102N12A, 2~5kW급) 기준으로 캘리브레이션한 P-Vdd 곡선입니다 (기준점: 180V → 3500W). 형태가 핵심입니다 — 파워는 Vdd가 아니라 Vdd²에 비례합니다.",
+    statNamePout: "출력 파워", statNameIdc: "DC 전류 (Idc)", statNamePct: "슬라이더 최대 대비",
+    fmlPower: "파워 vs Vdd", fmlIdc: "DC 전류",
+    infoNote1: "게이트는 (Zone 2에서) 풀스윙 On/Off 명령만 받을 뿐, 선형 앰프처럼 낮출 수 있는 \"구동 레벨\"이라는 게 없습니다. 대신 C1과 ω는 공진망 설계로 고정되어 있어 Idc/Vdd 비율이 고정되고, 남은 유일한 손잡이가 Vdd 자체입니다 — P = Vdd·Idc이므로 이게 제곱 관계로 이어집니다. 스위칭 계열 RF Generator의 ⑤ 전원제어부가 고정이 아니라 가변 전원이어야 하는 이유가 바로 이것입니다.",
+    card2Title: "ZVS 공진망 — 왜 전압이 반드시 0으로 돌아와야 하는가",
+    card2Sub: "각 Main Amp 내장 Lr·Cr 공진망을 처음부터 유도해서 모델링",
+    labelVdd2: "Vdd (전원전압)", labelTuning: "튜닝 오차", labelQuick2: "빠른 선택:",
+    note2: "13.56MHz 한 주기 전체입니다. 왼쪽 절반(음영)은 스위치 Off — 드레인 전압이 공진망에 의해 부풀어 오릅니다. 오른쪽 절반은 스위치 On — 전압이 0으로 붕괴합니다. 점은 턴온 순간을 표시하며, 이상적으로는 0에 위치해야 합니다.",
+    statNamePeak: "첨두 전압", statNameTurnOn: "턴온 전압", statNameZVS: "ZVS 상태",
+    zvsAchieved: "달성", zvsHard: "하드 스위칭", zvsReverse: "역방향 전도",
+    fmlPeak: "첨두 전압 (최적)", fmlTurnOn: "턴온 전압",
+    labelWarn: "소자 내압 체크",
+    warnNote: function(peak) {
+      let cmp;
+      if (peak < SAFE_MARGIN_V) cmp = "권장 여유 기준인 " + SAFE_MARGIN_V + "V(VDSS의 75%) 이내입니다";
+      else if (peak < DEVICE_VOLTAGE_CLASS) cmp = "소자 절대정격(" + DEVICE_VOLTAGE_CLASS + "V) 안이지만 안전마진을 상당히 잠식하고 있습니다";
+      else cmp = "소자의 절대최대정격(" + DEVICE_VOLTAGE_CLASS + "V)을 초과합니다";
+      return "실제 소자 기준입니다 — 이 하드웨어에 쓰인 IXYS DE375-102N12A의 정격은 VDSS = " + DEVICE_VOLTAGE_CLASS + "V입니다. 현재 전원전압 기준 첨두 스위치 전압은 약 " + peak + "V로, " + cmp + ". 이 값은 위 Vdd 슬라이더에 실시간으로 연동됩니다.";
+    },
+    infoNote2: "암기한 공식이 아니라 ZVS 경계조건 두 개(턴온 순간 v=0, dv/dt=0)를 직접 연립해서 유도했습니다 — 듀티 50% 기준 I_R/I_dc ≈ 1.862, φ ≈ −32.5°. x축의 튜닝 오차는 작은데 턴온 전압은 얼마나 크게 튀는지 보세요 — Class E는 태생적으로 선형(Class AB) 방식보다 부품 공차·부하 변동에 훨씬 예민합니다. 일부 제조사가 반사파가 잦은 부하에는 여전히 선형 방식을 고집하는 이유가 바로 이겁니다.",
+    bridgeNote: "이 공진망에서 정형된, 기본파에 가까운 신호는 이후 ④ 정형출력부의 Matching Network로 넘어가 50Ω 임피던스 변환을 거칩니다 — 이 부분은 별도로 PRISM 매칭 시뮬레이터가 다루는 영역입니다.",
+    switchOff: "스위치 Off", switchOn: "스위치 On", turnOnLabel: "턴온",
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('headerTitle', T.headerTitle);
+  set('badge1', T.badge1); set('badge2', T.badge2);
+  set('card1Title', T.card1Title); set('card1Sub', T.card1Sub);
+  set('labelVdd1', T.labelVdd1); set('labelQuick1', T.labelQuick1);
+  set('note1', T.note1);
+  set('statNamePout', T.statNamePout); set('statNameIdc', T.statNameIdc); set('statNamePct', T.statNamePct);
+  set('fmlPower', T.fmlPower); set('fmlIdc', T.fmlIdc);
+  set('infoNote1', T.infoNote1); set('labelInsight1', 'INSIGHT');
+  set('card2Title', T.card2Title); set('card2Sub', T.card2Sub);
+  set('labelVdd2', T.labelVdd2); set('labelTuning', T.labelTuning); set('labelQuick2', T.labelQuick2);
+  set('note2', T.note2);
+  set('statNamePeak', T.statNamePeak); set('statNameTurnOn', T.statNameTurnOn); set('statNameZVS', T.statNameZVS);
+  set('fmlPeak', T.fmlPeak); set('fmlTurnOn', T.fmlTurnOn);
+  set('labelWarn', T.labelWarn);
+  set('infoNote2', T.infoNote2); set('labelInsight2', 'INSIGHT');
+  set('bridgeNote', T.bridgeNote);
+  updatePowerStats();
+  updateZVSStats();
+  drawPower();
+  drawZVS();
+}
+
+/* CARD 1: POWER vs VDD */
+function powerAt(v) { return P_REF * Math.pow(v/VDD_REF, 2); }
+
+function drawPower() {
+  const canvas = document.getElementById('powerCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 230;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const padL=56, padR=16, padT=18, padB=26;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const baseY=padT+plotH, topY=padT;
+  const vMin=100, vMax=280;
+  const pMax = powerAt(vMax);
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,topY); ctx.lineTo(padL,baseY); ctx.lineTo(padL+plotW,baseY); ctx.stroke();
+
+  ctx.fillStyle='#94A3B8'; ctx.font='9px "JetBrains Mono", monospace'; ctx.textAlign='right';
+  ctx.fillText(pMax.toFixed(0), padL-6, topY+8);
+  ctx.fillText('0', padL-6, baseY+3);
+  ctx.textAlign='center';
+  ctx.fillText(vMin+'V', padL, baseY+15);
+  ctx.fillText(vMax+'V', padL+plotW, baseY+15);
+
+  ctx.strokeStyle='#7030A0'; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  const steps=100;
+  for (let i=0;i<=steps;i++){
+    const v = vMin + (vMax-vMin)*i/steps;
+    const p = powerAt(v);
+    const x = padL + ((v-vMin)/(vMax-vMin))*plotW;
+    const y = baseY - (p/pMax)*plotH;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  const curP = powerAt(pwrVdd);
+  const curX = padL + ((pwrVdd-vMin)/(vMax-vMin))*plotW;
+  const curY = baseY - (curP/pMax)*plotH;
+  ctx.strokeStyle='#94A3B8'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(curX,topY); ctx.lineTo(curX,baseY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#0F8C50';
+  ctx.beginPath(); ctx.arc(curX,curY,5,0,2*Math.PI); ctx.fill();
+}
+
+function updatePowerStats() {
+  const p = powerAt(pwrVdd);
+  const idc = p/pwrVdd;
+  const pMax = powerAt(280);
+  document.getElementById('dispPout').textContent = p.toFixed(0);
+  document.getElementById('dispIdc').textContent = idc.toFixed(1);
+  document.getElementById('dispPct').textContent = (p/pMax*100).toFixed(1);
+}
+
+/* CARD 2: ZVS WAVEFORM */
+function vHat(theta, K) {
+  return theta - Math.PI/2 + K*Math.cos(theta+PHI_OPT);
+}
+
+function computeZVS() {
+  const K = K_OPT * (1 + tuning/100);
+  const steps = 240;
+  const pts = [];
+  for (let i=0;i<=steps;i++){
+    const th = Math.PI*i/steps;
+    let v = Math.PI*zvsVdd*vHat(th, K);
+    if (v<0) v=0;
+    pts.push(v);
+  }
+  const peak = Math.max.apply(null, pts);
+  const turnOnRaw = Math.PI*zvsVdd*vHat(Math.PI, K);
+  const turnOn = Math.max(0, turnOnRaw);
+  return { pts: pts, peak: peak, turnOn: turnOn, turnOnRaw: turnOnRaw };
+}
+
+function drawZVS() {
+  const canvas = document.getElementById('zvsCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 230;
+  canvas.width = Math.round(W*dpr); canvas.height = Math.round(H*dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const zvsData = computeZVS();
+  const pts = zvsData.pts, peak = zvsData.peak;
+  const padL=52, padR=16, padT=18, padB=26;
+  const plotW=W-padL-padR, plotH=H-padT-padB;
+  const baseY=padT+plotH, topY=padT;
+  const yMax = Math.max(peak*1.15, zvsVdd*0.5);
+
+  ctx.fillStyle = 'rgba(112,48,160,0.05)';
+  ctx.fillRect(padL, topY, plotW/2, plotH);
+
+  ctx.strokeStyle='#E9EEF3'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(padL,topY); ctx.lineTo(padL,baseY); ctx.lineTo(padL+plotW,baseY); ctx.stroke();
+
+  const T = I18N[lang];
+  ctx.fillStyle='#94A3B8'; ctx.font='9.5px "Google Sans", sans-serif'; ctx.textAlign='center';
+  ctx.fillText(T.switchOff, padL+plotW*0.25, baseY+15);
+  ctx.fillText(T.switchOn, padL+plotW*0.75, baseY+15);
+
+  ctx.fillStyle='#94A3B8'; ctx.font='9px "JetBrains Mono", monospace'; ctx.textAlign='right';
+  ctx.fillText(yMax.toFixed(0), padL-6, topY+8);
+  ctx.fillText('0', padL-6, baseY+3);
+
+  ctx.strokeStyle='#7030A0'; ctx.lineWidth=2.2;
+  ctx.beginPath();
+  for (let i=0;i<pts.length;i++){
+    const x = padL + (i/pts.length)*(plotW/2);
+    const y = baseY - (pts[i]/yMax)*plotH;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.lineTo(padL+plotW/2, baseY);
+  ctx.lineTo(padL+plotW, baseY);
+  ctx.stroke();
+
+  const turnOnY = baseY - (Math.max(0,pts[pts.length-1])/yMax)*plotH;
+  const midX = padL+plotW/2;
+  ctx.strokeStyle='#94A3B8'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(midX, topY); ctx.lineTo(midX, baseY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const near0 = pts[pts.length-1] < yMax*0.04;
+  ctx.fillStyle = near0 ? '#0F8C50' : '#C0392B';
+  ctx.beginPath(); ctx.arc(midX, turnOnY, 4.5, 0, 2*Math.PI); ctx.fill();
+  ctx.font='9.5px "Google Sans", sans-serif'; ctx.textAlign='left';
+  ctx.fillText(T.turnOnLabel, midX+8, turnOnY+3);
+}
+
+function updateZVSStats() {
+  const zvsData = computeZVS();
+  const peak = zvsData.peak, turnOn = zvsData.turnOn, turnOnRaw = zvsData.turnOnRaw;
+  const T = I18N[lang];
+  document.getElementById('dispPeak').textContent = peak.toFixed(0);
+  document.getElementById('dispTurnOn').textContent = turnOn.toFixed(1);
+  const zvsEl = document.getElementById('dispTurnOn');
+  const statusEl = document.getElementById('dispZVS');
+  const nearZero = turnOn < zvsVdd*0.04;
+  if (nearZero) {
+    zvsEl.classList.remove('warn'); zvsEl.classList.add('ok');
+    statusEl.textContent = T.zvsAchieved; statusEl.classList.remove('warn'); statusEl.classList.add('ok');
+  } else if (turnOnRaw >= 0) {
+    zvsEl.classList.remove('ok'); zvsEl.classList.add('warn');
+    statusEl.textContent = T.zvsHard; statusEl.classList.remove('ok'); statusEl.classList.add('warn');
+  } else {
+    zvsEl.classList.remove('ok'); zvsEl.classList.add('warn');
+    statusEl.textContent = T.zvsReverse; statusEl.classList.remove('ok'); statusEl.classList.add('warn');
+  }
+  const warnEl = document.getElementById('warnNote');
+  if (warnEl) warnEl.textContent = T.warnNote(peak.toFixed(0));
+}
+
+/* EVENTS */
+document.getElementById('pwrVddSlider').addEventListener('input', function(e){
+  pwrVdd=+e.target.value;
+  document.getElementById('pwrVddInput').value=pwrVdd;
+  document.querySelectorAll('[data-pvdd]').forEach(function(b){b.classList.remove('active');});
+  updatePowerStats(); drawPower();
+});
+document.querySelectorAll('[data-pvdd]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    pwrVdd=+btn.dataset.pvdd;
+    document.getElementById('pwrVddSlider').value=pwrVdd;
+    document.getElementById('pwrVddInput').value=pwrVdd;
+    document.querySelectorAll('[data-pvdd]').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    updatePowerStats(); drawPower();
+  });
+});
+
+document.getElementById('zvsVddSlider').addEventListener('input', function(e){
+  zvsVdd=+e.target.value;
+  document.getElementById('zvsVddInput').value=zvsVdd;
+  updateZVSStats(); drawZVS();
+});
+document.getElementById('tuneSlider').addEventListener('input', function(e){
+  tuning=+e.target.value;
+  document.getElementById('tuneInput').value=tuning;
+  document.querySelectorAll('[data-tune]').forEach(function(b){b.classList.remove('active');});
+  updateZVSStats(); drawZVS();
+});
+document.querySelectorAll('[data-tune]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    tuning=+btn.dataset.tune;
+    document.getElementById('tuneSlider').value=tuning;
+    document.getElementById('tuneInput').value=tuning;
+    document.querySelectorAll('[data-tune]').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    updateZVSStats(); drawZVS();
+  });
+});
+
+window.addEventListener('resize', function(){ drawPower(); drawZVS(); });
+window.addEventListener('load', function(){
+  setLang('en');
+});
+</script>
+</body>
+</html>
