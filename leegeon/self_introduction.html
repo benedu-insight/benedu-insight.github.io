@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>이건 · AMAT 면접 자기소개 전략보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* --- Supabaze design tokens --- */
+    --colors-primary:#3ecf8e;
+    --colors-primary-deep:#24b47e;
+    --colors-primary-soft:#4ade80;
+
+    --colors-canvas:#ffffff;
+    --colors-canvas-soft:#fafafa;
+    --colors-canvas-night:#1c1c1c;
+    --colors-canvas-night-soft:#202020;
+
+    --colors-hairline:#dfdfdf;
+    --colors-hairline-strong:#c7c7c7;
+    --colors-hairline-cool:#ededed;
+    --colors-hairline-cool-2:#efefef;
+    --colors-hairline-cool-3:#d4d4d4;
+
+    --colors-ink:#171717;
+    --colors-ink-secondary:#212121;
+    --colors-ink-mute:#707070;
+    --colors-ink-mute-2:#9a9a9a;
+    --colors-ink-faint:#b2b2b2;
+    --colors-on-primary:#171717;
+    --colors-on-dark:#ffffff;
+
+    --rounded-xs:4px;
+    --rounded-sm:6px;
+    --rounded-md:8px;
+    --rounded-lg:12px;
+    --rounded-xl:16px;
+    --rounded-full:9999px;
+
+    --spacing-xxs:2px;
+    --spacing-xs:4px;
+    --spacing-sm:8px;
+    --spacing-md:12px;
+    --spacing-lg:16px;
+    --spacing-xl:24px;
+    --spacing-xxl:32px;
+    --spacing-huge:64px;
+
+    --el-1:0 1px 3px rgba(0,0,0,0.06);
+    --el-2:0 8px 24px rgba(0,0,0,0.08);
+    --el-3:0 16px 48px rgba(0,0,0,0.12);
+
+    /* Korean body/display copy: Gowun Batang.
+       English/labels: Google Sans if locally installed, else Inter
+       (the design doc's own recommended open-source substitute). */
+    --font-kr:'Gowun Batang', serif;
+    --font-en:'Google Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace, Menlo, Monaco, Consolas, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--colors-canvas);
+    color:var(--colors-ink);
+    font-family:var(--font-kr);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .en{font-family:var(--font-en);}
+  .mono{font-family:var(--font-mono);}
+
+  .container{max-width:1280px; margin:0 auto; padding:0 var(--spacing-xl);}
+  @media (max-width:768px){ .container{padding:0 var(--spacing-lg);} }
+
+  /* ---------- nav-bar-light ---------- */
+  .nav-bar-light{
+    background:var(--colors-canvas);
+    border-bottom:1px solid var(--colors-hairline);
+    padding:var(--spacing-lg) 0;
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md);
+    flex-wrap:wrap;
+  }
+  .wordmark{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-en); font-weight:700; font-size:15px; color:var(--colors-ink);
+  }
+  .wordmark .dot{width:8px; height:8px; border-radius:var(--rounded-full); background:var(--colors-primary); display:inline-block;}
+
+  .pill-tag-soft{
+    font-family:var(--font-en);
+    background:var(--colors-canvas-soft);
+    color:var(--colors-ink);
+    font-size:12px; font-weight:500;
+    padding:var(--spacing-xxs) var(--spacing-md);
+    border-radius:var(--rounded-full);
+    border:1px solid var(--colors-hairline);
+    white-space:nowrap;
+  }
+
+  /* ---------- hero ---------- */
+  .hero{padding:var(--spacing-huge) 0 var(--spacing-xxl);}
+  @media (max-width:768px){ .hero{padding:var(--spacing-xxl) 0 var(--spacing-xl);} }
+
+  .eyebrow{
+    font-family:var(--font-en);
+    font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--colors-ink-mute-2);
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:var(--spacing-md);
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:var(--rounded-full); background:var(--colors-primary);}
+
+  h1{
+    font-family:var(--font-kr);
+    font-weight:700;
+    font-size:clamp(28px, 4.6vw, 44px);
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 var(--spacing-md);
+    color:var(--colors-ink);
+  }
+  .subtitle{
+    font-size:clamp(15px, 1.6vw, 18px);
+    color:var(--colors-ink-mute);
+    max-width:640px;
+    margin:0 0 var(--spacing-xxl);
+  }
+
+  /* ---------- readout strip ---------- */
+  .readout{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    background:var(--colors-canvas);
+    border:1px solid var(--colors-hairline);
+    border-radius:var(--rounded-lg);
+    box-shadow:var(--el-1);
+    overflow:hidden;
+    margin-bottom:var(--spacing-xxl);
+  }
+  .readout div{
+    padding:var(--spacing-lg);
+    border-right:1px solid var(--colors-hairline);
+  }
+  .readout div:last-child{border-right:none;}
+  .readout .label{
+    font-family:var(--font-en); font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--colors-ink-mute-2); margin-bottom:6px;
+  }
+  .readout .value{ font-family:var(--font-en); font-size:14px; font-weight:600; color:var(--colors-ink); }
+  @media (max-width:768px){
+    .readout{grid-template-columns:repeat(2, 1fr);}
+    .readout div:nth-child(2){border-right:none;}
+    .readout div:nth-child(1),.readout div:nth-child(2){border-bottom:1px solid var(--colors-hairline);}
+  }
+
+  /* ---------- principle callout ---------- */
+  .principle{
+    background:var(--colors-canvas-soft);
+    border:1px solid var(--colors-hairline-cool-3);
+    border-radius:var(--rounded-md);
+    padding:var(--spacing-lg) var(--spacing-xl);
+    margin-bottom:var(--spacing-xxl);
+    font-size:14.5px;
+    color:var(--colors-ink-mute);
+  }
+  .principle b{color:var(--colors-ink); font-family:var(--font-en); font-weight:600;}
+
+  /* ---------- legend ---------- */
+  .legend{
+    display:flex; gap:var(--spacing-xl); flex-wrap:wrap;
+    font-family:var(--font-en); font-size:11px; color:var(--colors-ink-mute);
+    margin-bottom:var(--spacing-lg);
+  }
+  .legend span{display:flex; align-items:center; gap:6px;}
+  .legend .sw{width:10px; height:10px; border-radius:2px; display:inline-block;}
+
+  /* ---------- grid & cards ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:var(--spacing-xl);
+    margin-bottom:var(--spacing-huge);
+  }
+  @media (max-width:1023px){ .grid{grid-template-columns:repeat(2, 1fr);} }
+  @media (max-width:767px){ .grid{grid-template-columns:1fr;} }
+
+  .card-feature-light{
+    background:var(--colors-canvas);
+    border:1px solid var(--colors-hairline);
+    border-radius:var(--rounded-lg);
+    box-shadow:var(--el-1);
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    transition:box-shadow .18s ease, border-color .18s ease;
+  }
+  .card-feature-light:hover{ box-shadow:var(--el-2); border-color:var(--colors-hairline-strong); }
+
+  .card-head{
+    display:flex; align-items:center; gap:var(--spacing-md);
+    padding:var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
+    border-bottom:1px solid var(--colors-hairline-cool);
+  }
+  .badge{
+    font-family:var(--font-mono); font-weight:700; font-size:16px;
+    width:34px; height:34px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    border:1.5px solid var(--colors-ink); border-radius:var(--rounded-md);
+    color:var(--colors-ink);
+  }
+  .card-titles .kr{ font-family:var(--font-kr); font-weight:700; font-size:19px; color:var(--colors-ink); }
+  .card-titles .en{ font-family:var(--font-en); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--colors-ink-mute-2); margin-top:2px; }
+
+  .tag-row{
+    display:flex; flex-direction:column; gap:6px;
+    padding:var(--spacing-md) var(--spacing-xl);
+    background:var(--colors-canvas-soft);
+    border-bottom:1px solid var(--colors-hairline-cool);
+    font-size:12.5px;
+  }
+  .tag-row .k{ font-family:var(--font-en); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--colors-ink-mute-2); margin-right:8px; }
+  .tag-row .v{ color:var(--colors-ink-mute); }
+
+  .script{ padding:var(--spacing-xl); font-size:15px; color:var(--colors-ink); flex:1; }
+  .script p{margin:0 0 var(--spacing-md);}
+  .script p:last-child{margin-bottom:0;}
+  .script .lead{font-weight:700;}
+
+  .slot{
+    border:1px dashed var(--colors-primary-soft);
+    background:rgba(62,207,142,0.07);
+    border-radius:var(--rounded-sm);
+    padding:var(--spacing-md);
+    margin:var(--spacing-md) 0;
+    font-size:13px;
+    color:var(--colors-ink-mute);
+  }
+  .slot b{ font-family:var(--font-en); font-weight:700; color:var(--colors-primary-deep); font-size:11px; letter-spacing:0.04em; }
+
+  .timing{ padding:var(--spacing-lg) var(--spacing-xl) var(--spacing-xl); border-top:1px solid var(--colors-hairline-cool); }
+  .timing-label{
+    font-family:var(--font-en); font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--colors-ink-mute-2); margin-bottom:8px; display:flex; justify-content:space-between;
+  }
+  .bar{ display:flex; height:8px; width:100%; overflow:hidden; border-radius:var(--rounded-full); background:var(--colors-hairline-cool); }
+  .seg{height:100%;}
+  .seg.hook{background:var(--colors-hairline-strong);}
+  .seg.story{background:var(--colors-primary-soft);}
+  .seg.bridge{background:var(--colors-ink-mute-2);}
+  .seg.close{background:var(--colors-hairline-cool-3);}
+  .seg-labels{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; color:var(--colors-ink-mute-2); margin-top:6px; }
+
+  /* ---------- comparison table ---------- */
+  .table-wrap{margin-bottom:var(--spacing-huge);}
+  h2{
+    font-family:var(--font-kr); font-weight:700; font-size:22px; color:var(--colors-ink);
+    margin:0 0 var(--spacing-lg);
+  }
+  .table-scroll{ overflow-x:auto; border:1px solid var(--colors-hairline); border-radius:var(--rounded-lg); box-shadow:var(--el-1); }
+  table{ width:100%; border-collapse:collapse; font-size:14px; min-width:520px; }
+  th{
+    text-align:left; font-family:var(--font-en); font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--colors-ink-mute-2); padding:var(--spacing-md) var(--spacing-lg);
+    background:var(--colors-canvas-soft); border-bottom:1px solid var(--colors-hairline);
+  }
+  td{ padding:var(--spacing-md) var(--spacing-lg); border-bottom:1px solid var(--colors-hairline-cool); color:var(--colors-ink-mute); vertical-align:top; }
+  tr:last-child td{border-bottom:none;}
+  td.ver{ font-family:var(--font-en); font-weight:600; color:var(--colors-ink); display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  td.ver .sw{width:8px; height:8px; border-radius:var(--rounded-full); background:var(--colors-primary); display:inline-block;}
+
+  /* ---------- footer-light ---------- */
+  footer{
+    border-top:1px solid var(--colors-hairline);
+    padding:var(--spacing-xxl) 0 var(--spacing-huge);
+    font-family:var(--font-en);
+    font-size:12px; color:var(--colors-ink-mute-2);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  }
+  @media (max-width:768px){
+    footer{padding:var(--spacing-xl) 0 var(--spacing-xxl); flex-direction:column; gap:6px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="nav-bar-light">
+    <div class="container nav-inner">
+      <div class="wordmark"><span class="dot"></span>BENEDU INSIGHT</div>
+      <div class="pill-tag-soft">이건 · Applied Materials 면접</div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="hero">
+      <div class="eyebrow"><span class="dot"></span>Self-Introduction Strategy</div>
+      <h1>면접 자기소개 전략보드</h1>
+      <p class="subtitle">세 가지 버전으로 준비하는 1분 자기소개 · 버전당 약 55~60초</p>
+
+      <div class="readout">
+        <div><div class="label">Candidate</div><div class="value">이건 (LEE GEON)</div></div>
+        <div><div class="label">Target</div><div class="value">Applied Materials</div></div>
+        <div><div class="label">Major</div><div class="value">기계공학과</div></div>
+        <div><div class="label">Coach</div><div class="value">변태준 · Benedu Insight</div></div>
+      </div>
+
+      <div class="principle">
+        <b>코칭 원칙</b> — 모든 답변에는 스토리가 담겨야 하고, 15~20초 안에 함축적으로 전달할 수 있어야 합니다.
+        아래 세 버전은 같은 원칙 위에서 서로 다른 전략으로 설계했습니다.
+      </div>
+
+      <div class="legend">
+        <span><span class="sw" style="background:var(--colors-hairline-strong)"></span>HOOK · 도입</span>
+        <span><span class="sw" style="background:var(--colors-primary-soft)"></span>STORY · 에피소드</span>
+        <span><span class="sw" style="background:var(--colors-ink-mute-2)"></span>BRIDGE · 약점의 재해석</span>
+        <span><span class="sw" style="background:var(--colors-hairline-cool-3)"></span>CLOSE · 지원동기</span>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- CARD A -->
+      <div class="card-feature-light">
+        <div class="card-head">
+          <div class="badge">A</div>
+          <div class="card-titles">
+            <div class="kr">질주 — Overtake</div>
+            <div class="en">Decisive Risk-Taking</div>
+          </div>
+        </div>
+        <div class="tag-row">
+          <div><span class="k">강조점</span><span class="v">결단력 · 리스크 감수</span></div>
+          <div><span class="k">적합 상황</span><span class="v">도전정신을 중시하는 면접관</span></div>
+        </div>
+        <div class="script">
+          <p class="lead">안녕하십니까, 계산된 도전을 즐기는 사람, 이건입니다.</p>
+          <p>F1에서 가장 짜릿한 순간은 오버테이크입니다. 좁아 보이는 그 짧은 틈을 놓치지 않고 파고드는 결단력, 그게 제가 F1을 사랑하는 이유입니다.</p>
+          <div class="slot"><b>EPISODE SLOT · 20~22초</b><br>본인이 결단력 있게 행동해 성과를 낸 실제 경험 1개</div>
+          <p>사실 전자·반도체 전공이 아닌 제가 Applied Materials에 지원한 것도 같은 결단이었습니다. 기계공학에서 쌓은 설계와 가공의 기본기가 반도체 장비의 정밀한 구조를 이해하는 발판이 될 거라 확신했고, 부족한 전자·반도체 지식은 입사 후 누구보다 빠르게 채워나가겠습니다.</p>
+          <p>망설이지 않고 틈을 파고드는 사람, 그것이 제가 이 회사에 필요한 이유라고 생각합니다. 감사합니다.</p>
+        </div>
+        <div class="timing">
+          <div class="timing-label"><span>TIMING BREAKDOWN</span><span>~60s</span></div>
+          <div class="bar">
+            <div class="seg hook" style="flex:8"></div>
+            <div class="seg story" style="flex:22"></div>
+            <div class="seg bridge" style="flex:20"></div>
+            <div class="seg close" style="flex:10"></div>
+          </div>
+          <div class="seg-labels"><span>8s</span><span>22s</span><span>20s</span><span>10s</span></div>
+        </div>
+      </div>
+
+      <!-- CARD B -->
+      <div class="card-feature-light">
+        <div class="card-head">
+          <div class="badge">B</div>
+          <div class="card-titles">
+            <div class="kr">직설 — Direct Line</div>
+            <div class="en">Fact &amp; Action First</div>
+          </div>
+        </div>
+        <div class="tag-row">
+          <div><span class="k">강조점</span><span class="v">팩트 · 행동력</span></div>
+          <div><span class="k">적합 상황</span><span class="v">은유보다 사실을 선호하는 보수적 면접관</span></div>
+        </div>
+        <div class="script">
+          <p class="lead">안녕하십니까, 이건입니다. 저는 고민보다 행동이 빠른 사람입니다.</p>
+          <div class="slot"><b>EPISODE SLOT · 25~30초 (비중 최대)</b><br>은유 없이 곧바로 증명하는 행동 사례 — 이 버전의 핵심</div>
+          <p>저는 전자공학이나 반도체 전공은 아닙니다. 하지만 기계공학에서 배운 설계·가공·열유체의 기본기는 반도체 장비의 구조를 이해하는 데 강점이 될 것이라 생각합니다. 그리고 입사 후에는 전자공학과 반도체 공정 학습을 병행하며 그 간극을 빠르게 좁혀나가겠습니다.</p>
+          <p>새로운 환경에서 주저 없이 먼저 움직이는 사람, 그게 제 강점입니다. Applied Materials에서 그 강점을 증명하겠습니다. 감사합니다.</p>
+        </div>
+        <div class="timing">
+          <div class="timing-label"><span>TIMING BREAKDOWN</span><span>~60s</span></div>
+          <div class="bar">
+            <div class="seg hook" style="flex:5"></div>
+            <div class="seg story" style="flex:28"></div>
+            <div class="seg bridge" style="flex:18"></div>
+            <div class="seg close" style="flex:9"></div>
+          </div>
+          <div class="seg-labels"><span>5s</span><span>28s</span><span>18s</span><span>9s</span></div>
+        </div>
+      </div>
+
+      <!-- CARD C -->
+      <div class="card-feature-light">
+        <div class="card-head">
+          <div class="badge">C</div>
+          <div class="card-titles">
+            <div class="kr">팀워크 — Pit Crew</div>
+            <div class="en">Collaboration First</div>
+          </div>
+        </div>
+        <div class="tag-row">
+          <div><span class="k">강조점</span><span class="v">협업 · 팀 기여</span></div>
+          <div><span class="k">적합 상황</span><span class="v">현장·팀 단위 업무를 강조하는 장비회사 특성</span></div>
+        </div>
+        <div class="script">
+          <p class="lead">안녕하십니까, 이건입니다. 저는 팀이 필요할 때 먼저 손을 드는 사람입니다.</p>
+          <p>F1에서 우승을 결정짓는 건 드라이버 한 명이 아니라, 2초 만에 타이어 네 개를 교체하는 피트크루의 팀워크입니다. 저는 그런 정밀하고 능동적인 협업에 늘 끌렸습니다.</p>
+          <div class="slot"><b>EPISODE SLOT · 20~25초</b><br>팀 내 본인 역할이 뚜렷이 드러나는 경험</div>
+          <p>전자·반도체 전공은 아니지만, 기계공학의 기본기와 더불어 앞으로 전자공학 학습을 병행하며 팀에 실질적으로 기여할 수 있는 엔지니어가 되겠습니다.</p>
+          <p>Applied Materials라는 큰 팀의 일원으로서, 망설임 없이 먼저 나서서 움직이는 사람이 되고 싶습니다. 감사합니다.</p>
+        </div>
+        <div class="timing">
+          <div class="timing-label"><span>TIMING BREAKDOWN</span><span>~58s</span></div>
+          <div class="bar">
+            <div class="seg hook" style="flex:10"></div>
+            <div class="seg story" style="flex:20"></div>
+            <div class="seg bridge" style="flex:18"></div>
+            <div class="seg close" style="flex:10"></div>
+          </div>
+          <div class="seg-labels"><span>10s</span><span>20s</span><span>18s</span><span>10s</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="table-wrap">
+      <h2>버전 비교</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>버전</th><th>강조점</th><th>어울리는 상황</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="ver"><span class="sw"></span>A · 질주</td><td>결단력 · 리스크 감수</td><td>도전정신을 중시하는 면접관</td></tr>
+            <tr><td class="ver"><span class="sw"></span>B · 직설</td><td>팩트 · 행동력</td><td>은유를 싫어하거나 보수적인 면접관</td></tr>
+            <tr><td class="ver"><span class="sw"></span>C · 팀워크</td><td>협업 · 팀 기여</td><td>현장·팀 단위 업무를 강조하는 장비회사 특성</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      <span>BENEDU INSIGHT — INTERVIEW COACHING SHEET</span>
+      <span>EPISODE SLOT을 실제 경험으로 채우면 완성</span>
+    </footer>
+
+  </div>
+
+</body>
+</html>
