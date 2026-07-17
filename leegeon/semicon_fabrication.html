@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>반도체 8대 공정 · 기술면접 대비</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --colors-primary:#3ecf8e;
+    --colors-primary-deep:#24b47e;
+    --colors-primary-soft:#4ade80;
+
+    --colors-canvas:#ffffff;
+    --colors-canvas-soft:#fafafa;
+    --colors-canvas-night:#1c1c1c;
+
+    --colors-hairline:#dfdfdf;
+    --colors-hairline-strong:#c7c7c7;
+    --colors-hairline-cool:#ededed;
+    --colors-hairline-cool-3:#d4d4d4;
+
+    --colors-ink:#171717;
+    --colors-ink-mute:#707070;
+    --colors-ink-mute-2:#9a9a9a;
+    --colors-on-primary:#171717;
+
+    --rounded-sm:6px;
+    --rounded-md:8px;
+    --rounded-lg:12px;
+    --rounded-full:9999px;
+
+    --spacing-sm:8px;
+    --spacing-md:12px;
+    --spacing-lg:16px;
+    --spacing-xl:24px;
+    --spacing-xxl:32px;
+    --spacing-huge:64px;
+
+    --el-1:0 1px 3px rgba(0,0,0,0.06);
+    --el-2:0 8px 24px rgba(0,0,0,0.08);
+
+    --font-kr:'Gowun Batang', serif;
+    --font-en:'Google Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace, Menlo, Monaco, Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--colors-canvas); color:var(--colors-ink);
+    font-family:var(--font-kr); line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .en{font-family:var(--font-en);}
+  .container{max-width:900px; margin:0 auto; padding:0 var(--spacing-xl);}
+  @media (max-width:600px){ .container{padding:0 var(--spacing-lg);} }
+
+  /* nav */
+  .nav-bar-light{ background:var(--colors-canvas); border-bottom:1px solid var(--colors-hairline); padding:var(--spacing-lg) 0; }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-md); flex-wrap:wrap; }
+  .wordmark{ display:flex; align-items:center; gap:8px; font-family:var(--font-en); font-weight:700; font-size:15px; }
+  .wordmark .dot{width:8px; height:8px; border-radius:var(--rounded-full); background:var(--colors-primary);}
+  .pill-tag-soft{
+    font-family:var(--font-en); background:var(--colors-canvas-soft); color:var(--colors-ink);
+    font-size:12px; font-weight:500; padding:4px var(--spacing-md); border-radius:var(--rounded-full);
+    border:1px solid var(--colors-hairline); white-space:nowrap;
+  }
+
+  /* hero */
+  .hero{padding:var(--spacing-huge) 0 var(--spacing-xl);}
+  @media (max-width:600px){ .hero{padding:var(--spacing-xxl) 0 var(--spacing-lg);} }
+  .eyebrow{
+    font-family:var(--font-en); font-size:12px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--colors-ink-mute-2); display:flex; align-items:center; gap:8px; margin-bottom:var(--spacing-md);
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:var(--rounded-full); background:var(--colors-primary);}
+  h1{
+    font-family:var(--font-kr); font-weight:700; font-size:clamp(28px, 5vw, 40px);
+    line-height:1.3; letter-spacing:-0.01em; margin:0 0 var(--spacing-md); color:var(--colors-ink);
+  }
+  .subtitle{ font-size:clamp(14.5px, 1.6vw, 16.5px); color:var(--colors-ink-mute); margin:0 0 var(--spacing-xxl); }
+  .subtitle a{color:var(--colors-ink); }
+
+  h2{
+    font-family:var(--font-kr); font-weight:700; font-size:22px; color:var(--colors-ink);
+    margin:0 0 var(--spacing-lg);
+  }
+
+  /* process timeline */
+  .flow{ margin-bottom:var(--spacing-huge); }
+  .step{ display:flex; gap:var(--spacing-lg); position:relative; }
+  .step .rail{ display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:40px; }
+  .num{
+    font-family:var(--font-mono); font-weight:700; font-size:13px;
+    width:36px; height:36px; border:1.5px solid var(--colors-ink); border-radius:var(--rounded-md);
+    display:flex; align-items:center; justify-content:center; color:var(--colors-ink);
+    background:var(--colors-canvas); flex-shrink:0; z-index:1;
+  }
+  .step.is-key .num{ border-color:var(--colors-primary-deep); color:var(--colors-primary-deep); }
+  .line{ flex:1; width:1.5px; background:var(--colors-hairline-strong); min-height:16px; }
+  .step:last-child .line{display:none;}
+
+  .step-body{ padding-bottom:var(--spacing-xxl); flex:1; }
+  .step-head{ display:flex; align-items:baseline; gap:var(--spacing-sm); flex-wrap:wrap; margin-bottom:6px; }
+  .step-title{ font-family:var(--font-kr); font-weight:700; font-size:18px; color:var(--colors-ink); }
+  .step-en{ font-family:var(--font-en); font-size:11px; letter-spacing:0.04em; color:var(--colors-ink-mute-2); text-transform:uppercase; }
+  .step-desc{ font-size:14.5px; color:var(--colors-ink-mute); max-width:560px; }
+  .key-tag{
+    font-family:var(--font-en); font-size:10px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+    background:rgba(62,207,142,0.1); color:var(--colors-primary-deep);
+    padding:2px 8px; border-radius:var(--rounded-full); border:1px solid var(--colors-primary-soft);
+  }
+
+  /* callout */
+  .callout{
+    background:var(--colors-canvas-soft); border:1px solid var(--colors-hairline-cool-3);
+    border-radius:var(--rounded-md); padding:var(--spacing-lg) var(--spacing-xl);
+    margin-bottom:var(--spacing-huge); font-size:14.5px; color:var(--colors-ink-mute);
+  }
+  .callout b{ font-family:var(--font-en); font-weight:600; color:var(--colors-ink); }
+
+  /* analogy table */
+  .table-wrap{margin-bottom:var(--spacing-huge);}
+  .table-scroll{ overflow-x:auto; border:1px solid var(--colors-hairline); border-radius:var(--rounded-lg); box-shadow:var(--el-1); }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:560px; }
+  th{
+    text-align:left; font-family:var(--font-en); font-size:11px; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--colors-ink-mute-2); padding:var(--spacing-md) var(--spacing-lg);
+    background:var(--colors-canvas-soft); border-bottom:1px solid var(--colors-hairline);
+  }
+  td{ padding:var(--spacing-md) var(--spacing-lg); border-bottom:1px solid var(--colors-hairline-cool); color:var(--colors-ink-mute); vertical-align:top; }
+  tr:last-child td{border-bottom:none;}
+  td.proc{ font-family:var(--font-en); font-weight:600; color:var(--colors-ink); white-space:nowrap; }
+
+  /* video card */
+  .video-section{margin-bottom:var(--spacing-huge);}
+  .video-card{
+    display:flex; align-items:center; gap:var(--spacing-lg);
+    background:var(--colors-canvas); border:1px solid var(--colors-hairline); border-radius:var(--rounded-lg);
+    box-shadow:var(--el-1); padding:var(--spacing-lg) var(--spacing-xl); text-decoration:none;
+    transition:box-shadow .18s ease, border-color .18s ease;
+  }
+  .video-card:hover{ box-shadow:var(--el-2); border-color:var(--colors-hairline-strong); }
+  .play{
+    flex-shrink:0; width:52px; height:52px; border-radius:var(--rounded-md);
+    background:var(--colors-primary); display:flex; align-items:center; justify-content:center;
+  }
+  .play svg{width:18px; height:18px;}
+  .video-meta{flex:1; min-width:0;}
+  .video-channel{ font-family:var(--font-en); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--colors-ink-mute-2); margin-bottom:4px; }
+  .video-title{ font-family:var(--font-kr); font-weight:700; font-size:16px; color:var(--colors-ink); line-height:1.4; }
+  .video-cta{ font-family:var(--font-en); font-size:12px; font-weight:600; color:var(--colors-primary-deep); flex-shrink:0; white-space:nowrap; }
+
+  footer{
+    border-top:1px solid var(--colors-hairline); padding:var(--spacing-xl) 0 var(--spacing-huge);
+    font-family:var(--font-en); font-size:11.5px; color:var(--colors-ink-mute-2);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+  footer a{color:var(--colors-ink-mute-2);}
+  @media (max-width:600px){ footer{flex-direction:column; padding:var(--spacing-lg) 0 var(--spacing-xxl);} }
+</style>
+</head>
+<body>
+
+  <div class="nav-bar-light">
+    <div class="container nav-inner">
+      <div class="wordmark"><span class="dot"></span>BENEDU INSIGHT</div>
+      <div class="pill-tag-soft">이건 · 기술면접 대비</div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="hero">
+      <div class="eyebrow"><span class="dot"></span>Semiconductor Fabrication Process</div>
+      <h1>반도체 8대 공정</h1>
+      <p class="subtitle">웨이퍼 한 장이 완성된 칩이 되기까지의 8단계 흐름 · 자료 출처: <a href="https://different89.tistory.com/32" target="_blank" rel="noopener">남다른 블로그</a> (원출처: 삼성전자 반도체 뉴스룸)</p>
+    </div>
+
+    <div class="flow">
+      <div class="step is-key">
+        <div class="rail"><div class="num">01</div><div class="line"></div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">웨이퍼 제조</span><span class="step-en">Wafer Fabrication</span></div>
+          <p class="step-desc">실리콘 잉곳을 얇게 슬라이싱해, 모든 후속 공정의 바탕이 되는 원판(웨이퍼)을 만드는 단계입니다.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">02</div><div class="line"></div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">산화</span><span class="step-en">Oxidation</span></div>
+          <p class="step-desc">웨이퍼 표면에 SiO₂ 절연막을 형성해 전기적 특성을 부여하고, 이후 공정으로부터 표면을 보호하는 단계입니다.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">03</div><div class="line"></div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">포토</span><span class="step-en">Photolithography</span></div>
+          <p class="step-desc">감광액을 도포한 뒤 마스크를 통해 노광해, 웨이퍼 위에 회로 패턴을 그려 넣는 단계입니다.</p>
+        </div>
+      </div>
+
+      <div class="step is-key">
+        <div class="rail"><div class="num">04</div><div class="line"></div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">식각</span><span class="step-en">Etch</span><span class="key-tag">AMAT 핵심 장비군</span></div>
+          <p class="step-desc">포토 공정에서 그려진 패턴 이외의 불필요한 부분을 깎아내 실제 회로 구조를 완성하는 단계입니다. 습식·건식 방식이 있으며, 미세 패턴일수록 정밀 제어가 가능한 건식 식각 비중이 높습니다.</p>
+        </div>
+      </div>
+
+      <div class="step is-key">
+        <div class="rail"><div class="num">05</div><div class="line"></div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">증착 &amp; 이온주입</span><span class="step-en">Deposition &amp; Ion Implantation</span><span class="key-tag">AMAT 핵심 장비군</span></div>
+          <p class="step-desc">필요한 물질을 웨이퍼 위에 얇게 증착하고, 이온을 주입해 전기적 특성을 부여하는 단계입니다.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">06</div><div class="line"></div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">금속배선</span><span class="step-en">Metallization</span></div>
+          <p class="step-desc">금속 배선을 형성해 웨이퍼 위 개별 회로 소자들을 전기적으로 연결하는 단계입니다.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">07</div><div class="line"></div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">EDS</span><span class="step-en">Electrical Die Sorting</span></div>
+          <p class="step-desc">완성된 칩의 전기적 특성과 성능을 검사해 양품과 불량을 선별하는 단계입니다.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="rail"><div class="num">08</div></div>
+        <div class="step-body">
+          <div class="step-head"><span class="step-title">패키징</span><span class="step-en">Packaging</span></div>
+          <p class="step-desc">칩을 외부 충격과 오염으로부터 안전하게 보호하도록 최종 포장하는, 8대 공정의 마지막 단계입니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>면접 코칭 팁</b> — Applied Materials는 특히 <b>식각(Etch)</b>과 <b>증착(Deposition: CVD·PVD·ALD)</b> 장비 분야의 선두 기업입니다.
+      기계공학에서 배운 진공·열유체·정밀가공 지식을 이 두 공정과 연결해 설명하면, 비전공 약점을 강점으로 전환하는 설득력 있는 답변이 됩니다.
+    </div>
+
+    <div class="table-wrap">
+      <h2>공정 vs. 책 인쇄·출판 비유</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>공정</th><th>핵심 내용</th><th>출판 과정 비유</th></tr></thead>
+          <tbody>
+            <tr><td class="proc">웨이퍼 제조</td><td>실리콘 원판 제작</td><td>종이 제작</td></tr>
+            <tr><td class="proc">산화</td><td>절연막 형성</td><td>종이 코팅</td></tr>
+            <tr><td class="proc">포토</td><td>회로 패턴 그리기</td><td>인쇄판에 글자·그림 그려넣기</td></tr>
+            <tr><td class="proc">식각</td><td>불필요한 부분 제거</td><td>필요 없는 부분 깎아 인쇄</td></tr>
+            <tr><td class="proc">증착 &amp; 이온주입</td><td>물질 증착 · 특성 부여</td><td>내용 추가 · 색상 넣기</td></tr>
+            <tr><td class="proc">금속배선</td><td>회로 간 연결</td><td>페이지 구성 및 연결</td></tr>
+            <tr><td class="proc">EDS</td><td>전기적 성능 검사</td><td>교정 및 검수</td></tr>
+            <tr><td class="proc">패키징</td><td>최종 보호 포장</td><td>제본 및 출판</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="video-section">
+      <h2>참고 영상</h2>
+      <a class="video-card" href="https://www.youtube.com/watch?v=M2b2kpJRHmM" target="_blank" rel="noopener">
+        <div class="play"><svg viewBox="0 0 24 24" fill="#171717"><path d="M8 5v14l11-7z"/></svg></div>
+        <div class="video-meta">
+          <div class="video-channel">삼성전자 · 반도체 백과사전 EP.6</div>
+          <div class="video-title">'삼성전자'가 참 쉽게 알려주는 '반도체 8대공정'</div>
+        </div>
+        <div class="video-cta">YouTube에서 보기 ↗</div>
+      </a>
+    </div>
+
+    <footer>
+      <span>BENEDU INSIGHT — INTERVIEW COACHING SHEET</span>
+      <span>출처: <a href="https://different89.tistory.com/32" target="_blank" rel="noopener">different89.tistory.com</a></span>
+    </footer>
+
+  </div>
+
+</body>
+</html>
