@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PRISM — Benedu Insight</title>
+<title>PRISM — Plasma RF Impedance Simulation Matrix | Benedu Insight</title>
 <script>
 /* ── Direct access guard ──
    prism.html은 index.html의 iframe 안에서만 동작합니다.
@@ -17,7 +17,7 @@
 </script>
 <link rel="icon" type="image/png"
       href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Gowun+Batang:wght@400;700&display=swap"
       rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════════
@@ -81,6 +81,110 @@ html.dark {
 /* Smooth transition when toggling */
 *, *::before, *::after {
   transition: background-color .2s ease, border-color .2s ease, color .15s ease;
+}
+
+/* ═══════════════════════════
+   FIREBASE LOGIN MODAL
+═══════════════════════════ */
+#loginGate {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(15,23,42,0.55); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 20px;
+  animation: lgFade .15s ease;
+}
+#loginGate.open { display: flex; }
+@keyframes lgFade { from { opacity:0; } to { opacity:1; } }
+.login-card {
+  position: relative; width: 100%; max-width: 380px;
+  background: #fff; border: 1px solid #E2E8F0;
+  border-radius: 20px; box-shadow: 0 12px 40px rgba(15,23,42,0.22);
+  padding: 38px 34px 32px;
+}
+.login-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid #E2E8F0; background: #F8FAFB;
+  color: #94A3B8; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 14px; transition: all .15s; line-height: 1;
+}
+.login-close:hover { border-color: #9B59D0; color: #7030A0; }
+.login-logo { display: flex; justify-content: center; margin-bottom: 6px; }
+.login-logo img { height: 28px; }
+.login-tool-title {
+  text-align: center; font-weight: 800; font-size: 24px;
+  letter-spacing: -0.01em; margin-top: 10px; color: #1A202C;
+}
+.login-tool-sub {
+  text-align: center; font-size: 12.5px; color: #64748B;
+  margin-top: 4px; margin-bottom: 24px; line-height: 1.5;
+}
+.login-error {
+  display: none; background: #FDE8E8; color: #B71C1C;
+  font-size: 12px; padding: 9px 12px; border-radius: 8px; margin-bottom: 14px;
+}
+.login-error.show { display: block; }
+.login-field { margin-bottom: 14px; }
+.login-field label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: #64748B; margin-bottom: 6px;
+}
+.login-field input {
+  width: 100%; font-size: 13.5px; padding: 10px 12px;
+  border: 1.5px solid #E2E8F0; border-radius: 8px;
+  background: #F8FAFB; outline: none; transition: border-color .15s;
+  font-family: 'Google Sans', sans-serif;
+}
+.login-field input:focus {
+  border-color: #7030A0;
+  box-shadow: 0 0 0 3px rgba(112,48,160,0.12);
+}
+.login-submit {
+  width: 100%; font-size: 13.5px; font-weight: 700; color: #fff;
+  background: #7030A0; border: none; padding: 11px; border-radius: 9px;
+  cursor: pointer; margin-top: 6px; transition: all .15s;
+  font-family: 'Google Sans', sans-serif;
+}
+.login-submit:hover { background: #5C2680; }
+.login-submit:disabled { opacity: .6; cursor: not-allowed; }
+.login-request {
+  margin-top: 22px; padding-top: 18px; border-top: 1px solid #E2E8F0;
+  text-align: center; font-size: 12px; line-height: 1.7; color: #64748B;
+}
+.login-request a { color: #7030A0; font-weight: 600; text-decoration: none; }
+.login-request a:hover { text-decoration: underline; }
+.login-request .ko {
+  margin-top: 3px; font-family: 'Gowun Batang', serif; font-size: 12.5px;
+}
+
+/* ═══════════════════════════
+   HEADER AUTH CONTROLS
+═══════════════════════════ */
+.signin-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 700;
+  color: #fff; background: var(--purple); border: none;
+  padding: 5px 14px; border-radius: 14px; cursor: pointer; transition: all .15s;
+}
+.signin-btn:hover { background: #5C2680; }
+.signout-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 11px; font-weight: 600;
+  color: var(--text-muted); background: var(--panel2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 3px 10px; cursor: pointer; transition: all .15s;
+}
+.signout-btn:hover { border-color: #D62828; color: #D62828; }
+.user-chip {
+  display: flex; align-items: center; gap: 6px; font-size: 11.5px;
+  color: var(--text-muted); padding: 4px 6px 4px 10px;
+  border-radius: 14px; border: 1px solid var(--border);
+}
+.user-chip .dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+}
+
+/* Auth gate overlay for app content */
+#authGateOverlay {
+  display: none; position: fixed; inset: 40px 0 0 0; z-index: 8000;
+  background: transparent; cursor: pointer;
 }
 
 /* Dark mode schematic overrides */
@@ -715,6 +819,38 @@ canvas { width: 100%; height: 100%; display: block; }
 </head>
 <body>
 
+<!-- ════════════════════ FIREBASE LOGIN MODAL ════════════════════ -->
+<div id="loginGate">
+  <div class="login-card">
+    <button class="login-close" id="loginCloseBtn" aria-label="Close">✕</button>
+    <div class="login-logo">
+      <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+           alt="Benedu Insight" onerror="this.style.display='none'">
+    </div>
+    <div class="login-tool-title">PRISM</div>
+    <div class="login-tool-sub">
+      <b>P</b>lasma <b>R</b>F <b>I</b>mpedance <b>S</b>imulation <b>M</b>atrix
+    </div>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-field">
+      <label for="loginEmail">ID</label>
+      <input type="text" id="loginEmail" autocomplete="username" placeholder="e.g. tj01">
+    </div>
+    <div class="login-field">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••">
+    </div>
+    <button class="login-submit" id="loginSubmitBtn">Sign In</button>
+    <div class="login-request">
+      Need an account? Request access at <a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a>
+      <div class="ko">계정이 필요하신가요? <a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a>으로 신청해주세요.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 미인증 클릭 차단 오버레이 -->
+<div id="authGateOverlay" onclick="showLoginModal()"></div>
+
 <!-- ════════════════════ HEADER (functional only) ════════════════════ -->
 <header class="header">
   <div class="header-left">
@@ -730,6 +866,12 @@ canvas { width: 100%; height: 100%; display: block; }
       <div class="status-dot"></div>
       <span id="statusText">MATCHED</span>
     </div>
+    <!-- Auth controls -->
+    <span class="user-chip" id="userChip" style="display:none;">
+      <span class="dot"></span><span id="userChipEmail"></span>
+    </span>
+    <button class="signout-btn" id="signoutBtn" style="display:none;">Sign out</button>
+    <button class="signin-btn" id="signinBtn">Sign In</button>
     <button id="darkToggle" onclick="toggleDark()" title="Toggle dark mode"
       style="background:none;border:1.5px solid var(--border);border-radius:6px;
              cursor:pointer;padding:4px 8px;font-size:14px;line-height:1;
@@ -1695,6 +1837,119 @@ function toggleDark(){
 <script src="js/schematic.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/ui.js"></script>
+
+<!-- ════════════════════ FIREBASE AUTH ════════════════════ -->
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyAJy0GsDI8KYU_0QbdhZ4Z78tTTCeGhAFk",
+  authDomain:        "arclabtool.firebaseapp.com",
+  projectId:         "arclabtool",
+  storageBucket:     "arclabtool.firebasestorage.app",
+  messagingSenderId: "116212119538",
+  appId:             "1:116212119538:web:ca4387e00e4f26feb81d6b"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* ── DOM refs ── */
+const loginGate      = document.getElementById('loginGate');
+const loginCloseBtn  = document.getElementById('loginCloseBtn');
+const loginEmailEl   = document.getElementById('loginEmail');
+const loginPasswordEl= document.getElementById('loginPassword');
+const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+const loginErrorEl   = document.getElementById('loginError');
+const userChip       = document.getElementById('userChip');
+const userChipEmail  = document.getElementById('userChipEmail');
+const signoutBtn     = document.getElementById('signoutBtn');
+const signinBtn      = document.getElementById('signinBtn');
+const authGateOverlay= document.getElementById('authGateOverlay');
+
+/* Firebase는 이메일 형식 필요 → 가짜 도메인 매핑 (ARC와 동일 계정 공유) */
+const ID_DOMAIN = 'arc.benedu.internal';
+function idToEmail(id) {
+  id = id.trim();
+  return id.includes('@') ? id : (id + '@' + ID_DOMAIN);
+}
+
+/* ── 모달 열기 / 닫기 ── */
+function showLoginModal() {
+  loginGate.classList.add('open');
+  clearError();
+  loginEmailEl.focus();
+}
+function hideLoginModal() { loginGate.classList.remove('open'); }
+
+/* 전역 노출 (오버레이 onclick에서 호출) */
+window.showLoginModal = showLoginModal;
+
+signinBtn.addEventListener('click', showLoginModal);
+loginCloseBtn.addEventListener('click', hideLoginModal);
+loginGate.addEventListener('click', e => { if (e.target === loginGate) hideLoginModal(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && loginGate.classList.contains('open')) hideLoginModal();
+});
+
+/* ── 에러 표시 ── */
+function showError(msg) { loginErrorEl.textContent = msg; loginErrorEl.classList.add('show'); }
+function clearError()   { loginErrorEl.classList.remove('show'); loginErrorEl.textContent = ''; }
+
+/* ── 로그인 처리 ── */
+async function doSignIn() {
+  clearError();
+  const idRaw = loginEmailEl.value.trim();
+  const pw    = loginPasswordEl.value;
+  if (!idRaw || !pw) { showError('Enter both your ID and password.'); return; }
+  loginSubmitBtn.disabled    = true;
+  loginSubmitBtn.textContent = 'Signing in…';
+  try {
+    await signInWithEmailAndPassword(auth, idToEmail(idRaw), pw);
+    /* onAuthStateChanged가 UI 업데이트 처리 */
+  } catch (err) {
+    const MAP = {
+      'auth/invalid-email':      "That ID contains characters Firebase can't accept.",
+      'auth/user-not-found':     'No account found for that ID.',
+      'auth/wrong-password':     'Incorrect password.',
+      'auth/invalid-credential': 'Incorrect ID or password.',
+      'auth/too-many-requests':  'Too many attempts — please wait and try again.'
+    };
+    showError(MAP[err.code] || ('Sign-in failed: ' + err.message));
+  } finally {
+    loginSubmitBtn.disabled    = false;
+    loginSubmitBtn.textContent = 'Sign In';
+  }
+}
+loginSubmitBtn.addEventListener('click', doSignIn);
+loginPasswordEl.addEventListener('keydown', e => { if (e.key === 'Enter') doSignIn(); });
+loginEmailEl.addEventListener('keydown',    e => { if (e.key === 'Enter') loginPasswordEl.focus(); });
+
+signoutBtn.addEventListener('click', () => signOut(auth));
+
+/* ── 인증 상태 변화 ── */
+onAuthStateChanged(auth, user => {
+  if (user) {
+    /* 로그인 완료 */
+    hideLoginModal();
+    authGateOverlay.style.display = 'none';   // 클릭 차단 해제
+    userChip.style.display    = 'flex';
+    signoutBtn.style.display  = 'inline-block';
+    signinBtn.style.display   = 'none';
+    const shown = user.email ? user.email.replace('@' + ID_DOMAIN, '') : 'Signed in';
+    userChipEmail.textContent = shown;
+  } else {
+    /* 로그아웃 / 미인증 */
+    authGateOverlay.style.display = 'block';  // 앱 전체 클릭 차단
+    userChip.style.display    = 'none';
+    signoutBtn.style.display  = 'none';
+    signinBtn.style.display   = 'inline-block';
+  }
+});
+</script>
 
 </body>
 </html>
