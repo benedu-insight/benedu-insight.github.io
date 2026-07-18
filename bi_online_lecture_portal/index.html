@@ -345,6 +345,58 @@
     @keyframes portalArcFlicker { 0%,40%{opacity:0;} 42%{opacity:1;} 46%{opacity:.3;} 50%{opacity:1;} 58%{opacity:0;} 100%{opacity:0;} }
     @keyframes portalDotFlicker { 0%,40%{opacity:0;transform:scale(.8);} 42%,55%{opacity:1;transform:scale(1);} 60%,100%{opacity:0;transform:scale(.8);} }
     @media (prefers-reduced-motion: reduce) { .portal-arc-bolt, .portal-arc-dot { animation: none !important; opacity: .85 !important; } }
+
+    /* ── PRISM Smith Chart 애니메이션 ── */
+    /* 임피던스 궤적: stroke-dashoffset으로 선이 그려지며 수렴 */
+    .prism-traj {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      animation: prismDraw 3s cubic-bezier(0.4,0,0.2,1) infinite;
+    }
+    @keyframes prismDraw {
+      0%   { stroke-dashoffset: 200; opacity: 0; }
+      8%   { opacity: 1; }
+      60%  { stroke-dashoffset: 0; opacity: 1; }
+      80%  { stroke-dashoffset: 0; opacity: 0.6; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+    /* 수렴점(50Ω) 펄스 */
+    .prism-center-dot {
+      animation: prismPulse 3s cubic-bezier(0.4,0,0.2,1) infinite;
+      transform-origin: 110px 45px;
+    }
+    @keyframes prismPulse {
+      0%,50% { opacity: 0; transform: scale(0.4); }
+      65%    { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 6px rgba(52,211,153,0.9)); }
+      80%    { opacity: 1; transform: scale(1.0); filter: drop-shadow(0 0 3px rgba(52,211,153,0.6)); }
+      100%   { opacity: 0; transform: scale(0.8); }
+    }
+    /* 이동하는 임피던스 점 */
+    .prism-moving-dot {
+      animation: prismMoveDot 3s cubic-bezier(0.4,0,0.2,1) infinite;
+      transform-origin: center;
+    }
+    @keyframes prismMoveDot {
+      0%   { opacity: 0; }
+      10%  { opacity: 1; }
+      55%  { opacity: 1; }
+      70%  { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    /* 잔상 링 */
+    .prism-ring {
+      animation: prismRingPulse 3s cubic-bezier(0.4,0,0.2,1) infinite;
+      transform-origin: 110px 45px;
+    }
+    @keyframes prismRingPulse {
+      0%,58% { opacity: 0; r: 3; }
+      65%    { opacity: 0.5; r: 8; }
+      85%    { opacity: 0; r: 14; }
+      100%   { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .prism-traj, .prism-center-dot, .prism-moving-dot, .prism-ring { animation: none !important; opacity: 0.85 !important; }
+    }
     .arc-promo-body { position: relative; flex: 1; min-width: 0; }
     .arc-promo-badge {
       display: inline-flex; align-items: center; font-family: var(--font-mono) !important; font-size: 0.7rem;
@@ -366,6 +418,46 @@
       .arc-promo { flex-direction: column; align-items: flex-start; text-align: left; }
       .arc-promo-visual { width: 100%; max-width: 260px; }
       .arc-promo-cta { width: 100%; justify-content: center; }
+    }
+
+    /* ─── PRISM promo card (스미스 차트 그린 컬러) ─── */
+    .prism-promo {
+      position: relative; display: flex; align-items: center; gap: 2.2rem;
+      width: 100%; margin-bottom: 2.5rem; padding: 2.2rem 2.4rem;
+      background: linear-gradient(135deg, #080F12 0%, #0D1B18 100%);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden;
+      cursor: pointer; color: #fff; box-shadow: 0 18px 46px rgba(0,0,0,0.22);
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+    .prism-promo:hover { transform: translateY(-4px); box-shadow: 0 24px 56px rgba(0,0,0,0.30); }
+    .prism-promo-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 12% 25%, rgba(15,140,80,0.28), transparent 55%),
+                  radial-gradient(circle at 88% 78%, rgba(112,48,160,0.24), transparent 55%);
+    }
+    .prism-promo-visual { position: relative; flex-shrink: 0; width: 200px; }
+    .prism-promo-body  { position: relative; flex: 1; min-width: 0; }
+    .prism-promo-badge {
+      display: inline-flex; align-items: center; font-family: var(--font-mono) !important; font-size: 0.7rem;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #6EE7B7;
+      background: rgba(15,140,80,0.15); border: 1px solid rgba(15,140,80,0.35);
+      padding: 4px 10px; border-radius: 20px; margin-bottom: 1rem;
+    }
+    .prism-promo-title { font-family: var(--font-title); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.01em; margin-bottom: 0.7rem; }
+    .prism-promo-desc  { font-size: 0.9rem; line-height: 1.65; color: rgba(255,255,255,0.65); max-width: 540px; margin-bottom: 1.1rem; }
+    .prism-promo-stats { display: flex; gap: 1.4rem; font-family: var(--font-mono) !important; font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+    .prism-promo-stats b { color: #fff; font-size: 0.95rem; }
+    .prism-promo-cta {
+      position: relative; flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 0.9rem; background: #fff; color: #111827;
+      padding: 12px 20px; border-radius: 12px; white-space: nowrap; transition: var(--transition-smooth);
+    }
+    .prism-promo:hover .prism-promo-cta { background: #34D399; color: #064E3B; gap: 12px; }
+    @media (max-width: 860px) {
+      .prism-promo { flex-direction: column; align-items: flex-start; text-align: left; }
+      .prism-promo-visual { width: 100%; max-width: 260px; }
+      .prism-promo-cta { width: 100%; justify-content: center; }
     }
 
     .philosophy-card {
@@ -815,8 +907,8 @@
         <div class="lang-toggle-wrapper">
           <div class="lang-toggle-pill lang-en" id="portal-lang-pill" onclick="togglePortalLanguage(event)">
             <div class="slide-bg"></div>
-            <button id="btn-lang-ko" onclick="setLanguage('ko'); event.stopPropagation();">KO</button>
-            <button id="btn-lang-en" onclick="setLanguage('en'); event.stopPropagation();">EN</button>
+            <button id="btn-lang-ko">KO</button>
+            <button id="btn-lang-en">EN</button>
           </div>
         </div>
       </header>
@@ -870,6 +962,7 @@
         </div>
       </div>
 
+      <!-- ARC: 암호 모달 통해 진입 -->
       <a class="arc-promo" href="https://benedu-insight.github.io/arc/" target="_blank" rel="noopener noreferrer">
         <div class="arc-promo-glow"></div>
         <div class="arc-promo-visual">
@@ -897,6 +990,92 @@
         </div>
         <div class="arc-promo-cta">
           <span id="lbl-arc-cta">Launch ARC</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
+      <!-- PRISM: 직접 링크 + 동적 스미스 차트 애니메이션 -->
+      <a class="prism-promo" href="https://benedu-insight.github.io/prism/" target="_blank" rel="noopener noreferrer">
+        <div class="prism-promo-glow"></div>
+        <div class="prism-promo-visual">
+          <svg viewBox="0 0 220 90" style="width:100%;height:auto;overflow:visible;display:block;">
+            <defs>
+              <linearGradient id="prismTrajGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#A78BFA" stop-opacity="0.7"/>
+                <stop offset="100%" stop-color="#34D399" stop-opacity="1"/>
+              </linearGradient>
+              <!-- 50Ω 중심 글로우 필터 -->
+              <filter id="prismGlow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- ── 스미스 차트 구조선 (정적) ── -->
+            <!-- 외곽 원 (|Γ|=1) -->
+            <circle cx="110" cy="45" r="38" fill="none" stroke="rgba(52,211,153,0.18)" stroke-width="1.1"/>
+            <!-- 등저항원 R=0 (외곽과 동일), R=0.5, R=1(중심통과), R=2 -->
+            <circle cx="135.3" cy="45" r="12.7" fill="none" stroke="rgba(167,139,250,0.22)" stroke-width="0.8"/>
+            <circle cx="123.3" cy="45" r="24.7" fill="none" stroke="rgba(167,139,250,0.15)" stroke-width="0.8"/>
+            <circle cx="143.5" cy="45" r="4.5"  fill="none" stroke="rgba(167,139,250,0.30)" stroke-width="0.8"/>
+            <!-- 등저항선 (수평 축) -->
+            <line x1="72" y1="45" x2="148" y2="45" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+            <!-- 등리액턴스 호 X=+1, X=-1, X=+0.5, X=-0.5 -->
+            <path d="M148,45 A38,38 0 0,0 110,7"  fill="none" stroke="rgba(52,211,153,0.14)" stroke-width="0.8"/>
+            <path d="M148,45 A38,38 0 0,1 110,83" fill="none" stroke="rgba(52,211,153,0.14)" stroke-width="0.8"/>
+            <path d="M148,45 A76,76 0 0,0 72,45"  fill="none" stroke="rgba(52,211,153,0.10)" stroke-width="0.7"/>
+            <path d="M148,45 A76,76 0 0,1 72,45"  fill="none" stroke="rgba(52,211,153,0.10)" stroke-width="0.7"/>
+
+            <!-- ── 임피던스 수렴 궤적 (애니메이션) ──
+                 시작: 좌하단(고반사) → 나선형으로 50Ω(cx=110,cy=45)으로 수렴 -->
+            <path class="prism-traj"
+              d="M81,68 C75,55 78,35 88,30 C100,24 120,28 128,38 C136,48 132,58 122,60 C114,62 106,56 108,50 C110,44 114,42 110,45"
+              fill="none"
+              stroke="url(#prismTrajGrad)"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+
+            <!-- ── 이동하는 임피던스 점 (궤적 위를 따라 이동) ── -->
+            <circle class="prism-moving-dot" r="3" fill="#A78BFA"
+              filter="drop-shadow(0 0 4px rgba(167,139,250,0.8))">
+              <animateMotion
+                dur="3s"
+                repeatCount="indefinite"
+                calcMode="spline"
+                keySplines="0.4 0 0.2 1"
+                keyTimes="0;1">
+                <mpath href="#prism-traj-path"/>
+              </animateMotion>
+            </circle>
+
+            <!-- animateMotion용 숨겨진 패스 참조 -->
+            <path id="prism-traj-path" style="display:none"
+              d="M81,68 C75,55 78,35 88,30 C100,24 120,28 128,38 C136,48 132,58 122,60 C114,62 106,56 108,50 C110,44 114,42 110,45"/>
+
+            <!-- ── 50Ω 수렴점 ── -->
+            <!-- 잔상 링 -->
+            <circle class="prism-ring" cx="110" cy="45" r="3"
+              fill="none" stroke="#34D399" stroke-width="1.2" opacity="0"/>
+            <!-- 중심 점 (도달 시 글로우) -->
+            <circle class="prism-center-dot" cx="110" cy="45" r="4"
+              fill="#34D399" filter="url(#prismGlow)" opacity="0"/>
+            <!-- 50Ω 레이블 -->
+            <text x="110" y="38" text-anchor="middle"
+              font-family="'JetBrains Mono',monospace" font-size="7" font-weight="700"
+              fill="rgba(52,211,153,0.7)" opacity="0.85">50Ω</text>
+          </svg>
+        </div>
+        <div class="prism-promo-body">
+          <span class="prism-promo-badge" id="lbl-prism-badge">RF MATCHER SIMULATOR</span>
+          <h3 class="prism-promo-title" id="lbl-prism-title">PRISM — topology-based matcher simulation</h3>
+          <p class="prism-promo-desc" id="lbl-prism-desc">Plasma RF Impedance Simulation Matrix. Visualize L-type, π-type, and T-type matching network behavior on an interactive Smith Chart — watch impedance trajectories move in real time as you tune component values.</p>
+          <div class="prism-promo-stats">
+            <span><b>3</b> <span id="lbl-prism-stat1">topologies</span></span><span><b>Smith Chart</b></span><span><b>EN/KO</b></span>
+          </div>
+        </div>
+        <div class="prism-promo-cta">
+          <span id="lbl-prism-cta">Launch PRISM</span>
           <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </div>
       </a>
@@ -937,7 +1116,7 @@
         <div class="footer-links">
           <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer">Homepage</a>
           <span class="footer-separator">|</span>
-          <a href="https://benedu-insight.github.io/arc/" target="_blank" rel="noopener noreferrer">ARC Lab Tools</a>
+          <a href="https://benedu-insight.github.io/arc/" target="_blank" rel="noopener noreferrer">ARC Lab Tools</a> &nbsp;&nbsp;·&nbsp;&nbsp; <a href="https://benedu-insight.github.io/prism/" target="_blank" rel="noopener noreferrer">PRISM</a>
           <span class="footer-separator">|</span>
           <a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a>
         </div>
@@ -953,6 +1132,8 @@
   <div id="image-popup" onclick="closeImagePopup()">
     <span class="popup-close-btn" onclick="closeImagePopup()">&times;</span>
     <img id="popup-img" src="" alt="Enlarged View" onclick="event.stopPropagation();">
+  </div>
+    </div>
   </div>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -1079,7 +1260,17 @@
         arcBadge: "Companion Tool Suite",
         arcTitle: "ARC — turn the theory into numbers",
         arcDesc: "Every formula from Class 01 &amp; 02 — Debye length, Smith charts, matching networks — as 46 live interactive calculators. Applied RF &amp; Plasma Calculators, built for the numbers behind the lectures.",
-        arcCta: "Launch ARC"
+        arcCta: "Launch ARC",
+        prismBadge: "RF Matcher Simulator",
+        prismTitle: "PRISM — topology-based matcher simulation",
+        prismDesc: "Plasma RF Impedance Simulation Matrix. Visualize L-type, π-type, and T-type matching network behavior on an interactive Smith Chart — watch impedance trajectories move in real time as you tune component values.",
+        prismCta: "Launch PRISM",
+        prismStat1: "topologies",
+        pwTitle: "Access Code Required",
+        pwSub: "This tool is available to registered students.<br>Please enter your access code to continue.",
+        pwBtn: "Confirm",
+        pwError: "Incorrect access code. Please try again.",
+        pwPlaceholder: "Enter access code"
       },
       ko: {
         portalSub: "반도체 및 RF 전송 이론 플라즈마 스쿨",
@@ -1108,7 +1299,17 @@
         arcBadge: "연계 실습 도구",
         arcTitle: "ARC — 배운 이론을 숫자로 확인하기",
         arcDesc: "Class 01·02에서 다룬 디바이 길이, 스미스차트, 매칭 네트워크 같은 공식들을 46개의 실시간 인터랙티브 계산기로 직접 체험해보세요. 강의 이면의 숫자를 위해 만든 Applied RF &amp; Plasma Calculators입니다.",
-        arcCta: "ARC 실행하기"
+        arcCta: "ARC 실행하기",
+        prismBadge: "RF 매처 시뮬레이터",
+        prismTitle: "PRISM — 토폴로지별 매칭 네트워크 시뮬레이션",
+        prismDesc: "Plasma RF Impedance Simulation Matrix. L형·π형·T형 정합 회로를 인터랙티브 스미스 차트 위에서 직접 시각화하세요. 소자 값을 조절하면 임피던스 궤적이 실시간으로 움직입니다.",
+        prismCta: "PRISM 실행하기",
+        prismStat1: "토폴로지",
+        pwTitle: "접근 코드 확인",
+        pwSub: "등록된 수강생에게만 제공되는 도구입니다.<br>접근 코드를 입력해 주세요.",
+        pwBtn: "확인",
+        pwError: "접근 코드가 올바르지 않습니다. 다시 시도해 주세요.",
+        pwPlaceholder: "접근 코드 입력"
       }
     };
 
@@ -1195,6 +1396,11 @@
       document.getElementById('lbl-arc-title').innerText = T.arcTitle;
       document.getElementById('lbl-arc-desc').innerHTML = T.arcDesc;
       document.getElementById('lbl-arc-cta').innerText = T.arcCta;
+      document.getElementById('lbl-prism-badge').innerText = T.prismBadge;
+      document.getElementById('lbl-prism-title').innerText = T.prismTitle;
+      document.getElementById('lbl-prism-desc').innerText = T.prismDesc;
+      document.getElementById('lbl-prism-cta').innerText = T.prismCta;
+      document.getElementById('lbl-prism-stat1').innerText = T.prismStat1;
 
       const pill = document.getElementById('portal-lang-pill');
       if (pill) pill.className = currentLang === 'en' ? 'lang-toggle-pill lang-en' : 'lang-toggle-pill lang-ko';
@@ -1241,7 +1447,9 @@
       setTimeout(() => popup.style.display = 'none', 300);
     }
 
-    document.addEventListener('keydown', e => { if (e.key === "Escape") closeImagePopup(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === "Escape") closeImagePopup();
+    });
 
     function enterClassroom(classId) {
       currentClassId = classId;
