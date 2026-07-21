@@ -117,6 +117,47 @@
   #sidebar::-webkit-scrollbar { width: 4px; }
   #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+  /* ── Sidebar hide/show toggle ── */
+  #sidebar {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #main, #top-logo-bar {
+    transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.sidebar-hidden #sidebar { transform: translateX(-260px); }
+  body.sidebar-hidden #main   { margin-left: 0; max-width: 100vw; }
+  body.sidebar-hidden #top-logo-bar { left: 0; }
+
+  #sidebar-toggle {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 260px;
+    z-index: 200;
+    width: 18px;
+    height: 52px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: var(--text3);
+    box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+    transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.15s ease;
+    padding: 0;
+    line-height: 1;
+    user-select: none;
+  }
+  #sidebar-toggle:hover { background: var(--purple-soft); color: var(--purple-dark); }
+  body.sidebar-hidden #sidebar-toggle { left: 0; border-left: 1px solid var(--border); border-radius: 0 8px 8px 0; }
+
   /* Sidebar brand area */
   .sb-brand {
     padding: 20px 18px 16px;
@@ -505,7 +546,7 @@
   }
   .spec-band-range {
     font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; color: #1a1a1a;
-    opacity: 0.7; margin-top: 2px;
+    opacity: 0.7; margin-top: 3px; line-height: 1.55;
   }
   .spec-band-tag {
     margin-top: 4px; background: rgba(255,255,255,0.6); color: #521a78;
@@ -1082,6 +1123,9 @@
   </div>
 </nav>
 
+<!-- SIDEBAR TOGGLE BUTTON -->
+<button id="sidebar-toggle" onclick="toggleSidebar()" title="사이드바 숨기기/보이기 (Hide/Show Sidebar)">◀</button>
+
 <!-- TOP LOGO BAR (Module 02 style) -->
 <div id="top-logo-bar">
   <img src="https://benedu-insight.github.io/logo_png/benedu_insight_Symbol.png"
@@ -1650,12 +1694,12 @@ function renderDetail(slide) {
     const params = isEn ? [
       { label: 'Speed of Light (c)', value: '3 × 10⁸', unit: 'm/s', desc: 'Propagation speed of all EM waves in vacuum' },
       { label: 'RF Range', value: '3 kHz – 300 GHz', unit: '', desc: 'Per dictionary definition' },
-      { label: '13.56 MHz Wavelength', value: '≈ 22.1', unit: 'm', desc: 'λ = c / f, falls in the HF band' },
+      { label: '13.56 MHz Wavelength', value: '≈ 22.1', unit: 'm', desc: 'λ = c / f, falls in the HF band · <a href="https://benedu-insight.github.io/arc/phase1.html" target="_blank" rel="noopener" style="color:var(--purple);font-weight:600;text-decoration:none;">🔗 ARC Phase 1 · Unit & Power Conversion</a>' },
       { label: 'Visible Light', value: '400 – 700', unit: 'nm', desc: 'A tiny sliver of the full EM spectrum' },
     ] : [
       { label: '빛의 속도 (c)', value: '3 × 10⁸', unit: 'm/s', desc: '진공에서 모든 전자기파의 전파 속도' },
       { label: 'RF 범위', value: '3 kHz – 300 GHz', unit: '', desc: '사전적 정의 기준' },
-      { label: '13.56 MHz 파장', value: '≈ 22.1', unit: 'm', desc: 'λ = c / f, HF 대역에 해당' },
+      { label: '13.56 MHz 파장', value: '≈ 22.1', unit: 'm', desc: 'λ = c / f, HF 대역에 해당 · <a href="https://benedu-insight.github.io/arc/phase1.html" target="_blank" rel="noopener" style="color:var(--purple);font-weight:600;text-decoration:none;">🔗 ARC Phase 1 · 단위 & 전력 변환 계산기</a>' },
       { label: '가시광선', value: '400 – 700', unit: 'nm', desc: '전체 전자기 스펙트럼 중 매우 작은 영역' },
     ];
     paramHtml = `
@@ -1993,31 +2037,76 @@ function renderDetail(slide) {
 // Gamma Rays on the left edge — increasing wavelength / decreasing frequency → →)
 const SPECTRUM_BANDS = [
   {
-    id: 'gamma',
-    color: '#b388ff',
-    name: { ko: 'Gamma선', en: 'Gamma Rays' },
-    range: '> 10¹⁹ Hz · < 0.01 nm',
+    id: 'electric',
+    color: '#CFD8DC',
+    name: { ko: '전기파 (Electric Wave)', en: 'Electric Waves' },
+    range: '< 3 Hz · > 100,000 km',
     apps: {
-      ko: `<b>감마선(Gamma Rays)</b>은 전자기 스펙트럼에서 가장 높은 주파수·가장 짧은 파장 영역으로, 원자핵의 붕괴 과정에서 방출됩니다.<br><br>
-      <b>주요 응용:</b> 암 치료를 위한 방사선 치료(감마 나이프), 의료 영상(PET 스캔의 양전자-전자 소멸 시 511keV 감마선), 산업용 비파괴 검사(용접부·구조물 내부 결함 탐지), 식품·의료기구 멸균(감마 조사), 천체물리학의 감마선 폭발(GRB) 관측.<br><br>
-      <b>안전:</b> 높은 에너지로 인해 DNA 손상을 일으킬 수 있는 이온화 방사선이며, 두꺼운 납이나 콘크리트로만 차폐 가능합니다.`,
-      en: `<b>Gamma rays</b> sit at the highest-frequency, shortest-wavelength end of the EM spectrum, emitted during atomic nucleus decay.<br><br>
-      <b>Key applications:</b> radiation therapy for cancer (Gamma Knife), medical imaging (511 keV gammas from positron-electron annihilation in PET scans), industrial non-destructive testing (detecting flaws in welds and structures), sterilization of food and medical equipment, and astrophysical observation of gamma-ray bursts (GRBs).<br><br>
-      <b>Safety:</b> Gamma rays are ionizing radiation capable of DNA damage, and require thick lead or concrete shielding.`
+      ko: `<b>전기파(Electric Waves)</b>는 전자기 스펙트럼에서 가장 낮은 주파수·가장 긴 파장 영역으로, 수십 Hz 이하의 극저주파 영역입니다.<br><br>
+      <b>주요 특성:</b> 파장이 지구 크기(약 12,742km)보다 훨씬 길며, "파동"보다는 "준정적(quasi-static)" 전자기장에 가깝게 동작합니다. 전파가 아닌 전력망의 AC 전류(50/60Hz)도 이 영역에 포함됩니다.<br><br>
+      <b>주요 응용:</b> 지진파 관측(지각 내 극저주파 전기 신호), 잠수함 통신(해수면 아래에서도 도달 가능), 전력 송배전 시스템(50/60Hz).<br><br>
+      <b>이 모듈과의 관계:</b> RF의 사전적 정의(3kHz~300GHz)는 이 전기파 영역보다 훨씬 높은 주파수에서 시작됩니다. 이 영역을 스펙트럼의 출발점으로 보여줌으로써, RF가 전자기 스펙트럼의 어느 위치에 있는지를 더 넓은 맥락에서 이해할 수 있습니다.`,
+      en: `<b>Electric waves</b> occupy the lowest-frequency, longest-wavelength region of the EM spectrum — extreme low frequencies below a few tens of Hz.<br><br>
+      <b>Key characteristics:</b> wavelengths far exceed the Earth's diameter (~12,742km), so these behave more like quasi-static electromagnetic fields than propagating waves. AC power grid current (50/60Hz) also falls in this region.<br><br>
+      <b>Key applications:</b> seismic monitoring (detecting extremely low-frequency electrical signals within the Earth's crust), submarine communication (signals that penetrate below the ocean surface), and AC power transmission systems (50/60Hz).<br><br>
+      <b>Relevance to this module:</b> the dictionary definition of RF (3kHz–300GHz) begins far above this electric-wave region. Showing this as the starting point of the spectrum helps establish where RF sits in the broader context of all electromagnetic phenomena.`
     }
   },
   {
-    id: 'xray',
-    color: '#82b1ff',
-    name: { ko: 'X-선', en: 'X-Rays' },
-    range: '10¹⁶ – 10¹⁹ Hz · 0.01 – 10 nm',
+    id: 'rf',
+    color: '#FFD580',
+    name: { ko: '라디오파 (RF)', en: 'Radio Waves (RF)' },
+    range: '3 kHz – 300 GHz · 1mm – 100km',
+    highlight: '13.56 MHz ≈ 22.1 m',
     apps: {
-      ko: `<b>X-선(X-Rays)</b>은 전자가 금속 표적에 충돌할 때 발생하는 고에너지 전자기파입니다.<br><br>
-      <b>주요 응용:</b> 의료 진단 영상(흉부·골절 X-ray, CT 스캔), 공항 보안 검색(수하물 투시), 반도체/소재 분석(X선 회절 XRD로 결정 구조 분석, X선 형광 XRF로 원소 성분 분석), 산업용 결함 검사.<br><br>
-      <b>반도체 연결고리:</b> 웨이퍼 박막의 두께·결정성·조성 분석에 X선 기반 메트롤로지(XRD, XRF, XPS)가 널리 사용되며, 이는 CCP/ICP 공정으로 형성된 막질을 검증하는 핵심 계측 수단입니다.`,
-      en: `<b>X-rays</b> are high-energy electromagnetic waves generated when electrons strike a metal target.<br><br>
-      <b>Key applications:</b> medical diagnostic imaging (chest/bone X-rays, CT scans), airport security screening (baggage inspection), semiconductor/materials analysis (XRD for crystal structure, XRF for elemental composition), and industrial flaw inspection.<br><br>
-      <b>Semiconductor link:</b> X-ray based metrology (XRD, XRF, XPS) is widely used to verify the thickness, crystallinity, and composition of thin films — a core measurement technique for validating films deposited or etched by CCP/ICP processes.`
+      ko: `<b>라디오파(Radio Waves / RF)</b>는 전자기 스펙트럼에서 가장 낮은 주파수·가장 긴 파장 영역으로, AM/FM 방송부터 반도체 플라즈마 장비까지 광범위하게 사용됩니다.<br><br>
+      <b>주요 응용:</b> AM/FM 라디오 방송, TV 방송, 이동통신(LTE/5G sub-6GHz), Wi-Fi/Bluetooth, MRI(자기공명영상의 RF 펄스), 그리고 <b>반도체 플라즈마 공정(CCP/ICP)의 RF Generator — 가장 일반적으로 13.56MHz(ISM 대역)</b>가 사용됩니다.<br><br>
+      <b>이 모듈의 핵심:</b> RF는 이 스펙트럼의 가장 낮은 끝부분(긴 파장)에 위치하지만, 그 안에서도 13.56MHz는 ISM 대역으로 지정되어 반도체 산업의 표준 주파수가 되었습니다 — 이어지는 📻에서 "왜 13.56MHz인가"를 자세히 다룹니다.`,
+      en: `<b>Radio waves (RF)</b> occupy the lowest-frequency, longest-wavelength end of the EM spectrum — used everywhere from AM/FM broadcasting to semiconductor plasma equipment.<br><br>
+      <b>Key applications:</b> AM/FM radio broadcasting, TV broadcasting, mobile communication (LTE/5G sub-6GHz), Wi-Fi/Bluetooth, MRI (RF pulses in magnetic resonance imaging), and <b>RF Generators for semiconductor plasma processes (CCP/ICP) — most commonly at 13.56MHz (an ISM band)</b>.<br><br>
+      <b>The key takeaway for this module:</b> RF sits at the lowest-frequency (longest-wavelength) end of the spectrum, and within it, 13.56MHz was designated an ISM band and became the semiconductor industry's standard frequency — 📻 explores "why 13.56MHz" in detail.`
+    }
+  },
+  {
+    id: 'microwave',
+    color: '#ffab40',
+    name: { ko: '마이크로파', en: 'Microwave' },
+    range: '10⁹ – 10¹² Hz · 1mm – 30cm',
+    apps: {
+      ko: `<b>마이크로파(Microwave)</b>는 전자레인지(2.45GHz)로 가장 잘 알려진 대역이며, 무선통신·레이더에도 널리 사용됩니다.<br><br>
+      <b>주요 응용:</b> 전자레인지(2.45GHz, 물 분자 회전 여기를 통한 가열), 위성/이동통신(5G mmWave), 레이더(항공·기상·자율주행), 그리고 <b>반도체 RPS(Remote Plasma Source)</b> — 2.45GHz 마이크로파를 이용해 챔버 외부에서 플라즈마를 생성한 뒤 다운스트림으로 챔버에 공급하는 방식.<br><br>
+      <b>반도체 연결고리:</b> 마이크로파 RPS는 챔버 내부 RF 전극 없이 라디칼을 생성할 수 있어, 챔버 클리닝(NF₃/Ar 플라즈마)이나 포토레지스트 애싱(O₂ 플라즈마)에 자주 사용됩니다.`,
+      en: `<b>Microwaves</b> are best known via the 2.45GHz microwave oven, and are also widely used in wireless communication and radar.<br><br>
+      <b>Key applications:</b> microwave ovens (2.45GHz, heating via rotational excitation of water molecules), satellite/mobile communication (5G mmWave), radar (aviation, weather, autonomous driving), and <b>semiconductor RPS (Remote Plasma Source)</b> — generating plasma outside the chamber using 2.45GHz microwaves, then feeding radicals downstream into the chamber.<br><br>
+      <b>Semiconductor link:</b> Microwave RPS can generate radicals without an in-chamber RF electrode, making it common for chamber cleaning (NF₃/Ar plasma) and photoresist ashing (O₂ plasma).`
+    }
+  },
+  {
+    id: 'ir',
+    color: '#ff8a65',
+    name: { ko: '적외선 (IR)', en: 'Infrared (IR)' },
+    range: '10¹² – 10¹⁴ Hz · 0.7 µm – 1 mm',
+    apps: {
+      ko: `<b>적외선(IR)</b>은 가시광선보다 파장이 길고, 열(thermal) 방사와 밀접하게 관련됩니다.<br><br>
+      <b>주요 응용:</b> 열화상 카메라(설비 온도 모니터링, 군사·의료), 리모컨, 광섬유 통신(1.31µm·1.55µm 대역), 적외선 분광법(FTIR — 박막·가스의 화학적 결합 분석), 반도체 웨이퍼 가열(RTP — Rapid Thermal Processing의 램프 가열).<br><br>
+      <b>반도체 연결고리:</b> 챔버 내부 온도 측정에 IR 파이로미터(pyrometer)가 사용되며, FTIR은 PE-CVD로 형성된 박막(SiO₂, SiN 등)의 결합 구조(Si-O, Si-N, Si-H 결합 비율)를 분석하는 표준 계측 도구입니다.`,
+      en: `<b>Infrared (IR)</b> has longer wavelengths than visible light and is closely associated with thermal radiation.<br><br>
+      <b>Key applications:</b> thermal imaging cameras (equipment temperature monitoring, military/medical use), remote controls, fiber-optic communication (1.31µm/1.55µm bands), infrared spectroscopy (FTIR — analyzing chemical bonds in thin films and gases), and wafer heating in semiconductor RTP (Rapid Thermal Processing lamps).<br><br>
+      <b>Semiconductor link:</b> IR pyrometers measure in-chamber temperature, and FTIR is a standard metrology tool for analyzing the bonding structure (Si-O, Si-N, Si-H ratios) of films deposited by PE-CVD.`
+    }
+  },
+  {
+    id: 'visible',
+    color: 'rainbow',
+    name: { ko: '가시광선', en: 'Visible Light' },
+    range: '~10¹⁵ Hz · 400 – 700 nm',
+    apps: {
+      ko: `<b>가시광선(Visible Light)</b>은 인간의 눈이 감지할 수 있는 유일한 전자기파 영역입니다(400nm 보라 ~ 700nm 빨강).<br><br>
+      <b>주요 응용:</b> 조명, 디스플레이(LCD/OLED), 광학 현미경·카메라, 광통신(가시광 통신 VLC), 식물의 광합성(주로 적색·청색광 흡수).<br><br>
+      <b>플라즈마와의 연결:</b> 플라즈마 방전 시 여기(excited)된 원자/분자가 바닥상태로 돌아가며 방출하는 빛이 바로 가시광선 영역에 속하는 경우가 많습니다 — 이를 이용한 <b>OES(Optical Emission Spectroscopy)</b>는 플라즈마 내 화학종(예: CF₂, Cl, O 라디칼)의 농도를 실시간으로 모니터링하는 핵심 진단 기법입니다.`,
+      en: `<b>Visible light</b> is the only EM band the human eye can detect (400nm violet to 700nm red).<br><br>
+      <b>Key applications:</b> lighting, displays (LCD/OLED), optical microscopy and cameras, visible light communication (VLC), and plant photosynthesis (mainly absorbing red and blue light).<br><br>
+      <b>Plasma connection:</b> when excited atoms/molecules in a plasma discharge relax back to ground state, much of the emitted light falls in the visible range — <b>OES (Optical Emission Spectroscopy)</b> uses this to monitor the real-time concentration of plasma species (e.g., CF₂, Cl, O radicals), a core diagnostic technique in etch/deposition processes.`
     }
   },
   {
@@ -2039,60 +2128,31 @@ const SPECTRUM_BANDS = [
     }
   },
   {
-    id: 'visible',
-    color: 'rainbow',
-    name: { ko: '가시광선', en: 'Visible Light' },
-    range: '~10¹⁵ Hz · 400 – 700 nm',
+    id: 'xray',
+    color: '#82b1ff',
+    name: { ko: 'X-선', en: 'X-Rays' },
+    range: '10¹⁶ – 10¹⁹ Hz · 0.01 – 10 nm',
     apps: {
-      ko: `<b>가시광선(Visible Light)</b>은 인간의 눈이 감지할 수 있는 유일한 전자기파 영역입니다(400nm 보라 ~ 700nm 빨강).<br><br>
-      <b>주요 응용:</b> 조명, 디스플레이(LCD/OLED), 광학 현미경·카메라, 광통신(가시광 통신 VLC), 식물의 광합성(주로 적색·청색광 흡수).<br><br>
-      <b>플라즈마와의 연결:</b> 플라즈마 방전 시 여기(excited)된 원자/분자가 바닥상태로 돌아가며 방출하는 빛이 바로 가시광선 영역에 속하는 경우가 많습니다 — 이를 이용한 <b>OES(Optical Emission Spectroscopy)</b>는 플라즈마 내 화학종(예: CF₂, Cl, O 라디칼)의 농도를 실시간으로 모니터링하는 핵심 진단 기법입니다.`,
-      en: `<b>Visible light</b> is the only EM band the human eye can detect (400nm violet to 700nm red).<br><br>
-      <b>Key applications:</b> lighting, displays (LCD/OLED), optical microscopy and cameras, visible light communication (VLC), and plant photosynthesis (mainly absorbing red and blue light).<br><br>
-      <b>Plasma connection:</b> when excited atoms/molecules in a plasma discharge relax back to ground state, much of the emitted light falls in the visible range — <b>OES (Optical Emission Spectroscopy)</b> uses this to monitor the real-time concentration of plasma species (e.g., CF₂, Cl, O radicals), a core diagnostic technique in etch/deposition processes.`
+      ko: `<b>X-선(X-Rays)</b>은 전자가 금속 표적에 충돌할 때 발생하는 고에너지 전자기파입니다.<br><br>
+      <b>주요 응용:</b> 의료 진단 영상(흉부·골절 X-ray, CT 스캔), 공항 보안 검색(수하물 투시), 반도체/소재 분석(X선 회절 XRD로 결정 구조 분석, X선 형광 XRF로 원소 성분 분석), 산업용 결함 검사.<br><br>
+      <b>반도체 연결고리:</b> 웨이퍼 박막의 두께·결정성·조성 분석에 X선 기반 메트롤로지(XRD, XRF, XPS)가 널리 사용되며, 이는 CCP/ICP 공정으로 형성된 막질을 검증하는 핵심 계측 수단입니다.`,
+      en: `<b>X-rays</b> are high-energy electromagnetic waves generated when electrons strike a metal target.<br><br>
+      <b>Key applications:</b> medical diagnostic imaging (chest/bone X-rays, CT scans), airport security screening (baggage inspection), semiconductor/materials analysis (XRD for crystal structure, XRF for elemental composition), and industrial flaw inspection.<br><br>
+      <b>Semiconductor link:</b> X-ray based metrology (XRD, XRF, XPS) is widely used to verify the thickness, crystallinity, and composition of thin films — a core measurement technique for validating films deposited or etched by CCP/ICP processes.`
     }
   },
   {
-    id: 'ir',
-    color: '#ff8a65',
-    name: { ko: '적외선 (IR)', en: 'Infrared (IR)' },
-    range: '10¹² – 10¹⁴ Hz · 0.7 µm – 1 mm',
+    id: 'gamma',
+    color: '#b388ff',
+    name: { ko: 'Gamma선', en: 'Gamma Rays' },
+    range: '> 10¹⁹ Hz · < 0.01 nm',
     apps: {
-      ko: `<b>적외선(IR)</b>은 가시광선보다 파장이 길고, 열(thermal) 방사와 밀접하게 관련됩니다.<br><br>
-      <b>주요 응용:</b> 열화상 카메라(설비 온도 모니터링, 군사·의료), 리모컨, 광섬유 통신(1.31µm·1.55µm 대역), 적외선 분광법(FTIR — 박막·가스의 화학적 결합 분석), 반도체 웨이퍼 가열(RTP — Rapid Thermal Processing의 램프 가열).<br><br>
-      <b>반도체 연결고리:</b> 챔버 내부 온도 측정에 IR 파이로미터(pyrometer)가 사용되며, FTIR은 PE-CVD로 형성된 박막(SiO₂, SiN 등)의 결합 구조(Si-O, Si-N, Si-H 결합 비율)를 분석하는 표준 계측 도구입니다.`,
-      en: `<b>Infrared (IR)</b> has longer wavelengths than visible light and is closely associated with thermal radiation.<br><br>
-      <b>Key applications:</b> thermal imaging cameras (equipment temperature monitoring, military/medical use), remote controls, fiber-optic communication (1.31µm/1.55µm bands), infrared spectroscopy (FTIR — analyzing chemical bonds in thin films and gases), and wafer heating in semiconductor RTP (Rapid Thermal Processing lamps).<br><br>
-      <b>Semiconductor link:</b> IR pyrometers measure in-chamber temperature, and FTIR is a standard metrology tool for analyzing the bonding structure (Si-O, Si-N, Si-H ratios) of films deposited by PE-CVD.`
-    }
-  },
-  {
-    id: 'microwave',
-    color: '#ffab40',
-    name: { ko: '마이크로파', en: 'Microwave' },
-    range: '10⁹ – 10¹² Hz · 1mm – 30cm',
-    apps: {
-      ko: `<b>마이크로파(Microwave)</b>는 전자레인지(2.45GHz)로 가장 잘 알려진 대역이며, 무선통신·레이더에도 널리 사용됩니다.<br><br>
-      <b>주요 응용:</b> 전자레인지(2.45GHz, 물 분자 회전 여기를 통한 가열), 위성/이동통신(5G mmWave), 레이더(항공·기상·자율주행), 그리고 <b>반도체 RPS(Remote Plasma Source)</b> — 2.45GHz 마이크로파를 이용해 챔버 외부에서 플라즈마를 생성한 뒤 다운스트림으로 챔버에 공급하는 방식.<br><br>
-      <b>반도체 연결고리:</b> 마이크로파 RPS는 챔버 내부 RF 전극 없이 라디칼을 생성할 수 있어, 챔버 클리닝(NF₃/Ar 플라즈마)이나 포토레지스트 애싱(O₂ 플라즈마)에 자주 사용됩니다 — CLASS 02 후반 모듈에서 다룰 ICP·RPS와 비교될 대상입니다.`,
-      en: `<b>Microwaves</b> are best known via the 2.45GHz microwave oven, and are also widely used in wireless communication and radar.<br><br>
-      <b>Key applications:</b> microwave ovens (2.45GHz, heating via rotational excitation of water molecules), satellite/mobile communication (5G mmWave), radar (aviation, weather, autonomous driving), and <b>semiconductor RPS (Remote Plasma Source)</b> — generating plasma outside the chamber using 2.45GHz microwaves, then feeding radicals downstream into the chamber.<br><br>
-      <b>Semiconductor link:</b> Microwave RPS can generate radicals without an in-chamber RF electrode, making it common for chamber cleaning (NF₃/Ar plasma) and photoresist ashing (O₂ plasma) — a useful comparison point for the ICP and RPS modules later in CLASS 02.`
-    }
-  },
-  {
-    id: 'rf',
-    color: '#FFD580',
-    name: { ko: '라디오파 (RF)', en: 'Radio Waves (RF)' },
-    range: '3 kHz – 300 GHz · 1mm – 100km',
-    highlight: '13.56 MHz ≈ 22.1 m',
-    apps: {
-      ko: `<b>라디오파(Radio Waves / RF)</b>는 전자기 스펙트럼에서 가장 낮은 주파수·가장 긴 파장 영역으로, AM/FM 방송부터 반도체 플라즈마 장비까지 광범위하게 사용됩니다.<br><br>
-      <b>주요 응용:</b> AM/FM 라디오 방송, TV 방송, 이동통신(LTE/5G sub-6GHz), Wi-Fi/Bluetooth, MRI(자기공명영상의 RF 펄스), 그리고 <b>반도체 플라즈마 공정(CCP/ICP)의 RF Generator — 가장 일반적으로 13.56MHz(ISM 대역)</b>가 사용됩니다.<br><br>
-      <b>이 모듈의 핵심:</b> RF는 이 스펙트럼의 가장 낮은 끝부분(긴 파장)에 위치하지만, 그 안에서도 13.56MHz는 ISM 대역으로 지정되어 반도체 산업의 표준 주파수가 되었습니다 — 이어지는 Topic에서 "왜 13.56MHz인가"를 자세히 다룹니다.`,
-      en: `<b>Radio waves (RF)</b> occupy the lowest-frequency, longest-wavelength end of the EM spectrum — used everywhere from AM/FM broadcasting to semiconductor plasma equipment.<br><br>
-      <b>Key applications:</b> AM/FM radio broadcasting, TV broadcasting, mobile communication (LTE/5G sub-6GHz), Wi-Fi/Bluetooth, MRI (RF pulses in magnetic resonance imaging), and <b>RF Generators for semiconductor plasma processes (CCP/ICP) — most commonly at 13.56MHz (an ISM band)</b>.<br><br>
-      <b>The key takeaway for this module:</b> RF sits at the lowest-frequency (longest-wavelength) end of the spectrum, and within it, 13.56MHz was designated an ISM band and became the semiconductor industry's standard frequency — the next Topic explores "why 13.56MHz" in detail.`
+      ko: `<b>감마선(Gamma Rays)</b>은 전자기 스펙트럼에서 가장 높은 주파수·가장 짧은 파장 영역으로, 원자핵의 붕괴 과정에서 방출됩니다.<br><br>
+      <b>주요 응용:</b> 암 치료를 위한 방사선 치료(감마 나이프), 의료 영상(PET 스캔의 양전자-전자 소멸 시 511keV 감마선), 산업용 비파괴 검사(용접부·구조물 내부 결함 탐지), 식품·의료기구 멸균(감마 조사), 천체물리학의 감마선 폭발(GRB) 관측.<br><br>
+      <b>안전:</b> 높은 에너지로 인해 DNA 손상을 일으킬 수 있는 이온화 방사선이며, 두꺼운 납이나 콘크리트로만 차폐 가능합니다.`,
+      en: `<b>Gamma rays</b> sit at the highest-frequency, shortest-wavelength end of the EM spectrum, emitted during atomic nucleus decay.<br><br>
+      <b>Key applications:</b> radiation therapy for cancer (Gamma Knife), medical imaging (511 keV gammas from positron-electron annihilation in PET scans), industrial non-destructive testing (detecting flaws in welds and structures), sterilization of food and medical equipment, and astrophysical observation of gamma-ray bursts (GRBs).<br><br>
+      <b>Safety:</b> Gamma rays are ionizing radiation capable of DNA damage, and require thick lead or concrete shielding.`
     }
   },
 ];
@@ -2102,8 +2162,8 @@ function buildSpectrumDiagram(isEn) {
   const T = {
     title: isEn ? 'Electromagnetic Spectrum — click a band to explore' : '전자기 스펙트럼 — 영역을 클릭해 보세요',
     badge: 'INTERACTIVE',
-    freqArrow: isEn ? '← Higher Frequency / Shorter Wavelength' : '← 높은 주파수 / 짧은 파장',
-    waveArrow: isEn ? 'Lower Frequency / Longer Wavelength →' : '낮은 주파수 / 긴 파장 →',
+    freqArrow: isEn ? 'Lower Frequency / Longer Wavelength ←' : '← 낮은 주파수 / 긴 파장',
+    waveArrow: isEn ? '→ Higher Frequency / Shorter Wavelength' : '높은 주파수 / 짧은 파장 →',
     imgHint: isEn ? '🖱️ Click image to enlarge: UV bands vs. atmosphere & skin layers' : '🖱️ 클릭하여 확대: UV 대역 vs. 대기권·피부 단계별 도달 깊이',
   };
 
@@ -2115,13 +2175,13 @@ function buildSpectrumDiagram(isEn) {
     return `
       <div class="spec-band" data-band="${b.id}" onclick="selectSpectrumBand('${b.id}')" style="${bg}">
         <div class="spec-band-name">${b.name[lang]}</div>
-        <div class="spec-band-range">${b.range}</div>
+        <div class="spec-band-range">${b.range.split(' · ').join('<br>')}</div>
         ${highlightTag}
       </div>`;
   }).join('');
 
-  // Default info panel = RF band (last one), since this is the RF module
-  const defaultBand = SPECTRUM_BANDS[SPECTRUM_BANDS.length - 1];
+  // Default info panel = RF band
+  const defaultBand = SPECTRUM_BANDS.find(b => b.id === 'rf');
 
   return `
     <div class="spectrum-wrap" id="spectrumWrap">
@@ -3480,6 +3540,15 @@ Once these three are understood, it becomes clear <i>why</i> an RF matcher exist
 
 
 
+
+// ─────────────────────────────────────────────
+//  SIDEBAR TOGGLE
+// ─────────────────────────────────────────────
+function toggleSidebar() {
+  const hidden = document.body.classList.toggle('sidebar-hidden');
+  const btn = document.getElementById('sidebar-toggle');
+  if (btn) btn.textContent = hidden ? '▶' : '◀';
+}
 
 // ─────────────────────────────────────────────
 //  INIT
