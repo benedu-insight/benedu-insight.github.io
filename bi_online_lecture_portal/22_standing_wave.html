@@ -2058,7 +2058,7 @@ function buildC27Diagram(isEn) {
             ${isEn?'Input: Reflection Coefficient |Γ|':'입력: 반사계수 |Γ|'}
             <span class="sim-ctrl-val" id="vswr-gamma-val">0.00</span>
           </div>
-          <input type="range" class="sim-slider" id="vswr-gamma" min="0" max="0.99" step="0.01" value="0">
+          <input type="range" class="sim-slider" id="vswr-gamma" min="0" max="1.00" step="0.01" value="0">
         </div>
         <div class="sim-ctrl-group">
           <div class="sim-ctrl-label">
@@ -3184,10 +3184,10 @@ function initSWSim() {
   function draw() {
     const gamma = parseFloat(gammaSlider.value);
     document.getElementById('gammaVal').textContent = gamma.toFixed(2);
-    const vswr = gamma < 1 ? (1 + gamma) / (1 - gamma) : 999;
+    const vswr = gamma < 1.0 ? (1 + gamma) / (1 - gamma) : Infinity;
     const refl = (gamma * gamma * 100).toFixed(1);
     document.getElementById('swInfo').innerHTML =
-      `Γ = ${gamma.toFixed(2)} &nbsp;|&nbsp; VSWR = ${vswr < 999 ? vswr.toFixed(2) : '∞'} &nbsp;|&nbsp; ${isEn ? 'Reflected Power' : '반사전력'} = ${refl}%`;
+      `Γ = ${gamma.toFixed(2)} &nbsp;|&nbsp; VSWR = ${isFinite(vswr) ? vswr.toFixed(2) : '∞'} &nbsp;|&nbsp; ${isEn ? 'Reflected Power' : '반사전력'} = ${refl}%`;
 
     const omega = 2 * Math.PI * 1.5;
     const k = 2 * Math.PI / (vW * 0.6);
@@ -3253,12 +3253,12 @@ function initVSWRSim() {
   window.syncVSWRfromVSWR = function(vswrVal) {
     const vswr = parseFloat(vswrVal);
     const g = (vswr - 1) / (vswr + 1);
-    gammaSlider.value = Math.min(0.99, g).toFixed(3);
+    gammaSlider.value = Math.min(1.0, g).toFixed(3);
     document.getElementById('vswr-direct-val').textContent = vswr.toFixed(2);
   };
   gammaSlider.addEventListener('input', () => {
     const g = parseFloat(gammaSlider.value);
-    const vswr = g < 0.99 ? (1+g)/(1-g) : 999;
+    const vswr = g < 1.0 ? (1+g)/(1-g) : Infinity;
     vswrSlider.value = Math.min(20, vswr).toFixed(2);
     document.getElementById('vswr-direct-val').textContent = Math.min(20, vswr).toFixed(2);
   });
@@ -3269,10 +3269,10 @@ function initVSWRSim() {
   function drawAll() {
     const gamma   = parseFloat(gammaSlider.value);
     document.getElementById('vswr-gamma-val').textContent = gamma.toFixed(2);
-    const vswr    = gamma < 0.99 ? (1+gamma)/(1-gamma) : 999;
+    const vswr    = gamma < 1.0 ? (1+gamma)/(1-gamma) : Infinity;
     const reflPct = (gamma*gamma*100).toFixed(1);
     const delPct  = (100 - gamma*gamma*100).toFixed(1);
-    document.getElementById('ri-vswr').textContent  = vswr < 999 ? vswr.toFixed(2) : '\u221e';
+    document.getElementById('ri-vswr').textContent  = isFinite(vswr) ? vswr.toFixed(2) : '\u221e';
     document.getElementById('ri-gamma').textContent = gamma.toFixed(3);
     document.getElementById('ri-refl').textContent  = reflPct + '%';
     document.getElementById('ri-del').textContent   = delPct  + '%';
@@ -3369,7 +3369,7 @@ function initVSWRSim() {
     barCtx.beginPath(); barCtx.arc(markerX, scaleY+7, 9, 0, Math.PI*2); barCtx.fill();
     barCtx.fillStyle = '#fff'; barCtx.font = 'bold 10px "JetBrains Mono",monospace';
     barCtx.textAlign = 'center';
-    barCtx.fillText(vswr<999 ? vswr.toFixed(1) : '\u221e', markerX, scaleY+11);
+    barCtx.fillText(isFinite(vswr) ? vswr.toFixed(1) : '\u221e', markerX, scaleY+11);
     barCtx.textAlign = 'left';
     barCtx.fillStyle = '#888'; barCtx.font = NFONT;
     barCtx.fillText(isEn ? '\u2190 better  worse \u2192' : '\u2190 \uc591\ud638  \ubd88\ub7c9 \u2192', scaleX, BH - 5);
@@ -3483,8 +3483,8 @@ window.toggleDeepDive = function(id) {
 ═══════════════════════════════════════════ */
 function calcUpdateResult(gamma) {
   if (isNaN(gamma) || gamma < 0) return;
-  gamma = Math.min(gamma, 0.9999);
-  const vswr   = (1 + gamma) / (1 - gamma);
+  // |Γ| = 1.0 (완전 반사)는 유효한 물리 상태 — 클리핑 제거
+  const vswr   = gamma < 1.0 ? (1 + gamma) / (1 - gamma) : Infinity;
   const reflPct = (gamma * gamma * 100);
   const delPct  = 100 - reflPct;
   const rl      = gamma > 0 ? -20 * Math.log10(gamma) : Infinity;
@@ -3498,11 +3498,11 @@ function calcUpdateResult(gamma) {
   // 슬라이더 연동
   const gs = document.getElementById('vswr-gamma');
   const vs = document.getElementById('vswr-direct');
-  if (gs) gs.value = Math.min(0.99, gamma).toFixed(4);
+  if (gs) gs.value = Math.min(1.0, gamma).toFixed(4);
   if (vs) vs.value = Math.min(20, vswr).toFixed(3);
   const gv = document.getElementById('vswr-gamma-val');
   const vv = document.getElementById('vswr-direct-val');
-  if (gv) gv.textContent = Math.min(0.99, gamma).toFixed(2);
+  if (gv) gv.textContent = Math.min(1.0, gamma).toFixed(2);
   if (vv) vv.textContent = Math.min(20, vswr).toFixed(2);
 }
 
