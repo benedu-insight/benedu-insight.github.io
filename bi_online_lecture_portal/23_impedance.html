@@ -58,7 +58,51 @@ body {
   position: fixed;
   top: 0; left: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 100;
+}
+/* ── Sidebar hide/show toggle ── */
+#sidebar {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#main, #top-logo-bar {
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+body.sidebar-hidden #sidebar { transform: translateX(-260px); }
+body.sidebar-hidden #main   { margin-left: 0; max-width: 100vw; }
+body.sidebar-hidden #top-logo-bar { left: 0; }
+#sidebar-toggle {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 260px;
+  z-index: 200;
+  width: 18px;
+  height: 52px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: var(--text-sub);
+  box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.15s ease;
+  padding: 0;
+  line-height: 1;
+  user-select: none;
+}
+#sidebar-toggle:hover { background: var(--purple-soft); color: var(--purple-dark); }
+body.sidebar-hidden #sidebar-toggle {
+  left: 0;
+  border-left: 1px solid var(--border);
+  border-radius: 0 8px 8px 0;
 }
 .sb-brand {
   padding: 20px 18px 16px;
@@ -635,6 +679,7 @@ body {
     <button class="lang-btn"        id="btn-en" onclick="setLang('en')">English</button>
   </div>
 </nav>
+<button id="sidebar-toggle" onclick="toggleSidebar()" title="사이드바 숨기기/보이기 (Hide/Show Sidebar)">◀</button>
 
 <!-- MAIN -->
 <main id="main">
@@ -5191,6 +5236,15 @@ window.addEventListener('resize', function() {
     reinitCurrentSimulator();
   }, 120);
 });
+
+// ─────────────────────────────────────────────
+//  SIDEBAR TOGGLE
+// ─────────────────────────────────────────────
+function toggleSidebar() {
+  const hidden = document.body.classList.toggle('sidebar-hidden');
+  const btn = document.getElementById('sidebar-toggle');
+  if (btn) btn.textContent = hidden ? '▶' : '◀';
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   renderSidebar();
