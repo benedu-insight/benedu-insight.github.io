@@ -104,6 +104,10 @@ input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 
 
 .field-hint { font-size: 11.5px; color: var(--muted); padding: 8px 24px 0; }
 
+.graph-wrap { padding: 0 24px; }
+.graphCanvas { width: 100%; height: 200px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #FAFBFC; margin: 4px 0; }
+.graph-note { font-size: 11.5px; color: var(--muted); margin: 8px 0 16px; padding: 0 2px; text-align: center; }
+
 .callout { margin: 12px 24px 18px; padding: 14px 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(15,23,42,0.05); display: flex; gap: 12px; align-items: flex-start; transition: box-shadow .2s; }
 .callout:hover { box-shadow: 0 3px 10px rgba(15,23,42,0.07); }
 .callout-icon { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
@@ -204,6 +208,7 @@ footer a { color: var(--purple); text-decoration: none; }
   <button class="tool-tab" data-tool="t3"><span class="tnum">3</span><span id="tabT3">Gas Reference</span></button>
   <button class="tool-tab" data-tool="t4"><span class="tnum">4</span><span id="tabT4">DC Self-Bias</span></button>
   <button class="tool-tab" data-tool="t5"><span class="tnum">5</span><span id="tabT5">Ion Energy</span></button>
+  <button class="tool-tab" data-tool="t6"><span class="tnum">6</span><span id="tabT6">Pulsed Plasma</span></button>
 </nav>
 
 <main class="main">
@@ -255,6 +260,55 @@ footer a { color: var(--purple); text-decoration: none; }
       <div><div class="formula-label" id="t1f1">DEBYE LENGTH</div><div class="formula-eq">λ_D = √(ε₀kTe / (n·e²))</div></div>
       <div><div class="formula-label" id="t1f2">PLASMA FREQUENCY</div><div class="formula-eq">ω_pe = √(n·e² / (ε₀m_e))</div></div>
       <div><div class="formula-label" id="t1f3">BOHM VELOCITY</div><div class="formula-eq">u_B = √(kTe / M_ion)</div></div>
+    </div>
+
+    <div class="vf-card-head" style="border-top:1px solid var(--border);">
+      <span class="badge" style="background:var(--purple-lt);color:var(--purple);">
+        <span class="badge-dot" style="background:var(--purple);"></span><span id="t1RefBadge">TABLE</span>
+      </span>
+      <div>
+        <h2 id="t1RefTitle" style="font-size:15px;">Typical Values by Discharge Type</h2>
+        <p id="t1RefSub" style="font-size:12.5px;color:var(--muted);margin-top:2px;">Click a row to load its Te and n into the calculator above</p>
+      </div>
+    </div>
+
+    <div class="callout c-amber" style="margin:14px 24px 0;">
+      <div class="callout-icon">!</div>
+      <div class="callout-body">
+        <div class="callout-title" id="t1RefWarnTitle">GENERAL REFERENCE ONLY</div>
+        <div class="callout-text" id="t1RefWarnText">These are typical, textbook-level values for each discharge type in general. Real reactors vary significantly by chamber geometry, gas chemistry, power, and application — always verify against your own process/Langmuir-probe data.</div>
+      </div>
+    </div>
+
+    <div class="fh-container">
+      <div class="fh-wrap">
+        <table class="fh-table">
+          <colgroup><col style="width:20%"><col style="width:12%"><col style="width:15%"><col style="width:17%"><col style="width:17%"><col style="width:19%"></colgroup>
+          <thead>
+            <tr>
+              <th id="t1thType">Discharge Type</th>
+              <th id="t1thTe">Typical Te (eV)</th>
+              <th id="t1thNe">Typical ne (cm⁻³)</th>
+              <th id="t1thVe">Electron v̄_e</th>
+              <th id="t1thUb">Bohm u_B (Ar⁺)</th>
+              <th id="t1thNotes">Notes</th>
+            </tr>
+          </thead>
+        </table>
+        <div class="fh-body">
+          <table class="fh-table">
+            <colgroup><col style="width:20%"><col style="width:12%"><col style="width:15%"><col style="width:17%"><col style="width:17%"><col style="width:19%"></colgroup>
+            <tbody id="t1RefTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="deepdive">
+      <button class="deepdive-toggle" id="dd1Btn" onclick="toggleDD('dd1Btn','dd1-body')">
+        <span class="deepdive-chevron">▸</span><span id="dd1Toggle">Deep Dive: What is Bohm Velocity?</span>
+      </button>
+      <div class="deepdive-body" id="dd1-body"><div id="dd1Content"></div></div>
     </div>
   </div>
 
@@ -408,6 +462,61 @@ footer a { color: var(--purple); text-decoration: none; }
     </div>
   </div>
 
+  <!-- ============ TOOL 6: Pulsed Plasma (Source / Bias / Synchronous) ============ -->
+  <div class="card tool-panel" id="panel-t6" style="display:none">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge6">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="t6Title">Pulsed Plasma — Source / Bias / Synchronous</h2>
+        <p id="t6Sub">Timing parameters and reactor-level pulsing schemes used to modulate plasma properties during etch</p>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="source" id="t6ModeSource">Source Pulsing</button>
+      <button class="mode-btn" data-mode="bias" id="t6ModeBias">Bias Pulsing</button>
+      <button class="mode-btn" data-mode="sync" id="t6ModeSync">Synchronous Pulsing</button>
+    </div>
+
+    <div class="dual-input">
+      <div class="dual-field"><label id="t6labelFreq">Pulse Frequency (kHz)</label><input type="text" id="t6-freq" value="5"></div>
+      <div class="dual-field"><label id="t6labelDuty">Duty Ratio (%)</label><input type="text" id="t6-duty" value="30"></div>
+      <div class="dual-field" id="t6-phaseField" style="display:none;"><label id="t6labelPhase">Bias Phase Lag, φ (deg)</label><input type="text" id="t6-phase" value="90"></div>
+    </div>
+    <div class="quick-row" style="padding:14px 24px 0;">
+      <span class="quick-label" id="t6PhaseQuickLabel">Quick phase lag (sync mode):</span>
+      <button class="qbtn" data-phase="0">0°</button>
+      <button class="qbtn active" data-phase="90">90°</button>
+      <button class="qbtn" data-phase="180">180°</button>
+    </div>
+
+    <div class="graph-wrap">
+      <canvas id="t6Canvas" class="graphCanvas"></canvas>
+    </div>
+    <p class="graph-note" id="t6GraphNote">Source channel in purple, bias channel in green. In Source/Bias modes the other channel stays CW (flat line); in Synchronous mode both pulse, offset by the phase lag φ.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-name" id="t6statPeriod">PERIOD (T)</div><div><span class="stat-value" id="t6-period">200.0</span><span class="stat-unit">µs</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statOn">ON TIME</div><div><span class="stat-value" id="t6-ton">60.0</span><span class="stat-unit">µs</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statOff">OFF TIME</div><div><span class="stat-value" id="t6-toff">140.0</span><span class="stat-unit">µs</span></div></div>
+      <div class="stat"><div class="stat-name" id="t6statLag">PHASE LAG (TIME)</div><div><span class="stat-value" id="t6-lagtime">50.0</span><span class="stat-unit">µs</span></div></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" id="t6f1">PERIOD</div><div class="formula-eq">T = 1 / f_pulse</div></div>
+      <div><div class="formula-label" id="t6f2">ON / OFF TIME</div><div class="formula-eq">T_on = T · Duty,  T_off = T · (1 − Duty)</div></div>
+      <div><div class="formula-label" id="t6f3">PHASE LAG TIME</div><div class="formula-eq">t_lag = (φ / 360°) · T</div></div>
+    </div>
+
+    <div class="callout c-purple">
+      <div class="callout-icon">i</div>
+      <div class="callout-body">
+        <div class="callout-title" id="t6NoteTitle">WHY PULSING MATTERS FOR ETCH</div>
+        <div class="callout-text" id="t6NoteText">During the off period, electron temperature and plasma potential drop sharply, narrowing the ion energy distribution and reducing charge buildup at the wafer — this is what suppresses notching and bowing in high-aspect-ratio etches. In synchronous pulsing, sweeping the phase lag between source and bias pulses (0°→180°) further tunes the etch profile, since it controls exactly when ions arrive relative to when they were generated (Yang et al., J. Kor. Inst. Surf. Eng. 48(6), 2015).</div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <footer>
@@ -423,8 +532,8 @@ const I18N = {
     pageTitle: 'Phase 7 — Plasma Basics',
     phaseStripLabel: 'Progress:',
     phaseStripNote: '· Units → Components → Lines → Matching → Smith/Match Tools → Sensors → Plasma',
-    tabT1: 'Plasma Parameters', tabT2: 'CCP Impedance', tabT3: 'Gas Reference', tabT4: 'DC Self-Bias', tabT5: 'Ion Energy',
-    badge1:'INTERACTIVE',badge2:'INTERACTIVE',badge4:'INTERACTIVE',badge5:'INTERACTIVE',badge3vf:'TABLE',
+    tabT1: 'Plasma Parameters', tabT2: 'CCP Impedance', tabT3: 'Gas Reference', tabT4: 'DC Self-Bias', tabT5: 'Ion Energy', tabT6: 'Pulsed Plasma',
+    badge1:'INTERACTIVE',badge2:'INTERACTIVE',badge4:'INTERACTIVE',badge5:'INTERACTIVE',badge6:'INTERACTIVE',badge3vf:'TABLE',
     t1Title: 'Basic Plasma Parameters',
     t1Sub: 'Debye length, plasma frequency, and Bohm velocity from electron temperature and density',
     t1IonLabel: 'Ion species:',
@@ -432,6 +541,23 @@ const I18N = {
     t1DensHint: 'Density is entered in cm⁻³ (a common processing-plasma convention): n × 10^exponent cm⁻³.',
     t1statDebye: 'DEBYE LENGTH (λ_D)', t1statFpe: 'PLASMA FREQ. (f_pe)', t1statBohm: 'BOHM VELOCITY (u_B)',
     t1f1: 'DEBYE LENGTH', t1f2: 'PLASMA FREQUENCY', t1f3: 'BOHM VELOCITY',
+    t1RefBadge: 'TABLE', t1RefTitle: 'Typical Values by Discharge Type', t1RefSub: 'Click a row to load its Te and n into the calculator above',
+    t1RefWarnTitle: 'GENERAL REFERENCE ONLY',
+    t1RefWarnText: 'These are typical, textbook-level values for each discharge type in general. Real reactors vary significantly by chamber geometry, gas chemistry, power, and application — always verify against your own process/Langmuir-probe data.',
+    t1thType: 'Discharge Type', t1thTe: 'Typical Te (eV)', t1thNe: 'Typical ne (cm⁻³)', t1thVe: 'Electron v̄_e', t1thUb: 'Bohm u_B (Ar⁺)', t1thNotes: 'Notes',
+    dd1Toggle: 'Deep Dive: What is Bohm Velocity?',
+    dd1Content: `
+      <h3>The minimum speed ions need to enter the sheath</h3>
+      <p>The Bohm velocity, <code>u_B = √(kTe / M_ion)</code>, is the minimum speed an ion must reach as it crosses from the plasma bulk into the sheath. It's central to the "Bohm criterion" that Bohm proved in 1949: below this speed, the sheath equations don't have a physically valid (monotonically decreasing potential) solution.</p>
+      <h3>Why an ion velocity depends on electron temperature</h3>
+      <p>This looks odd at first — a formula for <b>ion</b> speed that contains the <b>electron</b> temperature, not the ion's own temperature. Here's why: ions are far too heavy to follow the fast RF oscillations, but they do get accelerated by a weak, quasi-static electric field in the "presheath" — the region just before the sheath. The strength of that presheath field is set by how eagerly electrons (which are light and fast) diffuse toward the walls, and that eagerness is governed by the electron temperature. As an ion drifts through the presheath, it picks up energy from this field and arrives at the sheath edge at almost exactly u_B — any slower and the sheath can't sustain a stable structure.</p>
+      <h3>Why it matters in practice</h3>
+      <p>The ion flux reaching a surface is set directly by the Bohm velocity:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">Γ_ion ≈ n_s · u_B</div>
+      <p>This is exactly why it's a standard output whenever etch or deposition rates are estimated — the flux of ions bombarding the wafer (which drives both etch rate and, together with sheath voltage, ion energy) traces straight back to this one velocity.</p>
+      <h3>Why it varies by ion species, not just discharge type</h3>
+      <p>Unlike the electron thermal velocity (which depends only on Te, i.e. mostly on discharge type), the Bohm velocity also depends on ion mass — a heavier ion (e.g. SF₅⁺ vs. He⁺) moves noticeably slower at the same Te. The reference table above fixes the ion species at Ar⁺ purely so the different discharge types can be compared on equal footing; switching the ion preset above the table will recompute u_B for your actual process gas.</p>
+    `,
     t2Title: 'CCP Sheath Impedance (Simplified)',
     t2Sub: 'Capacitive sheath model: the plasma sheath approximated as a parallel-plate capacitor',
     t2labelArea: 'Electrode Area, A (cm²)', t2labelGap: 'Sheath Thickness, s (mm)',
@@ -458,14 +584,24 @@ const I18N = {
     t5NoteTitle: 'ABOUT THE IEDF',
     t5NoteText: 'Real ions arrive with a distribution of energies (the Ion Energy Distribution Function, IEDF), not a single sharp value. At low RF frequency relative to the ion transit time, the IEDF is broad (bimodal); at high frequency, ions respond only to the time-averaged sheath field and the IEDF narrows toward this estimate.',
     t5f1: 'ION ENERGY (SIMPLIFIED)',
+    t6Title: 'Pulsed Plasma — Source / Bias / Synchronous',
+    t6Sub: 'Timing parameters and reactor-level pulsing schemes used to modulate plasma properties during etch',
+    t6ModeSource: 'Source Pulsing', t6ModeBias: 'Bias Pulsing', t6ModeSync: 'Synchronous Pulsing',
+    t6labelFreq: 'Pulse Frequency (kHz)', t6labelDuty: 'Duty Ratio (%)', t6labelPhase: 'Bias Phase Lag, φ (deg)',
+    t6PhaseQuickLabel: 'Quick phase lag (sync mode):',
+    t6GraphNote: 'Source channel in purple, bias channel in green. In Source/Bias modes the other channel stays CW (flat line); in Synchronous mode both pulse, offset by the phase lag φ.',
+    t6statPeriod: 'PERIOD (T)', t6statOn: 'ON TIME', t6statOff: 'OFF TIME', t6statLag: 'PHASE LAG (TIME)',
+    t6f1: 'PERIOD', t6f2: 'ON / OFF TIME', t6f3: 'PHASE LAG TIME',
+    t6NoteTitle: 'WHY PULSING MATTERS FOR ETCH',
+    t6NoteText: 'During the off period, electron temperature and plasma potential drop sharply, narrowing the ion energy distribution and reducing charge buildup at the wafer — this is what suppresses notching and bowing in high-aspect-ratio etches. In synchronous pulsing, sweeping the phase lag between source and bias pulses (0°→180°) further tunes the etch profile, since it controls exactly when ions arrive relative to when they were generated (Yang et al., J. Kor. Inst. Surf. Eng. 48(6), 2015).',
     footerText: 'Benedu Insight · Lab Tool Series — Phase 7 / 7 (Plasma Basics)'
   },
   ko: {
     pageTitle: 'Phase 7 — 플라즈마 기초',
     phaseStripLabel: '진행 단계:',
     phaseStripNote: '· 단위 → 소자 → 선로 → 매칭 → 스미스/매칭도구 → 센서 → 플라즈마',
-    tabT1: '플라즈마 변수', tabT2: 'CCP 임피던스', tabT3: '가스 참조표', tabT4: 'DC 셀프바이어스', tabT5: '이온 에너지',
-    badge1:'인터랙티브',badge2:'인터랙티브',badge4:'인터랙티브',badge5:'인터랙티브',badge3vf:'참조표',
+    tabT1: '플라즈마 변수', tabT2: 'CCP 임피던스', tabT3: '가스 참조표', tabT4: 'DC 셀프바이어스', tabT5: '이온 에너지', tabT6: '펄스 플라즈마',
+    badge1:'인터랙티브',badge2:'인터랙티브',badge4:'인터랙티브',badge5:'인터랙티브',badge6:'인터랙티브',badge3vf:'참조표',
     t1Title: '기본 플라즈마 변수',
     t1Sub: '전자온도·밀도로부터 디바이 길이, 플라즈마 주파수, Bohm 속도 계산',
     t1IonLabel: '이온 종류:',
@@ -473,6 +609,23 @@ const I18N = {
     t1DensHint: '밀도는 cm⁻³ 단위로 입력합니다(공정 플라즈마에서 흔한 관례): n × 10^지수 cm⁻³.',
     t1statDebye: '디바이 길이 (λ_D)', t1statFpe: '플라즈마 주파수 (f_pe)', t1statBohm: 'Bohm 속도 (u_B)',
     t1f1: '디바이 길이', t1f2: '플라즈마 주파수', t1f3: 'Bohm 속도',
+    t1RefBadge: '참조표', t1RefTitle: '방전 방식별 전형적 값', t1RefSub: '행을 클릭하면 해당 Te, n이 위 계산기에 자동 입력됩니다',
+    t1RefWarnTitle: '일반적 참고용 수치입니다',
+    t1RefWarnText: '이 값들은 각 방전 방식의 일반적인 교과서 수준의 전형적 값입니다. 실제 리액터는 챔버 형상, 가스 화학, 파워, 응용 분야에 따라 크게 달라질 수 있으므로 반드시 본인의 공정/랭뮤어 프로브 실측 데이터로 검증하세요.',
+    t1thType: '방전 방식', t1thTe: '전형적 Te (eV)', t1thNe: '전형적 ne (cm⁻³)', t1thVe: '전자 v̄_e', t1thUb: 'Bohm u_B (Ar⁺)', t1thNotes: '비고',
+    dd1Toggle: 'Deep Dive: Bohm 속도란 무엇인가?',
+    dd1Content: `
+      <h3>이온이 시스에 진입하기 위한 최소 속도</h3>
+      <p>Bohm 속도 <code>u_B = √(kTe / M_ion)</code>는 이온이 플라즈마 벌크에서 시스(sheath)로 넘어갈 때 반드시 도달해야 하는 최소 속도입니다. Bohm이 1949년에 증명한 "Bohm 기준"의 핵심인데, 이 속도보다 느리면 시스 방정식이 물리적으로 유효한 해(전위가 단조 감소하는 형태)를 갖지 못합니다.</p>
+      <h3>왜 이온 속도인데 전자온도가 들어가는가</h3>
+      <p>처음 보면 이상합니다 — <b>이온</b>의 속도 공식인데 이온 자신의 온도가 아니라 <b>전자</b>온도가 들어가 있으니까요. 이유는 이렇습니다: 이온은 RF의 빠른 진동을 따라갈 만큼 가볍지 않지만, 시스 바로 앞의 "프리시스(presheath)"라는 약한 준정적 전기장을 통해 서서히 가속됩니다. 이 프리시스 전기장의 세기는 가볍고 빠른 전자들이 벽 쪽으로 얼마나 적극적으로 확산되려 하는지에 의해 정해지고, 그 적극성이 바로 전자온도로 결정됩니다. 이온이 프리시스를 지나며 이 전기장에서 에너지를 얻고, 시스 경계에 도달할 때쯤엔 거의 정확히 u_B에 도달합니다 — 이보다 느리면 시스가 안정적인 구조를 유지할 수 없습니다.</p>
+      <h3>실무에서 왜 중요한가</h3>
+      <p>표면에 도달하는 이온속(flux)이 바로 이 Bohm 속도로 결정됩니다:</p>
+      <div class="deepdive-eq" style="display:block;margin:10px 0;">Γ_ion ≈ n_s · u_B</div>
+      <p>식각률이나 증착률을 추정할 때 이 값이 표준적으로 등장하는 이유가 바로 이것입니다 — 웨이퍼에 충돌하는 이온속(식각률과, 시스전압과 함께 이온에너지까지 결정)이 결국 이 속도 하나로 귀결됩니다.</p>
+      <h3>왜 방전방식뿐 아니라 이온종에도 좌우되는가</h3>
+      <p>전자 열속도(Te에만, 즉 주로 방전방식에만 좌우됨)와 달리, Bohm 속도는 이온 질량에도 좌우됩니다 — 같은 Te라도 무거운 이온(예: He⁺ 대비 SF₅⁺)은 눈에 띄게 느리게 움직입니다. 위 참고표는 방전방식별 비교를 공평한 기준에서 하기 위해 이온종을 Ar⁺로 고정했을 뿐이며, 표 위쪽의 이온 프리셋을 바꾸면 실제 사용하시는 공정 가스 기준으로 u_B가 재계산됩니다.</p>
+    `,
     t2Title: 'CCP 시스 임피던스 (단순화)',
     t2Sub: '용량성 시스 모델: 플라즈마 시스를 평행판 커패시터로 근사',
     t2labelArea: '전극 면적, A (cm²)', t2labelGap: '시스 두께, s (mm)',
@@ -499,6 +652,16 @@ const I18N = {
     t5NoteTitle: 'IEDF에 대하여',
     t5NoteText: '실제 이온은 단일 값이 아니라 에너지 분포(Ion Energy Distribution Function, IEDF)를 갖고 도달합니다. 이온 통과시간 대비 RF 주파수가 낮으면 IEDF가 넓게(이중봉) 퍼지고, 주파수가 높으면 이온이 시간평균 시스 전기장에만 반응해 IEDF가 이 추정값 쪽으로 좁아집니다.',
     t5f1: '이온 에너지 (단순화)',
+    t6Title: '펄스 플라즈마 — 소스 / 바이어스 / 동기화',
+    t6Sub: '식각 중 플라즈마 물성을 변조하는 리액터 레벨 펄싱 기법과 타이밍 파라미터',
+    t6ModeSource: '소스 펄싱', t6ModeBias: '바이어스 펄싱', t6ModeSync: '동기화 펄싱',
+    t6labelFreq: '펄스 주파수 (kHz)', t6labelDuty: '듀티비 (%)', t6labelPhase: '바이어스 위상차, φ (도)',
+    t6PhaseQuickLabel: '빠른 위상차 선택 (동기화 모드):',
+    t6GraphNote: '소스 채널은 보라색, 바이어스 채널은 초록색입니다. 소스/바이어스 펄싱 모드에서는 나머지 채널이 연속파(CW, 평평한 선)로 유지되고, 동기화 모드에서는 둘 다 펄싱하며 위상차 φ만큼 어긋납니다.',
+    t6statPeriod: '주기 (T)', t6statOn: 'ON 시간', t6statOff: 'OFF 시간', t6statLag: '위상차 (시간)',
+    t6f1: '주기', t6f2: 'ON/OFF 시간', t6f3: '위상차 시간',
+    t6NoteTitle: '식각 공정에서 펄싱이 중요한 이유',
+    t6NoteText: 'OFF 구간 동안 전자온도와 플라즈마 전위가 급격히 낮아지면서 이온에너지분포가 좁아지고, 웨이퍼의 전하축적이 줄어듭니다 — 이게 바로 고종횡비 식각에서 노칭·보우잉을 억제하는 원리입니다. 동기화 펄싱에서는 소스·바이어스 펄스 간 위상차(0°→180°)를 조절해 식각 프로파일을 추가로 조정할 수 있는데, 이온이 생성된 시점 대비 정확히 언제 도달하는지를 제어하기 때문입니다 (양경채 외, 한국표면공학회지 48(6), 2015).',
     footerText: 'Benedu Insight · Lab Tool Series — Phase 7 / 7 (플라즈마 기초)'
   }
 };
@@ -513,6 +676,7 @@ function setLang(l) {
   const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
   Object.keys(T).forEach(k => set(k, T[k]));
   if (typeof t3RenderTable === 'function') t3RenderTable(t3_cat);
+  if (typeof t1RefRenderTable === 'function') t1RefRenderTable();
 }
 
 document.querySelectorAll('.tool-tab').forEach(btn => {
@@ -520,6 +684,7 @@ document.querySelectorAll('.tool-tab').forEach(btn => {
     const id = btn.dataset.tool;
     document.querySelectorAll('.tool-panel').forEach(p => p.style.display = (p.id === 'panel-' + id ? 'block' : 'none'));
     document.querySelectorAll('.tool-tab').forEach(b => b.classList.toggle('active', b === btn));
+    if (id === 't6' && typeof t6ResizeCanvas === 'function') t6ResizeCanvas();
   });
 });
 
@@ -542,6 +707,17 @@ function hzToUnitVal(hz,u){ return u==='GHz'? hz/1e9 : u==='MHz'? hz/1e6 : u==='
 const EPS0 = 8.854e-12, ECHG = 1.602e-19, ME = 9.109e-31, AMU = 1.66054e-27;
 
 /* =========================================================
+   Deep Dive accordion toggle
+   ========================================================= */
+function toggleDD(btnId, bodyId) {
+  const btn = document.getElementById(btnId);
+  const body = document.getElementById(bodyId);
+  const open = body.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  body.style.display = open ? 'block' : 'none';
+}
+
+/* =========================================================
    TOOL 1 — Basic Plasma Parameters
    ========================================================= */
 document.querySelectorAll('#panel-t1 .qbtn[data-amu]').forEach(btn => {
@@ -552,6 +728,46 @@ document.querySelectorAll('#panel-t1 .qbtn[data-amu]').forEach(btn => {
     t1Compute();
   });
 });
+
+/* ---- Reference table: typical values by discharge type (declared before t1Compute() runs) ---- */
+const DISCHARGE_TYPES = [
+  { key:'ccp',    name:'CCP', teMin:2, teMax:5, teRep:3,   nMant:5, nExp:9,  notesEn:'Relatively low density; stable even at higher pressure. Self-bias can drive high ion energy at the electrode.', notesKo:'상대적으로 낮은 밀도, 높은 압력에서도 안정적 동작. 자체바이어스로 전극에 높은 이온에너지 유도 가능' },
+  { key:'icp',    name:'ICP', teMin:2, teMax:5, teRep:3.5, nMant:5, nExp:10, notesEn:'Lower pressure, higher density than CCP. Source (density) and bias (ion energy) can be controlled independently.', notesKo:'CCP보다 낮은 압력·높은 밀도. 밀도(소스)와 이온에너지(바이어스)를 독립 제어 가능' },
+  { key:'ecr',    name:'ECR', teMin:3, teMax:7, teRep:5,   nMant:5, nExp:11, notesEn:'Resonant heating raises Te somewhat. High-density plasma at very low pressure (~1 mTorr).', notesKo:'공명 가열로 Te가 다소 높음. 초저압에서 고밀도 플라즈마 생성' },
+  { key:'helicon',name:'Helicon', teMin:3, teMax:6, teRep:4, nMant:5, nExp:12, notesEn:'Highest density range here. Very efficient ionization at low pressure.', notesKo:'가장 높은 밀도대. 저압에서 매우 효율적인 이온화' },
+  { key:'remote', name:'Remote / Downstream', teMin:0.3, teMax:1, teRep:0.5, nMant:5, nExp:9, notesEn:'Hot electrons cool as they diffuse to the substrate. Low ion energy suits low-damage processes.', notesKo:'고온 전자가 기판까지 확산되며 냉각됨. 낮은 이온에너지로 저손상 공정에 사용' }
+];
+function t1RefVe(Te_eV) { return Math.sqrt(8*Te_eV*ECHG/(Math.PI*ME)); }
+function t1RefUb(Te_eV, amu) { return Math.sqrt(Te_eV*ECHG/(amu*AMU)); }
+function t1RefRenderTable() {
+  const tbody = document.getElementById('t1RefTbody');
+  if (!tbody) return;
+  const amu = parseFloat(document.getElementById('t1-amu').value) || 40;
+  tbody.innerHTML = '';
+  DISCHARGE_TYPES.forEach(d => {
+    const veF = fmtAuto(t1RefVe(d.teRep), [{mult:1e6,label:'×10⁶ m/s'},{mult:1e3,label:'×10³ m/s'}]);
+    const ubF = fmtAuto(t1RefUb(d.teRep, amu), [{mult:1e3,label:'km/s'},{mult:1,label:'m/s'}]);
+    const notes = lang==='en' ? d.notesEn : d.notesKo;
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+      <td class="cable-name">${d.name}</td>
+      <td>${d.teMin}–${d.teMax} (~${d.teRep})</td>
+      <td>10<sup>${d.nExp}</sup>–10<sup>${d.nExp+1}</sup></td>
+      <td>${veF.v} ${veF.u}</td>
+      <td>${ubF.v} ${ubF.u}</td>
+      <td style="white-space:normal;font-size:11.5px;color:var(--muted);">${notes}</td>
+    `;
+    tr.addEventListener('click', () => {
+      document.getElementById('t1-te').value = d.teRep;
+      document.getElementById('t1-n').value = d.nMant;
+      document.getElementById('t1-nExp').value = d.nExp;
+      t1Compute();
+    });
+    tbody.appendChild(tr);
+  });
+}
+
 function t1Compute() {
   const Te = parseFloat(document.getElementById('t1-te').value) || 0; // eV
   const nMant = parseFloat(document.getElementById('t1-n').value) || 0;
@@ -573,6 +789,8 @@ function t1Compute() {
   document.getElementById('t1-fpe').textContent = fpeF.v; document.getElementById('t1-fpeUnit').textContent = fpeF.u;
   const uBF = fmtAuto(uB, [{mult:1e3,label:'km/s'},{mult:1,label:'m/s'}]);
   document.getElementById('t1-bohm').textContent = uBF.v; document.getElementById('t1-bohmUnit').textContent = uBF.u;
+
+  t1RefRenderTable();
 }
 ['t1-te','t1-n','t1-nExp','t1-amu'].forEach(id => document.getElementById(id).addEventListener('input', t1Compute));
 t1Compute();
@@ -687,6 +905,138 @@ function t5Compute() {
 }
 ['t5-vsheath','t5-z'].forEach(id => document.getElementById(id).addEventListener('input', t5Compute));
 t5Compute();
+
+/* =========================================================
+   TOOL 6 — Pulsed Plasma (Source / Bias / Synchronous)
+   ========================================================= */
+let t6_mode = 'source';
+const t6Canvas = document.getElementById('t6Canvas');
+const t6Ctx = t6Canvas.getContext('2d');
+
+function t6SetMode(m) {
+  t6_mode = m;
+  ['t6ModeSource','t6ModeBias','t6ModeSync'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById(m==='source'?'t6ModeSource':m==='bias'?'t6ModeBias':'t6ModeSync').classList.add('active');
+  document.getElementById('t6-phaseField').style.display = m==='sync' ? 'block' : 'none';
+  t6Compute();
+}
+document.getElementById('t6ModeSource').addEventListener('click', () => t6SetMode('source'));
+document.getElementById('t6ModeBias').addEventListener('click', () => t6SetMode('bias'));
+document.getElementById('t6ModeSync').addEventListener('click', () => t6SetMode('sync'));
+
+document.querySelectorAll('#panel-t6 .qbtn[data-phase]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#panel-t6 .qbtn[data-phase]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('t6-phase').value = btn.dataset.phase;
+    t6Compute();
+  });
+});
+
+function t6ResizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = t6Canvas.getBoundingClientRect();
+  t6Canvas.width = rect.width * dpr;
+  t6Canvas.height = rect.height * dpr;
+  t6Ctx.setTransform(dpr,0,0,dpr,0,0);
+  t6Draw();
+}
+window.addEventListener('resize', t6ResizeCanvas);
+
+function t6Compute() {
+  const freqKHz = parseFloat(document.getElementById('t6-freq').value) || 0.001;
+  const duty = Math.max(0, Math.min(100, parseFloat(document.getElementById('t6-duty').value) || 0));
+  const phaseDeg = parseFloat(document.getElementById('t6-phase').value) || 0;
+
+  const periodUs = 1000/freqKHz;
+  const onUs = periodUs * duty/100;
+  const offUs = periodUs - onUs;
+  const lagUs = (phaseDeg/360) * periodUs;
+
+  document.getElementById('t6-period').textContent = periodUs.toFixed(1);
+  document.getElementById('t6-ton').textContent = onUs.toFixed(1);
+  document.getElementById('t6-toff').textContent = offUs.toFixed(1);
+  document.getElementById('t6-lagtime').textContent = t6_mode==='sync' ? lagUs.toFixed(1) : '—';
+
+  t6Draw();
+}
+
+function t6DrawChannel(ctx, color, yTop, yBottom, gW, periodPx, nPeriods, pulsing, onStart, onEnd) {
+  ctx.strokeStyle = color; ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  if (!pulsing) {
+    ctx.moveTo(0, yTop); ctx.lineTo(gW, yTop);
+    ctx.stroke();
+    return;
+  }
+  let first = true;
+  let lastEndPx = null;
+  // p = -1 catches an on-interval that starts before the visible window but extends into it (phase wrap-in)
+  for (let p = -1; p <= nPeriods; p++) {
+    const sPx = (p + onStart) * periodPx;
+    const ePx = (p + onEnd) * periodPx;
+    const clipS = Math.max(sPx, 0), clipE = Math.min(ePx, gW);
+    if (clipE <= clipS) continue;
+    if (first) { ctx.moveTo(clipS, yBottom); first = false; }
+    else if (lastEndPx !== null) { ctx.lineTo(clipS, yBottom); }
+    ctx.lineTo(clipS, yTop);
+    ctx.lineTo(clipE, yTop);
+    ctx.lineTo(clipE, yBottom);
+    lastEndPx = clipE;
+  }
+  if (first) { ctx.moveTo(0, yBottom); ctx.lineTo(gW, yBottom); } // duty = 0%: stays low throughout
+  else if (lastEndPx !== null && lastEndPx < gW) { ctx.lineTo(gW, yBottom); }
+  ctx.stroke();
+}
+
+function t6Draw() {
+  const W = t6Canvas.getBoundingClientRect().width;
+  const H = t6Canvas.getBoundingClientRect().height;
+  const ctx = t6Ctx;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#FAFBFC'; ctx.fillRect(0,0,W,H);
+  if (W<=0||H<=0) return;
+
+  const duty = Math.max(0, Math.min(100, parseFloat(document.getElementById('t6-duty').value) || 0))/100;
+  const phaseDeg = parseFloat(document.getElementById('t6-phase').value) || 0;
+  const phaseFrac = ((phaseDeg%360)+360)%360/360;
+
+  const pL=16, pR=16, pT=24, pB=30;
+  const gW=W-pL-pR, gH=H-pT-pB;
+  const nPeriods = 2;
+  const periodPx = gW/nPeriods;
+
+  const srcYTop = pT+18, srcYBottom = pT+42;
+  const biasYTop = pT+gH-42, biasYBottom = pT+gH-18;
+
+  ctx.font = '11px Google Sans, sans-serif'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#7030A0'; ctx.fillText('Source', pL, srcYTop-6);
+  ctx.fillStyle = '#0F8C50'; ctx.fillText('Bias', pL, biasYTop-6);
+
+  ctx.save(); ctx.translate(pL, 0);
+
+  const srcPulsing = (t6_mode === 'source' || t6_mode === 'sync');
+  const biasPulsing = (t6_mode === 'bias' || t6_mode === 'sync');
+  t6DrawChannel(ctx, '#7030A0', srcYTop, srcYBottom, gW, periodPx, nPeriods, srcPulsing, 0, duty);
+  const biasOnStart = t6_mode === 'sync' ? phaseFrac : 0;
+  t6DrawChannel(ctx, '#0F8C50', biasYTop, biasYBottom, gW, periodPx, nPeriods, biasPulsing, biasOnStart, biasOnStart+duty);
+
+  ctx.restore();
+
+  // period markers
+  ctx.strokeStyle = '#E2E8F0'; ctx.lineWidth = 1; ctx.setLineDash([3,2]);
+  for (let p=1;p<nPeriods;p++) {
+    const x = pL + p*periodPx;
+    ctx.beginPath(); ctx.moveTo(x,pT); ctx.lineTo(x,pT+gH); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#94A3B8'; ctx.font = '10px JetBrains Mono, monospace'; ctx.textAlign = 'center';
+  ctx.fillText('T', pL+periodPx/2, pT+gH+18);
+}
+
+['t6-freq','t6-duty','t6-phase'].forEach(id => document.getElementById(id).addEventListener('input', t6Compute));
+t6Compute();
+t6ResizeCanvas();
 
 /* Default language */
 function goToHashTab() {
