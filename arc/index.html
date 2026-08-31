@@ -50,11 +50,6 @@ button { font-family: inherit; }
 .topbar-brand .name { font-family: 'Google Sans', sans-serif; font-weight: 800; font-size: 15px; color: var(--text); letter-spacing: -0.01em; line-height: 1.1; }
 .topbar-brand .expansion { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--label); letter-spacing: .03em; margin-top: 1px; }
 .topbar-brand .expansion b { color: var(--purple); font-weight: 700; }
-.signin-btn {
-  font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 700; color: #fff; background: var(--purple);
-  border: none; padding: 7px 18px; border-radius: 20px; cursor: pointer; transition: all .15s;
-}
-.signin-btn:hover { background: #5C2680; }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .sister-link {
   display: flex; align-items: center; gap: 6px;
@@ -72,6 +67,11 @@ button { font-family: inherit; }
   background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 4px 10px; cursor: pointer; transition: all .15s;
 }
 .signout-btn:hover { border-color: #D62828; color: #D62828; }
+.signin-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12.5px; font-weight: 700; color: #fff; background: var(--purple);
+  border: none; padding: 7px 18px; border-radius: 20px; cursor: pointer; transition: all .15s;
+}
+.signin-btn:hover { background: #5C2680; }
 
 /* ============ Layout ============ */
 .layout { display: flex; height: calc(100vh - var(--topbar-h)); }
@@ -126,9 +126,7 @@ button { font-family: inherit; }
 .tool-item.active .tn { border-color: var(--purple); color: var(--purple); }
 
 .sidebar-backdrop { display: none; }
-.sidebar-reopen {
-  display: none; position: absolute; top: 14px; left: 14px; z-index: 5;
-}
+.sidebar-reopen { display: none; position: absolute; top: 14px; left: 14px; z-index: 5; }
 
 /* ---- Main content ---- */
 .content-area { flex: 1; min-width: 0; position: relative; overflow: hidden; }
@@ -201,7 +199,7 @@ button { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .arc-bolt, .arc-glow-dot { animation: none !important; opacity: .85 !important; }
 }
-
+.arc-caption { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--label); letter-spacing: .05em; }
 
 .hero-hint {
   max-width: 980px; margin: 0 auto; padding: 8px 32px 48px; color: var(--muted); font-size: 13px; line-height: 1.7; border-top: 1px solid var(--border); padding-top: 24px;
@@ -228,7 +226,8 @@ button { font-family: inherit; }
 .login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; }
 .login-logo img { height: 28px; }
 .login-title { text-align: center; font-family: 'Google Sans', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.01em; margin-top: 10px; }
-.login-sub { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 4px; margin-bottom: 26px; }
+.login-sub { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 4px; margin-bottom: 26px; font-family: 'JetBrains Mono', monospace; }
+.login-sub b { color: var(--purple); }
 .login-field { margin-bottom: 14px; }
 .login-field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
 .login-field input {
@@ -349,7 +348,7 @@ button { font-family: inherit; }
             </div>
             <div class="hero-meta">
               <div class="hero-meta-item"><span class="n">7</span><span class="l">phases</span></div>
-              <div class="hero-meta-item"><span class="n">46</span><span class="l">tools</span></div>
+              <div class="hero-meta-item"><span class="n">47</span><span class="l">tools</span></div>
               <div class="hero-meta-item"><span class="n">EN/KO</span><span class="l">bilingual</span></div>
             </div>
           </div>
@@ -481,13 +480,12 @@ onAuthStateChanged(auth, (user) => {
 </script>
 
 <script>
-
 /* =========================================================
    Phase / tool data
    ========================================================= */
 const PHASES = [
   { n:'01', file:'phase1.html', title:'Units &amp; Power Conversion', tools:[
-    ['t1','Power / Voltage'],['t2','Γ ↔ Z'],['t3','Freq / Wavelength'],['t4','Vrms / Vpk / Vpp']
+    ['t1','Power / Voltage'],['t6','Power → V,I (Custom Z)'],['t5','V,I → Z (Euler)'],['t2','Γ ↔ Z'],['t3','Freq / Wavelength'],['t4','Vrms / Vpk / Vpp']
   ]},
   { n:'02', file:'phase2.html', title:'Passive Components', tools:[
     ['t1','Xc / Xl'],['t2','Z → V/I'],['t3','Admittance'],['t4','Resistor Color Code'],
@@ -510,7 +508,7 @@ const PHASES = [
     ['t6','Magnetic Core'],['t7','LT-QCM Gap'],['t8','Pulse'],['t9','Directional Coupler']
   ]},
   { n:'07', file:'phase7.html', title:'Plasma Basics', tools:[
-    ['t1','Plasma Parameters'],['t2','CCP Impedance'],['t3','Gas Reference'],['t4','DC Self-Bias'],['t5','Ion Energy']
+    ['t1','Plasma Parameters'],['t2','CCP Impedance'],['t3','Gas Reference'],['t4','DC Self-Bias'],['t5','Ion Energy'],['t6','Pulsed Plasma']
   ]}
 ];
 
@@ -592,6 +590,7 @@ function gatePrismLink(el) {
 }
 gatePrismLink(document.getElementById('sisterLinkTop'));
 gatePrismLink(document.getElementById('ctaOpenPrism'));
+
 document.getElementById('logoHomeBtn').addEventListener('click', goHome);
 document.getElementById('titleHomeBtn').addEventListener('click', goHome);
 document.getElementById('ctaBrowseBtn').addEventListener('click', () => {
