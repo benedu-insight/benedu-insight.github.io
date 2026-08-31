@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARDE / RIE Lag Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #0F8C50;
+  --green-lt:   #E6F4ED;
+  --green-dk:   #0A6B3C;
+  --purple:     #7030A0;
+  --purple-lt:  #F0E8F8;
+  --purple-mid: #9B59D0;
+  --amber:      #C8860D;
+  --amber-lt:   #FFF3E0;
+  --red:        #C0392B;
+  --red-lt:     #FDF0EE;
+  --bg:         #F8FAFB;
+  --card:       #FFFFFF;
+  --border:     #E2E8F0;
+  --text:       #1A202C;
+  --muted:      #64748B;
+  --label:      #94A3B8;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 32px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.logo-img { height: 36px; display: block; }
+.header-divider { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+.header-title { font-size: 14px; font-weight: 500; color: var(--muted); }
+
+.lang-toggle {
+  display: flex; align-items: center;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px;
+  padding: 3px; gap: 2px; margin-left: 8px;
+}
+.lang-btn {
+  font-family: 'Google Sans', sans-serif; font-size: 12px; font-weight: 600;
+  padding: 3px 12px; border-radius: 16px; border: none; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .18s;
+}
+.lang-btn.active { background: var(--purple); color: #fff; }
+
+.main { max-width: 960px; margin: 28px auto 56px; padding: 0 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; box-shadow: var(--shadow); margin-bottom: 20px;
+}
+.card-head { padding: 16px 24px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 12px; }
+.card-head-text h2 { font-size: 15px; font-weight: 600; }
+.card-head-text p  { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-lt); color: var(--purple);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.badge.green { background: var(--green-lt); color: var(--green); }
+.badge.amber { background: var(--amber-lt); color: var(--amber); }
+.badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--purple); animation: pulse 2s infinite; }
+.badge.green .badge-dot { background: var(--green); }
+.badge.amber .badge-dot { background: var(--amber); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.controls { padding: 18px 24px 14px; border-bottom: 1px solid var(--border); }
+.freq-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.freq-label { font-size: 13px; font-weight: 500; color: var(--muted); min-width: 150px; }
+.slider-track { flex: 1; min-width: 160px; }
+
+input[type=range] {
+  -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+  background: linear-gradient(to right, var(--green) 0%, var(--purple-mid) 55%, #DDD4F5 100%);
+  outline: none; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; transition: transform .1s;
+}
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type=range]::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; cursor: pointer;
+}
+
+.freq-inputs { display: flex; align-items: center; gap: 6px; }
+.freq-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+  background: var(--bg); border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; width: 90px; text-align: right; outline: none; transition: border-color .2s;
+}
+.freq-num:focus { border-color: var(--green); }
+.freq-unit { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); min-width: 36px; }
+
+.quick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+.quick-label { font-size: 11.5px; color: var(--label); font-weight: 500; }
+.qbtn {
+  font-family: 'Google Sans', sans-serif; font-size: 11.5px; font-weight: 600;
+  padding: 4px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer; transition: all .15s;
+}
+.qbtn:hover { border-color: var(--purple-mid); color: var(--purple); }
+.qbtn.active { background: var(--purple-lt); border-color: var(--purple); color: var(--purple); }
+
+.canvas-wrap { padding: 0 24px; }
+canvas.sim-canvas {
+  width: 100%; height: 280px; display: block;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #FAFBFC; margin-top: 16px;
+}
+.canvas-note { font-size: 11.5px; color: var(--muted); margin: 7px 0 16px; padding: 0 2px; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 24px 22px; }
+.stats-4 { grid-template-columns: repeat(4, 1fr); }
+.stat { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 13px 14px; text-align: center; }
+.stat-name { font-size: 11px; color: var(--label); font-weight: 500; letter-spacing: .04em; margin-bottom: 5px; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600; color: var(--purple); line-height: 1; }
+.stat-unit { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: 3px; }
+.stat-value.warn { color: #C0392B; }
+.stat-value.ok { color: var(--green); }
+.stat-value.amber { color: var(--amber); }
+
+.formula-panel {
+  border-top: 1px solid var(--border); padding: 14px 24px; background: var(--green-lt);
+  display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: center;
+}
+.formula-label { font-size: 10.5px; font-weight: 600; color: var(--green); letter-spacing: .08em; margin-bottom: 1px; }
+.formula-eq { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 500; color: var(--green-dk); }
+
+.info-note {
+  margin: 22px 24px 22px;
+  padding: 14px 18px 14px 44px;
+  background: var(--purple-lt);
+  border: 1px solid #E2D3EF;
+  border-radius: 10px;
+  position: relative;
+}
+.info-note::before {
+  content: '💡';
+  position: absolute; left: 15px; top: 15px;
+  font-size: 14px; line-height: 1;
+}
+.info-note-label {
+  display: block; font-size: 10px; font-weight: 700; color: var(--purple);
+  letter-spacing: .09em; margin-bottom: 5px;
+}
+.info-note p {
+  font-size: 12.5px; color: var(--text); line-height: 1.65; margin: 0;
+}
+
+.bridge-note {
+  margin: 0 24px 24px; padding: 12px 16px;
+  background: var(--bg); border: 1px dashed var(--border); border-radius: 8px;
+  font-size: 12px; color: var(--muted); line-height: 1.6; text-align: center;
+}
+
+.feature-table {
+  width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 0 0 8px;
+}
+.feature-table th {
+  text-align: left; font-size: 10.5px; font-weight: 600; color: var(--label);
+  letter-spacing: .04em; padding: 6px 8px; border-bottom: 1px solid var(--border);
+}
+.feature-table td {
+  padding: 8px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono', monospace;
+}
+.feature-table tr:last-child td { border-bottom: none; }
+.feature-table .col-w { color: var(--muted); }
+.feature-table .col-d { font-weight: 600; color: var(--purple); }
+.feature-table .col-oe { font-weight: 600; }
+.feature-table .col-oe.warn { color: var(--red); }
+.feature-table .col-oe.ok { color: var(--green); }
+
+.table-wrap { padding: 0 24px 8px; overflow-x: auto; }
+
+@media (max-width: 720px) {
+  .stats, .stats-4 { grid-template-columns: 1fr 1fr; }
+  .header { padding: 10px 12px; gap: 10px; flex-wrap: wrap; }
+  .controls, .canvas-wrap, .stats { padding-left: 12px; padding-right: 12px; }
+  .card-head { padding: 12px 12px 10px; }
+  .formula-panel { padding: 12px; }
+  .info-note { margin: 18px 12px 18px; padding: 14px 16px 14px 40px; }
+  .bridge-note { margin: 0 12px 20px; }
+  .freq-label { min-width: 110px; }
+  .table-wrap { padding-left: 12px; padding-right: 12px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+       alt="Benedu Insight" class="logo-img"
+       onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+  <div id="logo-fallback" style="display:none; align-items:center; gap:8px;">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+      <circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/>
+    </svg>
+    <div style="line-height:1.15;">
+      <span style="color:#7030A0;font-size:18px;font-weight:700;">bene</span>
+      <span style="color:#7030A0;font-size:18px;font-weight:400;">du</span>
+      <span style="display:block;color:#7030A0;font-size:12px;font-weight:400;">insight</span>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-title" id="headerTitle">ARDE / RIE Lag Simulator — Module 08</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- CARD 1: CONTROLS + CROSS-SECTION -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span id="badge1">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card1Title">ARDE / RIE Lag — why the slowest feature sets your overetch</h2>
+        <p id="card1Sub">Narrow trenches etch slower. Clear the slowest one and the wide ones are already overetched.</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="freq-row">
+        <span class="freq-label" id="labelTarget">Target depth (narrowest)</span>
+        <div class="slider-track"><input type="range" id="targetSlider" min="50" max="500" step="10" value="200"></div>
+        <div class="freq-inputs">
+          <input type="text" id="targetInput" class="freq-num" value="200" readonly>
+          <span class="freq-unit">nm</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick1">Quick select:</span>
+        <button class="qbtn" data-target="100">100 nm</button>
+        <button class="qbtn active" data-target="200">200 nm</button>
+        <button class="qbtn" data-target="350">350 nm</button>
+        <button class="qbtn" data-target="500">500 nm</button>
+      </div>
+
+      <div class="freq-row" style="margin-top:6px">
+        <span class="freq-label" id="labelR0">Base etch rate (AR→0)</span>
+        <div class="slider-track"><input type="range" id="r0Slider" min="50" max="400" step="10" value="150"></div>
+        <div class="freq-inputs">
+          <input type="text" id="r0Input" class="freq-num" value="150" readonly>
+          <span class="freq-unit">nm/min</span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick2">Quick select:</span>
+        <button class="qbtn" data-r0="80">80 (slow)</button>
+        <button class="qbtn active" data-r0="150">150 (typical)</button>
+        <button class="qbtn" data-r0="300">300 (fast)</button>
+      </div>
+
+      <div class="freq-row" style="margin-top:6px">
+        <span class="freq-label" id="labelBeta">ARDE strength (β)</span>
+        <div class="slider-track"><input type="range" id="betaSlider" min="0" max="2.5" step="0.05" value="0.8"></div>
+        <div class="freq-inputs">
+          <input type="text" id="betaInput" class="freq-num" value="0.80" readonly>
+          <span class="freq-unit"></span>
+        </div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" id="labelQuick3">Quick select:</span>
+        <button class="qbtn" data-beta="0.2">0.2 (mild)</button>
+        <button class="qbtn active" data-beta="0.8">0.8 (typical)</button>
+        <button class="qbtn" data-beta="1.6">1.6 (severe)</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="crossCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note1">Cross-section at the moment the narrowest trench just reaches the target depth. Wide features have already gone deeper — that extra depth is the forced overetch set by the slowest feature.</p>
+
+    <div class="table-wrap">
+      <table class="feature-table" id="featureTable">
+        <thead>
+          <tr>
+            <th id="thWidth">WIDTH</th>
+            <th id="thDepth">DEPTH</th>
+            <th id="thAR">ASPECT RATIO</th>
+            <th id="thOE">OVERETCH vs TARGET</th>
+            <th id="thRate">AVG RATE</th>
+          </tr>
+        </thead>
+        <tbody id="featureBody"></tbody>
+      </table>
+    </div>
+
+    <div class="stats stats-4">
+      <div class="stat">
+        <div class="stat-name" id="statNameTime">TIME TO CLEAR SLOWEST</div>
+        <div><span class="stat-value" id="dispTime">—</span><span class="stat-unit">min</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameMaxOE">MAX OVERETCH (WIDEST)</div>
+        <div><span class="stat-value warn" id="dispMaxOE">—</span><span class="stat-unit">%</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameDelta">DEPTH DELTA (W↔N)</div>
+        <div><span class="stat-value amber" id="dispDelta">—</span><span class="stat-unit">nm</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat-name" id="statNameLag">RIE LAG (vs WIDEST)</div>
+        <div><span class="stat-value" id="dispLag">—</span><span class="stat-unit">%</span></div>
+      </div>
+    </div>
+
+    <div class="formula-panel">
+      <div>
+        <div class="formula-label" id="fmlRate">INSTANTANEOUS RATE</div>
+        <div class="formula-eq">R(AR) = R₀ / (1 + β · AR)</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlAR">ASPECT RATIO</div>
+        <div class="formula-eq">AR = depth / width</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlOE">OVERETCH %</div>
+        <div class="formula-eq">OE = (d − target) / target × 100</div>
+      </div>
+      <div>
+        <div class="formula-label" id="fmlLag">RIE LAG %</div>
+        <div class="formula-eq">Lag = (1 − d_narrow / d_wide) × 100</div>
+      </div>
+    </div>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight1">INSIGHT</span>
+      <p id="infoNote1">Because etch rate falls as aspect ratio rises, the narrowest opening is always the bottleneck. Process time is dictated by that slowest feature; every wider feature receives extra etch time. That forced overetch can open the stop layer, create footing/notching, or degrade CD control in open areas and large contacts — exactly why “the slowest feature sets your overetch.”</p>
+    </div>
+  </div>
+
+  <!-- CARD 2: DEPTH vs TIME -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge green"><span class="badge-dot"></span><span id="badge2">INTERACTIVE</span></span>
+      <div class="card-head-text">
+        <h2 id="card2Title">Depth vs time — how lag accumulates</h2>
+        <p id="card2Sub">Each curve is a different trench width. Vertical line = moment the narrowest hits target.</p>
+      </div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas class="sim-canvas" id="timeCanvas"></canvas>
+    </div>
+    <p class="canvas-note" id="note2">Solid curves = depth history. Dashed vertical = time when the narrowest feature reaches the target. Horizontal dashed = target depth. The gap above the target on the wide-feature curves is the overetch you are forced to accept.</p>
+
+    <div class="info-note">
+      <span class="info-note-label" id="labelInsight2">INSIGHT</span>
+      <p id="infoNote2">Early in the etch all features advance at nearly the same rate (low AR). As the narrow trench deepens, its AR climbs faster, its rate drops sooner, and the depth gap widens. Raising β (stronger ARDE) or targeting deeper etches both amplify the final overetch on the wide features. Reducing β (process tuning, higher ion energy, chemistry changes) is the only way to shrink the forced overetch without sacrificing the narrowest CD.</p>
+    </div>
+  </div>
+
+  <div class="bridge-note" id="bridgeNote">The design must clear the slowest (narrowest) feature. Everything wider is already overetched by the amount shown above. That extra depth budget is what your stop-layer selectivity and CD control must absorb.</div>
+
+</main>
+
+<script>
+let lang = 'en';
+
+// Feature set (μm) — representative contact / trench CDs
+const WIDTHS_UM = [0.15, 0.25, 0.40, 0.80, 2.00]; // μm
+const COLORS = ['#C0392B', '#C8860D', '#7030A0', '#378ADD', '#0F8C50'];
+
+let targetNm = 200;
+let R0 = 150;      // nm/min at AR→0
+let beta = 0.80;   // ARDE strength
+
+// Model: rate = R0 / (1 + β * (d/w))
+// dt = (1 + β d/w) / R0 * dd
+// Analytic integration: t = (1/R0) * [ D + (β/(2w)) D² ]
+function timeToDepth(w_um, d_nm) {
+  const w_nm = w_um * 1000;
+  return (1 / R0) * (d_nm + (beta / (2 * w_nm)) * d_nm * d_nm);
+}
+
+// Invert: given t, solve for d (quadratic)
+// (β/(2w)) d² + d − R0·t = 0
+function depthAtTime(w_um, t_min) {
+  if (t_min <= 0) return 0;
+  const w_nm = w_um * 1000;
+  const a = beta / (2 * w_nm);
+  const b = 1;
+  const c = -R0 * t_min;
+  if (Math.abs(a) < 1e-12) return R0 * t_min; // no ARDE
+  const disc = b*b - 4*a*c;
+  if (disc < 0) return 0;
+  return (-b + Math.sqrt(disc)) / (2*a);
+}
+
+function computeAll() {
+  const narrowW = Math.min(...WIDTHS_UM);
+  const tClear = timeToDepth(narrowW, targetNm);
+  const depths = WIDTHS_UM.map(w => depthAtTime(w, tClear));
+  const maxD = Math.max(...depths);
+  const minD = Math.min(...depths);
+  const maxOE = ((maxD - targetNm) / targetNm) * 100;
+  const lag = ((maxD - minD) / maxD) * 100;
+  return { tClear, depths, maxOE, lag, delta: maxD - minD };
+}
+
+const I18N = {
+  en: {
+    headerTitle: "ARDE / RIE Lag Simulator — Module 08",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "ARDE / RIE Lag — why the slowest feature sets your overetch",
+    card1Sub: "Narrow trenches etch slower. Clear the slowest one and the wide ones are already overetched.",
+    labelTarget: "Target depth (narrowest)", labelQuick1: "Quick select:",
+    labelR0: "Base etch rate (AR→0)", labelQuick2: "Quick select:",
+    labelBeta: "ARDE strength (β)", labelQuick3: "Quick select:",
+    note1: "Cross-section at the moment the narrowest trench just reaches the target depth. Wide features have already gone deeper — that extra depth is the forced overetch set by the slowest feature.",
+    thWidth: "WIDTH", thDepth: "DEPTH", thAR: "ASPECT RATIO", thOE: "OVERETCH vs TARGET", thRate: "AVG RATE",
+    statNameTime: "TIME TO CLEAR SLOWEST", statNameMaxOE: "MAX OVERETCH (WIDEST)",
+    statNameDelta: "DEPTH DELTA (W↔N)", statNameLag: "RIE LAG (vs WIDEST)",
+    fmlRate: "INSTANTANEOUS RATE", fmlAR: "ASPECT RATIO", fmlOE: "OVERETCH %", fmlLag: "RIE LAG %",
+    infoNote1: "Because etch rate falls as aspect ratio rises, the narrowest opening is always the bottleneck. Process time is dictated by that slowest feature; every wider feature receives extra etch time. That forced overetch can open the stop layer, create footing/notching, or degrade CD control in open areas and large contacts — exactly why “the slowest feature sets your overetch.”",
+    card2Title: "Depth vs time — how lag accumulates",
+    card2Sub: "Each curve is a different trench width. Vertical line = moment the narrowest hits target.",
+    note2: "Solid curves = depth history. Dashed vertical = time when the narrowest feature reaches the target. Horizontal dashed = target depth. The gap above the target on the wide-feature curves is the overetch you are forced to accept.",
+    infoNote2: "Early in the etch all features advance at nearly the same rate (low AR). As the narrow trench deepens, its AR climbs faster, its rate drops sooner, and the depth gap widens. Raising β (stronger ARDE) or targeting deeper etches both amplify the final overetch on the wide features. Reducing β (process tuning, higher ion energy, chemistry changes) is the only way to shrink the forced overetch without sacrificing the narrowest CD.",
+    bridgeNote: "The design must clear the slowest (narrowest) feature. Everything wider is already overetched by the amount shown above. That extra depth budget is what your stop-layer selectivity and CD control must absorb.",
+    targetReached: "target",
+    nm: "nm", um: "μm", min: "min",
+  },
+  ko: {
+    headerTitle: "ARDE / RIE Lag 시뮬레이터 — Module 08",
+    badge1: "INTERACTIVE", badge2: "INTERACTIVE",
+    card1Title: "ARDE / RIE Lag — 가장 느린 feature가 overetch를 결정하는 이유",
+    card1Sub: "좁은 트렌치는 더 느리게 식각됩니다. 가장 느린 것을 다 파면 넓은 것은 이미 overetch 상태입니다.",
+    labelTarget: "목표 깊이 (가장 좁은 feature)", labelQuick1: "빠른 선택:",
+    labelR0: "기본 식각 속도 (AR→0)", labelQuick2: "빠른 선택:",
+    labelBeta: "ARDE 강도 (β)", labelQuick3: "빠른 선택:",
+    note1: "가장 좁은 트렌치가 목표 깊이에 도달한 순간의 단면입니다. 넓은 feature는 이미 더 깊이 파여 있습니다 — 그 추가 깊이가 바로 가장 느린 feature가 강제하는 overetch입니다.",
+    thWidth: "폭", thDepth: "깊이", thAR: "종횡비 (AR)", thOE: "목표 대비 OVERETCH", thRate: "평균 속도",
+    statNameTime: "가장 느린 feature 완료 시간", statNameMaxOE: "최대 OVERETCH (가장 넓은)",
+    statNameDelta: "깊이 차이 (넓은↔좁은)", statNameLag: "RIE LAG (가장 넓은 기준)",
+    fmlRate: "순간 식각 속도", fmlAR: "종횡비", fmlOE: "OVERETCH %", fmlLag: "RIE LAG %",
+    infoNote1: "식각 속도가 종횡비(AR)가 커질수록 떨어지기 때문에, 가장 좁은 개구부가 항상 병목이 됩니다. 공정 시간은 그 가장 느린 feature에 의해 결정되고, 더 넓은 feature들은 모두 추가 식각 시간을 받습니다. 그 강제 overetch는 stop layer를 열어버리거나, footing/notching을 만들거나, 넓은 영역·큰 콘택의 CD 제어를 악화시킵니다 — 바로 “가장 느린 feature가 overetch를 결정한다”는 이유입니다.",
+    card2Title: "깊이 vs 시간 — lag가 쌓이는 과정",
+    card2Sub: "각 곡선은 서로 다른 트렌치 폭입니다. 세로선 = 가장 좁은 feature가 목표에 도달하는 순간.",
+    note2: "실선 = 깊이 이력. 세로 점선 = 가장 좁은 feature가 목표 깊이에 도달하는 시간. 가로 점선 = 목표 깊이. 넓은 feature 곡선에서 목표 위로 올라간 간격이 바로 강제로 감수해야 하는 overetch입니다.",
+    infoNote2: "식각 초기에는 모든 feature가 거의 같은 속도로 진행합니다(낮은 AR). 좁은 트렌치가 깊어지면서 AR이 더 빨리 올라가고 속도가 먼저 떨어지며 깊이 차이가 벌어집니다. β를 키우거나(강한 ARDE) 목표 깊이를 깊게 잡을수록 넓은 feature의 최종 overetch가 커집니다. β를 줄이는 것(공정 튜닝, 이온 에너지 상향, 케미스트리 변경)만이 좁은 CD를 포기하지 않고 강제 overetch를 줄이는 방법입니다.",
+    bridgeNote: "설계는 가장 느린(가장 좁은) feature를 반드시 다 파야 합니다. 더 넓은 모든 feature는 위에 표시된 만큼 이미 overetch된 상태입니다. 그 추가 깊이 여유분이 stop-layer 선택비와 CD 제어가 흡수해야 할 예산입니다.",
+    targetReached: "목표",
+    nm: "nm", um: "μm", min: "min",
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  document.getElementById('btnKO').classList.toggle('active', l === 'ko');
+  document.documentElement.lang = l;
+  const T = I18N[l];
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  set('headerTitle', T.headerTitle);
+  set('badge1', T.badge1); set('badge2', T.badge2);
+  set('card1Title', T.card1Title); set('card1Sub', T.card1Sub);
+  set('labelTarget', T.labelTarget); set('labelQuick1', T.labelQuick1);
+  set('labelR0', T.labelR0); set('labelQuick2', T.labelQuick2);
+  set('labelBeta', T.labelBeta); set('labelQuick3', T.labelQuick3);
+  set('note1', T.note1);
+  set('thWidth', T.thWidth); set('thDepth', T.thDepth); set('thAR', T.thAR);
+  set('thOE', T.thOE); set('thRate', T.thRate);
+  set('statNameTime', T.statNameTime); set('statNameMaxOE', T.statNameMaxOE);
+  set('statNameDelta', T.statNameDelta); set('statNameLag', T.statNameLag);
+  set('fmlRate', T.fmlRate); set('fmlAR', T.fmlAR); set('fmlOE', T.fmlOE); set('fmlLag', T.fmlLag);
+  set('infoNote1', T.infoNote1); set('labelInsight1', 'INSIGHT');
+  set('card2Title', T.card2Title); set('card2Sub', T.card2Sub);
+  set('note2', T.note2);
+  set('infoNote2', T.infoNote2); set('labelInsight2', 'INSIGHT');
+  set('bridgeNote', T.bridgeNote);
+  updateAll();
+}
+
+function updateAll() {
+  const d = computeAll();
+  const T = I18N[lang];
+
+  document.getElementById('dispTime').textContent = d.tClear.toFixed(2);
+  document.getElementById('dispMaxOE').textContent = d.maxOE.toFixed(1);
+  document.getElementById('dispMaxOE').className = 'stat-value ' + (d.maxOE > 30 ? 'warn' : d.maxOE > 10 ? 'amber' : 'ok');
+  document.getElementById('dispDelta').textContent = d.delta.toFixed(0);
+  document.getElementById('dispLag').textContent = d.lag.toFixed(1);
+
+  // table
+  const tbody = document.getElementById('featureBody');
+  tbody.innerHTML = '';
+  WIDTHS_UM.forEach((w, i) => {
+    const depth = d.depths[i];
+    const ar = depth / (w * 1000);
+    const oe = ((depth - targetNm) / targetNm) * 100;
+    const avgRate = depth / d.tClear;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-w" style="color:${COLORS[i]};font-weight:600">${w.toFixed(2)} ${T.um}</td>
+      <td class="col-d">${depth.toFixed(0)} ${T.nm}</td>
+      <td>${ar.toFixed(2)}</td>
+      <td class="col-oe ${oe > 25 ? 'warn' : oe > 5 ? '' : 'ok'}">${oe >= 0 ? '+' : ''}${oe.toFixed(1)}%</td>
+      <td>${avgRate.toFixed(1)} nm/min</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  drawCrossSection(d);
+  drawTimePlot(d);
+}
+
+function drawCrossSection(d) {
+  const canvas = document.getElementById('crossCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 280;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 48, padR = 20, padT = 28, padB = 36;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxDepth = Math.max(...d.depths, targetNm) * 1.12;
+
+  // background substrate
+  ctx.fillStyle = '#E8EEF4';
+  ctx.fillRect(padL, padT, plotW, plotH);
+
+  // target depth line
+  const yTarget = padT + (targetNm / maxDepth) * plotH;
+  ctx.setLineDash([5, 4]);
+  ctx.strokeStyle = '#94A3B8';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(padL, yTarget);
+  ctx.lineTo(padL + plotW, yTarget);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '10px "Google Sans", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(I18N[lang].targetReached + ' ' + targetNm + ' nm', padL + 6, yTarget - 5);
+
+  // trenches
+  const n = WIDTHS_UM.length;
+  const gap = plotW / (n + 1);
+  const scaleW = Math.min(gap * 0.55, 48); // visual width scale
+
+  WIDTHS_UM.forEach((w, i) => {
+    const depth = d.depths[i];
+    const cx = padL + gap * (i + 1);
+    const half = scaleW * (0.35 + 0.65 * (w / Math.max(...WIDTHS_UM)));
+    const yBottom = padT + (depth / maxDepth) * plotH;
+
+    // trench fill (etched = removed = background color of canvas area)
+    ctx.fillStyle = '#FAFBFC';
+    ctx.beginPath();
+    ctx.moveTo(cx - half, padT);
+    ctx.lineTo(cx - half, yBottom);
+    ctx.lineTo(cx + half, yBottom);
+    ctx.lineTo(cx + half, padT);
+    ctx.closePath();
+    ctx.fill();
+
+    // sidewalls + bottom
+    ctx.strokeStyle = COLORS[i];
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    ctx.moveTo(cx - half, padT);
+    ctx.lineTo(cx - half, yBottom);
+    ctx.lineTo(cx + half, yBottom);
+    ctx.lineTo(cx + half, padT);
+    ctx.stroke();
+
+    // width label
+    ctx.fillStyle = COLORS[i];
+    ctx.font = '10.5px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(w.toFixed(2) + ' μm', cx, padT + plotH + 16);
+
+    // depth number
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillText(depth.toFixed(0), cx, yBottom - 6);
+  });
+
+  // y-axis
+  ctx.strokeStyle = '#CBD5E1';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT);
+  ctx.lineTo(padL, padT + plotH);
+  ctx.stroke();
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '9.5px "JetBrains Mono", monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('0', padL - 6, padT + 4);
+  ctx.fillText(maxDepth.toFixed(0), padL - 6, padT + plotH + 3);
+  ctx.save();
+  ctx.translate(14, padT + plotH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('depth (nm)', 0, 0);
+  ctx.restore();
+}
+
+function drawTimePlot(d) {
+  const canvas = document.getElementById('timeCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width, H = rect.height || 280;
+  canvas.width = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const padL = 50, padR = 18, padT = 20, padB = 32;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const tMax = d.tClear * 1.05;
+  const dMax = Math.max(...d.depths, targetNm) * 1.12;
+
+  // axes
+  ctx.strokeStyle = '#E2E8F0';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padL, padT);
+  ctx.lineTo(padL, padT + plotH);
+  ctx.lineTo(padL + plotW, padT + plotH);
+  ctx.stroke();
+
+  // target depth horizontal
+  const yT = padT + plotH - (targetNm / dMax) * plotH;
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = '#94A3B8';
+  ctx.beginPath();
+  ctx.moveTo(padL, yT);
+  ctx.lineTo(padL + plotW, yT);
+  ctx.stroke();
+
+  // tClear vertical
+  const xT = padL + (d.tClear / tMax) * plotW;
+  ctx.strokeStyle = '#C0392B';
+  ctx.beginPath();
+  ctx.moveTo(xT, padT);
+  ctx.lineTo(xT, padT + plotH);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // curves
+  const steps = 120;
+  WIDTHS_UM.forEach((w, i) => {
+    ctx.strokeStyle = COLORS[i];
+    ctx.lineWidth = 2.2;
+    ctx.beginPath();
+    for (let k = 0; k <= steps; k++) {
+      const t = (k / steps) * tMax;
+      const depth = depthAtTime(w, t);
+      const x = padL + (t / tMax) * plotW;
+      const y = padT + plotH - (depth / dMax) * plotH;
+      if (k === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+
+  // legend
+  ctx.font = '10px "Google Sans", sans-serif';
+  ctx.textAlign = 'left';
+  WIDTHS_UM.forEach((w, i) => {
+    const lx = padL + 8 + i * 78;
+    ctx.fillStyle = COLORS[i];
+    ctx.fillRect(lx, padT + 6, 12, 3);
+    ctx.fillText(w.toFixed(2) + ' μm', lx + 16, padT + 10);
+  });
+
+  // axis labels
+  ctx.fillStyle = '#94A3B8';
+  ctx.font = '9.5px "JetBrains Mono", monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('0', padL - 5, padT + plotH + 3);
+  ctx.fillText(dMax.toFixed(0), padL - 5, padT + 8);
+  ctx.textAlign = 'center';
+  ctx.fillText('0', padL, padT + plotH + 14);
+  ctx.fillText(tMax.toFixed(2) + ' min', padL + plotW, padT + plotH + 14);
+  ctx.fillStyle = '#C0392B';
+  ctx.fillText('t*', xT, padT + plotH + 14);
+}
+
+/* EVENTS */
+document.getElementById('targetSlider').addEventListener('input', function(e) {
+  targetNm = +e.target.value;
+  document.getElementById('targetInput').value = targetNm;
+  document.querySelectorAll('[data-target]').forEach(b => b.classList.remove('active'));
+  updateAll();
+});
+document.querySelectorAll('[data-target]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    targetNm = +btn.dataset.target;
+    document.getElementById('targetSlider').value = targetNm;
+    document.getElementById('targetInput').value = targetNm;
+    document.querySelectorAll('[data-target]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateAll();
+  });
+});
+
+document.getElementById('r0Slider').addEventListener('input', function(e) {
+  R0 = +e.target.value;
+  document.getElementById('r0Input').value = R0;
+  document.querySelectorAll('[data-r0]').forEach(b => b.classList.remove('active'));
+  updateAll();
+});
+document.querySelectorAll('[data-r0]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    R0 = +btn.dataset.r0;
+    document.getElementById('r0Slider').value = R0;
+    document.getElementById('r0Input').value = R0;
+    document.querySelectorAll('[data-r0]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateAll();
+  });
+});
+
+document.getElementById('betaSlider').addEventListener('input', function(e) {
+  beta = +e.target.value;
+  document.getElementById('betaInput').value = beta.toFixed(2);
+  document.querySelectorAll('[data-beta]').forEach(b => b.classList.remove('active'));
+  updateAll();
+});
+document.querySelectorAll('[data-beta]').forEach(btn => {
+  btn.addEventListener('click', function() {
+    beta = +btn.dataset.beta;
+    document.getElementById('betaSlider').value = beta;
+    document.getElementById('betaInput').value = beta.toFixed(2);
+    document.querySelectorAll('[data-beta]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateAll();
+  });
+});
+
+window.addEventListener('resize', function() { updateAll(); });
+window.addEventListener('load', function() { setLang('en'); });
+</script>
+</body>
+</html>
