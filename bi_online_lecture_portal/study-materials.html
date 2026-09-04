@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recommended Study Materials · Benedu Insight</title>
+<meta name="description" content="A curated, instructor-annotated guide to documentaries, interactive tools, YouTube channels, and textbooks for self-directed study in plasma process and RF power transmission.">
+
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Google+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --font-en:'Google Sans','Segoe UI',system-ui,sans-serif;
+    --font-ko:'Gowun Batang','Georgia',serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --font-body: var(--font-en);
+
+    --cream:#FAF9F5;
+    --surface:#EFE9DE;
+    --card:#FFFFFF;
+    --ink:#252320;
+    --steel:#6C6A64;
+    --steel-soft:#A09D96;
+    --hairline:#E6DFD8;
+    --ink-black:#181715;
+    --coral:#CC785C;
+    --coral-tint:#F5E4DD;
+    --lavender:#F0E6F6;
+
+    --radius-card:14px;
+    --radius-pill:9999px;
+    --ease:cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--font-body);
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  body.lang-ko{ --font-body: var(--font-ko); word-break:keep-all; }
+
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+
+  ::selection{ background:var(--coral-tint); color:var(--ink); }
+
+  :focus-visible{
+    outline:2.5px solid var(--coral);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(37,35,32,0.16);border-radius:4px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(37,35,32,0.3);}
+
+  /* ── Layout shell ───────────────────────────────────────────── */
+  .wrap{ max-width:1040px; margin:0 auto; padding:0 24px; }
+
+  /* ── Top bar ────────────────────────────────────────────────── */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    max-width:1040px; margin:0 auto; padding:28px 24px 0;
+  }
+  .topbar-logo img{ height:30px; width:auto; }
+  .topbar-right{ display:flex; align-items:center; gap:18px; }
+
+  .back-link{
+    display:flex; align-items:center; gap:6px; white-space:nowrap;
+    font-family:var(--font-mono); font-size:12px; font-weight:500;
+    color:var(--steel); letter-spacing:0.02em;
+    padding:6px 4px; transition:color 0.2s var(--ease);
+  }
+  .back-link:hover{ color:var(--coral); }
+  .back-link svg{ width:14px; height:14px; flex-shrink:0; }
+
+  .lang-toggle-pill{
+    position:relative; display:inline-flex; align-items:center;
+    background:var(--card); border:1.5px solid var(--hairline);
+    border-radius:var(--radius-pill); padding:2px; width:104px; height:32px;
+    cursor:pointer; user-select:none; flex-shrink:0;
+  }
+  .lang-toggle-pill .slide-bg{
+    position:absolute; top:2px; bottom:2px; left:2px;
+    width:calc(50% - 2px); background:var(--coral);
+    border-radius:var(--radius-pill); transition:transform 0.3s var(--ease); z-index:1;
+  }
+  .lang-toggle-pill.lang-ko .slide-bg{ transform:translateX(100%); }
+  .lang-toggle-pill button{
+    flex:1; background:transparent; border:none; cursor:pointer;
+    font-family:var(--font-mono); font-size:12px; font-weight:700;
+    color:#B8B4AC; height:100%; z-index:2; position:relative;
+    transition:color 0.25s var(--ease);
+  }
+  .lang-toggle-pill.lang-en button[data-lang="en"],
+  .lang-toggle-pill.lang-ko button[data-lang="ko"]{ color:#fff; }
+
+  /* ── Hero ───────────────────────────────────────────────────── */
+  .hero{ position:relative; padding:64px 0 56px; overflow:hidden; }
+  .hero-decor{
+    position:absolute; top:-10px; right:-40px; width:420px; height:340px;
+    pointer-events:none; opacity:0.55;
+  }
+  @media (max-width:720px){ .hero-decor{ display:none; } }
+
+  .hero-inner{ position:relative; max-width:640px; animation:heroIn 0.7s var(--ease) both; }
+  @keyframes heroIn{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @media (prefers-reduced-motion:reduce){ .hero-inner{ animation:none; } }
+
+  .eyebrow-pill{
+    display:inline-flex; align-items:center;
+    font-family:var(--font-mono); font-size:11px; font-weight:700;
+    letter-spacing:1.5px; text-transform:uppercase; color:#A8543A;
+    background:var(--coral-tint); border:1px solid rgba(204,120,92,0.35);
+    padding:5px 12px; border-radius:var(--radius-pill); margin-bottom:22px;
+  }
+
+  .hero h1{
+    font-family:var(--font-body); font-weight:800;
+    font-size:clamp(32px,5.4vw,46px); line-height:1.14;
+    letter-spacing:-0.01em; color:var(--ink); margin-bottom:20px;
+  }
+
+  .hero-sub{
+    font-size:clamp(15px,1.7vw,17px); line-height:1.75; color:var(--steel);
+    max-width:560px; margin-bottom:22px;
+  }
+
+  .hero-meta{
+    font-family:var(--font-mono); font-size:12px; color:var(--steel-soft);
+    letter-spacing:0.02em;
+  }
+
+  /* ── Category sections ─────────────────────────────────────── */
+  main{ padding-bottom:20px; }
+  .category{ padding:44px 0; border-top:1px solid var(--hairline); }
+  .category:first-of-type{ border-top:1px solid var(--hairline); }
+
+  .cat-head{ margin-bottom:28px; max-width:620px; }
+  .cat-head-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .cat-icon{
+    width:30px; height:30px; border-radius:9px;
+    background:var(--surface); color:var(--ink);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .cat-icon svg{ width:16px; height:16px; }
+
+  .cat-eyebrow{
+    font-family:var(--font-mono); font-size:11px; font-weight:700;
+    letter-spacing:1.4px; color:var(--steel-soft); text-transform:uppercase;
+  }
+  .cat-title{
+    font-family:var(--font-body); font-weight:800;
+    font-size:clamp(21px,2.6vw,25px); color:var(--ink); margin-bottom:8px;
+  }
+  .cat-desc{ font-size:14.5px; color:var(--steel); line-height:1.65; }
+
+  /* ── Resource grid & cards ─────────────────────────────────── */
+  .resource-grid{
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px;
+  }
+  @media (max-width:720px){ .resource-grid{ grid-template-columns:1fr; } }
+
+  .resource-card{
+    background:var(--card); border:1px solid var(--hairline);
+    border-radius:var(--radius-card); padding:0; overflow:hidden;
+    display:flex; flex-direction:column;
+    transition:border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+  .resource-card:hover{
+    border-color:rgba(204,120,92,0.4);
+    box-shadow:0 18px 38px rgba(37,35,32,0.1);
+    transform:translateY(-3px);
+  }
+  @media (prefers-reduced-motion:reduce){ .resource-card{ transition:none; } .resource-card:hover{ transform:none; } }
+
+  .card-media{
+    position:relative; height:178px; flex-shrink:0;
+    background:var(--surface); cursor:zoom-in; overflow:hidden;
+  }
+  .card-media:focus-visible{ outline:none; box-shadow:inset 0 0 0 3px var(--coral); }
+  .card-media img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform 0.5s var(--ease);
+  }
+  .card-media.fit-contain img{ object-fit:contain; padding:14px; }
+  .resource-card:hover .card-media img{ transform:scale(1.045); }
+  @media (prefers-reduced-motion:reduce){ .card-media img{ transition:none; } .resource-card:hover .card-media img{ transform:none; } }
+
+  .media-zoom-hint{
+    position:absolute; right:10px; bottom:10px; width:28px; height:28px;
+    border-radius:50%; background:rgba(24,23,21,0.55);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity 0.2s var(--ease);
+  }
+  .media-zoom-hint svg{ width:13px; height:13px; }
+  .card-media:hover .media-zoom-hint{ opacity:1; }
+
+  .card-body{
+    padding:20px 24px 24px; display:flex; flex-direction:column; flex:1;
+  }
+
+  .card-tag{
+    display:inline-block; font-family:var(--font-mono); font-size:10.5px;
+    font-weight:700; letter-spacing:0.9px; text-transform:uppercase;
+    color:#A8543A; margin-bottom:10px;
+  }
+
+  .card-title{
+    font-family:var(--font-body); font-weight:700; font-size:17px;
+    line-height:1.35; color:var(--ink); margin-bottom:4px;
+  }
+
+  .card-creator{
+    font-size:12.5px; color:var(--steel-soft); margin-bottom:14px;
+  }
+
+  .card-comment{
+    font-size:14px; line-height:1.68; color:var(--steel);
+    flex-grow:1; margin-bottom:18px;
+  }
+
+  .card-foot{
+    display:flex; flex-wrap:wrap; align-items:center; gap:12px;
+    padding-top:14px; border-top:1px solid var(--hairline);
+    margin-top:auto;
+  }
+
+  .card-cta{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:12px; font-weight:700;
+    color:var(--coral); letter-spacing:0.02em;
+    transition:opacity 0.2s var(--ease);
+  }
+  .card-cta:hover{ opacity:0.7; }
+  .card-cta svg{ width:12px; height:12px; flex-shrink:0; }
+
+  .card-note{
+    font-size:12px; color:var(--steel-soft);
+  }
+
+  /* ── Closing note ───────────────────────────────────────────── */
+  .closing{
+    max-width:640px; margin:20px auto 0; padding:40px 24px 8px;
+    border-top:1px solid var(--hairline);
+  }
+  .closing blockquote{
+    font-family:var(--font-ko); font-size:17px; font-style:italic;
+    line-height:1.75; color:var(--ink);
+    padding-left:20px; border-left:3px solid var(--coral);
+  }
+  body:not(.lang-ko) .closing blockquote{ font-family:var(--font-en); }
+  .closing-sign{
+    margin-top:16px; padding-left:20px;
+    font-family:var(--font-mono); font-size:12px; color:var(--steel-soft);
+  }
+
+  /* ── Footer ─────────────────────────────────────────────────── */
+  .site-footer{
+    max-width:1040px; margin:0 auto; padding:48px 24px 40px;
+    text-align:center;
+  }
+  .footer-links{
+    font-size:13px; color:var(--steel); margin-bottom:10px;
+  }
+  .footer-links a{ transition:color 0.2s var(--ease); }
+  .footer-links a:hover{ color:var(--coral); }
+  .footer-sep{ margin:0 10px; color:var(--steel-soft); }
+  .copyright{ font-family:var(--font-mono); font-size:11px; color:var(--steel-soft); }
+
+  @media (max-width:480px){
+    .topbar{ padding-top:20px; flex-wrap:wrap; row-gap:14px; }
+    .topbar-right{ gap:10px; }
+    .back-link{ font-size:11px; }
+    .hero{ padding:44px 0 40px; }
+    .category{ padding:34px 0; }
+    .card-body{ padding:18px 20px 20px; }
+  }
+
+  /* ── Lightbox ───────────────────────────────────────────────── */
+  .lightbox{
+    position:fixed; inset:0; z-index:999;
+    background:rgba(20,18,16,0.94);
+    display:none; align-items:center; justify-content:center;
+    padding:32px; cursor:zoom-out;
+    opacity:0; transition:opacity 0.25s var(--ease);
+  }
+  .lightbox.show{ display:flex; opacity:1; }
+  .lightbox figure{ max-width:min(880px,92vw); margin:0; text-align:center; }
+  .lightbox img{
+    max-width:100%; max-height:76vh; border-radius:6px; display:block;
+    box-shadow:0 30px 80px rgba(0,0,0,0.55); cursor:default;
+  }
+  .lightbox figcaption{
+    color:rgba(255,255,255,0.75); font-family:var(--font-mono);
+    font-size:12px; margin-top:18px; letter-spacing:0.02em;
+  }
+  .lightbox-close{
+    position:absolute; top:22px; right:24px; width:38px; height:38px;
+    border-radius:50%; background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.2); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:20px; line-height:1;
+  }
+  .lightbox-close:hover{ background:rgba(255,255,255,0.16); }
+  @media (max-width:480px){ .lightbox{ padding:16px; } .lightbox-close{ top:14px; right:14px; } }
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a class="topbar-logo" href="https://benedu-insight.github.io/" aria-label="Benedu Insight Homepage">
+    <img src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  </a>
+  <div class="topbar-right">
+    <a class="back-link" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      <span id="lbl-back">Back to Portal</span>
+    </a>
+    <div class="lang-toggle-pill lang-en" id="lang-pill" onclick="toggleLang()">
+      <div class="slide-bg"></div>
+      <button type="button" data-lang="en" tabindex="-1">EN</button>
+      <button type="button" data-lang="ko" tabindex="-1">KO</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <svg class="hero-decor" viewBox="0 0 420 340" aria-hidden="true">
+      <g stroke="#A8543A" stroke-width="1" opacity="0.5">
+        <line x1="60" y1="40" x2="160" y2="90"/>
+        <line x1="160" y1="90" x2="140" y2="180"/>
+        <line x1="160" y1="90" x2="270" y2="70"/>
+        <line x1="270" y1="70" x2="340" y2="140"/>
+        <line x1="140" y1="180" x2="240" y2="220"/>
+        <line x1="240" y1="220" x2="330" y2="200"/>
+        <line x1="270" y1="70" x2="240" y2="220"/>
+      </g>
+      <g fill="#CC785C">
+        <circle cx="60" cy="40" r="3.5"/>
+        <circle cx="160" cy="90" r="4.5"/>
+        <circle cx="270" cy="70" r="3"/>
+        <circle cx="340" cy="140" r="3.5"/>
+        <circle cx="140" cy="180" r="3"/>
+        <circle cx="240" cy="220" r="4.5"/>
+        <circle cx="330" cy="200" r="3"/>
+      </g>
+    </svg>
+    <div class="hero-inner">
+      <span class="eyebrow-pill" id="lbl-eyebrow">Self-Study Guide</span>
+      <h1 id="lbl-hero-title">Recommended Study Materials</h1>
+      <p class="hero-sub" id="lbl-hero-sub">Sixteen hours in class covers the main vine. These are the branches I point students toward afterward — documentaries, simulators, channels, and books I keep coming back to myself.</p>
+      <p class="hero-meta" id="lbl-hero-meta">14 resources, curated by the instructor</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="category" data-cat="documentary">
+    <div class="cat-head">
+      <div class="cat-head-row">
+        <div class="cat-icon" id="icon-documentary"></div>
+        <span class="cat-eyebrow">01 / DOCUMENTARY</span>
+      </div>
+      <h2 class="cat-title" id="lbl-cat-documentary-title">Documentaries</h2>
+      <p class="cat-desc" id="lbl-cat-documentary-desc">Start here if you want the wonder back before the equations.</p>
+    </div>
+    <div class="resource-grid" id="grid-documentary"></div>
+  </section>
+
+  <section class="category" data-cat="platforms">
+    <div class="cat-head">
+      <div class="cat-head-row">
+        <div class="cat-icon" id="icon-platforms"></div>
+        <span class="cat-eyebrow">02 / INTERACTIVE PLATFORMS</span>
+      </div>
+      <h2 class="cat-title" id="lbl-cat-platforms-title">Interactive Learning Platforms</h2>
+      <p class="cat-desc" id="lbl-cat-platforms-desc">Reference sites and simulators for building intuition by doing.</p>
+    </div>
+    <div class="resource-grid" id="grid-platforms"></div>
+  </section>
+
+  <section class="category" data-cat="youtube">
+    <div class="cat-head">
+      <div class="cat-head-row">
+        <div class="cat-icon" id="icon-youtube"></div>
+        <span class="cat-eyebrow">03 / YOUTUBE CHANNELS</span>
+      </div>
+      <h2 class="cat-title" id="lbl-cat-youtube-title">YouTube Channels</h2>
+      <p class="cat-desc" id="lbl-cat-youtube-desc">Short, focused videos for a five-minute refresher between sessions.</p>
+    </div>
+    <div class="resource-grid" id="grid-youtube"></div>
+  </section>
+
+  <section class="category" data-cat="books">
+    <div class="cat-head">
+      <div class="cat-head-row">
+        <div class="cat-icon" id="icon-books"></div>
+        <span class="cat-eyebrow">04 / TEXTBOOKS &amp; REFERENCES</span>
+      </div>
+      <h2 class="cat-title" id="lbl-cat-books-title">Textbooks &amp; References</h2>
+      <p class="cat-desc" id="lbl-cat-books-desc">The books on my own shelf — for going deeper than any single class can.</p>
+    </div>
+    <div class="resource-grid" id="grid-books"></div>
+  </section>
+
+</main>
+
+<section class="closing">
+  <blockquote id="lbl-closing">This list will keep growing. If a resource changed how you see plasma or RF, send it my way — I'll add it for the next class.</blockquote>
+  <div class="closing-sign">— Benedu Insight</div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-links">
+    <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer">Homepage</a>
+    <span class="footer-sep">|</span>
+    <a href="index.html" id="lbl-footer-back">Back to Portal</a>
+    <span class="footer-sep">|</span>
+    <a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a>
+  </div>
+  <div class="copyright">© 2026 Benedu Insight. All rights reserved.</div>
+</footer>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button type="button" class="lightbox-close" aria-label="Close" onclick="closeLightbox()">&times;</button>
+  <figure onclick="event.stopPropagation()">
+    <img id="lightbox-img" src="" alt="">
+    <figcaption id="lightbox-caption"></figcaption>
+  </figure>
+</div>
+
+<script>
+  /* ── Icons ──────────────────────────────────────────────────── */
+  const ICONS = {
+    doc: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="13" rx="2.5"/><path d="M10 9.2l4.5 2.8-4.5 2.8z" fill="currentColor" stroke="none"/></svg>`,
+    web: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.4 2.6 3.7 5.7 3.7 9s-1.3 6.4-3.7 9c-2.4-2.6-3.7-5.7-3.7-9S9.6 5.6 12 3z"/></svg>`,
+    yt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.6l6 3.4-6 3.4z" fill="currentColor" stroke="none"/></svg>`,
+    mooc: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-4 10 4-10 4z"/><path d="M6 11.3v4.7c0 1.2 2.7 3 6 3s6-1.8 6-3v-4.7"/><path d="M22 9v6"/></svg>`,
+    book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.8c2.6-1.2 5.2-1.2 9 0v13c-3.8-1.2-6.4-1.2-9 0z"/><path d="M21 5.8c-2.6-1.2-5.2-1.2-9 0v13c3.8-1.2 6.4-1.2 9 0z"/></svg>`
+  };
+  const EXT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M8 7h9v9"/></svg>`;
+  const ZOOM_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>`;
+
+  /* ── Content data ───────────────────────────────────────────── */
+  const CATS = {
+    documentary: {
+      titleEn:'Documentaries', titleKo:'다큐멘터리',
+      descEn:'Start here if you want the wonder back before the equations.',
+      descKo:'수식보다 먼저, 다시 경이로움을 느끼고 싶다면 여기서 시작하세요.',
+      icon:'doc'
+    },
+    platforms: {
+      titleEn:'Interactive Learning Platforms', titleKo:'인터랙티브 학습 플랫폼',
+      descEn:'Reference sites and simulators for building intuition by doing.',
+      descKo:'직접 손으로 만지며 직관을 쌓을 수 있는 참고 사이트와 시뮬레이터입니다.',
+      icon:'web'
+    },
+    youtube: {
+      titleEn:'YouTube Channels', titleKo:'유튜브 채널',
+      descEn:'Short, focused videos for a five-minute refresher between sessions.',
+      descKo:'수업 사이사이, 5분짜리 복습으로 좋은 채널들입니다.',
+      icon:'yt'
+    },
+    books: {
+      titleEn:'Textbooks &amp; References', titleKo:'교재 및 참고 도서',
+      descEn:'The books on my own shelf — for going deeper than any single class can.',
+      descKo:'제 책장에 꽂혀 있는 책들입니다 — 어떤 강의도 다 담지 못하는 깊이를 위해서.',
+      icon:'book'
+    }
+  };
+
+  const RESOURCES = {
+    documentary: [
+      {
+        icon:'doc', img:'assets/cosmos.jpg',
+        titleEn:'Cosmos: A Spacetime Odyssey', titleKo:'코스모스: 스페이스타임 오디세이',
+        creatorEn:'Neil deGrasse Tyson · National Geographic / FOX', creatorKo:'닐 디그래스 타이슨 · 내셔널지오그래픽 / FOX',
+        tagEn:'Documentary · 13 episodes', tagKo:'다큐멘터리 · 전 13부작',
+        commentEn:"Before we talk about plasma or RF, I want you to fall in love with the universe again. One episode before bed is the best antidote to burnout I know.",
+        commentKo:'플라즈마와 RF 이야기를 하기 전에, 먼저 우주에 다시 반해보시길 바랍니다. 자기 전에 한 편씩 — 제가 아는 번아웃에 대한 최고의 처방입니다.',
+        url:'https://www.youtube.com/watch?v=O5jXYcevloo',
+        ctaEn:"Kwedo on why you should read Cosmos", ctaKo:'궤도의 코스모스 추천 영상',
+        noteEn:'Series streaming on Disney+ and Wavve', noteKo:'다큐멘터리는 디즈니플러스·웨이브에서 시청 가능'
+      },
+      {
+        icon:'doc', img:'assets/ebs-physics-of-light.jpg',
+        titleEn:'Physics on the Light', titleKo:'빛의 물리학',
+        creatorEn:'EBS Docuprime · 6 episodes', creatorKo:'EBS 다큐프라임 · 전 6부작',
+        tagEn:'Documentary · Korean', tagKo:'다큐멘터리 · 한국어',
+        commentEn:"The clearest Korean-language walkthrough of relativity and quantum mechanics I've found. Episode 3, on optics, connects most directly to our RF work — and the full series is free on YouTube.",
+        commentKo:'제가 본 것 중 상대성이론과 양자역학을 가장 쉽게 풀어낸 국내 다큐입니다. 그중 3부 ‘광학’이 우리 RF 수업과 가장 맞닿아 있고, 유튜브에서 전편을 무료로 볼 수 있습니다.',
+        url:'https://www.youtube.com/watch?v=KIpisYO7ko4&list=PLvNzObWMMx6vPXgTDhWKUFp0S0FmTCb6j',
+        ctaEn:'Watch on YouTube', ctaKo:'유튜브로 보기',
+        url2:'https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000003117918',
+        cta2En:'Read the companion book', cta2Ko:'원작 책으로 보기'
+      }
+    ],
+    platforms: [
+      {
+        icon:'web', img:'assets/hyperphysics.jpg',
+        titleEn:'HyperPhysics', titleKo:'하이퍼피직스',
+        creatorEn:'Georgia State University', creatorKo:'조지아 주립대학교',
+        tagEn:'Reference · Concept map', tagKo:'참고자료 · 개념 지도',
+        commentEn:'My go-to when I need to double-check a formula fast. Every page is a concept map — click any node and the derivation opens up beneath it.',
+        commentKo:'공식 하나를 빠르게 확인할 때 제가 가장 먼저 여는 사이트입니다. 페이지마다 개념 지도로 이어져 있어, 원하는 항목을 클릭하면 그 아래로 유도과정이 펼쳐집니다.',
+        url:'http://hyperphysics.phy-astr.gsu.edu/hbase/index.html',
+        ctaEn:'Open HyperPhysics', ctaKo:'하이퍼피직스 열기'
+      },
+      {
+        icon:'web', img:'assets/fourier-tutorial.jpg',
+        titleEn:'Fourier Series Tutorial', titleKo:'푸리에 급수 튜토리얼',
+        creatorEn:'fourier-series.com', creatorKo:'fourier-series.com',
+        tagEn:'Interactive · RF fundamentals', tagKo:'인터랙티브 · RF 기초',
+        commentEn:"Start here if the math in Class 02 feels like a wall. It rebuilds Fourier series, VSWR, Smith Charts, and noise figure from the ground up. The original site has since gone offline, so this links to an archived snapshot — the interface is dated, but the explanations still hold up.",
+        commentKo:'Class 02의 수식이 벽처럼 느껴진다면 여기서 시작하세요. 푸리에 급수, VSWR, 스미스 차트, 노이즈 피겨까지 기초부터 다시 쌓아줍니다. 원 사이트는 더 이상 운영되지 않아 아카이브된 페이지로 연결됩니다. 화면은 다소 예전 스타일이지만 설명은 여전히 훌륭합니다.',
+        url:'https://web.archive.org/web/20160111111516mp_/http://www.fourier-series.com/rf-concepts/reflection.html',
+        ctaEn:'Open the tutorial (archived)', ctaKo:'튜토리얼 열기 (아카이브)'
+      },
+      {
+        icon:'web', img:'assets/phet.jpg',
+        titleEn:'PhET Interactive Simulations', titleKo:'PhET 인터랙티브 시뮬레이션',
+        creatorEn:'University of Colorado Boulder', creatorKo:'콜로라도 대학교 볼더',
+        tagEn:'Simulator · HTML5', tagKo:'시뮬레이터 · HTML5',
+        commentEn:"Direct your curiosity here. The Circuit Construction Kit and Capacitor Lab sims build the hands-on intuition a one-day class can't — drag a few sliders and it clicks.",
+        commentKo:'궁금한 게 생기면 여기로 오세요. Circuit Construction Kit, Capacitor Lab 시뮬레이터는 하루짜리 강의로는 채워드리기 힘든 직관을 손으로 직접 만들어줍니다. 슬라이더를 몇 번만 움직여봐도 감이 옵니다.',
+        url:'https://phet.colorado.edu/',
+        ctaEn:'Browse simulations', ctaKo:'시뮬레이션 둘러보기'
+      }
+    ],
+    youtube: [
+      {
+        icon:'yt', img:'assets/branch_education.jpg',
+        titleEn:'Branch Education', titleKo:'Branch Education',
+        creatorEn:'Teddy Tablante · YouTube channel', creatorKo:'Teddy Tablante · 유튜브 채널',
+        tagEn:'Animation · Semiconductor fabrication', tagKo:'애니메이션 · 반도체 공정',
+        commentEn:"Made by a former semiconductor engineer, this is probably the most directly relevant channel on this whole list. The 'How are Microchips Made' video alone walks through photolithography, deposition, etching, and ion implantation with the kind of 3D animation I wish I'd had in Class 01.",
+        commentKo:'전직 반도체 엔지니어가 만드는 채널이라, 사실 이 목록 전체에서 우리 수업과 가장 직접적으로 맞닿아 있는 채널일 겁니다. ‘반도체는 어떻게 만들어지는가’ 영상 하나만 봐도 포토리소그래피·증착·식각·이온주입 공정을 Class 01에서 제가 보여드리고 싶었던 수준의 3D 애니메이션으로 다룹니다.',
+        url:'https://www.youtube.com/@BranchEducation',
+        ctaEn:'Visit channel', ctaKo:'채널 방문'
+      },
+      {
+        icon:'yt', img:'assets/eugene-khutoryansky.jpg',
+        titleEn:'Physics Videos by Eugene Khutoryansky', titleKo:'Physics Videos by Eugene Khutoryansky',
+        creatorEn:'YouTube channel', creatorKo:'유튜브 채널',
+        tagEn:'Animation · Waves &amp; fields', tagKo:'애니메이션 · 파동과 장',
+        commentEn:'No narration tricks, just patient, accurate animation. His videos on wave functions and inductance are the closest thing to watching the physics happen in slow motion.',
+        commentKo:'화려한 연출 없이, 정확하고 차분한 애니메이션만으로 승부하는 채널입니다. 파동함수·인덕턴스 영상은 물리 현상을 슬로모션으로 보는 듯한 느낌을 줍니다.',
+        url:'https://www.youtube.com/channel/UCJ0yBou72Lz9fqeMXh9mkog',
+        ctaEn:'Visit channel', ctaKo:'채널 방문'
+      },
+      {
+        icon:'yt', img:'assets/7activestudio.jpg',
+        titleEn:'7activestudio', titleKo:'7activestudio',
+        creatorEn:'YouTube channel', creatorKo:'유튜브 채널',
+        tagEn:'Animation · Physics &amp; chemistry', tagKo:'애니메이션 · 물리·화학',
+        commentEn:"Short 3D-animated explainers that make abstract atomic models — like Schrödinger's wave equation — feel almost tangible. Good for a quick refresher before class.",
+        commentKo:'슈뢰딩거 파동방정식처럼 추상적인 원자 모형을 3D 애니메이션으로 눈에 보이게 만들어줍니다. 수업 전 짧은 복습용으로 좋습니다.',
+        url:'https://www.youtube.com/channel/UCflmr7Tyyy38MaAENetim_g',
+        ctaEn:'Visit channel', ctaKo:'채널 방문'
+      },
+      {
+        icon:'yt', img:'assets/doc-schuster.jpg',
+        titleEn:'Doc Schuster', titleKo:'Doc Schuster',
+        creatorEn:'YouTube channel', creatorKo:'유튜브 채널',
+        tagEn:'Whiteboard · AC circuits', tagKo:'화이트보드 · 교류회로',
+        commentEn:"Plain whiteboard, plain talking — but his phasor and frequency-dependent impedance videos connect Class 02's math to real circuit intuition better than most textbooks.",
+        commentKo:'화이트보드에 직접 손으로 써가며 설명하는 스타일인데, 페이저·주파수 의존 임피던스 영상은 어떤 교재보다 Class 02의 수식을 회로 직관과 잘 이어줍니다.',
+        url:'https://www.youtube.com/channel/UCQnKBRdXfNgxhn_XDrFdHjA',
+        ctaEn:'Visit channel', ctaKo:'채널 방문'
+      },
+      {
+        icon:'mooc', img:'assets/kmooc.jpg',
+        titleEn:'Physics for Modern People', titleKo:'현대인을 위한 물리',
+        creatorEn:'Dongwoo Cha · Inha University (K-MOOC)', creatorKo:'차동우 · 인하대학교 (K-MOOC)',
+        tagEn:'Full course · Korean', tagKo:'정규 강좌 · 한국어',
+        commentEn:"If English-language MOOCs move too fast, this is the full Korean-language alternative — a complete semester of physics, free, from one of KOCW's highest-rated instructors.",
+        commentKo:'영어 강의 속도가 부담스럽다면 이걸 보세요. KOCW 평점이 가장 높은 강의 중 하나로, 한 학기 분량의 물리학을 무료로 들을 수 있습니다.',
+        url:'https://www.youtube.com/playlist?list=PLx9iooiAr6WHUculkGTMgjY5Aezce8PtC',
+        ctaEn:'Watch the playlist', ctaKo:'재생목록 보기'
+      },
+      {
+        icon:'yt', img:'assets/suakjungdok.jpg',
+        titleEn:'Sooak-jungdok — Calculus I &amp; II', titleKo:'수악중독 – 미적분1, 2',
+        creatorEn:'YouTube channel', creatorKo:'유튜브 채널',
+        tagEn:'Math foundations · Korean', tagKo:'수학 기초 · 한국어',
+        commentEn:'3D calculus — which field theory leans on constantly — needs solid high-school calculus underneath it. This channel drills exactly that: dense, no-frills, and thorough.',
+        commentKo:'장이론에서 계속 쓰게 되는 3차원 미적분을 하려면, 그 아래 고교 미적분이 먼저 탄탄해야 합니다. 이 채널은 군더더기 없이 정확하게 그 부분을 짚어줍니다.',
+        url:'https://www.youtube.com/watch?v=NkjXaMnG9Kc&list=PLXJ3W1lEGK8X-f5dHND2xfr-LZv4W-keh',
+        ctaEn:'Calculus I playlist', ctaKo:'미적분 1 재생목록',
+        url2:'https://www.youtube.com/playlist?list=PLXJ3W1lEGK8WGgRJ6JDoXFiZxLxZhtWFQ',
+        cta2En:'Calculus II playlist', cta2Ko:'미적분 2 재생목록'
+      }
+    ],
+    books: [
+      {
+        icon:'book', img:'assets/rf-power-book.jpg', fit:'contain',
+        titleEn:'RF Power for Industrial Applications', titleKo:'RF Power for Industrial Applications',
+        creatorEn:'Louis E. Frenzel, Jr.', creatorKo:'Louis E. Frenzel, Jr.',
+        tagEn:'Book · RF engineering', tagKo:'도서 · RF 공학',
+        commentEn:"Still the only textbook I know written specifically for RF power in plasma and industrial equipment, rather than RF for communications. Out of print, but worth tracking down secondhand.",
+        commentKo:'통신용 RF가 아니라 플라즈마·산업 장비용 RF 전력을 정면으로 다루는, 제가 아는 유일한 교재입니다. 절판되었지만 중고로라도 구해볼 가치가 있습니다.',
+        url:'https://openlibrary.org/works/OL93588W',
+        ctaEn:'View on Open Library', ctaKo:'Open Library에서 보기'
+      },
+      {
+        icon:'book', img:'assets/wave-law-book.jpg', fit:'contain',
+        titleEn:'The Law of Waves', titleKo:'수학으로 배우는 파동의 법칙',
+        creatorEn:'Transnational College of LEX', creatorKo:'Transnational College of LEX · 이경원 옮김',
+        tagEn:'Book · Math foundations · Korean', tagKo:'도서 · 수학 기초 · 한국어',
+        commentEn:"From the authors behind the beloved 'Manga Guide to...' series, applying that same plain-spoken style to Fourier analysis. If sine, cosine, and complex exponentials still feel foreign, start here before Class 02.",
+        commentKo:'그 유명한 ‘만화로 배우는’ 시리즈를 쓴 저자들이 같은 방식으로 푸리에 해석을 풀어낸 책입니다. sin, cos, 복소지수함수가 아직 낯설다면 Class 02 전에 이 책부터 보시길 권합니다.',
+        noteEn:'Widely available at Kyobo, Aladin, Yes24', noteKo:'교보문고·알라딘·예스24 등에서 구매 가능'
+      },
+      {
+        icon:'book',
+        titleEn:'Calculus: Early Transcendentals', titleKo:'Calculus: Early Transcendentals',
+        img:'assets/calculus-stewart.jpg',
+        creatorEn:'James Stewart', creatorKo:'James Stewart',
+        tagEn:'Textbook · Calculus', tagKo:'교재 · 미적분학',
+        commentEn:"The standard reference for engineering calculus worldwide, and still the one I reach for myself. You don't need to read it cover to cover — use the index like a dictionary.",
+        commentKo:'전 세계 공대생이 보는 미적분학 표준 교재이고, 저 역시 지금도 종종 펼쳐봅니다. 처음부터 끝까지 읽을 필요는 없고, 색인을 사전처럼 활용하세요.',
+        noteEn:'Any recent edition works fine', noteKo:'최신판이면 어떤 에디션이든 괜찮습니다'
+      }
+    ]
+  };
+
+  const T = {
+    en: {
+      back:'Back to Portal',
+      eyebrow:'Self-Study Guide',
+      heroTitle:'Recommended Study Materials',
+      heroSub:"Sixteen hours in class covers the main vine. These are the branches I point students toward afterward — documentaries, simulators, channels, and books I keep coming back to myself.",
+      heroMeta:'14 resources, curated by the instructor',
+      closing:"This list will keep growing. If a resource changed how you see plasma or RF, send it my way — I'll add it for the next class.",
+      title:'Recommended Study Materials · Benedu Insight'
+    },
+    ko: {
+      back:'포털로 돌아가기',
+      eyebrow:'자기주도학습 가이드',
+      heroTitle:'추천 학습 자료',
+      heroSub:'강의실에서의 16시간은 메인 줄기를 훑는 시간입니다. 여기 모은 자료들은 그 이후, 제가 수강생들에게 실제로 권하는 가지들 — 다큐멘터리, 시뮬레이터, 채널, 책까지, 저 역시 지금도 자주 펼쳐보는 것들입니다.',
+      heroMeta:'강사가 직접 고른 14가지 자료',
+      closing:'이 목록은 계속 자라날 예정입니다. 플라즈마나 RF를 바라보는 시각을 바꿔준 자료가 있다면 알려주세요 — 다음 기수를 위해 추가하겠습니다.',
+      title:'추천 학습 자료 · Benedu Insight'
+    }
+  };
+
+  let currentLang = 'en';
+
+  function escAttr(str){
+    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  }
+
+  function cardHTML(item, lang){
+    const title = lang==='en' ? item.titleEn : item.titleKo;
+    const creator = lang==='en' ? item.creatorEn : item.creatorKo;
+    const tag = lang==='en' ? item.tagEn : item.tagKo;
+    const comment = lang==='en' ? item.commentEn : item.commentKo;
+    const cta = lang==='en' ? item.ctaEn : item.ctaKo;
+    const cta2 = lang==='en' ? item.cta2En : item.cta2Ko;
+    const note = lang==='en' ? item.noteEn : item.noteKo;
+    const plainTitle = title.replace(/&amp;/g,'&');
+    const caption = creator ? `${plainTitle} — ${creator.replace(/&amp;/g,'&')}` : plainTitle;
+    const media = item.img ? `
+        <div class="card-media${item.fit==='contain' ? ' fit-contain' : ''}" data-img="${escAttr(item.img)}" data-caption="${escAttr(caption)}" role="button" tabindex="0" aria-label="${escAttr('Enlarge image: ' + plainTitle)}">
+          <img src="${item.img}" alt="${escAttr(plainTitle)}">
+          <span class="media-zoom-hint">${ZOOM_ICON}</span>
+        </div>` : '';
+    return `
+      <article class="resource-card">
+        ${media}
+        <div class="card-body">
+          <span class="card-tag">${tag}</span>
+          <h3 class="card-title">${title}</h3>
+          ${creator ? `<p class="card-creator">${creator}</p>` : ''}
+          <p class="card-comment">${comment}</p>
+          <div class="card-foot">
+            ${item.url ? `<a class="card-cta" href="${item.url}" target="_blank" rel="noopener noreferrer">${EXT_ICON}<span>${cta}</span></a>` : ''}
+            ${item.url2 ? `<a class="card-cta" href="${item.url2}" target="_blank" rel="noopener noreferrer">${EXT_ICON}<span>${cta2}</span></a>` : ''}
+            ${note ? `<span class="card-note">${note}</span>` : ''}
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function renderCards(lang){
+    Object.keys(RESOURCES).forEach(key => {
+      const grid = document.getElementById('grid-' + key);
+      grid.innerHTML = RESOURCES[key].map(item => cardHTML(item, lang)).join('');
+    });
+    document.querySelectorAll('.card-media').forEach(el => {
+      const open = () => openLightbox(el.dataset.img, el.dataset.caption);
+      el.addEventListener('click', open);
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    });
+  }
+
+  function renderCategoryLabels(lang){
+    Object.keys(CATS).forEach(key => {
+      const c = CATS[key];
+      document.getElementById('lbl-cat-' + key + '-title').innerHTML = lang==='en' ? c.titleEn : c.titleKo;
+      document.getElementById('lbl-cat-' + key + '-desc').innerText = lang==='en' ? c.descEn : c.descKo;
+      document.getElementById('icon-' + key).innerHTML = ICONS[c.icon];
+    });
+  }
+
+  function renderStatic(lang){
+    const t = T[lang];
+    document.getElementById('lbl-back').innerText = t.back;
+    document.getElementById('lbl-footer-back').innerText = t.back;
+    document.getElementById('lbl-eyebrow').innerText = t.eyebrow;
+    document.getElementById('lbl-hero-title').innerText = t.heroTitle;
+    document.getElementById('lbl-hero-sub').innerText = t.heroSub;
+    document.getElementById('lbl-hero-meta').innerText = t.heroMeta;
+    document.getElementById('lbl-closing').innerText = t.closing;
+    document.title = t.title;
+  }
+
+  function toggleLang(){
+    currentLang = currentLang === 'en' ? 'ko' : 'en';
+    document.body.classList.toggle('lang-ko', currentLang === 'ko');
+    document.getElementById('html-root').setAttribute('lang', currentLang);
+    document.getElementById('lang-pill').className = 'lang-toggle-pill lang-' + currentLang;
+    renderStatic(currentLang);
+    renderCategoryLabels(currentLang);
+    renderCards(currentLang);
+  }
+
+  function openLightbox(src, caption){
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-img').alt = caption;
+    document.getElementById('lightbox-caption').innerText = caption;
+    lb.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox(){
+    const lb = document.getElementById('lightbox');
+    lb.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  /* ── Init ───────────────────────────────────────────────────── */
+  renderStatic(currentLang);
+  renderCategoryLabels(currentLang);
+  renderCards(currentLang);
+</script>
+</body>
+</html>
