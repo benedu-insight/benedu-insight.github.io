@@ -43,6 +43,44 @@
   body[data-lang="en"] h3 {
     font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
   }
+
+  /* ── KO 모드: 영문·숫자는 Google Sans, 한글은 Gowun Batang ── */
+  /* 사이드바 과학자 이름 (영문) */
+  body[data-lang="ko"] .sci-name {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  /* 우측 패널 과학자 영문 이름 */
+  body[data-lang="ko"] .detail-name {
+    font-family: 'Google Sans', 'Montserrat', sans-serif !important;
+  }
+  /* 이론 카드 제목 (영문 혼재) */
+  body[data-lang="ko"] .theory-name {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  /* 연관 과학자 칩 (영문 이름) */
+  body[data-lang="ko"] .conn-chip {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  /* 섹션 타이틀 레이블 */
+  body[data-lang="ko"] .section-title {
+    font-family: 'Google Sans', 'Segoe UI', system-ui, sans-serif !important;
+  }
+  /* 헤더 h1 제목 */
+  body[data-lang="ko"] header h1 {
+    font-family: 'Gowun Batang', serif !important;
+  }
+  /* era 레이블 (한글) */
+  body[data-lang="ko"] .era-label {
+    font-family: 'Gowun Batang', serif !important;
+  }
+  /* 이론 설명·일대기 본문·한글 nation — Gowun 유지 */
+  body[data-lang="ko"] .theory-desc,
+  body[data-lang="ko"] .detail-bio,
+  body[data-lang="ko"] .quote-text,
+  body[data-lang="ko"] .sci-nation,
+  body[data-lang="ko"] .detail-name-kr {
+    font-family: 'Gowun Batang', serif !important;
+  }
 </style>
 <style>
   :root {
@@ -613,17 +651,285 @@
     opacity: 0.6;
   }
 
-  /* Responsive */
-  @media (max-width: 768px) {
-    .layout { grid-template-columns: 1fr; grid-template-rows: 42vh 1fr; height: auto; }
-    header { padding: 0.6rem 1rem; flex-wrap: wrap; gap: 0.6rem; }
-    .header-logo { height: 38px; }
-    .header-divider { display: none; }
-    header h1 { font-size: 1.15rem; }
-    .era-filter { width: 100%; }
-    .detail-content { padding: 1.25rem 1rem 3rem; }
-    .detail-name { font-size: 1.5rem; }
+  /* ── Profile Card Gallery ── */
+  .gallery-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,10,25,0.72);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    padding: 2rem 1.5rem 4rem;
+    animation: fadeIn 0.25s ease;
   }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+  .gallery-header {
+    width: 100%;
+    max-width: 1320px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .gallery-header-left h2 {
+    font-family: 'Gowun Batang', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .gallery-header-left p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+  .gallery-close-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 24px;
+    color: #fff;
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.82rem;
+    padding: 8px 22px;
+    cursor: pointer;
+    transition: background 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .gallery-close-btn:hover { background: rgba(255,255,255,0.18); }
+
+  .gallery-era-tabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 1320px;
+  }
+  .gallery-tab {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 20px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.75rem;
+    padding: 5px 16px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .gallery-tab:hover { background: rgba(255,255,255,0.14); color: #fff; }
+  .gallery-tab.active {
+    background: #7030A0;
+    border-color: #7030A0;
+    color: #fff;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.1rem;
+    width: 100%;
+    max-width: 1320px;
+  }
+
+  /* Profile card — 첨부1·3 스타일 */
+  .prof-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+  }
+  .prof-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px -10px rgba(112,48,160,0.4);
+    border-color: rgba(112,48,160,0.5);
+  }
+  .prof-card-inner { padding: 10px; }
+
+  /* 이미지 영역 — 색상 그라디언트로 대체 */
+  .prof-img-wrap {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 130px;
+    display: flex;
+    align-items: flex-end;
+  }
+  .prof-img-bg {
+    position: absolute;
+    inset: 0;
+  }
+  .prof-img-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    opacity: 0.18;
+    user-select: none;
+  }
+  .prof-img-year {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    padding: 3px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.85);
+  }
+  .prof-img-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    flex-shrink: 0;
+  }
+
+  .prof-body { padding: 10px 8px 4px; }
+  .prof-name {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.95);
+    line-height: 1.2;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .prof-name-kr {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 8px;
+  }
+  .prof-divider {
+    height: 1px;
+    background: linear-gradient(to right, rgba(255,255,255,0.12), rgba(255,255,255,0.03), transparent);
+    margin: 6px 0 8px;
+  }
+  .prof-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .prof-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.03em;
+  }
+  .prof-select-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.95);
+    color: #1a1a2e;
+    border: none;
+    border-radius: 20px;
+    font-family: 'Google Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    cursor: pointer;
+    margin-top: 2px;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    pointer-events: none; /* 카드 전체 클릭으로 처리 */
+  }
+
+  /* 갤러리 열기 버튼 (툴바) */
+  #btnGallery {
+    border-color: var(--purple-mid);
+    color: var(--purple);
+    background: var(--purple-soft);
+  }
+  #btnGallery:hover {
+    background: var(--purple);
+    color: #fff;
+    border-color: var(--purple);
+  }
+
+  @media (max-width: 600px) {
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+    .prof-img-wrap { height: 100px; }
+  }
+
+  /* ── Wikipedia 이미지 — 사이드바 썸네일 ── */
+  .sci-thumb {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    object-fit: cover; object-position: top center;
+    flex-shrink: 0;
+    border: 1.5px solid var(--border);
+    background: var(--border2);
+    opacity: 0; transition: opacity 0.35s;
+  }
+  .sci-thumb.loaded { opacity: 1; }
+  .sci-thumb-ph {
+    width: 36px; height: 36px;
+    border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem;
+    border: 1.5px solid var(--border);
+    background: var(--border2); color: var(--text3);
+  }
+
+  /* 갤러리 카드 — 실제 사진 */
+  .prof-img-photo {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top center;
+    border-radius: 16px;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .prof-img-photo.loaded { opacity: 1; }
+
+  /* 우측 패널 — 과학자 초상 */
+  .detail-photo-wrap {
+    float: right;
+    margin: 0 0 1rem 1.5rem;
+    text-align: center;
+  }
+  .detail-photo {
+    width: 110px; height: 140px;
+    object-fit: cover; object-position: top center;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    background: var(--border2);
+    display: block;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .detail-photo.loaded { opacity: 1; }
+  .detail-photo-credit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.48rem; color: var(--text3);
+    margin-top: 4px; letter-spacing: 0.04em;
+  }
+  @media (max-width: 600px) { .detail-photo-wrap { display: none; } }
 </style>
 </head>
 <body>
@@ -663,6 +969,7 @@
       <span id="fontSizeLabel" style="font-family: 'Gowun Batang', serif; font-size: 0.75rem; color: var(--text2); font-weight: bold; margin-right: auto; display: flex; align-items: center; gap: 5px;">
         🔍 본문 글자 크기
       </span>
+      <button class="toolbar-btn" id="btnGallery" onclick="openGallery()" title="과학자 카드 갤러리">🪪 과학자 갤러리</button>
       <button class="toolbar-btn" onclick="adjustScale(-0.1)" id="btnScaleDown" title="작게">- 작게</button>
       <span id="scale-indicator" style="font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--purple); font-weight: bold; min-width: 45px; text-align: center;">100%</span>
       <button class="toolbar-btn" onclick="adjustScale(0.1)" id="btnScaleUp" title="크게">+ 크게</button>
@@ -3349,6 +3656,7 @@ function buildSidebar(filter) {
 
       card.innerHTML = `
         <div class="sci-year">${sci.birthYear}</div>
+        <div class="sci-thumb-ph">${ERA_ICONS[sci.era] || '👤'}</div>
         <div class="sci-info">
           <div class="sci-name">${sci.name}</div>
           <div class="sci-nation">${sci.nameKr} · ${sci.nation}</div>
@@ -3356,6 +3664,8 @@ function buildSidebar(filter) {
         </div>
       `;
       card.addEventListener('click', () => selectScientist(sci.id));
+      // Lazy-load 썸네일
+      observeForLazyImg(card, () => applyThumbToCard(sci.id, ERA_ICONS[sci.era] || '👤'));
       cardsWrap.appendChild(card);
     });
 
@@ -3486,7 +3796,297 @@ function renderDetail(sci) {
     </div>
   `;
   panel.scrollTop = 0;
+  // 우측 패널 초상화 로딩
+  const heroEl = panel.querySelector('.detail-hero');
+  if (heroEl) applyPhotoToDetail(sci.id, heroEl);
 }
+
+// ── Profile Card Gallery ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Wikipedia Image System
+// ══════════════════════════════════════════════════════════════════
+
+// 과학자 ID → Wikipedia 영문 제목 매핑 (검색 정확도 향상용)
+const WIKI_TITLES = {
+  aristotle:   'Aristotle',
+  archimedes:  'Archimedes',
+  pythagoras:  'Pythagoras',
+  euclid:      'Euclid',
+  democritus:  'Democritus',
+  copernicus:  'Nicolaus_Copernicus',
+  galileo:     'Galileo_Galilei',
+  kepler:      'Johannes_Kepler',
+  descartes:   'René_Descartes',
+  newton:      'Isaac_Newton',
+  lavoisier:   'Antoine_Lavoisier',
+  bernoulli:   'Daniel_Bernoulli',
+  coulomb:     'Charles-Augustin_de_Coulomb',
+  ampere:      'André-Marie_Ampère',
+  gauss:       'Carl_Friedrich_Gauss',
+  carnot:      'Nicolas_Léonard_Sadi_Carnot',
+  young:       'Thomas_Young_(scientist)',
+  dalton:      'John_Dalton',
+  fraunhofer:  'Joseph_von_Fraunhofer',
+  faraday:     'Michael_Faraday',
+  hamilton:    'William_Rowan_Hamilton',
+  doppler:     'Christian_Doppler',
+  joule:       'James_Prescott_Joule',
+  helmholtz:   'Hermann_von_Helmholtz',
+  kelvin:      'William_Thomson,_1st_Baron_Kelvin',
+  kirchhoff:   'Gustav_Kirchhoff',
+  riemann:     'Bernhard_Riemann',
+  clausius:    'Rudolf_Clausius',
+  maxwell:     'James_Clerk_Maxwell',
+  mendeleev:   'Dmitri_Mendeleev',
+  boltzmann:   'Ludwig_Boltzmann',
+  michelson:   'Albert_A._Michelson',
+  thomson:     'J._J._Thomson',
+  hertz:       'Heinrich_Hertz',
+  curie:       'Marie_Curie',
+  rutherford:  'Ernest_Rutherford',
+  planck:      'Max_Planck',
+  minkowski:   'Hermann_Minkowski',
+  einstein:    'Albert_Einstein',
+  noether:     'Emmy_Noether',
+  bohr:        'Niels_Bohr',
+  schrodinger: 'Erwin_Schrödinger',
+  hubble:      'Edwin_Hubble',
+  chadwick:    'James_Chadwick',
+  debroglie:   'Louis_de_Broglie',
+  pauli:       'Wolfgang_Pauli',
+  fermi:       'Enrico_Fermi',
+  heisenberg:  'Werner_Heisenberg',
+  dirac:       'Paul_Dirac',
+  feynman:     'Richard_Feynman',
+  hawking:     'Stephen_Hawking',
+};
+
+// 이미지 URL 캐시 (id → url | null)
+const imgCache = new Map();
+
+// Wikipedia REST API 썸네일 fetch
+async function fetchWikiThumb(sciId) {
+  if (imgCache.has(sciId)) return imgCache.get(sciId);
+  const title = WIKI_TITLES[sciId];
+  if (!title) { imgCache.set(sciId, null); return null; }
+  try {
+    const res = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const url = data?.thumbnail?.source || data?.originalimage?.source || null;
+    imgCache.set(sciId, url);
+    return url;
+  } catch {
+    imgCache.set(sciId, null);
+    return null;
+  }
+}
+
+// 사이드바 카드에 썸네일 적용 (비동기)
+async function applyThumbToCard(sciId, eraIcon) {
+  const card = document.getElementById(`card-${sciId}`);
+  if (!card) return;
+  const ph = card.querySelector('.sci-thumb-ph');
+  if (!ph) return;
+  const url = await fetchWikiThumb(sciId);
+  if (!url) return;
+  const img = document.createElement('img');
+  img.className = 'sci-thumb';
+  img.alt = sciId;
+  img.src = url;
+  img.addEventListener('load',  () => img.classList.add('loaded'));
+  img.addEventListener('error', () => img.remove());
+  ph.replaceWith(img);
+}
+
+// 갤러리 카드에 사진 적용 (비동기)
+async function applyPhotoToGalleryCard(sciId, imgWrap) {
+  const url = await fetchWikiThumb(sciId);
+  if (!url) return;
+  const img = document.createElement('img');
+  img.className = 'prof-img-photo';
+  img.alt = sciId;
+  img.src = url;
+  img.addEventListener('load',  () => img.classList.add('loaded'));
+  img.addEventListener('error', () => img.remove());
+  imgWrap.appendChild(img);
+}
+
+// 우측 패널 hero에 초상 사진 삽입
+async function applyPhotoToDetail(sciId, container) {
+  const url = await fetchWikiThumb(sciId);
+  if (!url) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'detail-photo-wrap';
+  const img = document.createElement('img');
+  img.className = 'detail-photo';
+  img.alt = sciId; img.src = url;
+  img.addEventListener('load',  () => img.classList.add('loaded'));
+  img.addEventListener('error', () => wrap.remove());
+  const credit = document.createElement('div');
+  credit.className = 'detail-photo-credit';
+  credit.textContent = '© Wikipedia / Public Domain';
+  wrap.appendChild(img);
+  wrap.appendChild(credit);
+  // detail-name 앞에 삽입
+  const nameEl = container.querySelector('.detail-name');
+  if (nameEl) nameEl.parentNode.insertBefore(wrap, nameEl);
+}
+
+// Intersection Observer — 화면에 보일 때 lazy load
+function observeForLazyImg(el, callback) {
+  if (!window.IntersectionObserver) { callback(); return; }
+  const obs = new IntersectionObserver((entries, o) => {
+    if (entries[0].isIntersecting) { o.disconnect(); callback(); }
+  }, { rootMargin: '80px' });
+  obs.observe(el);
+}
+
+// ══════════════════════════════════════════════════════════════════
+
+const ERA_GRADIENTS = {
+  ancient:   ['#3b1f6e','#1a0a3c'],
+  classical: ['#0a4a2a','#062818'],
+  modern:    ['#4a1a6e','#240a3c'],
+  quantum:   ['#0a3a4a','#062028'],
+  contemp:   ['#1a2a6e','#0a1038'],
+};
+const ERA_ICONS = {
+  ancient: '⚗️', classical: '🌌', modern: '⚡', quantum: '⚛️', contemp: '🔭',
+};
+
+let galleryEraFilter = 'all';
+
+function openGallery() {
+  if (document.getElementById('gallery-overlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'gallery-overlay';
+  overlay.id = 'gallery-overlay';
+
+  const T = UI[lang];
+  const eraTabLabels = {
+    all: lang === 'ko' ? '전체' : 'All',
+    ancient: T.eraLabels.ancient, classical: T.eraLabels.classical,
+    modern: T.eraLabels.modern, quantum: T.eraLabels.quantum, contemp: T.eraLabels.contemp,
+  };
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.className = 'gallery-header';
+  hdr.innerHTML = `
+    <div class="gallery-header-left">
+      <h2>${lang === 'ko' ? '과학자 프로필 갤러리' : 'Scientist Profile Gallery'}</h2>
+      <p>${lang === 'ko' ? '카드를 클릭하면 상세 내용으로 이동합니다' : 'Click a card to view details'} · ${getSCIENTISTS().length} scientists</p>
+    </div>
+    <button class="gallery-close-btn" id="gallery-close-btn">✕ &nbsp;${lang === 'ko' ? '닫기' : 'Close'}</button>
+  `;
+  overlay.appendChild(hdr);
+
+  // Era tabs
+  const tabs = document.createElement('div');
+  tabs.className = 'gallery-era-tabs';
+  tabs.id = 'gallery-era-tabs';
+  Object.entries(eraTabLabels).forEach(([era, label]) => {
+    const btn = document.createElement('button');
+    btn.className = 'gallery-tab' + (galleryEraFilter === era ? ' active' : '');
+    btn.textContent = label;
+    btn.onclick = () => {
+      galleryEraFilter = era;
+      document.querySelectorAll('.gallery-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGalleryGrid(grid);
+    };
+    tabs.appendChild(btn);
+  });
+  overlay.appendChild(tabs);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = 'gallery-grid';
+  overlay.appendChild(grid);
+  renderGalleryGrid(grid);
+
+  document.body.appendChild(overlay);
+
+  // Close handlers
+  document.getElementById('gallery-close-btn').onclick = closeGallery;
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeGallery(); });
+  document.addEventListener('keydown', onGalleryKeydown);
+}
+
+function onGalleryKeydown(e) {
+  if (e.key === 'Escape') closeGallery();
+}
+
+function closeGallery() {
+  const el = document.getElementById('gallery-overlay');
+  if (el) el.remove();
+  document.removeEventListener('keydown', onGalleryKeydown);
+}
+
+function renderGalleryGrid(grid) {
+  grid.innerHTML = '';
+  const SCIENTISTS = getSCIENTISTS();
+  const list = galleryEraFilter === 'all'
+    ? [...SCIENTISTS].sort((a,b) => a.born - b.born)
+    : SCIENTISTS.filter(s => s.era === galleryEraFilter).sort((a,b) => a.born - b.born);
+
+  const eraColors = {
+    ancient:   { tag: '#7030A0', tagBg: 'rgba(112,48,160,0.35)', tagBorder: 'rgba(217,184,237,0.3)' },
+    classical: { tag: '#4ade80', tagBg: 'rgba(15,140,80,0.3)',   tagBorder: 'rgba(203,234,221,0.3)' },
+    modern:    { tag: '#c084fc', tagBg: 'rgba(112,48,160,0.3)',   tagBorder: 'rgba(217,184,237,0.3)' },
+    quantum:   { tag: '#34d399', tagBg: 'rgba(15,140,80,0.25)',   tagBorder: 'rgba(203,234,221,0.3)' },
+    contemp:   { tag: '#818cf8', tagBg: 'rgba(99,102,241,0.3)',   tagBorder: 'rgba(199,210,254,0.3)' },
+  };
+
+  list.forEach(sci => {
+    const [g1, g2] = ERA_GRADIENTS[sci.era];
+    const ec = eraColors[sci.era];
+    const bornLabel = sci.born < 0 ? 'BC ' + Math.abs(sci.born) : sci.born;
+    const tagHtml = sci.tags.slice(0,3).map(t =>
+      `<span class="prof-tag" style="background:${ec.tagBg};color:${ec.tag};border:1px solid ${ec.tagBorder}">${t}</span>`
+    ).join('');
+
+    const card = document.createElement('div');
+    card.className = 'prof-card';
+    card.innerHTML = `
+      <div class="prof-card-inner">
+        <div class="prof-img-wrap" id="prof-img-${sci.id}">
+          <div class="prof-img-bg" style="background:linear-gradient(135deg,${g1},${g2})"></div>
+          <div class="prof-img-icon">${ERA_ICONS[sci.era]}</div>
+          <div class="prof-img-year">
+            <span class="prof-img-dot"></span>
+            <span>${bornLabel}</span>
+          </div>
+        </div>
+        <div class="prof-body">
+          <div class="prof-name">${sci.name}</div>
+          <div class="prof-name-kr">${sci.nameKr} · ${sci.nation}</div>
+          <div class="prof-divider"></div>
+          <div class="prof-tags">${tagHtml}</div>
+          <button class="prof-select-btn">
+            ${lang === 'ko' ? '자세히 보기' : 'View Details'}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      closeGallery();
+      setTimeout(() => selectScientist(sci.id), 80);
+    });
+    // Lazy-load Wikipedia 사진
+    const imgWrap = card.querySelector(`#prof-img-${sci.id}`);
+    observeForLazyImg(card, () => applyPhotoToGalleryCard(sci.id, imgWrap));
+    grid.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
 
 // Global text scale control function
 let currentScale = 1.0;
