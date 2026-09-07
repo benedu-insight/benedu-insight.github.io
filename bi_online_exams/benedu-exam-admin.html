@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Benedu Insight — Admin Pages</title>
+  <title>Benedu Insight — 관리자 대시보드</title>
   <link rel="icon" type="image/png"
     href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -240,6 +240,25 @@
     .clickable-row { cursor: pointer; }
     .clickable-row:hover td { background: var(--purple-lt) !important; }
 
+    /* ── EXAM SELECT ── */
+    .exam-select-wrap { margin-bottom: 16px; }
+    .exam-select {
+      width: 100%; border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-family: 'Google Sans', sans-serif; font-size: 14px;
+      color: var(--text); background: var(--bg);
+      outline: none; cursor: pointer;
+      transition: border-color 0.2s;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235A6070' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+    .exam-select:focus { border-color: var(--green); background-color: #fff; }
+    .select-label { font-size: 11px; font-weight: 600; color: var(--green-dk);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+
     /* ── LOGIN SCREEN ── */
     #screenLogin { max-width: 420px; margin: 60px auto; padding: 0 16px; }
     .login-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 32px 28px; }
@@ -313,6 +332,13 @@
             <div class="dot"></div>
             <span id="statusText">Waiting</span>
           </div>
+        </div>
+        <!-- 시험 선택 -->
+        <div class="exam-select-wrap">
+          <label class="select-label" id="selectLabel">Select Exam</label>
+          <select class="exam-select" id="examSelect" onchange="onExamChange()">
+            <option value="">-- Loading exams... --</option>
+          </select>
         </div>
         <div class="exam-info" id="examInfo"></div>
         <div class="control-row">
@@ -480,14 +506,15 @@
     };
 
     /* ── State ── */
-    let lang = 'en';
+    let lang           = 'en';
+    let selectedExamId = '';
     let currentSession = null;
-    let currentExam = null;
-    let questions = [];
-    let results = [];
-    let participants = [];
-    let unsubResults = null;
-    let unsubSession = null;
+    let currentExam    = null;
+    let questions      = [];
+    let results        = [];
+    let participants   = [];
+    let unsubResults   = null;
+    let unsubSession   = null;
 
     /* ── Expose globals ── */
     window.setLang       = setLang;
@@ -496,6 +523,7 @@
     window.stopExam      = stopExam;
     window.refreshData   = refreshData;
     window.exportCSV       = exportCSV;
+    window.onExamChange    = onExamChange;
     window.openDetail      = openDetail;
     window.closeModal      = closeModal;
     window.closeModalDirect= closeModalDirect;
@@ -550,11 +578,62 @@
 
     /* ── LOAD ALL ── */
     async function loadAll() {
-      await loadSession();
-      await loadExam();
+      await loadSession();        // 1. 먼저 세션 로드
+      await loadExamList();       // 2. 시험 목록 + 자동선택
+      listenSession();            // 3. 실시간 감지
+    }
+
+    /* ── 시험 목록 드롭다운 ── */
+    async function loadExamList() {
+      const tx   = T[lang];
+      const snap = await getDocs(collection(db, 'exams'));
+      const sel  = document.getElementById('examSelect');
+
+      // 정렬: ID 기준
+      const examDocs = snap.docs.sort((a, b) => a.id.localeCompare(b.id));
+
+      sel.innerHTML = '';
+      // 빈 placeholder (value="" 사용 안 함 — undefined 방지)
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = tx.selectPlaceholder || '-- 시험을 선택하세요 --';
+      placeholder.disabled = true;
+      sel.appendChild(placeholder);
+
+      examDocs.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = `${d.id}  —  ${d.data().title || '(제목 없음)'}`;
+        sel.appendChild(opt);
+      });
+
+      // activeSession의 examId가 있으면 자동 선택
+      const autoId = currentSession?.examId || '';
+      if (autoId && examDocs.find(d => d.id === autoId)) {
+        sel.value     = autoId;
+        selectedExamId = autoId;
+        await loadExam(selectedExamId);
+        await loadQuestions();
+        listenResults();
+      } else {
+        sel.selectedIndex = 0;  // placeholder 선택
+      }
+    }
+
+    async function onExamChange() {
+      const sel = document.getElementById('examSelect');
+      selectedExamId = sel.value;
+      if (!selectedExamId) {
+        document.getElementById('examInfo').innerHTML = '';
+        document.getElementById('headerExamTitle').textContent = '';
+        results = []; questions = [];
+        renderTable(); renderChart();
+        if (unsubResults) { unsubResults(); unsubResults = null; }
+        return;
+      }
+      await loadExam(selectedExamId);
       await loadQuestions();
       listenResults();
-      listenSession();
     }
 
     async function loadSession() {
@@ -565,14 +644,15 @@
       }
     }
 
-    async function loadExam() {
-      const snap = await getDoc(doc(db, 'exams', 'exam_001'));
+    async function loadExam(examId) {
+      if (!examId) return;
+      const snap = await getDoc(doc(db, 'exams', examId));
       if (!snap.exists()) return;
-      currentExam = { id: 'exam_001', ...snap.data() };
+      currentExam = { id: examId, ...snap.data() };
       const tx = T[lang];
       document.getElementById('headerExamTitle').textContent = currentExam.title || '';
       document.getElementById('examInfo').innerHTML = `
-        <div class="exam-chip">${tx.examTitle}: <strong>${currentExam.title || 'exam_001'}</strong></div>
+        <div class="exam-chip">${tx.examTitle}: <strong>${currentExam.title || examId}</strong></div>
         <div class="exam-chip">${tx.examQuestions}: <strong>${(currentExam.questionIds||[]).length}</strong></div>
         <div class="exam-chip">${tx.examDuration}: <strong>${currentExam.durationMin || 20} min</strong></div>
       `;
@@ -589,7 +669,7 @@
     function listenResults() {
       if (unsubResults) unsubResults();
       unsubResults = onSnapshot(collection(db, 'results'), (snap) => {
-        results = snap.docs.map(d => d.data()).filter(r => r.examId === 'exam_001');
+        results = snap.docs.map(d => d.data()).filter(r => r.examId === selectedExamId);
         updateStats();
         renderTable();
         renderChart();
@@ -603,6 +683,13 @@
         if (snap.exists()) {
           currentSession = snap.data();
           updateSessionUI(currentSession.status);
+          // 외부에서 examId가 바뀌었으면 드롭다운 동기화
+          const sel = document.getElementById('examSelect');
+          if (sel && currentSession.examId && sel.value !== currentSession.examId) {
+            sel.value = currentSession.examId;
+            selectedExamId = currentSession.examId;
+            loadExam(selectedExamId).then(() => { loadQuestions(); listenResults(); });
+          }
         }
       });
     }
@@ -768,9 +855,10 @@
 
     /* ── START / STOP EXAM ── */
     async function startExam() {
+      if (!selectedExamId) { showToast('⚠ 시험을 먼저 선택하세요!'); return; }
       document.getElementById('btnStart').disabled = true;
       await setDoc(doc(db, 'activeSession', 'current'), {
-        status: 'running', examId: 'exam_001', startedAt: new Date()
+        status: 'running', examId: selectedExamId, startedAt: new Date()
       });
       showToast(T[lang].toastStarted);
     }
@@ -778,7 +866,7 @@
     async function stopExam() {
       document.getElementById('btnStop').disabled = true;
       await setDoc(doc(db, 'activeSession', 'current'), {
-        status: 'ended', examId: 'exam_001', endedAt: new Date()
+        status: 'ended', examId: selectedExamId, endedAt: new Date()
       }, { merge: true });
       showToast(T[lang].toastStopped);
     }
