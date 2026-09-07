@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Benedu Insight — Self Review</title>
+  <title>Benedu Insight — 오답노트</title>
   <link rel="icon" type="image/png"
     href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -405,13 +405,17 @@
 
         const uid = userDoc.id;
 
-        /* 2. results 에서 해당 uid의 결과 찾기 */
-        const resultSnap = await getDoc(doc(db, 'results', `exam_001_${uid}`));
+        /* 2. results 에서 해당 uid의 최신 결과 찾기 (examId 동적 조회) */
+        // activeSession에서 현재 examId 가져오기
+        const sessionSnap = await getDoc(doc(db, 'activeSession', 'current'));
+        const examId = sessionSnap.exists() ? (sessionSnap.data().examId || 'exam_001') : 'exam_001';
+
+        const resultSnap = await getDoc(doc(db, 'results', `${examId}_${uid}`));
         if (!resultSnap.exists()) { throw new Error('NO_RESULT'); }
         resultData = resultSnap.data();
 
         /* 3. questions 로드 */
-        const examSnap = await getDoc(doc(db, 'exams', 'exam_001'));
+        const examSnap = await getDoc(doc(db, 'exams', examId));
         const qIds = examSnap.data().questionIds || [];
         const qSnaps = await Promise.all(qIds.map(qid => getDoc(doc(db, 'questions', qid))));
         questions = qSnaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
@@ -443,7 +447,7 @@
       document.getElementById('scoreNum').textContent = r.score !== null ? r.score : '—';
       document.getElementById('scoreLbl').textContent = tx.scoreLbl;
       document.getElementById('reviewName').textContent = r.name || '';
-      document.getElementById('reviewExamTitle').textContent = r.examTitle || 'exam_001';
+      document.getElementById('reviewExamTitle').textContent = r.examTitle || r.examId || '';
 
       const wrongCount   = r.totalMcq - r.correctMcq;
       document.getElementById('chipCorrect').innerHTML = `${tx.chipCorrect}: <strong>${r.correctMcq}</strong>`;
