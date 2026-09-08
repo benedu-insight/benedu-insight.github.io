@@ -460,6 +460,52 @@
       .prism-promo-cta { width: 100%; justify-content: center; }
     }
 
+    /* ─── Study Materials promo card (코랄/앰버 컬러) ─── */
+    .study-promo {
+      position: relative; display: flex; align-items: center; gap: 2.2rem;
+      width: 100%; margin-bottom: 2.5rem; padding: 2.2rem 2.4rem;
+      background: linear-gradient(135deg, #17120E 0%, #241A12 100%);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; overflow: hidden;
+      cursor: pointer; color: #fff; box-shadow: 0 18px 46px rgba(0,0,0,0.22);
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+    .study-promo:hover { transform: translateY(-4px); box-shadow: 0 24px 56px rgba(0,0,0,0.30); }
+    .study-promo-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 12% 25%, rgba(204,120,92,0.28), transparent 55%),
+                  radial-gradient(circle at 88% 78%, rgba(232,165,90,0.22), transparent 55%);
+    }
+    .study-promo-visual { position: relative; flex-shrink: 0; width: 200px; }
+    .study-spark { animation: studySparkPulse 2.8s ease-in-out infinite; transform-origin: center; }
+    @keyframes studySparkPulse {
+      0%,100% { opacity: 0.35; transform: scale(0.85); }
+      50%     { opacity: 1;    transform: scale(1.15); filter: drop-shadow(0 0 5px rgba(232,165,90,0.8)); }
+    }
+    @media (prefers-reduced-motion: reduce) { .study-spark { animation: none !important; opacity: 0.85 !important; } }
+    .study-promo-body { position: relative; flex: 1; min-width: 0; }
+    .study-promo-badge {
+      display: inline-flex; align-items: center; font-family: var(--font-mono) !important; font-size: 0.7rem;
+      font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #F0B99E;
+      background: rgba(204,120,92,0.15); border: 1px solid rgba(204,120,92,0.35);
+      padding: 4px 10px; border-radius: 20px; margin-bottom: 1rem;
+    }
+    .study-promo-title { font-family: var(--font-title); font-weight: 800; font-size: 1.6rem; letter-spacing: -0.01em; margin-bottom: 0.7rem; }
+    .study-promo-desc  { font-size: 0.9rem; line-height: 1.65; color: rgba(255,255,255,0.65); max-width: 540px; margin-bottom: 1.1rem; }
+    .study-promo-stats { display: flex; gap: 1.4rem; font-family: var(--font-mono) !important; font-size: 0.78rem; color: rgba(255,255,255,0.5); }
+    .study-promo-stats b { color: #fff; font-size: 0.95rem; }
+    .study-promo-cta {
+      position: relative; flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 0.9rem; background: #fff; color: #111827;
+      padding: 12px 20px; border-radius: 12px; white-space: nowrap; transition: var(--transition-smooth);
+    }
+    .study-promo:hover .study-promo-cta { background: #E8A55A; color: #2A1B0E; gap: 12px; }
+    @media (max-width: 860px) {
+      .study-promo { flex-direction: column; align-items: flex-start; text-align: left; }
+      .study-promo-visual { width: 100%; max-width: 260px; }
+      .study-promo-cta { width: 100%; justify-content: center; }
+    }
+
     .philosophy-card {
       background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 100%);
       border: 1px solid rgba(236, 72, 153, 0.15);
@@ -1111,6 +1157,43 @@
         </div>
       </div>
 
+      <!-- Study Materials promo card -->
+      <a class="study-promo" href="study-materials.html" target="_blank" rel="noopener noreferrer">
+        <div class="study-promo-glow"></div>
+        <div class="study-promo-visual">
+          <svg viewBox="0 0 220 90" style="width:100%;height:auto;overflow:visible;display:block;">
+            <g stroke="#E8A55A" stroke-width="1" opacity="0.5">
+              <line x1="30" y1="62" x2="72" y2="30"/>
+              <line x1="72" y1="30" x2="122" y2="46"/>
+              <line x1="122" y1="46" x2="164" y2="20"/>
+              <line x1="122" y1="46" x2="150" y2="72"/>
+              <line x1="72" y1="30" x2="58" y2="70"/>
+            </g>
+            <g fill="#CC785C">
+              <circle cx="30" cy="62" r="3"/>
+              <circle cx="72" cy="30" r="4"/>
+              <circle cx="122" cy="46" r="4.5"/>
+              <circle cx="164" cy="20" r="3"/>
+              <circle cx="150" cy="72" r="3.5"/>
+              <circle cx="58" cy="70" r="2.5"/>
+            </g>
+            <circle class="study-spark" cx="188" cy="52" r="2.4" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="study-promo-body">
+          <span class="study-promo-badge" id="lbl-study-badge">SELF-STUDY GUIDE</span>
+          <h3 class="study-promo-title" id="lbl-study-title">Recommended Study Materials</h3>
+          <p class="study-promo-desc" id="lbl-study-desc">The branches beyond the main vine — documentaries, simulators, channels, and books I keep coming back to myself, each with a note on why.</p>
+          <div class="study-promo-stats">
+            <span><b>14</b> <span id="lbl-study-stat1">resources</span></span><span><b>4</b> <span id="lbl-study-stat2">categories</span></span><span><b>EN/KO</b></span>
+          </div>
+        </div>
+        <div class="study-promo-cta">
+          <span id="lbl-study-cta">Browse the Guide</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
+
       <!-- Global footer info -->
       <footer class="portal-footer">
         <div class="footer-links">
@@ -1266,6 +1349,12 @@
         prismDesc: "Plasma RF Impedance Simulation Matrix. Visualize L-type, π-type, and T-type matching network behavior on an interactive Smith Chart — watch impedance trajectories move in real time as you tune component values.",
         prismCta: "Launch PRISM",
         prismStat1: "topologies",
+        studyBadge: "Self-Study Guide",
+        studyTitle: "Recommended Study Materials",
+        studyDesc: "The branches beyond the main vine — documentaries, simulators, channels, and books I keep coming back to myself, each with a note on why.",
+        studyCta: "Browse the Guide",
+        studyStat1: "resources",
+        studyStat2: "categories",
         pwTitle: "Access Code Required",
         pwSub: "This tool is available to registered students.<br>Please enter your access code to continue.",
         pwBtn: "Confirm",
@@ -1305,6 +1394,12 @@
         prismDesc: "Plasma RF Impedance Simulation Matrix. L형·π형·T형 정합 회로를 인터랙티브 스미스 차트 위에서 직접 시각화하세요. 소자 값을 조절하면 임피던스 궤적이 실시간으로 움직입니다.",
         prismCta: "PRISM 실행하기",
         prismStat1: "토폴로지",
+        studyBadge: "자기주도학습 가이드",
+        studyTitle: "추천 학습 자료",
+        studyDesc: "굵은 줄기 너머의 가지들 — 제가 지금도 자주 찾아보는 다큐멘터리, 시뮬레이터, 채널, 책들을 추천 이유와 함께 모았습니다.",
+        studyCta: "가이드 보기",
+        studyStat1: "자료",
+        studyStat2: "카테고리",
         pwTitle: "접근 코드 확인",
         pwSub: "등록된 수강생에게만 제공되는 도구입니다.<br>접근 코드를 입력해 주세요.",
         pwBtn: "확인",
@@ -1401,6 +1496,12 @@
       document.getElementById('lbl-prism-desc').innerText = T.prismDesc;
       document.getElementById('lbl-prism-cta').innerText = T.prismCta;
       document.getElementById('lbl-prism-stat1').innerText = T.prismStat1;
+      document.getElementById('lbl-study-badge').innerText = T.studyBadge;
+      document.getElementById('lbl-study-title').innerText = T.studyTitle;
+      document.getElementById('lbl-study-desc').innerText = T.studyDesc;
+      document.getElementById('lbl-study-cta').innerText = T.studyCta;
+      document.getElementById('lbl-study-stat1').innerText = T.studyStat1;
+      document.getElementById('lbl-study-stat2').innerText = T.studyStat2;
 
       const pill = document.getElementById('portal-lang-pill');
       if (pill) pill.className = currentLang === 'en' ? 'lang-toggle-pill lang-en' : 'lang-toggle-pill lang-ko';
