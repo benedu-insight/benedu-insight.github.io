@@ -74,10 +74,6 @@
     #portal-splash {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-image: url('./images/portal_bg.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       background-color: #FFFFFF;
       z-index: 1000;
       display: flex;
@@ -93,6 +89,20 @@
       pointer-events: none;
       visibility: hidden;
       transform: scale(1.05);
+    }
+
+    /* 배경 이미지를 별도 레이어로 분리 — #portal-splash를 스크롤해도 화면에 고정되어 있고,
+       JS(handlePortalBgFade)가 스크롤량에 따라 opacity만 낮춰서 점점 희미해지게 함 */
+    .portal-bg-image {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('./images/portal_bg.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      z-index: 0;
+      pointer-events: none;
+      will-change: opacity;
     }
 
     .plasma-glow-bg { display: none; }
@@ -921,7 +931,9 @@
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Korean Mode Typography Override */
-    body[data-lang="ko"] * { font-family: 'Gowun Batang', 'Georgia', serif !important; }
+    /* 한글 모드: 'Google Sans'에 없는 한글 글리프만 'Gowun Batang'으로 자동 폴백되고,
+       영문/숫자는 'Google Sans' 글리프가 있으므로 그대로 Google Sans로 렌더링됩니다. */
+    body[data-lang="ko"] * { font-family: 'Google Sans', 'Gowun Batang', 'Georgia', serif !important; }
     body[data-lang="ko"] code, body[data-lang="ko"] pre, body[data-lang="ko"] .module-num, 
     body[data-lang="ko"] .card-badge, body[data-lang="ko"] .secure-badge, body[data-lang="ko"] .btn-text-lang, 
     body[data-lang="ko"] .notebook-title, body[data-lang="ko"] .notebook-status, body[data-lang="ko"] .sidebar-label {
@@ -935,7 +947,9 @@
        SECURE PORTAL ENTRY SCREEN (SPLASH)
        ───────────────────────────────────────────────────────────────────────── -->
   <div id="portal-splash">
-    
+
+    <div class="portal-bg-image" id="portal-bg-image" aria-hidden="true"></div>
+
     <div class="plasma-glow-bg">
       <div class="plasma-orb one"></div>
       <div class="plasma-orb two"></div>
@@ -1447,6 +1461,17 @@
     const iframe = document.getElementById('lecture-frame');
     const spinner = document.getElementById('frame-spinner');
     const errorAlert = document.getElementById('error-alert');
+    const portalSplash = document.getElementById('portal-splash');
+    const portalBgImage = document.getElementById('portal-bg-image');
+
+    // 스크롤을 내릴수록 portal_bg.png가 점점 희미해지도록 처리
+    // (FADE_DISTANCE px만큼 스크롤하면 완전히 투명해짐)
+    const PORTAL_BG_FADE_DISTANCE = 480;
+    function handlePortalBgFade() {
+      if (!portalSplash || !portalBgImage) return;
+      const ratio = Math.min(1, portalSplash.scrollTop / PORTAL_BG_FADE_DISTANCE);
+      portalBgImage.style.opacity = String(1 - ratio);
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
       const savedLang = localStorage.getItem('benedu_pref_lang');
@@ -1456,6 +1481,11 @@
       applyTranslations();
       iframe.addEventListener('load', () => spinner.classList.remove('active'));
       document.getElementById('student-notepad').placeholder = TRANSLATIONS[currentLang].notePlaceholder;
+
+      if (portalSplash) {
+        portalSplash.addEventListener('scroll', handlePortalBgFade, { passive: true });
+        handlePortalBgFade();
+      }
     });
 
     function toggleLanguage() { setLanguage(currentLang === 'en' ? 'ko' : 'en'); }
