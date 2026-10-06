@@ -687,22 +687,23 @@ const SLIDES_KO = [
     connections: ['m31', 'm33', 'm34'],
   },
 
-  // ── Chapter 3: CCP in PVD (Sputter) ─────────────────────────
+  // ── Chapter 3: Sputter PVD — CCP에서 Magnetron까지 ──────────
   {
     id: 'm33', chapter: 'Chapter 3', era: 'ccp',
-    name: 'CCP in PVD (Sputter)',
-    nameKr: 'CCP in PVD — 스퍼터링의 원리',
-    period: 'CCP 스퍼터 챔버 구조 · 비대칭 Target Self-Bias · 물리적 식각(증착) 메커니즘',
-    tags: ['PVD', 'Sputter', 'CCP', 'Al', 'Target Self-Bias', 'DC/AC'],
-    quote: 'PE-CVD에서는 이온 충격이 성장 중인 막을 다지는 보조 효과였지만, Sputter PVD에서는 동일한 q×V_sheath 물리가 — 더 큰 V에서 — Source Target 자체를 깎아내는 핵심 메커니즘이 됩니다.',
+    name: 'Sputter PVD — CCP to Magnetron',
+    nameKr: 'Sputter PVD — CCP에서 Magnetron까지',
+    period: 'Cathode Sheath · Diode의 한계 · Magnetron E×B 전자 포획 · Racetrack Erosion · 물리적 증착 메커니즘',
+    tags: ['PVD', 'Sputter', 'Magnetron', 'E×B', 'Racetrack', 'Al', 'DC/RF'],
+    quote: 'Target을 깎아내는 것은 이온이지만, 그 방전을 mTorr에서 살려 두는 것은 자석이 붙잡아 둔 전자입니다.',
     quoteAttr: '— 반도체 PVD 공정 기초 (Semiconductor PVD Process Fundamentals)',
-    bio: `<b>CCP PVD (Physical Vapor Deposition, Sputtering)</b>는 CCP 구조에서 생성된 Ar⁺ 이온을 고전압으로 가속하여 금속 Target(예: Al)에 충돌시키고, 운동량 전달(momentum transfer)로 튕겨 나온 금속 원자를 웨이퍼 위에 증착하는 공정입니다.\n\n<b>왜 비대칭 전극인가?</b> Chapter 1의 PE-CVD는 대칭 전극으로 V_DC를 억제했고, Chapter 2의 식각은 비대칭 전극으로 웨이퍼 쪽에 강한 V_DC를 만들어 이온을 웨이퍼로 가속했습니다. PVD는 이와 또 다른 비대칭 구조입니다 — <b>Target(파워 인가) 쪽에 수백 V의 강한 음의 Self-Bias</b>가 형성되어, Ar⁺ 이온이 웨이퍼가 아닌 <b>Target</b>으로 가속됩니다. Target 표면에서 충돌한 Ar⁺은 화학반응이 아닌 순수 물리적 충돌(collision cascade)로 금속 원자를 떼어내며, 이 원자가 웨이퍼로 이동·흡착되어 금속막을 형성합니다.`,
+    bio: `<b>Sputter PVD (Physical Vapor Deposition)</b>는 Ar⁺ 이온을 수백 V의 <b>Cathode Sheath</b>로 가속하여 금속 Target(예: Al)에 충돌시키고, 운동량 전달(Momentum Transfer)로 튕겨 나온 중성 금속 원자를 웨이퍼 위에 증착하는 공정입니다.\n\n<b>Chapter 1·2와의 연결:</b> Chapter 2의 식각 Chamber는 비대칭 전극으로 웨이퍼 쪽에 강한 V_DC를 만들었습니다. PVD는 그 비대칭의 방향을 Target 쪽으로 돌린 구조로, Ar⁺가 웨이퍼가 아닌 <b>Target</b>으로 가속됩니다. 다만 Target이 음(−)전위가 되는 방식은 두 가지입니다 — 절연체 Target을 쓰는 <b>RF Sputter</b>에서는 Chapter 2와 같은 면적 비대칭 <b>Self-Bias</b>가, 금속 Target을 쓰는 양산 <b>DC Sputter</b>에서는 DC Power Supply가 Target에 음(−)전압을 <b>직접 인가</b>합니다.\n\n<b>왜 자석이 필요한가?</b> 자석이 없는 평판(Diode) 구조에서는 Target에서 나온 2차 전자가 Ar을 충분히 이온화하기 전에 Anode로 빠져나가므로, 수십 mTorr 이상의 압력과 kV급 전압이 필요하고 증착 속도도 낮습니다. 그래서 실제 양산 PVD 설비는 Target 뒤에 자석을 배치한 <b>Magnetron</b>이 표준입니다. Target 표면과 <b>평행한</b> B-field와 표면에 수직인 Sheath E-field가 직교하여 <b>E×B Drift</b>를 만들고, 전자를 Target 앞의 닫힌 고리(<b>Racetrack</b>)에 가둡니다. 그 결과 1–10 mTorr, −300 ~ −700 V에서도 고밀도 Plasma와 높은 증착 속도를 얻으며, 대신 Target은 Racetrack 모양으로 깎입니다.`,
     showDiagram: 'pvd',
     theories: [
-      { year: '챔버 구조', name: 'CCP 전극 구성 — Target/Wafer 비대칭 구조', desc: 'Target(Cathode, 파워 인가) + 웨이퍼·서셉터(접지/Anode). Target Sheath는 수백 V(고전압), Wafer Sheath는 수~수십 V(저전압) — Chapter 2(식각)와는 비대칭의 "방향"이 반대.' },
-      { year: '플라즈마 생성', name: 'Ar Ionization (비반응성 가스)', desc: 'Ar + e⁻ → Ar⁺ + 2e⁻. SiH₄/C₄F₈처럼 화학반응에 참여하지 않는 비활성 가스를 사용 — Ar⁺는 순수히 운동량 전달용 "발사체(projectile)" 역할.' },
-      { year: '증착 메커니즘', name: 'Sputtering — Momentum Transfer (물리적 식각)', desc: 'Ar⁺(수백 eV) + Al(Target) → Al(ejected, 중성) + Ar(반사/중화). Sputtering Yield(Y, 입사 이온당 방출 원자 수) ≈ 1–3 (Ar⁺ on Al, 수백 eV). 화학 반응식이 없는 순수 물리적 공정.' },
-      { year: 'RF 임피던스', name: 'Sheath & DC Self-Bias — Target에 집중된 비대칭', desc: 'Target의 실효 면적이 접지 면적(챔버 벽+서셉터)에 비해 작아, Flux Balance(Γ_e=Γ_i)를 맞추기 위해 Target이 수백 V까지 더 음(−)으로 charging됨. Chapter 1의 q×V_sheath와 동일한 물리이나, V가 훨씬 커서 "Densification"이 아닌 "Removal(Sputtering)"이 일어남. Wafer Sheath는 낮게 유지하여 성장막의 재스퍼터링/손상을 방지.' },
+      { year: '챔버 구조', name: 'Magnetron Cathode — Target + 후면 Magnet Pack', desc: 'Target(Cathode, 파워 인가) 뒤에 극성이 반대인 중심 극·외곽 극의 영구자석 어셈블리(진공 밖, 수냉, 흔히 회전)가 배치됨. 접지된 Chamber 벽·Shield와 웨이퍼 Stage가 Anode. Target Sheath는 수백 V, Wafer Sheath는 수~수십 V — Chapter 2(식각)와 비대칭의 방향이 반대.' },
+      { year: '플라즈마 생성', name: 'Ar 이온화 + 2차 전자(γ-electron)', desc: 'Ar + e⁻ → Ar⁺ + 2e⁻ (약 15.8 eV). Ar⁺가 Target을 때리면 2차 전자(Ar⁺/Al에서 γ ≈ 0.1/ion)가 방출되고, 같은 Cathode Sheath에서 수백 eV로 가속되어 가스 속으로 튀어나감 → 방전을 유지하는 이온화의 주 연료. 이 전자를 얼마나 오래 붙잡아 두느냐가 Diode와 Magnetron의 차이.' },
+      { year: '자기장', name: 'Magnetron — E×B Drift에 의한 전자 포획', desc: 'Target 표면과 평행한 B 성분(약 200–500 G)과 표면에 수직인 Sheath E-field가 직교 → 전자는 v = E×B/B² 방향으로 Racetrack을 따라 닫힌 고리를 Drift. 전자 Larmor 반경(약 1 mm)은 작아 포획되지만, Ar⁺의 반경(수 cm 이상)은 커서 이온은 거의 직진해 Target을 때림. 전자 경로가 수 m로 늘어나 1–10 mTorr에서도 방전 유지. B가 표면에 수직이면 E×B = 0이 되어 포획되지 않음.' },
+      { year: '증착 메커니즘', name: 'Sputtering — Momentum Transfer와 Racetrack Erosion', desc: 'Ar⁺(수백 eV) + Al(Target) → Al(방출, 중성) + Ar(반사/중화). Sputtering Yield Y ≈ 1 (Ar⁺→Al, 약 500 eV). 화학 반응식이 없는 순수 물리적 공정. 이온 Flux가 Racetrack 아래에 집중되어 Target이 고리 모양 홈으로 깎임 → 고정 자석 Target 이용률 약 20–30%, 회전 자석으로 Erosion 분산.' },
+      { year: 'RF 임피던스', name: 'Cathode 전압의 기원 — DC 직접 인가 vs RF Self-Bias', desc: 'DC Sputter(금속 Target): Power Supply가 Target에 −300 ~ −700 V를 직접 인가하며, 그 거의 전부가 Cathode Sheath에 걸림 (Matcher 불필요). RF Sputter(절연체 Target): 절연 Target 자체가 Blocking Capacitor 역할 + Flux Balance(Γ_e=Γ_i) + 면적 비대칭으로 Target에 음(−) Self-Bias 형성 — Chapter 2와 같은 물리. 어느 쪽이든 결과는 Target Sheath ≫ Wafer Sheath.' },
     ],
     showParams: 'pvd',
     showProcess: 'pvd',
@@ -712,8 +713,9 @@ const SLIDES_KO = [
     equations: [
       'Ar + e^- \\rightarrow Ar^+ + 2e^-',
       'Ar^+ (\\text{hundreds of eV}) + Al(\\text{target}) \\xrightarrow{\\text{Momentum Transfer}} Al(\\text{ejected}) + Ar(\\text{reflected})',
+      '\\vec{v}_{E \\times B} = \\frac{\\vec{E} \\times \\vec{B}}{B^{2}} \\qquad r_{L} = \\frac{m\\, v_{\\perp}}{|q|\\, B}',
     ],
-    classroom: `CCP PVD (Sputter) 공정 이해 점검:\n1. Chapter 1(PE-CVD, 대칭 전극)·Chapter 2(Etch, 비대칭 — Wafer측 V_DC ↑)·Chapter 3(PVD, 비대칭 — Target측 V_DC ↑)의 전극 비대칭 방향과 그 목적을 비교 설명하세요.\n2. PE-CVD의 SiH₄+N₂O 반응과 달리, PVD에는 왜 화학 반응식이 없습니까? "Physical" Vapor Deposition이라는 이름의 의미를 설명하세요.\n3. 동일한 q×V_sheath 물리가 PE-CVD에서는 막의 Densification을, PVD의 Target에서는 Sputtering(Removal)을 일으키는 이유는 무엇입니까?\n4. PVD의 공정 압력(1–10 mTorr)이 PE-CVD(0.1–10 Torr)보다 훨씬 낮은 이유와, 이것이 Al 원자의 이송 방식(Line-of-Sight vs Diffusion)에 미치는 영향을 설명하세요.\n5. 금속 Al Target에는 왜 DC Power가 기본(Default)이며, 어떤 경우에 AC/RF 또는 Pulsed-DC가 필요해집니까?`,
+    classroom: `Sputter PVD (Magnetron) 공정 이해 점검:\n1. Chapter 1(PE-CVD, 대칭 전극)·Chapter 2(Etch, Wafer측 V_DC)·Chapter 3(PVD, Target측 음전위)의 비대칭 방향과 목적을 비교하세요. 금속 Target의 DC Sputter에서 Target의 음(−)전위가 Self-Bias가 아닌 이유도 설명하세요.\n2. PE-CVD의 SiH₄+N₂O 반응과 달리, PVD에는 왜 화학 반응식이 없습니까? "Physical" Vapor Deposition이라는 이름의 의미를 설명하세요.\n3. 자석이 없는 Diode Sputter가 수 mTorr에서 방전을 유지하지 못하는 이유를, 2차 전자의 이온화 평균 자유 행정(λ_iz ≈ 107/p[mTorr] cm)과 Target–웨이퍼 간격을 비교하여 설명하세요.\n4. Magnetron에서 B-field가 Target 표면과 "평행"해야 하는 이유는 무엇입니까? E×B Drift 방향과, Racetrack이 닫힌 고리여야 하는 이유를 설명하세요.\n5. 같은 B-field 안에서 전자는 갇히고 Ar⁺는 거의 직진하는 이유를 Larmor 반경으로 설명하세요.\n6. Racetrack Erosion이 Target 이용률·Target 수명·막 균일도에 미치는 영향과, 회전 자석이 이를 어떻게 완화하는지 설명하세요.\n7. 금속 Al Target에는 왜 DC Power가 기본이며, 어떤 경우에 Pulsed-DC 또는 RF가 필요해집니까? Reactive 공정에서 Arc가 Racetrack 바깥에서 잘 생기는 이유도 함께 설명하세요.`,
     connections: ['m31', 'm32', 'm34'],
   },
 
@@ -838,19 +840,20 @@ const SLIDES_EN = [
     connections: ['m31', 'm33', 'm34'],
   },
   {
-    id: 'm33', chapter: 'Chapter 3', era: 'ccp', name: 'CCP in PVD (Sputter)',
-    nameKr: 'CCP in PVD — Sputtering Fundamentals',
-    period: 'CCP Sputter Chamber · Asymmetric Target Self-Bias · Physical Removal (Deposition) Mechanism',
-    tags: ['PVD', 'Sputter', 'CCP', 'Al', 'Target Self-Bias', 'DC/AC'],
-    quote: 'In PE-CVD, ion bombardment was a side effect that densified the growing film. In Sputter PVD, the same q×V_sheath physics — at a much larger V — becomes the core mechanism that erodes the source target itself.',
+    id: 'm33', chapter: 'Chapter 3', era: 'ccp', name: 'Sputter PVD — CCP to Magnetron',
+    nameKr: 'Sputter PVD — From CCP Diode to Magnetron',
+    period: 'Cathode Sheath · Limits of the Diode · Magnetron E×B Electron Trap · Racetrack Erosion · Physical Deposition',
+    tags: ['PVD', 'Sputter', 'Magnetron', 'E×B', 'Racetrack', 'Al', 'DC/RF'],
+    quote: 'Ions erode the target — but what keeps the discharge alive at a few mTorr is the electrons the magnet holds in place.',
     quoteAttr: '— Semiconductor PVD Process Fundamentals',
-    bio: `<b>CCP PVD (Physical Vapor Deposition, Sputtering)</b> accelerates Ar⁺ ions generated in a CCP to high energy and slams them into a metal target (e.g. Al); momentum transfer ejects metal atoms, which travel to the wafer and deposit as a film.\n\n<b>Why this asymmetry?</b> Chapter 1's PE-CVD used symmetric electrodes to suppress V_DC. Chapter 2's etch chamber used asymmetric electrodes to build a strong V_DC on the <b>wafer</b> side, accelerating ions into the wafer. PVD is yet another asymmetric configuration — a strong negative self-bias of hundreds of volts forms on the <b>powered target</b>, accelerating Ar⁺ toward the <b>target</b>, not the wafer. Ar⁺ striking the target ejects metal atoms through a purely physical collision cascade (no chemical reaction); those atoms then travel to the wafer and adsorb to form the metal film.`,
+    bio: `<b>Sputter PVD (Physical Vapor Deposition)</b> accelerates Ar⁺ ions across a <b>cathode sheath</b> of hundreds of volts into a metal target (e.g. Al); momentum transfer ejects neutral metal atoms, which travel to the wafer and deposit as a film.\n\n<b>Link to Chapters 1–2:</b> Chapter 2's etch chamber used asymmetric electrodes to build a strong V_DC on the wafer side. PVD turns that asymmetry around so Ar⁺ are accelerated into the <b>target</b> instead of the wafer. The target can be made negative in two ways: in <b>RF sputtering</b> of insulating targets, by the same area-asymmetry <b>self-bias</b> as Chapter 2; in production <b>DC sputtering</b> of metal targets, the DC power supply <b>applies</b> the negative voltage directly.\n\n<b>Why a magnet?</b> In a plain parallel-plate (diode) source, secondary electrons from the target escape to the anode before they ionize enough Ar, so the discharge needs tens of mTorr or more and kV-level voltage, and the deposition rate is low. That is why production PVD tools are <b>magnetrons</b>, with magnets behind the target. A B-field <b>parallel</b> to the target surface crosses the sheath E-field and creates an <b>E×B drift</b> that traps electrons in a closed loop in front of the target — the <b>racetrack</b>. The result is a dense plasma at 1–10 mTorr and only −300 to −700 V, with high deposition rate — at the price of a target that erodes in a racetrack-shaped groove.`,
     showDiagram: 'pvd',
     theories: [
-      { year: 'Chamber Structure', name: 'CCP Electrode Configuration — Target/Wafer Asymmetry', desc: 'Target (cathode, powered) + wafer/susceptor (grounded/anode). Target sheath is hundreds of V (high), wafer sheath is a few to tens of V (low) — the asymmetry points the opposite direction from Chapter 2 (etch).' },
-      { year: 'Plasma Generation', name: 'Ar Ionization (Inert Gas)', desc: 'Ar + e⁻ → Ar⁺ + 2e⁻. Unlike SiH₄ or C₄F₈, Ar takes no part in chemistry — Ar⁺ is purely a momentum-transfer "projectile".' },
-      { year: 'Deposition Mechanism', name: 'Sputtering — Momentum Transfer (Physical Etch of the Target)', desc: 'Ar⁺ (hundreds of eV) + Al(target) → Al(ejected, neutral) + Ar(reflected/neutralized). Sputtering yield Y (atoms ejected per incident ion) ≈ 1–3 for Ar⁺ on Al at hundreds of eV. A purely physical process — no chemical equation.' },
-      { year: 'RF Impedance', name: 'Sheath & DC Self-Bias — Asymmetry Concentrated at the Target', desc: 'The target\'s effective area is small relative to the grounded area (chamber walls + susceptor), so to satisfy flux balance (Γ_e=Γ_i) the target must charge to hundreds of volts more negative. Same q×V_sheath physics as Chapter 1, but at far larger V — producing "removal" (sputtering) rather than "densification". The wafer sheath is kept low to avoid re-sputtering/damaging the growing film.' },
+      { year: 'Chamber Structure', name: 'Magnetron Cathode — Target + Rear Magnet Pack', desc: 'A permanent-magnet assembly (center pole + outer pole of opposite polarity; outside vacuum, water-cooled, often rotated) sits behind the powered target (cathode). Grounded chamber walls/shields and the wafer stage form the anode. Target sheath: hundreds of V; wafer sheath: a few to tens of V — the asymmetry points the opposite way from Chapter 2 (etch).' },
+      { year: 'Plasma Generation', name: 'Ar Ionization + Secondary (γ) Electrons', desc: 'Ar + e⁻ → Ar⁺ + 2e⁻ (~15.8 eV). Each Ar⁺ impact can release a secondary electron (γ ≈ 0.1/ion for Ar⁺ on Al), which the same cathode sheath launches into the gas with hundreds of eV — the main fuel of the discharge. How long these electrons are kept in front of the target is the whole difference between a diode and a magnetron.' },
+      { year: 'Magnetic Field', name: 'Magnetron — Electron Trapping by E×B Drift', desc: 'A B component parallel to the target surface (~200–500 G) crosses the sheath E-field → electrons drift along v = E×B/B² around a closed racetrack. Electron Larmor radius (~1 mm) is small, so electrons are trapped; Ar⁺ radius (cm or more) is large, so ions fall almost straight into the target. Electron path length grows to meters → discharge sustained at 1–10 mTorr. A B-field perpendicular to the surface gives E×B = 0 and traps nothing.' },
+      { year: 'Deposition Mechanism', name: 'Sputtering — Momentum Transfer & Racetrack Erosion', desc: 'Ar⁺ (hundreds of eV) + Al(target) → Al(ejected, neutral) + Ar(reflected/neutralized). Sputtering yield Y ≈ 1 for Ar⁺ on Al near 500 eV. Purely physical — no chemical equation. Ion flux concentrates under the racetrack, so the target erodes in a ring-shaped groove → ~20–30% target utilization with a static magnet; rotating magnets spread the erosion.' },
+      { year: 'RF Impedance', name: 'Origin of the Cathode Voltage — Applied DC vs. RF Self-Bias', desc: 'DC sputtering (metal target): the supply applies −300 to −700 V directly and almost all of it drops across the cathode sheath (no matcher). RF sputtering (insulating target): the insulating target itself acts as the blocking capacitor; flux balance (Γ_e=Γ_i) + area asymmetry build a negative self-bias on the target — the Chapter 2 physics. Either way: target sheath ≫ wafer sheath.' },
     ],
     showParams: 'pvd',
     showProcess: 'pvd',
@@ -860,8 +863,9 @@ const SLIDES_EN = [
     equations: [
       'Ar + e^- \\rightarrow Ar^+ + 2e^-',
       'Ar^+ (\\text{hundreds of eV}) + Al(\\text{target}) \\xrightarrow{\\text{Momentum Transfer}} Al(\\text{ejected}) + Ar(\\text{reflected})',
+      '\\vec{v}_{E \\times B} = \\frac{\\vec{E} \\times \\vec{B}}{B^{2}} \\qquad r_{L} = \\frac{m\\, v_{\\perp}}{|q|\\, B}',
     ],
-    classroom: `CCP PVD (Sputter) Process Comprehension Check:\n1. Compare the direction and purpose of electrode asymmetry across Chapter 1 (PE-CVD, symmetric), Chapter 2 (Etch, asymmetric — V_DC concentrated at the wafer), and Chapter 3 (PVD, asymmetric — V_DC concentrated at the target).\n2. Unlike PE-CVD's SiH₄+N₂O reaction, PVD has no chemical equation. Explain what "Physical" Vapor Deposition means in this context.\n3. Why does the same q×V_sheath physics produce film densification in PE-CVD but sputtering (removal) at the PVD target?\n4. Explain why PVD operates at a much lower pressure (1–10 mTorr) than PE-CVD (0.1–10 Torr), and how this affects Al atom transport (line-of-sight vs. diffusion).\n5. Why is DC power the default for a metal Al target, and under what circumstances does AC/RF or pulsed-DC become necessary?`,
+    classroom: `Sputter PVD (Magnetron) Comprehension Check:\n1. Compare the direction and purpose of electrode asymmetry in Chapter 1 (PE-CVD, symmetric), Chapter 2 (etch, V_DC at the wafer) and Chapter 3 (PVD, negative target). Why is the negative target potential in DC sputtering of a metal target not a self-bias?\n2. Unlike PE-CVD's SiH₄+N₂O reaction, PVD has no chemical equation. Explain what "Physical" Vapor Deposition means here.\n3. Explain why a diode (no magnet) cannot sustain a discharge at a few mTorr, by comparing the ionization mean free path of secondary electrons (λ_iz ≈ 107/p[mTorr] cm) with the target–wafer gap.\n4. Why must the magnetron B-field be parallel to the target surface? Explain the E×B drift direction and why the racetrack must be a closed loop.\n5. Using the Larmor radius, explain why electrons are trapped by the same B-field while Ar⁺ ions travel almost straight.\n6. How does racetrack erosion affect target utilization, target life and film uniformity, and how do rotating magnets mitigate it?\n7. Why is DC the default for a metal Al target, and when do pulsed-DC or RF become necessary? Why do arcs in reactive processes tend to start outside the racetrack?`,
     connections: ['m31', 'm32', 'm34'],
   },
   {
@@ -1168,12 +1172,12 @@ function renderDetail(slide) {
     const ctx = isEn ? {
       label: 'CONTEXT', title: 'Where Are Metal Films Mainly Deposited in Semiconductor Devices?',
       img: 'images/pvd_al.png',
-      cap: `Before running the simulator, locate the metal layers we are about to deposit on the device cross-sections above. PVD (sputter) metal films appear throughout the chip: the <b>Contact Plug</b> (W) connecting transistor S/D to the first metal line, <b>Metal Interconnect</b> lines (Al/Cu) that route signals and power, the <b>Gate Metal</b> (TiN, TaN) in HKMG/advanced-node transistors, thin <b>Barrier/Liner</b> films (Ti, TiN, Ta, TaN) that prevent diffusion and improve adhesion, <b>DRAM Capacitor Electrodes</b> (TiN, Ru, Pt), and <b>NAND Word Lines</b> (W, TiN, Co/Ru). In this chapter, our simulator focuses on the foundational mechanism shared by all of these: <b>Ar⁺ sputtering of a metal target (Al)</b> and transport of the ejected metal atoms to the wafer. The same asymmetric-CCP, momentum-transfer principle applies regardless of which specific metal (Al, Ti, TiN, W, Cu, Co, Ru…) or which location on this map is being deposited.`,
+      cap: `Before running the simulator, locate the metal layers we are about to deposit on the device cross-sections above. PVD (sputter) metal films appear throughout the chip: the <b>Contact Plug</b> (W) connecting transistor S/D to the first metal line, <b>Metal Interconnect</b> lines (Al/Cu) that route signals and power, the <b>Gate Metal</b> (TiN, TaN) in HKMG/advanced-node transistors, thin <b>Barrier/Liner</b> films (Ti, TiN, Ta, TaN) that prevent diffusion and improve adhesion, <b>DRAM Capacitor Electrodes</b> (TiN, Ru, Pt), and <b>NAND Word Lines</b> (W, TiN, Co/Ru). In this chapter, our simulator focuses on the foundational mechanism shared by all of these: <b>magnetron Ar⁺ sputtering of a metal target (Al)</b> and transport of the ejected metal atoms to the wafer. The same cathode-sheath, magnetron and momentum-transfer principles apply regardless of which specific metal (Al, Ti, TiN, W, Cu, Co, Ru…) or which location on this map is being deposited.`,
       hint: 'Click image to enlarge ↗'
     } : {
       label: 'CONTEXT', title: '반도체 소자에서 금속막은 주로 어디에 증착될까?',
       img: 'images/pvd_al.png',
-      cap: `시뮬레이터를 실행하기 전에, 위 소자 단면도에서 우리가 증착하려는 금속막이 어디에 위치하는지 먼저 확인합니다. PVD(스퍼터) 금속막은 칩 전반에 사용됩니다 — 트랜지스터 S/D와 첫 금속층을 연결하는 <b>Contact Plug(W)</b>, 신호·전력을 전달하는 <b>금속 배선(Al/Cu)</b>, HKMG/첨단 노드 트랜지스터의 <b>Gate Metal(TiN, TaN)</b>, 확산을 막고 접착력을 높이는 얇은 <b>Barrier/Liner(Ti, TiN, Ta, TaN)</b>, <b>DRAM Capacitor Electrode(TiN, Ru, Pt)</b>, <b>NAND Word Line(W, TiN, Co/Ru)</b> 등이 모두 PVD로 증착됩니다. 이번 챕터의 시뮬레이터는 이 모든 응용의 공통 기반이 되는 메커니즘 — <b>Ar⁺의 금속 Target(Al) Sputtering과 방출된 금속 원자의 웨이퍼 이송</b> — 을 다룹니다. 어떤 금속(Al, Ti, TiN, W, Cu, Co, Ru 등)이나 위 지도의 어떤 위치이든, 동일한 비대칭 CCP·운동량 전달 원리가 적용됩니다.`,
+      cap: `시뮬레이터를 실행하기 전에, 위 소자 단면도에서 우리가 증착하려는 금속막이 어디에 위치하는지 먼저 확인합니다. PVD(스퍼터) 금속막은 칩 전반에 사용됩니다 — 트랜지스터 S/D와 첫 금속층을 연결하는 <b>Contact Plug(W)</b>, 신호·전력을 전달하는 <b>금속 배선(Al/Cu)</b>, HKMG/첨단 노드 트랜지스터의 <b>Gate Metal(TiN, TaN)</b>, 확산을 막고 접착력을 높이는 얇은 <b>Barrier/Liner(Ti, TiN, Ta, TaN)</b>, <b>DRAM Capacitor Electrode(TiN, Ru, Pt)</b>, <b>NAND Word Line(W, TiN, Co/Ru)</b> 등이 모두 PVD로 증착됩니다. 이번 챕터의 시뮬레이터는 이 모든 응용의 공통 기반이 되는 메커니즘 — <b>Magnetron에서의 Ar⁺ 금속 Target(Al) Sputtering과 방출된 금속 원자의 웨이퍼 이송</b> — 을 다룹니다. 어떤 금속(Al, Ti, TiN, W, Cu, Co, Ru 등)이나 위 지도의 어떤 위치이든, 동일한 Cathode Sheath·Magnetron·운동량 전달 원리가 적용됩니다.`,
       hint: '클릭하면 확대됩니다 ↗'
     };
     contextHtml = `
@@ -1269,7 +1273,7 @@ function renderDetail(slide) {
       <div class="chamber-wrap">
         <div class="chamber-header">
           <span class="chamber-badge">DIAGRAM</span>
-          <span class="chamber-title">${isEn ? 'CCP PVD (Sputter) Chamber Structure' : 'CCP PVD (Sputter) 챔버 구조'}</span>
+          <span class="chamber-title">${isEn ? 'Magnetron Sputter PVD Chamber Structure' : 'Magnetron Sputter PVD 챔버 구조'}</span>
         </div>
         ${buildPVDDiagram(isEn)}
       </div>`;
@@ -1329,9 +1333,9 @@ function renderDetail(slide) {
       <div class="sim-embed-wrap">
         <div class="sim-embed-header">
           <span class="sim-embed-badge">SIMULATOR</span>
-          <span class="sim-embed-title">${isEn ? 'CCP PVD: Al Sputter Deposition Lab' : 'CCP PVD: Al Sputter 증착 실험실'}</span>
+          <span class="sim-embed-title">${isEn ? 'Magnetron PVD: Al Sputter Deposition Lab' : 'Magnetron PVD: Al Sputter 증착 실험실'}</span>
         </div>
-        <iframe class="sim-embed-frame" src="sims/ccp_pvd_al.html" title="CCP PVD Sputter Simulator" loading="lazy"></iframe>
+        <iframe class="sim-embed-frame" src="sims/ccp_pvd_al.html" title="Magnetron Sputter PVD Simulator" loading="lazy"></iframe>
         <div class="sim-embed-foot">
           <a href="sims/ccp_pvd_al.html" target="_blank" rel="noopener">${isEn ? 'Open simulator in new tab ↗' : '새 탭에서 시뮬레이터 열기 ↗'}</a>
         </div>
@@ -1436,27 +1440,31 @@ function renderDetail(slide) {
       </div>`;
   } else if (slide.showParams === 'pvd') {
     const params = isEn ? [
-      { label: 'Power Source', value: 'DC (default)', unit: '', desc: 'AC/RF 13.56 MHz or pulsed-DC for insulating/poisoned targets' },
-      { label: 'Target Power Density', value: '2–10', unit: 'W/cm²', desc: 'Sets Ar⁺ flux and target self-bias' },
-      { label: 'Process Pressure', value: '1–10', unit: 'mTorr', desc: '100–1000× lower than PE-CVD → long mean free path' },
-      { label: 'Target Self-Bias (V_target)', value: '-hundreds', unit: 'V', desc: 'From small target area vs. large grounded area' },
-      { label: 'Ion Energy (E_ion)', value: '~100–600', unit: 'eV', desc: 'Above bond-breaking threshold → sputter (removal)' },
-      { label: 'Deposition Rate', value: '50–500', unit: 'nm/min', desc: '∝ Sputter Yield × Ar⁺ flux × transport efficiency' },
+      { label: 'Power Source', value: 'DC (default)', unit: '', desc: 'DC / pulsed-DC magnetron supply, no matcher · RF 13.56 MHz + matcher for insulating targets' },
+      { label: 'B∥ at Target Surface', value: '200–500', unit: 'G', desc: 'Rear magnet pack · traps electrons only (ions unmagnetized)' },
+      { label: 'Target Power Density', value: '5–20', unit: 'W/cm²', desc: 'Average · much higher locally under the racetrack' },
+      { label: 'Process Pressure', value: '1–10', unit: 'mTorr', desc: 'Possible only with the magnet · a diode needs tens of mTorr or more' },
+      { label: 'Cathode Voltage (V_target)', value: '−300 ~ −700', unit: 'V', desc: 'DC: applied directly · RF: self-bias · diode: kV-level' },
+      { label: 'Ion Energy (E_ion)', value: '~300–700', unit: 'eV', desc: '≈ e·|V_target| — thin, nearly collisionless cathode sheath' },
+      { label: 'Plasma Density (racetrack)', value: '10¹¹–10¹²', unit: 'cm⁻³', desc: 'Local dense ring from E×B trapping' },
+      { label: 'Deposition Rate (Al)', value: '100–1000', unit: 'nm/min', desc: '∝ Yield × Ar⁺ flux under racetrack × transport · ≥10× a diode' },
     ] : [
-      { label: '파워 소스', value: 'DC (기본)', unit: '', desc: '절연/Poisoned Target에는 AC/RF 13.56 MHz 또는 Pulsed-DC' },
-      { label: 'Target 전력 밀도', value: '2–10', unit: 'W/cm²', desc: 'Ar⁺ 플럭스 및 Target Self-Bias 결정' },
-      { label: '공정 압력', value: '1–10', unit: 'mTorr', desc: 'PE-CVD보다 100–1000배 낮음 → 긴 평균 자유 행정' },
-      { label: 'Target Self-Bias (V_target)', value: '-수백', unit: 'V', desc: '작은 Target 면적 vs 큰 접지 면적에서 형성' },
-      { label: '이온 에너지 (E_ion)', value: '~100–600', unit: 'eV', desc: '결합 절단 임계값 이상 → Sputtering(Removal)' },
-      { label: '증착 속도', value: '50–500', unit: 'nm/min', desc: '∝ Sputter Yield × Ar⁺ 플럭스 × 이송 효율' },
+      { label: '파워 소스', value: 'DC (기본)', unit: '', desc: 'DC / Pulsed-DC Magnetron 전원, Matcher 불필요 · 절연성 Target은 RF 13.56 MHz + Matcher' },
+      { label: 'Target 표면 B∥', value: '200–500', unit: 'G', desc: '후면 Magnet Pack · 전자만 포획 (이온은 비자화)' },
+      { label: 'Target 전력 밀도', value: '5–20', unit: 'W/cm²', desc: '평균값 · Racetrack 아래는 국부적으로 훨씬 높음' },
+      { label: '공정 압력', value: '1–10', unit: 'mTorr', desc: '자석이 있어야 가능 · Diode는 수십 mTorr 이상 필요' },
+      { label: 'Cathode 전압 (V_target)', value: '−300 ~ −700', unit: 'V', desc: 'DC: 직접 인가 · RF: Self-Bias · Diode: kV급' },
+      { label: '이온 에너지 (E_ion)', value: '~300–700', unit: 'eV', desc: '≈ e·|V_target| — 얇고 충돌이 거의 없는 Cathode Sheath' },
+      { label: 'Plasma 밀도 (Racetrack)', value: '10¹¹–10¹²', unit: 'cm⁻³', desc: 'E×B 포획에 의한 국부 고밀도 고리' },
+      { label: '증착 속도 (Al)', value: '100–1000', unit: 'nm/min', desc: '∝ Yield × Racetrack 아래 Ar⁺ Flux × 이송 효율 · Diode의 10배 이상' },
     ];
     paramHtml = `
       <div class="section-title">${T.sectionParam}</div>
       <div class="param-panel">
         <div class="asendia-badge">
           <div>
-            <div class="asendia-badge-text">DC / AC Power Source + Matcher (Power Delivery System)</div>
-            <div class="asendia-badge-sub">DC default · 13.56 MHz AC/RF or Pulsed-DC for insulating/poisoned targets</div>
+            <div class="asendia-badge-text">DC Magnetron Power Supply (+ RF Generator · Matcher for insulating targets)</div>
+            <div class="asendia-badge-sub">DC / Pulsed-DC default for metal targets · 13.56 MHz RF + Matcher for dielectric / poisoned targets</div>
           </div>
         </div>
         <div class="param-grid">
@@ -1604,18 +1612,20 @@ function renderDetail(slide) {
       </div>`;
   } else if (slide.showProcess === 'pvd') {
     const steps = isEn ? [
-      { title: 'Chamber Pump-down & Target Load', desc: 'Evacuate chamber to high vacuum, then introduce Ar to set process pressure (1–10 mTorr) — roughly 100–1000× lower than PE-CVD. Al target (cathode) and grounded wafer/susceptor (anode) in place.' },
-      { title: 'Power On — Ar Ionization', desc: 'DC (default) or AC/RF 13.56 MHz applied to the target → oscillating/DC E-field accelerates electrons → electron-impact ionization: Ar + e⁻ → Ar⁺ + 2e⁻.' },
-      { title: 'Asymmetric Sheath — Target Self-Bias Develops', desc: 'Target area is small relative to the grounded chamber+wafer area → flux balance (Γ_e=Γ_i) forces the target to a strongly negative self-bias (hundreds of V), while the wafer sheath stays low (a few–tens of V).' },
-      { title: 'Sputtering — Momentum Transfer at the Target', desc: 'Ar⁺ accelerated across the target sheath (hundreds of eV) strikes the Al target → collision cascade ejects neutral Al atoms (sputtering yield Y ≈ 1–3 atoms/ion). No chemistry — purely physical.' },
-      { title: 'Al Adatom Transport — Line-of-Sight', desc: 'At 1–10 mTorr, the mean free path is long → ejected Al atoms travel largely ballistically (line-of-sight) from target to wafer, with minor scattering from residual Ar.' },
-      { title: 'Film Growth & RF/Power Off', desc: 'Al adatoms (sticking coefficient ≈1) nucleate and coalesce into a continuous metal film. No chemical by-products to pump away. Power off → plasma extinguished → wafer transfer.' },
+      { title: 'Pump-down & Ar Fill', desc: 'Pump to high vacuum (base < 10⁻⁷ Torr), then flow Ar to 1–10 mTorr — ~100–1000× lower than PE-CVD. Al target (cathode) with the magnet pack behind it; grounded walls/shields and the wafer stage act as the anode. In rotating-magnet cathodes the magnet pack starts turning.' },
+      { title: 'Power On — Ignition', desc: 'The DC magnetron supply applies a negative voltage to the target → seed electrons are accelerated → electron-impact ionization: Ar + e⁻ → Ar⁺ + 2e⁻.' },
+      { title: 'Cathode Sheath Forms', desc: 'Almost the entire applied voltage (−300 to −700 V) drops across a thin sheath in front of the target; Ar⁺ are accelerated into it. (With an insulating target and RF, the same negative potential appears as self-bias.) The wafer sheath stays at a few to tens of V.' },
+      { title: 'Secondary Electrons Trapped by E×B', desc: 'Ar⁺ impacts release γ-electrons, which the sheath launches with hundreds of eV. Where the arched B-field is parallel to the target, E ⊥ B → electrons drift around the closed racetrack instead of escaping, spending their energy on ionization → dense plasma ring (10¹¹–10¹² cm⁻³).' },
+      { title: 'Sputtering & Racetrack Erosion', desc: 'Ar⁺ from the dense ring fall straight into the target beneath it → collision cascade ejects neutral Al (Y ≈ 1 atom/ion near 500 eV, cosine-like distribution). The target erodes in a racetrack-shaped groove.' },
+      { title: 'Al Atom Transport — Near Line-of-Sight', desc: 'Neutral Al atoms are unaffected by E and B. Their mean free path (λ ≈ 6/p[mTorr] cm, ~2 cm at 3 mTorr) is comparable to the gap, so most arrive after zero to a few gas collisions — mostly forward-directed with some scattering.' },
+      { title: 'Film Growth & Power Off', desc: 'Al adatoms (sticking coefficient ≈ 1) nucleate and coalesce into a continuous metal film. No chemical by-products to pump away. Power off → plasma extinguished → wafer transfer.' },
     ] : [
-      { title: '챔버 펌프다운 및 Target 준비', desc: '챔버를 고진공까지 배기 후 Ar을 유입하여 공정 압력(1–10 mTorr)을 설정 — PE-CVD보다 약 100–1000배 낮음. Al Target(Cathode)과 접지된 웨이퍼/서셉터(Anode)가 위치.' },
-      { title: 'Power On — Ar 이온화', desc: 'Target에 DC(기본) 또는 AC/RF 13.56 MHz 인가 → 진동/DC E-field가 전자를 가속 → 전자 충돌 이온화: Ar + e⁻ → Ar⁺ + 2e⁻.' },
-      { title: '비대칭 Sheath — Target Self-Bias 형성', desc: 'Target 면적이 접지(챔버+웨이퍼) 면적에 비해 작아 Flux Balance(Γ_e=Γ_i)에 의해 Target이 수백 V의 강한 음(−) Self-Bias로 charging. Wafer Sheath는 수~수십 V로 낮게 유지.' },
-      { title: 'Sputtering — Target에서의 운동량 전달', desc: 'Target Sheath를 가로질러 가속된 Ar⁺(수백 eV)이 Al Target에 충돌 → Collision Cascade로 중성 Al 원자 방출 (Sputtering Yield Y ≈ 1–3 atoms/ion). 화학반응 없는 순수 물리적 과정.' },
-      { title: 'Al Adatom 이송 — Line-of-Sight', desc: '1–10 mTorr에서는 평균 자유 행정이 길어 방출된 Al 원자가 대부분 Line-of-Sight(직선 경로)로 Target → Wafer로 이동하며, 잔류 Ar과의 충돌로 약간의 산란만 발생.' },
+      { title: '펌프다운 및 Ar 유입', desc: '고진공(Base < 10⁻⁷ Torr)까지 배기 후 Ar을 유입해 1–10 mTorr로 설정 — PE-CVD보다 약 100–1000배 낮음. 뒤에 Magnet Pack이 붙은 Al Target(Cathode), 접지된 벽·Shield와 웨이퍼 Stage가 Anode. 회전 자석형 Cathode는 이때 Magnet Pack 회전 시작.' },
+      { title: 'Power On — 점화', desc: 'DC Magnetron 전원이 Target에 음(−)전압 인가 → Seed 전자 가속 → 전자 충돌 이온화: Ar + e⁻ → Ar⁺ + 2e⁻.' },
+      { title: 'Cathode Sheath 형성', desc: '인가 전압(−300 ~ −700 V)의 거의 전부가 Target 앞 얇은 Sheath에 걸리고, Ar⁺가 Target으로 가속됨. (절연성 Target + RF에서는 같은 음(−)전위가 Self-Bias로 형성.) Wafer Sheath는 수~수십 V.' },
+      { title: '2차 전자의 E×B 포획', desc: 'Ar⁺ 충돌로 γ-전자 방출 → Sheath에서 수백 eV로 가속. 아치형 B-field가 Target과 평행한 곳에서 E ⊥ B → 전자는 빠져나가지 않고 닫힌 Racetrack을 따라 Drift하며 에너지를 이온화에 소비 → 고밀도 Plasma 고리(10¹¹–10¹² cm⁻³).' },
+      { title: 'Sputtering 및 Racetrack Erosion', desc: '고밀도 고리의 Ar⁺가 바로 아래 Target으로 직진 충돌 → Collision Cascade로 중성 Al 방출 (약 500 eV에서 Y ≈ 1 atom/ion, Cosine형 분포). Target은 Racetrack 모양의 홈으로 깎임.' },
+      { title: 'Al 원자 이송 — 거의 직선 경로', desc: '중성 Al 원자는 E·B의 영향을 받지 않음. 평균 자유 행정(λ ≈ 6/p[mTorr] cm, 3 mTorr에서 약 2 cm)이 간격과 비슷해, 대부분 0~수 회 충돌 후 도달 — 주로 전방으로 향하되 일부 산란.' },
       { title: '막 성장 및 Power Off', desc: 'Al Adatom(부착 계수 ≈1)이 Nucleation·Island Coalescence를 거쳐 연속 금속막으로 성장. 펌핑할 화학적 부산물 없음. Power Off → 플라즈마 소멸 → 웨이퍼 반출.' },
     ];
     processHtml = `
@@ -1786,13 +1796,13 @@ function buildPECVDDiagram(isEn) {
     gasIn: 'SiH\u2084 + N\u2082O / NH\u2083', dcbias: 'DC Self-Bias (V_DC)',
     film: 'SiO\u2082 / Si\u2083N\u2084 Film Growth \u2193',
   } : {
-    showerhead: '\uc0f4\uc6cc\ud5e4\ub4dc (RF \uc804\uadf9)', susceptor: '\uc11c\uc140\ud130 (\uc811\uc9c0)',
-    wafer: 'Si \uc6e8\uc774\ud37c', plasma: 'CCP \ud50c\ub77c\uc9c8\ub9c8',
-    gap: '\uc804\uadf9 \uac04\uaca9\n20\u201360 mm',
-    sheath: '\uc2dc\uc2a4 (\uc774\uc628 \uac00\uc18d)', rfgen: 'RF Generator\n13.56 MHz',
-    matcher: 'RF Matcher\n(50\u03a9)', pump: '\uc9c4\uacf5 \ud39c\ud504',
-    gasIn: 'SiH\u2084 + N\u2082O / NH\u2083', dcbias: 'DC \uc790\uae30 \ubc14\uc774\uc5b4\uc2a4 (V_DC)',
-    film: '\ubc15\ub9c9 \uc131\uc7a5 (SiO\u2082 / Si\u2083N\u2084) \u2193',
+    showerhead: '샤워헤드 (RF 전극)', susceptor: '서셉터 (접지)',
+    wafer: 'Si 웨이퍼', plasma: 'CCP 플라즈마',
+    gap: '전극 간격\n20–60 mm',
+    sheath: '시스 (이온 가속)', rfgen: 'RF Generator\n13.56 MHz',
+    matcher: 'RF Matcher\n(50Ω)', pump: '진공 펌프',
+    gasIn: 'SiH₄ + N₂O / NH₃', dcbias: 'DC 자기 바이어스 (V_DC)',
+    film: '박막 성장 (SiO₂ / Si₃N₄) ↓',
   };
   setTimeout(drawPECVDCanvas, 80);
   return '<canvas id="pecvdCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
@@ -1915,13 +1925,13 @@ function buildEtchDiagram(isEn) {
     gasIn: 'C\u2084F\u2088 + Ar + O\u2082', dcbias: 'V_DC \u2248 \u2212200 to \u2212500 V (A_g \u226b A_p)',
     etch: 'Anisotropic Etch \u2191 (SiF\u2084 \u2191)', ions: 'Ion Bombardment (V_RF+V_DC)',
   } : {
-    showerhead: '\uc0f4\uc6cc\ud5e4\ub4dc (\uc811\uc9c0, A_g \u2014 \ud0c1\ub2e4)', chuck: '\uc6e8\uc774\ud37c \ucf5e (RF, A_p \u2014 \uc791\ub2e4)',
-    wafer: 'Si \uc6e8\uc774\ud37c + \ub9c8\uc2a4\ud0b9', plasma: 'C\u2084F\u2088/Ar/O\u2082 \ud50c\ub77c\uc998\ub9c8',
-    sheathTop: '\uc18c\uc2a4 (\uc591\uc774 \ub2ec\ud558\uace0 \uc804\uc555 \ub0b9\uc74c)', sheathBot: '\uc18c\uc2a4 (\ub192\uace0 \uadf9\uc774 \ub10e\uc74c) \u2014 DC Self-Bias',
+    showerhead: '샤워헤드 (접지, A_g — 크다)', chuck: '웨이퍼 척 (RF, A_p — 작다)',
+    wafer: 'Si 웨이퍼 + 마스크', plasma: 'C₄F₈/Ar/O₂ 플라즈마',
+    sheathTop: '얇은 시스 (저전압)', sheathBot: '두꺼운 시스 (고전압) — DC Self-Bias',
     rfgen: 'RF Generator\n13.56 MHz', matcher: 'RF Matcher\n(50\u03a9)',
-    cblock: 'C_block', pump: '\ud130\ubcf4 + \ub2e4\ub860 \ud39c\ud504',
+    cblock: 'C_block', pump: '터보 + 드라이 펌프',
     gasIn: 'C\u2084F\u2088 + Ar + O\u2082', dcbias: 'V_DC \u2248 \u2212200 ~ \u2212500 V (A_g \u226b A_p)',
-    etch: '\uc774\ubc29\uc131 \uc2dd\uac01 \u2191 (SiF\u2084 \u2191)', ions: '\uc774\uc628 \ud3ed\uacd0 (V_RF+V_DC)',
+    etch: '이방성 식각 ↑ (SiF₄ ↑)', ions: '이온 충격 (V_RF+V_DC)',
   };
   setTimeout(drawEtchCanvas, 80);
   return '<canvas id="etchCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
@@ -2066,27 +2076,31 @@ function drawEtchCanvas() {
 }
 
 // ─────────────────────────────────────────────
-//  CCP PVD (SPUTTER) CHAMBER DIAGRAM
+//  MAGNETRON SPUTTER PVD CHAMBER DIAGRAM
 // ─────────────────────────────────────────────
 function buildPVDDiagram(isEn) {
   window._pvdLabels = isEn ? {
-    target: 'Al Target (Cathode, A_target \u2014 small)', susceptor: 'Wafer / Susceptor (Grounded Anode \u2014 large)',
-    wafer: 'Si Wafer', plasma: 'Ar / Al Plasma',
-    sheathTarget: 'Thick Sheath \u2014 Target Self-Bias', sheathWafer: 'Thin Sheath (low V)',
-    rfgen: 'DC / AC Source\nDC (default) or 13.56 MHz', matcher: 'Matcher\n(50\u03a9, AC mode)',
-    pump: 'Vacuum Pump (1\u201310 mTorr)',
-    gasIn: 'Ar', dcbias: 'V_target \u2248 \u2212hundreds V (A_target \u226a A_ground)',
-    sputter: 'Sputtering \u2191 (Al ejected)', ions: 'Ar\u207a Bombardment \u2192 Target',
-    film: 'Al Film Growth \u2193',
+    magnet: 'Magnet Pack (behind target, outside vacuum)', target: 'Al Target (Cathode)',
+    wafer: 'Si Wafer', stage: 'Wafer Stage (grounded / floating) — Anode with walls & shields',
+    plasma: 'Ar Plasma — dense ring under the racetrack',
+    sheathTarget: 'Cathode Sheath (−100s of V)', sheathWafer: 'Wafer Sheath (few–tens of V)',
+    bfield: 'B∥ ≈ 200–500 G', drift: 'E×B drift: ⊗ into / ⊙ out of page → closed racetrack',
+    psu: 'DC Magnetron\nPower Supply', psuNote: 'RF + Matcher only for\ninsulating targets',
+    pump: 'Vacuum Pump (1–10 mTorr)', gasIn: 'Ar',
+    vtarget: 'V_target ≈ −300 ~ −700 V (DC, applied directly)',
+    groove: 'Racetrack erosion groove', ions: 'Ar⁺ → target (straight down the sheath)',
+    film: 'Al Film Growth ↓', atoms: 'Neutral Al — near line-of-sight',
   } : {
-    target: 'Al Target (Cathode, A_target \u2014 \uc791\ub2e4)', susceptor: '\uc6e8\uc774\ud37c / \uc11c\uc140\ud130 (\uc811\uc9c0 Anode \u2014 \ud0c1\ub2e4)',
-    wafer: 'Si \uc6e8\uc774\ud37c', plasma: 'Ar / Al \ud50c\ub77c\uc998\ub9c8',
-    sheathTarget: '\uc18c\uc2a4 (\ub192\uace0 \uadf9\uc774 \ub10e\uc74c) \u2014 Target Self-Bias', sheathWafer: '\uc18c\uc2a4 (\uc591\uc774 \ub2ec\ud558\uace0 \uc804\uc555 \ub0b9\uc74c)',
-    rfgen: 'DC / AC \uc804\uc6d0\nDC(\uae30\ubcf8) \ub610\ub294 13.56 MHz', matcher: 'Matcher\n(50\u03a9, AC \uc0ac\uc6a9 \uc2dc)',
-    pump: '\uc9c4\uacf5 \ud39c\ud504 (1\u201310 mTorr)',
-    gasIn: 'Ar', dcbias: 'V_target \u2248 \u2212\uc218\ubc31 V (A_target \u226a A_ground)',
-    sputter: 'Sputtering \u2191 (Al \ubc29\ucd9c)', ions: 'Ar\u207a \ud3ed\uacd0 \u2192 Target',
-    film: 'Al \ub7b0 \uc131\uc7a5 \u2193',
+    magnet: 'Magnet Pack (Target 후면, 진공 밖)', target: 'Al Target (Cathode)',
+    wafer: 'Si 웨이퍼', stage: '웨이퍼 Stage (접지 / Floating) — 벽·Shield와 함께 Anode',
+    plasma: 'Ar 플라즈마 — Racetrack 아래 고밀도 고리',
+    sheathTarget: 'Cathode Sheath (−수백 V)', sheathWafer: 'Wafer Sheath (수~수십 V)',
+    bfield: 'B∥ ≈ 200–500 G', drift: 'E×B Drift: ⊗ 지면 안쪽 / ⊙ 바깥쪽 → 닫힌 Racetrack',
+    psu: 'DC Magnetron\nPower Supply', psuNote: '절연성 Target에만\nRF + Matcher',
+    pump: '진공 펌프 (1–10 mTorr)', gasIn: 'Ar',
+    vtarget: 'V_target ≈ −300 ~ −700 V (DC, 직접 인가)',
+    groove: 'Racetrack Erosion 홈', ions: 'Ar⁺ → Target (Sheath를 직진)',
+    film: 'Al 막 성장 ↓', atoms: '중성 Al — 거의 직선 경로',
   };
   setTimeout(drawPVDCanvas, 80);
   return '<canvas id="pvdCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
@@ -2096,137 +2110,168 @@ function drawPVDCanvas() {
   const canvas = document.getElementById('pvdCanvas');
   if (!canvas) return;
   const labels = window._pvdLabels || {};
-  const CW = 780, CH = 460;
+  const CW = 780, CH = 520;
   const dpr = window.devicePixelRatio || 1;
   canvas.width = CW * dpr; canvas.height = CH * dpr;
   canvas.style.height = Math.round(CH * (canvas.offsetWidth / CW)) + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   const W = CW, H = CH;
+  const MONO = '"JetBrains Mono",monospace', SANS = '"Google Sans",sans-serif';
 
   ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, 0, W, H);
   ctx.strokeStyle = 'rgba(112,48,160,0.08)'; ctx.lineWidth = 1;
   for (let x = 0; x < W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
   for (let y = 0; y < H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 
-  const cL=120, cR=660, cT=60, cB=370;
+  const cL=140, cR=600, cT=112, cB=440;
   ctx.strokeStyle='rgba(180,120,255,0.4)'; ctx.lineWidth=2;
   ctx.strokeRect(cL, cT, cR-cL, cB-cT);
 
-  // ── Al Target (cathode, powered, small effective area) — top ──
-  const tY=60, tH=22;
-  const g1 = ctx.createLinearGradient(cL,tY,cR,tY+tH);
-  g1.addColorStop(0,'#6b6f78'); g1.addColorStop(1,'#a8adb8');
-  ctx.fillStyle=g1; ctx.fillRect(cL,tY,cR-cL,tH);
-  ctx.fillStyle='#e8eaef'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
-  ctx.fillText(labels.target||'', (cL+cR)/2, tY-8);
+  // ── Magnet pack (outside vacuum, behind target): yoke + N–S–N poles ──
+  const mY=46, mH=40, poleL=cL+22, poleC=(cL+cR)/2, poleR=cR-22;
+  ctx.fillStyle='#4a4f5c'; ctx.fillRect(cL, mY, cR-cL, 8);
+  [[poleL,24,'N'],[poleC,36,'S'],[poleR,24,'N']].forEach(([x,w,p])=>{
+    ctx.fillStyle = p==='N' ? '#E8553B' : '#3A7AD6';
+    ctx.fillRect(x-w/2, mY+8, w, mH-8);
+    ctx.fillStyle='#fff'; ctx.font='bold 12px '+SANS; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(p, x, mY+8+(mH-8)/2);
+  });
+  ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#c9cbd6'; ctx.font='bold 11px '+SANS; ctx.textAlign='center';
+  ctx.fillText(labels.magnet||'', (cL+cR)/2, mY-10);
+  // backing plate
+  ctx.fillStyle='#565b68'; ctx.fillRect(cL, mY+mH, cR-cL, cT-(mY+mH));
 
-  // ── Thick target sheath (high V, target self-bias) — with upward ion arrows ──
-  const tSheathY=tY+tH, tSheathH=34;
-  ctx.fillStyle='rgba(255,130,80,0.14)';
-  ctx.fillRect(cL+2, tSheathY, cR-cL-4, tSheathH);
-  ctx.strokeStyle='rgba(255,160,80,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
-  ctx.beginPath(); ctx.moveTo(cL+2,tSheathY+tSheathH); ctx.lineTo(cR-2,tSheathY+tSheathH); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle='rgba(255,160,80,0.85)'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='left';
-  ctx.fillText(labels.sheathTarget||'', cR+6, tSheathY+tSheathH/2+3);
-  // upward ion arrows accelerating toward the target
-  ctx.strokeStyle='rgba(255,170,100,0.85)'; ctx.fillStyle='rgba(255,170,100,0.85)';
-  for (let ix=cL+70; ix<cR-50; ix+=70) {
-    ctx.lineWidth=1.5;
-    ctx.beginPath(); ctx.moveTo(ix,tSheathY+tSheathH-3); ctx.lineTo(ix,tSheathY+6); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(ix,tSheathY+2); ctx.lineTo(ix-4,tSheathY+9); ctx.lineTo(ix+4,tSheathY+9); ctx.closePath(); ctx.fill();
+  // ── Al target with racetrack grooves ──
+  const tY=cT, tH=22, tB=tY+tH, rtL=(poleL+poleC)/2, rtR=(poleC+poleR)/2;
+  const g1 = ctx.createLinearGradient(cL,tY,cL,tB);
+  g1.addColorStop(0,'#a8adb8'); g1.addColorStop(1,'#6b6f78');
+  ctx.fillStyle=g1; ctx.beginPath(); ctx.moveTo(cL,tY); ctx.lineTo(cR,tY); ctx.lineTo(cR,tB);
+  for (let x=cR; x>=cL; x-=3) {
+    const d = 9*Math.exp(-((x-rtL)**2)/(2*16*16)) + 9*Math.exp(-((x-rtR)**2)/(2*16*16));
+    ctx.lineTo(x, tB-d);
   }
-  ctx.fillStyle='rgba(255,170,100,0.9)'; ctx.font='bold 9px "JetBrains Mono",monospace'; ctx.textAlign='center';
-  ctx.fillText(labels.ions||'', (cL+cR)/2, tSheathY+tSheathH+12);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='rgba(255,190,140,0.95)'; ctx.lineWidth=1.6; ctx.beginPath();
+  for (let x=cL; x<=cR; x+=3) {
+    const d = 9*Math.exp(-((x-rtL)**2)/(2*16*16)) + 9*Math.exp(-((x-rtR)**2)/(2*16*16));
+    x===cL ? ctx.moveTo(x, tB-d) : ctx.lineTo(x, tB-d);
+  }
+  ctx.stroke();
+  ctx.fillStyle='#1a1a2a'; ctx.font='bold 10px '+SANS; ctx.textAlign='center';
+  ctx.fillText(labels.target||'', (cL+cR)/2, tY+12);
+  ctx.fillStyle='rgba(255,200,150,0.9)'; ctx.font='9px '+MONO; ctx.textAlign='left';
+  ctx.fillText(labels.groove||'', cR+8, tB-2);
+  ctx.strokeStyle='rgba(255,200,150,0.5)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cR+6, tB-5); ctx.lineTo(rtR+14, tB-6); ctx.stroke();
 
-  // sputter-ejected Al atoms (grey dots) drifting down from target
-  ctx.fillStyle='rgba(200,205,215,0.85)';
-  [[200,tSheathY+tSheathH+8],[340,tSheathY+tSheathH+14],[460,tSheathY+tSheathH+6],[560,tSheathY+tSheathH+16]].forEach(([px,py])=>{
+  // ── Cathode sheath (thin, high V) ──
+  const sY=tB, sH=16;
+  ctx.fillStyle='rgba(255,130,80,0.16)'; ctx.fillRect(cL+2, sY, cR-cL-4, sH);
+  ctx.strokeStyle='rgba(255,160,80,0.5)'; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(cL+2,sY+sH); ctx.lineTo(cR-2,sY+sH); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,160,80,0.9)'; ctx.font='9px '+MONO; ctx.textAlign='left';
+  ctx.fillText(labels.sheathTarget||'', cR+8, sY+sH-2);
+
+  // ── Dense plasma lobes under the racetrack ──
+  [rtL, rtR].forEach(x=>{
+    const r=ctx.createRadialGradient(x,sY+34,4,x,sY+34,95);
+    r.addColorStop(0,'rgba(210,150,255,0.55)'); r.addColorStop(0.5,'rgba(170,100,255,0.22)'); r.addColorStop(1,'rgba(120,60,220,0)');
+    ctx.fillStyle=r; ctx.beginPath(); ctx.ellipse(x,sY+34,100,66,0,0,Math.PI*2); ctx.fill();
+  });
+  const pg=ctx.createLinearGradient(0,sY+60,0,370);
+  pg.addColorStop(0,'rgba(160,80,255,0.10)'); pg.addColorStop(1,'rgba(80,20,160,0.03)');
+  ctx.fillStyle=pg; ctx.fillRect(cL+2, sY+sH, cR-cL-4, 370-(sY+sH));
+
+  // ── Arched B-field lines (outer N → center S) ──
+  ctx.save(); ctx.beginPath(); ctx.rect(cL+2, tB, cR-cL-4, 120); ctx.clip();
+  ctx.setLineDash([4,3]); ctx.lineWidth=1.2;
+  [[rtL,1],[rtR,-1]].forEach(([xc])=>{
+    const a=(poleC-poleL)/2;
+    [[0.55,22],[0.8,38],[1,54]].forEach(([k,b])=>{
+      ctx.strokeStyle='rgba(200,160,255,0.75)';
+      ctx.beginPath(); ctx.ellipse(xc,tB,a*k,b,0,0,Math.PI); ctx.stroke();
+    });
+  });
+  ctx.restore(); ctx.setLineDash([]);
+  [[rtL,1],[rtR,-1]].forEach(([xc,d])=>{
+    const y=tB+38; ctx.strokeStyle='#d9b8ff'; ctx.fillStyle='#d9b8ff'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(xc-9*d,y); ctx.lineTo(xc+9*d,y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xc+9*d,y); ctx.lineTo(xc+3*d,y-4); ctx.lineTo(xc+3*d,y+4); ctx.closePath(); ctx.fill();
+  });
+  // ⊗ / ⊙ drift markers
+  [[rtL,'x'],[rtR,'o']].forEach(([xc,t])=>{
+    const y=tB+15; ctx.strokeStyle='#fff'; ctx.fillStyle='#0d0d1a'; ctx.lineWidth=1.3;
+    ctx.beginPath(); ctx.arc(xc,y,7,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    if (t==='x') { ctx.beginPath(); ctx.moveTo(xc-4,y-4); ctx.lineTo(xc+4,y+4); ctx.moveTo(xc+4,y-4); ctx.lineTo(xc-4,y+4); ctx.stroke(); }
+    else { ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(xc,y,2,0,Math.PI*2); ctx.fill(); }
+  });
+  ctx.fillStyle='rgba(217,184,255,0.95)'; ctx.font='9.5px '+MONO; ctx.textAlign='left';
+  ctx.fillText(labels.bfield||'', cR+8, tB+42);
+  ctx.fillText(labels.drift||'', 12, 476);
+
+  // ── Ar⁺ ions falling straight into the target under the racetrack ──
+  ctx.strokeStyle='rgba(255,170,100,0.9)'; ctx.fillStyle='rgba(255,170,100,0.9)'; ctx.lineWidth=1.5;
+  [rtL-14, rtL+10, rtR-10, rtR+14].forEach(ix=>{
+    ctx.beginPath(); ctx.moveTo(ix,sY+sH+14); ctx.lineTo(ix,sY+4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ix,sY+1); ctx.lineTo(ix-4,sY+8); ctx.lineTo(ix+4,sY+8); ctx.closePath(); ctx.fill();
+  });
+  ctx.fillStyle='rgba(255,180,120,0.95)'; ctx.font='bold 9px '+MONO; ctx.textAlign='center';
+  ctx.fillText(labels.ions||'', (cL+cR)/2, sY+sH+46);
+
+  // ── Neutral Al atoms (grey) heading to the wafer ──
+  ctx.fillStyle='rgba(205,210,220,0.85)';
+  [[rtL-20,215],[rtL+30,250],[rtR-25,230],[rtR+20,265],[poleC-15,290],[poleC+30,320],[rtL,335],[rtR,345]].forEach(([px,py])=>{
     ctx.beginPath(); ctx.arc(px,py,3,0,Math.PI*2); ctx.fill();
   });
-  ctx.fillStyle='rgba(220,225,235,0.85)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
-  ctx.fillText(labels.sputter||'', (cL+cR)/2-160, tSheathY+tSheathH+26);
+  ctx.fillStyle='rgba(220,225,235,0.85)'; ctx.font='bold 10px '+MONO; ctx.textAlign='center';
+  ctx.fillText(labels.atoms||'', (cL+cR)/2, 300);
+  ctx.fillStyle='rgba(200,160,255,0.8)'; ctx.font='italic bold 12px '+SANS;
+  ctx.fillText(labels.plasma||'', (cL+cR)/2, 252);
 
-  // ── Bulk plasma (Ar/Al) ──
-  const plT=tSheathY+tSheathH+30, plB=300;
-  const pg=ctx.createRadialGradient((cL+cR)/2,(plT+plB)/2,30,(cL+cR)/2,(plT+plB)/2,200);
-  pg.addColorStop(0,'rgba(160,80,255,0.18)'); pg.addColorStop(0.5,'rgba(200,120,255,0.10)'); pg.addColorStop(1,'rgba(80,20,160,0.04)');
-  ctx.fillStyle=pg; ctx.fillRect(cL+2,plT,cR-cL-4,plB-plT);
-  [[250,150],[320,175],[400,140],[470,165],[340,205],[420,195],[290,225],[370,185],[450,215],[310,235]].forEach(([px,py])=>{
-    const r=ctx.createRadialGradient(px,py,1,px,py,9);
-    r.addColorStop(0,'rgba(200,140,255,0.9)'); r.addColorStop(1,'rgba(160,80,255,0)');
-    ctx.fillStyle=r; ctx.beginPath(); ctx.arc(px,py,9,0,Math.PI*2); ctx.fill();
-  });
-  // line-of-sight grey Al atoms drifting toward wafer
-  ctx.fillStyle='rgba(200,205,215,0.7)';
-  [[230,260],[310,275],[400,255],[480,270],[360,290],[430,285]].forEach(([px,py])=>{
-    ctx.beginPath(); ctx.arc(px,py,2.5,0,Math.PI*2); ctx.fill();
-  });
-  ctx.fillStyle='rgba(200,160,255,0.75)'; ctx.font='italic bold 13px "Google Sans",sans-serif'; ctx.textAlign='center';
-  ctx.fillText(labels.plasma||'', (cL+cR)/2, (plT+plB)/2+5);
-
-  // ── Thin wafer sheath (low V) ──
-  const wSheathY=plB, wSheathH=10;
-  ctx.fillStyle='rgba(120,120,140,0.18)';
-  ctx.fillRect(cL+2, wSheathY, cR-cL-4, wSheathH);
-  ctx.fillStyle='rgba(160,160,180,0.6)'; ctx.font='9px "JetBrains Mono",monospace'; ctx.textAlign='left';
-  ctx.fillText(labels.sheathWafer||'', cR+6, wSheathY+wSheathH-1);
-
-  // ── Wafer + growing Al film ──
-  const wY=wSheathY+wSheathH;
-  ctx.fillStyle='#b8d4ff'; ctx.fillRect(cL+60,wY,cR-cL-120,8);
-  ctx.fillStyle='#c8ccd5'; ctx.fillRect(cL+60,wY-5,cR-cL-120,5);
-  ctx.fillStyle='#e8eaef'; ctx.font='10px "JetBrains Mono",monospace'; ctx.textAlign='center';
+  // ── Wafer sheath, film, wafer, stage ──
+  const wsY=376, wsH=10;
+  ctx.fillStyle='rgba(120,120,140,0.2)'; ctx.fillRect(cL+2, wsY, cR-cL-4, wsH);
+  ctx.fillStyle='rgba(170,170,190,0.75)'; ctx.font='9px '+MONO; ctx.textAlign='left';
+  ctx.fillText(labels.sheathWafer||'', cR+8, wsY+8);
+  const wY=wsY+wsH;
+  ctx.fillStyle='#c8ccd5'; ctx.fillRect(cL+50,wY-5,cR-cL-100,5);
+  ctx.fillStyle='#b8d4ff'; ctx.fillRect(cL+50,wY,cR-cL-100,8);
+  ctx.fillStyle='#e8eaef'; ctx.font='10px '+MONO; ctx.textAlign='center';
   ctx.fillText(labels.film||'', (cL+cR)/2, wY-9);
-  ctx.fillStyle='#b8d4ff'; ctx.font='bold 11px "Google Sans",sans-serif';
-  ctx.fillText(labels.wafer||'', (cL+cR)/2, wY+22);
-
-  // ── Susceptor (grounded anode, large area) — bottom ──
-  const sucY=wY+12, sucH=22;
-  const g2=ctx.createLinearGradient(cL,sucY,cR,sucY+sucH);
+  ctx.fillStyle='#b8d4ff'; ctx.font='bold 11px '+SANS; ctx.fillText(labels.wafer||'', (cL+cR)/2, wY+21);
+  const sgY=wY+26, sgH=22;
+  const g2=ctx.createLinearGradient(cL,sgY,cR,sgY+sgH);
   g2.addColorStop(0,'#1a3a1a'); g2.addColorStop(1,'#0F8C50');
-  ctx.fillStyle=g2; ctx.fillRect(cL,sucY,cR-cL,sucH);
-  ctx.fillStyle='#7fffb3'; ctx.font='bold 11px "Google Sans",sans-serif'; ctx.textAlign='center';
-  ctx.fillText(labels.susceptor||'', (cL+cR)/2, sucY+15);
+  ctx.fillStyle=g2; ctx.fillRect(cL+2,sgY,cR-cL-4,sgH);
+  ctx.fillStyle='#7fffb3'; ctx.font='bold 10px '+SANS; ctx.textAlign='center';
+  ctx.fillText(labels.stage||'', (cL+cR)/2, sgY+15);
 
-  // ── Matcher + DC/AC Source boxes (left side) ──
-  const mX=20,mY=140,mW=80,mH=50;
-  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(mX,mY,mW,mH);
-  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(mX,mY,mW,mH);
-  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
-  (labels.matcher||'').split('\n').forEach((l,i)=>ctx.fillText(l,mX+mW/2,mY+18+i*13));
+  // ── DC magnetron PSU (left) — no matcher ──
+  const pX=14, pY=150, pW=104, pH=52;
+  ctx.strokeStyle='rgba(15,140,80,0.8)'; ctx.lineWidth=1.5; ctx.strokeRect(pX,pY,pW,pH);
+  ctx.fillStyle='rgba(15,80,45,0.55)'; ctx.fillRect(pX,pY,pW,pH);
+  ctx.fillStyle='#bff5d6'; ctx.font='bold 10px '+SANS; ctx.textAlign='center';
+  (labels.psu||'').split('\n').forEach((l,i)=>ctx.fillText(l,pX+pW/2,pY+21+i*14));
+  ctx.fillStyle='rgba(200,200,215,0.7)'; ctx.font='9px '+SANS;
+  (labels.psuNote||'').split('\n').forEach((l,i)=>ctx.fillText(l,pX+pW/2,pY+pH+14+i*12));
+  ctx.strokeStyle='rgba(120,230,170,0.8)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(pX+pW/2,pY); ctx.lineTo(pX+pW/2,tY+tH/2); ctx.lineTo(cL,tY+tH/2); ctx.stroke();
+  ctx.fillStyle='rgba(255,140,90,0.95)'; ctx.font='bold 10px '+MONO; ctx.textAlign='center';
+  ctx.fillText(labels.vtarget||'', (cL+cR)/2, 20);
 
-  const rX=20,rY=220,rW=80,rH=55;
-  ctx.strokeStyle='rgba(200,140,255,0.6)'; ctx.lineWidth=1.5; ctx.strokeRect(rX,rY,rW,rH);
-  ctx.fillStyle='rgba(70,0,120,0.5)'; ctx.fillRect(rX,rY,rW,rH);
-  ctx.fillStyle='#d9b8ed'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
-  (labels.rfgen||'').split('\n').forEach((l,i)=>ctx.fillText(l,rX+rW/2,rY+18+i*13));
-
-  // wires: source -> matcher -> target (top)
-  ctx.strokeStyle='rgba(200,140,255,0.7)'; ctx.lineWidth=2; ctx.setLineDash([]);
-  ctx.beginPath(); ctx.moveTo(rX+rW/2,rY); ctx.lineTo(mX+mW/2,mY+mH); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(mX+mW,mY+mH/2); ctx.lineTo(cL,tY+tH/2); ctx.stroke();
-
-  // ── V_target label ──
-  ctx.fillStyle='rgba(255,130,80,0.95)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='center';
-  ctx.fillText(labels.dcbias||'', (cL+cR)/2, cT-12);
-
-  // ── Ar gas inlet (side, into plasma region) ──
-  ctx.fillStyle='rgba(100,200,255,0.8)'; ctx.font='bold 10px "JetBrains Mono",monospace'; ctx.textAlign='left';
-  ctx.fillText(labels.gasIn||'', cL+6, plT-4);
-  ctx.fillStyle='rgba(100,200,255,0.5)';
-  ctx.beginPath(); ctx.moveTo(cL+30,plT+10); ctx.lineTo(cL+18,plT+18); ctx.lineTo(cL+30,plT+18); ctx.closePath(); ctx.fill();
-
-  // ── Pump (side exhaust, right) ──
-  const pX=cR+8, pY=plT+10, pW=70, pH=28;
-  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.lineWidth=1.5;
-  ctx.strokeRect(pX,pY,pW,pH);
-  ctx.fillStyle='rgba(15,60,20,0.5)'; ctx.fillRect(pX,pY,pW,pH);
-  ctx.fillStyle='rgba(100,200,120,0.8)'; ctx.font='bold 10px "Google Sans",sans-serif'; ctx.textAlign='center';
-  ctx.fillText(labels.pump||'', pX+pW/2, pY+pH/2+4);
-  ctx.strokeStyle='rgba(100,180,100,0.5)';
-  ctx.beginPath(); ctx.moveTo(cR,pY+pH/2); ctx.lineTo(pX,pY+pH/2); ctx.stroke();
+  // ── Ar inlet (left wall) & pump (right) ──
+  ctx.fillStyle='rgba(100,200,255,0.85)'; ctx.font='bold 10px '+MONO; ctx.textAlign='right';
+  ctx.fillText(labels.gasIn||'', cL-8, 304);
+  ctx.beginPath(); ctx.moveTo(cL-6,300); ctx.lineTo(cL+10,300); ctx.strokeStyle='rgba(100,200,255,0.7)'; ctx.lineWidth=2; ctx.stroke();
+  ctx.fillStyle='rgba(100,200,255,0.7)'; ctx.beginPath(); ctx.moveTo(cL+14,300); ctx.lineTo(cL+6,295); ctx.lineTo(cL+6,305); ctx.closePath(); ctx.fill();
+  const puX=cR+12, puY=300, puW=130, puH=26;
+  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.lineWidth=1.5; ctx.strokeRect(puX,puY,puW,puH);
+  ctx.fillStyle='rgba(15,60,20,0.5)'; ctx.fillRect(puX,puY,puW,puH);
+  ctx.fillStyle='rgba(120,220,140,0.9)'; ctx.font='bold 9.5px '+SANS; ctx.textAlign='center';
+  ctx.fillText(labels.pump||'', puX+puW/2, puY+17);
+  ctx.strokeStyle='rgba(100,180,100,0.5)'; ctx.beginPath(); ctx.moveTo(cR,puY+puH/2); ctx.lineTo(puX,puY+puH/2); ctx.stroke();
 }
 
 // ─────────────────────────────────────────────
@@ -2247,16 +2292,16 @@ function buildICPDiagram(isEn) {
     bfield: 'B-field (induced)',
   } : {
     coil: 'Coil (Antenna) \u2014 Source RF', fshield: 'Faraday Shield',
-    window: 'Dielectric Window (Y\u2082O\u2083 Al\u2082O\u2083)',
-    plasma: 'BCl\u2083/Cl\u2082/Ar \ud50c\ub77c\uc998\ub9c8 (H-mode, n\u2091~10\u00b9\u00b9\u201310\u00b9\u00b2)',
-    sheathTop: '\uc18c\uc2a4 (\ubcc4\ub2e8 \uc81c\uc5b4 \uc5c6\uc74c, V_f)', sheathBot: 'Bias RF\ub85c \uc81c\uc5b4\ub418\ub294 \uc18c\uc2a4',
-    wafer: 'Al \uc6e8\uc774\ud37c + PR \ub9c8\uc2a4\ud0b9', chuck: '\uc6e8\uc774\ud37c \ucf5e',
+    window: 'Dielectric Window (Y₂O₃ 코팅 Al₂O₃)',
+    plasma: 'BCl₃/Cl₂/Ar 플라즈마 (H-mode, nₑ~10¹¹–10¹²)',
+    sheathTop: '얇은 시스 (제어 안 됨, V_f)', sheathBot: 'Bias RF로 제어되는 시스',
+    wafer: 'Al 웨이퍼 + PR 마스크', chuck: '웨이퍼 척',
     srcgen: 'Source RF Gen.\n13.56 MHz', srcmat: 'Source\nMatcher (50\u03a9)',
     biasgen: 'Bias RF Gen.\n13.56 MHz', biasmat: 'Bias\nMatcher (50\u03a9)',
-    cblock: 'C_block', pump: '\ud130\ubcf4 + \ub2e4\ub860 \ud39c\ud504',
-    gasIn: 'BCl\u2083 + Cl\u2082 + Ar (\uc20c\uba74)', dcbias: 'V_DC \u2248 \u221210 ~ \u2212100 V (Bias RF, \ub3c5\ub9bd)',
-    etch: '\uc774\ubc29\uc131 Al \uc2dd\uac01 \u2191 (AlCl\u2083 \u2191)', ions: '이온 플럭스 (V_DC 도움)',
-    bfield: 'B-field (\uc720\ub3c4)',
+    cblock: 'C_block', pump: '터보 + 드라이 펌프',
+    gasIn: 'BCl₃ + Cl₂ + Ar (측면)', dcbias: 'V_DC ≈ −10 ~ −100 V (Bias RF, 독립)',
+    etch: '이방성 Al 식각 ↑ (AlCl₃ ↑)', ions: '이온 플럭스 (V_DC 도움)',
+    bfield: 'B-field (유도)',
   };
   setTimeout(drawICPCanvas, 80);
   return '<canvas id="icpCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
@@ -2460,14 +2505,14 @@ function buildRPSDiagram(isEn) {
     pump: 'Process Chamber Pump', ashing: 'Isotropic Ashing \u2193 (CO\u2082\u2191, H\u2082O\u2191)',
     noions: 'No Ions, No V_DC, No Sheath',
   } : {
-    toroid: '\ud1a0\ub85c\uc774\ub2ec \uc11d\uc601 \ud0c0\ube0c (\ud50c\ub77c\uc998\ub9c8 \ud55c\uc815)', ferrite: '\ubd84\ub9ac\ud615 \ud3d0\ub77c\uc774\ud2b8 \ucf54\uc5b4',
-    coil: '1\ucc28 \ucf54\uc77c \u2014 AC Source', acsrc: 'AC Source\n(\ub300\ud45c 400 kHz)',
-    o2: 'O\u2082 (+Ar/He)', plasma: 'O\u2082 \u2192 2O\u00b7 (H-mode, \ud55c\uc815)',
-    duct: 'Downstream Duct \u2014 \uc774\uc628/e\u207b \uc7ac\uacb0\ud569, O\u00b7\ub294 \uc0dd\uc874',
-    showerhead: '\ub77c\ub2ac\ucf5c \uc0e8\uc6c0\uca54\ub37c (\uc811\uc9c0, RF \uc5c6\uc74c)', rzone: '\ubc18\uc751 \uc601\uc5ed \u2014 \ud50c\ub77c\uc998\ub9c8\u00b7Sheath\u00b7E-field \uc5c6\uc74c',
-    wafer: '\uc6e8\uc774\ud37c + PR (C\u2093H\u1d67)', chuck: 'Chuck (\uc811\uc9c0, \uac00\uc5f4 150\u2013300\u00b0C)',
-    pump: '\uacf5\uc815 \ucc44\ubc84 \ud39c\ud504', ashing: '\ub4f1\ubc29\uc801 Ashing \u2193 (CO\u2082\u2191, H\u2082O\u2191)',
-    noions: '\uc774\uc628 \uc5c6\uc74c, V_DC \uc5c6\uc74c, Sheath \uc5c6\uc74c',
+    toroid: '토로이달 석영 튜브 (플라즈마 한정)', ferrite: '분리형 페라이트 코어',
+    coil: '1차 코일 — AC Source', acsrc: 'AC Source\n(대표 400 kHz)',
+    o2: 'O₂ (+Ar/He)', plasma: 'O₂ → 2O· (H-mode, 한정)',
+    duct: 'Downstream Duct — 이온/e⁻ 재결합, O·는 생존',
+    showerhead: '라디칼 샤워헤드 (접지, RF 없음)', rzone: '반응 영역 — 플라즈마·Sheath·E-field 없음',
+    wafer: '웨이퍼 + PR (CₓHᵧ)', chuck: 'Chuck (접지, 가열 150–300°C)',
+    pump: '공정 챔버 펌프', ashing: '등방적 Ashing ↓ (CO₂↑, H₂O↑)',
+    noions: '이온 없음, V_DC 없음, Sheath 없음',
   };
   setTimeout(drawRPSCanvas, 80);
   return '<canvas id="rpsCanvas" class="chamber-canvas" style="width:100%;max-width:780px;height:auto;display:block;"></canvas>';
@@ -2895,62 +2940,112 @@ C_block: passes AC (RF) current ↔ blocks DC, allowing DC charge to accumulate 
 }
 
 // ─────────────────────────────────────────────
-//  CCP PVD (SPUTTER) DEEP LEARN
+//  MAGNETRON SPUTTER PVD DEEP LEARN
 // ─────────────────────────────────────────────
 function buildPVDDeepLearn(isEn, slideId) {
   const uid = 'dlAccordion_' + slideId;
 
   const DATA = {
     ko: {
-      headerTitle: '심화학습 — CCP PVD (Sputter): 공정 원리 깊이 이해하기',
+      headerTitle: '심화학습 — Sputter PVD: Cathode Sheath에서 Magnetron까지',
       badge: '심화학습',
       sections: [
         {
           icon: '⚡',
-          title: '비대칭 Sheath와 Target Self-Bias — Flux Balance 관점',
-          body: `<p>Chapter 1(PE-CVD, 대칭 전극)·Chapter 2(Etch, 비대칭 — Wafer측에 큰 V_DC)에서 본 것과 동일한 Flux Balance(Γ_e=Γ_i) 원리가 PVD에도 적용됩니다. 차이는 <b>"어느 전극이 작은가"</b>입니다.</p>
+          title: 'Target을 음(−)으로 만드는 두 가지 방법 — DC 직접 인가 vs RF Self-Bias',
+          body: `<p>Chapter 2(Etch)에서는 Blocking Capacitor + 작은 Power 전극 면적 + Flux Balance(Γ_e=Γ_i)가 웨이퍼 척에 큰 음(−)의 V_DC를 만들었습니다. Sputter Target도 같은 최종 상태 — 이온이 날아드는 두껍고 높은 전압의 Sheath — 에 도달하지만, 경로는 Target 재료에 따라 두 가지입니다.</p>
 <table class="dl-table">
-  <thead><tr><th>비교 항목</th><th>Chapter 2 (Etch)</th><th>Chapter 3 (PVD/Sputter)</th></tr></thead>
+  <thead><tr><th>비교 항목</th><th>Chapter 2 (Etch)</th><th>Ch3 — RF Sputter (절연성 Target)</th><th>Ch3 — DC Sputter (금속 Target, 양산 표준)</th></tr></thead>
   <tbody>
-    <tr><td>작은 전극(파워 인가)</td><td>웨이퍼 척 (A_p)</td><td>Target (A_target)</td></tr>
-    <tr><td>큰 전극(접지)</td><td>샤워헤드 (A_g)</td><td>웨이퍼/서셉터 + 챔버 벽</td></tr>
-    <tr><td>강한 V_DC가 형성되는 곳</td><td>웨이퍼 측 → 이온이 웨이퍼로 가속</td><td>Target 측 → 이온이 Target으로 가속</td></tr>
-    <tr><td>이온 충격의 대상</td><td>웨이퍼 위 박막 (제거)</td><td>Source Target 자체 (Sputtering)</td></tr>
+    <tr><td>음(−)전위가 생기는 곳</td><td>웨이퍼 척</td><td>Target</td><td>Target</td></tr>
+    <tr><td>음(−)전위의 기원</td><td>RF Self-Bias (C_block + 면적 비대칭)</td><td>RF Self-Bias (절연 Target 자체가 Capacitor)</td><td>Power Supply가 <b>직접 인가</b></td></tr>
+    <tr><td>Matcher</td><td>필요</td><td>필요</td><td>불필요</td></tr>
+    <tr><td>이온 충격 대상</td><td>웨이퍼 위 막 (제거)</td><td>Target (Sputtering)</td><td>Target (Sputtering)</td></tr>
   </tbody>
 </table>
-<div class="dl-eq">Flux Balance: Γ_e (전자 유입) = Γ_i (이온 유입)
-→ 파워 인가 전극의 실효 면적이 작을수록
-→ 전자를 충분히 밀어내기 위해 그 전극이 더 음(−)으로 charging
-→ V_target ≈ −수백 V (PVD), V_DC ≈ −200~−500V (Etch, 단 대상은 Wafer)</div>
-<div class="dl-highlight">즉, "비대칭 전극으로 한쪽에 강한 V_DC를 만든다"는 설계 원리 자체는 Chapter 2와 Chapter 3이 동일하지만, <b>그 비대칭의 방향(어느 쪽이 작은가)에 따라 이온 충격이 "웨이퍼의 막을 식각"하거나 "Target을 깎아 웨이퍼에 증착"하는 정반대의 결과</b>를 만듭니다.</div>`
+<div class="dl-eq">DC Magnetron: V_target ≈ −300 ~ −700 V (인가값)
+Plasma 전위 ≈ 접지보다 수 V 높음  →  Cathode Sheath ≈ |V_target|
+E_ion ≈ e·|V_target|   (얇은 Sheath, 충돌 거의 없음)</div>
+<div class="dl-highlight">\"비대칭 Sheath\"는 Chapter 3에서도 여전히 올바른 사고 모델입니다 — Target Sheath ≫ Wafer Sheath. 다만 양산 금속 PVD에서 Target의 음(−)전압은 스스로 생기는 Self-Bias가 아니라 <b>인가되는 값</b>이며, Self-Bias 논리는 절연성 Target의 RF Sputter에 해당합니다.</div>`
+        },
+        {
+          icon: '🧲',
+          title: '자석 없는 Diode는 왜 mTorr에서 실패하는가 — 숫자로 보는 Magnetron의 필요성',
+          body: `<p>DC Glow 방전이 스스로 유지되려면, Ar⁺ 충돌로 Target에서 나온 2차(γ) 전자 하나가 (자손 전자까지 포함해) 자신을 방출시킨 이온을 대체할 만큼의 새 이온을 만들어야 합니다.</p>
+<div class="dl-eq">유지 조건:  γ · M ≥ 1      γ ≈ 0.1 (Ar⁺ on Al) → γ-전자 하나당 약 10개 이온 필요
+에너지 예산: 약 400 eV ÷ 이온쌍당 약 30 eV ≈ 13회 — 충분, 단 전자가 가스 속에 머문다면
+
+고속 전자(약 100 eV)의 이온화 평균 자유 행정:
+λ_iz = 1/(n_Ar·σ_iz),  σ_iz ≈ 3×10⁻¹⁶ cm²   →   λ_iz ≈ 107 / p[mTorr]  cm
+  3 mTorr  → 약 36 cm   (Target–웨이퍼 간격 약 5 cm → 한 번 지날 때 약 0.1회 이온화)
+  30 mTorr → 약 3.6 cm  (간격과 비슷)</div>
+<table class="dl-table">
+  <thead><tr><th>항목</th><th>Diode (자석 없음)</th><th>Magnetron</th></tr></thead>
+  <tbody>
+    <tr><td>γ-전자의 운명</td><td>간격을 직선으로 가로질러 Anode로 손실</td><td>E×B로 Racetrack에 포획, 경로 수 m</td></tr>
+    <tr><td>공정 압력</td><td>약 20–100 mTorr 이상</td><td>1–10 mTorr</td></tr>
+    <tr><td>Cathode 전압</td><td>−1 ~ −3 kV</td><td>−300 ~ −700 V</td></tr>
+    <tr><td>Plasma 밀도</td><td>10⁹–10¹⁰ cm⁻³</td><td>10¹¹–10¹² cm⁻³ (Racetrack 앞)</td></tr>
+    <tr><td>Al 이송</td><td>수십 회 충돌 → 열화·확산</td><td>0~수 회 충돌 → 거의 직선</td></tr>
+    <tr><td>증착 속도 / 웨이퍼 전자 가열</td><td>낮음 / 높음</td><td>10배 이상 높음 / 낮음</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">Magnetron은 전자에게 더 많은 에너지를 주는 것이 아니라 <b>더 긴 경로</b>를 줍니다. 갇힌 전자는 λ_iz = 36 cm여도 Racetrack을 수 m 돌며 에너지를 Target 바로 앞에서 거의 다 이온화에 씁니다. 그래서 \"저압 = 긴 평균 자유 행정 = 직진성\"이라는 PVD의 장점은, 자석이 그 저압에서 방전을 살려 두기 때문에 가능한 것입니다.</div>`
+        },
+        {
+          icon: '🌀',
+          title: 'E×B Drift와 Racetrack — 자기장은 왜 Target과 평행해야 하는가',
+          body: `<div class="dl-eq">F = q(E + v × B)
+E ⊥ B  →  v_E×B = (E × B) / B²   (전하·질량과 무관한 Drift)
+Larmor 반경  r_L = m·v⊥ / (|q|·B),   B ≈ 300 G
+  e⁻ (약 100 eV):       r_L ≈ 1 mm   → 자화, 포획
+  Ar⁺ (Bulk 약 1 eV):   r_L ≈ 3 cm   → Sheath 에너지에서는 훨씬 큼 → 사실상 비자화</div>
+<p>Target 앞 Sheath의 E-field는 표면에 수직입니다. Magnet Pack(중심 극 + 이를 둘러싼 반대 극성의 외곽 극)이 만드는 아치형 자력선은 Racetrack 위에서 표면과 <b>평행</b>해지고, 그곳에서 E ⊥ B가 되어 전자는 표면을 떠나지 않고 <b>표면을 따라 옆으로</b> Drift합니다. 극이 닫힌 모양이므로 Drift 경로도 닫혀 Racetrack이 됩니다.</p>
+<p>B가 표면에 <b>수직</b>(E와 평행)이면 E × B = 0입니다 — 전자는 B를 따라 나선을 그리며 그대로 Anode로 빠져나갑니다. 극 근처의 수직 성분은 Magnetic Mirror로서 전자를 아치를 따라 되돌리는 보조 역할을 할 뿐, 포획 자체는 평행 성분이 만듭니다.</p>
+<div class="dl-highlight">자석은 이온을 조종하지 않고 <b>전자만</b> 가둡니다. 이온은 전자가 밀집한 Racetrack 바로 아래에서 생성되어 Sheath를 직진해 Target을 때리므로, <b>Erosion Groove는 전자가 갇혀 있던 위치의 지도</b>입니다. 방전 전압은 −300 ~ −700 V이며 I–V 곡선이 매우 가팔라(I ∝ Vⁿ, n ≈ 5–15) Magnetron 전원은 보통 Power Control 모드로 운전합니다.</div>`
         },
         {
           icon: '🔥',
           title: 'Sputtering Yield와 q×V_sheath — Densification·Etch·Sputter는 같은 물리의 다른 구간',
-          body: `<p>Chapter 1~3을 관통하는 단 하나의 물리량은 <b>이온 충격 에너지 E_ion ≈ q × V_sheath</b>입니다. V_sheath의 크기에 따라 결과가 완전히 달라집니다.</p>
+          body: `<p>Chapter 1~3을 관통하는 물리량은 <b>이온 충격 에너지 E_ion ≈ q × V_sheath</b>입니다.</p>
 <table class="dl-table">
   <thead><tr><th>Chapter</th><th>V_sheath</th><th>E_ion</th><th>결과</th></tr></thead>
   <tbody>
     <tr><td>1. PE-CVD (대칭)</td><td>수~수십 V</td><td>수~수십 eV</td><td>경미한 Densification (결합 절단 임계값 이하)</td></tr>
     <tr><td>2. Dry Etch (비대칭, Wafer측)</td><td>수백 V</td><td>수백~1000+ eV</td><td>SiO₂ 식각 (Removal, 화학+물리 결합)</td></tr>
-    <tr><td>3. PVD/Sputter (비대칭, Target측)</td><td>수백 V</td><td>~100–600 eV</td><td>Al Target Sputtering (순수 물리적 Removal)</td></tr>
+    <tr><td>3. Magnetron PVD (Target측 Cathode)</td><td>약 300–700 V</td><td>약 300–700 eV</td><td>Al Target Sputtering (순수 물리적 Removal)</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight"><b>Sputtering Yield (Y)</b>: 입사 Ar⁺ 1개당 방출되는 Al 원자 수 (수백 eV에서 Y ≈ 1–3). Y는 이온 에너지·질량, Target 원자 질량, 입사각에 의존합니다. Chapter 2의 식각은 "화학적 식각(F·) + 물리적 보조(Ar⁺ Sputtering)"의 결합이지만, PVD의 Target Sputtering은 <b>화학 반응이 전혀 없는 순수 물리적 과정</b>입니다 — 그래서 PE-CVD(SiH₄+N₂O→SiO₂)와 달리 PVD에는 화학 반응식이 없습니다.</div>`
+<div class="dl-highlight"><b>Sputtering Yield (Y)</b>: 입사 Ar⁺ 1개당 방출되는 Al 원자 수 (약 500 eV에서 Y ≈ 1). Y는 이온 에너지·질량, Target 원자 질량, 표면 결합 에너지(Al 약 3.4 eV), 입사각에 의존합니다. 방출 원자는 대부분 <b>중성</b>이며 수~수십 eV, Cosine에 가까운 각도 분포를 가집니다. Chapter 2의 식각은 \"화학적 식각(F·) + 물리적 보조(Ar⁺)\"의 결합이지만, PVD의 Target Sputtering은 <b>화학 반응이 전혀 없는 순수 물리적 과정</b>이므로 PVD에는 화학 반응식이 없습니다.</div>`
+        },
+        {
+          icon: '🎯',
+          title: 'Racetrack Erosion · Target 이용률 · Al 원자 이송',
+          body: `<table class="dl-table">
+  <thead><tr><th>주제</th><th>핵심 내용</th></tr></thead>
+  <tbody>
+    <tr><td>Target 이용률</td><td>고정 Planar Magnetron 약 20–30%. Target 수명은 Groove의 평균이 아니라 <b>가장 깊은 지점</b>이 결정 → Target 수명을 kWh로 관리</td></tr>
+    <tr><td>회전 자석</td><td>편심(Off-center) 자석을 Target 뒤에서 회전 → Racetrack이 Target 전면에 걸쳐 평균화 → Erosion 분산, 웨이퍼 균일도 개선</td></tr>
+    <tr><td>재증착 영역</td><td>Racetrack 밖(중심·가장자리)은 Sputter 세정이 약함 → Reactive 공정에서 절연층이 먼저 자라 Arc의 근원이 됨</td></tr>
+    <tr><td>강자성 Target</td><td>Ni, Co, Fe Target은 자속을 흡수(Shunt)해 B∥를 약화 → 얇은 Target 또는 강한 자석 설계 필요</td></tr>
+    <tr><td>Al 원자 이송</td><td>Ar 속 Sputter된 Al의 λ ≈ 6/p[mTorr] cm (3 mTorr에서 약 2 cm) → 약 5 cm 간격에서 0~수 회 충돌, 거의 직선. 더 직진성이 필요하면 Long-Throw(< 1 mTorr, 긴 간격)</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">현장 포인트: Target 수명에 따라 Groove가 깊어지면 Erosion Profile — 그리고 증착 속도·균일도 — 가 서서히 변하므로, PVD Recipe는 Target kWh 누적에 따라 Power나 Time을 보정하는 경우가 많습니다.<br><br>남은 질문: 증착 원자가 중성이라면, 고종횡비 홀의 바닥까지 금속을 어떻게 보낼 수 있을까요? 거의 직선인 이송은 입구 Overhang과 얇은 바닥 Coverage를 남깁니다. 이 문제는 Sputter된 금속 자체를 이온화하는 <b>Ionized PVD</b>로 이어지며, 두 번째 고밀도 Plasma Source가 필요하므로 ICP를 배운 뒤 다룹니다.</div>`
         },
         {
           icon: '🔌',
-          title: 'DC vs AC/RF — Sputtering 전원 방식의 선택 기준과 추세',
-          body: `<p>금속(Al, Cu, Ti, Ta, W 등) Target은 <b>도체</b>이므로, Sputter PVD에서는 <b>DC Power가 전통적인 양산 표준(Default)</b>입니다. 회로가 단순하고, 닫힌 루프 구조이며, 증착 속도가 높습니다. Arc 억제를 위해 흔히 <b>Pulsed-DC</b>(낮은 주파수로 짧게 극성 반전)로 운용됩니다.</p>
+          title: 'DC vs Pulsed-DC vs RF — Sputtering 전원 방식의 선택 기준',
+          body: `<p>금속(Al, Cu, Ti, Ta, W 등) Target은 <b>도체</b>이므로 Sputter PVD에서는 <b>DC Magnetron 전원이 양산 표준</b>입니다. 회로가 단순하고 Matcher가 필요 없으며 증착 속도가 높습니다.</p>
 <table class="dl-table">
   <thead><tr><th>전원 방식</th><th>적용 대상</th><th>이유</th></tr></thead>
   <tbody>
     <tr><td><b>DC (기본)</b></td><td>순수 금속 Target (Al, Cu, Ti, Ta, W…)</td><td>도체 → Ar⁺의 (+)전하가 자유전자로 즉시 중화 → Net 전계 무한정 유지</td></tr>
-    <tr><td><b>Pulsed-DC</b></td><td>Reactive Sputtering 등 약한 Poisoning 발생 환경</td><td>DC의 단순함 유지하면서, 주기적 극성 반전으로 Target 표면에 쌓인 전하를 방전 — Arc 억제</td></tr>
-    <tr><td><b>AC/RF (13.56 MHz)</b></td><td>절연성 Target 직접 증착 (예: Al₂O₃, HfO₂ 등 High-k/유전체), 또는 심하게 Poisoning된 금속 Target</td><td>PE-CVD의 SiO₂ 절연막이 DC에서 충전되어 Plasma가 꺼지는 것과 동일한 문제가 Target에서 발생 → AC로 매 반주기 충전/중화</td></tr>
+    <tr><td><b>Pulsed-DC</b> (수십~수백 kHz)</td><td>Reactive Sputtering (TiN, TaN, AlN 등) — Target Poisoning 환경</td><td>Racetrack 밖에 자란 절연 패치의 전하를 주기적 극성 반전으로 방전 → Arc 억제</td></tr>
+    <tr><td><b>RF (13.56 MHz + Matcher)</b></td><td>절연성 Target 직접 증착 (Al₂O₃, SiO₂, HfO₂ 등)</td><td>PE-CVD의 SiO₂가 DC에서 충전되어 Plasma가 꺼지는 것과 동일한 문제가 Target에서 발생 → RF Self-Bias로 Target을 음(−)으로 유지</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight">정리하면: <b>금속막 Sputtering은 여전히 DC(또는 Pulsed-DC)가 주류이며 앞으로도 그럴 것입니다.</b> 다만 첨단 공정에서 PVD로 증착하는 대상이 순수 금속을 넘어 유전체·High-k·질화물(TiN, TaN 등 반응성 Sputtering 포함)로 확장되면서, Target 표면이 절연성/Poisoned 상태가 되는 경우가 늘어나고 있습니다. 이런 경우 PE-CVD Class 1에서 SiO₂에 DC가 통하지 않았던 것과 동일한 이유로 <b>AC/RF 또는 Pulsed-DC가 점점 더 필요해지는 추세</b>입니다 — "AC가 DC를 대체"하는 것이 아니라, <b>적용 대상이 넓어지면서 AC/Pulsed-DC가 보조·확장 수단으로 함께 쓰이는 빈도가 늘어나는 것</b>으로 이해하는 것이 정확합니다.</div>`
+<div class="dl-highlight">정리: 금속막 Sputtering은 DC(또는 Pulsed-DC) Magnetron이 주류입니다. PVD 대상이 질화물·산화물·High-k로 확장되면서 Target 표면이 절연성/Poisoned 상태가 되는 경우가 늘고, 그 경우에 한해 Pulsed-DC나 RF가 필요해집니다 — \"RF가 DC를 대체\"하는 것이 아니라 적용 대상에 따라 함께 쓰이는 것입니다.</div>`
         },
         {
           icon: '🏭',
@@ -2958,77 +3053,128 @@ function buildPVDDeepLearn(isEn, slideId) {
           body: `<table class="dl-table">
   <thead><tr><th>응용</th><th>주요 금속</th><th>비고</th></tr></thead>
   <tbody>
-    <tr><td>Contact Plug / Via Fill</td><td>W, Ti/TiN(Liner)</td><td>Barrier(Ti/TiN) 위에 W CVD/PVD로 Fill</td></tr>
-    <tr><td>Metal Interconnect</td><td>Al, Cu, Co, Ru, AlCu</td><td>신호 배선·전력 전달, Legacy~Advanced Node</td></tr>
-    <tr><td>Gate Metal (HKMG)</td><td>TiN, TaN, W/Ru/Mo</td><td>Work Function 제어, 게이트 전극</td></tr>
-    <tr><td>Barrier / Liner</td><td>Ti, TiN, Ta, TaN, WN</td><td>확산 방지(Cu→Si/SiO₂), 접착력 향상</td></tr>
-    <tr><td>DRAM Capacitor Electrode</td><td>TiN, Ru, Pt, W</td><td>High-k(HfO₂) 유전체와 함께 Capacitor 구성</td></tr>
-    <tr><td>NAND Word Line</td><td>W, TiN, Co/Ru</td><td>3D NAND 적층 구조의 Word Line</td></tr>
+    <tr><td>Contact / Via Liner·Barrier</td><td>Ti, TiN, Ta, TaN</td><td>Barrier/Liner를 PVD로, W·Cu Fill은 주로 CVD/ECP</td></tr>
+    <tr><td>Metal Interconnect</td><td>AlCu, Cu Seed, Co, Ru</td><td>Al 배선은 PVD 증착 후 식각, Cu는 PVD Seed + 전해도금</td></tr>
+    <tr><td>Gate Metal (HKMG)</td><td>TiN, TaN, TiAl, W</td><td>Work Function 제어, 게이트 전극</td></tr>
+    <tr><td>Silicide 형성</td><td>Ni, Co, Ti</td><td>PVD 증착 후 열처리로 Silicide 형성 (강자성 Target 고려)</td></tr>
+    <tr><td>DRAM Capacitor / Bit Line</td><td>TiN, W, Ru</td><td>전극·배선층</td></tr>
+    <tr><td>Hard Mask / MRAM 다층막</td><td>TiN, W, CoFeB, MgO 등</td><td>다층 금속·산화물 Stack</td></tr>
   </tbody>
 </table>
 <table class="dl-table">
-  <thead><tr><th>장비사</th><th>대표 장비</th><th>주요 용도</th></tr></thead>
+  <thead><tr><th>장비사 (대표 예)</th><th>대표 장비</th><th>주요 용도</th></tr></thead>
   <tbody>
-    <tr><td>Applied Materials (AMAT)</td><td>Endura</td><td>Al/Cu/Ti/TiN/Ta/TaN PVD, Barrier/Liner</td></tr>
-    <tr><td>ULVAC</td><td>ENTRON, CERAUS</td><td>금속·Barrier·반응성 Sputter</td></tr>
-    <tr><td>EVG / Singulus</td><td>Cluster PVD</td><td>다층 금속 Stack 증착</td></tr>
-    <tr><td>Sunic System / Wonik IPS</td><td>PVD Cluster</td><td>국내 금속 Barrier/전극 PVD</td></tr>
+    <tr><td>Applied Materials (AMAT)</td><td>Endura</td><td>Al/Cu/Ti/TiN/Ta/TaN Magnetron PVD, Barrier/Seed, IPVD</td></tr>
+    <tr><td>Lam Research</td><td>INOVA</td><td>Cu Barrier/Seed PVD</td></tr>
+    <tr><td>ULVAC</td><td>ENTRON</td><td>금속·Barrier·Reactive Sputter</td></tr>
+    <tr><td>Canon Anelva</td><td>C-7100 계열</td><td>MRAM 등 다층 박막 PVD</td></tr>
+    <tr><td>Evatec</td><td>CLUSTERLINE</td><td>Advanced Packaging·Power·MEMS용 금속 PVD</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight">DC/AC Power Source와 Matcher(필요 시)는 위 PVD 장비사 시스템의 Target Cathode에 전원을 인가하여 V_target과 Sputtering Rate를 결정합니다. 금속 Target에서는 DC(또는 Pulsed-DC) Power Supply가 표준이며, 반응성/유전체 Sputtering 모듈에는 13.56 MHz AC/RF Matcher가 추가됩니다.</div>`
+<div class="dl-highlight">위 장비들의 PVD Chamber는 모두 Magnetron Cathode가 기본입니다. 금속 Target에는 DC(또는 Pulsed-DC) Magnetron 전원이 표준이며, 유전체/Reactive 모듈과 IPVD의 웨이퍼 Bias에는 13.56 MHz RF Generator와 Matcher가 추가됩니다.</div>`
         },
       ]
     },
     en: {
-      headerTitle: 'Deep Study — CCP PVD (Sputter): Process Principles in Depth',
+      headerTitle: 'Deep Study — Sputter PVD: From the Cathode Sheath to the Magnetron',
       badge: 'Deep Study',
       sections: [
         {
           icon: '⚡',
-          title: 'Asymmetric Sheath and Target Self-Bias — A Flux-Balance View',
-          body: `<p>The same flux-balance principle (Γ_e=Γ_i) seen in Chapter 1 (PE-CVD, symmetric) and Chapter 2 (Etch, asymmetric — large V_DC at the wafer) also applies to PVD. The difference is <b>which electrode is small</b>.</p>
+          title: 'Two Ways to Make the Target Negative — Applied DC vs. RF Self-Bias',
+          body: `<p>In Chapter 2 (etch), a blocking capacitor + small powered-electrode area + flux balance (Γ_e=Γ_i) built a large negative V_DC on the wafer chuck. A sputter target reaches the same end state — a thick, high-voltage sheath that ions fall into — by one of two routes, depending on the target material.</p>
 <table class="dl-table">
-  <thead><tr><th>Comparison</th><th>Chapter 2 (Etch)</th><th>Chapter 3 (PVD/Sputter)</th></tr></thead>
+  <thead><tr><th>Comparison</th><th>Chapter 2 (Etch)</th><th>Ch3 — RF Sputter (insulating target)</th><th>Ch3 — DC Sputter (metal target, production standard)</th></tr></thead>
   <tbody>
-    <tr><td>Small (powered) electrode</td><td>Wafer chuck (A_p)</td><td>Target (A_target)</td></tr>
-    <tr><td>Large (grounded) electrode</td><td>Showerhead (A_g)</td><td>Wafer/susceptor + chamber walls</td></tr>
-    <tr><td>Where strong V_DC forms</td><td>Wafer side → ions accelerate toward wafer</td><td>Target side → ions accelerate toward target</td></tr>
-    <tr><td>What the ion bombardment acts on</td><td>Film on the wafer (removal)</td><td>Source target itself (sputtering)</td></tr>
+    <tr><td>Negative electrode</td><td>Wafer chuck</td><td>Target</td><td>Target</td></tr>
+    <tr><td>Origin of the negative potential</td><td>RF self-bias (C_block + area asymmetry)</td><td>RF self-bias (insulating target acts as the capacitor)</td><td><b>Applied directly</b> by the supply</td></tr>
+    <tr><td>Matcher</td><td>Required</td><td>Required</td><td>Not needed</td></tr>
+    <tr><td>Bombarded surface</td><td>Film on the wafer (removal)</td><td>Target (sputtering)</td><td>Target (sputtering)</td></tr>
   </tbody>
 </table>
-<div class="dl-eq">Flux balance: Γ_e (electron influx) = Γ_i (ion influx)
-→ the smaller the effective area of the powered electrode
-→ the more negative it must charge to repel enough electrons
-→ V_target ≈ −hundreds of V (PVD); V_DC ≈ −200 to −500 V (Etch, but acting on the wafer)</div>
-<div class="dl-highlight">The design principle — "use asymmetric electrodes to build a strong V_DC on one side" — is the same in Chapters 2 and 3. But <b>the direction of the asymmetry (which side is smaller) determines whether the ion bombardment etches the film on the wafer, or erodes the target to deposit on the wafer</b> — opposite outcomes from the same mechanism.</div>`
+<div class="dl-eq">DC magnetron: V_target ≈ −300 to −700 V (applied)
+Plasma potential ≈ a few V above ground  →  cathode sheath ≈ |V_target|
+E_ion ≈ e·|V_target|   (thin, nearly collisionless sheath)</div>
+<div class="dl-highlight">"Asymmetric sheath" remains the right mental model for Chapter 3 — target sheath ≫ wafer sheath. But in production metal PVD the negative target voltage is <b>applied</b>, not a self-generated bias; the self-bias argument belongs to RF sputtering of insulating targets.</div>`
+        },
+        {
+          icon: '🧲',
+          title: 'Why a Plain Diode Fails at mTorr — the Case for the Magnetron, in Numbers',
+          body: `<p>A DC glow discharge sustains itself only if each secondary (γ) electron released from the target by an Ar⁺ impact — together with its descendants — creates enough new ions to replace the ion that released it.</p>
+<div class="dl-eq">Sustaining condition:  γ · M ≥ 1      γ ≈ 0.1 (Ar⁺ on Al) → ~10 ions per γ-electron
+Energy budget: ~400 eV ÷ ~30 eV per ion pair ≈ 13 — enough, IF the electron stays in the gas
+
+Ionization mean free path of a fast (~100 eV) electron:
+λ_iz = 1/(n_Ar·σ_iz),  σ_iz ≈ 3×10⁻¹⁶ cm²   →   λ_iz ≈ 107 / p[mTorr]  cm
+  3 mTorr  → ~36 cm   (target–wafer gap ~5 cm → ~0.1 ionization per pass)
+  30 mTorr → ~3.6 cm  (comparable to the gap)</div>
+<table class="dl-table">
+  <thead><tr><th>Item</th><th>Diode (no magnet)</th><th>Magnetron</th></tr></thead>
+  <tbody>
+    <tr><td>Fate of γ-electrons</td><td>Cross the gap, lost to the anode</td><td>Trapped in the racetrack by E×B; path of meters</td></tr>
+    <tr><td>Process pressure</td><td>~20–100 mTorr or more</td><td>1–10 mTorr</td></tr>
+    <tr><td>Cathode voltage</td><td>−1 to −3 kV</td><td>−300 to −700 V</td></tr>
+    <tr><td>Plasma density</td><td>10⁹–10¹⁰ cm⁻³</td><td>10¹¹–10¹² cm⁻³ (in front of racetrack)</td></tr>
+    <tr><td>Al transport</td><td>Dozens of collisions → thermalized, diffusive</td><td>Zero to a few collisions → near line-of-sight</td></tr>
+    <tr><td>Deposition rate / wafer e⁻ heating</td><td>Low / high</td><td>≥10× higher / low</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">The magnetron does not give the electron more energy — it gives it a <b>longer path</b>. Even with λ_iz = 36 cm, a trapped electron circles the racetrack for meters and spends nearly all its energy on ionization right in front of the target. PVD's "low pressure = long mean free path = directionality" advantage exists only because the magnet keeps the discharge alive at that pressure.</div>`
+        },
+        {
+          icon: '🌀',
+          title: 'E×B Drift and the Racetrack — Why the B-field Must Be Parallel to the Target',
+          body: `<div class="dl-eq">F = q(E + v × B)
+E ⊥ B  →  v_E×B = (E × B) / B²   (drift independent of charge and mass)
+Larmor radius  r_L = m·v⊥ / (|q|·B),   B ≈ 300 G
+  e⁻ (~100 eV):        r_L ≈ 1 mm   → magnetized, trapped
+  Ar⁺ (~1 eV, bulk):   r_L ≈ 3 cm   → far larger at sheath energies → effectively unmagnetized</div>
+<p>The sheath E-field in front of the target is perpendicular to the surface. The arched field lines from the magnet pack (a center pole surrounded by an outer pole of opposite polarity) become <b>parallel</b> to the surface above the racetrack; there E ⊥ B, and electrons drift <b>sideways along the surface</b> instead of leaving it. Because the poles form a closed shape, the drift path closes on itself — the racetrack.</p>
+<p>If B were <b>perpendicular</b> to the surface (parallel to E), E × B = 0 — electrons would spiral along B straight to the anode. The perpendicular component near the poles only helps as a magnetic mirror that bounces electrons back along the arch; the trap itself is made by the parallel component.</p>
+<div class="dl-highlight">The magnet traps <b>only electrons</b>; it does not steer ions. Ions are born under the racetrack where electrons are dense and fall straight through the sheath, so <b>the erosion groove is a map of where the electrons were trapped</b>. Discharge voltage is −300 to −700 V with a very steep I–V curve (I ∝ Vⁿ, n ≈ 5–15), which is why magnetron supplies usually run in power-control mode.</div>`
         },
         {
           icon: '🔥',
-          title: 'Sputtering Yield and q×V_sheath — Densification, Etch, and Sputter Are the Same Physics on Different Scales',
-          body: `<p>One quantity runs through Chapters 1–3: <b>ion bombardment energy E_ion ≈ q × V_sheath</b>. The magnitude of V_sheath determines the outcome entirely.</p>
+          title: 'Sputtering Yield & q×V_sheath — Densification, Etch and Sputter Are One Physics in Different Windows',
+          body: `<p>The single quantity running through Chapters 1–3 is the <b>ion impact energy E_ion ≈ q × V_sheath</b>.</p>
 <table class="dl-table">
-  <thead><tr><th>Chapter</th><th>V_sheath</th><th>E_ion</th><th>Outcome</th></tr></thead>
+  <thead><tr><th>Chapter</th><th>V_sheath</th><th>E_ion</th><th>Result</th></tr></thead>
   <tbody>
-    <tr><td>1. PE-CVD (symmetric)</td><td>Few–tens of V</td><td>Few–tens of eV</td><td>Mild densification (below bond-breaking threshold)</td></tr>
-    <tr><td>2. Dry Etch (asymmetric, wafer side)</td><td>Hundreds of V</td><td>Hundreds–1000+ eV</td><td>SiO₂ etch (removal, chemical + physical combined)</td></tr>
-    <tr><td>3. PVD/Sputter (asymmetric, target side)</td><td>Hundreds of V</td><td>~100–600 eV</td><td>Al target sputtering (purely physical removal)</td></tr>
+    <tr><td>1. PE-CVD (symmetric)</td><td>A few to tens of V</td><td>A few to tens of eV</td><td>Mild densification (below bond-breaking threshold)</td></tr>
+    <tr><td>2. Dry Etch (asymmetric, wafer side)</td><td>Hundreds of V</td><td>Hundreds to 1000+ eV</td><td>SiO₂ etching (removal, chemical + physical)</td></tr>
+    <tr><td>3. Magnetron PVD (target cathode)</td><td>~300–700 V</td><td>~300–700 eV</td><td>Al target sputtering (purely physical removal)</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight"><b>Sputtering yield (Y)</b>: atoms of Al ejected per incident Ar⁺ (Y ≈ 1–3 at hundreds of eV). Y depends on ion energy/mass, target atom mass, and incidence angle. Chapter 2's etch combines chemical etching (F·) with physical assist (Ar⁺ sputtering); PVD's target sputtering, by contrast, is a <b>purely physical process with no chemistry at all</b> — which is why, unlike PE-CVD's SiH₄+N₂O→SiO₂, PVD has no chemical equation.</div>`
+<div class="dl-highlight"><b>Sputtering yield (Y)</b>: Al atoms ejected per incident Ar⁺ (Y ≈ 1 near 500 eV). Y depends on ion energy and mass, target atomic mass, surface binding energy (Al ~3.4 eV) and angle of incidence. Ejected atoms are mostly <b>neutral</b>, with a few to tens of eV and a near-cosine angular distribution. Chapter 2's etch combines chemical etching (F·) with physical assistance (Ar⁺), but target sputtering is <b>purely physical</b> — which is why PVD has no chemical equation.</div>`
+        },
+        {
+          icon: '🎯',
+          title: 'Racetrack Erosion · Target Utilization · Al Transport',
+          body: `<table class="dl-table">
+  <thead><tr><th>Topic</th><th>Key point</th></tr></thead>
+  <tbody>
+    <tr><td>Target utilization</td><td>~20–30% for a static planar magnetron. Target life is set by the <b>deepest point</b> of the groove, not the average → target life is tracked in kWh</td></tr>
+    <tr><td>Rotating magnets</td><td>An off-center magnet rotating behind the target averages the racetrack over the whole face → broader erosion, better wafer uniformity</td></tr>
+    <tr><td>Redeposition zones</td><td>Outside the racetrack (center, edges) sputter cleaning is weak → in reactive processes insulating layers grow there first and become arc sources</td></tr>
+    <tr><td>Ferromagnetic targets</td><td>Ni, Co, Fe targets shunt the magnetic flux and weaken B∥ → thinner targets or stronger magnet designs</td></tr>
+    <tr><td>Al transport</td><td>λ of sputtered Al in Ar ≈ 6/p[mTorr] cm (~2 cm at 3 mTorr) → zero to a few collisions over a ~5 cm gap, near line-of-sight. For more directionality: long-throw (< 1 mTorr, longer gap)</td></tr>
+  </tbody>
+</table>
+<div class="dl-highlight">Field note: as the groove deepens over target life, the erosion profile — and with it deposition rate and uniformity — slowly changes, so PVD recipes are often compensated (power or time) as target kWh accumulate.<br><br>Open question: if the depositing atoms are neutral, how do we get metal to the bottom of a high-aspect-ratio hole? Near line-of-sight transport leaves overhang at the opening and thin bottom coverage. The answer leads to <b>Ionized PVD</b> — ionizing the sputtered metal itself — which needs a second, high-density plasma source; we return to it after ICP.</div>`
         },
         {
           icon: '🔌',
-          title: 'DC vs AC/RF — Choosing a Sputtering Power Source, and the Trend',
-          body: `<p>Metal targets (Al, Cu, Ti, Ta, W, etc.) are <b>conductors</b>, so <b>DC power is the conventional production default</b> for sputter PVD — simple circuitry, a closed loop, and high deposition rates. It is often run as <b>pulsed-DC</b> (brief periodic polarity reversal at low frequency) to suppress arcing.</p>
+          title: 'DC vs. Pulsed-DC vs. RF — Choosing the Sputtering Power Mode',
+          body: `<p>Metal targets (Al, Cu, Ti, Ta, W, etc.) are <b>conductors</b>, so the <b>DC magnetron supply is the production standard</b> — a simple circuit, no matcher, high deposition rate.</p>
 <table class="dl-table">
-  <thead><tr><th>Power Mode</th><th>Applies To</th><th>Why</th></tr></thead>
+  <thead><tr><th>Power mode</th><th>Applied to</th><th>Reason</th></tr></thead>
   <tbody>
-    <tr><td><b>DC (default)</b></td><td>Pure metal targets (Al, Cu, Ti, Ta, W…)</td><td>Conductor → Ar⁺-deposited (+) charge is instantly neutralized by free electrons → net field sustained indefinitely</td></tr>
-    <tr><td><b>Pulsed-DC</b></td><td>Mild poisoning conditions, e.g. some reactive sputtering</td><td>Keeps DC simplicity while periodically reversing polarity to bleed off charge accumulating on the target — suppresses arcing</td></tr>
-    <tr><td><b>AC/RF (13.56 MHz)</b></td><td>Direct deposition of insulating targets (e.g. Al₂O₃, HfO₂, other high-k/dielectrics), or heavily poisoned metal targets</td><td>Same problem as PE-CVD's SiO₂ charging under DC, but occurring at the target — AC's charge/neutralize cycle each half-period is required</td></tr>
+    <tr><td><b>DC (default)</b></td><td>Pure metal targets (Al, Cu, Ti, Ta, W…)</td><td>Conductor → (+) charge from Ar⁺ neutralized instantly by free electrons → net field maintained indefinitely</td></tr>
+    <tr><td><b>Pulsed-DC</b> (tens–hundreds of kHz)</td><td>Reactive sputtering (TiN, TaN, AlN…) — target poisoning</td><td>Periodic polarity reversal discharges insulating patches grown outside the racetrack → arc suppression</td></tr>
+    <tr><td><b>RF (13.56 MHz + matcher)</b></td><td>Direct deposition from insulating targets (Al₂O₃, SiO₂, HfO₂…)</td><td>Same charging problem that stalls DC PE-CVD of SiO₂, now at the target → RF self-bias keeps the target negative</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight">In short: <b>DC (or pulsed-DC) remains, and will likely remain, the mainstream choice for metal-film sputtering.</b> However, as advanced processes increasingly use PVD to deposit beyond pure metals — dielectrics, high-k materials, nitrides (TiN, TaN, etc. via reactive sputtering) — target surfaces more often become insulating or poisoned. For exactly the reason DC failed for SiO₂ in PE-CVD Class 1, <b>AC/RF or pulsed-DC is becoming progressively more necessary</b> in these cases. The accurate framing is not "AC is replacing DC," but rather: <b>as the range of materials deposited by PVD broadens, AC/pulsed-DC is used more often as a supplementary/extension mode alongside DC</b>.</div>`
+<div class="dl-highlight">In short: metal-film sputtering is dominated by DC (or pulsed-DC) magnetrons. As PVD expands to nitrides, oxides and high-k materials, the target surface increasingly becomes insulating or poisoned, and only in those cases do pulsed-DC or RF become necessary — RF does not replace DC; each is used where its target material requires it.</div>`
         },
         {
           icon: '🏭',
@@ -3036,24 +3182,25 @@ function buildPVDDeepLearn(isEn, slideId) {
           body: `<table class="dl-table">
   <thead><tr><th>Application</th><th>Key Metals</th><th>Notes</th></tr></thead>
   <tbody>
-    <tr><td>Contact Plug / Via Fill</td><td>W, Ti/TiN (liner)</td><td>W fill (CVD/PVD) over Ti/TiN barrier</td></tr>
-    <tr><td>Metal Interconnect</td><td>Al, Cu, Co, Ru, AlCu</td><td>Signal routing & power delivery, legacy to advanced nodes</td></tr>
-    <tr><td>Gate Metal (HKMG)</td><td>TiN, TaN, W/Ru/Mo</td><td>Work function control, gate electrode</td></tr>
-    <tr><td>Barrier / Liner</td><td>Ti, TiN, Ta, TaN, WN</td><td>Diffusion prevention (Cu→Si/SiO₂), adhesion</td></tr>
-    <tr><td>DRAM Capacitor Electrode</td><td>TiN, Ru, Pt, W</td><td>Paired with high-k (HfO₂) dielectric</td></tr>
-    <tr><td>NAND Word Line</td><td>W, TiN, Co/Ru</td><td>Word lines in 3D NAND stacks</td></tr>
+    <tr><td>Contact / Via Liner·Barrier</td><td>Ti, TiN, Ta, TaN</td><td>Barrier/liner by PVD; W·Cu fill mostly by CVD/ECP</td></tr>
+    <tr><td>Metal Interconnect</td><td>AlCu, Cu seed, Co, Ru</td><td>Al lines: PVD then etch; Cu: PVD seed + electroplating</td></tr>
+    <tr><td>Gate Metal (HKMG)</td><td>TiN, TaN, TiAl, W</td><td>Work-function control, gate electrode</td></tr>
+    <tr><td>Silicide Formation</td><td>Ni, Co, Ti</td><td>PVD then anneal to form silicide (ferromagnetic targets)</td></tr>
+    <tr><td>DRAM Capacitor / Bit Line</td><td>TiN, W, Ru</td><td>Electrode and wiring layers</td></tr>
+    <tr><td>Hard Mask / MRAM Stacks</td><td>TiN, W, CoFeB, MgO…</td><td>Multilayer metal/oxide stacks</td></tr>
   </tbody>
 </table>
 <table class="dl-table">
-  <thead><tr><th>Vendor</th><th>Key Tool</th><th>Primary Use</th></tr></thead>
+  <thead><tr><th>Vendor (examples)</th><th>Platform</th><th>Main Use</th></tr></thead>
   <tbody>
-    <tr><td>Applied Materials</td><td>Endura</td><td>Al/Cu/Ti/TiN/Ta/TaN PVD, barrier/liner</td></tr>
-    <tr><td>ULVAC</td><td>ENTRON, CERAUS</td><td>Metal/barrier/reactive sputter</td></tr>
-    <tr><td>EVG / Singulus</td><td>Cluster PVD</td><td>Multi-layer metal stack deposition</td></tr>
-    <tr><td>Sunic System / Wonik IPS</td><td>PVD Cluster</td><td>Domestic metal barrier/electrode PVD</td></tr>
+    <tr><td>Applied Materials</td><td>Endura</td><td>Al/Cu/Ti/TiN/Ta/TaN magnetron PVD, barrier/seed, IPVD</td></tr>
+    <tr><td>Lam Research</td><td>INOVA</td><td>Cu barrier/seed PVD</td></tr>
+    <tr><td>ULVAC</td><td>ENTRON</td><td>Metal, barrier and reactive sputtering</td></tr>
+    <tr><td>Canon Anelva</td><td>C-7100 series</td><td>MRAM and multilayer thin-film PVD</td></tr>
+    <tr><td>Evatec</td><td>CLUSTERLINE</td><td>Metal PVD for advanced packaging, power and MEMS</td></tr>
   </tbody>
 </table>
-<div class="dl-highlight">The DC/AC power source (and matcher, where needed) drives the target cathode in the above platforms, setting V_target and the sputtering rate. DC (or pulsed-DC) supplies are standard for metal targets; reactive/dielectric sputtering modules add a 13.56 MHz AC/RF matcher.</div>`
+<div class="dl-highlight">The PVD chambers on all these platforms use magnetron cathodes. DC (or pulsed-DC) magnetron supplies are standard for metal targets; dielectric/reactive modules and IPVD wafer bias add 13.56 MHz RF generators and matchers.</div>`
         },
       ]
     }
