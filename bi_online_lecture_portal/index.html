@@ -626,7 +626,7 @@
       margin-top: 0.5rem;
       padding-left: 1.25rem;
       border-left: 4px solid #F472B6;
-      font-family: 'Gowun Batang', 'Georgia', serif;
+      font-family: 'Google Sans', 'Gowun Batang', 'Georgia', serif;
       font-size: 1.15rem;
       font-weight: 700;
       font-style: italic;
@@ -817,6 +817,7 @@
     .class2-active .lecture-item-btn.active { background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.01) 100%); border: 1px solid rgba(139, 92, 246, 0.1); }
     .class2-active .lecture-item-btn.active::after { background-color: var(--color-class2); opacity: 1; }
     .class2-active .lecture-item-btn.active .module-num { color: var(--color-class2); background: rgba(139, 92, 246, 0.1); font-weight: 700; }
+    .member-chip { flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; color: #fff; background: #CC785C; padding: 2px 7px; border-radius: 9999px; margin-left: 6px; }
 
     .module-num {
       font-size: 0.7rem; background: rgba(0, 0, 0, 0.04); padding: 3px 6px;
@@ -1448,7 +1449,7 @@
           { id: "impedance", titleEn: "Impedance", titleKo: "Impedance", file: "23_impedance.html", duration: "75m" },
           { id: "smith-chart", titleEn: "Smith Chart", titleKo: "Smith Chart", file: "24_smithchart.html", duration: "75m" },
           { id: "matching-network", titleEn: "Matching Network", titleKo: "Matching Network", file: "25_m_network.html", duration: "75m" },
-          { id: "power-delivery", titleEn: "Power Delivery & Monitoring Parameters", titleKo: "Power Delivery & Monitoring Parameters", file: "26_power_delivery.html", duration: "60m" },
+          { id: "power-delivery", members: true, titleEn: "Power Delivery & Monitoring Parameters", titleKo: "Power Delivery & Monitoring Parameters", file: "m6_members.html", duration: "60m" },
           { id: "rf-source", titleEn: "RF Source & its Application", titleKo: "RF Source & its Application", file: "27_rf_source.html", duration: "60m" }
         ]
       }
@@ -1624,6 +1625,7 @@
             <span class="lecture-title" title="${currentLang === 'en' ? lecture.titleEn : lecture.titleKo}">
               ${currentLang === 'en' ? lecture.titleEn : lecture.titleKo}
             </span>
+            ${lecture.members ? '<span class="member-chip" title="Members only">MEMBER</span>' : ''}
             <div class="checkbox-container ${isCompleted ? 'checked' : ''}" 
                  onclick="toggleLectureProgress(event, '${lecture.id}', this)" title="Mark as Completed">
               <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
@@ -1646,7 +1648,7 @@
       closeErrorAlert();
       spinner.classList.add('active');
       
-      iframe.src = `./${lecture.file}`;
+      iframe.src = lecture.members ? `./${lecture.file}?lang=${currentLang}` : `./${lecture.file}`;
       loadLectureNotes();
       checkLocalFileAvailability(lecture.file);
     }
