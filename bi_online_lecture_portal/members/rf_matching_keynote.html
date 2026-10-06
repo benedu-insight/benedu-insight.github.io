@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.8 Ω — RF Matching &amp; Power Delivery · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF9F5; --surface:#EFE9DE; --ink:#252320; --steel:#6C6A64; --steel-soft:#A09D96; --hairline:#E6DFD8;
+  --ink-black:#181715; --card-dark:#232120; --hairline-dark:#3A3733; --mute-dark:#8E8A83; --text-dark:#EFE9DE;
+  --green:#0F8C50; --purple:#7030A0; --coral:#CC785C; --amber:#E8A55A;
+  --font-en:'Google Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-ko:'Gowun Batang',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0A0A09}
+body{font-family:var(--font-en);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+body.idle{cursor:none}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+
+/* ---------- language ---------- */
+.t-ko{display:none;font-family:var(--font-ko)}
+html.lang-ko .t-ko{display:revert}
+html.lang-ko .t-en{display:none}
+.en{font-family:var(--font-en)}
+
+/* ---------- stage ---------- */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{width:1280px;height:720px;position:relative;flex:0 0 auto;overflow:hidden;background:var(--cream);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);transform-origin:center center}
+
+.slide{position:absolute;inset:0;background:var(--cream);opacity:0;visibility:hidden;
+  transition:opacity .6s ease,visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.slide.dark{background:var(--ink-black);color:#fff}
+.slide-note{display:none}
+
+/* ---------- chrome ---------- */
+.logo-tr{position:absolute;right:64px;top:42px;height:34px;width:auto}
+.dark .logo-tr{filter:brightness(0) invert(1);opacity:.92}
+.eyebrow{position:absolute;left:96px;top:56px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.eyebrow b{color:var(--green);margin-right:10px}
+.dark .eyebrow{color:var(--mute-dark)} .dark .eyebrow b{color:var(--amber)}
+.footer{position:absolute;left:96px;right:64px;bottom:0;height:34px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--hairline)}
+.dark .footer{border-top-color:var(--hairline-dark)}
+.footer .fm{font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--steel)}
+.footer .fd2{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em;color:var(--steel-soft)}
+.footer .fp{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--steel)}
+.dark .footer .fm,.dark .footer .fp{color:#8E8A83}
+.dark .footer .fd2{color:#5E5A54}
+.headline{position:absolute;left:96px;right:96px;top:98px;font-size:46px;font-weight:700;letter-spacing:-.028em;line-height:1.15}
+html.lang-ko .headline{font-size:42px;letter-spacing:-.01em}
+.dark .headline{color:#fff}
+.lede{position:absolute;left:96px;right:96px;top:166px;font-size:19px;color:var(--steel);line-height:1.55}
+.dark .lede{color:#B5B0A8}
+
+/* ---------- builds ---------- */
+.frag{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .8s var(--ease)}
+.frag.on{opacity:1;transform:none}
+.frag.strike{transform:scaleX(0);transform-origin:left center;transition:transform .55s var(--ease),opacity .2s}
+.frag.strike.on{transform:scaleX(1)}
+.hides{transition:opacity .5s ease,transform .6s var(--ease)}
+.hides.gone{opacity:0;transform:scale(.94);pointer-events:none}
+.rise{opacity:0}
+.slide.active .rise{animation:rise .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.static .rise{animation:none!important;opacity:1}
+.static .frag,.static .hides{transition:none!important}
+
+/* ---------- equation typesetting ---------- */
+.eqn{font-family:var(--font-en);font-weight:700;display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em}
+.frac .fn{padding:0 .12em .04em;border-bottom:.045em solid currentColor}
+.frac .fd{padding:.04em .12em 0}
+.frac.sm{font-size:.7em}
+.sqrt{display:inline-flex;align-items:stretch;margin-left:.04em}
+.sqrt .rad{display:block;width:.52em;flex:0 0 auto;overflow:visible;margin-right:-1px}
+.sqrt .rad path{fill:none;stroke:currentColor;stroke-width:.075em;stroke-linejoin:miter;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+.sqrt .rc{border-top:.075em solid currentColor;padding:.1em .14em 0 .08em;display:inline-flex;align-items:center}
+.eqn sub{font-size:.62em;vertical-align:baseline;position:relative;top:.32em;line-height:0;font-weight:700;margin-left:.02em}
+.frac .fd .sqrt{margin-top:.16em}
+.paren{font-weight:300;font-size:1.45em;margin:0 -.02em}
+
+/* ================= 1 · COVER ================= */
+.cover-logo{position:absolute;left:96px;top:54px;height:42px;filter:brightness(0) invert(1)}
+.cover-kicker{position:absolute;left:98px;top:206px;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--coral)}
+.cover-big{position:absolute;left:86px;top:226px;font-size:214px;font-weight:700;letter-spacing:-.055em;line-height:1;color:#fff}
+.cover-big span{color:var(--coral)}
+.cover-sub{position:absolute;left:96px;top:462px;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--text-dark)}
+html.lang-ko .cover-sub{font-size:36px;font-weight:700}
+.cover-desc{position:absolute;left:96px;top:524px;width:600px;font-size:18px;line-height:1.6;color:var(--mute-dark)}
+.cover-meta{position:absolute;left:96px;bottom:62px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#6E6A63}
+.cover-art{position:absolute;right:-70px;top:60px;width:600px;height:600px}
+.cover-art .spin{transform-box:fill-box;transform-origin:center;animation:spin 90s linear infinite}
+.cover-art .flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flow{to{stroke-dashoffset:-28}}
+
+/* ================= 2 · MISCONCEPTION ================= */
+.eq-hero{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:100px;color:var(--ink)}
+.claim{position:absolute;left:0;right:0;top:428px;text-align:center;font-size:28px;color:var(--steel)}
+.claim .wrap{position:relative;display:inline-block}
+.claim .strike{position:absolute;left:-10px;right:-10px;top:52%;height:4px;background:var(--coral);border-radius:2px}
+.verdict{position:absolute;left:0;right:0;top:494px;text-align:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:var(--coral)}
+html.lang-ko .verdict{font-size:54px}
+.verdict-sub{position:absolute;left:0;right:0;top:590px;text-align:center;font-size:19px;color:var(--steel)}
+
+/* ================= 3 · CAUSALITY ================= */
+.chain{position:absolute;left:96px;right:96px;top:262px;display:flex;align-items:flex-start;justify-content:space-between}
+.node{width:300px}
+.node .w{font-size:60px;font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.node .w.c{color:var(--coral)}
+.node .s{margin-top:16px;font-size:17px;color:var(--steel);line-height:1.55}
+.arr{font-size:42px;color:var(--steel-soft);padding-top:6px;font-weight:300}
+.punch{position:absolute;left:96px;right:96px;top:500px;padding-top:36px;border-top:1px solid var(--hairline);
+  font-size:34px;font-weight:700;letter-spacing:-.025em}
+html.lang-ko .punch{font-size:31px}
+.punch .c{color:var(--coral)}
+
+/* ================= 4 · LAB ================= */
+.coax-svg{position:absolute;left:96px;top:226px;width:372px;height:372px}
+.lab{position:absolute;left:540px;right:96px;top:226px;bottom:66px;display:flex;flex-direction:column}
+.lab .eqn{font-size:34px;color:var(--ink)}
+.ctl{margin-top:30px}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ctl-row .k{font-size:15px;color:var(--steel)}
+.ctl-row .v{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink)}
+.chips{display:flex;gap:8px;margin-bottom:14px}
+.chip-btn{font-family:var(--font-en);font-size:13px;font-weight:500;color:var(--ink);padding:6px 15px;border:1px solid var(--hairline);
+  border-radius:999px;background:#fff;cursor:pointer;transition:all .2s}
+.chip-btn:hover{border-color:var(--steel-soft)}
+.chip-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--hairline);outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+.readout{margin-top:auto;display:flex;align-items:baseline;gap:14px}
+.readout .k{font-size:28px;font-weight:500;color:var(--steel)}
+.readout .num{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);transition:color .3s;font-variant-numeric:tabular-nums}
+.readout .num.hit{color:var(--coral)} .readout .num.hit75{color:var(--purple)}
+.status{margin-top:10px;font-size:17px;color:var(--steel);min-height:26px}
+.status.hit{color:var(--coral);font-weight:700} .status.hit75{color:var(--purple);font-weight:700}
+
+/* ================= 5 · THREE VIEWS ================= */
+.views{position:absolute;left:96px;right:96px;top:248px;display:grid;grid-template-columns:repeat(3,1fr)}
+.view{padding:0 36px;border-left:1px solid var(--hairline)}
+.view:first-child{padding-left:0;border-left:none}
+.view .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.view .eqn{font-size:54px;height:134px;margin:24px 0 22px;color:var(--ink)}
+.view .d{font-size:17px;color:var(--steel);line-height:1.6}
+.foot-line{position:absolute;left:96px;right:96px;top:584px;font-size:20px;color:var(--steel)}
+.foot-line b{color:var(--ink)}
+
+/* ================= 6 · HISTORY ================= */
+.axis{position:absolute;left:96px;right:96px;top:499px;height:2px;background:var(--hairline-dark)}
+.tick{position:absolute;top:514px;transform:translateX(-50%);font-family:var(--font-mono);font-size:10.5px;color:#5E5A54}
+.mk{position:absolute;top:500px;left:var(--x);width:0;height:0}
+.mk .stem{position:absolute;left:-1px;bottom:0;width:2px;height:var(--h);background:#4A4642}
+.mk .dot{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff}
+.mk .mlab{position:absolute;left:-110px;width:220px;bottom:calc(var(--h) + 14px);text-align:center}
+.mk .v{font-size:46px;font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1}
+.mk .c{margin-top:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.mk.hero .stem,.mk.hero .dot{background:var(--coral)}
+.mk.hero .v{font-size:68px;color:var(--coral)}
+.mk.hero .c{color:var(--coral)}
+.mk.below .stem{top:0;bottom:auto}
+.mk.below .dot{background:#6E6A63}
+.mk.below .mlab{top:calc(var(--h) + 10px);bottom:auto}
+.mk.below .v{font-size:24px;color:#8E8A83}
+.mk.below .c{color:#6E6A63}
+.means{position:absolute;left:330px;width:464px;top:548px;text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--mute-dark);letter-spacing:.02em}
+.src{position:absolute;left:96px;bottom:52px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5A54}
+
+/* ================= 7 · ONE MORE THING ================= */
+.omt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;font-weight:700;letter-spacing:-.035em;color:#fff}
+html.lang-ko .omt{font-size:66px}
+.vs{position:absolute;left:96px;right:96px;top:176px;display:flex;justify-content:center;align-items:flex-start;gap:72px}
+.vs .blk{text-align:center}
+.vs .n{font-size:156px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#fff}
+.vs .n.q{color:var(--coral)}
+.vs .l{margin-top:18px;font-size:18px;color:#B5B0A8}
+.vs .ne{font-size:84px;font-weight:300;color:#5E5A54;padding-top:30px}
+.next-line{position:absolute;left:96px;right:96px;top:472px;text-align:center;font-size:24px;color:var(--text-dark);letter-spacing:-.01em}
+.next-tag{position:absolute;left:0;right:0;top:524px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.end-links{position:absolute;left:0;right:0;bottom:70px;display:flex;justify-content:center;gap:36px}
+.end-links a{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:#B5B0A8;text-decoration:none;border-bottom:1px solid #3A3733;padding-bottom:4px;transition:color .2s,border-color .2s}
+.end-links a:hover{color:#fff;border-color:var(--coral)}
+
+/* ================= CLICK-TO-NAVIGATE HINTS ================= */
+.nav-hint{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(24,23,21,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;z-index:40;
+  transition:opacity .25s ease,transform .25s var(--ease)}
+.nav-hint svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-hint.l{left:22px;transform:translateX(6px)} .nav-hint.r{right:22px;transform:translateX(-6px)}
+.deck.hov-l .nav-hint.l,.deck.hov-r .nav-hint.r{opacity:1;transform:none}
+.deck.hov-l,.deck.hov-r{cursor:pointer}
+body.idle .nav-hint{opacity:0!important}
+
+/* ================= CONTROL BAR ================= */
+#bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px 8px;
+  background:rgba(24,23,21,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;z-index:90;transition:opacity .4s,transform .4s}
+body.idle #bar{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
+#bar button,#bar a{height:34px;min-width:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:none;border:none;border-radius:999px;color:#D9D4CC;font-family:var(--font-en);font-size:12.5px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+#bar button:hover,#bar a:hover{background:rgba(255,255,255,.08);color:#fff}
+#bar button.on{color:var(--coral)}
+#bar svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#bar .dots{display:flex;align-items:center;gap:7px;padding:0 10px}
+#bar .dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);cursor:pointer;transition:width .45s var(--ease),background .3s}
+#bar .dot.done{background:rgba(255,255,255,.5)}
+#bar .dot.on{width:24px;background:var(--coral)}
+#bar .dot:hover{background:rgba(255,255,255,.8)}
+#bar .sep{width:1px;height:18px;background:rgba(255,255,255,.12);margin:0 6px}
+#langBtn{font-family:var(--font-ko)!important;font-weight:700}
+html.lang-ko #langBtn{font-family:var(--font-en)!important}
+
+/* ================= NOTES DRAWER ================= */
+#notesTab{position:fixed;left:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;background:var(--ink-black);color:#D9D4CC;
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.18em;padding:18px 9px;border-radius:0 10px 10px 0;
+  border:1px solid rgba(255,255,255,.08);border-left:none;cursor:pointer;z-index:95;user-select:none;transition:color .2s,opacity .4s}
+#notesTab:hover{color:var(--coral)}
+body.idle #notesTab{opacity:.25}
+#notes{position:fixed;left:0;top:0;bottom:0;width:480px;background:#fff;z-index:100;transform:translateX(-102%);transition:transform .45s var(--ease);
+  display:flex;flex-direction:column;box-shadow:none;visibility:hidden;transition:transform .45s var(--ease),visibility 0s linear .45s}
+#notes.open{transform:none;visibility:visible;box-shadow:20px 0 60px rgba(0,0,0,.35);transition:transform .45s var(--ease)}
+.notes-head{padding:26px 28px 18px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;align-items:center}
+.notes-head .ttl{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.notes-head .no{font-family:var(--font-mono);font-size:11.5px;color:var(--steel-soft);margin-left:10px}
+#notesClose{background:none;border:none;font-size:24px;line-height:1;color:var(--steel);cursor:pointer}
+.notes-title{padding:22px 28px 0;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.notes-body{padding:16px 28px 28px;overflow-y:auto;flex:1;font-size:15.5px;line-height:1.85;color:var(--ink)}
+.notes-body p{margin:0 0 12px}
+.notes-body h4{margin:24px 0 8px;font-size:15.5px;font-weight:700;color:var(--ink)}
+.notes-body > div > h4:first-child{margin-top:4px}
+.notes-body .nf{font-family:var(--font-en);background:var(--surface);border-radius:8px;padding:11px 16px;margin:4px 0 14px;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.notes-body ul{margin:4px 0 14px;padding-left:20px}
+.notes-body li{margin:5px 0}
+.notes-body b{color:var(--ink)}
+.notes-foot{padding:14px 28px;border-top:1px solid var(--hairline);font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--steel-soft)}
+
+/* ================= GRID OVERVIEW ================= */
+#grid{position:fixed;inset:0;background:#0C0B0A;z-index:200;display:none;overflow:auto;padding:52px 64px 80px}
+#grid.open{display:block;animation:gridIn .35s var(--ease)}
+@keyframes gridIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+.grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+.grid-head .ttl{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:#EFE9DE}
+.grid-head .hint{font-family:var(--font-mono);font-size:11px;color:#6E6A63;letter-spacing:.06em}
+.grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:34px 28px}
+.thumb{cursor:pointer}
+.thumb .frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;outline:1px solid #2A2724;transition:transform .25s var(--ease),outline-color .2s}
+.thumb:hover .frame{transform:translateY(-4px);outline:2px solid #6C6A64}
+.thumb.cur .frame{outline:2px solid var(--coral)}
+.thumb .inner{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;pointer-events:none}
+.thumb .cap{display:flex;gap:12px;margin-top:12px;font-size:14px;color:#B5B0A8}
+.thumb .cap .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--coral);padding-top:1px}
+
+/* ================= DECK: RF MATCHING ================= */
+.cover-art .swing{transform-box:view-box;transform-origin:300px 70px;animation:swing 3.2s ease-in-out infinite alternate}
+@keyframes swing{from{transform:rotate(-30deg)}to{transform:rotate(30deg)}}
+.mc-cap{position:absolute;left:0;right:0;top:296px;text-align:center;font-family:var(--font-mono);font-size:12.5px;letter-spacing:.14em;color:var(--steel-soft)}
+.mc-cap sub{font-size:.75em}
+.verdict-sub sub,.lede sub,.m1-stats sub,.ctl-row sub,.readout sub{font-size:.68em}
+/* lab 1 */
+.smith-svg{position:absolute;left:96px;top:214px;width:372px;height:372px}
+.lab.lab1{top:200px}
+.lab1 .sch{width:100%;height:auto;display:block;margin-bottom:2px}
+.lab1 .ctl{margin-top:14px}
+.lab1 .ctl-row{margin-bottom:6px}
+.lab1 .readout .num{font-size:80px}
+.m1-stats{font-family:var(--font-en);font-size:15.5px;color:var(--steel);margin-top:8px}
+.m1-stats b{color:var(--ink);font-weight:700}
+/* lab 2 */
+.swing-wrap{position:absolute;left:96px;top:214px;width:660px;height:380px}
+.swing-wrap canvas{width:100%;height:100%;display:block}
+.lab2{position:absolute;left:800px;right:96px;top:214px;bottom:66px;display:flex;flex-direction:column}
+.lab2 .chips{gap:6px}
+.lab2 .chip-btn{padding:6px 12px;font-size:12.5px}
+.lab2 .readout{margin-top:22px}
+.readout .num.sm{font-size:84px}
+.m2-cap{font-size:14px;color:var(--steel);margin-top:6px}
+.m2-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin-top:22px;padding-top:18px;border-top:1px solid var(--hairline)}
+.m2-grid .k{font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.12em;color:var(--steel-soft)}
+.m2-grid .v{font-family:var(--font-en);font-size:23px;font-weight:700;color:var(--ink);margin-top:3px;font-variant-numeric:tabular-nums}
+.m2-grid .v small{font-size:13px;font-weight:500;color:var(--steel);margin-left:3px}
+.m2-grid .v.warn{color:var(--coral)}
+.notes-body table{width:100%;border-collapse:collapse;margin:4px 0 14px;font-family:var(--font-en);font-size:14px}
+.notes-body th,.notes-body td{padding:7px 10px;border-bottom:1px solid var(--hairline);text-align:left}
+.notes-body th{font-size:12px;color:var(--steel);font-weight:700}
+.notes-body td.n{text-align:right;font-weight:700;white-space:nowrap}
+.notes-body tr.tot td{border-top:2px solid var(--ink);border-bottom:none;font-weight:700}
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck" data-doc="ADVANCED — RF MATCHING &amp; POWER DELIVERY">
+<div class="nav-hint l" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+<div class="nav-hint r" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+
+
+<!-- ============ 1 · COVER ============ -->
+<section class="slide dark active" data-title-en="Cover" data-title-ko="표지">
+  <img class="cover-logo" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  <svg class="cover-art" viewBox="0 0 600 600" aria-hidden="true" style="right:10px">
+    <defs>
+      <linearGradient id="cvFade" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".06" stop-color="#fff" stop-opacity="1"/></linearGradient>
+      <mask id="cvMask"><rect width="600" height="600" fill="url(#cvFade)"/></mask>
+      <radialGradient id="bobGlow"><stop offset="0" stop-color="#E8A55A" stop-opacity=".55"/><stop offset="1" stop-color="#E8A55A" stop-opacity="0"/></radialGradient>
+    </defs>
+    <g mask="url(#cvMask)">
+      <path d="M 110 399.1 A 380 380 0 0 0 490 399.1" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5" stroke-dasharray="2 9"/>
+      <line x1="230" y1="70" x2="370" y2="70" stroke="#3A3733" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="300" cy="70" r="7" fill="#6E6A63"/>
+      <g class="swing">
+        <line x1="300" y1="70" x2="300" y2="450" stroke="rgba(239,233,222,.55)" stroke-width="2"/>
+        <circle cx="300" cy="450" r="86" fill="url(#bobGlow)"/>
+        <circle cx="300" cy="450" r="44" fill="#CC785C"/>
+      </g>
+      <text x="110" y="482" font-family="JetBrains Mono,monospace" font-size="11" letter-spacing="2" fill="#8E8A83" text-anchor="middle">C · E-FIELD</text>
+      <text x="490" y="482" font-family="JetBrains Mono,monospace" font-size="11" letter-spacing="2" fill="#8E8A83" text-anchor="middle">C · E-FIELD</text>
+      <text x="300" y="540" font-family="JetBrains Mono,monospace" font-size="11" letter-spacing="2" fill="#8E8A83" text-anchor="middle">L · H-FIELD</text>
+    </g>
+  </svg>
+  <div class="cover-kicker rise" style="--d:.1s">RF MATCHING · POWER DELIVERY</div>
+  <div class="cover-big rise" style="--d:.2s;font-size:190px">1.8<span>Ω</span></div>
+  <div class="cover-sub rise" style="--d:.45s">
+    <span class="t-en">Where does the power go?</span>
+    <span class="t-ko">전력은 어디로 가는가?</span>
+  </div>
+  <div class="cover-desc rise" style="--d:.6s">
+    <span class="t-en">1 kW, a matcher, and a load that is almost all reactance.</span>
+    <span class="t-ko">1 kW, RF Matcher, 그리고 거의 리액턴스뿐인 부하.</span>
+  </div>
+  <div class="cover-meta">ADVANCED · RF MATCHING &nbsp;—&nbsp; BEN · BENEDU INSIGHT</div>
+  <div class="slide-note">
+    <div class="t-en">
+<h4>The setting</h4>
+<p>A 13.56 MHz generator delivers 1 kW of forward power into a capacitively coupled chamber whose load impedance is Z_L = 1.8 − j25 Ω. The resistive part — the only part that absorbs power — is tiny. Almost all of the impedance is reactance.</p>
+<h4>Why this lecture exists</h4>
+<p>Engineers who already know Γ = (Z_L − Z₀)/(Z_L + Z₀) often carry a wrong mental picture of what happens once the matcher is tuned: that the matcher "eats" power, that a 3.6 Ω loop splits power in half, or that resonance somehow pushes extra power into the chamber. Each of these leads to a wrong conclusion one step later.</p>
+<p>This lecture replaces those pictures with the simplest correct one: conjugate matching plus a lumped series resonance. The same picture then explains matcher loss, measured current, electrode voltage and why the matcher output is bolted directly to the electrode.</p>
+<h4>Conventions</h4>
+<p>All currents and voltages are rms unless marked "peak". Frequency is 13.56 MHz wherever it matters.</p>
+</div>
+    <div class="t-ko">
+<h4>상황 설정</h4>
+<p>13.56 MHz RF Generator가 순방향 1 kW를 용량성 결합 Chamber에 보낸다. 부하 임피던스는 Z_L = 1.8 − j25 Ω이다. 전력을 흡수하는 유일한 성분인 저항분은 아주 작고, 임피던스의 거의 전부가 리액턴스다.</p>
+<h4>이 강의가 다루는 것</h4>
+<p>Γ = (Z_L − Z₀)/(Z_L + Z₀)를 이미 아는 엔지니어도, RF Matcher가 튜닝된 뒤 무슨 일이 일어나는지에 대해서는 틀린 그림을 갖고 있는 경우가 많다. RF Matcher가 전력을 "먹는다", 3.6 Ω 루프에서 전력이 반씩 나뉜다, 공진이 Chamber로 전력을 더 밀어 넣는다 같은 그림이다. 이런 그림은 한 단계 뒤에서 반드시 틀린 결론으로 이어진다.</p>
+<p>이 강의는 그 그림들을 가장 단순하면서도 정확한 그림, 즉 공액 정합과 집중정수 직렬 공진으로 바꾼다. 같은 그림 하나로 RF Matcher 손실, 측정 전류, 전극 전압, 그리고 RF Matcher 출력단을 전극에 직결하는 이유까지 설명된다.</p>
+<h4>표기 약속</h4>
+<p>"peak" 표기가 없는 전류·전압은 모두 실효값(rms)이다. 주파수가 필요한 계산은 13.56 MHz를 기준으로 한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 2 · MISCONCEPTION ============ -->
+<section class="slide" data-title-en="The Misconception" data-title-ko="흔한 오해">
+  <div class="eyebrow"><b>01</b>THE MISCONCEPTION</div>
+  <div class="eq-hero" style="font-size:88px;top:170px"><span class="eqn">1000 W <span style="font-weight:300;color:var(--steel-soft);margin:0 .15em">→</span> 108.8 W</span></div>
+  <div class="mc-cap">NO MATCHER · Z<sub>L</sub> = 1.8 − j25 Ω · |Γ| = 0.944</div>
+  <div class="claim frag" data-step="1"><span class="wrap">
+    <span class="t-en">“With the matcher on, the other 891 W gets swallowed inside it.”</span>
+    <span class="t-ko">“RF Matcher를 켜도, 나머지 891 W는 RF Matcher 안에서 삼켜진다.”</span>
+    <span class="strike frag" data-step="2"></span>
+  </span></div>
+  <div class="verdict frag" data-step="2">
+    <span class="t-en">Not even close.</span>
+    <span class="t-ko">전혀 그렇지 않습니다.</span>
+  </div>
+  <div class="verdict-sub frag" data-step="3">
+    <span class="t-en">L and C borrow energy and give it back. Only R<sub>ESR</sub> keeps any.</span>
+    <span class="t-ko">L과 C는 에너지를 빌렸다 돌려줄 뿐. 열로 남기는 것은 R<sub>ESR</sub>뿐이다.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Where 108.8 W comes from</h4>
+<p>Without a matcher, the 50 Ω line sees the chamber directly:</p>
+<div class="nf">Γ = (Z_L − 50)/(Z_L + 50), &nbsp;|Γ| ≈ 0.944<br>P_del = P_fwd · (1 − |Γ|²) = 1000 × 0.109 ≈ 108.8 W</div>
+<p>The other ~891 W travels back toward the generator. In the textbook model a 50 Ω source resistor absorbs it; real generators usually have no resistive 50 Ω output stage, so reflected power appears as stress and heat in the output devices and triggers foldback protection.</p>
+<h4>Why the matcher cannot "store" 891 W</h4>
+<p>An ideal inductor or capacitor takes energy in during one quarter-cycle and returns all of it in the next. Averaged over a cycle, the power it consumes is exactly zero. Once the matcher is tuned, reflection drops to nearly zero, all 1000 W enters the matcher, and whatever is not lost as heat reaches the plasma.</p>
+<h4>The only real loss</h4>
+<p>Heat comes from the parasitic resistance R_ESR of coils, capacitors and contacts. Because the same current flows through R_ESR and the plasma resistance R_P:</p>
+<div class="nf">P_loss / P_in ≈ R_ESR / (R_P + R_ESR)</div>
+<ul><li>R_ESR = 0.1 Ω → ≈ 5% loss, ≈ 947 W to the plasma</li><li>R_ESR = 0.3 Ω → ≈ 14% loss, ≈ 857 W</li></ul>
+<p>The smaller R_P is, the larger the loss fraction for the same matcher. Low-resistance plasmas are hard on matchers.</p>
+</div>
+    <div class="t-ko">
+<h4>108.8 W는 어디서 나오는가</h4>
+<p>RF Matcher가 없으면 50 Ω 선로가 Chamber를 그대로 바라본다.</p>
+<div class="nf">Γ = (Z_L − 50)/(Z_L + 50), &nbsp;|Γ| ≈ 0.944<br>P_del = P_fwd · (1 − |Γ|²) = 1000 × 0.109 ≈ 108.8 W</div>
+<p>나머지 약 891 W는 RF Generator 쪽으로 되돌아간다. 교과서 모델에서는 50 Ω 소스 저항이 이를 흡수한다고 보지만, 실제 RF Generator의 출력단은 50 Ω 저항이 아닌 경우가 대부분이다. 반사 전력은 출력단 소자의 스트레스와 발열로 나타나고, 한계를 넘으면 Foldback 보호가 동작한다.</p>
+<h4>RF Matcher가 891 W를 "저장"할 수 없는 이유</h4>
+<p>이상적인 인덕터와 커패시터는 한 1/4 주기 동안 에너지를 받아들였다가 다음 1/4 주기에 전부 돌려준다. 한 주기 평균 소비 전력은 정확히 0이다. RF Matcher가 튜닝되면 반사는 거의 0이 되고, 1000 W가 모두 RF Matcher로 들어가며, 열로 잃는 몫을 제외한 나머지는 전부 플라즈마에 도달한다.</p>
+<h4>실제 손실은 하나뿐</h4>
+<p>열은 코일·커패시터·접점의 기생저항 R_ESR에서만 생긴다. R_ESR과 플라즈마 저항 R_P에 같은 전류가 흐르므로 다음이 성립한다.</p>
+<div class="nf">P_loss / P_in ≈ R_ESR / (R_P + R_ESR)</div>
+<ul><li>R_ESR = 0.1 Ω → 손실 약 5%, 플라즈마 약 947 W</li><li>R_ESR = 0.3 Ω → 손실 약 14%, 약 857 W</li></ul>
+<p>R_P가 작을수록 같은 RF Matcher에서도 손실 비율이 커진다. 저항이 작은 플라즈마일수록 RF Matcher에 가혹하다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 3 · CONJUGATE CHAIN ============ -->
+<section class="slide" data-title-en="Conjugate Match" data-title-ko="공액 정합">
+  <div class="eyebrow"><b>02</b>CONJUGATE MATCH</div>
+  <h2 class="headline">
+    <span class="t-en">The 1.8 Ω you see is the generator.</span>
+    <span class="t-ko">보이는 1.8 Ω은 RF Generator다.</span>
+  </h2>
+  <div class="lede">
+    <span class="t-en">From the chamber, the matcher plus generator looks like Z<sub>S</sub> = Z<sub>L</sub>* = 1.8 + j25 Ω.</span>
+    <span class="t-ko">Chamber에서 보면 RF Matcher와 RF Generator는 Z<sub>S</sub> = Z<sub>L</sub>* = 1.8 + j25 Ω으로 보인다.</span>
+  </div>
+  <div class="chain">
+    <div class="node frag" data-step="1">
+      <div class="w">50 Ω</div>
+      <div class="s"><span class="t-en">The generator — fixed</span><span class="t-ko">RF Generator — 고정</span></div>
+    </div>
+    <div class="arr frag" data-step="2">→</div>
+    <div class="node frag" data-step="2">
+      <div class="w">1.8 Ω</div>
+      <div class="s"><span class="t-en">The L-network transforms the real part</span><span class="t-ko">L형 회로가 실수부를 변환한다</span></div>
+    </div>
+    <div class="arr frag" data-step="3">→</div>
+    <div class="node frag" data-step="3">
+      <div class="w c">+j25</div>
+      <div class="s"><span class="t-en">Extra series reactance cancels the chamber's −j25</span><span class="t-ko">추가 직렬 리액턴스가 Chamber의 −j25를 상쇄한다</span></div>
+    </div>
+  </div>
+  <div class="punch frag" data-step="4">
+    <span class="t-en">No resistor in the box. <span class="c">Just 23.6 A into 1.8 Ω.</span></span>
+    <span class="t-ko">RF Matcher 안에 저항은 없다. <span class="c">1.8 Ω에 23.6 A가 흐를 뿐.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Conjugate matching</h4>
+<p>Maximum power reaches a load when the source impedance it sees is the complex conjugate of the load: Z_S = Z_L*. The reactances cancel and the resistances are equal. The matcher's job is to make the 50 Ω generator, seen from the chamber, look like 1.8 + j25 Ω.</p>
+<h4>How an L-network does it</h4>
+<p>A shunt element on the generator side and a series element on the load side transform 50 Ω down to 1.8 Ω. For this ratio the network Q is √(50/1.8 − 1) ≈ 5.2, so the series arm needs about Q × 1.8 ≈ 9.3 Ω of reactance and the shunt arm about 50 / 5.2 ≈ 9.7 Ω. On top of that, the series arm carries an extra +25 Ω to cancel the chamber's −j25.</p>
+<h4>The 3.6 Ω trap</h4>
+<p>It is tempting to draw the source's 1.8 Ω and the load's 1.8 Ω as a 3.6 Ω series loop and conclude that half the power burns in the matcher. That misreads a Thévenin equivalent. A Thévenin model gives the correct voltage, current and power at the load, but it says nothing about what is dissipated inside the source. The 1.8 Ω is the generator's 50 Ω seen through a lossless transformer, not a resistor in the box. In a lossless matcher every watt goes to the load.</p>
+<h4>The current</h4>
+<div class="nf">P = I² · R_P → I = √(1000 / 1.8) ≈ 23.6 A</div>
+<p>Delivering the same 1 kW into 50 Ω takes only √(1000/50) ≈ 4.5 A. The matched section after the matcher carries about five times that current.</p>
+<h4>Why nothing heads back to the generator</h4>
+<p>At match, the matcher input looks like 50 + j0 Ω: about 224 V and 4.5 A, in phase. Only real power crosses that point. The large reactive energy behind it is traded among the matcher's own elements and the chamber (matched values from the next slide, 1 kW):</p>
+<table><tr><th>Element</th><th>Condition</th><th>Reactive power</th></tr>
+<tr><td>Series arm (L + Tune C)</td><td>+34.3 Ω, 23.6 A</td><td class="n">19.1 kVAR supplied</td></tr>
+<tr><td>Chamber −j25</td><td>−25 Ω, 23.6 A</td><td class="n">13.9 kVAR taken</td></tr>
+<tr><td>Shunt Load C</td><td>−9.7 Ω, 224 V</td><td class="n">5.2 kVAR taken</td></tr>
+<tr class="tot"><td>Net at the input</td><td></td><td class="n">0</td></tr></table>
+<p>The inductive side supplies exactly what the two capacitive sides take, so no reactive power leaks out of the input. The 50 Ω line is not a wall that blocks a reflected wave — if anything did travel back, a 50 Ω line would carry all of it to the generator as reflected power. At match there is simply nothing travelling back. In wave language, the components that would head toward the generator cancel exactly at the matcher input, the way the two reflections of an anti-reflection coating cancel.</p>
+</div>
+    <div class="t-ko">
+<h4>공액 정합</h4>
+<p>부하가 바라보는 소스 임피던스가 부하의 켤레복소수, 즉 Z_S = Z_L*일 때 부하에 최대 전력이 전달된다. 리액턴스는 상쇄되고 저항은 같아진다. RF Matcher가 하는 일은 50 Ω RF Generator를 Chamber 쪽에서 볼 때 1.8 + j25 Ω으로 보이게 만드는 것이다.</p>
+<h4>L형 회로가 하는 일</h4>
+<p>RF Generator 쪽의 션트 소자와 부하 쪽의 직렬 소자가 함께 50 Ω을 1.8 Ω으로 변환한다. 이 변환비에서 회로의 Q는 √(50/1.8 − 1) ≈ 5.2이므로, 직렬 쪽에는 약 Q × 1.8 ≈ 9.3 Ω, 션트 쪽에는 약 50 / 5.2 ≈ 9.7 Ω의 리액턴스가 필요하다. 여기에 더해 직렬 쪽은 Chamber의 −j25를 상쇄하기 위한 +25 Ω을 추가로 가진다.</p>
+<h4>3.6 Ω의 함정</h4>
+<p>소스의 1.8 Ω과 부하의 1.8 Ω을 3.6 Ω 직렬 루프로 그리고, 전력의 절반이 RF Matcher에서 탄다고 결론 내리기 쉽다. 이는 테브난 등가회로를 잘못 읽은 것이다. 테브난 모델은 부하 쪽의 전압·전류·전력은 정확히 알려주지만, 소스 내부에서 소모되는 전력은 알려주지 않는다. 1.8 Ω은 무손실 변환기를 통해 보이는 RF Generator의 50 Ω이지, RF Matcher 안의 저항이 아니다. 무손실 RF Matcher라면 모든 전력이 부하로 간다.</p>
+<h4>전류</h4>
+<div class="nf">P = I² · R_P → I = √(1000 / 1.8) ≈ 23.6 A</div>
+<p>같은 1 kW를 50 Ω에 보낼 때는 √(1000/50) ≈ 4.5 A면 된다. RF Matcher 뒤의 정합 구간은 그 약 5배의 전류를 실어 나른다.</p>
+<h4>RF Generator 쪽으로 아무것도 되돌아가지 않는 이유</h4>
+<p>정합 상태에서 RF Matcher 입력단은 50 + j0 Ω으로 보인다. 약 224 V, 4.5 A가 같은 위상으로 흐르고, 이 지점을 지나는 것은 실전력뿐이다. 그 뒤에서 출렁이는 큰 무효 에너지는 RF Matcher 자신의 소자들과 Chamber 사이에서 주고받는다(다음 슬라이드의 정합값, 1 kW 기준).</p>
+<table><tr><th>소자</th><th>조건</th><th>무효전력</th></tr>
+<tr><td>직렬 쪽 (L + Tune C)</td><td>+34.3 Ω, 23.6 A</td><td class="n">19.1 kVAR 내줌</td></tr>
+<tr><td>Chamber −j25</td><td>−25 Ω, 23.6 A</td><td class="n">13.9 kVAR 받음</td></tr>
+<tr><td>션트 Load C</td><td>−9.7 Ω, 224 V</td><td class="n">5.2 kVAR 받음</td></tr>
+<tr class="tot"><td>입력단 합계</td><td></td><td class="n">0</td></tr></table>
+<p>유도성 쪽이 내준 만큼 두 용량성 쪽이 정확히 받아 가므로, 입력단 바깥으로는 무효전력이 새어 나가지 않는다. 50 Ω 선로는 반사파를 막는 벽이 아니다. 무언가 되돌아온다면 50 Ω 선로는 그것을 그대로 RF Generator까지 실어 보내고, 그것이 반사 전력으로 찍힌다. 정합 상태에서는 되돌아가는 것이 애초에 없을 뿐이다. 파동의 언어로 말하면, RF Generator 쪽으로 향하려는 성분들이 RF Matcher 입력단에서 정확히 상쇄된다. 반사방지 코팅의 앞뒷면 반사가 서로 상쇄되는 것과 같은 원리다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 4 · LAB 1 · TUNE IT ============ -->
+<section class="slide" data-title-en="Tune It Yourself" data-title-ko="직접 매칭하기">
+  <div class="eyebrow"><b>03</b>TRY IT · MATCHING</div>
+  <h2 class="headline">
+    <span class="t-en">Tune it yourself.</span>
+    <span class="t-ko">직접 매칭해 보세요.</span>
+  </h2>
+  <svg class="smith-svg" id="smith" viewBox="0 0 372 372" aria-label="Smith chart">
+    <circle cx="186" cy="186" r="170" fill="#fff" stroke="#A09D96" stroke-width="1.5"/>
+    <line x1="16" y1="186" x2="356" y2="186" stroke="#E6DFD8" stroke-width="1.2"/>
+    <circle cx="271" cy="186" r="85" fill="none" stroke="#E6DFD8" stroke-width="1.2"/>
+    <circle cx="242.7" cy="186" r="113.3" fill="none" stroke="#EFE9DE" stroke-width="1"/>
+    <circle cx="299.3" cy="186" r="56.7" fill="none" stroke="#EFE9DE" stroke-width="1"/>
+    <path d="M356 186 A170 170 0 0 0 186 16" fill="none" stroke="#E6DFD8" stroke-width="1.2"/>
+    <path d="M356 186 A170 170 0 0 1 186 356" fill="none" stroke="#E6DFD8" stroke-width="1.2"/>
+    <circle cx="186" cy="186" r="17" fill="rgba(204,120,92,.12)" stroke="#CC785C" stroke-width="1.2" stroke-dasharray="3 3"/>
+    <text x="186" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#A09D96">50 Ω</text>
+    <polyline id="smTrail" fill="none" stroke="rgba(112,48,160,.35)" stroke-width="2" points=""/>
+    <circle id="smPt" cx="186" cy="186" r="9" fill="#7030A0"/>
+    <text x="186" y="366" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" letter-spacing="1.5" fill="#A09D96">Γ AT THE GENERATOR</text>
+  </svg>
+  <div class="lab lab1">
+    <svg class="sch" viewBox="0 0 640 86" aria-hidden="true">
+      <g font-family="Google Sans,sans-serif" font-size="13" fill="#252320">
+        <rect x="0" y="22" width="62" height="34" rx="4" fill="#252320"/><text x="31" y="44" text-anchor="middle" fill="#fff" font-weight="700">RFG</text>
+        <line x1="62" y1="39" x2="560" y2="39" stroke="#6C6A64" stroke-width="2"/>
+        <line x1="130" y1="39" x2="130" y2="56" stroke="#6C6A64" stroke-width="2"/>
+        <line x1="118" y1="56" x2="142" y2="56" stroke="#7030A0" stroke-width="3"/><line x1="118" y1="63" x2="142" y2="63" stroke="#7030A0" stroke-width="3"/>
+        <line x1="130" y1="63" x2="130" y2="74" stroke="#6C6A64" stroke-width="2"/><line x1="121" y1="74" x2="139" y2="74" stroke="#6C6A64" stroke-width="2"/>
+        <text x="150" y="70" font-weight="700" fill="#7030A0">Load C</text>
+        <path d="M250 39 q8 -14 16 0 q8 -14 16 0 q8 -14 16 0 q8 -14 16 0" fill="#FAF9F5" stroke="#252320" stroke-width="2"/>
+        <text x="282" y="16" text-anchor="middle">L 600 nH</text>
+        <rect x="360" y="27" width="16" height="24" fill="#FAF9F5"/>
+        <line x1="364" y1="27" x2="364" y2="51" stroke="#7030A0" stroke-width="3"/><line x1="372" y1="27" x2="372" y2="51" stroke="#7030A0" stroke-width="3"/>
+        <text x="368" y="16" text-anchor="middle" font-weight="700" fill="#7030A0">Tune C</text>
+        <rect x="500" y="20" width="140" height="38" rx="4" fill="#EFE9DE" stroke="#A09D96"/>
+        <text x="570" y="44" text-anchor="middle" font-weight="700">1.8 − j25 Ω</text>
+      </g>
+    </svg>
+    <div class="ctl">
+      <div class="ctl-row"><span class="k">Load C <span class="t-en">(shunt)</span><span class="t-ko">(션트)</span></span><span class="v" id="clV">400 pF</span></div>
+      <input type="range" id="cl" min="300" max="2500" step="5" value="400">
+    </div>
+    <div class="ctl">
+      <div class="ctl-row"><span class="k">Tune C <span class="t-en">(series)</span><span class="t-ko">(직렬)</span></span><span class="v" id="ctV">1450 pF</span></div>
+      <input type="range" id="ct" min="300" max="1500" step="5" value="1450">
+    </div>
+    <div class="chips" style="margin-top:14px">
+      <button class="chip-btn" data-act="auto"><span class="t-en">Auto-tune</span><span class="t-ko">자동 튜닝</span></button>
+      <button class="chip-btn" data-act="reset"><span class="t-en">Reset</span><span class="t-ko">처음으로</span></button>
+    </div>
+    <div class="readout" style="margin-top:6px"><span class="k">P<sub>ref</sub></span><span class="num" id="pref">33</span><span class="k">%</span></div>
+    <div class="m1-stats" id="m1stats"></div>
+    <div class="status" id="m1s"></div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>The circuit</h4>
+<p>This is the classic L-type matcher topology: a shunt <b>Load</b> capacitor on the generator side, and a fixed inductor in series with a <b>Tune</b> capacitor on the chamber side. The model uses L = 600 nH and the chamber load 1.8 − j25 Ω at 13.56 MHz, with a lossless matcher.</p>
+<h4>What each capacitor does</h4>
+<p>Load C mostly sets the real part the generator sees — moving it slides the point along the circles of constant conductance on the Smith chart. Tune C sets the net series reactance — moving it slides the point along the circles of constant resistance. Matching means walking the point into the centre (Γ = 0, 50 Ω).</p>
+<div class="nf">Match ≈ Load C 1210 pF, Tune C 700 pF<br>Series arm: X_L − X_Ct = 51.1 − 16.8 ≈ +34.3 Ω = 25 + 9.3</div>
+<p>The +34.3 Ω splits into the +25 Ω that cancels the chamber and the +9.3 Ω that, together with the shunt capacitor, transforms 1.8 Ω up to 50 Ω.</p>
+<h4>How sharp is the match?</h4>
+<p>Near the match, a 10 pF change in Tune C moves |Γ| from about 0 to about 0.07; Load C is roughly half as sensitive. That is why real matchers use motor-driven vacuum variable capacitors with fine resolution, and why the controller reads phase and magnitude errors rather than searching blindly. "Auto-tune" here simply walks both capacitors toward the solution, the way a controller drives its motors.</p>
+<h4>What to watch</h4>
+<p>As P_ref falls, the current into the chamber climbs toward 23.6 A and the reactive power toward 13.9 kVAR. With no matcher at all, the same chamber would draw only about 7.8 A and 1.5 kVAR. Matching does not add power — it lets the full 1 kW in, and the large current is the consequence.</p>
+</div>
+    <div class="t-ko">
+<h4>회로 구성</h4>
+<p>전형적인 L형 RF Matcher 구조다. RF Generator 쪽에 션트 <b>Load</b> 커패시터가 있고, Chamber 쪽에는 고정 인덕터와 직렬로 <b>Tune</b> 커패시터가 있다. 모델은 L = 600 nH, Chamber 부하 1.8 − j25 Ω, 13.56 MHz, 무손실 RF Matcher로 계산한다.</p>
+<h4>각 커패시터의 역할</h4>
+<p>Load C는 주로 RF Generator가 보는 실수부를 정한다. 움직이면 스미스차트에서 점이 등컨덕턴스 원을 따라 미끄러진다. Tune C는 직렬 리액턴스의 합을 정한다. 움직이면 점이 등저항 원을 따라 움직인다. 매칭이란 이 점을 중심(Γ = 0, 50 Ω)으로 걸어 들어가게 하는 일이다.</p>
+<div class="nf">정합점 ≈ Load C 1210 pF, Tune C 700 pF<br>직렬 쪽: X_L − X_Ct = 51.1 − 16.8 ≈ +34.3 Ω = 25 + 9.3</div>
+<p>+34.3 Ω은 Chamber를 상쇄하는 +25 Ω과, 션트 커패시터와 함께 1.8 Ω을 50 Ω으로 변환하는 +9.3 Ω으로 나뉜다.</p>
+<h4>정합점은 얼마나 날카로운가</h4>
+<p>정합점 근처에서 Tune C가 10 pF만 바뀌어도 |Γ|는 거의 0에서 약 0.07로 움직인다. Load C의 민감도는 그 절반 정도다. 실제 RF Matcher가 분해능이 높은 모터 구동 VVC를 쓰고, 컨트롤러가 무작정 탐색하지 않고 위상·크기 오차 신호를 읽어 움직이는 이유다. 여기의 "자동 튜닝"은 컨트롤러가 모터를 구동하듯 두 커패시터를 정합점 쪽으로 옮겨 갈 뿐이다.</p>
+<h4>눈여겨볼 것</h4>
+<p>P_ref가 줄어들수록 Chamber로 들어가는 전류는 23.6 A로, 무효전력은 13.9 kVAR로 커진다. RF Matcher가 아예 없다면 같은 Chamber에는 약 7.8 A, 1.5 kVAR밖에 흐르지 않는다. 매칭은 전력을 더하는 것이 아니라 1 kW가 전부 들어오게 할 뿐이고, 큰 전류는 그 결과다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 5 · LAB 2 · THE SWING ============ -->
+<section class="slide" data-title-en="The Swing" data-title-ko="그네">
+  <div class="eyebrow"><b>04</b>TRY IT · RESONANCE</div>
+  <h2 class="headline">
+    <span class="t-en">Resonance amplifies current — not power.</span>
+    <span class="t-ko">공진은 전력이 아니라 전류를 키운다.</span>
+  </h2>
+  <div class="swing-wrap" id="swingWrap">
+    <canvas id="swingCv" width="1320" height="760"></canvas>
+  </div>
+  <div class="lab2" id="lab2">
+    <div class="chips" style="flex-wrap:wrap">
+      <button class="chip-btn" data-rp="1.8"><span class="t-en">Plasma 1.8 Ω</span><span class="t-ko">플라즈마 1.8 Ω</span></button>
+      <button class="chip-btn" data-rp="0.05"><span class="t-en">No plasma</span><span class="t-ko">점화 전</span></button>
+      <button class="chip-btn" data-rp="5"><span class="t-en">Lossy 5 Ω</span><span class="t-ko">저항 큰 5 Ω</span></button>
+    </div>
+    <div class="ctl" style="margin-top:8px">
+      <div class="ctl-row"><span class="k"><span class="t-en">Friction</span><span class="t-ko">마찰</span> · R<sub>P</sub></span><span class="v" id="rpV">1.80 Ω</span></div>
+      <input type="range" id="rp" min="0" max="1000" step="1" value="0">
+    </div>
+    <div class="readout" style="margin-top:22px"><span class="num sm" id="vpk">0.83</span><span class="k">kV</span></div>
+    <div class="m2-cap"><span class="t-en">peak voltage across the chamber's −j25</span><span class="t-ko">Chamber −j25 양단의 피크 전압</span></div>
+    <div class="m2-grid" id="m2grid"></div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>The swing, in circuit terms</h4>
+<p>At match, the series inductance and the chamber's capacitive reactance resonate at 13.56 MHz. Every cycle, energy sloshes between the inductor's magnetic field and the capacitor's electric field — like a swing trading kinetic and potential energy. The generator is the person pushing in step (voltage and current in phase), and R_P is the friction.</p>
+<h4>Resonance amplifies current, not power</h4>
+<div class="nf">I = √(1000 / 1.8) ≈ 23.6 A<br>Q_react = I² · X = 23.6² × 25 ≈ 13.9 kVAR<br>V across −j25 = 23.6 × 25 ≈ 590 V rms ≈ 0.83 kV peak</div>
+<p>About 13.9 kVAR sloshes back and forth with zero net flow over a cycle; only the 1 kW pushed in each cycle reaches the plasma. The swing stores about ½ · L · I_peak² ≈ 163 µJ, roughly two cycles' worth of delivered energy (74 µJ per cycle).</p>
+<h4>The build-up</h4>
+<p>The swing does not start at full amplitude. The current envelope rises as I(t) = I_ss · (1 − e^(−t/τ)) with</p>
+<div class="nf">τ = 2L / R_total, &nbsp;L ≈ 293 nH (X = 25 Ω at 13.56 MHz)<br>R_total = 1.8 (source, Thévenin) + 1.8 (plasma) → τ ≈ 0.16 µs ≈ 2.2 cycles</div>
+<p>After about 5τ — a dozen cycles, under 1 µs — the swing is full. During the build-up the generator sees a brief reflection, because part of its push is filling the swing rather than being absorbed.</p>
+<h4>Less friction, bigger swing</h4>
+<p>The model keeps the matcher at its plasma setting and changes only R_P. With R_P ≈ 0 (no plasma) the current roughly doubles, the electrode voltage climbs past 1.6 kV peak, the build-up slows — and almost no power is delivered, because the generator now sees a mismatch. "Open" and "small series R" are the same statement: X ≫ R_s, or equivalently a parallel resistance R_p = X²/R_s that is huge. Both mean: almost no friction, high Q.</p>
+</div>
+    <div class="t-ko">
+<h4>회로로 본 그네</h4>
+<p>정합 상태에서 직렬 인덕턴스와 Chamber의 용량성 리액턴스는 13.56 MHz에서 공진한다. 에너지는 매 주기 인덕터의 자기장과 커패시터의 전기장 사이를 오가는데, 그네가 운동 에너지와 위치 에너지를 주고받는 것과 같다. RF Generator는 박자에 맞춰 미는 사람(전압·전류 동위상)이고, R_P는 마찰이다.</p>
+<h4>공진이 키우는 것은 전력이 아니라 전류다</h4>
+<div class="nf">I = √(1000 / 1.8) ≈ 23.6 A<br>Q_react = I² · X = 23.6² × 25 ≈ 13.9 kVAR<br>−j25 양단 전압 = 23.6 × 25 ≈ 590 V rms ≈ 0.83 kV peak</div>
+<p>약 13.9 kVAR가 한 주기 평균 순이동 0으로 오가고, 플라즈마에 도달하는 것은 매 주기 밀어 넣는 1 kW뿐이다. 그네에 저장된 에너지는 ½ · L · I_peak² ≈ 163 µJ로, 한 주기 전달 에너지(74 µJ)의 약 2주기분이다.</p>
+<h4>빌드업</h4>
+<p>그네는 처음부터 크게 흔들리지 않는다. 전류 포락선은 I(t) = I_ss · (1 − e^(−t/τ))로 차오르며,</p>
+<div class="nf">τ = 2L / R_total, &nbsp;L ≈ 293 nH (13.56 MHz에서 X = 25 Ω)<br>R_total = 1.8 (소스, 테브난) + 1.8 (플라즈마) → τ ≈ 0.16 µs ≈ 2.2 주기</div>
+<p>약 5τ, 즉 십여 주기(1 µs 이내)면 그네가 다 찬다. 빌드업 동안 RF Generator는 짧은 반사를 본다. 미는 힘의 일부가 흡수되지 않고 그네를 채우는 데 쓰이기 때문이다.</p>
+<h4>마찰이 작을수록 그네는 커진다</h4>
+<p>이 모델은 RF Matcher를 플라즈마 정합 위치에 둔 채 R_P만 바꾼다. R_P ≈ 0(점화 전)이면 전류는 약 2배가 되고, 전극 전압은 1.6 kV peak를 넘으며, 빌드업은 느려진다. 그런데 RF Generator가 부정합을 보기 때문에 전달 전력은 거의 0이 된다. "개방(open)"과 "직렬 저항이 작다"는 같은 말이다. X ≫ R_s, 즉 병렬로 보면 R_p = X²/R_s가 매우 크다. 둘 다 마찰이 거의 없고 Q가 높다는 뜻이다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 6 · THREE VIEWS · HARDWARE ============ -->
+<section class="slide" data-title-en="Why Direct Contact" data-title-ko="직결하는 이유">
+  <div class="eyebrow"><b>05</b>THE HARDWARE</div>
+  <h2 class="headline">
+    <span class="t-en">Why the matcher bolts onto the chamber.</span>
+    <span class="t-ko">RF Matcher가 Chamber에 바로 붙는 이유.</span>
+  </h2>
+  <div class="views">
+    <div class="view rise" style="--d:.15s">
+      <div class="k">CURRENT</div>
+      <div class="eqn">×28</div>
+      <div class="d"><span class="t-en">23.6 A instead of 4.5 A. I²R heating in a coax core rises 28-fold.</span><span class="t-ko">4.5 A 대신 23.6 A. 동축 심선의 I²R 발열이 28배로 늘어난다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.35s">
+      <div class="k">VOLTAGE</div>
+      <div class="eqn">1.9<span style="font-size:.5em;font-weight:500;color:var(--steel);margin-left:.12em">kV</span></div>
+      <div class="d"><span class="t-en">A cable here runs at VSWR ≈ 35. Peak voltage stresses the PTFE to breakdown.</span><span class="t-ko">이 구간의 케이블은 VSWR ≈ 35. 피크 전압이 PTFE를 절연파괴로 몰아간다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.55s">
+      <div class="k">STABILITY</div>
+      <div class="eqn">ΔZ</div>
+      <div class="d"><span class="t-en">High VSWR magnifies every bend and temperature shift into a moving match point.</span><span class="t-ko">높은 VSWR은 작은 굽힘과 온도 변화까지 흔들리는 정합점으로 키운다.</span></div>
+    </div>
+  </div>
+  <div class="foot-line rise" style="--d:.8s">
+    <span class="t-en"><b>Coax before the matcher. Copper after it.</b></span>
+    <span class="t-ko"><b>RF Matcher 앞은 동축, RF Matcher 뒤는 구리.</b></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Current</h4>
+<p>The matched 50 Ω section carries √(1000/50) ≈ 4.5 A for 1 kW. After the matcher the same 1 kW flows as 23.6 A into 1.8 Ω — about 5× the current, (23.6/4.5)² ≈ 28× the I²R heating in any conductor it passes through. At 13.56 MHz, skin effect confines the current to a few tens of micrometres of copper surface, so a coax centre conductor overheats locally, degrades its dielectric and, in severe cases, melts.</p>
+<h4>Voltage</h4>
+<p>A 50 Ω cable inserted between matcher and chamber looks into 1.8 − j25 Ω:</p>
+<div class="nf">VSWR = (1 + 0.944) / (1 − 0.944) ≈ 35<br>P_fwd on cable = 1000 / (1 − 0.891) ≈ 9.2 kW<br>V_max = √(9190 × 50) × 1.944 ≈ 1.32 kV rms ≈ 1.9 kV peak</div>
+<p>The field is strongest just outside the centre conductor; once it exceeds what the PTFE can hold, the cable arcs internally. Even with no cable, the electrode itself sees about 0.83 kV peak across the chamber reactance — the direct connection keeps it there and nowhere else.</p>
+<h4>Stability</h4>
+<p>A cable is an impedance transformer whose effect depends on its electrical length. The matcher must then match what the cable presents, and at VSWR ≈ 35 small changes in temperature, bending or connector condition swing that impedance widely — easily outside the tuning range.</p>
+<h4>And measurement</h4>
+<p>Models give the shape of the answer; a V/I probe at the electrode gives the number. Contact resistance in straps, coil heating at 20+ A and the nonlinear plasma all move R_ESR and R_P in ways no schematic captures.</p>
+</div>
+    <div class="t-ko">
+<h4>전류</h4>
+<p>정합된 50 Ω 구간은 1 kW에 √(1000/50) ≈ 4.5 A를 실어 나른다. RF Matcher를 지나면 같은 1 kW가 1.8 Ω에 23.6 A로 흐른다. 전류는 약 5배, 지나가는 모든 도체의 I²R 발열은 (23.6/4.5)² ≈ 28배다. 13.56 MHz에서는 표피효과로 전류가 구리 표면 수십 µm에만 흐르므로, 동축 심선은 국부적으로 과열되고 유전체가 열화되며 심하면 녹는다.</p>
+<h4>전압</h4>
+<p>RF Matcher와 Chamber 사이에 50 Ω 케이블을 끼우면 케이블은 1.8 − j25 Ω을 바라본다.</p>
+<div class="nf">VSWR = (1 + 0.944) / (1 − 0.944) ≈ 35<br>케이블 위 P_fwd = 1000 / (1 − 0.891) ≈ 9.2 kW<br>V_max = √(9190 × 50) × 1.944 ≈ 1.32 kV rms ≈ 1.9 kV peak</div>
+<p>전계는 중심도체 바로 바깥에서 가장 강하고, PTFE가 견딜 수 있는 한계를 넘으면 케이블 내부에서 아킹이 난다. 케이블이 없어도 전극에는 Chamber 리액턴스 양단으로 약 0.83 kV peak가 걸린다. 직결은 이 전압을 전극에만 머물게 한다.</p>
+<h4>안정성</h4>
+<p>케이블은 전기적 길이에 따라 효과가 달라지는 임피던스 변환기다. RF Matcher는 케이블이 변환해 보여주는 임피던스를 정합해야 하고, VSWR ≈ 35에서는 온도·굽힘·커넥터 상태의 작은 변화도 그 임피던스를 크게 흔들어 튜닝 범위를 쉽게 벗어나게 만든다.</p>
+<h4>그리고 측정</h4>
+<p>모델은 답의 모양을 알려주고, 숫자는 전극에 단 V/I Probe가 알려준다. 스트랩의 접촉저항, 20 A가 넘는 전류에 의한 코일 발열, 비선형적인 플라즈마는 회로도가 담을 수 없는 방식으로 R_ESR과 R_P를 움직인다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 7 · ONE MORE THING ============ -->
+<section class="slide dark" data-title-en="One More Thing" data-title-ko="한 가지 더">
+  <div class="omt hides" data-hide="1">
+    <span class="t-en">One more thing.</span>
+    <span class="t-ko">그리고, 한 가지 더.</span>
+  </div>
+  <div class="eyebrow frag" data-step="1"><b>06</b>ONE MORE THING</div>
+  <div class="vs frag" data-step="1">
+    <div class="blk"><div class="n">≈0Ω</div><div class="l"><span class="t-en">Before ignition — no friction</span><span class="t-ko">점화 전 — 마찰이 없다</span></div></div>
+    <div class="ne">→</div>
+    <div class="blk"><div class="n q">kV</div><div class="l"><span class="t-en">The swing grows until the gas breaks down</span><span class="t-ko">기체가 절연파괴될 때까지 그네가 커진다</span></div></div>
+  </div>
+  <div class="next-line frag" data-step="2">
+    <span class="t-en">The swing that strikes the plasma. What if it never grows big enough?</span>
+    <span class="t-ko">플라즈마를 켜는 것도 이 그네다. 그네가 충분히 커지지 못한다면?</span>
+  </div>
+  <div class="next-tag frag" data-step="2">NEXT · LOW-POWER PLASMA IGNITION</div>
+  <div class="end-links frag" data-step="2">
+    <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener">benedu-insight.github.io ↗</a>
+    <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener">Instagram · @benedu.insight ↗</a>
+  </div>
+  <img class="logo-tr frag" data-step="1" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Before the plasma exists</h4>
+<p>With no plasma, the electrode gap is a capacitor filled with neutral gas. At DC it is open; at RF it carries displacement current through a reactance of a few tens of ohms. Its series resistance is tiny — only conductor and dielectric loss — so the resonance has very little friction and a high Q.</p>
+<h4>How the swing strikes the plasma</h4>
+<p>With little friction, the generator's push keeps building the swing, and the voltage across the electrode climbs well above what the same power produces into a lit plasma. When the field in the gap reaches breakdown, electrons avalanche, the plasma ignites, and R_P suddenly appears — friction arrives, and the swing settles at the operating point. This is why a matcher has a <b>strike</b> (preset) position: it is chosen so that the unlit chamber resonates strongly enough to break the gas down.</p>
+<h4>Two time scales</h4>
+<ul><li>Electrical build-up of the swing: a few to a dozen RF cycles — well under 1 µs.</li><li>Matcher moving from strike position to the run match point after ignition: hundreds of milliseconds to seconds for motor-driven VVCs, milliseconds with frequency tuning.</li></ul>
+<h4>The open question</h4>
+<p>At low power, the push may be too weak — or the strike setting too far off — for the swing to reach breakdown voltage. Ignition becomes intermittent even though the matcher reports nothing wrong. That is the subject of the next lecture.</p>
+</div>
+    <div class="t-ko">
+<h4>플라즈마가 생기기 전</h4>
+<p>플라즈마가 없을 때 전극 사이는 중성 기체로 채워진 커패시터다. DC로는 개방이지만, RF에서는 수십 Ω 정도의 리액턴스를 통해 변위전류가 흐른다. 직렬 저항은 도체·유전체 손실 정도로 아주 작아서, 공진에 마찰이 거의 없고 Q가 높다.</p>
+<h4>그네가 플라즈마를 켜는 방식</h4>
+<p>마찰이 작으니 RF Generator가 미는 힘이 그네를 계속 키우고, 전극 양단 전압은 같은 전력을 켜진 플라즈마에 넣을 때보다 훨씬 높게 올라간다. 간극의 전계가 절연파괴 수준에 이르면 전자 사태가 일어나 플라즈마가 점화되고, R_P가 갑자기 나타난다. 마찰이 생기면서 그네는 운전점으로 가라앉는다. RF Matcher에 <b>Strike</b>(프리셋) 위치가 있는 이유다. 켜지지 않은 Chamber가 기체를 절연파괴시킬 만큼 강하게 공진하도록 고른 위치다.</p>
+<h4>두 개의 시간 스케일</h4>
+<ul><li>그네의 전기적 빌드업: 수 주기에서 십여 주기 — 1 µs보다 훨씬 짧다.</li><li>점화 후 RF Matcher가 Strike 위치에서 운전 정합점으로 이동: 모터 구동 VVC는 수백 ms에서 수 초, 주파수 튜닝은 ms 단위.</li></ul>
+<h4>남는 질문</h4>
+<p>낮은 파워에서는 미는 힘이 약하거나 Strike 설정이 맞지 않아, 그네가 절연파괴 전압까지 커지지 못할 수 있다. RF Matcher에는 이상이 없다고 나오는데도 점화가 간헐적으로 실패하는 이유다. 다음 강의의 주제다.</p>
+</div>
+  </div>
+</section>
+
+
+</div></div>
+
+<!-- control bar -->
+<div id="bar">
+  <button id="prevBtn" title="Previous (←)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <span class="dots" id="dots"></span>
+  <button id="nextBtn" title="Next (→)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+  <span class="sep"></span>
+  <button id="gridBtn" title="Overview (G)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <button id="notesBtn" title="Lecture notes (N)"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h6"/></svg></button>
+  <button id="langBtn" title="Language (L)">한국어</button>
+  <button id="fsBtn" title="Fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <span class="sep"></span>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="benedu-insight.github.io" aria-label="Homepage"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg></a>
+  <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener" title="Instagram · @benedu.insight" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></a>
+</div>
+
+<!-- notes -->
+<div id="notesTab">LECTURE NOTES</div>
+<aside id="notes">
+  <div class="notes-head"><div><span class="ttl"><span class="t-en">LECTURE NOTES</span><span class="t-ko en">강의 노트</span></span><span class="no" id="notesNo"></span></div><button id="notesClose" aria-label="Close">×</button></div>
+  <div class="notes-title" id="notesTitle"></div>
+  <div class="notes-body" id="notesBody"></div>
+  <div class="notes-foot"><span class="t-en">SUPPLEMENTARY EXPLANATION · N TO TOGGLE</span><span class="t-ko">수강생을 위한 보충 설명 · N 키로 열고 닫기</span></div>
+</aside>
+
+<!-- grid -->
+<div id="grid">
+  <div class="grid-head"><span class="ttl">OVERVIEW</span><span class="hint">CLICK A SLIDE · ESC TO CLOSE</span></div>
+  <div class="grid-wrap" id="gridWrap"></div>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = [].slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0, step = 0;
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+
+
+  /* ---- typography rule: Latin letters, numbers & symbols inside Korean text -> Google Sans ---- */
+  (function autoEn(root){
+    var C = "A-Za-z0-9ΩηπμεωΓλᵣ₀′√×≈≫=+/.()%\\-−τ·*Δ²µ_~", K = "A-Za-z0-9ΩηπμεωτΓΔµ";
+    var re = new RegExp("["+C+"]*["+K+"]["+C+"]*(?:\\s+["+C+"]*["+K+"]["+C+"]*)*","g");
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [];
+    while(w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(function(n){
+      var p = n.parentElement;
+      if(!p || !p.closest('.t-ko') || p.closest('.en,script,style')) return;
+      var t = n.nodeValue, m, last = 0, frag = document.createDocumentFragment(), hit = false;
+      re.lastIndex = 0;
+      while((m = re.exec(t))){
+        hit = true;
+        if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'en'; sp.textContent = m[0]; frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if(!hit) return;
+      if(last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+      p.replaceChild(frag, n);
+    });
+  })(document.body);
+
+  /* ---- generated decoration: cover E-field lines, history axis ticks ---- */
+  var ef = document.getElementById('efield'), svgNS = 'http://www.w3.org/2000/svg';
+  if(ef) for(var i=0;i<16;i++){
+    var t = i/16*Math.PI*2, l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',300+82*Math.cos(t)); l.setAttribute('y1',300+82*Math.sin(t));
+    l.setAttribute('x2',300+238*Math.cos(t)); l.setAttribute('y2',300+238*Math.sin(t));
+    l.setAttribute('stroke','rgba(204,120,92,.42)'); l.setAttribute('stroke-width','1.6'); l.setAttribute('class','flow');
+    ef.appendChild(l);
+  }
+  var tk = document.getElementById('ticks');
+  if(tk) for(var z=20; z<=90; z+=10){
+    var d = document.createElement('div'); d.className='tick';
+    d.style.left = (96 + (z-20)/70*1088) + 'px'; d.textContent = z;
+    tk.appendChild(d);
+  }
+
+
+  /* ---- radicals: drawn hook that scales with its content ---- */
+  document.querySelectorAll('.sqrt').forEach(function(q){
+    var old = q.querySelector('.rad'); if(old) old.remove();
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','rad'); svg.setAttribute('viewBox','0 0 10 20'); svg.setAttribute('preserveAspectRatio','none');
+    var pth = document.createElementNS('http://www.w3.org/2000/svg','path');
+    pth.setAttribute('d','M0.3 12.2 L2.3 11 L5.2 19.6 L9.4 0.55 L10.6 0.55');
+    svg.appendChild(pth); q.insertBefore(svg, q.firstChild);
+  });
+
+  /* ---- dot indicator ---- */
+  var dotsEl = document.getElementById('dots');
+  slides.forEach(function(s,i){ var d=document.createElement('span'); d.className='dot'; d.title=pad(i+1)+' · '+s.dataset.titleEn; d.onclick=function(){ go(i); }; dotsEl.appendChild(d); });
+
+  /* ---- footer ---- */
+  var DOC = deck.dataset.doc || '';
+  slides.forEach(function(s,i){
+    var f = document.createElement('div'); f.className='footer';
+    f.innerHTML = '<span class="fm">BENEDU INSIGHT</span><span class="fd2">'+DOC+'</span><span class="fp">'+pad(i+1)+' / '+pad(total)+'</span>';
+    s.appendChild(f);
+  });
+
+  /* ---- build steps ---- */
+  function maxStep(s){
+    var m = 0; s.querySelectorAll('[data-step]').forEach(function(e){ m = Math.max(m, +e.dataset.step); });
+    return m;
+  }
+  function applyStep(s, n){
+    s.querySelectorAll('.frag').forEach(function(e){ e.classList.toggle('on', +e.dataset.step <= n); });
+    s.querySelectorAll('.hides').forEach(function(e){ e.classList.toggle('gone', n >= +e.dataset.hide); });
+  }
+
+  function render(){
+    slides.forEach(function(s,i){
+      var was = s.classList.contains('active');
+      s.classList.toggle('active', i===idx);
+      if(i===idx && !was){ s.querySelectorAll('.rise').forEach(function(r){ r.style.animation='none'; r.offsetHeight; r.style.animation=''; }); }
+    });
+    applyStep(slides[idx], step);
+    [].forEach.call(document.querySelectorAll('#dots .dot'), function(d,i){ d.classList.toggle('on', i===idx); d.classList.toggle('done', i<idx); });
+    history.replaceState(null,'','#'+(idx+1));
+    renderNotes();
+  }
+  function go(i, atEnd){
+    idx = Math.max(0, Math.min(total-1, i));
+    step = atEnd ? maxStep(slides[idx]) : 0;
+    render();
+  }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } }
+
+  /* ---- notes ---- */
+  var notes = document.getElementById('notes');
+  function renderNotes(){
+    var s = slides[idx], n = s.querySelector('.slide-note');
+    document.getElementById('notesBody').innerHTML = n ? n.innerHTML : '';
+    document.getElementById('notesNo').textContent = pad(idx+1)+' / '+pad(total);
+    document.getElementById('notesTitle').innerHTML =
+      '<span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span>';
+  }
+  function toggleNotes(force){
+    var open = force===undefined ? !notes.classList.contains('open') : force;
+    notes.classList.toggle('open', open);
+    document.getElementById('notesBtn').classList.toggle('on', open);
+  }
+
+  /* ---- language ---- */
+  var langBtn = document.getElementById('langBtn');
+  function setLang(l){
+    document.documentElement.classList.toggle('lang-ko', l==='ko');
+    document.documentElement.lang = l;
+    langBtn.textContent = l==='ko' ? 'English' : '한국어';
+    updateLab();
+  }
+  function toggleLang(){ setLang(document.documentElement.classList.contains('lang-ko') ? 'en' : 'ko'); }
+
+  /* ---- grid overview ---- */
+  var grid = document.getElementById('grid'), gw = document.getElementById('gridWrap');
+  function buildGrid(){
+    gw.innerHTML = '';
+    slides.forEach(function(s,i){
+      var th = document.createElement('div'); th.className = 'thumb' + (i===idx ? ' cur' : '');
+      var fr = document.createElement('div'); fr.className = 'frame';
+      var c = s.cloneNode(true);
+      c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+      c.classList.add('active','static'); c.classList.remove('rise');
+      applyStep(c, maxStep(c));
+      var inner = document.createElement('div'); inner.className = 'inner'; inner.appendChild(c);
+      fr.appendChild(inner); th.appendChild(fr);
+      var cap = document.createElement('div'); cap.className = 'cap';
+      cap.innerHTML = '<span class="no">'+pad(i+1)+'</span><span><span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span></span>';
+      th.appendChild(cap);
+      th.addEventListener('click', function(){ toggleGrid(false); go(i); });
+      gw.appendChild(th);
+    });
+    scaleThumbs();
+  }
+  function scaleThumbs(){
+    gw.querySelectorAll('.thumb').forEach(function(th){
+      var f = th.querySelector('.frame'), inn = th.querySelector('.inner');
+      inn.style.transform = 'scale(' + (f.clientWidth/1280) + ')';
+    });
+  }
+  function toggleGrid(force){
+    var open = force===undefined ? !grid.classList.contains('open') : force;
+    if(open){ grid.classList.add('open'); buildGrid(); } else { grid.classList.remove('open'); }
+    document.getElementById('gridBtn').classList.toggle('on', open);
+  }
+
+  /* ---- fullscreen ---- */
+  function toggleFS(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  }
+
+  /* ---- Z0 lab ---- */
+  var ba = document.getElementById('ba'), er = document.getElementById('er');
+  function updateLab(){
+    if(!ba) return;
+    var b = +ba.value, e = +er.value, z = 60/Math.sqrt(e)*Math.log(b);
+    var r = 150/b;
+    document.getElementById('cxInner').setAttribute('r', r.toFixed(1));
+    document.getElementById('cxA').setAttribute('x2', (180+r).toFixed(1));
+    document.getElementById('cxAl').setAttribute('x', (180 + Math.max(r/2,6) - 4).toFixed(1));
+    var tint = Math.min(1,(e-1)/3);
+    document.getElementById('cxDiel').setAttribute('fill', 'rgba(112,48,160,'+(0.05+tint*0.28).toFixed(3)+')');
+    document.getElementById('cxEr').textContent = 'εr = ' + e.toFixed(2);
+    document.getElementById('baV').textContent = b.toFixed(2);
+    document.getElementById('erV').textContent = e.toFixed(2);
+    var num = document.getElementById('z0'), st = document.getElementById('z0s');
+    num.textContent = z.toFixed(1);
+    num.className = 'num'; st.className = 'status';
+    if(Math.abs(z-50) <= 1.5){
+      num.classList.add('hit'); st.classList.add('hit');
+      st.innerHTML = '<span class="t-en">That\'s 50Ω — the RF standard.</span><span class="t-ko"><span class="en">50Ω</span> — <span class="en">RF</span> 표준입니다.</span>';
+    } else if(Math.abs(z-75) <= 1.5){
+      num.classList.add('hit75'); st.classList.add('hit75');
+      st.innerHTML = '<span class="t-en">That\'s 75Ω — the video / CATV standard.</span><span class="t-ko"><span class="en">75Ω</span> — 영상 · <span class="en">CATV</span> 표준입니다.</span>';
+    } else {
+      st.innerHTML = '<span class="t-en">Adjust b/a or εr until you reach 50Ω.</span><span class="t-ko"><span class="en">b/a</span> 또는 <span class="en">εr</span>을 조절해 <span class="en">50Ω</span>을 만들어 보세요.</span>';
+    }
+    document.querySelectorAll('.chip-btn').forEach(function(c){ c.classList.toggle('on', Math.abs(+c.dataset.er - e) < 0.005); });
+  }
+  if(ba){ ba.addEventListener('input', updateLab); er.addEventListener('input', updateLab); }
+  document.querySelectorAll('.chip-btn').forEach(function(c){
+    c.addEventListener('click', function(ev){ if(!er || !c.dataset.er) return; ev.stopPropagation(); er.value = c.dataset.er; updateLab(); });
+  });
+
+  /* ---- input ---- */
+  document.getElementById('prevBtn').onclick = prev;
+  document.getElementById('nextBtn').onclick = next;
+  document.getElementById('gridBtn').onclick = function(){ toggleGrid(); };
+  document.getElementById('notesBtn').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesTab').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesClose').onclick = function(){ toggleNotes(false); };
+  document.getElementById('fsBtn').onclick = toggleFS;
+  langBtn.onclick = toggleLang;
+
+  window.addEventListener('keydown', function(e){
+    if(e.target.tagName==='INPUT') return;
+    var k = e.key;
+    if(grid.classList.contains('open')){ if(k==='Escape' || k==='g' || k==='G') toggleGrid(false); return; }
+    if(['ArrowRight','PageDown',' ','Enter'].indexOf(k)>-1){ next(); e.preventDefault(); }
+    else if(['ArrowLeft','PageUp','Backspace'].indexOf(k)>-1){ prev(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); } else if(k==='End'){ go(total-1, true); }
+    else if(k==='g' || k==='G'){ toggleGrid(); }
+    else if(k==='n' || k==='N'){ toggleNotes(); }
+    else if(k==='l' || k==='L'){ toggleLang(); }
+    else if(k==='f' || k==='F'){ toggleFS(); }
+    else if(k==='Escape'){ toggleNotes(false); }
+  });
+
+  /* ---- click left/right half of the slide to navigate ---- */
+  var NO_NAV = 'a,button,input,label,.lab,.coax-svg,.chip-btn,.nav-hint,.smith-svg,.lab2,.swing-wrap';
+  function sideOf(e){
+    var r = deck.getBoundingClientRect();
+    return (e.clientX - r.left) < r.width * 0.5 ? 'l' : 'r';
+  }
+  deck.addEventListener('mousemove', function(e){
+    var blocked = e.target.closest(NO_NAV);
+    var sd = blocked ? '' : sideOf(e);
+    deck.classList.toggle('hov-l', sd==='l' && !(idx===0 && step===0));
+    deck.classList.toggle('hov-r', sd==='r' && !(idx===total-1 && step===maxStep(slides[idx])));
+  });
+  deck.addEventListener('mouseleave', function(){ deck.classList.remove('hov-l','hov-r'); });
+  deck.addEventListener('click', function(e){
+    if(e.target.closest(NO_NAV)) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(notes.classList.contains('open')){ toggleNotes(false); return; }
+    sideOf(e)==='l' ? prev() : next();
+    deck.dispatchEvent(new MouseEvent('mousemove', {clientX:e.clientX, clientY:e.clientY, bubbles:true}));
+  });
+
+  var tx = null;
+  deck.addEventListener('touchstart', function(e){ if(e.target.tagName!=='INPUT') tx = e.touches[0].clientX; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if(tx===null) return; var dx = e.changedTouches[0].clientX - tx;
+    if(dx < -40) next(); if(dx > 40) prev(); tx = null;
+  });
+
+  /* ---- idle: hide chrome while presenting ---- */
+  var idleT;
+  function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(!grid.classList.contains('open') && !notes.classList.contains('open')) document.body.classList.add('idle'); }, 2600); }
+  ['mousemove','mousedown','keydown','touchstart'].forEach(function(ev){ window.addEventListener(ev, wake, {passive:true}); });
+
+  /* ---- scale ---- */
+  function fit(){
+    var s = Math.min((window.innerWidth-48)/1280, (window.innerHeight-48)/720);
+    deck.style.transform = 'scale('+s+')';
+    if(grid.classList.contains('open')) scaleThumbs();
+  }
+  window.addEventListener('resize', fit);
+
+  /* ================= DECK LABS: RF MATCHING ================= */
+  function koEn(s){ return s.replace(/([A-Za-z0-9ΩτΓµ.%−·_]+(?:\s+[A-Za-z0-9ΩτΓµ.%−·_]+)*)/g,'<span class="en">$1</span>'); }
+  function dual(en, ko){ return '<span class="t-en">'+en+'</span><span class="t-ko">'+koEn(ko)+'</span>'; }
+
+  /* ---- Lab 1: L-network tuning on a Smith chart ---- */
+  (function(){
+    var cl = document.getElementById('cl'), ct = document.getElementById('ct');
+    if(!cl || !ct) return;
+    var W = 2*Math.PI*13.56e6, LF = 600e-9, RL = 1.8, XL = -25, TARGET = [1210, 700];
+    var trail = [], autoRAF = null;
+    function gamma(){
+      var Cl = +cl.value*1e-12, Ct = +ct.value*1e-12;
+      var r = RL, x = XL + W*LF - 1/(W*Ct);            // Z1 = load + series arm
+      var d = r*r + x*x, gy = r/d, by = -x/d + W*Cl;   // Yin = 1/Z1 + jωCl
+      var dy = gy*gy + by*by, zr = gy/dy, zi = -by/dy; // Zin = 1/Yin
+      var nr = zr-50, ni = zi, mr = zr+50, mi = zi, dm = mr*mr+mi*mi;
+      return { re:(nr*mr+ni*mi)/dm, im:(ni*mr-nr*mi)/dm };
+    }
+    function update(){
+      var g = gamma(), g2 = g.re*g.re + g.im*g.im;
+      var px = 186 + 170*g.re, py = 186 - 170*g.im;
+      document.getElementById('smPt').setAttribute('cx', px.toFixed(1));
+      document.getElementById('smPt').setAttribute('cy', py.toFixed(1));
+      trail.push(px.toFixed(1)+','+py.toFixed(1)); if(trail.length > 60) trail.shift();
+      document.getElementById('smTrail').setAttribute('points', trail.join(' '));
+      document.getElementById('clV').textContent = (+cl.value) + ' pF';
+      document.getElementById('ctV').textContent = (+ct.value) + ' pF';
+      var pref = g2*100, pdel = 1000*(1-g2), I = Math.sqrt(pdel/RL), Q = I*I*25/1000;
+      var num = document.getElementById('pref'), st = document.getElementById('m1s');
+      num.textContent = pref < 10 ? pref.toFixed(1) : Math.round(pref);
+      num.className = 'num'; st.className = 'status';
+      document.getElementById('smPt').setAttribute('fill', g2 <= 0.01 ? '#CC785C' : '#7030A0');
+      document.getElementById('m1stats').innerHTML = '<span class="en">P<sub>del</sub> <b>'+Math.round(pdel)+' W</b> &nbsp;·&nbsp; I <b>'+I.toFixed(1)+' A</b> &nbsp;·&nbsp; Q<sub>react</sub> <b>'+Q.toFixed(1)+' kVAR</b></span>';
+      if(g2 <= 0.01){
+        num.classList.add('hit'); st.classList.add('hit');
+        st.innerHTML = dual('Matched. All 1 kW goes in — and 23.6 A flows.', '정합 완료. 1 kW가 전부 들어가고, 23.6 A가 흐릅니다.');
+      } else if(g2 <= 0.1){
+        num.classList.add('hit75'); st.classList.add('hit75');
+        st.innerHTML = dual('Close. Fine-tune the Tune C.', '거의 다 왔습니다. Tune C를 미세하게 조정하세요.');
+      } else {
+        st.innerHTML = dual('Walk the point into the centre of the chart.', '스미스차트의 점을 중심으로 옮겨 보세요.');
+      }
+    }
+    function stopAuto(){ if(autoRAF){ cancelAnimationFrame(autoRAF); autoRAF = null; } }
+    function autoStep(){
+      var a = +cl.value, b = +ct.value, da = TARGET[0]-a, db = TARGET[1]-b;
+      if(Math.abs(da) < 5 && Math.abs(db) < 5){ cl.value = TARGET[0]; ct.value = TARGET[1]; update(); autoRAF = null; return; }
+      cl.value = Math.round((a + Math.sign(da)*Math.max(5, Math.abs(da)*0.06))/5)*5;
+      ct.value = Math.round((b + Math.sign(db)*Math.max(5, Math.abs(db)*0.06))/5)*5;
+      update(); autoRAF = requestAnimationFrame(autoStep);
+    }
+    cl.addEventListener('input', function(){ stopAuto(); update(); });
+    ct.addEventListener('input', function(){ stopAuto(); update(); });
+    document.querySelectorAll('[data-act]').forEach(function(b){
+      b.addEventListener('click', function(ev){
+        ev.stopPropagation(); stopAuto();
+        if(b.dataset.act === 'auto'){ autoRAF = requestAnimationFrame(autoStep); }
+        else { cl.value = 400; ct.value = 1450; trail = []; update(); }
+      });
+    });
+    update();
+  })();
+
+  /* ---- Lab 2: series resonance build-up (the swing) ---- */
+  (function(){
+    var rp = document.getElementById('rp'), cv = document.getElementById('swingCv');
+    if(!rp || !cv) return;
+    var ctx = cv.getContext('2d'), CW = cv.width, CH = cv.height;
+    var F = 13.56e6, X = 25, L = X/(2*Math.PI*F), RS = 1.8, VTH = Math.sqrt(1000*4*RS);
+    var RMIN = 0.02, RMAX = 8, NCYC = 24, IMAX = VTH/(RS+RMIN)*Math.SQRT2;
+    var prog = 1, t0 = 0, raf = null;
+    function rFrom(v){ return RMIN*Math.pow(RMAX/RMIN, v/1000); }
+    function vFrom(r){ return Math.round(1000*Math.log(r/RMIN)/Math.log(RMAX/RMIN)); }
+    function model(){
+      var R = rFrom(+rp.value), Rt = RS + R, I = VTH/Rt, g = (R-RS)/(R+RS);
+      return { R:R, I:I, tau:2*L/Rt, vpk:I*X*Math.SQRT2/1000, pp:I*I*R, pref:1000*g*g };
+    }
+    function draw(m){
+      ctx.clearRect(0,0,CW,CH);
+      var x0 = 90, x1 = CW-30, yc = CH/2 - 20, A = (CH/2 - 80);
+      var xs = function(c){ return x0 + (x1-x0)*c/NCYC; };
+      var ys = function(i){ return yc - A*i/IMAX; };
+      // axes
+      ctx.strokeStyle = '#E6DFD8'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x0, yc); ctx.lineTo(x1, yc); ctx.stroke();
+      ctx.font = '500 22px "JetBrains Mono", monospace'; ctx.fillStyle = '#A09D96'; ctx.textAlign = 'center';
+      for(var c=0;c<=NCYC;c+=4){ ctx.fillText(c, xs(c), CH-30); ctx.beginPath(); ctx.moveTo(xs(c), yc-6); ctx.lineTo(xs(c), yc+6); ctx.stroke(); }
+      ctx.textAlign = 'right'; ctx.fillText('RF CYCLES →', x1, CH-4);
+      ctx.textAlign = 'left'; ctx.font = '700 26px "Google Sans", sans-serif'; ctx.fillStyle = '#252320'; ctx.fillText('i(t)', 4, 40);
+      var ipk = m.I*Math.SQRT2, tc = m.tau*F;
+      // steady-state lines
+      ctx.setLineDash([4,8]); ctx.strokeStyle = '#A09D96'; ctx.lineWidth = 1.5;
+      [ipk, -ipk].forEach(function(v){ ctx.beginPath(); ctx.moveTo(x0, ys(v)); ctx.lineTo(x1, ys(v)); ctx.stroke(); });
+      ctx.setLineDash([]);
+      ctx.font = '600 24px "Google Sans", sans-serif'; ctx.fillStyle = '#6C6A64'; ctx.textAlign = 'left';
+      ctx.fillText('± '+m.I.toFixed(1)+' A rms', x0+10, ys(ipk)-12);
+      // tau marker
+      ctx.strokeStyle = 'rgba(112,48,160,.5)'; ctx.lineWidth = 2; ctx.setLineDash([6,6]);
+      ctx.beginPath(); ctx.moveTo(xs(tc), ys(ipk)-8); ctx.lineTo(xs(tc), ys(-ipk)+14); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#7030A0'; ctx.font = '700 24px "Google Sans", sans-serif'; ctx.textAlign = 'center'; ctx.fillText('τ', xs(tc)+16, ys(-ipk)+34);
+      // envelope + waveform up to progress
+      var cEnd = NCYC*prog, N = Math.ceil(cEnd*48);
+      ctx.strokeStyle = '#CC785C'; ctx.lineWidth = 3;
+      [1,-1].forEach(function(sg){ ctx.beginPath();
+        for(var k=0;k<=N;k++){ var c = cEnd*k/Math.max(N,1), e = ipk*(1-Math.exp(-c/tc)); k ? ctx.lineTo(xs(c), ys(sg*e)) : ctx.moveTo(xs(c), ys(sg*e)); }
+        ctx.stroke(); });
+      ctx.strokeStyle = '#252320'; ctx.lineWidth = 2.4; ctx.beginPath();
+      for(var k=0;k<=N;k++){ var c = cEnd*k/Math.max(N,1), v = ipk*(1-Math.exp(-c/tc))*Math.sin(2*Math.PI*c); k ? ctx.lineTo(xs(c), ys(v)) : ctx.moveTo(xs(c), ys(v)); }
+      ctx.stroke();
+    }
+    function readout(m){
+      document.getElementById('rpV').textContent = (m.R < 0.1 ? m.R.toFixed(3) : m.R.toFixed(2)) + ' Ω';
+      document.getElementById('vpk').textContent = m.vpk.toFixed(2);
+      document.getElementById('vpk').className = 'num sm' + (m.vpk > 1.2 ? ' hit' : '');
+      var cyc = m.tau*F;
+      document.getElementById('m2grid').innerHTML =
+        '<div class="it"><div class="k">I · RMS</div><div class="v">'+m.I.toFixed(1)+'<small>A</small></div></div>'+
+        '<div class="it"><div class="k">τ · BUILD-UP</div><div class="v">'+(m.tau*1e6).toFixed(2)+'<small>µs · '+cyc.toFixed(1)+' cyc</small></div></div>'+
+        '<div class="it"><div class="k">P · PLASMA</div><div class="v">'+Math.round(m.pp)+'<small>W</small></div></div>'+
+        '<div class="it"><div class="k">P · REFLECTED</div><div class="v'+(m.pref > 100 ? ' warn' : '')+'">'+Math.round(m.pref)+'<small>W</small></div></div>';
+      document.querySelectorAll('[data-rp]').forEach(function(b){ b.classList.toggle('on', Math.abs(+b.dataset.rp - m.R)/(+b.dataset.rp) < 0.03); });
+    }
+    function sweep(){
+      if(raf) cancelAnimationFrame(raf);
+      t0 = performance.now(); prog = 0;
+      (function f(now){ prog = Math.min(1, (now - t0)/1800); draw(model()); if(prog < 1) raf = requestAnimationFrame(f); else raf = null; })(t0);
+    }
+    function set(){ var m = model(); readout(m); sweep(); }
+    rp.addEventListener('input', set);
+    document.querySelectorAll('[data-rp]').forEach(function(b){
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); rp.value = vFrom(+b.dataset.rp); set(); });
+    });
+    rp.value = vFrom(1.8); readout(model()); prog = 1; draw(model());
+    var sec = cv.closest('.slide');
+    if(sec && window.MutationObserver){
+      var was = sec.classList.contains('active');
+      new MutationObserver(function(){ var now = sec.classList.contains('active'); if(now && !was && !sec.closest('#grid')) sweep(); was = now; }).observe(sec, {attributes:true, attributeFilter:['class']});
+    }
+  })();
+
+  fit(); setLang('en');
+  var h = parseInt((location.hash||'').replace('#',''),10);
+  go(isNaN(h) ? 0 : h-1);
+  wake();
+})();
+</script>
+</body>
+</html>

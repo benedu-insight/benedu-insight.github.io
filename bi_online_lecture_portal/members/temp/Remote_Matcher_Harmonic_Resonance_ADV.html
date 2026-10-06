@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<script>
+/* Benedu Insight · members-only deck guard
+   Opens only inside m6_members.html; direct access goes back to the members hub. */
+(function(){
+  var ok = false;
+  try { ok = window.self !== window.top && /m6_members(\.html)?$/.test(window.parent.location.pathname); } catch (e) { ok = false; }
+  if (!ok) { location.replace('../m6_members.html'); return; }
+  var l = new URLSearchParams(location.search).get('lang');
+  /* language sync: modules expose a global setLang(); keynotes keep it private, so use their #langBtn toggle */
+  window.__beneduSetLang = function (v) {
+    try { if (typeof window.setLang === 'function') { window.setLang(v); return; } } catch (e) {}
+    var cur = document.documentElement.classList.contains('lang-ko') ? 'ko' : 'en';
+    var b = document.getElementById('langBtn');
+    if (b && cur !== v) b.click();
+  };
+  if (l === 'ko' || l === 'en') window.addEventListener('load', function(){ window.__beneduSetLang(l); });
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3f — Harmonic Resonance on the Output Cable (Advanced) | Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF9F5; --surface:#EFE9DE; --ink:#252320; --steel:#6C6A64; --steel-soft:#A09D96; --hairline:#E6DFD8;
+  --ink-black:#181715; --card-dark:#232120; --hairline-dark:#3A3733; --mute-dark:#8E8A83; --text-dark:#EFE9DE;
+  --green:#0F8C50; --purple:#7030A0; --coral:#CC785C; --amber:#E8A55A;
+  --font-en:'Google Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-ko:'Google Sans', 'Gowun Batang',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0A0A09}
+body{font-family:var(--font-en);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+body.idle{cursor:none}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+
+/* ---------- language ---------- */
+.t-ko{display:none;font-family:var(--font-ko)}
+html.lang-ko .t-ko{display:revert}
+html.lang-ko .t-en{display:none}
+.en{font-family:var(--font-en)}
+
+/* ---------- stage ---------- */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{width:1280px;height:720px;position:relative;flex:0 0 auto;overflow:hidden;background:var(--cream);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);transform-origin:center center}
+
+.slide{position:absolute;inset:0;background:var(--cream);opacity:0;visibility:hidden;
+  transition:opacity .6s ease,visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.slide.dark{background:var(--ink-black);color:#fff}
+.slide-note{display:none}
+
+/* ---------- chrome ---------- */
+.logo-tr{position:absolute;right:64px;top:42px;height:34px;width:auto}
+.dark .logo-tr{filter:brightness(0) invert(1);opacity:.92}
+.eyebrow{position:absolute;left:96px;top:56px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.eyebrow b{color:var(--green);margin-right:10px}
+.dark .eyebrow{color:var(--mute-dark)} .dark .eyebrow b{color:var(--amber)}
+.footer{position:absolute;left:96px;right:64px;bottom:0;height:34px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--hairline)}
+.dark .footer{border-top-color:var(--hairline-dark)}
+.footer .fm{font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--steel)}
+.footer .fd2{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em;color:var(--steel-soft)}
+.footer .fp{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--steel)}
+.dark .footer .fm,.dark .footer .fp{color:#8E8A83}
+.dark .footer .fd2{color:#5E5A54}
+.headline{position:absolute;left:96px;right:96px;top:98px;font-size:46px;font-weight:700;letter-spacing:-.028em;line-height:1.15}
+html.lang-ko .headline{font-size:42px;letter-spacing:-.01em}
+.dark .headline{color:#fff}
+.lede{position:absolute;left:96px;right:96px;top:166px;font-size:19px;color:var(--steel);line-height:1.55}
+.dark .lede{color:#B5B0A8}
+
+/* ---------- builds ---------- */
+.frag{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .8s var(--ease)}
+.frag.on{opacity:1;transform:none}
+.frag.strike{transform:scaleX(0);transform-origin:left center;transition:transform .55s var(--ease),opacity .2s}
+.frag.strike.on{transform:scaleX(1)}
+.hides{transition:opacity .5s ease,transform .6s var(--ease)}
+.hides.gone{opacity:0;transform:scale(.94);pointer-events:none}
+.rise{opacity:0}
+.slide.active .rise{animation:rise .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.static .rise{animation:none!important;opacity:1}
+.static .frag,.static .hides{transition:none!important}
+
+/* ---------- equation typesetting ---------- */
+.eqn{font-family:var(--font-en);font-weight:700;display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em}
+.frac .fn{padding:0 .12em .04em;border-bottom:.045em solid currentColor}
+.frac .fd{padding:.04em .12em 0}
+.frac.sm{font-size:.7em}
+.sqrt{display:inline-flex;align-items:stretch;margin-left:.04em}
+.sqrt .rad{display:block;width:.52em;flex:0 0 auto;overflow:visible;margin-right:-1px}
+.sqrt .rad path{fill:none;stroke:currentColor;stroke-width:.075em;stroke-linejoin:miter;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+.sqrt .rc{border-top:.075em solid currentColor;padding:.1em .14em 0 .08em;display:inline-flex;align-items:center}
+.eqn sub{font-size:.62em;vertical-align:baseline;position:relative;top:.32em;line-height:0;font-weight:700;margin-left:.02em}
+.frac .fd .sqrt{margin-top:.16em}
+.paren{font-weight:300;font-size:1.45em;margin:0 -.02em}
+
+/* ================= 1 · COVER ================= */
+.cover-logo{position:absolute;left:96px;top:54px;height:42px;filter:brightness(0) invert(1)}
+.cover-kicker{position:absolute;left:98px;top:206px;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--coral)}
+.cover-big{position:absolute;left:86px;top:226px;font-size:214px;font-weight:700;letter-spacing:-.055em;line-height:1;color:#fff}
+.cover-big span{color:var(--coral)}
+.cover-sub{position:absolute;left:96px;top:462px;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--text-dark)}
+html.lang-ko .cover-sub{font-size:36px;font-weight:700}
+.cover-desc{position:absolute;left:96px;top:524px;width:600px;font-size:18px;line-height:1.6;color:var(--mute-dark)}
+.cover-meta{position:absolute;left:96px;bottom:62px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#6E6A63}
+.cover-art{position:absolute;right:-70px;top:60px;width:600px;height:600px}
+.cover-art .spin{transform-box:fill-box;transform-origin:center;animation:spin 90s linear infinite}
+.cover-art .flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flow{to{stroke-dashoffset:-28}}
+
+/* ================= 2 · MISCONCEPTION ================= */
+.eq-hero{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:100px;color:var(--ink)}
+.claim{position:absolute;left:0;right:0;top:428px;text-align:center;font-size:28px;color:var(--steel)}
+.claim .wrap{position:relative;display:inline-block}
+.claim .strike{position:absolute;left:-10px;right:-10px;top:52%;height:4px;background:var(--coral);border-radius:2px}
+.verdict{position:absolute;left:0;right:0;top:494px;text-align:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:var(--coral)}
+html.lang-ko .verdict{font-size:54px}
+.verdict-sub{position:absolute;left:0;right:0;top:590px;text-align:center;font-size:19px;color:var(--steel)}
+
+/* ================= 3 · CAUSALITY ================= */
+.chain{position:absolute;left:96px;right:96px;top:262px;display:flex;align-items:flex-start;justify-content:space-between}
+.node{width:300px}
+.node .w{font-size:60px;font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.node .w.c{color:var(--coral)}
+.node .s{margin-top:16px;font-size:17px;color:var(--steel);line-height:1.55}
+.arr{font-size:42px;color:var(--steel-soft);padding-top:6px;font-weight:300}
+.punch{position:absolute;left:96px;right:96px;top:500px;padding-top:36px;border-top:1px solid var(--hairline);
+  font-size:34px;font-weight:700;letter-spacing:-.025em}
+html.lang-ko .punch{font-size:31px}
+.punch .c{color:var(--coral)}
+
+/* ================= 4 · LAB ================= */
+.coax-svg{position:absolute;left:96px;top:226px;width:372px;height:372px}
+.lab{position:absolute;left:540px;right:96px;top:226px;bottom:66px;display:flex;flex-direction:column}
+.lab .eqn{font-size:34px;color:var(--ink)}
+.ctl{margin-top:30px}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ctl-row .k{font-size:15px;color:var(--steel)}
+.ctl-row .v{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink)}
+.chips{display:flex;gap:8px;margin-bottom:14px}
+.chip-btn{font-family:var(--font-en);font-size:13px;font-weight:500;color:var(--ink);padding:6px 15px;border:1px solid var(--hairline);
+  border-radius:999px;background:#fff;cursor:pointer;transition:all .2s}
+.chip-btn:hover{border-color:var(--steel-soft)}
+.chip-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--hairline);outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+.readout{margin-top:auto;display:flex;align-items:baseline;gap:14px}
+.readout .k{font-size:28px;font-weight:500;color:var(--steel)}
+.readout .num{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);transition:color .3s;font-variant-numeric:tabular-nums}
+.readout .num.hit{color:var(--coral)} .readout .num.hit75{color:var(--purple)}
+.status{margin-top:10px;font-size:17px;color:var(--steel);min-height:26px}
+.status.hit{color:var(--coral);font-weight:700} .status.hit75{color:var(--purple);font-weight:700}
+
+/* ================= 5 · THREE VIEWS ================= */
+.views{position:absolute;left:96px;right:96px;top:248px;display:grid;grid-template-columns:repeat(3,1fr)}
+.view{padding:0 36px;border-left:1px solid var(--hairline)}
+.view:first-child{padding-left:0;border-left:none}
+.view .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.view .eqn{font-size:54px;height:134px;margin:24px 0 22px;color:var(--ink)}
+.view .d{font-size:17px;color:var(--steel);line-height:1.6}
+.foot-line{position:absolute;left:96px;right:96px;top:584px;font-size:20px;color:var(--steel)}
+.foot-line b{color:var(--ink)}
+
+/* ================= 6 · HISTORY ================= */
+.axis{position:absolute;left:96px;right:96px;top:499px;height:2px;background:var(--hairline-dark)}
+.tick{position:absolute;top:514px;transform:translateX(-50%);font-family:var(--font-mono);font-size:10.5px;color:#5E5A54}
+.mk{position:absolute;top:500px;left:var(--x);width:0;height:0}
+.mk .stem{position:absolute;left:-1px;bottom:0;width:2px;height:var(--h);background:#4A4642}
+.mk .dot{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff}
+.mk .mlab{position:absolute;left:-110px;width:220px;bottom:calc(var(--h) + 14px);text-align:center}
+.mk .v{font-size:46px;font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1}
+.mk .c{margin-top:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.mk.hero .stem,.mk.hero .dot{background:var(--coral)}
+.mk.hero .v{font-size:68px;color:var(--coral)}
+.mk.hero .c{color:var(--coral)}
+.mk.below .stem{top:0;bottom:auto}
+.mk.below .dot{background:#6E6A63}
+.mk.below .mlab{top:calc(var(--h) + 10px);bottom:auto}
+.mk.below .v{font-size:24px;color:#8E8A83}
+.mk.below .c{color:#6E6A63}
+.means{position:absolute;left:330px;width:464px;top:548px;text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--mute-dark);letter-spacing:.02em}
+.src{position:absolute;left:96px;bottom:52px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5A54}
+
+/* ================= 7 · ONE MORE THING ================= */
+.omt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;font-weight:700;letter-spacing:-.035em;color:#fff}
+html.lang-ko .omt{font-size:66px}
+.vs{position:absolute;left:96px;right:96px;top:176px;display:flex;justify-content:center;align-items:flex-start;gap:72px}
+.vs .blk{text-align:center}
+.vs .n{font-size:156px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#fff}
+.vs .n.q{color:var(--coral)}
+.vs .l{margin-top:18px;font-size:18px;color:#B5B0A8}
+.vs .ne{font-size:84px;font-weight:300;color:#5E5A54;padding-top:30px}
+.next-line{position:absolute;left:96px;right:96px;top:472px;text-align:center;font-size:24px;color:var(--text-dark);letter-spacing:-.01em}
+.next-tag{position:absolute;left:0;right:0;top:524px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.end-links{position:absolute;left:0;right:0;bottom:70px;display:flex;justify-content:center;gap:36px}
+.end-links a{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:#B5B0A8;text-decoration:none;border-bottom:1px solid #3A3733;padding-bottom:4px;transition:color .2s,border-color .2s}
+.end-links a:hover{color:#fff;border-color:var(--coral)}
+
+/* ================= CLICK-TO-NAVIGATE HINTS ================= */
+.nav-hint{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(24,23,21,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;z-index:40;
+  transition:opacity .25s ease,transform .25s var(--ease)}
+.nav-hint svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-hint.l{left:22px;transform:translateX(6px)} .nav-hint.r{right:22px;transform:translateX(-6px)}
+.deck.hov-l .nav-hint.l,.deck.hov-r .nav-hint.r{opacity:1;transform:none}
+.deck.hov-l,.deck.hov-r{cursor:pointer}
+body.idle .nav-hint{opacity:0!important}
+
+/* ================= CONTROL BAR ================= */
+#bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px 8px;
+  background:rgba(24,23,21,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;z-index:90;transition:opacity .4s,transform .4s}
+body.idle #bar{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
+#bar button,#bar a{height:34px;min-width:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:none;border:none;border-radius:999px;color:#D9D4CC;font-family:var(--font-en);font-size:12.5px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+#bar button:hover,#bar a:hover{background:rgba(255,255,255,.08);color:#fff}
+#bar button.on{color:var(--coral)}
+#bar svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#bar .dots{display:flex;align-items:center;gap:7px;padding:0 10px}
+#bar .dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);cursor:pointer;transition:width .45s var(--ease),background .3s}
+#bar .dot.done{background:rgba(255,255,255,.5)}
+#bar .dot.on{width:24px;background:var(--coral)}
+#bar .dot:hover{background:rgba(255,255,255,.8)}
+#bar .sep{width:1px;height:18px;background:rgba(255,255,255,.12);margin:0 6px}
+#langBtn{font-family:var(--font-ko)!important;font-weight:700}
+html.lang-ko #langBtn{font-family:var(--font-en)!important}
+
+/* ================= NOTES DRAWER ================= */
+#notesTab{position:fixed;left:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;background:var(--ink-black);color:#D9D4CC;
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.18em;padding:18px 9px;border-radius:0 10px 10px 0;
+  border:1px solid rgba(255,255,255,.08);border-left:none;cursor:pointer;z-index:95;user-select:none;transition:color .2s,opacity .4s}
+#notesTab:hover{color:var(--coral)}
+body.idle #notesTab{opacity:.25}
+#notes{position:fixed;left:0;top:0;bottom:0;width:480px;background:#fff;z-index:100;transform:translateX(-102%);transition:transform .45s var(--ease);
+  display:flex;flex-direction:column;box-shadow:none;visibility:hidden;transition:transform .45s var(--ease),visibility 0s linear .45s}
+#notes.open{transform:none;visibility:visible;box-shadow:20px 0 60px rgba(0,0,0,.35);transition:transform .45s var(--ease)}
+.notes-head{padding:26px 28px 18px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;align-items:center}
+.notes-head .ttl{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.notes-head .no{font-family:var(--font-mono);font-size:11.5px;color:var(--steel-soft);margin-left:10px}
+#notesClose{background:none;border:none;font-size:24px;line-height:1;color:var(--steel);cursor:pointer}
+.notes-title{padding:22px 28px 0;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.notes-body{padding:16px 28px 28px;overflow-y:auto;flex:1;font-size:15.5px;line-height:1.85;color:var(--ink)}
+.notes-body p{margin:0 0 12px}
+.notes-body h4{margin:24px 0 8px;font-size:15.5px;font-weight:700;color:var(--ink)}
+.notes-body > div > h4:first-child{margin-top:4px}
+.notes-body .nf{font-family:var(--font-en);background:var(--surface);border-radius:8px;padding:11px 16px;margin:4px 0 14px;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.notes-body ul{margin:4px 0 14px;padding-left:20px}
+.notes-body li{margin:5px 0}
+.notes-body b{color:var(--ink)}
+.notes-foot{padding:14px 28px;border-top:1px solid var(--hairline);font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--steel-soft)}
+
+/* ================= GRID OVERVIEW ================= */
+#grid{position:fixed;inset:0;background:#0C0B0A;z-index:200;display:none;overflow:auto;padding:52px 64px 80px}
+#grid.open{display:block;animation:gridIn .35s var(--ease)}
+@keyframes gridIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+.grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+.grid-head .ttl{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:#EFE9DE}
+.grid-head .hint{font-family:var(--font-mono);font-size:11px;color:#6E6A63;letter-spacing:.06em}
+.grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:34px 28px}
+.thumb{cursor:pointer}
+.thumb .frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;outline:1px solid #2A2724;transition:transform .25s var(--ease),outline-color .2s}
+.thumb:hover .frame{transform:translateY(-4px);outline:2px solid #6C6A64}
+.thumb.cur .frame{outline:2px solid var(--coral)}
+.thumb .inner{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;pointer-events:none}
+.thumb .cap{display:flex;gap:12px;margin-top:12px;font-size:14px;color:#B5B0A8}
+.thumb .cap .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--coral);padding-top:1px}
+
+/* ================= ADVANCED DECK ================= */
+.adv{display:inline-block;margin-left:14px;padding:2px 9px 1px;border:1px solid var(--coral);border-radius:999px;color:var(--coral);font-size:10px;letter-spacing:.16em;vertical-align:1px}
+.adv-badge{position:absolute;right:64px;top:58px;padding:7px 16px 6px;border:1.5px solid var(--coral);border-radius:999px;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.2em;color:var(--coral)}
+.prereq{position:absolute;right:64px;bottom:62px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;color:#B5B0A8;text-decoration:none;border-bottom:1px solid #3A3733;padding-bottom:3px}
+.prereq:hover{color:#fff;border-color:var(--coral)}
+.hr-pulse{transform-box:fill-box;transform-origin:bottom center;animation:hrp 2.6s ease-in-out infinite}
+@keyframes hrp{0%,100%{transform:scaleY(.82)}50%{transform:scaleY(1.06)}}
+/* duo */
+.duo{position:absolute;left:96px;right:96px;top:236px;display:grid;grid-template-columns:1fr 1fr}
+.duo-b{padding-right:40px}
+.duo-b + .duo-b{padding-left:56px;border-left:1px solid var(--hairline)}
+.duo-k{font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--steel-soft)}
+.duo-k.c{color:var(--coral)}
+.duo-w{margin-top:14px;font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink)}
+.duo-w.c{color:var(--coral)}
+.duo-d{margin-top:18px;font-size:19px;color:var(--steel);line-height:1.55}
+/* axis band */
+.band{position:absolute;top:470px;height:30px;background:rgba(232,165,90,.10);border-top:1px dashed rgba(232,165,90,.35)}
+.band-l{position:absolute;left:368px;width:544px;top:548px;text-align:center;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+/* lab */
+.hr-svg{position:absolute;left:84px;top:196px;width:660px;height:380px}
+.hr-lab{position:absolute;left:800px;right:96px;top:206px;bottom:66px}
+.hr-k{margin-top:26px;font-size:15px;color:var(--steel)}
+.hr-big{margin-top:4px;display:flex;align-items:baseline;gap:12px}
+.hr-big #hrNum{font-size:84px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;transition:color .3s}
+.hr-big .u{font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--steel)}
+.hr-big.hit #hrNum,.hr-big.hit .u{color:var(--coral)} .hr-big.hit75 #hrNum{color:var(--purple)}
+.hr-row{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hairline);padding-top:10px}
+.hr-row div{font-family:var(--font-mono);font-size:13px;color:var(--ink)}
+.hr-row i{display:block;font-style:normal;font-size:11px;color:var(--steel-soft);letter-spacing:.08em}
+.hr-row .hot{color:var(--coral);font-weight:700}
+.hr-lab .status{margin-top:12px}
+.hr-cap{position:absolute;left:96px;top:600px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--steel-soft)}
+/* dark chain */
+.dark .node .w{color:#fff} .dark .node .w.c{color:var(--coral)}
+.dark .node .s{color:#B5B0A8} .dark .arr{color:#5E5A54}
+.dark .punch{border-top-color:var(--hairline-dark);color:#fff}
+/* rules */
+.rules{position:absolute;left:96px;right:96px;top:236px;display:grid;grid-template-columns:repeat(3,1fr)}
+.rules.two{grid-template-columns:1fr 1fr}
+.rcol{padding:0 40px;border-left:1px solid var(--hairline)}
+.rcol:first-child{padding-left:0;border-left:none}
+.rcol .cat{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral);margin-bottom:22px}
+.rule{height:168px}
+.rule .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--steel-soft);margin-bottom:6px}
+.rule .tt{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1.15;color:var(--ink)}
+html.lang-ko .rule .tt{font-size:27px}
+.rule .dd{margin-top:8px;font-size:17px;line-height:1.5;color:var(--steel)}
+.end-links a .t-ko{font-family:var(--font-ko)}
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck" data-doc="ADVANCED · RF FIELD NOTES — HARMONIC RESONANCE ON THE OUTPUT CABLE">
+<div class="nav-hint l" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+<div class="nav-hint r" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+
+<!-- ============ 1 · COVER ============ -->
+<section class="slide dark active" data-title-en="Cover" data-title-ko="표지">
+  <img class="cover-logo" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  <div class="adv-badge rise" style="--d:.05s">ADVANCED COURSE</div>
+  <svg class="cover-art" viewBox="0 0 600 600" aria-hidden="true" style="right:-20px;top:110px;width:520px;height:520px">
+    <path id="hrCurve" fill="none" stroke="rgba(204,120,92,.30)" stroke-width="1.6" stroke-dasharray="3 7" class="flow"/>
+    <line x1="90" y1="430" x2="580" y2="430" stroke="#3A3733" stroke-width="2"/>
+    <g font-family="JetBrains Mono,monospace" font-size="13" font-weight="700" text-anchor="middle" fill="#6E6A63">
+      <rect x="161" y="170" width="18" height="260" fill="#EFE9DE" opacity=".85"/><text x="170" y="460">f</text>
+      <rect x="251" y="310" width="18" height="120" fill="#5E5A54"/><text x="260" y="460">2f</text>
+      <rect class="hr-pulse" x="341" y="210" width="18" height="220" fill="#CC785C"/><text x="350" y="460" fill="#CC785C">3f</text>
+      <rect x="431" y="372" width="18" height="58" fill="#5E5A54"/><text x="440" y="460">4f</text>
+      <rect x="521" y="392" width="18" height="38" fill="#5E5A54"/><text x="530" y="460">5f</text>
+    </g>
+  </svg>
+  <div class="cover-kicker rise" style="--d:.1s">HARMONIC RESONANCE · OUTPUT CABLE</div>
+  <div class="cover-big rise" style="--d:.2s">3<span>f</span></div>
+  <div class="cover-sub rise" style="--d:.45s">
+    <span class="t-en">It resonates at a frequency you never sent.</span>
+    <span class="t-ko">보낸 적 없는 주파수에서 공진한다.</span>
+  </div>
+  <div class="cover-desc rise" style="--d:.6s;width:900px">
+    <span class="t-en">How a remote-matcher cable amplifies plasma harmonics — and how to find it.</span>
+    <span class="t-ko">리모트 매처 케이블이 플라즈마 하모닉을 키우는 방식, 그리고 그것을 찾아내는 법.</span>
+  </div>
+  <div class="cover-meta">RF FIELD NOTES · ADVANCED &nbsp;—&nbsp; BEN · BENEDU INSIGHT</div>
+  <a class="prereq" href="Remote_Matcher_Output_Cable_Keynote.html" target="_blank" rel="noopener"><span class="t-en">PREREQUISITE · 1 m — Remote Matcher &amp; Output Cable ↗</span><span class="t-ko">선수 강의 · 1 m — 리모트 매처와 출력 케이블 ↗</span></a>
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Where this fits</h4>
+<p>This is an advanced appendix to the lecture "1 m — Remote Matcher &amp; Output Cable". That lecture showed that, past the matcher, the cable becomes part of the load at 13.56 MHz. This one follows the same cable to the frequencies the generator never sends: the harmonics the plasma itself produces.</p>
+<h4>What you should already know</h4>
+<ul>
+<li>Reflection coefficient, VSWR and the transmission-line input impedance formula.</li>
+<li>Why a low-impedance plasma load puts standing waves on the output cable.</li>
+<li>The basic structure of an L-type matching network (series and shunt variable capacitors, series inductor).</li>
+</ul>
+<h4>The question</h4>
+<p>A remote-matcher cable is usually judged only at the fundamental. At 2f, 3f and 4f the same cable is electrically two to four times longer, and it can form resonances that do not exist in a direct-mount layout. Those resonances change the electrode voltage waveform without changing the forward or reflected power at 13.56 MHz — which is why they are so easy to miss.</p>
+</div>
+    <div class="t-ko">
+<h4>이 강의의 위치</h4>
+<p>이 강의는 「1 m — 리모트 매처와 출력 케이블」의 고급 부록이다. 앞 강의에서는 매처 뒤의 케이블이 13.56 MHz에서 부하의 일부가 된다는 것을 보았다. 이번에는 같은 케이블을 Generator가 보내지 않는 주파수, 즉 플라즈마가 스스로 만들어 내는 하모닉에서 따라가 본다.</p>
+<h4>미리 알고 있어야 할 것</h4>
+<ul>
+<li>반사계수, VSWR, 전송선 입력 임피던스 공식.</li>
+<li>저임피던스 플라즈마 부하가 출력 케이블에 정재파를 만드는 이유.</li>
+<li>L형 정합 회로의 기본 구조(직렬·병렬 가변 커패시터, 직렬 인덕터).</li>
+</ul>
+<h4>질문</h4>
+<p>리모트 매처 케이블은 보통 기본파에서만 평가된다. 그러나 2f, 3f, 4f에서 같은 케이블은 전기적으로 2~4배 길어지며, 직결 마운트에는 없는 공진을 만들 수 있다. 이 공진은 13.56 MHz의 Forward·Reflected 전력은 그대로 둔 채 전극 전압 파형을 바꾼다 — 그래서 놓치기 쉽다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 2 · SOURCE ============ -->
+<section class="slide" data-title-en="The Plasma Talks Back" data-title-ko="플라즈마가 되받아 보낸다">
+  <div class="eyebrow"><b>01</b>THE SOURCE<span class="adv">ADVANCED</span></div>
+  <h2 class="headline">
+    <span class="t-en">The plasma talks back.</span>
+    <span class="t-ko">플라즈마가 되받아 보낸다.</span>
+  </h2>
+  <div class="duo">
+    <div class="duo-b frag" data-step="1">
+      <div class="duo-k">f · 13.56 MHz</div>
+      <div class="duo-w"><span class="t-en">Load</span><span class="t-ko">부하</span></div>
+      <div class="duo-d"><span class="t-en">Takes power from the generator.</span><span class="t-ko">Generator에서 전력을 받는다.</span></div>
+    </div>
+    <div class="duo-b frag" data-step="2">
+      <div class="duo-k c">2f · 3f · 4f …</div>
+      <div class="duo-w c"><span class="t-en">Source</span><span class="t-ko">소스</span></div>
+      <div class="duo-d"><span class="t-en">Pushes harmonic current into whatever is connected.</span><span class="t-ko">연결된 회로로 하모닉 전류를 밀어낸다.</span></div>
+    </div>
+  </div>
+  <div class="punch frag" data-step="3" style="top:520px">
+    <span class="t-en">At harmonics, <span class="c">the external circuit sets the volume.</span></span>
+    <span class="t-ko">하모닉의 크기는 <span class="c">외부 회로가 정한다.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Why a sheath makes harmonics</h4>
+<p>The sheath in front of a powered electrode is not a fixed capacitor. Its thickness swings with the RF voltage, so its capacitance changes within every cycle. Electrons can reach the electrode only during the short moment each cycle when the sheath collapses, so the electron current behaves like a diode's. Both effects are non-linear: a sinusoidal drive produces a non-sinusoidal current, which contains 2f, 3f and higher components. Asymmetric CCPs with a large self-bias show this strongly.</p>
+<h4>Load at f, source at nf</h4>
+<p>At 13.56 MHz the plasma absorbs power, and the matcher's job is to deliver it. At the harmonics the generator supplies nothing, so the plasma is the only source: it drives harmonic current through the sheath into the external circuit — electrode stray capacitance, the output cable and the matcher's output network.</p>
+<h4>Why the external circuit matters</h4>
+<p>How much harmonic current flows depends on the impedance that loop presents at each harmonic. A high impedance keeps the harmonic small; a series resonance near a harmonic lets it grow many times. In a direct-mount layout this loop is short and consists of a few lumped parts, and its behaviour is the same from tool to tool. A cable adds a distributed element whose behaviour depends on its length — and the harmonic content of the electrode voltage changes with it.</p>
+</div>
+    <div class="t-ko">
+<h4>시스가 하모닉을 만드는 이유</h4>
+<p>전력 전극 앞의 시스는 고정된 커패시터가 아니다. 두께가 RF 전압에 따라 흔들리므로, 커패시턴스가 한 주기 안에서도 계속 변한다. 또 전자는 매 주기 시스가 붕괴하는 짧은 순간에만 전극에 도달하므로, 전자 전류는 다이오드처럼 동작한다. 두 효과 모두 비선형이다. 사인파로 구동해도 전류는 사인파가 아니게 되며, 그 안에 2f, 3f 및 고차 성분이 들어 있다. 자기 바이어스가 큰 비대칭 CCP에서 특히 강하게 나타난다.</p>
+<h4>f에서는 부하, nf에서는 소스</h4>
+<p>13.56 MHz에서 플라즈마는 전력을 흡수하고, 매처는 그 전력을 전달하는 역할을 한다. 하모닉에서는 Generator가 아무것도 공급하지 않으므로 플라즈마가 유일한 소스다. 플라즈마는 시스를 통해 외부 회로 — 전극 부유 용량, 출력 케이블, 매처 출력 회로 — 로 하모닉 전류를 밀어낸다.</p>
+<h4>외부 회로가 중요한 이유</h4>
+<p>하모닉 전류가 얼마나 흐르는지는 이 루프가 각 하모닉에서 보이는 임피던스가 정한다. 임피던스가 높으면 하모닉은 작게 유지되고, 하모닉 근처에 직렬 공진이 있으면 몇 배로 커진다. 직결 마운트에서는 이 루프가 짧고 몇 개의 집중 소자로만 이루어져 장비마다 같은 거동을 보인다. 케이블은 길이에 따라 거동이 달라지는 분포 소자를 더하며 — 전극 전압의 하모닉 성분도 그에 따라 달라진다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 3 · AXIS ============ -->
+<section class="slide dark" data-title-en="Longer at Every Harmonic" data-title-ko="하모닉마다 길어지는 케이블">
+  <div class="eyebrow"><b>02</b>ELECTRICAL LENGTH<span class="adv">ADVANCED</span></div>
+  <h2 class="headline">
+    <span class="t-en">The same cable is longer at 3f.</span>
+    <span class="t-ko">같은 케이블이 3f에서는 더 길다.</span>
+  </h2>
+  <div class="lede"><span class="t-en">Quarter-wavelength at each harmonic — PE coax, VF 0.66.</span><span class="t-ko">각 하모닉의 λ/4 — PE 동축, VF 0.66.</span></div>
+  <div class="band frag" data-step="1" style="left:368px;width:544px"></div>
+  <div class="band-l frag" data-step="1"><span class="t-en">TYPICAL REMOTE CABLE · 1–3 m</span><span class="t-ko">일반적인 리모트 케이블 · 1–3 m</span></div>
+  <div class="axis"></div>
+  <div class="tick" style="left:96px">0</div><div class="tick" style="left:368px">1 m</div><div class="tick" style="left:640px">2 m</div><div class="tick" style="left:912px">3 m</div><div class="tick" style="left:1184px">4 m</div>
+  <div class="mk frag" data-step="1" style="--x:1089px;--h:96px"><div class="stem"></div><div class="dot"></div><div class="mlab"><div class="v">3.65</div><div class="c">f · 13.56</div></div></div>
+  <div class="mk frag" data-step="2" style="--x:591px;--h:96px;transition-delay:.1s"><div class="stem"></div><div class="dot"></div><div class="mlab"><div class="v">1.82</div><div class="c">2f · 27.12</div></div></div>
+  <div class="mk hero frag" data-step="2" style="--x:428px;--h:176px;transition-delay:.25s"><div class="stem"></div><div class="dot"></div><div class="mlab"><div class="v">1.22</div><div class="c">3f · 40.68</div></div></div>
+  <div class="mk frag" data-step="2" style="--x:343px;--h:60px;transition-delay:.4s"><div class="stem"></div><div class="dot"></div><div class="mlab" style="left:-150px;width:160px;text-align:right"><div class="v" style="font-size:34px">0.91</div><div class="c">4f</div></div></div>
+  <div class="mk below frag" data-step="2" style="--x:295px;--h:36px;transition-delay:.55s"><div class="stem"></div><div class="dot"></div><div class="mlab" style="left:-110px"><div class="v">0.73</div><div class="c">5f</div></div></div>
+  <div class="means frag" data-step="3" style="left:640px;width:544px;top:604px;text-align:right"><span class="t-en">Resonances repeat every λ/2 — 2.4 m at 3f, 1.8 m at 4f.</span><span class="t-ko">공진은 λ/2마다 반복된다 — 3f에서 2.4 m, 4f에서 1.8 m.</span></div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Electrical length scales with frequency</h4>
+<p>The phase a cable adds is βℓ = 2πfℓ / (c·VF). The physical length is fixed, so the electrical length grows in proportion to the harmonic number:</p>
+<div class="nf">1 m of VF 0.66 coax<br>13.56 MHz → 25° &nbsp;·&nbsp; 27.12 → 49° &nbsp;·&nbsp; 40.68 → 74° &nbsp;·&nbsp; 54.24 → 99°</div>
+<p>A cable that is "electrically short" at the fundamental is close to a quarter-wave at 3f or 4f.</p>
+<h4>What a quarter-wave line does</h4>
+<div class="nf">ℓ = λ/4: &nbsp; Z_in = Z₀² / Z_L</div>
+<p>It inverts impedance: a high impedance at one end looks low at the other, and the reverse. A matcher's output network usually contains a series inductor, which is a high impedance at harmonics. Through a near-quarter-wave cable, that can appear at the electrode as a low impedance — the condition for a series resonance with the sheath capacitance.</p>
+<h4>λ/4 is the scale, not the answer</h4>
+<p>The actual resonant length depends on both terminations — the matcher network on one side, electrode and sheath capacitance on the other — so it is generally not exactly λ/4. With the example values in the next slide's lab, the 3f resonance falls at about 1.6 m rather than 1.22 m. What λ/4 tells you is the scale: with cables of one to three metres, the harmonic band is where resonances will land. Because the pattern repeats every λ/2, and λ/2 shrinks with harmonic order, a longer cable meets more resonances.</p>
+</div>
+    <div class="t-ko">
+<h4>전기적 길이는 주파수에 비례한다</h4>
+<p>케이블이 더하는 위상은 βℓ = 2πfℓ / (c·VF)다. 물리적 길이는 고정이므로, 전기적 길이는 하모닉 차수에 비례해 늘어난다.</p>
+<div class="nf">VF 0.66 동축 1 m<br>13.56 MHz → 25° &nbsp;·&nbsp; 27.12 → 49° &nbsp;·&nbsp; 40.68 → 74° &nbsp;·&nbsp; 54.24 → 99°</div>
+<p>기본파에서 '전기적으로 짧은' 케이블이 3f나 4f에서는 λ/4에 가까워진다.</p>
+<h4>λ/4 선로가 하는 일</h4>
+<div class="nf">ℓ = λ/4: &nbsp; Z_in = Z₀² / Z_L</div>
+<p>임피던스를 뒤집는다. 한쪽 끝의 높은 임피던스가 반대쪽에서는 낮게 보이고, 그 반대도 마찬가지다. 매처 출력 회로에는 보통 직렬 인덕터가 있어 하모닉에서 높은 임피던스가 된다. 이것이 λ/4에 가까운 케이블을 거치면 전극에서 낮은 임피던스로 보일 수 있다 — 시스 커패시턴스와 직렬 공진을 이루는 조건이다.</p>
+<h4>λ/4는 답이 아니라 스케일이다</h4>
+<p>실제 공진 길이는 양쪽 종단 — 한쪽의 매처 회로, 다른 쪽의 전극·시스 커패시턴스 — 에 따라 정해지므로 일반적으로 정확히 λ/4가 아니다. 다음 실험 슬라이드의 예시 값에서는 3f 공진이 1.22 m가 아니라 약 1.6 m에 생긴다. λ/4가 알려 주는 것은 스케일이다. 1~3 m 케이블이라면 공진은 하모닉 대역에 놓이게 된다. 공진 패턴은 λ/2마다 반복되고 λ/2는 하모닉 차수가 높을수록 짧아지므로, 케이블이 길수록 더 많은 공진을 만난다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 4 · LAB ============ -->
+<section class="slide" data-title-en="Find the Resonance" data-title-ko="공진 찾기">
+  <div class="eyebrow"><b>03</b>TRY IT<span class="adv">ADVANCED</span></div>
+  <h2 class="headline">
+    <span class="t-en">Slide the cable. Watch 3f.</span>
+    <span class="t-ko">케이블을 늘리며 3f를 지켜보세요.</span>
+  </h2>
+  <svg class="hr-svg" id="hrSvg" viewBox="0 0 660 380" aria-label="Harmonic response"></svg>
+  <div class="hr-lab" id="hrLab">
+    <div class="ctl-row"><span class="k"><span class="t-en">Cable length</span><span class="t-ko">케이블 길이</span> &nbsp;ℓ</span><span class="v" id="hrLv">0.00 m</span></div>
+    <input type="range" id="hrLen" min="0" max="5" step="0.01" value="0">
+    <div class="chips" style="margin-top:12px">
+      <button class="chip-btn hr-chip" data-len="0">Direct</button>
+      <button class="chip-btn hr-chip" data-len="1.59">1.59 m</button>
+      <button class="chip-btn hr-chip" data-len="2.71">2.71 m</button>
+    </div>
+    <div class="hr-k"><span class="t-en">Strongest harmonic boost vs. direct mount</span><span class="t-ko">직결 대비 가장 큰 하모닉 증폭</span></div>
+    <div class="hr-big"><span id="hrNum">×1.0</span><span class="u" id="hrWhich"></span></div>
+    <div class="hr-row" id="hrRow"></div>
+    <div class="status" id="hrStatus"></div>
+  </div>
+  <div class="hr-cap">ILLUSTRATIVE MODEL · MATCHER SETTING FIXED · VALUES IN NOTES</div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What the lab models</h4>
+<p>The plasma is treated as a harmonic voltage source behind the sheath capacitance. The plot shows how easily current flows around the external loop at each frequency from 10 to 80 MHz (|1/Z_loop| in dB). The grey dashed curve is the direct-mount case; the coral curve includes the cable. Vertical lines mark f to 5f.</p>
+<div class="nf">Z_loop = 1/(jωC_sh) + R_p + Z_ext<br>Z_ext = Z_cable,in(Z_matcher) ∥ 1/(jωC_stray)</div>
+<p>Example values: matcher output = series 0.8 µH + 250 pF tune capacitor, 800 pF load capacitor to ground with the 50Ω generator behind it; C_stray = 150 pF; C_sh = 200 pF; R_p = 3 Ω; cable 50Ω, VF 0.66, lossless. These are illustrative, not from any specific tool.</p>
+<h4>What to look for</h4>
+<ul>
+<li>Direct mount: no sharp peak anywhere in the harmonic band.</li>
+<li>Add cable: a new, sharp resonance appears at high frequency and slides down as the cable gets longer.</li>
+<li>At about 1.59 m it sits on 3f — 3f current about ×16 compared with direct mount. At 2.71 m it lands on 2f — about ×25. Further on, the pattern repeats every λ/2 of each harmonic.</li>
+</ul>
+<h4>Limits of the model</h4>
+<p>A real matcher retunes as the load changes, which moves the resonance somewhat; real cable loss and the plasma's own damping lower the peaks; and the plasma's harmonic source strength falls with order. The point is qualitative: a cable creates resonances that direct mount does not have, and a few tens of centimetres decide which harmonic they land on.</p>
+</div>
+    <div class="t-ko">
+<h4>이 실험의 모델</h4>
+<p>플라즈마를 시스 커패시턴스 뒤에 있는 하모닉 전압원으로 보고, 10~80 MHz의 각 주파수에서 외부 루프로 전류가 얼마나 쉽게 흐르는지(|1/Z_loop|, dB)를 그린다. 회색 점선은 직결 마운트, 코랄 곡선은 케이블을 포함한 경우다. 세로선은 f부터 5f까지를 표시한다.</p>
+<div class="nf">Z_loop = 1/(jωC_sh) + R_p + Z_ext<br>Z_ext = Z_cable,in(Z_matcher) ∥ 1/(jωC_stray)</div>
+<p>예시 값: 매처 출력 = 직렬 0.8 µH + 250 pF 튠 커패시터, 그 뒤에 접지로 가는 800 pF 로드 커패시터와 50Ω Generator. C_stray = 150 pF, C_sh = 200 pF, R_p = 3 Ω, 케이블은 50Ω, VF 0.66, 무손실. 모두 설명용 값이며 특정 장비의 값이 아니다.</p>
+<h4>관찰할 점</h4>
+<ul>
+<li>직결 마운트: 하모닉 대역 어디에도 날카로운 피크가 없다.</li>
+<li>케이블 추가: 높은 주파수에 새로운 날카로운 공진이 생기고, 케이블이 길어질수록 아래로 내려온다.</li>
+<li>약 1.59 m에서 3f에 정확히 걸린다 — 3f 전류가 직결 대비 약 ×16. 2.71 m에서는 2f에 걸린다 — 약 ×25. 그 이후로는 각 하모닉의 λ/2마다 패턴이 반복된다.</li>
+</ul>
+<h4>모델의 한계</h4>
+<p>실제 매처는 부하 변화에 따라 다시 튠하므로 공진 위치가 다소 움직인다. 실제 케이블 손실과 플라즈마 자체의 감쇠가 피크를 낮추며, 플라즈마의 하모닉 소스 크기는 차수가 높을수록 작다. 요점은 정성적이다. 케이블은 직결 마운트에 없던 공진을 만들고, 수십 cm 차이가 그 공진이 어느 하모닉에 걸릴지를 정한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 5 · EFFECTS ============ -->
+<section class="slide" data-title-en="What It Changes" data-title-ko="무엇이 바뀌는가">
+  <div class="eyebrow"><b>04</b>WHAT IT CHANGES<span class="adv">ADVANCED</span></div>
+  <h2 class="headline">
+    <span class="t-en">Same power. Different plasma.</span>
+    <span class="t-ko">같은 파워, 다른 플라즈마.</span>
+  </h2>
+  <div class="views">
+    <div class="view rise" style="--d:.15s">
+      <div class="k">01 · PROCESS</div>
+      <div class="eqn">IED</div>
+      <div class="d"><span class="t-en">The electrode waveform distorts. Self-bias, ion energy and electron heating shift.</span><span class="t-ko">전극 파형이 왜곡된다. 자기 바이어스, 이온 에너지, 전자 가열이 움직인다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.35s">
+      <div class="k">02 · MEASUREMENT</div>
+      <div class="eqn"><span>V<sub>pp</sub></span></div>
+      <div class="d"><span class="t-en">Sensors read harmonics as signal. Phase detection can drift; tuning can hunt.</span><span class="t-ko">센서가 하모닉을 신호로 읽는다. 위상 검출이 흔들리고 튠이 헌팅할 수 있다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.55s">
+      <div class="k">03 · HARDWARE</div>
+      <div class="eqn" style="font-size:48px">V₁ + V₃</div>
+      <div class="d"><span class="t-en">Peaks add in phase. Extra I² heat; less arcing margin; more leakage.</span><span class="t-ko">피크가 같은 위상에서 더해진다. I² 발열 증가, 절연 여유 감소, 누설 증가.</span></div>
+    </div>
+  </div>
+  <div class="foot-line rise" style="--d:.8s">
+    <span class="t-en"><b>None of it</b> shows in forward or reflected power at 13.56 MHz.</span>
+    <span class="t-ko"><b>어느 것도</b> 13.56 MHz의 Forward·Reflected 전력에는 나타나지 않는다.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>01 · Process</h4>
+<p>Harmonic current through the sheath adds harmonic voltage to the electrode, so the waveform is no longer a clean sinusoid. The DC self-bias and the sheath voltage seen by ions shift, and the ion energy distribution (IED) at the wafer changes with them — at the same fundamental power.</p>
+<p>A second mechanism matters at low pressure. The sheath capacitance and the inertia of bulk electrons form the plasma series resonance (PSR), typically in the tens of MHz. When the external circuit lets a harmonic near the PSR grow, electron heating increases non-linearly — studied as non-linear electron resonance heating (NERH; Mussenbrock and Brinkmann and co-workers). Density, etch rate and uniformity can follow.</p>
+<h4>02 · Measurement</h4>
+<p>A broadband V-I probe or Vpp monitor reads the harmonic-distorted waveform, so Vpp and derived values change with cable length. Even with filtering, harmonic content can bias the phase and magnitude detectors a matcher uses to tune, giving a slightly wrong match point or tuning that hunts.</p>
+<h4>03 · Hardware</h4>
+<p>Harmonic current adds to the I² heating in the cable, connectors, vacuum capacitors and inductor. Peak voltage is the sum of components that can align in phase, so an insulation margin chosen from the fundamental alone is optimistic. Higher frequencies also leak more easily through any gap or poor bond in the shield.</p>
+<h4>Why it hides</h4>
+<p>Forward and reflected power are measured at 13.56 MHz, in front of the cable. Harmonic energy is generated after the matcher and circulates between the plasma and the output circuit. The display can show a perfect match while the electrode waveform has changed.</p>
+</div>
+    <div class="t-ko">
+<h4>01 · 공정</h4>
+<p>시스를 통과하는 하모닉 전류는 전극에 하모닉 전압을 더하므로, 파형은 더 이상 깨끗한 사인파가 아니다. DC 자기 바이어스와 이온이 느끼는 시스 전압이 움직이고, 웨이퍼에 도달하는 이온 에너지 분포(IED)도 함께 바뀐다 — 기본파 파워는 같은데도.</p>
+<p>저압에서는 두 번째 메커니즘이 중요하다. 시스 커패시턴스와 벌크 전자의 관성은 플라즈마 직렬 공진(PSR)을 이루며, 보통 수십 MHz 대역에 있다. 외부 회로가 PSR 근처의 하모닉을 키우면 전자 가열이 비선형적으로 증가한다 — 비선형 전자 공진 가열(NERH; Mussenbrock, Brinkmann 등의 연구)로 알려진 현상이다. 밀도, 식각률, 균일도가 뒤따라 움직일 수 있다.</p>
+<h4>02 · 계측</h4>
+<p>광대역 V-I 프로브나 Vpp 모니터는 하모닉으로 왜곡된 파형을 읽으므로, Vpp와 거기서 계산된 값이 케이블 길이에 따라 달라진다. 필터가 있어도 하모닉 성분이 매처의 위상·크기 검출기에 오차를 줄 수 있으며, 그 결과 정합점이 약간 어긋나거나 튠이 헌팅한다.</p>
+<h4>03 · 하드웨어</h4>
+<p>하모닉 전류는 케이블, 커넥터, 진공 커패시터, 인덕터의 I² 발열에 더해진다. 피크 전압은 위상이 맞을 수 있는 성분들의 합이므로, 기본파만 보고 정한 절연 여유는 낙관적이다. 주파수가 높을수록 차폐의 틈이나 체결 불량부를 통해 더 쉽게 누설된다.</p>
+<h4>왜 숨어 있는가</h4>
+<p>Forward·Reflected 전력은 13.56 MHz에서, 케이블 앞쪽에서 측정된다. 하모닉 에너지는 매처 뒤에서 생겨 플라즈마와 출력 회로 사이를 순환한다. 화면은 완벽한 정합을 보여 주는데 전극 파형은 이미 바뀌어 있을 수 있다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 6 · INTERMITTENT ============ -->
+<section class="slide dark" data-title-en="Why It Comes and Goes" data-title-ko="왜 나타났다 사라지는가">
+  <div class="eyebrow"><b>05</b>INTERMITTENT<span class="adv">ADVANCED</span></div>
+  <h2 class="headline">
+    <span class="t-en">Why it comes and goes.</span>
+    <span class="t-ko">왜 나타났다 사라지는가.</span>
+  </h2>
+  <div class="chain">
+    <div class="node frag" data-step="1">
+      <div class="w">C<sub style="font-size:.5em">sheath</sub></div>
+      <div class="s"><span class="t-en">Moves with power, pressure and chemistry.</span><span class="t-ko">파워, 압력, 가스 조성에 따라 움직인다.</span></div>
+    </div>
+    <div class="arr frag" data-step="2">→</div>
+    <div class="node frag" data-step="2">
+      <div class="w">f<sub style="font-size:.5em">res</sub></div>
+      <div class="s"><span class="t-en">The resonance slides along the frequency axis.</span><span class="t-ko">공진점이 주파수 축 위를 미끄러진다.</span></div>
+    </div>
+    <div class="arr frag" data-step="3">→</div>
+    <div class="node frag" data-step="3">
+      <div class="w c">On / Off</div>
+      <div class="s"><span class="t-en">One step lands on a harmonic. The next step leaves it.</span><span class="t-ko">어떤 스텝은 하모닉에 걸리고, 다음 스텝은 벗어난다.</span></div>
+    </div>
+  </div>
+  <div class="punch frag" data-step="4">
+    <span class="t-en">10 cm is 2.5° at f — <span class="c">and 7.4° at 3f.</span></span>
+    <span class="t-ko">10 cm는 f에서 2.5°, <span class="c">3f에서는 7.4°다.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>One end of the resonance is the plasma</h4>
+<p>The resonant loop includes the sheath capacitance, and the sheath is not fixed: it thins as density rises and thickens with higher RF voltage. Power, pressure, gas mixture and chamber condition all move it — often between steps of the same recipe.</p>
+<h4>The resonance moves with it</h4>
+<p>A change in C_sh shifts the resonant frequency of the loop. Because the cable makes the resonance sharp, a modest shift can move it onto a harmonic or off it. The result is a harmonic level that is normal in most steps and abnormal in one, or normal on most days and abnormal after a PM.</p>
+<h4>Harmonics are three times as sensitive</h4>
+<div class="nf">λ at 40.68 MHz (VF 0.66) ≈ 4.86 m<br>10 cm → 360° × 0.1 / 4.86 ≈ 7.4° &nbsp; (vs 2.5° at 13.56 MHz)</div>
+<p>A cable assembly that is "the same within 10 cm" can be meaningfully different at 3f. Temperature changes the dielectric slightly, and connector replacement adds its own length. This is why such problems appear intermittent and are hard to reproduce: the conditions that trigger them depend on a combination of recipe step, cable and plasma state rather than on any one setting.</p>
+</div>
+    <div class="t-ko">
+<h4>공진의 한쪽 끝은 플라즈마다</h4>
+<p>공진 루프에는 시스 커패시턴스가 포함되며, 시스는 고정되어 있지 않다. 밀도가 높아지면 얇아지고, RF 전압이 높아지면 두꺼워진다. 파워, 압력, 가스 조성, 챔버 상태가 모두 시스를 움직인다 — 같은 레시피의 스텝 사이에서도 흔히.</p>
+<h4>공진점도 함께 움직인다</h4>
+<p>C_sh가 변하면 루프의 공진 주파수가 이동한다. 케이블이 공진을 날카롭게 만들기 때문에, 크지 않은 이동만으로도 공진이 하모닉 위로 올라오거나 벗어날 수 있다. 그 결과 대부분의 스텝에서는 정상이고 한 스텝에서만 비정상인, 혹은 평소에는 정상이다가 PM 후에만 비정상인 하모닉 레벨이 나타난다.</p>
+<h4>하모닉에서는 세 배 민감하다</h4>
+<div class="nf">40.68 MHz의 λ (VF 0.66) ≈ 4.86 m<br>10 cm → 360° × 0.1 / 4.86 ≈ 7.4° &nbsp; (13.56 MHz에서는 2.5°)</div>
+<p>'10 cm 이내로 같은' 케이블 어셈블리가 3f에서는 의미 있게 다를 수 있다. 온도는 유전체를 미세하게 바꾸고, 커넥터 교체는 그 자체로 길이를 더한다. 이런 문제가 간헐적이고 재현이 어려운 이유가 여기에 있다. 문제를 일으키는 조건이 하나의 설정이 아니라 레시피 스텝, 케이블, 플라즈마 상태의 조합에 달려 있기 때문이다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 7 · FIND IT ============ -->
+<section class="slide" data-title-en="Find It First" data-title-ko="먼저 찾아낸다">
+  <div class="eyebrow"><b>06</b>FIND IT<span class="adv">ADVANCED</span></div>
+  <h2 class="headline">
+    <span class="t-en">Find it before the process does.</span>
+    <span class="t-ko">공정보다 먼저 찾아낸다.</span>
+  </h2>
+  <div class="rules two">
+    <div class="rcol frag" data-step="1">
+      <div class="cat">MEASURE</div>
+      <div class="rule"><div class="no">01</div><div class="tt"><span class="t-en">Sweep to 5f</span><span class="t-ko">5f까지 스윕한다</span></div><div class="dd"><span class="t-en">VNA from the matcher output, 10–80 MHz. Look for sharp peaks near 2f–5f.</span><span class="t-ko">매처 출력단에서 VNA로 10–80 MHz. 2f–5f 근처의 날카로운 피크를 찾는다.</span></div></div>
+      <div class="rule"><div class="no">02</div><div class="tt"><span class="t-en">Read the spectrum</span><span class="t-ko">스펙트럼을 읽는다</span></div><div class="dd"><span class="t-en">Broadband probe near the electrode. Compare 2f and 3f by chamber and by step.</span><span class="t-ko">전극 가까이 광대역 프로브. 챔버별·스텝별로 2f·3f를 비교한다.</span></div></div>
+    </div>
+    <div class="rcol frag" data-step="2">
+      <div class="cat">CONTROL</div>
+      <div class="rule"><div class="no">03</div><div class="tt"><span class="t-en">Freeze the cable</span><span class="t-ko">케이블을 고정한다</span></div><div class="dd"><span class="t-en">Identical assembly on every chamber — so the resonance is the same everywhere.</span><span class="t-ko">모든 챔버에 동일한 어셈블리 — 공진도 모든 챔버에서 같은 위치에.</span></div></div>
+      <div class="rule"><div class="no">04</div><div class="tt"><span class="t-en">Change only with validation</span><span class="t-ko">변경은 검증과 함께</span></div><div class="dd"><span class="t-en">Moving a resonance by length or filtering changes the process. Qualify it first.</span><span class="t-ko">길이나 필터로 공진을 옮기면 공정이 바뀐다. 먼저 검증한다.</span></div></div>
+    </div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>01 · Sweep to 5f</h4>
+<p>With the matcher disconnected and the chamber under vacuum, connect a VNA at the matcher output and measure the cable-plus-electrode impedance from roughly 10 to 80 MHz. Sharp minima or maxima near 27.12, 40.68, 54.24 or 67.8 MHz mark resonances the plasma can excite. The sheath is absent in this measurement, so the exact frequency shifts once plasma is on, but the structure the cable and electrode create is visible. Save the sweep as the chamber's baseline and repeat it after PM and any cable or connector change.</p>
+<h4>02 · Read the spectrum</h4>
+<p>Where a broadband V-I probe or a capacitive pick-up near the electrode is available, record the 2f and 3f levels for each recipe step. Comparing these across chambers running the same recipe is the most direct way to see whether a harmonic resonance explains a chamber-to-chamber difference that fundamental parameters do not.</p>
+<h4>03 · Freeze the cable</h4>
+<p>A harmonic resonance cannot always be avoided, but it can be made identical. If every chamber uses the same cable assembly and routing, the resonance sits in the same place on every tool, and a recipe developed on one chamber transfers to the others.</p>
+<h4>04 · Change only with validation</h4>
+<p>Changing the cable length to move a resonance, or adding a harmonic filter at the matcher output, alters the harmonic content at the electrode — and therefore the process. Treat it as a hardware change that requires process qualification, never as a field adjustment.</p>
+</div>
+    <div class="t-ko">
+<h4>01 · 5f까지 스윕한다</h4>
+<p>매처를 분리하고 챔버를 진공 상태로 둔 채, 매처 출력 위치에 VNA를 연결해 케이블+전극의 임피던스를 약 10~80 MHz 범위에서 측정한다. 27.12, 40.68, 54.24, 67.8 MHz 근처의 날카로운 최소·최대점은 플라즈마가 여기할 수 있는 공진이다. 이 측정에는 시스가 없으므로 플라즈마가 켜지면 정확한 주파수는 이동하지만, 케이블과 전극이 만드는 구조는 확인할 수 있다. 이 스윕을 챔버의 기준값으로 저장하고, PM 후와 케이블·커넥터 교체 후마다 반복한다.</p>
+<h4>02 · 스펙트럼을 읽는다</h4>
+<p>전극 가까이에 광대역 V-I 프로브나 용량성 픽업을 둘 수 있다면, 레시피 스텝별로 2f와 3f 레벨을 기록한다. 같은 레시피를 쓰는 챔버들끼리 이 값을 비교하는 것이, 기본파 파라미터로는 설명되지 않는 챔버 간 차이가 하모닉 공진 때문인지 확인하는 가장 직접적인 방법이다.</p>
+<h4>03 · 케이블을 고정한다</h4>
+<p>하모닉 공진을 언제나 피할 수는 없지만, 모든 챔버에서 같게 만들 수는 있다. 모든 챔버가 같은 케이블 어셈블리와 경로를 쓰면 공진은 모든 장비에서 같은 위치에 놓이고, 한 챔버에서 개발한 레시피가 다른 챔버로 그대로 이전된다.</p>
+<h4>04 · 변경은 검증과 함께</h4>
+<p>공진을 옮기려고 케이블 길이를 바꾸거나 매처 출력에 하모닉 필터를 추가하면, 전극의 하모닉 성분 — 따라서 공정 — 이 바뀐다. 현장 조정이 아니라 공정 검증이 필요한 하드웨어 변경으로 다뤄야 한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 8 · ONE MORE THING ============ -->
+<section class="slide dark" data-title-en="One More Thing" data-title-ko="한 가지 더">
+  <div class="omt hides" data-hide="1">
+    <span class="t-en">One more thing.</span>
+    <span class="t-ko">그리고, 한 가지 더.</span>
+  </div>
+  <div class="eyebrow frag" data-step="1"><b>07</b>ONE MORE THING<span class="adv">ADVANCED</span></div>
+  <div class="vs frag" data-step="1">
+    <div class="blk"><div class="n" style="font-size:132px">f₁ + f₂</div><div class="l"><span class="t-en">Two frequencies, one electrode</span><span class="t-ko">두 주파수, 하나의 전극</span></div></div>
+    <div class="ne">→</div>
+    <div class="blk"><div class="n q" style="font-size:132px">?</div><div class="l"><span class="t-en">Where do the products land?</span><span class="t-ko">혼합 성분은 어디에 떨어질까?</span></div></div>
+  </div>
+  <div class="next-line frag" data-step="2">
+    <span class="t-en">A non-linear sheath mixes them too. The cable doesn't care which.</span>
+    <span class="t-ko">비선형 시스는 두 주파수도 섞는다. 케이블은 그것을 가리지 않는다.</span>
+  </div>
+  <div class="next-tag frag" data-step="2">NEXT · ADVANCED — INTERMODULATION</div>
+  <div class="end-links frag" data-step="2">
+    <a href="Remote_Matcher_Output_Cable_Keynote.html" target="_blank" rel="noopener"><span class="t-en">← Main lecture · 1 m</span><span class="t-ko">← 본 강의 · 1 m</span></a>
+    <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener">benedu-insight.github.io ↗</a>
+    <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener">Instagram · @benedu.insight ↗</a>
+  </div>
+  <img class="logo-tr frag" data-step="1" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What this lecture established</h4>
+<p>At harmonics the plasma is a source, and the external circuit decides how large the harmonics become. A remote-matcher cable adds sharp resonances to that circuit; a few tens of centimetres decide which harmonic they land on, and the plasma's own sheath moves them between recipe steps. The effects reach the process, the sensors and the hardware, while fundamental forward and reflected power stay unchanged. Measurement over the harmonic band and identical cable assemblies are the defence.</p>
+<h4>The open question</h4>
+<p>Many etch chambers apply two frequencies to one electrode — a high frequency for density and a low frequency for ion energy. A non-linear sheath does not only create harmonics of each; it also mixes them. Those mixing products have frequencies of their own, and the output circuit, cable included, responds to them as it does to harmonics.</p>
+<p>Next advanced session: intermodulation — where the products appear, and which of them a cable can amplify.</p>
+</div>
+    <div class="t-ko">
+<h4>이 강의에서 정리한 것</h4>
+<p>하모닉에서 플라즈마는 소스이며, 하모닉의 크기는 외부 회로가 정한다. 리모트 매처 케이블은 이 회로에 날카로운 공진을 더하고, 수십 cm 차이가 그 공진이 어느 하모닉에 걸릴지를 정하며, 플라즈마의 시스가 레시피 스텝마다 공진을 움직인다. 그 영향은 공정, 센서, 하드웨어에 미치지만 기본파의 Forward·Reflected 전력은 그대로다. 하모닉 대역까지의 측정과 동일한 케이블 어셈블리가 대응책이다.</p>
+<h4>남은 질문</h4>
+<p>많은 식각 챔버는 하나의 전극에 두 주파수를 건다 — 밀도를 위한 고주파와 이온 에너지를 위한 저주파. 비선형 시스는 각각의 하모닉만 만드는 것이 아니라 두 주파수를 섞기도 한다. 그 혼합 성분들도 고유한 주파수를 가지며, 케이블을 포함한 출력 회로는 하모닉에 반응하듯 그것들에도 반응한다.</p>
+<p>다음 고급 강의: 상호변조(Intermodulation) — 혼합 성분이 어디에 나타나며, 그중 어느 것을 케이블이 키울 수 있는가.</p>
+</div>
+  </div>
+</section>
+
+</div></div>
+
+<!-- control bar -->
+<div id="bar">
+  <button id="prevBtn" title="Previous (←)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <span class="dots" id="dots"></span>
+  <button id="nextBtn" title="Next (→)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+  <span class="sep"></span>
+  <button id="gridBtn" title="Overview (G)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <button id="notesBtn" title="Lecture notes (N)"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h6"/></svg></button>
+  <button id="langBtn" title="Language (L)">한국어</button>
+  <button id="fsBtn" title="Fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <span class="sep"></span>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="benedu-insight.github.io" aria-label="Homepage"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg></a>
+  <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener" title="Instagram · @benedu.insight" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></a>
+</div>
+
+<!-- notes -->
+<div id="notesTab">LECTURE NOTES</div>
+<aside id="notes">
+  <div class="notes-head"><div><span class="ttl"><span class="t-en">LECTURE NOTES</span><span class="t-ko en">강의 노트</span></span><span class="no" id="notesNo"></span></div><button id="notesClose" aria-label="Close">×</button></div>
+  <div class="notes-title" id="notesTitle"></div>
+  <div class="notes-body" id="notesBody"></div>
+  <div class="notes-foot"><span class="t-en">SUPPLEMENTARY EXPLANATION · N TO TOGGLE</span><span class="t-ko">수강생을 위한 보충 설명 · N 키로 열고 닫기</span></div>
+</aside>
+
+<!-- grid -->
+<div id="grid">
+  <div class="grid-head"><span class="ttl">OVERVIEW</span><span class="hint">CLICK A SLIDE · ESC TO CLOSE</span></div>
+  <div class="grid-wrap" id="gridWrap"></div>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = [].slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0, step = 0;
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+
+
+  /* ---- typography rule: Latin letters, numbers & symbols inside Korean text -> Google Sans ---- */
+  (function autoEn(root){
+    var C = "A-Za-z0-9ΩηπμεωΓλᵣ₀₁₂₃′√×≈≫=+/.()%°±ℓ⁺|−·∥–-", K = "A-Za-z0-9ΩηπμεωΓλℓ";
+    var re = new RegExp("["+C+"]*["+K+"]["+C+"]*(?:\\s+["+C+"]*["+K+"]["+C+"]*)*","g");
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [];
+    while(w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(function(n){
+      var p = n.parentElement;
+      if(!p || !p.closest('.t-ko') || p.closest('.en,script,style')) return;
+      var t = n.nodeValue, m, last = 0, frag = document.createDocumentFragment(), hit = false;
+      re.lastIndex = 0;
+      while((m = re.exec(t))){
+        hit = true;
+        if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'en'; sp.textContent = m[0]; frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if(!hit) return;
+      if(last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+      p.replaceChild(frag, n);
+    });
+  })(document.body);
+
+  /* ---- generated decoration: cover E-field lines, history axis ticks ---- */
+  var ef = document.getElementById('efield'), svgNS = 'http://www.w3.org/2000/svg';
+  if(ef) for(var i=0;i<16;i++){
+    var t = i/16*Math.PI*2, l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',300+82*Math.cos(t)); l.setAttribute('y1',300+82*Math.sin(t));
+    l.setAttribute('x2',300+238*Math.cos(t)); l.setAttribute('y2',300+238*Math.sin(t));
+    l.setAttribute('stroke','rgba(204,120,92,.42)'); l.setAttribute('stroke-width','1.6'); l.setAttribute('class','flow');
+    ef.appendChild(l);
+  }
+  var tk = document.getElementById('ticks');
+  if(tk) for(var z=20; z<=90; z+=10){
+    var d = document.createElement('div'); d.className='tick';
+    d.style.left = (96 + (z-20)/70*1088) + 'px'; d.textContent = z;
+    tk.appendChild(d);
+  }
+
+
+  /* ---- radicals: drawn hook that scales with its content ---- */
+  document.querySelectorAll('.sqrt').forEach(function(q){
+    var old = q.querySelector('.rad'); if(old) old.remove();
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','rad'); svg.setAttribute('viewBox','0 0 10 20'); svg.setAttribute('preserveAspectRatio','none');
+    var pth = document.createElementNS('http://www.w3.org/2000/svg','path');
+    pth.setAttribute('d','M0.3 12.2 L2.3 11 L5.2 19.6 L9.4 0.55 L10.6 0.55');
+    svg.appendChild(pth); q.insertBefore(svg, q.firstChild);
+  });
+
+  /* ---- dot indicator ---- */
+  var dotsEl = document.getElementById('dots');
+  slides.forEach(function(s,i){ var d=document.createElement('span'); d.className='dot'; d.title=pad(i+1)+' · '+s.dataset.titleEn; d.onclick=function(){ go(i); }; dotsEl.appendChild(d); });
+
+  /* ---- footer ---- */
+  var DOC = deck.dataset.doc || '';
+  slides.forEach(function(s,i){
+    var f = document.createElement('div'); f.className='footer';
+    f.innerHTML = '<span class="fm">BENEDU INSIGHT</span><span class="fd2">'+DOC+'</span><span class="fp">'+pad(i+1)+' / '+pad(total)+'</span>';
+    s.appendChild(f);
+  });
+
+  /* ---- build steps ---- */
+  function maxStep(s){
+    var m = 0; s.querySelectorAll('[data-step]').forEach(function(e){ m = Math.max(m, +e.dataset.step); });
+    return m;
+  }
+  function applyStep(s, n){
+    s.querySelectorAll('.frag').forEach(function(e){ e.classList.toggle('on', +e.dataset.step <= n); });
+    s.querySelectorAll('.hides').forEach(function(e){ e.classList.toggle('gone', n >= +e.dataset.hide); });
+  }
+
+  function render(){
+    slides.forEach(function(s,i){
+      var was = s.classList.contains('active');
+      s.classList.toggle('active', i===idx);
+      if(i===idx && !was){ s.querySelectorAll('.rise').forEach(function(r){ r.style.animation='none'; r.offsetHeight; r.style.animation=''; }); }
+    });
+    applyStep(slides[idx], step);
+    [].forEach.call(document.querySelectorAll('#dots .dot'), function(d,i){ d.classList.toggle('on', i===idx); d.classList.toggle('done', i<idx); });
+    history.replaceState(null,'','#'+(idx+1));
+    renderNotes();
+  }
+  function go(i, atEnd){
+    idx = Math.max(0, Math.min(total-1, i));
+    step = atEnd ? maxStep(slides[idx]) : 0;
+    render();
+  }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } }
+
+  /* ---- notes ---- */
+  var notes = document.getElementById('notes');
+  function renderNotes(){
+    var s = slides[idx], n = s.querySelector('.slide-note');
+    document.getElementById('notesBody').innerHTML = n ? n.innerHTML : '';
+    document.getElementById('notesNo').textContent = pad(idx+1)+' / '+pad(total);
+    document.getElementById('notesTitle').innerHTML =
+      '<span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span>';
+  }
+  function toggleNotes(force){
+    var open = force===undefined ? !notes.classList.contains('open') : force;
+    notes.classList.toggle('open', open);
+    document.getElementById('notesBtn').classList.toggle('on', open);
+  }
+
+  /* ---- language ---- */
+  var langBtn = document.getElementById('langBtn');
+  function setLang(l){
+    document.documentElement.classList.toggle('lang-ko', l==='ko');
+    document.documentElement.lang = l;
+    langBtn.textContent = l==='ko' ? 'English' : '한국어';
+    updateLab(); if(typeof updateHR==='function') updateHR();
+  }
+  function toggleLang(){ setLang(document.documentElement.classList.contains('lang-ko') ? 'en' : 'ko'); }
+
+  /* ---- grid overview ---- */
+  var grid = document.getElementById('grid'), gw = document.getElementById('gridWrap');
+  function buildGrid(){
+    gw.innerHTML = '';
+    slides.forEach(function(s,i){
+      var th = document.createElement('div'); th.className = 'thumb' + (i===idx ? ' cur' : '');
+      var fr = document.createElement('div'); fr.className = 'frame';
+      var c = s.cloneNode(true);
+      c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+      c.classList.add('active','static'); c.classList.remove('rise');
+      applyStep(c, maxStep(c));
+      var inner = document.createElement('div'); inner.className = 'inner'; inner.appendChild(c);
+      fr.appendChild(inner); th.appendChild(fr);
+      var cap = document.createElement('div'); cap.className = 'cap';
+      cap.innerHTML = '<span class="no">'+pad(i+1)+'</span><span><span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span></span>';
+      th.appendChild(cap);
+      th.addEventListener('click', function(){ toggleGrid(false); go(i); });
+      gw.appendChild(th);
+    });
+    scaleThumbs();
+  }
+  function scaleThumbs(){
+    gw.querySelectorAll('.thumb').forEach(function(th){
+      var f = th.querySelector('.frame'), inn = th.querySelector('.inner');
+      inn.style.transform = 'scale(' + (f.clientWidth/1280) + ')';
+    });
+  }
+  function toggleGrid(force){
+    var open = force===undefined ? !grid.classList.contains('open') : force;
+    if(open){ grid.classList.add('open'); buildGrid(); } else { grid.classList.remove('open'); }
+    document.getElementById('gridBtn').classList.toggle('on', open);
+  }
+
+  /* ---- fullscreen ---- */
+  function toggleFS(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  }
+
+  /* ---- Z0 lab ---- */
+  var ba = document.getElementById('ba'), er = document.getElementById('er');
+  function updateLab(){
+    if(!ba) return;
+    var b = +ba.value, e = +er.value, z = 60/Math.sqrt(e)*Math.log(b);
+    var r = 150/b;
+    document.getElementById('cxInner').setAttribute('r', r.toFixed(1));
+    document.getElementById('cxA').setAttribute('x2', (180+r).toFixed(1));
+    document.getElementById('cxAl').setAttribute('x', (180 + Math.max(r/2,6) - 4).toFixed(1));
+    var tint = Math.min(1,(e-1)/3);
+    document.getElementById('cxDiel').setAttribute('fill', 'rgba(112,48,160,'+(0.05+tint*0.28).toFixed(3)+')');
+    document.getElementById('cxEr').textContent = 'εr = ' + e.toFixed(2);
+    document.getElementById('baV').textContent = b.toFixed(2);
+    document.getElementById('erV').textContent = e.toFixed(2);
+    var num = document.getElementById('z0'), st = document.getElementById('z0s');
+    num.textContent = z.toFixed(1);
+    num.className = 'num'; st.className = 'status';
+    if(Math.abs(z-50) <= 1.5){
+      num.classList.add('hit'); st.classList.add('hit');
+      st.innerHTML = '<span class="t-en">That\'s 50Ω — the RF standard.</span><span class="t-ko"><span class="en">50Ω</span> — <span class="en">RF</span> 표준입니다.</span>';
+    } else if(Math.abs(z-75) <= 1.5){
+      num.classList.add('hit75'); st.classList.add('hit75');
+      st.innerHTML = '<span class="t-en">That\'s 75Ω — the video / CATV standard.</span><span class="t-ko"><span class="en">75Ω</span> — 영상 · <span class="en">CATV</span> 표준입니다.</span>';
+    } else {
+      st.innerHTML = '<span class="t-en">Adjust b/a or εr until you reach 50Ω.</span><span class="t-ko"><span class="en">b/a</span> 또는 <span class="en">εr</span>을 조절해 <span class="en">50Ω</span>을 만들어 보세요.</span>';
+    }
+    document.querySelectorAll('.chip-btn').forEach(function(c){ c.classList.toggle('on', Math.abs(+c.dataset.er - e) < 0.005); });
+  }
+  if(ba){ ba.addEventListener('input', updateLab); er.addEventListener('input', updateLab); }
+  document.querySelectorAll('.chip-btn').forEach(function(c){
+    c.addEventListener('click', function(ev){ if(!er || !c.dataset.er) return; ev.stopPropagation(); er.value = c.dataset.er; updateLab(); });
+  });
+
+  /* ---- input ---- */
+  document.getElementById('prevBtn').onclick = prev;
+  document.getElementById('nextBtn').onclick = next;
+  document.getElementById('gridBtn').onclick = function(){ toggleGrid(); };
+  document.getElementById('notesBtn').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesTab').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesClose').onclick = function(){ toggleNotes(false); };
+  document.getElementById('fsBtn').onclick = toggleFS;
+  langBtn.onclick = toggleLang;
+
+  window.addEventListener('keydown', function(e){
+    if(e.target.tagName==='INPUT') return;
+    var k = e.key;
+    if(grid.classList.contains('open')){ if(k==='Escape' || k==='g' || k==='G') toggleGrid(false); return; }
+    if(['ArrowRight','PageDown',' ','Enter'].indexOf(k)>-1){ next(); e.preventDefault(); }
+    else if(['ArrowLeft','PageUp','Backspace'].indexOf(k)>-1){ prev(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); } else if(k==='End'){ go(total-1, true); }
+    else if(k==='g' || k==='G'){ toggleGrid(); }
+    else if(k==='n' || k==='N'){ toggleNotes(); }
+    else if(k==='l' || k==='L'){ toggleLang(); }
+    else if(k==='f' || k==='F'){ toggleFS(); }
+    else if(k==='Escape'){ toggleNotes(false); }
+  });
+
+  /* ---- click left/right half of the slide to navigate ---- */
+  var NO_NAV = 'a,button,input,label,.lab,.coax-svg,.chip-btn,.nav-hint,.hr-lab,.hr-svg';
+  function sideOf(e){
+    var r = deck.getBoundingClientRect();
+    return (e.clientX - r.left) < r.width * 0.5 ? 'l' : 'r';
+  }
+  deck.addEventListener('mousemove', function(e){
+    var blocked = e.target.closest(NO_NAV);
+    var sd = blocked ? '' : sideOf(e);
+    deck.classList.toggle('hov-l', sd==='l' && !(idx===0 && step===0));
+    deck.classList.toggle('hov-r', sd==='r' && !(idx===total-1 && step===maxStep(slides[idx])));
+  });
+  deck.addEventListener('mouseleave', function(){ deck.classList.remove('hov-l','hov-r'); });
+  deck.addEventListener('click', function(e){
+    if(e.target.closest(NO_NAV)) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(notes.classList.contains('open')){ toggleNotes(false); return; }
+    sideOf(e)==='l' ? prev() : next();
+    deck.dispatchEvent(new MouseEvent('mousemove', {clientX:e.clientX, clientY:e.clientY, bubbles:true}));
+  });
+
+  var tx = null;
+  deck.addEventListener('touchstart', function(e){ if(e.target.tagName!=='INPUT') tx = e.touches[0].clientX; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if(tx===null) return; var dx = e.changedTouches[0].clientX - tx;
+    if(dx < -40) next(); if(dx > 40) prev(); tx = null;
+  });
+
+  /* ---- idle: hide chrome while presenting ---- */
+  var idleT;
+  function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(!grid.classList.contains('open') && !notes.classList.contains('open')) document.body.classList.add('idle'); }, 2600); }
+  ['mousemove','mousedown','keydown','touchstart'].forEach(function(ev){ window.addEventListener(ev, wake, {passive:true}); });
+
+  /* ---- scale ---- */
+  function fit(){
+    var s = Math.min((window.innerWidth-48)/1280, (window.innerHeight-48)/720);
+    deck.style.transform = 'scale('+s+')';
+    if(grid.classList.contains('open')) scaleThumbs();
+  }
+  window.addEventListener('resize', fit);
+
+  /* ---- adv: cover resonance curve ---- */
+  (function(){
+    var p = document.getElementById('hrCurve'); if(!p) return;
+    var d=''; for(var x=90;x<=580;x+=4){ var u=(x-350)/38, y=430-250/(1+u*u)-14; d+=(x===90?'M':'L')+x+' '+y.toFixed(1); }
+    p.setAttribute('d', d);
+  })();
+
+  /* ---- adv: harmonic resonance lab ---- */
+  var hrLen = document.getElementById('hrLen');
+  function C(r,i){ return {r:r,i:i}; }
+  function ad(a,b){ return C(a.r+b.r,a.i+b.i); }
+  function mu(a,b){ return C(a.r*b.r-a.i*b.i,a.r*b.i+a.i*b.r); }
+  function dv(a,b){ var q=b.r*b.r+b.i*b.i; return C((a.r*b.r+a.i*b.i)/q,(a.i*b.r-a.r*b.i)/q); }
+  function ab(a){ return Math.hypot(a.r,a.i); }
+  var HR = {Z0:50, vf:0.66, L:0.8e-6, Ct:250e-12, Cl:800e-12, Rg:50, Csh:200e-12, Rp:3, Cst:150e-12};
+  function hrI(f,l){
+    var w=2*Math.PI*f, one=C(1,0);
+    var zm = ad(ad(C(0,w*HR.L), C(0,-1/(w*HR.Ct))), dv(one, C(1/HR.Rg, w*HR.Cl)));
+    if(l>0){ var t=Math.tan(2*Math.PI*f/(299792458*HR.vf)*l);
+      zm = mu(C(HR.Z0,0), dv(ad(zm,C(0,HR.Z0*t)), ad(C(HR.Z0,0), mu(C(0,t),zm)))); }
+    var ze = dv(one, ad(dv(one,zm), C(0,w*HR.Cst)));
+    var zl = ad(ad(ze, C(0,-1/(w*HR.Csh))), C(HR.Rp,0));
+    return 1/ab(zl);
+  }
+  var hrBuilt=false, NS='http://www.w3.org/2000/svg';
+  var PX0=60, PX1=640, PY0=20, PY1=330, F0=10e6, F1=80e6, D0=-60, D1=-5;
+  function fx(f){ return PX0+(f-F0)/(F1-F0)*(PX1-PX0); }
+  function dy(d){ d=Math.max(D0,Math.min(D1,d)); return PY1-(d-D0)/(D1-D0)*(PY1-PY0); }
+  function el(tag,at,txt){ var e=document.createElementNS(NS,tag); for(var k in at) e.setAttribute(k,at[k]); if(txt!=null) e.textContent=txt; return e; }
+  function buildHR(){
+    var s=document.getElementById('hrSvg'); if(!s) return;
+    s.appendChild(el('line',{x1:PX0,y1:PY1,x2:PX1,y2:PY1,stroke:'#A09D96','stroke-width':1}));
+    for(var f=10;f<=80;f+=10){ s.appendChild(el('text',{x:fx(f*1e6),y:PY1+20,'text-anchor':'middle','font-family':'JetBrains Mono,monospace','font-size':10.5,fill:'#A09D96'},f)); }
+    s.appendChild(el('text',{x:PX1,y:PY1+40,'text-anchor':'end','font-family':'JetBrains Mono,monospace','font-size':10.5,fill:'#A09D96'},'MHz'));
+    s.appendChild(el('text',{x:PX0-8,y:PY0+8,'text-anchor':'end','font-family':'JetBrains Mono,monospace','font-size':10.5,fill:'#A09D96'},'|I|'));
+    [-10,-30,-50].forEach(function(d){ s.appendChild(el('line',{x1:PX0,y1:dy(d),x2:PX1,y2:dy(d),stroke:'#EFE9DE','stroke-width':1}));
+      s.appendChild(el('text',{x:PX0-8,y:dy(d)+4,'text-anchor':'end','font-family':'JetBrains Mono,monospace','font-size':10,fill:'#A09D96'},d+' dB')); });
+    for(var h=1;h<=5;h++){ var x=fx(h*13.56e6);
+      s.appendChild(el('line',{id:'hrM'+h,x1:x,y1:PY0,x2:x,y2:PY1,stroke:h===1?'#D8D2C8':'#E6DFD8','stroke-width':h===1?1:1.5,'stroke-dasharray':h===1?'2 4':'none'}));
+      s.appendChild(el('text',{id:'hrT'+h,x:x,y:PY0-4,'text-anchor':'middle','font-family':'JetBrains Mono,monospace','font-size':12,'font-weight':700,fill:'#A09D96'},h===1?'f':h+'f')); }
+    s.appendChild(el('path',{id:'hrRef',fill:'none',stroke:'#A09D96','stroke-width':1.6,'stroke-dasharray':'5 5'}));
+    s.appendChild(el('path',{id:'hrCur',fill:'none',stroke:'#CC785C','stroke-width':2.6}));
+    var d=''; for(var i=0;i<=580;i++){ var f=F0+(F1-F0)*i/580; d+=(i?'L':'M')+fx(f).toFixed(1)+' '+dy(20*Math.log10(hrI(f,0))).toFixed(1); }
+    document.getElementById('hrRef').setAttribute('d',d);
+    hrBuilt=true;
+  }
+  function hst(en,ko){ return '<span class="t-en">'+en+'</span><span class="t-ko">'+ko+'</span>'; }
+  function updateHR(){
+    if(!hrLen) return; if(!hrBuilt) buildHR();
+    var l=+hrLen.value, d='';
+    for(var i=0;i<=580;i++){ var f=F0+(F1-F0)*i/580; d+=(i?'L':'M')+fx(f).toFixed(1)+' '+dy(20*Math.log10(hrI(f,l))).toFixed(1); }
+    document.getElementById('hrCur').setAttribute('d',d);
+    document.getElementById('hrLv').textContent = l.toFixed(2)+' m';
+    var best=1, bh=2, row='';
+    for(var h=2;h<=5;h++){ var g=hrI(h*13.56e6,l)/hrI(h*13.56e6,0); if(g>best){best=g;bh=h;}
+      var hot=g>=5; row+='<div'+(hot?' class="hot"':'')+'><i>'+h+'f</i>×'+(g>=10?g.toFixed(0):g.toFixed(1))+'</div>';
+      document.getElementById('hrM'+h).setAttribute('stroke', hot?'#CC785C':'#E6DFD8');
+      document.getElementById('hrT'+h).setAttribute('fill', hot?'#CC785C':'#A09D96'); }
+    document.getElementById('hrRow').innerHTML=row;
+    var big=document.getElementById('hrNum').parentNode, st=document.getElementById('hrStatus');
+    document.getElementById('hrNum').textContent='×'+(best>=10?best.toFixed(0):best.toFixed(1));
+    document.getElementById('hrWhich').textContent = best>1.05 ? bh+'f · '+(bh*13.56).toFixed(2)+' MHz' : '';
+    big.className='hr-big'; st.className='status';
+    if(l<0.005){ st.innerHTML=hst('Direct mount — the reference.','직결 마운트 — 비교 기준.'); }
+    else if(best>=5){ big.classList.add('hit'); st.classList.add('hit');
+      st.innerHTML=hst('A resonance sits on '+bh+'f. Harmonic current ×'+best.toFixed(0)+'.','공진이 '+bh+'f에 걸렸다. 하모닉 전류 ×'+best.toFixed(0)+'.'); }
+    else if(best>=2){ big.classList.add('hit75'); st.classList.add('hit75');
+      st.innerHTML=hst('A resonance is approaching '+bh+'f.','공진이 '+bh+'f에 다가가고 있다.'); }
+    else { st.innerHTML=hst('No harmonic near a resonance at this length.','이 길이에서는 공진 근처의 하모닉이 없다.'); }
+    document.querySelectorAll('.hr-chip').forEach(function(c){ c.classList.toggle('on', Math.abs(+c.dataset.len-l)<0.005); });
+  }
+  if(hrLen) hrLen.addEventListener('input', updateHR);
+  document.querySelectorAll('.hr-chip').forEach(function(c){
+    c.addEventListener('click', function(ev){ ev.stopPropagation(); hrLen.value=c.dataset.len; updateHR(); });
+  });
+
+  fit(); setLang('en');
+  var h = parseInt((location.hash||'').replace('#',''),10);
+  go(isNaN(h) ? 0 : h-1);
+  wake();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<script>
+/* Benedu Insight · members-only deck guard
+   Opens only inside m6_members.html; direct access goes back to the members hub. */
+(function(){
+  var ok = false;
+  try { ok = window.self !== window.top && /m6_members(\.html)?$/.test(window.parent.location.pathname); } catch (e) { ok = false; }
+  if (!ok) { location.replace('../m6_members.html'); return; }
+  var l = new URLSearchParams(location.search).get('lang');
+  /* language sync: modules expose a global setLang(); keynotes keep it private, so use their #langBtn toggle */
+  window.__beneduSetLang = function (v) {
+    try { if (typeof window.setLang === 'function') { window.setLang(v); return; } } catch (e) {}
+    var cur = document.documentElement.classList.contains('lang-ko') ? 'ko' : 'en';
+    var b = document.getElementById('langBtn');
+    if (b && cur !== v) b.click();
+  };
+  if (l === 'ko' || l === 'en') window.addEventListener('load', function(){ window.__beneduSetLang(l); });
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0.9° — VVC Step-out Deep Dive | Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF9F5; --surface:#EFE9DE; --ink:#252320; --steel:#6C6A64; --steel-soft:#A09D96; --hairline:#E6DFD8;
+  --ink-black:#181715; --card-dark:#232120; --hairline-dark:#3A3733; --mute-dark:#8E8A83; --text-dark:#EFE9DE;
+  --green:#0F8C50; --purple:#7030A0; --coral:#CC785C; --amber:#E8A55A;
+  --font-en:'Google Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-ko:'Google Sans', 'Gowun Batang',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0A0A09}
+body{font-family:var(--font-en);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+body.idle{cursor:none}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+
+/* ---------- language ---------- */
+.t-ko{display:none;font-family:var(--font-ko)}
+html.lang-ko .t-ko{display:revert}
+html.lang-ko .t-en{display:none}
+.en{font-family:var(--font-en)}
+
+/* ---------- stage ---------- */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{width:1280px;height:720px;position:relative;flex:0 0 auto;overflow:hidden;background:var(--cream);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);transform-origin:center center}
+
+.slide{position:absolute;inset:0;background:var(--cream);opacity:0;visibility:hidden;
+  transition:opacity .6s ease,visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.slide.dark{background:var(--ink-black);color:#fff}
+.slide-note{display:none}
+
+/* ---------- chrome ---------- */
+.logo-tr{position:absolute;right:64px;top:42px;height:34px;width:auto}
+.dark .logo-tr{filter:brightness(0) invert(1);opacity:.92}
+.eyebrow{position:absolute;left:96px;top:56px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.eyebrow b{color:var(--green);margin-right:10px}
+.dark .eyebrow{color:var(--mute-dark)} .dark .eyebrow b{color:var(--amber)}
+.footer{position:absolute;left:96px;right:64px;bottom:0;height:34px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--hairline)}
+.dark .footer{border-top-color:var(--hairline-dark)}
+.footer .fm{font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--steel)}
+.footer .fd2{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em;color:var(--steel-soft)}
+.footer .fp{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--steel)}
+.dark .footer .fm,.dark .footer .fp{color:#8E8A83}
+.dark .footer .fd2{color:#5E5A54}
+.headline{position:absolute;left:96px;right:96px;top:98px;font-size:46px;font-weight:700;letter-spacing:-.028em;line-height:1.15}
+html.lang-ko .headline{font-size:42px;letter-spacing:-.01em}
+.dark .headline{color:#fff}
+.lede{position:absolute;left:96px;right:96px;top:166px;font-size:19px;color:var(--steel);line-height:1.55}
+.dark .lede{color:#B5B0A8}
+
+/* ---------- builds ---------- */
+.frag{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .8s var(--ease)}
+.frag.on{opacity:1;transform:none}
+.frag.strike{transform:scaleX(0);transform-origin:left center;transition:transform .55s var(--ease),opacity .2s}
+.frag.strike.on{transform:scaleX(1)}
+.hides{transition:opacity .5s ease,transform .6s var(--ease)}
+.hides.gone{opacity:0;transform:scale(.94);pointer-events:none}
+.rise{opacity:0}
+.slide.active .rise{animation:rise .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.static .rise{animation:none!important;opacity:1}
+.static .frag,.static .hides{transition:none!important}
+
+/* ---------- equation typesetting ---------- */
+.eqn{font-family:var(--font-en);font-weight:700;display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em}
+.frac .fn{padding:0 .12em .04em;border-bottom:.045em solid currentColor}
+.frac .fd{padding:.04em .12em 0}
+.frac.sm{font-size:.7em}
+.sqrt{display:inline-flex;align-items:stretch;margin-left:.04em}
+.sqrt .rad{display:block;width:.52em;flex:0 0 auto;overflow:visible;margin-right:-1px}
+.sqrt .rad path{fill:none;stroke:currentColor;stroke-width:.075em;stroke-linejoin:miter;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+.sqrt .rc{border-top:.075em solid currentColor;padding:.1em .14em 0 .08em;display:inline-flex;align-items:center}
+.eqn sub{font-size:.62em;vertical-align:baseline;position:relative;top:.32em;line-height:0;font-weight:700;margin-left:.02em}
+.frac .fd .sqrt{margin-top:.16em}
+.paren{font-weight:300;font-size:1.45em;margin:0 -.02em}
+
+/* ================= 1 · COVER ================= */
+.cover-logo{position:absolute;left:96px;top:54px;height:42px;filter:brightness(0) invert(1)}
+.cover-kicker{position:absolute;left:98px;top:206px;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--coral)}
+.cover-big{position:absolute;left:86px;top:226px;font-size:214px;font-weight:700;letter-spacing:-.055em;line-height:1;color:#fff}
+.cover-big span{color:var(--coral)}
+.cover-sub{position:absolute;left:96px;top:462px;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--text-dark)}
+html.lang-ko .cover-sub{font-size:36px;font-weight:700}
+.cover-desc{position:absolute;left:96px;top:524px;width:600px;font-size:18px;line-height:1.6;color:var(--mute-dark)}
+.cover-meta{position:absolute;left:96px;bottom:62px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#6E6A63}
+.cover-art{position:absolute;right:-70px;top:60px;width:600px;height:600px}
+.cover-art .spin{transform-box:fill-box;transform-origin:center;animation:spin 90s linear infinite}
+.cover-art .flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flow{to{stroke-dashoffset:-28}}
+
+/* ================= 2 · MISCONCEPTION ================= */
+.eq-hero{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:100px;color:var(--ink)}
+.claim{position:absolute;left:0;right:0;top:428px;text-align:center;font-size:28px;color:var(--steel)}
+.claim .wrap{position:relative;display:inline-block}
+.claim .strike{position:absolute;left:-10px;right:-10px;top:52%;height:4px;background:var(--coral);border-radius:2px}
+.verdict{position:absolute;left:0;right:0;top:494px;text-align:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:var(--coral)}
+html.lang-ko .verdict{font-size:54px}
+.verdict-sub{position:absolute;left:0;right:0;top:590px;text-align:center;font-size:19px;color:var(--steel)}
+
+/* ================= 3 · CAUSALITY ================= */
+.chain{position:absolute;left:96px;right:96px;top:262px;display:flex;align-items:flex-start;justify-content:space-between}
+.node{width:300px}
+.node .w{font-size:60px;font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.node .w.c{color:var(--coral)}
+.node .s{margin-top:16px;font-size:17px;color:var(--steel);line-height:1.55}
+.arr{font-size:42px;color:var(--steel-soft);padding-top:6px;font-weight:300}
+.punch{position:absolute;left:96px;right:96px;top:500px;padding-top:36px;border-top:1px solid var(--hairline);
+  font-size:34px;font-weight:700;letter-spacing:-.025em}
+html.lang-ko .punch{font-size:31px}
+.punch .c{color:var(--coral)}
+
+/* ================= 4 · LAB ================= */
+.coax-svg{position:absolute;left:96px;top:226px;width:372px;height:372px}
+.lab{position:absolute;left:540px;right:96px;top:226px;bottom:66px;display:flex;flex-direction:column}
+.lab .eqn{font-size:34px;color:var(--ink)}
+.ctl{margin-top:30px}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ctl-row .k{font-size:15px;color:var(--steel)}
+.ctl-row .v{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink)}
+.chips{display:flex;gap:8px;margin-bottom:14px}
+.chip-btn{font-family:var(--font-en);font-size:13px;font-weight:500;color:var(--ink);padding:6px 15px;border:1px solid var(--hairline);
+  border-radius:999px;background:#fff;cursor:pointer;transition:all .2s}
+.chip-btn:hover{border-color:var(--steel-soft)}
+.chip-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--hairline);outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+.readout{margin-top:auto;display:flex;align-items:baseline;gap:14px}
+.readout .k{font-size:28px;font-weight:500;color:var(--steel)}
+.readout .num{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);transition:color .3s;font-variant-numeric:tabular-nums}
+.readout .num.hit{color:var(--coral)} .readout .num.hit75{color:var(--purple)}
+.status{margin-top:10px;font-size:17px;color:var(--steel);min-height:26px}
+.status.hit{color:var(--coral);font-weight:700} .status.hit75{color:var(--purple);font-weight:700}
+
+/* ================= 5 · THREE VIEWS ================= */
+.views{position:absolute;left:96px;right:96px;top:248px;display:grid;grid-template-columns:repeat(3,1fr)}
+.view{padding:0 36px;border-left:1px solid var(--hairline)}
+.view:first-child{padding-left:0;border-left:none}
+.view .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.view .eqn{font-size:54px;height:134px;margin:24px 0 22px;color:var(--ink)}
+.view .d{font-size:17px;color:var(--steel);line-height:1.6}
+.foot-line{position:absolute;left:96px;right:96px;top:584px;font-size:20px;color:var(--steel)}
+.foot-line b{color:var(--ink)}
+
+/* ================= 6 · HISTORY ================= */
+.axis{position:absolute;left:96px;right:96px;top:499px;height:2px;background:var(--hairline-dark)}
+.tick{position:absolute;top:514px;transform:translateX(-50%);font-family:var(--font-mono);font-size:10.5px;color:#5E5A54}
+.mk{position:absolute;top:500px;left:var(--x);width:0;height:0}
+.mk .stem{position:absolute;left:-1px;bottom:0;width:2px;height:var(--h);background:#4A4642}
+.mk .dot{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff}
+.mk .mlab{position:absolute;left:-110px;width:220px;bottom:calc(var(--h) + 14px);text-align:center}
+.mk .v{font-size:46px;font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1}
+.mk .c{margin-top:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.mk.hero .stem,.mk.hero .dot{background:var(--coral)}
+.mk.hero .v{font-size:68px;color:var(--coral)}
+.mk.hero .c{color:var(--coral)}
+.mk.below .stem{top:0;bottom:auto}
+.mk.below .dot{background:#6E6A63}
+.mk.below .mlab{top:calc(var(--h) + 10px);bottom:auto}
+.mk.below .v{font-size:24px;color:#8E8A83}
+.mk.below .c{color:#6E6A63}
+.means{position:absolute;left:330px;width:464px;top:548px;text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--mute-dark);letter-spacing:.02em}
+.src{position:absolute;left:96px;bottom:52px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5A54}
+
+/* ================= 7 · ONE MORE THING ================= */
+.omt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;font-weight:700;letter-spacing:-.035em;color:#fff}
+html.lang-ko .omt{font-size:66px}
+.vs{position:absolute;left:96px;right:96px;top:176px;display:flex;justify-content:center;align-items:flex-start;gap:72px}
+.vs .blk{text-align:center}
+.vs .n{font-size:156px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#fff}
+.vs .n.q{color:var(--coral)}
+.vs .l{margin-top:18px;font-size:18px;color:#B5B0A8}
+.vs .ne{font-size:84px;font-weight:300;color:#5E5A54;padding-top:30px}
+.next-line{position:absolute;left:96px;right:96px;top:472px;text-align:center;font-size:24px;color:var(--text-dark);letter-spacing:-.01em}
+.next-tag{position:absolute;left:0;right:0;top:524px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.end-links{position:absolute;left:0;right:0;bottom:70px;display:flex;justify-content:center;gap:36px}
+.end-links a{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:#B5B0A8;text-decoration:none;border-bottom:1px solid #3A3733;padding-bottom:4px;transition:color .2s,border-color .2s}
+.end-links a:hover{color:#fff;border-color:var(--coral)}
+
+/* ================= CLICK-TO-NAVIGATE HINTS ================= */
+.nav-hint{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(24,23,21,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;z-index:40;
+  transition:opacity .25s ease,transform .25s var(--ease)}
+.nav-hint svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-hint.l{left:22px;transform:translateX(6px)} .nav-hint.r{right:22px;transform:translateX(-6px)}
+.deck.hov-l .nav-hint.l,.deck.hov-r .nav-hint.r{opacity:1;transform:none}
+.deck.hov-l,.deck.hov-r{cursor:pointer}
+body.idle .nav-hint{opacity:0!important}
+
+/* ================= CONTROL BAR ================= */
+#bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px 8px;
+  background:rgba(24,23,21,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;z-index:90;transition:opacity .4s,transform .4s}
+body.idle #bar{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
+#bar button,#bar a{height:34px;min-width:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:none;border:none;border-radius:999px;color:#D9D4CC;font-family:var(--font-en);font-size:12.5px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+#bar button:hover,#bar a:hover{background:rgba(255,255,255,.08);color:#fff}
+#bar button.on{color:var(--coral)}
+#bar svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#bar .dots{display:flex;align-items:center;gap:7px;padding:0 10px}
+#bar .dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);cursor:pointer;transition:width .45s var(--ease),background .3s}
+#bar .dot.done{background:rgba(255,255,255,.5)}
+#bar .dot.on{width:24px;background:var(--coral)}
+#bar .dot:hover{background:rgba(255,255,255,.8)}
+#bar .sep{width:1px;height:18px;background:rgba(255,255,255,.12);margin:0 6px}
+#langBtn{font-family:var(--font-ko)!important;font-weight:700}
+html.lang-ko #langBtn{font-family:var(--font-en)!important}
+
+/* ================= NOTES DRAWER ================= */
+#notesTab{position:fixed;left:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;background:var(--ink-black);color:#D9D4CC;
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.18em;padding:18px 9px;border-radius:0 10px 10px 0;
+  border:1px solid rgba(255,255,255,.08);border-left:none;cursor:pointer;z-index:95;user-select:none;transition:color .2s,opacity .4s}
+#notesTab:hover{color:var(--coral)}
+body.idle #notesTab{opacity:.25}
+#notes{position:fixed;left:0;top:0;bottom:0;width:480px;background:#fff;z-index:100;transform:translateX(-102%);transition:transform .45s var(--ease);
+  display:flex;flex-direction:column;box-shadow:none;visibility:hidden;transition:transform .45s var(--ease),visibility 0s linear .45s}
+#notes.open{transform:none;visibility:visible;box-shadow:20px 0 60px rgba(0,0,0,.35);transition:transform .45s var(--ease)}
+.notes-head{padding:26px 28px 18px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;align-items:center}
+.notes-head .ttl{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.notes-head .no{font-family:var(--font-mono);font-size:11.5px;color:var(--steel-soft);margin-left:10px}
+#notesClose{background:none;border:none;font-size:24px;line-height:1;color:var(--steel);cursor:pointer}
+.notes-title{padding:22px 28px 0;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.notes-body{padding:16px 28px 28px;overflow-y:auto;flex:1;font-size:15.5px;line-height:1.85;color:var(--ink)}
+.notes-body p{margin:0 0 12px}
+.notes-body h4{margin:24px 0 8px;font-size:15.5px;font-weight:700;color:var(--ink)}
+.notes-body > div > h4:first-child{margin-top:4px}
+.notes-body .nf{font-family:var(--font-en);background:var(--surface);border-radius:8px;padding:11px 16px;margin:4px 0 14px;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.notes-body ul{margin:4px 0 14px;padding-left:20px}
+.notes-body li{margin:5px 0}
+.notes-body b{color:var(--ink)}
+.notes-foot{padding:14px 28px;border-top:1px solid var(--hairline);font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--steel-soft)}
+
+/* ================= GRID OVERVIEW ================= */
+#grid{position:fixed;inset:0;background:#0C0B0A;z-index:200;display:none;overflow:auto;padding:52px 64px 80px}
+#grid.open{display:block;animation:gridIn .35s var(--ease)}
+@keyframes gridIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+.grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+.grid-head .ttl{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:#EFE9DE}
+.grid-head .hint{font-family:var(--font-mono);font-size:11px;color:#6E6A63;letter-spacing:.06em}
+.grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:34px 28px}
+.thumb{cursor:pointer}
+.thumb .frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;outline:1px solid #2A2724;transition:transform .25s var(--ease),outline-color .2s}
+.thumb:hover .frame{transform:translateY(-4px);outline:2px solid #6C6A64}
+.thumb.cur .frame{outline:2px solid var(--coral)}
+.thumb .inner{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;pointer-events:none}
+.thumb .cap{display:flex;gap:12px;margin-top:12px;font-size:14px;color:#B5B0A8}
+.thumb .cap .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--coral);padding-top:1px}
+/* ================= M06 · PLANE MAP ================= */
+.pm-line{position:absolute;left:96px;top:236px;width:1088px;height:120px;overflow:visible}
+.pm-col{position:absolute;top:318px;width:200px}
+.pm-col .nm{font-size:25px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+html.lang-ko .pm-col .nm{font-size:23px}
+.pm-col .ps{margin-top:12px;font-size:16px;line-height:1.75;color:var(--steel)}
+.pm-col .ps.c{color:var(--coral);font-weight:700}
+.pm-pl{position:absolute;top:236px;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--coral);transform:translateX(-50%)}
+.pm-punch{position:absolute;left:96px;right:96px;top:548px;padding-top:24px;border-top:1px solid var(--hairline);font-size:29px;font-weight:700;letter-spacing:-.02em}
+html.lang-ko .pm-punch{font-size:27px}
+.pm-punch .c{color:var(--coral)}
+/* ================= M06 · CONNECTOR CASE ================= */
+.cs-blk{position:absolute;top:246px;width:400px}
+.cs-blk .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--amber)}
+.cs-blk .n{margin-top:14px;font-size:96px;font-weight:700;letter-spacing:-.045em;line-height:1;color:#fff}
+.cs-blk .n small{font-size:30px;font-weight:500;letter-spacing:0;color:#8E8A83;margin-right:12px}
+.cs-blk .d{margin-top:18px;font-size:19px;line-height:1.5;color:#B5B0A8}
+.cs-art{position:absolute;left:520px;top:236px;width:240px;height:220px}
+.cs-art .lb{font-family:var(--font-mono)}
+.cs-punch{position:absolute;left:96px;right:96px;top:520px;padding-top:28px;border-top:1px solid var(--hairline-dark);font-size:32px;font-weight:700;letter-spacing:-.02em;color:#fff}
+html.lang-ko .cs-punch{font-size:29px}
+.cs-punch .c{color:var(--coral)}
+.cs-num{position:absolute;left:96px;top:604px;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:#6E6A63}
+/* ================= M06 · FAST-EVENT LAB ================= */
+.fl-svg{position:absolute;left:96px;top:206px;width:560px;height:390px}
+.fl-lab{left:712px!important;top:206px!important;bottom:92px!important}
+.fl-lab .ctl{margin-top:20px}
+.fl-lab .ctl:first-child{margin-top:4px}
+.fl-lab .readout .num{font-size:88px}
+.fl-lab .readout .k{font-size:20px}
+/* ================= M06 · MATCHER SIGNATURES ================= */
+.sg-cols{position:absolute;left:96px;right:96px;top:232px;display:grid;grid-template-columns:repeat(3,1fr)}
+.sg-col{padding:0 34px;border-left:1px solid var(--hairline)}
+.sg-col:first-child{padding-left:0;border-left:none}
+.sg-col .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.sg-col svg{display:block;width:100%;height:104px;margin:18px 0 14px;overflow:visible}
+.sg-col .nm{font-size:38px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+html.lang-ko .sg-col .nm{font-size:34px}
+.sg-col .d{margin-top:12px;font-size:17px;line-height:1.6;color:var(--steel)}
+.sg-foot{position:absolute;left:96px;right:96px;top:590px;font-size:20px;color:var(--steel)}
+.sg-foot b{color:var(--ink)}
+/* ================= M06 · READ IN PAIRS ================= */
+.rp{position:absolute;left:96px;right:96px;top:222px}
+.rp-row{display:grid;grid-template-columns:250px 330px 1fr;align-items:center;min-height:64px;border-top:1px solid var(--hairline);font-size:19px}
+.rp-row.hd{min-height:30px;border-top:none;font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.rp-row .a{font-weight:700;color:var(--ink)}
+.rp-row .b{color:var(--steel)}
+.rp-row .c{font-weight:700;color:var(--coral)}
+html.lang-ko .rp-row{font-size:18px}
+
+/* ================= STEP-OUT DEEP DIVE ================= */
+.so-tbl{top:212px}
+.so-tbl .rp-row{grid-template-columns:250px 290px 1fr 170px;min-height:62px;font-size:17px}
+html.lang-ko .so-tbl .rp-row{font-size:16.5px}
+.so-tbl .rp-row .a{display:flex;flex-direction:column;line-height:1.25}
+.so-tbl .rp-row.hd{font-size:11.5px!important;min-height:30px}
+.so-sub2{font-family:var(--font-mono);font-size:10.5px;font-weight:500;letter-spacing:.06em;color:var(--steel-soft);margin-top:3px}
+.so-tbl .rp-row.bad .a,.so-tbl .rp-row.bad .b{color:var(--steel-soft)}
+.so-tbl .rp-row .c{font-weight:700;color:var(--coral)}
+.so-verdict{position:absolute;left:96px;right:96px;top:534px;padding-top:22px;border-top:2px solid var(--coral);font-size:24px;font-weight:700;letter-spacing:-.015em;line-height:1.35}
+html.lang-ko .so-verdict{font-size:22px}
+.so-verdict .c{color:var(--coral)}
+.so-tbl .rp-row .ok{font-weight:700;color:var(--green)}
+.so-warn{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--coral);margin-left:6px}
+.so-svg{position:absolute;left:96px;top:196px;width:1088px;height:170px;overflow:visible}
+.so-ctl{position:absolute;left:96px;top:404px;width:540px}
+.so-ctl .ctl{margin-top:22px}
+.so-out{position:absolute;left:720px;right:96px;top:398px}
+.so-out .readout .num{font-size:92px}
+.so-sub{margin-top:8px;font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;color:var(--steel)}
+.so-cnt{margin-top:10px;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--purple)}
+
+
+/* ================= INSIDE THE MATCHER ================= */
+.in-mx{position:absolute;left:96px;top:206px;width:390px;height:419px}
+.in-pin{position:absolute;width:30px;height:30px;border-radius:50%;background:var(--coral);color:#fff;font-family:var(--font-en);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px rgba(204,120,92,.18)}
+.in-vvc{position:absolute;left:496px;top:214px;width:240px;height:410px}
+.in-terms{position:absolute;left:752px;right:96px;top:214px}
+.in-t{display:flex;gap:16px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--hairline)}
+.in-t:first-child{border-top:none;padding-top:0}
+.in-t .no{flex:0 0 26px;height:26px;border-radius:50%;background:var(--coral);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.in-t .nm{font-size:20px;font-weight:700;letter-spacing:-.015em}
+.in-t .d{margin-top:5px;font-size:15.5px;line-height:1.55;color:var(--steel)}
+.in-photo{flex:0 0 auto;width:64px;height:auto;margin-top:-4px}
+.in-shaft{width:auto;height:112px;margin-top:-6px;border-radius:2px}
+.in-t{padding:12px 0}
+
+.in-photo{cursor:zoom-in;transition:transform .2s}
+.in-photo:hover{transform:scale(1.06)}
+.in-lb{position:absolute;inset:0;z-index:30;background:rgba(250,249,245,.96);display:none;flex-direction:column;align-items:center;justify-content:center;cursor:zoom-out}
+.in-lb.on{display:flex;animation:rise .4s var(--ease) both}
+.in-lb img{max-height:520px;max-width:900px;box-shadow:0 20px 50px -20px rgba(0,0,0,.35)}
+.in-lb .cap{margin-top:18px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--steel)}
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck" data-doc="CLASS 02 · MODULE 06 — DEEP DIVE · VVC STEP-OUT">
+<div class="nav-hint l" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+<div class="nav-hint r" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+
+<!-- ============ 1 · COVER ============ -->
+<section class="slide dark active" data-title-en="Cover" data-title-ko="표지">
+  <img class="cover-logo" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  <svg class="cover-art" viewBox="0 0 600 600" aria-hidden="true">
+    <defs>
+      <linearGradient id="soFade" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".25" stop-color="#fff" stop-opacity="1"/></linearGradient>
+      <mask id="soMask"><rect x="0" y="0" width="600" height="600" fill="url(#soFade)"/></mask>
+    </defs>
+    <g mask="url(#soMask)">
+      <line x1="40" y1="250" x2="540" y2="250" stroke="rgba(239,233,222,.35)" stroke-width="2"/>
+      <line x1="40" y1="360" x2="540" y2="360" stroke="rgba(239,233,222,.35)" stroke-width="2"/>
+      <g stroke="rgba(239,233,222,.18)" stroke-width="1.5">
+        <path d="M80 244 V256 M140 244 V256 M200 244 V256 M260 244 V256 M320 244 V256 M380 244 V256 M440 244 V256 M500 244 V256"/>
+        <path d="M80 354 V366 M140 354 V366 M200 354 V366 M260 354 V366 M320 354 V366 M380 354 V366 M440 354 V366 M500 354 V366"/>
+      </g>
+    </g>
+    <path d="M404 206 L426 206 L415 228 Z" fill="#EFE9DE"/>
+    <line x1="415" y1="232" x2="415" y2="420" stroke="rgba(239,233,222,.25)" stroke-width="1.2" stroke-dasharray="3 5"/>
+    <g>
+      <path d="M-11 -22 L11 -22 L0 0 Z" fill="#CC785C" transform="translate(0 338)"/>
+      <animateTransform attributeName="transform" type="translate" values="360 0; 392 0; 360 0" dur="7s" repeatCount="indefinite"/>
+    </g>
+    <text x="415" y="194" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" letter-spacing="1.5" fill="rgba(239,233,222,.6)">COMMAND</text>
+    <text x="378" y="392" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" letter-spacing="1.5" fill="#CC785C">ENCODER</text>
+  </svg>
+  <div class="cover-kicker rise" style="--d:.1s">VVC STEP-OUT · DEEP DIVE</div>
+  <div class="cover-big rise" style="--d:.2s">0.9<span>°</span></div>
+  <div class="cover-sub rise" style="--d:.45s">
+    <span class="t-en">One step. Where did it go?</span>
+    <span class="t-ko">한 스텝. 어디로 갔을까?</span>
+  </div>
+  <div class="cover-desc rise" style="--d:.6s">
+    <span class="t-en">VVC step-out — how it happens, how it's caught, and what it still hides.</span>
+    <span class="t-ko">VVC 탈조 — 어떻게 생기고, 어떻게 잡히며, 그래도 무엇을 숨기는가.</span>
+  </div>
+  <div class="cover-meta">CLASS 02 · MODULE 06 · DEEP DIVE &nbsp;—&nbsp; BEN · BENEDU INSIGHT</div>
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Why this deserves its own deck</h4>
+<p>The main Module 06 deck argues that the Load/Tune position is the most informative RF parameter in FDC: when reflected power is held at zero by the matcher, the position is where the load change is recorded. That argument holds only if the position value is true. Step-out is the case where it is not.</p>
+<h4>The number on the cover</h4>
+<p>A typical stepper-driven matcher in this example moves its vacuum variable capacitor (VVC) through 10 full turns — 3600° — in 4000 steps. One step is 0.9°.</p>
+<div class="nf">3600° / 4000 steps = 0.9° per step<br>1 step = 0.025 % of the full stroke</div>
+<p>A single lost step is invisible. Tens of lost steps are not: they shift the reported position by an amount comparable to the real chamber drift that FDC is meant to catch.</p>
+<p>This deck covers the parts inside a matcher, what step-out is, the four common ways a matcher knows its own position, a correction loop that detects and repairs step-out, and the two things such a loop still cannot see.</p>
+</div>
+    <div class="t-ko">
+<h4>왜 별도의 덱인가</h4>
+<p>Module 06 본 덱의 핵심 주장은, FDC에서 가장 정보가 많은 RF 파라미터가 Load / Tune Position이라는 것이다. Matcher가 반사파를 0으로 붙잡아 두는 동안 부하의 변화는 Position에 기록된다. 이 주장은 Position 값이 사실일 때만 성립한다. 탈조(Step-out)는 바로 그 값이 사실이 아니게 되는 경우다.</p>
+<h4>표지의 숫자</h4>
+<p>이 예시의 스테핑 모터 구동 Matcher는 진공 가변 커패시터(VVC)를 10바퀴 — 3600° — 돌리는 데 4000 스텝을 쓴다. 한 스텝은 0.9°다.</p>
+<div class="nf">3600° / 4000 step = 스텝당 0.9°<br>1 step = 전체 스트로크의 0.025 %</div>
+<p>한 스텝을 잃는 것은 보이지 않는다. 수십 스텝은 다르다. FDC가 잡으려는 실제 챔버 Drift와 비슷한 크기만큼 보고 Position을 옮겨 놓는다.</p>
+<p>이 덱은 Matcher 내부 구조, 탈조가 무엇인지, Matcher가 자기 위치를 아는 네 가지 방식, 탈조를 감지하고 바로잡는 보정 루프, 그리고 그 루프로도 보이지 않는 두 가지를 다룬다.</p>
+</div>
+  </div>
+</section>
+
+
+<!-- ============ 2 · INSIDE THE MATCHER ============ -->
+<section class="slide" data-title-en="Inside the Matcher" data-title-ko="Matcher 내부 구조">
+  <div class="eyebrow"><b>01</b>INSIDE THE MATCHER</div>
+  <h2 class="headline">
+    <span class="t-en">Inside the matcher.</span>
+    <span class="t-ko">Matcher 안을 열어 보면.</span>
+  </h2>
+  <svg class="in-mx" viewBox="0 0 400 430" aria-label="Matcher internal layout">
+    <defs>
+ <linearGradient id="mxMetal" x1="0" x2="1"><stop offset="0" stop-color="#7E8288"/><stop offset=".3" stop-color="#DDE0E4"/><stop offset=".45" stop-color="#FFFFFF"/><stop offset=".75" stop-color="#B4B8BE"/><stop offset="1" stop-color="#6F7378"/></linearGradient>
+ <linearGradient id="mxMotor" x1="0" x2="1"><stop offset="0" stop-color="#15302A"/><stop offset=".35" stop-color="#3E7A62"/><stop offset=".55" stop-color="#2E5E4C"/><stop offset="1" stop-color="#132A22"/></linearGradient>
+ <linearGradient id="mxBlack" x1="0" x2="1"><stop offset="0" stop-color="#0E0E0E"/><stop offset=".4" stop-color="#4A4A4A"/><stop offset=".6" stop-color="#262626"/><stop offset="1" stop-color="#0A0A0A"/></linearGradient>
+ <linearGradient id="mxCer" x1="0" x2="1"><stop offset="0" stop-color="#C8C6BF"/><stop offset=".4" stop-color="#FFFFFF"/><stop offset="1" stop-color="#BDBBB4"/></linearGradient>
+ <linearGradient id="mxPlate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2BFA3"/><stop offset=".5" stop-color="#C08F6C"/><stop offset="1" stop-color="#8E6449"/></linearGradient>
+ <linearGradient id="mxBrk" x1="0" x2="1"><stop offset="0" stop-color="#8E6449"/><stop offset=".5" stop-color="#C08F6C"/><stop offset="1" stop-color="#7A563E"/></linearGradient>
+ <linearGradient id="mxBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ECE7DF"/><stop offset="1" stop-color="#DDD6CB"/></linearGradient>
+ <radialGradient id="mxShadow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+</defs>
+    <rect x="14" y="6" width="372" height="418" rx="3" fill="url(#mxBack)" stroke="#CFC7BB" stroke-width="2"/>
+    <rect x="14" y="6" width="10" height="418" fill="#CFC7BB"/><rect x="376" y="6" width="10" height="418" fill="#CFC7BB"/>
+    <ellipse cx="99" cy="346" rx="44" ry="7" fill="url(#mxShadow)"/><rect x="77" y="20" width="44" height="26" rx="3" fill="url(#mxBlack)"/><text x="99" y="37" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" font-weight="700" fill="#D9D4CC">ENCODER</text><rect x="60" y="46" width="78" height="66" rx="3" fill="url(#mxMotor)"/><rect x="60" y="46" width="78" height="4" fill="#5E9C82" opacity=".6"/><line x1="60" x2="138" y1="62" y2="62" stroke="#0F241D" stroke-width="1" opacity=".5"/><line x1="60" x2="138" y1="78" y2="78" stroke="#0F241D" stroke-width="1" opacity=".5"/><line x1="60" x2="138" y1="94" y2="94" stroke="#0F241D" stroke-width="1" opacity=".5"/><text x="99" y="84" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700" fill="#E6EFE9">MOTOR</text><rect x="95" y="134" width="8" height="16" fill="url(#mxMetal)"/><rect x="86" y="150" width="26" height="32" rx="3" fill="url(#mxMetal)" stroke="#8C9096" stroke-width=".8"/><path d="M86 157 Q99 161 112 157" fill="none" stroke="#5D6166" stroke-width="1.3"/><path d="M86 163 Q99 167 112 163" fill="none" stroke="#5D6166" stroke-width="1.3"/><path d="M86 169 Q99 173 112 169" fill="none" stroke="#5D6166" stroke-width="1.3"/><path d="M86 175 Q99 179 112 175" fill="none" stroke="#5D6166" stroke-width="1.3"/><circle cx="92" cy="153" r="1.4" fill="#3A3D41"/><circle cx="92" cy="179" r="1.4" fill="#3A3D41"/><rect x="95" y="182" width="8" height="14" fill="url(#mxMetal)"/><rect x="84" y="196" width="30" height="28" rx="2" fill="url(#mxBlack)"/><rect x="62" y="224" width="74" height="8" rx="2" fill="url(#mxMetal)"/><rect x="63" y="232" width="72" height="30" fill="url(#mxMetal)"/><rect x="63" y="262" width="72" height="20" fill="url(#mxCer)"/><rect x="63" y="282" width="72" height="60" rx="2" fill="url(#mxMetal)"/><line x1="63" x2="135" y1="262" y2="262" stroke="#8C9096" stroke-width=".8"/><line x1="63" x2="135" y1="282" y2="282" stroke="#8C9096" stroke-width=".8"/><text x="99" y="318" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#252320">LOAD</text><rect x="53" y="134" width="7" height="90" fill="url(#mxBrk)"/><rect x="138" y="134" width="7" height="90" fill="url(#mxBrk)"/><ellipse cx="289" cy="346" rx="44" ry="7" fill="url(#mxShadow)"/><rect x="267" y="20" width="44" height="26" rx="3" fill="url(#mxBlack)"/><text x="289" y="37" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" font-weight="700" fill="#D9D4CC">ENCODER</text><rect x="250" y="46" width="78" height="66" rx="3" fill="url(#mxMotor)"/><rect x="250" y="46" width="78" height="4" fill="#5E9C82" opacity=".6"/><line x1="250" x2="328" y1="62" y2="62" stroke="#0F241D" stroke-width="1" opacity=".5"/><line x1="250" x2="328" y1="78" y2="78" stroke="#0F241D" stroke-width="1" opacity=".5"/><line x1="250" x2="328" y1="94" y2="94" stroke="#0F241D" stroke-width="1" opacity=".5"/><text x="289" y="84" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700" fill="#E6EFE9">MOTOR</text><rect x="285" y="134" width="8" height="16" fill="url(#mxMetal)"/><rect x="276" y="150" width="26" height="32" rx="3" fill="url(#mxMetal)" stroke="#8C9096" stroke-width=".8"/><path d="M276 157 Q289 161 302 157" fill="none" stroke="#5D6166" stroke-width="1.3"/><path d="M276 163 Q289 167 302 163" fill="none" stroke="#5D6166" stroke-width="1.3"/><path d="M276 169 Q289 173 302 169" fill="none" stroke="#5D6166" stroke-width="1.3"/><path d="M276 175 Q289 179 302 175" fill="none" stroke="#5D6166" stroke-width="1.3"/><circle cx="282" cy="153" r="1.4" fill="#3A3D41"/><circle cx="282" cy="179" r="1.4" fill="#3A3D41"/><rect x="285" y="182" width="8" height="14" fill="url(#mxMetal)"/><rect x="274" y="196" width="30" height="28" rx="2" fill="url(#mxBlack)"/><rect x="252" y="224" width="74" height="8" rx="2" fill="url(#mxMetal)"/><rect x="253" y="232" width="72" height="30" fill="url(#mxMetal)"/><rect x="253" y="262" width="72" height="20" fill="url(#mxCer)"/><rect x="253" y="282" width="72" height="60" rx="2" fill="url(#mxMetal)"/><line x1="253" x2="325" y1="262" y2="262" stroke="#8C9096" stroke-width=".8"/><line x1="253" x2="325" y1="282" y2="282" stroke="#8C9096" stroke-width=".8"/><text x="289" y="318" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#252320">TUNE</text><rect x="243" y="134" width="7" height="90" fill="url(#mxBrk)"/><rect x="328" y="134" width="7" height="90" fill="url(#mxBrk)"/>
+    <rect x="26" y="118" width="348" height="16" fill="url(#mxPlate)"/>
+    <rect x="26" y="134" width="348" height="3" fill="#000" opacity=".12"/>
+    <path d="M136 236 L160 236" stroke="#B4B8BE" stroke-width="5"/><path d="M226 236 L252 236" stroke="#B4B8BE" stroke-width="5"/><ellipse cx="166" cy="244" rx="9" ry="24" fill="none" stroke="#8A8F95" stroke-width="7"/><path d="M157 244 A9 24 0 0 1 175 244" fill="none" stroke="#F4F5F6" stroke-width="2.2"/><ellipse cx="179" cy="244" rx="9" ry="24" fill="none" stroke="#8A8F95" stroke-width="7"/><path d="M170 244 A9 24 0 0 1 188 244" fill="none" stroke="#F4F5F6" stroke-width="2.2"/><ellipse cx="192" cy="244" rx="9" ry="24" fill="none" stroke="#8A8F95" stroke-width="7"/><path d="M183 244 A9 24 0 0 1 201 244" fill="none" stroke="#F4F5F6" stroke-width="2.2"/><ellipse cx="205" cy="244" rx="9" ry="24" fill="none" stroke="#8A8F95" stroke-width="7"/><path d="M196 244 A9 24 0 0 1 214 244" fill="none" stroke="#F4F5F6" stroke-width="2.2"/><ellipse cx="218" cy="244" rx="9" ry="24" fill="none" stroke="#8A8F95" stroke-width="7"/><path d="M209 244 A9 24 0 0 1 227 244" fill="none" stroke="#F4F5F6" stroke-width="2.2"/>
+    <text x="194" y="292" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6C6A64">COIL</text>
+    <text x="194" y="166" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6C6A64">COUPLER</text>
+    <path d="M178 163 H140 M210 163 H246" stroke="#A09D96" stroke-width="1" stroke-dasharray="2 3"/>
+    <rect x="26" y="356" width="348" height="8" fill="#CFC7BB"/>
+    <rect x="30" y="384" width="34" height="22" rx="3" fill="url(#mxMetal)"/><rect x="336" y="384" width="34" height="22" rx="3" fill="url(#mxMetal)"/>
+    <text x="47" y="378" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6C6A64">RF IN</text>
+    <text x="353" y="378" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6C6A64">RF OUT</text>
+  </svg>
+  <div class="in-pin frag" data-step="1" style="left:428px;top:252px">1</div>
+  <div class="in-pin frag" data-step="2" style="left:398px;top:356px">2</div>
+  <div class="in-pin frag" data-step="3" style="left:428px;top:470px">3</div>
+  <svg class="in-vvc frag" data-step="4" viewBox="0 0 240 410" aria-label="VVC cross-section"><rect x="66" y="0" width="8" height="18" fill="#B0B4BA"/><rect x="54" y="18" width="32" height="30" rx="3" fill="#D6E6F3" stroke="#6E93B5" stroke-width="1.5"/><path d="M60 33 H80 M70 23 V43" stroke="#6E93B5" stroke-width="2"/><path d="M28 128 L42 128 L42 86 L56 86 L56 54 L84 54 L84 86 L98 86 L98 128 L112 128" fill="#E6E3DD" stroke="#9A968F" stroke-width="1.5"/><g id="cuMov"><rect x="66" y="48" width="8" height="132" fill="#D07A42"/><line x1="63" y1="58" x2="77" y2="62" stroke="#7A3F18" stroke-width="1.3"/><line x1="63" y1="64" x2="77" y2="68" stroke="#7A3F18" stroke-width="1.3"/><line x1="63" y1="70" x2="77" y2="74" stroke="#7A3F18" stroke-width="1.3"/><line x1="63" y1="76" x2="77" y2="80" stroke="#7A3F18" stroke-width="1.3"/><line x1="63" y1="82" x2="77" y2="86" stroke="#7A3F18" stroke-width="1.3"/><line x1="63" y1="88" x2="77" y2="92" stroke="#7A3F18" stroke-width="1.3"/><line x1="63" y1="94" x2="77" y2="98" stroke="#7A3F18" stroke-width="1.3"/><line x1="63" y1="100" x2="77" y2="104" stroke="#7A3F18" stroke-width="1.3"/><rect x="32" y="180" width="76" height="6" fill="#D07A42"/><rect x="40" y="186" width="3.5" height="84" fill="#D07A42"/><rect x="52" y="186" width="3.5" height="84" fill="#D07A42"/><rect x="64" y="186" width="3.5" height="84" fill="#D07A42"/><rect x="76" y="186" width="3.5" height="84" fill="#D07A42"/><rect x="88" y="186" width="3.5" height="84" fill="#D07A42"/><rect x="100" y="186" width="3.5" height="84" fill="#D07A42"/></g><path d="M70 128 L52 132.0 L88 136.4 L52 140.8 L88 145.2 L52 149.6 L88 154.0 L52 158.4 L88 162.8 L52 167.2 L88 171.6 L52 176.0 L70 180" fill="none" stroke="#7E8A93" stroke-width="2.6" stroke-linejoin="round"/><rect x="34" y="216" width="3.5" height="86" fill="#B8622D"/><rect x="46" y="216" width="3.5" height="86" fill="#B8622D"/><rect x="58" y="216" width="3.5" height="86" fill="#B8622D"/><rect x="70" y="216" width="3.5" height="86" fill="#B8622D"/><rect x="82" y="216" width="3.5" height="86" fill="#B8622D"/><rect x="94" y="216" width="3.5" height="86" fill="#B8622D"/><rect x="104" y="216" width="3.5" height="86" fill="#B8622D"/><rect x="22" y="128" width="8" height="174" fill="#F2F0EA" stroke="#B8B4AC" stroke-width="1.2"/><rect x="110" y="128" width="8" height="174" fill="#F2F0EA" stroke="#B8B4AC" stroke-width="1.2"/><rect x="30" y="302" width="80" height="8" fill="#D07A42"/><path d="M18 310 H122 V328 H82 V342 H58 V328 H18 Z" fill="#E6E3DD" stroke="#9A968F" stroke-width="1.5"/><line x1="124" x2="142" y1="26" y2="26" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="30" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#6C6A64">INSULATION</text><text x="146" y="41" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="400" fill="#6C6A64">COUPLER</text><line x1="124" x2="142" y1="68" y2="68" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="72" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#CC785C">SCREW</text><text x="146" y="83" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#CC785C">+ GREASE</text><line x1="124" x2="142" y1="104" y2="104" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="108" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#6C6A64">UPPER</text><text x="146" y="119" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="400" fill="#6C6A64">CONNECTION</text><line x1="124" x2="142" y1="152" y2="152" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="156" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#CC785C">BELLOWS</text><line x1="124" x2="142" y1="210" y2="210" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="214" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#6C6A64">MOVABLE</text><text x="146" y="225" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="400" fill="#6C6A64">ELECTRODES</text><line x1="124" x2="142" y1="254" y2="254" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="258" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#6C6A64">FIXED</text><text x="146" y="269" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="400" fill="#6C6A64">ELECTRODES</text><line x1="124" x2="142" y1="292" y2="292" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="296" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#6C6A64">CERAMIC</text><text x="146" y="307" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="400" fill="#6C6A64">INSULATOR</text><line x1="124" x2="142" y1="330" y2="330" stroke="#CFC7BB" stroke-width="1"/><text x="146" y="334" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="700" fill="#6C6A64">BOTTOM</text><text x="146" y="345" font-family="JetBrains Mono,monospace" font-size="9.5" font-weight="400" fill="#6C6A64">CONNECTION</text></svg>
+  <div class="in-lb" id="inLb"><img id="inLbImg" alt=""><div class="cap" id="inLbCap"></div></div>
+  <div class="in-terms">
+    <div class="in-t frag" data-step="1"><span class="no">1</span><div><div class="nm"><span class="t-en">Stepper motor + encoder</span><span class="t-ko">스테핑 모터 + 엔코더</span></div><div class="d"><span class="t-en">Turns the capacitor. The encoder reads the motor shaft.</span><span class="t-ko">커패시터를 돌린다. 엔코더는 모터 축의 각도를 읽는다.</span></div></div></div>
+    <div class="in-t frag" data-step="2"><span class="no">2</span><div><div class="nm">Coupler</div><div class="d"><span class="t-en">Joins motor shaft to VVC shaft — one piece, no backlash.</span><span class="t-ko">모터 축과 VVC 축을 잇는다 — 일체형, 유격 없음.</span></div></div></div>
+    <div class="in-t frag" data-step="3"><span class="no">3</span><div style="flex:1"><div class="nm">VVC · Load / Tune</div><div class="d"><span class="t-en">Vacuum variable capacitor. Turning its shaft changes capacitance.</span><span class="t-ko">진공 가변 커패시터. 축을 돌리면 커패시턴스가 바뀐다.</span></div></div><img class="in-photo" data-cap-en="Vacuum variable capacitor (VVC)" data-cap-ko="진공 가변 커패시터 (VVC)" src="data:image/jpeg;base64,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" alt="Vacuum variable capacitor"></div>
+    <div class="in-t frag" data-step="4"><span class="no">4</span><div style="flex:1"><div class="nm"><span class="t-en">Inside the VVC</span><span class="t-ko">VVC 내부</span></div><div class="d"><span class="t-en">A greased screw turns rotation into stroke; bellows keep the vacuum as the movable electrodes slide into the fixed set.</span><span class="t-ko">그리스를 바른 스크류가 회전을 직선 운동으로 바꾸고, 가동 전극이 고정 전극 사이로 들어가는 동안 Bellows가 진공을 지킨다.</span></div></div><img class="in-photo in-shaft" data-cap-en="VVC shaft — the threaded part is the capacitance-adjustment screw" data-cap-ko="VVC Shaft — 나사선 부분이 커패시턴스 조정 스크류" src="data:image/jpeg;base64,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" alt="VVC shaft with adjustment screw"></div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>The drive chain, from top to bottom</h4>
+<p>A typical auto matcher has two vacuum variable capacitors (VVCs), each driven by its own stepper motor. Motor and capacitor sit on opposite sides of a mounting plate and are joined by a coupler. In the common L-type network, the <b>Load</b> capacitor is the shunt element at the input and the <b>Tune</b> capacitor sits in series with the coil toward the chamber. Matching means turning these two shafts until the generator sees 50 Ω.</p>
+<h4>1 · Stepper motor and encoder</h4>
+<p>The stepper moves in fixed angular steps — 0.9° in the example used in this deck. An optical encoder on the back of the motor reports the motor shaft angle, so the controller can compare where it told the motor to go with where it actually went.</p>
+<h4>2 · Coupler</h4>
+<p>Transmits rotation from motor to capacitor while absorbing small misalignment between the two shafts. Note the short exposed shafts above and below it: the coupler clamps onto each shaft, it is not one piece with them. A one-piece flexible-beam coupler has no internal play; multi-piece designs can develop backlash as they wear. Because the VVC shaft can sit at RF potential, some designs use an insulating coupler (rated, for example, at 10 kVp) to isolate the motor.</p>
+<h4>3 · VVC</h4>
+<p>Two sets of concentric cylindrical electrodes inside a vacuum envelope. Turning the shaft moves one set in or out of the other, changing the overlap and therefore the capacitance — for example 35 to 1000 pF over about ten turns, roughly 96 pF per turn. Vacuum gives high voltage withstand and very low loss.</p>
+<h4>4 · Inside the VVC</h4>
+<p>From top to bottom: the upper connection housing carries the capacitance-adjustment screw, which converts rotation into linear stroke; it runs in air and is lubricated with grease. Below it, a flexible metal bellows lets the spindle and the movable electrode set travel while keeping the vacuum sealed. The movable electrodes slide between the fixed electrodes mounted on the bottom connection, and a ceramic insulator cylinder forms the vacuum wall and isolates the two terminals. The screw and the bellows set a VVC's life, and the screw is where hardened grease and worn threads turn into step-out. The photo next to term 4 shows a real VVC shaft: the threaded section is this adjustment screw — the surface on which the grease ridges in the step-out lab form. Click either photo to enlarge it.</p>
+</div>
+    <div class="t-ko">
+<h4>위에서 아래로, 구동 체인</h4>
+<p>일반적인 Auto Matcher에는 진공 가변 커패시터(VVC)가 두 개 있고, 각각 자기 스테핑 모터로 구동된다. 모터와 커패시터는 고정판을 사이에 두고 위아래에 있으며, Coupler로 연결된다. 흔히 쓰이는 L형 회로에서 <b>Load</b> 커패시터는 입력단의 병렬(Shunt) 소자이고, <b>Tune</b> 커패시터는 챔버 쪽으로 코일과 직렬로 놓인다. 정합이란 Generator가 50 Ω을 보게 될 때까지 이 두 축을 돌리는 일이다.</p>
+<h4>1 · 스테핑 모터와 엔코더</h4>
+<p>스테핑 모터는 정해진 각도씩 움직인다 — 이 덱의 예시에서는 0.9°. 모터 뒤쪽의 광학 엔코더가 모터 축의 각도를 알려주므로, 제어기는 모터에 보낸 명령과 실제로 간 위치를 비교할 수 있다.</p>
+<h4>2 · Coupler</h4>
+<p>모터의 회전을 커패시터로 전달하면서, 두 축 사이의 작은 어긋남을 흡수한다. 그림에서 Coupler 위아래로 짧게 드러난 축을 보라. Coupler는 각 축을 클램프로 물고 있는 것이지, 축과 한 몸이 아니다. 일체형 Flexible Beam Coupler는 내부 유격이 없고, 여러 조각으로 된 방식은 마모되면서 Backlash가 생길 수 있다. VVC 축은 RF 전위에 있을 수 있어서, 모터를 절연하기 위해 절연형 Coupler(예: 10 kVp 정격)를 쓰는 설계도 있다.</p>
+<h4>3 · VVC</h4>
+<p>진공 용기 안에 동심 원통형 전극 두 세트가 들어 있다. 축을 돌리면 한쪽 전극이 다른 쪽 안으로 들어가거나 나오면서 겹치는 면적이 바뀌고, 그만큼 커패시턴스가 바뀐다 — 예를 들어 약 10바퀴에 35~1000 pF, 바퀴당 약 96 pF. 진공 덕분에 내전압이 높고 손실이 매우 작다.</p>
+<h4>4 · VVC 내부</h4>
+<p>위에서부터: Upper Connection 하우징 안에 커패시턴스 조정 스크류가 있어 회전을 직선 스트로크로 바꾼다. 이 스크류는 대기 쪽에 있고 그리스로 윤활된다. 그 아래 유연한 금속 Bellows가 축과 가동 전극이 움직이는 동안 진공을 밀봉한다. 가동 전극은 Bottom Connection에 고정된 고정 전극 사이로 들어가고, 세라믹 절연체 원통이 진공 벽이 되면서 두 단자를 절연한다. VVC의 수명을 정하는 것이 이 스크류와 Bellows이고, 굳은 그리스와 마모된 나사산이 탈조로 이어지는 곳도 바로 이 스크류다. 4번 용어 옆 사진은 실제 VVC Shaft로, 나사선 부분이 바로 이 조정 스크류다 — 탈조 실습의 그리스 턱이 생기는 면이 여기다. 사진을 클릭하면 크게 볼 수 있다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 2 · CHAIN ============ -->
+<section class="slide" data-title-en="What Step-out Is" data-title-ko="탈조란 무엇인가">
+  <div class="eyebrow"><b>02</b>WHAT STEP-OUT IS</div>
+  <h2 class="headline">
+    <span class="t-en">The count and the capacitor part ways.</span>
+    <span class="t-ko">카운트와 커패시터가 서로 어긋난다.</span>
+  </h2>
+  <div class="chain">
+    <div class="node frag" data-step="1">
+      <div class="w">Command</div>
+      <div class="s"><span class="t-en">The controller sends N pulses — and, without feedback, assumes N steps happened.</span><span class="t-ko">제어기는 N개의 펄스를 보낸다. 피드백이 없으면 N 스텝이 움직였다고 가정한다.</span></div>
+    </div>
+    <div class="arr frag" data-step="2">→</div>
+    <div class="node frag" data-step="2">
+      <div class="w c">Slip</div>
+      <div class="s"><span class="t-en">Acceleration and inertia carry the shaft past the target; hardened grease or a binding VVC holds it short.</span><span class="t-ko">급가속과 관성으로 목표를 지나치거나, 굳은 그리스·걸리는 VVC 때문에 못 미친다.</span></div>
+    </div>
+    <div class="arr frag" data-step="3">→</div>
+    <div class="node frag" data-step="3">
+      <div class="w">Shift</div>
+      <div class="s"><span class="t-en">Reported position ≠ real position. FDC sees a trend change and interlocks.</span><span class="t-ko">보고 Position ≠ 실제 위치. FDC는 트렌드 변화로 보고 인터락을 건다.</span></div>
+    </div>
+  </div>
+  <div class="punch frag" data-step="4">
+    <span class="t-en">The trace moved. <span class="c">The plasma didn't.</span></span>
+    <span class="t-ko">트레이스는 움직였다. <span class="c">플라즈마는 그대로다.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Definition</h4>
+<p>Step-out is a difference between the position the stepper motor was commanded to reach and the position the VVC actually reached. It runs in both directions. A stepper has no feedback of its own: if the load torque exceeds what the motor can deliver at that moment, it misses steps and stops short; if the rotor and shaft carry too much momentum when the pulses stop, they run past the commanded step and end up beyond the target.</p>
+<h4>Where the difference comes from</h4>
+<ul>
+<li><b>Overshoot — natural:</b> high acceleration and the inertia of the rotor and VVC shaft during fast moves carry the shaft past the target. Usually a few steps, within tolerance.</li>
+<li><b>Falling short — mechanical drag:</b> grease that has hardened or clumped from months of work in a narrow stroke, worn lead-screw threads, a VVC that binds as its bellows or screw degrades.</li>
+<li><b>Assembly:</b> a shaft mounted slightly off-axis, a VVC that does not rotate fully.</li>
+</ul>
+<h4>The strange part: the match is still right</h4>
+<p>The matching loop closes on the measured mismatch, not on the position number. After a step-out, the matcher keeps moving until the plasma is matched, so the capacitor ends up exactly where the load needs it — only the label is wrong. Reflected power stays normal. What changes is the reported position for the same recipe: a step in the FDC trend that looks exactly like a chamber change. The engineer cannot tell which it is, and that is the real cost.</p>
+</div>
+    <div class="t-ko">
+<h4>정의</h4>
+<p>탈조는 스테핑 모터에 명령한 위치와 VVC가 실제로 도달한 위치 사이의 차이다. 차이는 양쪽 방향으로 생긴다. 스테핑 모터는 자체 피드백이 없다. 그 순간 부하 토크가 모터가 낼 수 있는 토크를 넘으면 스텝을 놓치고 목표에 못 미친다. 반대로 펄스가 멈출 때 로터와 축의 운동량이 너무 크면, 명령한 스텝을 지나쳐 목표 너머에서 멈춘다.</p>
+<h4>차이는 어디서 오는가</h4>
+<ul>
+<li><b>지나침 — 자연스러운 것:</b> 빠른 이동 중의 급가속과 로터·VVC 축의 관성이 축을 목표 너머로 밀어낸다. 보통 몇 스텝이고 허용 범위 안이다.</li>
+<li><b>못 미침 — 기계적 저항:</b> 몇 달 동안 좁은 구간만 움직여 굳거나 뭉친 그리스, 마모된 리드 스크류 나사산, Bellows나 스크류가 열화되며 걸리기 시작한 VVC.</li>
+<li><b>조립:</b> 미세하게 틀어진 축, 끝까지 회전하지 못하는 VVC.</li>
+</ul>
+<h4>이상한 점: 매칭은 여전히 맞다</h4>
+<p>매칭 루프는 Position 숫자가 아니라 측정한 부정합을 기준으로 닫힌다. 탈조가 생겨도 Matcher는 플라즈마가 정합될 때까지 계속 움직이므로, 커패시터는 부하가 필요로 하는 바로 그 자리에 간다 — 틀린 것은 이름표뿐이다. 반사파는 정상이다. 바뀌는 것은 같은 레시피에서의 보고 Position이다. FDC 트렌드에 챔버 변화와 똑같아 보이는 계단이 생긴다. 엔지니어는 둘 중 무엇인지 구분할 수 없고, 그것이 진짜 비용이다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 3 · METHODS ============ -->
+<section class="slide" data-title-en="Who Is Measuring?" data-title-ko="실제로 재는 것은 누구인가">
+  <div class="eyebrow"><b>03</b>FOUR WAYS TO KNOW POSITION</div>
+  <h2 class="headline">
+    <span class="t-en">Who is actually measuring?</span>
+    <span class="t-ko">실제로 재는 것은 무엇인가?</span>
+  </h2>
+  <div class="rp so-tbl">
+    <div class="rp-row hd"><span>METHOD</span><span><span class="t-en">POSITION SOURCE</span><span class="t-ko">위치 정보의 출처</span></span><span><span class="t-en">TRADE-OFF</span><span class="t-ko">장단점</span></span><span><span class="t-en">FDC-CRITICAL USE</span><span class="t-ko">FDC 엄격 관리</span></span></div>
+    <div class="rp-row frag bad" data-step="1">
+      <span class="a"><span class="t-en">Open-loop stepper</span><span class="t-ko">Open-loop 스테핑 모터</span><small class="so-sub2"><span class="t-en">pulse count only</span><span class="t-ko">펄스 카운트만</span></small></span>
+      <span class="b"><span class="t-en">Commanded pulses — not measured</span><span class="t-ko">명령 펄스 — 실측 아님</span></span>
+      <span class="b"><span class="t-en">Simple, low cost; blind to step-out</span><span class="t-ko">단순·저가, 탈조를 못 봄</span></span>
+      <span class="c">✕ <span class="t-en">Not suitable</span><span class="t-ko">부적합</span></span>
+    </div>
+    <div class="rp-row frag bad" data-step="1" style="transition-delay:.15s">
+      <span class="a"><span class="t-en">Resistive potentiometer</span><span class="t-ko">저항식 Potentiometer</span><small class="so-sub2"><span class="t-en">contact type</span><span class="t-ko">접촉형</span></small></span>
+      <span class="b"><span class="t-en">VVC shaft — wiper on resistive track</span><span class="t-ko">VVC 축 — 저항체 위 와이퍼</span></span>
+      <span class="b"><span class="t-en">Track wears in 1–3 yrs; coarse, noisy</span><span class="t-ko">1~3년 마모, 낮은 분해능·노이즈</span></span>
+      <span class="c">✕ <span class="t-en">Not suitable</span><span class="t-ko">부적합</span></span>
+    </div>
+    <div class="rp-row frag" data-step="2">
+      <span class="a"><span class="t-en">Magnetoresistive sensor</span><span class="t-ko">자기저항(MR) 센서</span><small class="so-sub2"><span class="t-en">non-contact</span><span class="t-ko">비접촉형</span></small></span>
+      <span class="b"><span class="t-en">VVC shaft — magnetic field</span><span class="t-ko">VVC 축 — 자계</span></span>
+      <span class="b"><span class="t-en">Long life; costly, coarse</span><span class="t-ko">긴 수명, 고가, 낮은 분해능</span></span>
+      <span class="ok">✓ <span class="t-en">Suitable</span><span class="t-ko">적합</span></span>
+    </div>
+    <div class="rp-row frag" data-step="2" style="transition-delay:.15s">
+      <span class="a"><span class="t-en">Optical rotary encoder</span><span class="t-ko">광학식 로터리 엔코더</span><small class="so-sub2"><span class="t-en">stepper-integrated · closed-loop</span><span class="t-ko">모터 일체형 · Closed-loop</span></small></span>
+      <span class="b"><span class="t-en">Motor shaft via rigid coupler, 0.9°</span><span class="t-ko">강체 Coupler를 통한 모터 축, 0.9°</span></span>
+      <span class="b"><span class="t-en">Fine, long life; command-vs-actual check</span><span class="t-ko">높은 분해능, 긴 수명, 명령-실측 비교</span></span>
+      <span class="ok">✓ <span class="t-en">Suitable</span><span class="t-ko">적합</span></span>
+    </div>
+  </div>
+  <div class="so-verdict frag" data-step="3">
+    <span class="t-en">Where VVC position is a controlled FDC parameter, <span class="c">open-loop steppers and contact potentiometers are not acceptable.</span></span>
+    <span class="t-ko">VVC Position을 FDC로 엄격히 관리한다면, <span class="c">Open-loop 스테핑 모터와 접촉식 Potentiometer는 적합하지 않다.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>The rule first</h4>
+<p>When VVC position is used as a controlled FDC parameter — trended, limited and interlocked — the position value must be a measurement, and a reliable one for the life of the matcher. An open-loop stepper does not measure at all, and a contact potentiometer wears out and becomes noisy within the PM life of the matcher. Neither is acceptable for this use.</p>
+<h4>Open-loop stepper (pulse count only)</h4>
+<p>The controller counts the pulses it sends and reports that count as position. Nothing measures the shaft. After a step-out the reported value stays offset until the matcher is homed again, and an FDC position interlock cannot tell whether the chamber or the matcher moved.</p>
+<h4>Resistive potentiometer (contact type)</h4>
+<p>A wiper slides over a circular resistive track on the capacitor drive, and the voltage gives the real VVC position. The track wears, typically within one to three years. As it wears, the reading develops noise and dead spots — small position jumps that look exactly like process changes in an FDC trend — and resolution is limited from the start.</p>
+<h4>Magnetoresistive sensor (non-contact)</h4>
+<p>A magnetoresistive element reads the shaft angle without contact. It measures the real VVC position and lasts essentially indefinitely, at the price of a more complex, more expensive design and modest resolution.</p>
+<h4>Optical rotary encoder (stepper-integrated, closed-loop)</h4>
+<p>High resolution (0.9° in this example) and long life. Because the commanded count and the measured count are both available, the controller can compare them continuously — the basis of the correction loop (slide 6). It reads the motor shaft, but through a rigid coupler the motor feels every load on the VVC: when hardened grease forms a ridge on the lead screw and the drive cannot climb it, the motor itself falls short and the encoder sees the difference. The one thing it cannot see is a failure of the link itself (slide 8).</p>
+<h4>The requirement behind the choice</h4>
+<p>When VVC position is a controlled FDC parameter, stepper-only and contact potentiometers are poor choices. The requirement is that a position interlock can be traced to its source: a change in load (chamber) impedance, or a defect or wear in the matcher itself.</p>
+</div>
+    <div class="t-ko">
+<h4>기준부터</h4>
+<p>VVC Position을 FDC 파라미터로 엄격히 관리한다면 — 트렌드로 보고, Limit을 걸고, 인터락까지 건다면 — 그 값은 측정값이어야 하고, Matcher 수명 내내 믿을 수 있어야 한다. Open-loop 스테핑 모터는 아예 재지 않고, 접촉식 Potentiometer는 Matcher의 PM 주기 안에 마모되어 노이즈가 생긴다. 둘 다 이 용도에는 적합하지 않다.</p>
+<h4>Open-loop 스테핑 모터 (펄스 카운트만)</h4>
+<p>제어기가 자기가 보낸 펄스를 세어 그 값을 Position으로 보고한다. 축을 재는 것은 없다. 탈조가 생기면 다시 원점 복귀(Homing)할 때까지 보고값이 어긋난 채로 남고, FDC Position 인터락이 걸려도 챔버가 움직인 것인지 Matcher가 움직인 것인지 판단할 수 없다.</p>
+<h4>저항식 Potentiometer (접촉형)</h4>
+<p>원형 저항체 위를 와이퍼가 움직이고, 그 전압으로 VVC의 실제 위치를 안다. 저항체가 마모되어 보통 1~3년 안에 수명이 다한다. 마모가 진행되면 읽은 값에 노이즈와 불감 구간이 생기는데, 이 작은 Position 튐은 FDC 트렌드에서 공정 변화와 똑같아 보인다. 분해능도 처음부터 낮다.</p>
+<h4>자기저항(MR) 센서 (비접촉형)</h4>
+<p>자기저항 소자가 접촉 없이 축의 각도를 읽는다. 실제 VVC 위치를 재고 수명도 사실상 반영구적이지만, 설계가 복잡하고 비싸며 분해능은 높지 않다.</p>
+<h4>광학식 로터리 엔코더 (모터 일체형, Closed-loop)</h4>
+<p>분해능이 높고(이 예시에서 0.9°) 수명이 길다. 명령 카운트와 측정 카운트를 둘 다 알 수 있어서, 제어기가 둘을 계속 비교할 수 있다 — 6번 슬라이드 보정 루프의 바탕이다. 재는 것은 모터 축이지만, 단단한 Coupler를 거치면 VVC에 걸리는 부하는 모두 모터에 그대로 전달된다. 리드 스크류에 굳은 그리스가 국부적으로 뭉쳐 턱을 이루고 구동부가 그 턱을 넘지 못하면, 모터 자체가 그만큼 못 가고 엔코더는 명령값과의 차이를 그대로 본다. 이 방식이 보지 못하는 것은 연결부 자체가 풀리는 경우 하나뿐이다(8번 슬라이드).</p>
+<h4>선택의 기준</h4>
+<p>VVC Position을 FDC로 엄격하게 관리해야 한다면 스테핑 모터 단독과 접촉식 Pot은 적합하지 않다. 기준은 하나다. Position 인터락이 걸렸을 때 그 원인이 부하(챔버) 임피던스 변화인지, Matcher 자체의 결함·노후화인지 추적할 수 있어야 한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 4 · LAB ============ -->
+<section class="slide" data-title-en="Make It Slip" data-title-ko="직접 탈조시켜 보기">
+  <div class="eyebrow"><b>04</b>TRY IT · MAKE IT SLIP</div>
+  <h2 class="headline">
+    <span class="t-en">Make it slip.</span>
+    <span class="t-ko">직접 탈조시켜 보세요.</span>
+  </h2>
+  <svg class="so-svg" id="soSvg" viewBox="0 0 1088 170" aria-label="Command and encoder position"></svg>
+  <div class="so-ctl">
+    <div class="ctl" style="margin-top:0">
+      <div class="ctl-row"><span class="k"><span class="t-en">Target position</span><span class="t-ko">목표 위치</span></span><span class="v" id="soTgtV">1740 step</span></div>
+      <input type="range" id="soTgt" min="0" max="4000" step="10" value="1740">
+    </div>
+    <div class="ctl">
+      <div class="ctl-row"><span class="k"><span class="t-en">Grease ridge hardness</span><span class="t-ko">그리스 턱 경화도</span></span><span class="v" id="soDragV">40 %</span></div>
+      <input type="range" id="soDrag" min="0" max="150" step="1" value="40">
+    </div>
+    <div class="chips" style="margin-top:6px">
+      <button class="chip-btn so-btn on" id="soGo"><span class="t-en">Move</span><span class="t-ko">이동</span></button>
+      <button class="chip-btn so-btn" id="soReset"><span class="t-en">Reset</span><span class="t-ko">초기화</span></button>
+    </div>
+  </div>
+  <div class="so-out">
+    <div class="readout" style="margin-top:0"><span class="k">|Δ|</span><span class="num" id="soD">0</span><span class="k">steps</span></div>
+    <div class="so-sub" id="soSub">0.0° · 0.00 % OF STROKE</div>
+    <div class="status" id="soSt"></div>
+    <div class="so-cnt" id="soCnt">CORRECTIONS LOGGED · 0</div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What the lab shows</h4>
+<p>The upper line is the controller's commanded count; the lower line is the encoder. The green band is the narrow range a matcher works in when it serves one recipe for months. At both edges of that range, hardened grease has piled up into a ridge on the lead-screw threads; the slider sets how hard that ridge has become. The model is simplified, but it follows the correction loop on the next slide.</p>
+<ul>
+<li><b>Moves that do not cross a ridge.</b> Only inertia acts: a small, random overshoot that grows with the length (and speed) of the move — usually 0–9 steps. Within ±10 steps it is ignored. However hard the grease is, a move that stays inside the usual range never slips.</li>
+<li><b>Crossing a moderately hard ridge.</b> The motor climbs it but slips on the way: tens of steps lost, a step-out is flagged, the loop re-syncs and finishes the move.</li>
+<li><b>Crossing a hard ridge.</b> The motor stalls at the foot of the ridge. The retry runs slower, and a stepper delivers more torque at low speed, so a ridge that stopped the fast move is often climbed on the retry — at the cost of a logged correction.</li>
+<li><b>A ridge too hard even for the slow retry.</b> The target is not reached within 1 s and a motor alarm is raised.</li>
+</ul>
+<p>This is why step-out tends to appear when a matcher is suddenly asked to leave its usual range — a new recipe, a preset change, a chamber after wet clean — rather than during routine operation.</p>
+<h4>How big is a step-out in FDC terms?</h4>
+<div class="nf">10 steps = 9° = 0.25 % of stroke<br>52 steps = 46.8° = 1.3 % of stroke</div>
+<p>FDC usually reports Load/Tune position in percent. A 52-step slip moves the reported value by about 1.3 percentage points — the same order of magnitude as the slow drift caused by chamber aging. Without a way to separate the two, a matcher fault and a chamber change look identical in the trend.</p>
+</div>
+    <div class="t-ko">
+<h4>실습이 보여주는 것</h4>
+<p>위쪽 선은 제어기의 명령 카운트, 아래쪽 선은 엔코더 값이다. 초록색 띠는 한 가지 레시피만 몇 달씩 돌린 Matcher가 실제로 움직이는 좁은 구간이다. 그 구간의 양 끝에는 굳은 그리스가 리드 스크류 나사선 위에 쌓여 턱을 이루고 있고, 슬라이더는 그 턱이 얼마나 굳었는지를 정한다. 모델은 단순화했지만, 동작은 다음 슬라이드의 보정 루프를 그대로 따른다.</p>
+<ul>
+<li><b>턱을 넘지 않는 이동.</b> 관성만 작용한다. 이동 거리(속도)에 따라 커지는 작은 무작위 Overshoot로, 보통 0~9 스텝이다. ±10 스텝 이내이므로 무시된다. 그리스가 아무리 굳어 있어도, 평소 구간 안에서만 움직이면 탈조는 생기지 않는다.</li>
+<li><b>적당히 굳은 턱을 넘는 이동.</b> 모터가 턱을 넘기는 하지만 오르는 동안 미끄러진다. 수십 스텝을 잃고 탈조가 감지되며, 루프가 재동기화한 뒤 이동을 마친다.</li>
+<li><b>단단한 턱.</b> 모터가 턱 앞에서 멈춘다. 재시도는 더 느리게 움직이고, 스테핑 모터는 저속에서 토크가 더 크다. 그래서 빠른 이동에서 막혔던 턱을 재시도에서 넘는 경우가 많다 — 대신 보정 기록이 하나 남는다.</li>
+<li><b>느린 재시도로도 못 넘는 턱.</b> 1초 안에 목표에 도달하지 못해 Motor Alarm이 발생한다.</li>
+</ul>
+<p>탈조가 평상시 운전보다, Matcher가 갑자기 평소 구간을 벗어나야 할 때 — 신규 레시피, Preset 변경, Wet Clean 후의 챔버 — 잘 나타나는 이유가 이것이다.</p>
+<h4>탈조는 FDC에서 얼마나 큰가</h4>
+<div class="nf">10 step = 9° = 스트로크의 0.25 %<br>52 step = 46.8° = 스트로크의 1.3 %</div>
+<p>FDC는 보통 Load / Tune Position을 %로 보고한다. 52 스텝을 잃으면 보고값이 약 1.3 %p 움직인다 — 챔버 Aging이 만드는 느린 Drift와 같은 크기다. 둘을 구분할 방법이 없으면, Matcher 결함과 챔버 변화는 트렌드에서 똑같아 보인다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 5 · THE LOOP ============ -->
+<section class="slide" data-title-en="The Correction Loop" data-title-ko="보정 루프">
+  <div class="eyebrow"><b>05</b>THE CORRECTION LOOP</div>
+  <h2 class="headline">
+    <span class="t-en">Stop believing your own count.</span>
+    <span class="t-ko">자기 카운트를 믿지 마라.</span>
+  </h2>
+  <div class="views">
+    <div class="view rise" style="--d:.15s">
+      <div class="k"><span class="t-en">COMPARE</span><span class="t-ko">비교</span></div>
+      <div class="eqn">10 ms</div>
+      <div class="d"><span class="t-en">Commanded count vs encoder count, every cycle.</span><span class="t-ko">매 주기마다 명령 카운트와 엔코더 카운트를 비교한다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.35s">
+      <div class="k"><span class="t-en">TOLERATE · OR RE-SYNC</span><span class="t-ko">허용 · 또는 재동기화</span></div>
+      <div class="eqn">±10</div>
+      <div class="d"><span class="t-en">Within 10 steps (9°): normal inertia, ignored. Beyond: command ← encoder, then retry the target.</span><span class="t-ko">10 스텝(9°) 이내: 정상 관성, 무시. 초과: 명령값 ← 엔코더 값, 그리고 목표로 재시도.</span></div>
+    </div>
+    <div class="view rise" style="--d:.55s">
+      <div class="k"><span class="t-en">ALARM</span><span class="t-ko">알람</span></div>
+      <div class="eqn">1 s</div>
+      <div class="d"><span class="t-en">Still short of target after 1 s: motor alarm. The VVC needs attention.</span><span class="t-ko">1초가 지나도 목표에 못 미치면 Motor Alarm. VVC를 점검할 때다.</span></div>
+    </div>
+  </div>
+  <div class="foot-line rise" style="--d:.8s">
+    <span class="t-en">Re-sync means the controller <b>trusts the shaft, not the pulses.</b></span>
+    <span class="t-ko">재동기화란, 제어기가 <b>펄스가 아니라 축을 믿는다</b>는 뜻이다.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Step 1 — detect</h4>
+<p>Every 10 ms the controller compares the count it commanded with the count the encoder reports. A difference above 10 steps is treated as a step-out.</p>
+<h4>Why a tolerance at all</h4>
+<p>During fast moves the shaft's inertia and the motor's acceleration profile produce small, normal differences — in the example, a command of 1680 steps arriving at 1688. Flagging these would create alarms with no hardware behind them. Ten steps (9°, 0.25 % of stroke) separates normal motion from a real loss.</p>
+<h4>Step 2 — re-sync and retry</h4>
+<p>On a step-out — say command 1740, encoder 1688, Δ = 52 — the controller overwrites its command count with the encoder value (1688). It now knows where the shaft really is. It then retries the move to the original target, 1740.</p>
+<h4>Step 3 — succeed or alarm</h4>
+<p>If the target is reached, the process continues and no FDC position interlock is triggered by a matcher-side error. If the target is still not reached within 1 s, a motor alarm is raised. That alarm is an early warning about the VVC drive — grease, threads, bellows, screw — before it becomes a match failure in production.</p>
+<p>The parameters here (10 ms, 10 steps, 1 s) are one implementation. The structure — compare, tolerate, re-sync, retry, escalate — is what matters.</p>
+</div>
+    <div class="t-ko">
+<h4>1단계 — 감지</h4>
+<p>제어기는 10 ms마다 자기가 명령한 카운트와 엔코더가 보고하는 카운트를 비교한다. 차이가 10 스텝을 넘으면 탈조로 판단한다.</p>
+<h4>왜 허용 범위를 두는가</h4>
+<p>빠르게 움직일 때는 축의 관성과 모터 가속 프로파일 때문에 작은 차이가 정상적으로 생긴다 — 예시에서는 1680 스텝 명령이 1688에 도착한다. 이것까지 잡으면 하드웨어 문제가 없는데도 알람이 난다. 10 스텝(9°, 스트로크의 0.25 %)이 정상 동작과 실제 손실을 가르는 선이다.</p>
+<h4>2단계 — 재동기화와 재시도</h4>
+<p>탈조가 생기면 — 예를 들어 명령 1740, 엔코더 1688, Δ = 52 — 제어기는 명령 카운트를 엔코더 값(1688)으로 덮어쓴다. 이제 축이 실제로 어디 있는지 안다. 그리고 원래 목표인 1740으로 다시 이동한다.</p>
+<h4>3단계 — 성공 또는 알람</h4>
+<p>목표에 도달하면 공정은 계속되고, Matcher 쪽 오차 때문에 FDC Position 인터락이 걸리는 일은 없다. 1초 안에 도달하지 못하면 Motor Alarm이 발생한다. 이 알람은 양산 중 Match Fail로 번지기 전에 VVC 구동부 — 그리스, 나사산, Bellows, 스크류 — 의 상태를 알려주는 조기 경보다.</p>
+<p>여기 숫자(10 ms, 10 스텝, 1 s)는 하나의 구현 예시다. 중요한 것은 구조다 — 비교, 허용, 재동기화, 재시도, 상위 보고.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 6 · FLIP ============ -->
+<section class="slide" data-title-en="Corrected Is Not Fixed" data-title-ko="보정은 수리가 아니다">
+  <div class="eyebrow"><b>06</b>CORRECTED IS NOT FIXED</div>
+  <div class="eq-hero"><span class="eqn">Δ → 0</span></div>
+  <div class="claim frag" data-step="1"><span class="wrap">
+    <span class="t-en">“Auto-correction fixed it.”</span>
+    <span class="t-ko">“자동 보정이 해결했다.”</span>
+    <span class="strike frag" data-step="2"></span>
+  </span></div>
+  <div class="verdict frag" data-step="2">
+    <span class="t-en">Count it.</span>
+    <span class="t-ko">세어야 합니다.</span>
+  </div>
+  <div class="verdict-sub frag" data-step="3">
+    <span class="t-en">Every correction is a symptom. Log it as an FDC parameter.</span>
+    <span class="t-ko">보정 한 번 한 번이 증상이다. FDC 파라미터로 남겨라.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>The same pattern as reflected power</h4>
+<p>The main deck showed that the matcher hides load changes by driving reflected power to zero. The correction loop does the same to its own wear: it drives Δ back to zero, removes the false interlock — and with it, the only visible sign that the drive is getting harder to turn.</p>
+<h4>What to log</h4>
+<ul>
+<li>Number of step-out corrections per wafer, per lot, per day.</li>
+<li>Largest |Δ| before each correction.</li>
+<li>Time needed to reach the target after a correction.</li>
+<li>Motor alarm count.</li>
+</ul>
+<p>Trend these against VVC movement cycles. A rising correction rate typically comes well before the first motor alarm, and the alarm well before a match failure in production — which turns the correction loop into a predictive-maintenance signal for the VVC.</p>
+<h4>If your matcher doesn't report them</h4>
+<p>Many matchers correct internally and expose only the final position. Ask the supplier whether correction counts and alarm history are available over the tool interface, and include them in FDC if they are.</p>
+</div>
+    <div class="t-ko">
+<h4>반사파와 같은 패턴</h4>
+<p>본 덱에서, Matcher는 반사파를 0으로 몰아 부하 변화를 숨긴다는 것을 보았다. 보정 루프는 자기 자신의 마모에 같은 일을 한다. Δ를 다시 0으로 만들고, 잘못된 인터락을 없앤다 — 그리고 그와 함께, 구동부가 점점 뻑뻑해지고 있다는 유일한 신호도 없앤다.</p>
+<h4>무엇을 기록할 것인가</h4>
+<ul>
+<li>웨이퍼별·Lot별·일별 탈조 보정 횟수.</li>
+<li>보정 직전의 최대 |Δ|.</li>
+<li>보정 후 목표 도달까지 걸린 시간.</li>
+<li>Motor Alarm 횟수.</li>
+</ul>
+<p>이 값들을 VVC 구동 사이클 수와 함께 트렌드로 본다. 보정 빈도가 늘어나는 것은 보통 첫 Motor Alarm보다 훨씬 먼저 나타나고, 알람은 양산 Match Fail보다 훨씬 먼저 나타난다 — 보정 루프가 VVC의 예지보전 신호가 되는 것이다.</p>
+<h4>Matcher가 이 값을 내주지 않는다면</h4>
+<p>많은 Matcher는 내부에서 보정하고 최종 Position만 내보낸다. 보정 횟수와 알람 이력을 설비 인터페이스로 받을 수 있는지 공급사에 확인하고, 가능하면 FDC에 포함한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 7 · ONE MORE THING ============ -->
+<section class="slide dark" data-title-en="One More Thing" data-title-ko="한 가지 더">
+  <div class="omt hides" data-hide="1">
+    <span class="t-en">One more thing.</span>
+    <span class="t-ko">그리고, 한 가지 더.</span>
+  </div>
+  <div class="eyebrow frag" data-step="1"><b>07</b>ONE MORE THING</div>
+  <div class="vs frag" data-step="1">
+    <div class="blk"><div class="n" style="font-size:128px">Motor</div><div class="l"><span class="t-en">What the encoder measures</span><span class="t-ko">엔코더가 재는 것</span></div></div>
+    <div class="ne">=</div>
+    <div class="blk"><div class="n q" style="font-size:128px">VVC</div><div class="l"><span class="t-en">What sets the capacitance</span><span class="t-ko">커패시턴스를 정하는 것</span></div></div>
+  </div>
+  <div class="next-line frag" data-step="2">
+    <span class="t-en">Only while the coupler holds. If it slips, the encoder never knows.</span>
+    <span class="t-ko">Coupler가 버티는 동안만이다. 풀리면, 엔코더는 끝내 모른다.</span>
+  </div>
+  <div class="next-tag frag" data-step="2">BACK · MODULE 06 — READ IN PAIRS</div>
+  <div class="end-links frag" data-step="2">
+    <a href="class02_module06_rf_fdc_case_study.html#6">← Module 06 · Field Cases</a>
+    <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener">benedu-insight.github.io ↗</a>
+    <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener">Instagram · @benedu.insight ↗</a>
+  </div>
+  <img class="logo-tr frag" data-step="1" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Why a motor-side encoder catches most step-outs</h4>
+<p>An encoder built into the stepper reads the motor shaft, not the capacitor. As long as the coupler is rigid and tight, that difference does not matter: every load on the VVC is transmitted straight back to the motor. When hardened grease has built up into a local ridge on the lead-screw threads and the drive cannot climb over it, the motor itself stops short of the commanded count — and the encoder sees exactly that gap. Worn threads and a binding VVC behave the same way. These are the common causes of step-out, and the correction loop (slide 6) catches all of them.</p>
+<h4>The one case it cannot see</h4>
+<p>The encoder is blind only when the link between motor and capacitor fails: a coupler clamp or set screw that loosens, a coupler that cracks. The motor then turns exactly as commanded, the encoder agrees, and the capacitor turns less or not at all. Because the matching loop still closes on the measured mismatch, the motor keeps turning until the capacitor finally reaches a matching point, and the reported position ends up offset for the same recipe — with no step-out flagged. A coupler with play shows up instead as hunting, the first field case in the main deck.</p>
+<h4>How to cover it</h4>
+<ul>
+<li>Use one-piece, backlash-free couplers, and include coupler clamp and set-screw checks in matcher PM.</li>
+<li>Cross-check position against the measured load impedance: a position that drifts while the load does not is a mechanical suspect.</li>
+<li>Where the risk justifies it, a non-contact sensor on the VVC shaft measures the capacitor side directly.</li>
+</ul>
+</div>
+    <div class="t-ko">
+<h4>모터 쪽 엔코더가 대부분의 탈조를 잡는 이유</h4>
+<p>스테핑 모터 일체형 엔코더는 커패시터가 아니라 모터 축을 읽는다. 그러나 Coupler가 단단하게 체결되어 있는 한 이 차이는 문제가 되지 않는다. VVC에 걸리는 부하는 모두 그대로 모터로 전달되기 때문이다. 리드 스크류 나사선에 굳은 그리스가 국부적으로 뭉쳐 산을 이루고, 구동부가 그 턱을 넘지 못하면 모터 자체가 명령한 카운트만큼 가지 못한다 — 엔코더는 바로 그 차이를 본다. 마모된 나사산이나 걸리는 VVC도 마찬가지다. 이것들이 탈조의 흔한 원인이고, 6번 슬라이드의 보정 루프는 이 모두를 잡아낸다.</p>
+<h4>보지 못하는 단 하나의 경우</h4>
+<p>엔코더가 보지 못하는 것은 모터와 커패시터를 잇는 연결부 자체가 풀리는 경우뿐이다. Coupler 클램프나 고정 나사가 풀리거나, Coupler에 금이 가는 경우다. 이때 모터는 명령대로 돌고 엔코더도 그렇다고 답하지만, 커패시터는 덜 돌거나 아예 돌지 않는다. 매칭 루프는 측정한 부정합을 기준으로 닫히므로 모터는 커패시터가 정합점에 도달할 때까지 계속 돌고, 같은 레시피에서 보고 Position이 어긋난다 — 탈조 표시는 없다. 유격이 있는 Coupler는 대신 Hunting으로 나타난다. 본 덱의 첫 번째 현장 사례다.</p>
+<h4>이 경우를 막는 법</h4>
+<ul>
+<li>유격 없는 일체형 Coupler를 쓰고, Matcher PM 항목에 Coupler 클램프와 고정 나사 점검을 넣는다.</li>
+<li>Position을 측정된 부하 임피던스와 교차 확인한다. 부하는 그대로인데 Position만 흘러가면 기구부를 의심한다.</li>
+<li>위험도가 높은 곳이라면, VVC 축에 단 비접촉 센서로 커패시터 쪽을 직접 잰다.</li>
+</ul>
+</div>
+  </div>
+</section>
+
+</div></div>
+
+<!-- control bar -->
+<div id="bar">
+  <button id="prevBtn" title="Previous (←)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <span class="dots" id="dots"></span>
+  <button id="nextBtn" title="Next (→)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+  <span class="sep"></span>
+  <button id="gridBtn" title="Overview (G)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <button id="notesBtn" title="Lecture notes (N)"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h6"/></svg></button>
+  <button id="langBtn" title="Language (L)">한국어</button>
+  <button id="fsBtn" title="Fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <span class="sep"></span>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="benedu-insight.github.io" aria-label="Homepage"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg></a>
+  <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener" title="Instagram · @benedu.insight" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></a>
+</div>
+
+<!-- notes -->
+<div id="notesTab">LECTURE NOTES</div>
+<aside id="notes">
+  <div class="notes-head"><div><span class="ttl"><span class="t-en">LECTURE NOTES</span><span class="t-ko en">강의 노트</span></span><span class="no" id="notesNo"></span></div><button id="notesClose" aria-label="Close">×</button></div>
+  <div class="notes-title" id="notesTitle"></div>
+  <div class="notes-body" id="notesBody"></div>
+  <div class="notes-foot"><span class="t-en">SUPPLEMENTARY EXPLANATION · N TO TOGGLE</span><span class="t-ko">수강생을 위한 보충 설명 · N 키로 열고 닫기</span></div>
+</aside>
+
+<!-- grid -->
+<div id="grid">
+  <div class="grid-head"><span class="ttl">OVERVIEW</span><span class="hint">CLICK A SLIDE · ESC TO CLOSE</span></div>
+  <div class="grid-wrap" id="gridWrap"></div>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = [].slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0, step = 0;
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+
+
+  /* ---- typography rule: Latin letters, numbers & symbols inside Korean text -> Google Sans ---- */
+  (function autoEn(root){
+    var C = "A-Za-z0-9ΩηπμεωΓλᵣ₀′√×≈≫=+/.()%|↑µ·–°←-", K = "A-Za-z0-9ΩηπμεωΓµ";
+    var re = new RegExp("["+C+"]*["+K+"]["+C+"]*(?:\\s+["+C+"]*["+K+"]["+C+"]*)*","g");
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [];
+    while(w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(function(n){
+      var p = n.parentElement;
+      if(!p || !p.closest('.t-ko') || p.closest('.en,script,style')) return;
+      var t = n.nodeValue, m, last = 0, frag = document.createDocumentFragment(), hit = false;
+      re.lastIndex = 0;
+      while((m = re.exec(t))){
+        hit = true;
+        if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'en'; sp.textContent = m[0]; frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if(!hit) return;
+      if(last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+      p.replaceChild(frag, n);
+    });
+  })(document.body);
+
+  /* ---- generated decoration: cover E-field lines, history axis ticks ---- */
+  var ef = document.getElementById('efield'), svgNS = 'http://www.w3.org/2000/svg';
+  if(ef) for(var i=0;i<16;i++){
+    var t = i/16*Math.PI*2, l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',300+82*Math.cos(t)); l.setAttribute('y1',300+82*Math.sin(t));
+    l.setAttribute('x2',300+238*Math.cos(t)); l.setAttribute('y2',300+238*Math.sin(t));
+    l.setAttribute('stroke','rgba(204,120,92,.42)'); l.setAttribute('stroke-width','1.6'); l.setAttribute('class','flow');
+    ef.appendChild(l);
+  }
+  var tk = document.getElementById('ticks');
+  if(tk) for(var z=20; z<=90; z+=10){
+    var d = document.createElement('div'); d.className='tick';
+    d.style.left = (96 + (z-20)/70*1088) + 'px'; d.textContent = z;
+    tk.appendChild(d);
+  }
+
+
+  /* ---- radicals: drawn hook that scales with its content ---- */
+  document.querySelectorAll('.sqrt').forEach(function(q){
+    var old = q.querySelector('.rad'); if(old) old.remove();
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','rad'); svg.setAttribute('viewBox','0 0 10 20'); svg.setAttribute('preserveAspectRatio','none');
+    var pth = document.createElementNS('http://www.w3.org/2000/svg','path');
+    pth.setAttribute('d','M0.3 12.2 L2.3 11 L5.2 19.6 L9.4 0.55 L10.6 0.55');
+    svg.appendChild(pth); q.insertBefore(svg, q.firstChild);
+  });
+
+  /* ---- dot indicator ---- */
+  var dotsEl = document.getElementById('dots');
+  slides.forEach(function(s,i){ var d=document.createElement('span'); d.className='dot'; d.title=pad(i+1)+' · '+s.dataset.titleEn; d.onclick=function(){ go(i); }; dotsEl.appendChild(d); });
+
+  /* ---- footer ---- */
+  var DOC = deck.dataset.doc || '';
+  slides.forEach(function(s,i){
+    var f = document.createElement('div'); f.className='footer';
+    f.innerHTML = '<span class="fm">BENEDU INSIGHT</span><span class="fd2">'+DOC+'</span><span class="fp">'+pad(i+1)+' / '+pad(total)+'</span>';
+    s.appendChild(f);
+  });
+
+  /* ---- build steps ---- */
+  function maxStep(s){
+    var m = 0; s.querySelectorAll('[data-step]').forEach(function(e){ m = Math.max(m, +e.dataset.step); });
+    return m;
+  }
+  function applyStep(s, n){
+    s.querySelectorAll('.frag').forEach(function(e){ e.classList.toggle('on', +e.dataset.step <= n); });
+    s.querySelectorAll('.hides').forEach(function(e){ e.classList.toggle('gone', n >= +e.dataset.hide); });
+  }
+
+  function render(){
+    slides.forEach(function(s,i){
+      var was = s.classList.contains('active');
+      s.classList.toggle('active', i===idx);
+      if(i===idx && !was){ s.querySelectorAll('.rise').forEach(function(r){ r.style.animation='none'; r.offsetHeight; r.style.animation=''; }); }
+    });
+    applyStep(slides[idx], step);
+    [].forEach.call(document.querySelectorAll('#dots .dot'), function(d,i){ d.classList.toggle('on', i===idx); d.classList.toggle('done', i<idx); });
+    history.replaceState(null,'','#'+(idx+1));
+    renderNotes();
+  }
+  function go(i, atEnd){
+    idx = Math.max(0, Math.min(total-1, i));
+    step = atEnd ? maxStep(slides[idx]) : 0;
+    render();
+  }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } }
+
+  /* ---- notes ---- */
+  var notes = document.getElementById('notes');
+  function renderNotes(){
+    var s = slides[idx], n = s.querySelector('.slide-note');
+    document.getElementById('notesBody').innerHTML = n ? n.innerHTML : '';
+    document.getElementById('notesNo').textContent = pad(idx+1)+' / '+pad(total);
+    document.getElementById('notesTitle').innerHTML =
+      '<span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span>';
+  }
+  function toggleNotes(force){
+    var open = force===undefined ? !notes.classList.contains('open') : force;
+    notes.classList.toggle('open', open);
+    document.getElementById('notesBtn').classList.toggle('on', open);
+  }
+
+  /* ---- language ---- */
+  var langBtn = document.getElementById('langBtn');
+  function setLang(l){
+    document.documentElement.classList.toggle('lang-ko', l==='ko');
+    document.documentElement.lang = l;
+    langBtn.textContent = l==='ko' ? 'English' : '한국어';
+    updateLab();
+    if(window.flUpdate) window.flUpdate();
+    if(window.soUpdate) window.soUpdate();
+  }
+  function toggleLang(){ setLang(document.documentElement.classList.contains('lang-ko') ? 'en' : 'ko'); }
+
+  /* ---- grid overview ---- */
+  var grid = document.getElementById('grid'), gw = document.getElementById('gridWrap');
+  function buildGrid(){
+    gw.innerHTML = '';
+    slides.forEach(function(s,i){
+      var th = document.createElement('div'); th.className = 'thumb' + (i===idx ? ' cur' : '');
+      var fr = document.createElement('div'); fr.className = 'frame';
+      var c = s.cloneNode(true);
+      c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+      c.classList.add('active','static'); c.classList.remove('rise');
+      applyStep(c, maxStep(c));
+      var inner = document.createElement('div'); inner.className = 'inner'; inner.appendChild(c);
+      fr.appendChild(inner); th.appendChild(fr);
+      var cap = document.createElement('div'); cap.className = 'cap';
+      cap.innerHTML = '<span class="no">'+pad(i+1)+'</span><span><span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span></span>';
+      th.appendChild(cap);
+      th.addEventListener('click', function(){ toggleGrid(false); go(i); });
+      gw.appendChild(th);
+    });
+    scaleThumbs();
+  }
+  function scaleThumbs(){
+    gw.querySelectorAll('.thumb').forEach(function(th){
+      var f = th.querySelector('.frame'), inn = th.querySelector('.inner');
+      inn.style.transform = 'scale(' + (f.clientWidth/1280) + ')';
+    });
+  }
+  function toggleGrid(force){
+    var open = force===undefined ? !grid.classList.contains('open') : force;
+    if(open){ grid.classList.add('open'); buildGrid(); } else { grid.classList.remove('open'); }
+    document.getElementById('gridBtn').classList.toggle('on', open);
+  }
+
+  /* ---- fullscreen ---- */
+  function toggleFS(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  }
+
+  /* ---- Z0 lab ---- */
+  var ba = document.getElementById('ba'), er = document.getElementById('er');
+  function updateLab(){
+    if(!ba) return;
+    var b = +ba.value, e = +er.value, z = 60/Math.sqrt(e)*Math.log(b);
+    var r = 150/b;
+    document.getElementById('cxInner').setAttribute('r', r.toFixed(1));
+    document.getElementById('cxA').setAttribute('x2', (180+r).toFixed(1));
+    document.getElementById('cxAl').setAttribute('x', (180 + Math.max(r/2,6) - 4).toFixed(1));
+    var tint = Math.min(1,(e-1)/3);
+    document.getElementById('cxDiel').setAttribute('fill', 'rgba(112,48,160,'+(0.05+tint*0.28).toFixed(3)+')');
+    document.getElementById('cxEr').textContent = 'εr = ' + e.toFixed(2);
+    document.getElementById('baV').textContent = b.toFixed(2);
+    document.getElementById('erV').textContent = e.toFixed(2);
+    var num = document.getElementById('z0'), st = document.getElementById('z0s');
+    num.textContent = z.toFixed(1);
+    num.className = 'num'; st.className = 'status';
+    if(Math.abs(z-50) <= 1.5){
+      num.classList.add('hit'); st.classList.add('hit');
+      st.innerHTML = '<span class="t-en">That\'s 50Ω — the RF standard.</span><span class="t-ko"><span class="en">50Ω</span> — <span class="en">RF</span> 표준입니다.</span>';
+    } else if(Math.abs(z-75) <= 1.5){
+      num.classList.add('hit75'); st.classList.add('hit75');
+      st.innerHTML = '<span class="t-en">That\'s 75Ω — the video / CATV standard.</span><span class="t-ko"><span class="en">75Ω</span> — 영상 · <span class="en">CATV</span> 표준입니다.</span>';
+    } else {
+      st.innerHTML = '<span class="t-en">Adjust b/a or εr until you reach 50Ω.</span><span class="t-ko"><span class="en">b/a</span> 또는 <span class="en">εr</span>을 조절해 <span class="en">50Ω</span>을 만들어 보세요.</span>';
+    }
+    document.querySelectorAll('.chip-btn').forEach(function(c){ c.classList.toggle('on', Math.abs(+c.dataset.er - e) < 0.005); });
+  }
+  if(ba){ ba.addEventListener('input', updateLab); er.addEventListener('input', updateLab); }
+  document.querySelectorAll('.chip-btn').forEach(function(c){
+    c.addEventListener('click', function(ev){ if(!er || !c.dataset.er) return; ev.stopPropagation(); er.value = c.dataset.er; updateLab(); });
+  });
+
+  /* ---- input ---- */
+  document.getElementById('prevBtn').onclick = prev;
+  document.getElementById('nextBtn').onclick = next;
+  document.getElementById('gridBtn').onclick = function(){ toggleGrid(); };
+  document.getElementById('notesBtn').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesTab').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesClose').onclick = function(){ toggleNotes(false); };
+  document.getElementById('fsBtn').onclick = toggleFS;
+  langBtn.onclick = toggleLang;
+
+  window.addEventListener('keydown', function(e){
+    if(e.target.tagName==='INPUT') return;
+    var k = e.key;
+    if(grid.classList.contains('open')){ if(k==='Escape' || k==='g' || k==='G') toggleGrid(false); return; }
+    if(['ArrowRight','PageDown',' ','Enter'].indexOf(k)>-1){ next(); e.preventDefault(); }
+    else if(['ArrowLeft','PageUp','Backspace'].indexOf(k)>-1){ prev(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); } else if(k==='End'){ go(total-1, true); }
+    else if(k==='g' || k==='G'){ toggleGrid(); }
+    else if(k==='n' || k==='N'){ toggleNotes(); }
+    else if(k==='l' || k==='L'){ toggleLang(); }
+    else if(k==='f' || k==='F'){ toggleFS(); }
+    else if(k==='Escape'){ toggleNotes(false); }
+  });
+
+  /* ---- click left/right half of the slide to navigate ---- */
+  var NO_NAV = 'a,button,input,label,.lab,.coax-svg,.chip-btn,.nav-hint,.fl-svg,.so-svg,.so-ctl,.so-out,.in-photo,.in-lb';
+  function sideOf(e){
+    var r = deck.getBoundingClientRect();
+    return (e.clientX - r.left) < r.width * 0.5 ? 'l' : 'r';
+  }
+  deck.addEventListener('mousemove', function(e){
+    var blocked = e.target.closest(NO_NAV);
+    var sd = blocked ? '' : sideOf(e);
+    deck.classList.toggle('hov-l', sd==='l' && !(idx===0 && step===0));
+    deck.classList.toggle('hov-r', sd==='r' && !(idx===total-1 && step===maxStep(slides[idx])));
+  });
+  deck.addEventListener('mouseleave', function(){ deck.classList.remove('hov-l','hov-r'); });
+  deck.addEventListener('click', function(e){
+    if(e.target.closest(NO_NAV)) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(notes.classList.contains('open')){ toggleNotes(false); return; }
+    sideOf(e)==='l' ? prev() : next();
+    deck.dispatchEvent(new MouseEvent('mousemove', {clientX:e.clientX, clientY:e.clientY, bubbles:true}));
+  });
+
+  var tx = null;
+  deck.addEventListener('touchstart', function(e){ if(e.target.tagName!=='INPUT') tx = e.touches[0].clientX; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if(tx===null) return; var dx = e.changedTouches[0].clientX - tx;
+    if(dx < -40) next(); if(dx > 40) prev(); tx = null;
+  });
+
+  /* ---- idle: hide chrome while presenting ---- */
+  var idleT;
+  function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(!grid.classList.contains('open') && !notes.classList.contains('open')) document.body.classList.add('idle'); }, 2600); }
+  ['mousemove','mousedown','keydown','touchstart'].forEach(function(ev){ window.addEventListener(ev, wake, {passive:true}); });
+
+  /* ---- scale ---- */
+  function fit(){
+    var s = Math.min((window.innerWidth-48)/1280, (window.innerHeight-48)/720);
+    deck.style.transform = 'scale('+s+')';
+    if(grid.classList.contains('open')) scaleThumbs();
+  }
+  window.addEventListener('resize', fit);
+
+
+  /* ---- M06 fast-event lab ---- */
+  (function(){
+    var svg = document.getElementById('flSvg'); if(!svg) return;
+    var dur = document.getElementById('flDur');
+    var DT = 1e-5, N = 300000, TS = 1.2, H = 800, FS = 0.1, MA = 0;
+    var base = new Float64Array(N), sig = new Float64Array(N), spk = new Float64Array(N), ma = new Float64Array(N), P = new Float64Array(N+1);
+    for(var i=0;i<N;i++){ var t=i*DT; base[i] = t<0.2 ? 0 : 300*Math.exp(-(t-0.2)/0.12) + 3 + 2*Math.sin(2*Math.PI*7*t); }
+    var X0=52, X1=546, Y0=318, Y1=58, YMAX=900;
+    function xs(t){ return X0 + t/3*(X1-X0); }
+    function ys(v){ return Y0 - Math.min(v,YMAX)/YMAX*(Y0-Y1); }
+    function durOf(v){ return Math.pow(10, -5 + v/1000*5); }
+    function fmt(d){ return d<1e-3 ? Math.round(d*1e6)+' µs' : d<1 ? (d<0.01 ? (d*1e3).toFixed(1) : Math.round(d*1e3))+' ms' : '1 s'; }
+    function pipe(src){
+      var w = Math.max(1, Math.round(MA/DT)); P[0]=0;
+      for(var i=0;i<N;i++) P[i+1]=P[i]+src[i];
+      for(var i=0;i<N;i++){ ma[i] = w===1 ? src[i] : (P[i+1]-P[Math.max(0,i+1-w)])/w; }
+      var T = Math.round(FS/DT), nb = Math.ceil(N/T), out = new Float64Array(nb);
+      P[0]=0; for(var i=0;i<N;i++) P[i+1]=P[i]+ma[i];
+      for(var k=0;k<nb;k++){ var a=k*T, b=Math.min(N,(k+1)*T); out[k]=(P[b]-P[a])/(b-a); }
+      return out;
+    }
+    function ko(){ return document.documentElement.classList.contains('lang-ko'); }
+    function update(){
+      var d = durOf(+dur.value), i0 = Math.round(TS/DT), i1 = Math.min(N, i0 + Math.max(1, Math.round(d/DT)));
+      for(var i=0;i<N;i++){ sig[i]=base[i]; spk[i]=0; }
+      for(var i=i0;i<i1;i++){ sig[i]+=H; spk[i]=H; }
+      var fdc = pipe(sig), sp = pipe(spk), mx = 0;
+      for(var k=0;k<sp.length;k++) mx = Math.max(mx, sp[k]);
+      var pct = mx/H*100;
+      /* raw trace: per-pixel max */
+      var cols = X1-X0, per = N/cols, raw = 'M';
+      for(var c=0;c<cols;c++){ var a=Math.floor(c*per), b=Math.floor((c+1)*per), m=0; for(var i=a;i<b;i++) if(sig[i]>m) m=sig[i]; raw += (c?' L':'') + (X0+c) + ' ' + ys(m).toFixed(1); }
+      var T = FS, st = 'M', dots = '';
+      for(var k=0;k<fdc.length;k++){ var xa=xs(k*T), xb=xs(Math.min(3,(k+1)*T)), y=ys(fdc[k]).toFixed(1); st += (k?' L':'') + xa.toFixed(1)+' '+y+' L'+xb.toFixed(1)+' '+y;
+        if(fdc.length<=40) dots += '<circle cx="'+((xa+xb)/2).toFixed(1)+'" cy="'+y+'" r="3.6" fill="#CC785C"/>'; }
+      var K = ko(), g = '';
+      for(var v=0; v<=900; v+=300) g += '<line x1="'+X0+'" x2="'+X1+'" y1="'+ys(v)+'" y2="'+ys(v)+'" stroke="#E6DFD8" stroke-width="1"/><text x="'+(X0-8)+'" y="'+(ys(v)+4)+'" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#A09D96">'+v+'</text>';
+      for(var s=0; s<=3; s+=0.5) g += '<text x="'+xs(s)+'" y="'+(Y0+20)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#A09D96">'+s+' s</text>';
+      g += '<text x="'+X0+'" y="'+(Y1-26)+'" font-family="JetBrains Mono,monospace" font-size="10" letter-spacing="1" fill="#A09D96">REFLECTED (W)</text>';
+      g += '<text x="'+xs(0.2)+'" y="'+(Y0+38)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6C6A64">STRIKE</text>';
+      g += '<text x="'+xs(TS)+'" y="'+(Y0+38)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6C6A64">EVENT · '+fmt(d)+'</text>';
+      var ly = 366;
+      g += '<line x1="'+X0+'" x2="'+(X0+24)+'" y1="'+ly+'" y2="'+ly+'" stroke="#A09D96" stroke-width="1.6"/><text x="'+(X0+32)+'" y="'+(ly+4)+'" font-family="Google Sans,sans-serif" font-size="13" fill="#6C6A64">'+(K?'원신호 (Generator 내부)':'Raw — inside the generator')+'</text>';
+      g += '<line x1="'+(X0+250)+'" x2="'+(X0+274)+'" y1="'+ly+'" y2="'+ly+'" stroke="#CC785C" stroke-width="2.6"/><text x="'+(X0+282)+'" y="'+(ly+4)+'" font-family="Google Sans,sans-serif" font-size="13" fill="#6C6A64">'+(K?'FDC 기록값':'What FDC records')+'</text>';
+      svg.innerHTML = g + '<path d="'+raw+'" fill="none" stroke="#A09D96" stroke-width="1.3" stroke-linejoin="round"/>' +
+        '<path d="'+st+'" fill="none" stroke="#CC785C" stroke-width="2.6" stroke-linejoin="round"/>' + dots;
+      document.getElementById('flDurV').textContent = fmt(d);
+      document.getElementById('flFsV').textContent = FS===0.001 ? '1 kHz' : FS===0.1 ? '10 Hz' : '1 Hz';
+      document.getElementById('flMaV').textContent = MA===0 ? 'Off' : Math.round(MA*1000)+' ms';
+      var num = document.getElementById('flPct'), stt = document.getElementById('flSt');
+      num.textContent = pct>=99.5 ? '100' : pct>=10 ? pct.toFixed(0) : pct>=1 ? pct.toFixed(1) : pct.toFixed(2);
+      num.className='num'; stt.className='status';
+      if(pct>=80){ stt.innerHTML='<span class="t-en">Fully visible — any limit catches it.</span><span class="t-ko">그대로 보인다 — 어떤 <span class="en">Limit</span>로도 잡힌다.</span>'; }
+      else if(pct>=20){ num.classList.add('hit75'); stt.classList.add('hit75'); stt.innerHTML='<span class="t-en">Diluted — only a tight limit catches it.</span><span class="t-ko">희석됐다 — 촘촘한 <span class="en">Limit</span>만 잡는다.</span>'; }
+      else { num.classList.add('hit'); stt.classList.add('hit'); stt.innerHTML='<span class="t-en">Averaged away — the trace looks clean.</span><span class="t-ko">평균에 묻혔다 — 트레이스는 깨끗해 보인다.</span>'; }
+      document.querySelectorAll('.chip-btn[data-fs]').forEach(function(c){ c.classList.toggle('on', +c.dataset.fs===FS); });
+      document.querySelectorAll('.chip-btn[data-ma]').forEach(function(c){ c.classList.toggle('on', +c.dataset.ma===MA); });
+    }
+    dur.addEventListener('input', update);
+    document.querySelectorAll('.chip-btn[data-fs]').forEach(function(c){ c.addEventListener('click', function(e){ e.stopPropagation(); FS=+c.dataset.fs; update(); }); });
+    document.querySelectorAll('.chip-btn[data-ma]').forEach(function(c){ c.addEventListener('click', function(e){ e.stopPropagation(); MA=+c.dataset.ma; update(); }); });
+    window.flUpdate = update;
+  })();
+
+  /* ---- step-out lab ---- */
+  (function(){
+    var svg = document.getElementById('soSvg'); if(!svg) return;
+    var tgt = document.getElementById('soTgt'), drag = document.getElementById('soDrag');
+    var S = {cmd:1200, act:1200, dCmd:1200, dAct:1200, n:0, busy:false, msg:'idle'};
+    var RIDGES = [[1320,1400],[2200,2280]], WIN = [1400,2200];
+    var X0 = 40, X1 = 1048, YC = 62, YE = 128;
+    function x(s){ return X0 + s/4000*(X1-X0); }
+    function M(en, ko){ return '<span class="t-en">'+en+'</span><span class="t-ko">'+ko+'</span>'; }
+    var MSG = {
+      idle: ['', 'Press Move. Cross a grease ridge and raise its hardness to make the motor slip.', '이동을 누르세요. 그리스 턱을 넘으면서 경화도를 높이면 모터가 미끄러집니다.'],
+      moving: ['', 'Moving…', '이동 중…'],
+      ok: ['', 'Within ±10 steps — normal inertia, ignored.', '±10 스텝 이내 — 정상 관성, 무시.'],
+      out: ['hit75', 'Step-out at the grease ridge (|Δ| > 10).', '그리스 턱에서 탈조 (|Δ| > 10).'],
+      sync: ['hit75', 'Re-sync: command ← encoder. Retrying slower…', '재동기화: 명령값 ← 엔코더 값. 더 느리게 재시도…'],
+      fixed: ['hit75', 'Over the ridge after correction — logged.', '보정 후 턱을 넘어 목표 도달 — 기록됨.'],
+      alarm: ['hit', 'Cannot climb the ridge within 1 s — MOTOR ALARM.', '1초 안에 턱을 넘지 못함 — MOTOR ALARM.']
+    };
+    function draw(){
+      var t = +tgt.value, g = '';
+      g += '<rect x="'+x(WIN[0])+'" y="'+(YE-14)+'" width="'+(x(WIN[1])-x(WIN[0]))+'" height="28" fill="#0F8C50" opacity=".07"/>';
+      g += '<text x="'+((x(WIN[0])+x(WIN[1]))/2)+'" y="'+(YE+44)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#0F8C50">USUAL RANGE</text>';
+      [['COMMAND', YC], ['ENCODER', YE]].forEach(function(r){
+        g += '<line x1="'+X0+'" x2="'+X1+'" y1="'+r[1]+'" y2="'+r[1]+'" stroke="#D8D0C6" stroke-width="2"/>';
+        g += '<text x="'+X0+'" y="'+(r[1]-34)+'" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" letter-spacing="1.5" fill="#A09D96">'+r[0]+'</text>';
+        for(var k=0;k<=4000;k+=500) g += '<line x1="'+x(k)+'" x2="'+x(k)+'" y1="'+(r[1]-5)+'" y2="'+(r[1]+5)+'" stroke="#D8D0C6" stroke-width="1.5"/>';
+      });
+      var hv = +drag.value/100, hh = 4 + hv*12;
+      RIDGES.forEach(function(r){
+        var a = x(r[0]), b = x(r[1]), m = (a+b)/2;
+        g += '<path d="M'+a+' '+YE+' Q'+m+' '+(YE-hh*2)+' '+b+' '+YE+' Z" fill="#E8A55A" opacity="'+(0.35+0.5*Math.min(1,hv))+'"/>';
+      });
+      g += '<text x="'+x(1360)+'" y="'+(YE+44)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700" fill="#B07A3A">RIDGE</text>';
+      g += '<text x="'+x(2240)+'" y="'+(YE+44)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" font-weight="700" fill="#B07A3A">RIDGE</text>';
+      g += '<text x="'+X0+'" y="'+(YE+30)+'" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#A09D96">0 step · 0°</text>';
+      g += '<text x="'+X1+'" y="'+(YE+30)+'" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#A09D96">4000 step · 3600°</text>';
+      g += '<line x1="'+x(t)+'" x2="'+x(t)+'" y1="'+(YC-24)+'" y2="'+(YE+8)+'" stroke="#CC785C" stroke-width="1.2" stroke-dasharray="3 4"/>';
+      g += '<text x="'+x(t)+'" y="'+(YC-30)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" font-weight="700" fill="#CC785C">TARGET '+t+'</text>';
+      var c = x(S.dCmd), a = x(S.dAct);
+      g += '<path d="M'+(c-10)+' '+(YC-22)+' L'+(c+10)+' '+(YC-22)+' L'+c+' '+(YC-3)+' Z" fill="#252320"/>';
+      g += '<text x="'+c+'" y="'+(YC+22)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#252320">'+Math.round(S.dCmd)+'</text>';
+      g += '<path d="M'+(a-10)+' '+(YE-22)+' L'+(a+10)+' '+(YE-22)+' L'+a+' '+(YE-3)+' Z" fill="#CC785C"/>';
+      g += '<text x="'+a+'" y="'+(YE+22)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#CC785C">'+Math.round(S.dAct)+'</text>';
+      svg.innerHTML = g;
+      var d = Math.abs(Math.round(S.dCmd) - Math.round(S.dAct));
+      var num = document.getElementById('soD'); num.textContent = d;
+      num.className = 'num' + (d>10 ? (S.msg==='alarm' ? ' hit' : ' hit75') : '');
+      document.getElementById('soSub').textContent = (d*0.9).toFixed(1)+'° · '+(d/40).toFixed(2)+' % OF STROKE';
+      var m = MSG[S.msg], st = document.getElementById('soSt');
+      st.className = 'status' + (m[0] ? ' '+m[0] : ''); st.innerHTML = M(m[1], m[2]);
+      document.getElementById('soCnt').textContent = 'CORRECTIONS LOGGED · ' + S.n;
+      document.getElementById('soTgtV').textContent = t + ' step';
+      document.getElementById('soDragV').textContent = drag.value + ' %';
+    }
+    function tween(c0, c1, a0, a1, ms){
+      return new Promise(function(res){
+        var t0 = performance.now();
+        (function f(now){
+          var p = Math.min(1, (now - t0)/ms), e = p<.5 ? 2*p*p : 1 - Math.pow(-2*p+2,2)/2;
+          S.dCmd = c0 + (c1-c0)*e; S.dAct = a0 + (a1-a0)*e; draw();
+          if(p<1) requestAnimationFrame(f); else res();
+        })(t0);
+      });
+    }
+    function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+    function rnd(a,b){ return a + Math.random()*(b-a); }
+    /* one move from p0 toward T with torque capacity C; returns where the shaft really ends */
+    function simulate(p0, T, C, fast){
+      var dir = T >= p0 ? 1 : -1, L = 0.2 + (+drag.value)/100, lostTotal = 0;
+      var hits = RIDGES.filter(function(r){ return dir>0 ? (p0 < r[1] && T > r[0]) : (p0 > r[0] && T < r[1]); });
+      if(dir < 0) hits.reverse();
+      for(var i=0;i<hits.length;i++){
+        var r = hits[i], entry = dir>0 ? Math.max(p0, r[0]) : Math.min(p0, r[1]);
+        if(L >= 1.1*C) return {end: entry, stalled: true};
+        if(L >= 0.8*C) lostTotal += Math.round(rnd(20,40) + 60*(L-0.8*C)/(0.3*C));
+      }
+      var dist = Math.abs(T - p0), inertia = fast ? Math.min(9, Math.round(rnd(0, 1) * Math.min(9, dist/60))) : 0;
+      return {end: T - dir*lostTotal + dir*inertia, stalled: false};
+    }
+    async function move(){
+      if(S.busy) return; S.busy = true;
+      var T = +tgt.value;
+      var r = simulate(S.act, T, 1.0, true);
+      S.msg = 'moving'; await tween(S.cmd, T, S.act, r.end, 700);
+      S.cmd = T; S.act = r.end;
+      if(Math.abs(T - S.act) <= 10){ S.msg = 'ok'; draw(); S.busy = false; return; }
+      S.msg = 'out'; draw(); await wait(700);
+      var tsim = 0;
+      while(Math.abs(T - S.act) > 10){
+        if(tsim >= 1.0){ S.msg = 'alarm'; draw(); S.busy = false; return; }
+        S.n++; S.msg = 'sync'; await tween(S.cmd, S.act, S.act, S.act, 350); S.cmd = S.act; await wait(250);
+        var r2 = simulate(S.act, T, 1.25, false);
+        await tween(S.cmd, T, S.act, r2.end, 550); S.cmd = T; S.act = r2.end; tsim += 0.25;
+      }
+      S.msg = 'fixed'; draw(); S.busy = false;
+    }
+    document.getElementById('soGo').addEventListener('click', function(e){ e.stopPropagation(); move(); });
+    document.getElementById('soReset').addEventListener('click', function(e){ e.stopPropagation(); if(S.busy) return; S.cmd=S.act=S.dCmd=S.dAct=1200; S.n=0; S.msg='idle'; draw(); });
+    tgt.addEventListener('input', function(){ draw(); });
+    drag.addEventListener('input', function(){ draw(); });
+    window.soUpdate = draw;
+  })();
+
+  /* ---- photo lightbox ---- */
+  (function(){
+    var lb = document.getElementById('inLb'); if(!lb) return;
+    var im = document.getElementById('inLbImg'), cap = document.getElementById('inLbCap');
+    document.querySelectorAll('#deck .in-photo').forEach(function(p){
+      p.addEventListener('click', function(e){ e.stopPropagation(); im.src = p.src;
+        cap.innerHTML = '<span class="t-en">'+p.dataset.capEn+'</span><span class="t-ko">'+p.dataset.capKo+'</span>'; lb.classList.add('on'); });
+    });
+    lb.addEventListener('click', function(e){ e.stopPropagation(); lb.classList.remove('on'); });
+    window.addEventListener('keydown', function(e){ if(e.key==='Escape') lb.classList.remove('on'); });
+  })();
+
+  fit(); setLang('en');
+  var h = parseInt((location.hash||'').replace('#',''),10);
+  go(isNaN(h) ? 0 : h-1);
+  wake();
+})();
+</script>
+</body>
+</html>

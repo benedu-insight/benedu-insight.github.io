@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1 m — Remote Matcher &amp; the Output Cable | Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF9F5; --surface:#EFE9DE; --ink:#252320; --steel:#6C6A64; --steel-soft:#A09D96; --hairline:#E6DFD8;
+  --ink-black:#181715; --card-dark:#232120; --hairline-dark:#3A3733; --mute-dark:#8E8A83; --text-dark:#EFE9DE;
+  --green:#0F8C50; --purple:#7030A0; --coral:#CC785C; --amber:#E8A55A;
+  --font-en:'Google Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-ko:'Gowun Batang',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0A0A09}
+body{font-family:var(--font-en);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+body.idle{cursor:none}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+
+/* ---------- language ---------- */
+.t-ko{display:none;font-family:var(--font-ko)}
+html.lang-ko .t-ko{display:revert}
+html.lang-ko .t-en{display:none}
+.en{font-family:var(--font-en)}
+
+/* ---------- stage ---------- */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{width:1280px;height:720px;position:relative;flex:0 0 auto;overflow:hidden;background:var(--cream);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);transform-origin:center center}
+
+.slide{position:absolute;inset:0;background:var(--cream);opacity:0;visibility:hidden;
+  transition:opacity .6s ease,visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.slide.dark{background:var(--ink-black);color:#fff}
+.slide-note{display:none}
+
+/* ---------- chrome ---------- */
+.logo-tr{position:absolute;right:64px;top:42px;height:34px;width:auto}
+.dark .logo-tr{filter:brightness(0) invert(1);opacity:.92}
+.eyebrow{position:absolute;left:96px;top:56px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.eyebrow b{color:var(--green);margin-right:10px}
+.dark .eyebrow{color:var(--mute-dark)} .dark .eyebrow b{color:var(--amber)}
+.footer{position:absolute;left:96px;right:64px;bottom:0;height:34px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--hairline)}
+.dark .footer{border-top-color:var(--hairline-dark)}
+.footer .fm{font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--steel)}
+.footer .fd2{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em;color:var(--steel-soft)}
+.footer .fp{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--steel)}
+.dark .footer .fm,.dark .footer .fp{color:#8E8A83}
+.dark .footer .fd2{color:#5E5A54}
+.headline{position:absolute;left:96px;right:96px;top:98px;font-size:46px;font-weight:700;letter-spacing:-.028em;line-height:1.15}
+html.lang-ko .headline{font-size:42px;letter-spacing:-.01em}
+.dark .headline{color:#fff}
+.lede{position:absolute;left:96px;right:96px;top:166px;font-size:19px;color:var(--steel);line-height:1.55}
+.dark .lede{color:#B5B0A8}
+
+/* ---------- builds ---------- */
+.frag{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .8s var(--ease)}
+.frag.on{opacity:1;transform:none}
+.frag.strike{transform:scaleX(0);transform-origin:left center;transition:transform .55s var(--ease),opacity .2s}
+.frag.strike.on{transform:scaleX(1)}
+.hides{transition:opacity .5s ease,transform .6s var(--ease)}
+.hides.gone{opacity:0;transform:scale(.94);pointer-events:none}
+.rise{opacity:0}
+.slide.active .rise{animation:rise .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.static .rise{animation:none!important;opacity:1}
+.static .frag,.static .hides{transition:none!important}
+
+/* ---------- equation typesetting ---------- */
+.eqn{font-family:var(--font-en);font-weight:700;display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em}
+.frac .fn{padding:0 .12em .04em;border-bottom:.045em solid currentColor}
+.frac .fd{padding:.04em .12em 0}
+.frac.sm{font-size:.7em}
+.sqrt{display:inline-flex;align-items:stretch;margin-left:.04em}
+.sqrt .rad{display:block;width:.52em;flex:0 0 auto;overflow:visible;margin-right:-1px}
+.sqrt .rad path{fill:none;stroke:currentColor;stroke-width:.075em;stroke-linejoin:miter;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+.sqrt .rc{border-top:.075em solid currentColor;padding:.1em .14em 0 .08em;display:inline-flex;align-items:center}
+.eqn sub{font-size:.62em;vertical-align:baseline;position:relative;top:.32em;line-height:0;font-weight:700;margin-left:.02em}
+.frac .fd .sqrt{margin-top:.16em}
+.paren{font-weight:300;font-size:1.45em;margin:0 -.02em}
+
+/* ================= 1 · COVER ================= */
+.cover-logo{position:absolute;left:96px;top:54px;height:42px;filter:brightness(0) invert(1)}
+.cover-kicker{position:absolute;left:98px;top:206px;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--coral)}
+.cover-big{position:absolute;left:86px;top:226px;font-size:214px;font-weight:700;letter-spacing:-.055em;line-height:1;color:#fff}
+.cover-big span{color:var(--coral)}
+.cover-sub{position:absolute;left:96px;top:462px;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--text-dark)}
+html.lang-ko .cover-sub{font-size:36px;font-weight:700}
+.cover-desc{position:absolute;left:96px;top:524px;width:600px;font-size:18px;line-height:1.6;color:var(--mute-dark)}
+.cover-meta{position:absolute;left:96px;bottom:62px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#6E6A63}
+.cover-art{position:absolute;right:-70px;top:60px;width:600px;height:600px}
+.cover-art .spin{transform-box:fill-box;transform-origin:center;animation:spin 90s linear infinite}
+.cover-art .flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flow{to{stroke-dashoffset:-28}}
+
+/* ================= 2 · MISCONCEPTION ================= */
+.eq-hero{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:100px;color:var(--ink)}
+.claim{position:absolute;left:0;right:0;top:428px;text-align:center;font-size:28px;color:var(--steel)}
+.claim .wrap{position:relative;display:inline-block}
+.claim .strike{position:absolute;left:-10px;right:-10px;top:52%;height:4px;background:var(--coral);border-radius:2px}
+.verdict{position:absolute;left:0;right:0;top:494px;text-align:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:var(--coral)}
+html.lang-ko .verdict{font-size:54px}
+.verdict-sub{position:absolute;left:0;right:0;top:590px;text-align:center;font-size:19px;color:var(--steel)}
+
+/* ================= 3 · CAUSALITY ================= */
+.chain{position:absolute;left:96px;right:96px;top:262px;display:flex;align-items:flex-start;justify-content:space-between}
+.node{width:300px}
+.node .w{font-size:60px;font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.node .w.c{color:var(--coral)}
+.node .s{margin-top:16px;font-size:17px;color:var(--steel);line-height:1.55}
+.arr{font-size:42px;color:var(--steel-soft);padding-top:6px;font-weight:300}
+.punch{position:absolute;left:96px;right:96px;top:500px;padding-top:36px;border-top:1px solid var(--hairline);
+  font-size:34px;font-weight:700;letter-spacing:-.025em}
+html.lang-ko .punch{font-size:31px}
+.punch .c{color:var(--coral)}
+
+/* ================= 4 · LAB ================= */
+.coax-svg{position:absolute;left:96px;top:226px;width:372px;height:372px}
+.lab{position:absolute;left:540px;right:96px;top:226px;bottom:66px;display:flex;flex-direction:column}
+.lab .eqn{font-size:34px;color:var(--ink)}
+.ctl{margin-top:30px}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ctl-row .k{font-size:15px;color:var(--steel)}
+.ctl-row .v{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink)}
+.chips{display:flex;gap:8px;margin-bottom:14px}
+.chip-btn{font-family:var(--font-en);font-size:13px;font-weight:500;color:var(--ink);padding:6px 15px;border:1px solid var(--hairline);
+  border-radius:999px;background:#fff;cursor:pointer;transition:all .2s}
+.chip-btn:hover{border-color:var(--steel-soft)}
+.chip-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--hairline);outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+.readout{margin-top:auto;display:flex;align-items:baseline;gap:14px}
+.readout .k{font-size:28px;font-weight:500;color:var(--steel)}
+.readout .num{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);transition:color .3s;font-variant-numeric:tabular-nums}
+.readout .num.hit{color:var(--coral)} .readout .num.hit75{color:var(--purple)}
+.status{margin-top:10px;font-size:17px;color:var(--steel);min-height:26px}
+.status.hit{color:var(--coral);font-weight:700} .status.hit75{color:var(--purple);font-weight:700}
+
+/* ================= 5 · THREE VIEWS ================= */
+.views{position:absolute;left:96px;right:96px;top:222px;display:grid;grid-template-columns:repeat(3,1fr)}
+.view{padding:0 36px;border-left:1px solid var(--hairline)}
+.view:first-child{padding-left:0;border-left:none}
+.view .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.view .eqn{font-size:54px;height:134px;margin:24px 0 22px;color:var(--ink)}
+.view .d{font-size:17px;color:var(--steel);line-height:1.6}
+.foot-line{position:absolute;left:96px;right:96px;top:604px;font-size:20px;color:var(--steel)}
+.foot-line b{color:var(--ink)}
+
+/* ================= 6 · HISTORY ================= */
+.axis{position:absolute;left:96px;right:96px;top:499px;height:2px;background:var(--hairline-dark)}
+.tick{position:absolute;top:514px;transform:translateX(-50%);font-family:var(--font-mono);font-size:10.5px;color:#5E5A54}
+.mk{position:absolute;top:500px;left:var(--x);width:0;height:0}
+.mk .stem{position:absolute;left:-1px;bottom:0;width:2px;height:var(--h);background:#4A4642}
+.mk .dot{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff}
+.mk .mlab{position:absolute;left:-110px;width:220px;bottom:calc(var(--h) + 14px);text-align:center}
+.mk .v{font-size:46px;font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1}
+.mk .c{margin-top:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.mk.hero .stem,.mk.hero .dot{background:var(--coral)}
+.mk.hero .v{font-size:68px;color:var(--coral)}
+.mk.hero .c{color:var(--coral)}
+.mk.below .stem{top:0;bottom:auto}
+.mk.below .dot{background:#6E6A63}
+.mk.below .mlab{top:calc(var(--h) + 10px);bottom:auto}
+.mk.below .v{font-size:24px;color:#8E8A83}
+.mk.below .c{color:#6E6A63}
+.means{position:absolute;left:330px;width:464px;top:548px;text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--mute-dark);letter-spacing:.02em}
+.src{position:absolute;left:96px;bottom:52px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5A54}
+
+/* ================= 7 · ONE MORE THING ================= */
+.omt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;font-weight:700;letter-spacing:-.035em;color:#fff}
+html.lang-ko .omt{font-size:66px}
+.vs{position:absolute;left:96px;right:96px;top:176px;display:flex;justify-content:center;align-items:flex-start;gap:72px}
+.vs .blk{text-align:center}
+.vs .n{font-size:156px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#fff}
+.vs .n.q{color:var(--coral)}
+.vs .l{margin-top:18px;font-size:18px;color:#B5B0A8}
+.vs .ne{font-size:84px;font-weight:300;color:#5E5A54;padding-top:30px}
+.next-line{position:absolute;left:96px;right:96px;top:472px;text-align:center;font-size:24px;color:var(--text-dark);letter-spacing:-.01em}
+.next-tag{position:absolute;left:0;right:0;top:524px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.end-links{position:absolute;left:0;right:0;bottom:70px;display:flex;justify-content:center;gap:36px}
+.end-links a{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:#B5B0A8;text-decoration:none;border-bottom:1px solid #3A3733;padding-bottom:4px;transition:color .2s,border-color .2s}
+.end-links a:hover{color:#fff;border-color:var(--coral)}
+
+/* ================= CLICK-TO-NAVIGATE HINTS ================= */
+.nav-hint{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(24,23,21,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;z-index:40;
+  transition:opacity .25s ease,transform .25s var(--ease)}
+.nav-hint svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-hint.l{left:22px;transform:translateX(6px)} .nav-hint.r{right:22px;transform:translateX(-6px)}
+.deck.hov-l .nav-hint.l,.deck.hov-r .nav-hint.r{opacity:1;transform:none}
+.deck.hov-l,.deck.hov-r{cursor:pointer}
+body.idle .nav-hint{opacity:0!important}
+
+/* ================= CONTROL BAR ================= */
+#bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px 8px;
+  background:rgba(24,23,21,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;z-index:90;transition:opacity .4s,transform .4s}
+body.idle #bar{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
+#bar button,#bar a{height:34px;min-width:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:none;border:none;border-radius:999px;color:#D9D4CC;font-family:var(--font-en);font-size:12.5px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+#bar button:hover,#bar a:hover{background:rgba(255,255,255,.08);color:#fff}
+#bar button.on{color:var(--coral)}
+#bar svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#bar .dots{display:flex;align-items:center;gap:7px;padding:0 10px}
+#bar .dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);cursor:pointer;transition:width .45s var(--ease),background .3s}
+#bar .dot.done{background:rgba(255,255,255,.5)}
+#bar .dot.on{width:24px;background:var(--coral)}
+#bar .dot:hover{background:rgba(255,255,255,.8)}
+#bar .sep{width:1px;height:18px;background:rgba(255,255,255,.12);margin:0 6px}
+#langBtn{font-family:var(--font-ko)!important;font-weight:700}
+html.lang-ko #langBtn{font-family:var(--font-en)!important}
+
+/* ================= NOTES DRAWER ================= */
+#notesTab{position:fixed;left:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;background:var(--ink-black);color:#D9D4CC;
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.18em;padding:18px 9px;border-radius:0 10px 10px 0;
+  border:1px solid rgba(255,255,255,.08);border-left:none;cursor:pointer;z-index:95;user-select:none;transition:color .2s,opacity .4s}
+#notesTab:hover{color:var(--coral)}
+body.idle #notesTab{opacity:.25}
+#notes{position:fixed;left:0;top:0;bottom:0;width:480px;background:#fff;z-index:100;transform:translateX(-102%);transition:transform .45s var(--ease);
+  display:flex;flex-direction:column;box-shadow:none;visibility:hidden;transition:transform .45s var(--ease),visibility 0s linear .45s}
+#notes.open{transform:none;visibility:visible;box-shadow:20px 0 60px rgba(0,0,0,.35);transition:transform .45s var(--ease)}
+.notes-head{padding:26px 28px 18px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;align-items:center}
+.notes-head .ttl{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.notes-head .no{font-family:var(--font-mono);font-size:11.5px;color:var(--steel-soft);margin-left:10px}
+#notesClose{background:none;border:none;font-size:24px;line-height:1;color:var(--steel);cursor:pointer}
+.notes-title{padding:22px 28px 0;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.notes-body{padding:16px 28px 28px;overflow-y:auto;flex:1;font-size:15.5px;line-height:1.85;color:var(--ink)}
+.notes-body p{margin:0 0 12px}
+.notes-body h4{margin:24px 0 8px;font-size:15.5px;font-weight:700;color:var(--ink)}
+.notes-body > div > h4:first-child{margin-top:4px}
+.notes-body .nf{font-family:var(--font-en);background:var(--surface);border-radius:8px;padding:11px 16px;margin:4px 0 14px;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.notes-body ul{margin:4px 0 14px;padding-left:20px}
+.notes-body li{margin:5px 0}
+.notes-body b{color:var(--ink)}
+.notes-foot{padding:14px 28px;border-top:1px solid var(--hairline);font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--steel-soft)}
+
+/* ================= GRID OVERVIEW ================= */
+#grid{position:fixed;inset:0;background:#0C0B0A;z-index:200;display:none;overflow:auto;padding:52px 64px 80px}
+#grid.open{display:block;animation:gridIn .35s var(--ease)}
+@keyframes gridIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+.grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+.grid-head .ttl{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:#EFE9DE}
+.grid-head .hint{font-family:var(--font-mono);font-size:11px;color:#6E6A63;letter-spacing:.06em}
+.grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:34px 28px}
+.thumb{cursor:pointer}
+.thumb .frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;outline:1px solid #2A2724;transition:transform .25s var(--ease),outline-color .2s}
+.thumb:hover .frame{transform:translateY(-4px);outline:2px solid #6C6A64}
+.thumb.cur .frame{outline:2px solid var(--coral)}
+.thumb .inner{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;pointer-events:none}
+.thumb .cap{display:flex;gap:12px;margin-top:12px;font-size:14px;color:#B5B0A8}
+.thumb .cap .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--coral);padding-top:1px}
+
+/* ================= DECK: REMOTE MATCHER ================= */
+.rc-strip{position:absolute;left:96px;top:186px;width:1088px;height:200px}
+.rc-cap{position:absolute;left:96px;right:96px;top:394px;text-align:right;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;color:var(--steel-soft)}
+.rc-lab{position:absolute;left:96px;right:96px;top:430px;bottom:58px;display:flex;gap:72px;align-items:flex-start}
+.rc-left{width:440px;flex:0 0 auto}
+.rc-right{flex:1;border-left:1px solid var(--hairline);padding-left:44px}
+.rc-k{font-size:15px;color:var(--steel)}
+.rc-z{margin-top:4px;font-size:58px;font-weight:700;letter-spacing:-.035em;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums;transition:color .3s}
+.rc-z .u{font-size:30px;font-weight:500;color:var(--steel);margin-left:10px}
+.rc-z.hit{color:var(--coral)} .rc-z.hit75{color:var(--purple)}
+.rc-stats{margin-top:12px;font-family:var(--font-mono);font-size:13.5px;color:var(--ink);letter-spacing:.02em}
+.rc-stats span{margin-right:18px;white-space:nowrap}
+.rc-stats i{font-style:normal;color:var(--steel-soft)}
+.rc-lab .status{margin-top:10px}
+/* dark three columns */
+.dark .view{border-left-color:var(--hairline-dark)}
+.dark .view .eqn{color:#fff;font-size:70px}
+.dark .view .k{color:var(--amber)}
+.dark .view .d{color:#B5B0A8}
+.dark .foot-line{color:#B5B0A8} .dark .foot-line b{color:var(--coral)}
+/* rules grid */
+.rules{position:absolute;left:96px;right:96px;top:236px;display:grid;grid-template-columns:repeat(3,1fr)}
+.rcol{padding:0 34px;border-left:1px solid var(--hairline)}
+.rcol:first-child{padding-left:0;border-left:none}
+.rcol .cat{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral);margin-bottom:22px}
+.rule{height:168px}
+.rule .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--steel-soft);margin-bottom:6px}
+.rule .tt{font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1.15;color:var(--ink)}
+html.lang-ko .rule .tt{font-size:27px}
+.rule .dd{margin-top:8px;font-size:17px;line-height:1.5;color:var(--steel)}
+.rule .dd sub{font-size:.7em}
+.adv-link{display:inline-block;margin-top:18px;padding:6px 14px 5px;border:1px solid var(--coral);border-radius:999px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--coral);text-decoration:none;transition:background .2s,color .2s}
+.adv-link:hover{background:var(--coral);color:#fff}
+html.lang-ko .adv-link .t-ko{font-family:var(--font-ko);letter-spacing:.04em;font-size:12.5px}
+.notes-body a.nl{color:var(--coral);font-weight:700}
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck" data-doc="RF FIELD NOTES — REMOTE MATCHER &amp; OUTPUT CABLE">
+<div class="nav-hint l" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+<div class="nav-hint r" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+
+<!-- ============ 1 · COVER ============ -->
+<section class="slide dark active" data-title-en="Cover" data-title-ko="표지">
+  <img class="cover-logo" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  <svg class="cover-art" viewBox="0 0 600 600" aria-hidden="true" style="right:10px">
+    <defs>
+      <linearGradient id="swFade" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".14" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="1"/></linearGradient>
+      <mask id="swMask"><rect x="0" y="0" width="600" height="600" fill="url(#swFade)"/></mask>
+    </defs>
+    <g>
+      <rect x="40" y="246" width="96" height="108" fill="none" stroke="#3A3733" stroke-width="2"/>
+      <text x="88" y="306" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" letter-spacing="2" fill="#6E6A63">MATCH</text>
+      <line x1="136" y1="294" x2="470" y2="294" stroke="#3A3733" stroke-width="2"/>
+      <line x1="136" y1="306" x2="470" y2="306" stroke="#3A3733" stroke-width="2"/>
+      <path id="swEnvU" fill="none" stroke="rgba(204,120,92,.28)" stroke-width="1.4" stroke-dasharray="3 6"/>
+      <path id="swEnvD" fill="none" stroke="rgba(204,120,92,.28)" stroke-width="1.4" stroke-dasharray="3 6"/>
+      <path id="swWave" fill="none" stroke="#CC785C" stroke-width="2.4"/>
+      <path id="swWave2" fill="none" stroke="rgba(204,120,92,.35)" stroke-width="1.4"/>
+      <rect x="470" y="170" width="16" height="260" fill="#EFE9DE" opacity=".85"/>
+      <rect x="496" y="170" width="70" height="260" fill="rgba(232,165,90,.10)"/>
+      <rect x="496" y="170" width="8" height="260" fill="rgba(232,165,90,.35)"/>
+    </g>
+  </svg>
+  <div class="cover-kicker rise" style="--d:.1s">REMOTE MATCHER · OUTPUT CABLE</div>
+  <div class="cover-big rise" style="--d:.2s">1<span> m</span></div>
+  <div class="cover-sub rise" style="--d:.45s">
+    <span class="t-en">One meter changes everything.</span>
+    <span class="t-ko">1미터가 모든 것을 바꾼다.</span>
+  </div>
+  <div class="cover-desc rise" style="--d:.6s;width:900px">
+    <span class="t-en">Why a matcher belongs on the electrode — and what to control when it can't be.</span>
+    <span class="t-ko">매처는 왜 전극에 붙어 있어야 하는가, 그리고 그럴 수 없을 때 무엇을 관리해야 하는가.</span>
+  </div>
+  <div class="cover-meta">RF FIELD NOTES &nbsp;—&nbsp; BEN · BENEDU INSIGHT</div>
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Where a matcher belongs</h4>
+<p>In most etch and deposition tools the matching network is bolted directly onto the chamber. Its output reaches the electrode (CCP) or the coil (ICP) through a short, rigid strap or rod, often only a few centimetres long. The one cable in the RF path runs between the generator and the matcher, and that cable is a proper 50Ω link: the matcher's job is to present 50Ω at its input, so this cable carries an almost pure travelling wave.</p>
+<h4>Why remote mounting still happens</h4>
+<p>Space around the chamber lid, heat, weight, maintenance access, or a retrofit where the original matcher position is already taken. In those layouts a coaxial cable is inserted between the matcher output and the electrode — the "remote matcher" configuration. Equipment and matcher makers generally do not recommend it.</p>
+<h4>What this lecture covers</h4>
+<p>Why the cable after the matcher behaves nothing like the cable before it, the three ways it causes trouble, and the six things that must be controlled when the layout truly cannot be avoided. All numbers use generic example loads at 13.56 MHz, not any specific process or tool.</p>
+</div>
+    <div class="t-ko">
+<h4>매처가 있어야 할 자리</h4>
+<p>대부분의 식각·증착 장비에서 매칭 네트워크는 챔버 위에 직접 체결된다. 매처 출력은 수 cm 길이의 짧고 단단한 스트랩이나 로드로 전극(CCP) 또는 코일(ICP)에 연결된다. RF 경로에 있는 케이블은 Generator와 매처 사이의 한 구간뿐이며, 이 케이블은 제대로 된 50Ω 연결이다. 매처가 입력단을 50Ω으로 만들어 주기 때문에 이 구간에는 거의 순수한 진행파만 흐른다.</p>
+<h4>그런데도 리모트 마운트가 생기는 이유</h4>
+<p>챔버 상부 공간 부족, 열, 무게, 정비 접근성, 또는 기존 매처 위치를 다른 장치가 차지한 개조 장비 등이 이유다. 이런 배치에서는 매처 출력과 전극 사이에 동축케이블이 들어간다 — 이른바 '리모트 매처' 구성이다. 장비사와 매처 제조사는 일반적으로 이 구성을 권장하지 않는다.</p>
+<h4>이 강의에서 다루는 것</h4>
+<p>매처 뒤의 케이블이 매처 앞의 케이블과 왜 전혀 다르게 동작하는지, 그것이 문제를 일으키는 세 가지 방식, 그리고 배치를 정말 피할 수 없을 때 반드시 관리해야 할 여섯 가지. 모든 수치는 13.56 MHz에서의 일반적인 예시 부하를 사용하며, 특정 공정이나 장비의 값이 아니다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 2 · MISCONCEPTION ============ -->
+<section class="slide" data-title-en="The Misconception" data-title-ko="흔한 오해">
+  <div class="eyebrow"><b>01</b>THE MISCONCEPTION</div>
+  <div class="eq-hero" style="top:200px"><span class="eqn">Z₀ = 50Ω</span></div>
+  <div class="claim frag" data-step="1"><span class="wrap">
+    <span class="t-en">“It's a 50Ω coax. The length doesn't matter.”</span>
+    <span class="t-ko">“<span class="en">50Ω</span> 동축케이블이니까, 길이는 상관없다.”</span>
+    <span class="strike frag" data-step="2"></span>
+  </span></div>
+  <div class="verdict frag" data-step="2">
+    <span class="t-en">Not after the matcher.</span>
+    <span class="t-ko">매처 뒤에서는 아닙니다.</span>
+  </div>
+  <div class="verdict-sub frag" data-step="3">
+    <span class="t-en">Past the matcher, the load is the plasma — not 50Ω.</span>
+    <span class="t-ko">매처 출력단의 부하는 <span class="en">50Ω</span>이 아니라 플라즈마다.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Two cables, two different jobs</h4>
+<p>The generator-side cable ends at the matcher input, which the matcher holds at 50Ω. A 50Ω line terminated in 50Ω carries only a forward wave, so its length changes the phase of the signal and the small loss — nothing else. That is the situation in which "length doesn't matter" is true.</p>
+<p>The output-side cable ends at the electrode, and the electrode does not look like 50Ω. Typical plasma loads have a resistive part of only a few ohms and a reactive part of tens to hundreds of ohms — capacitive for a CCP electrode, inductive for an ICP coil.</p>
+<h4>What the matcher actually does</h4>
+<p>A matcher is an impedance transformer: it converts the load into 50Ω at its input. Its output faces the load exactly as it is. Everything downstream of the matcher therefore lives in a mismatched world.</p>
+<h4>Does the cable's Z₀ change?</h4>
+<p>No. The cable is still a 50Ω cable; Z₀ is set by its geometry. What changes is the load at its end. A 50Ω cable is "length-free" only when it is terminated in 50Ω — and that is precisely the condition that does not exist after the matcher.</p>
+</div>
+    <div class="t-ko">
+<h4>두 케이블, 서로 다른 역할</h4>
+<p>Generator 쪽 케이블은 매처 입력단에서 끝나고, 매처는 그 지점을 50Ω으로 유지한다. 50Ω으로 종단된 50Ω 선로에는 진행파만 흐르므로, 길이가 바꾸는 것은 신호의 위상과 작은 손실뿐이다. '길이는 상관없다'는 말은 바로 이 조건에서만 맞다.</p>
+<p>출력 쪽 케이블은 전극에서 끝나며, 전극은 50Ω처럼 보이지 않는다. 일반적인 플라즈마 부하는 저항 성분이 수 Ω에 불과하고 리액턴스 성분은 수십~수백 Ω이다 — CCP 전극이면 용량성, ICP 코일이면 유도성이다.</p>
+<h4>매처가 실제로 하는 일</h4>
+<p>매처는 임피던스 변환기다. 부하를 입력단에서 50Ω으로 바꿔 보이게 할 뿐, 출력단은 부하를 있는 그대로 마주한다. 따라서 매처 뒤의 모든 것은 부정합의 세계에 놓인다.</p>
+<h4>케이블의 Z₀가 바뀌는가?</h4>
+<p>아니다. 케이블은 여전히 50Ω 케이블이고, Z₀는 기하 구조가 정한다. 바뀌는 것은 케이블 끝의 부하다. 50Ω 케이블이 길이와 무관해지는 것은 50Ω으로 종단될 때뿐이며, 매처 뒤에는 바로 그 조건이 존재하지 않는다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 3 · CAUSALITY ============ -->
+<section class="slide" data-title-en="Where 50Ω Ends" data-title-ko="50Ω이 끝나는 곳">
+  <div class="eyebrow"><b>02</b>WHERE 50Ω ENDS</div>
+  <h2 class="headline">
+    <span class="t-en">After the matcher, nothing looks like 50Ω.</span>
+    <span class="t-ko">매처 뒤에서는 아무것도 50Ω으로 보이지 않는다.</span>
+  </h2>
+  <div class="chain">
+    <div class="node frag" data-step="1">
+      <div class="w">Low Z</div>
+      <div class="s"><span class="t-en">Plasma: a few Ω plus a large ± jX</span><span class="t-ko">플라즈마: 수 Ω의 저항과 큰 ± jX</span></div>
+    </div>
+    <div class="arr frag" data-step="2">→</div>
+    <div class="node frag" data-step="2">
+      <div class="w">VSWR 41</div>
+      <div class="s"><span class="t-en">For 3 − j60 Ω, |Γ| ≈ 0.95. Most of the wave reflects; the cable fills with standing waves.</span><span class="t-ko">3 − j60 Ω이면 |Γ| ≈ 0.95. 파의 대부분이 반사되어 케이블이 정재파로 채워진다.</span></div>
+    </div>
+    <div class="arr frag" data-step="3">→</div>
+    <div class="node frag" data-step="3">
+      <div class="w c">Z<sub style="font-size:.5em">in</sub>(ℓ)</div>
+      <div class="s"><span class="t-en">The cable transforms the load. Length decides what the matcher sees.</span><span class="t-ko">케이블이 부하를 변환한다. 매처가 보는 값은 길이가 정한다.</span></div>
+    </div>
+  </div>
+  <div class="punch frag" data-step="4">
+    <span class="t-en">Past the matcher, the cable <span class="c">is part of the load.</span></span>
+    <span class="t-ko">매처 뒤의 케이블은 <span class="c">부하의 일부다.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>How bad is the mismatch?</h4>
+<p>Take an example CCP load, Z_L = 3 − j60 Ω, on a 50Ω cable:</p>
+<div class="nf">Γ = (Z_L − 50) / (Z_L + 50) → |Γ| ≈ 0.95<br>VSWR = (1 + |Γ|) / (1 − |Γ|) ≈ 41</div>
+<p>Even a purely resistive 2Ω load gives VSWR = 50/2 = 25. Any load with a small resistive part sits near the edge of the Smith chart, so on the cable the forward and reflected waves are almost equal in size.</p>
+<h4>The cable as a transformer</h4>
+<p>A line of length ℓ terminated in Z_L presents a different impedance at its input:</p>
+<div class="nf">Z_in = Z₀ · (Z_L + jZ₀ tan βℓ) / (Z₀ + jZ_L tan βℓ)<br>β = 2π / λ_cable</div>
+<h4>How long is "long"?</h4>
+<p>At 13.56 MHz the free-space wavelength is 22.1 m. In a solid-PE cable (velocity factor 0.66) it shrinks to about 14.6 m, so λ/4 ≈ 3.65 m and each metre adds about 25° of electrical length. For a load near the Smith chart's rim, 25° is a large rotation — enough to move the matching point far from where the matcher was designed to tune.</p>
+</div>
+    <div class="t-ko">
+<h4>부정합은 얼마나 심한가</h4>
+<p>예시 CCP 부하 Z_L = 3 − j60 Ω이 50Ω 케이블 끝에 붙어 있다고 하자.</p>
+<div class="nf">Γ = (Z_L − 50) / (Z_L + 50) → |Γ| ≈ 0.95<br>VSWR = (1 + |Γ|) / (1 − |Γ|) ≈ 41</div>
+<p>순수 저항 2Ω 부하만 해도 VSWR = 50/2 = 25다. 저항 성분이 작은 부하는 모두 스미스차트 가장자리 근처에 있으므로, 케이블 위에서는 진행파와 반사파의 크기가 거의 같아진다.</p>
+<h4>변환기가 된 케이블</h4>
+<p>길이 ℓ인 선로가 Z_L로 종단되면 입력단에서는 다른 임피던스로 보인다.</p>
+<div class="nf">Z_in = Z₀ · (Z_L + jZ₀ tan βℓ) / (Z₀ + jZ_L tan βℓ)<br>β = 2π / λ_cable</div>
+<h4>얼마나 길어야 '긴' 것인가</h4>
+<p>13.56 MHz의 자유공간 파장은 22.1 m다. Solid PE 케이블(속도계수 0.66) 안에서는 약 14.6 m로 줄어들어 λ/4 ≈ 3.65 m이고, 1 m마다 전기적 길이가 약 25°씩 늘어난다. 스미스차트 가장자리 근처의 부하에게 25°는 큰 회전이다 — 매처가 튠하도록 설계된 위치에서 정합점을 멀리 옮겨 놓기에 충분하다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 4 · LAB ============ -->
+<section class="slide" data-title-en="Slide the Cable" data-title-ko="케이블을 늘려 보기">
+  <div class="eyebrow"><b>03</b>TRY IT</div>
+  <h2 class="headline">
+    <span class="t-en">Slide the cable.</span>
+    <span class="t-ko">케이블을 늘려 보세요.</span>
+  </h2>
+  <svg class="rc-strip" id="rcStrip" viewBox="0 0 1088 200" aria-label="Cable standing wave">
+    <path id="rcV" fill="rgba(204,120,92,.16)" stroke="#CC785C" stroke-width="2.2"/>
+    <path id="rcI" fill="rgba(112,48,160,.10)" stroke="#7030A0" stroke-width="2.2"/>
+    <rect id="rcCab" x="0" y="100" width="0" height="10" fill="#252320"/>
+    <rect id="rcBox" x="0" y="55" width="110" height="100" fill="#fff" stroke="#252320" stroke-width="2"/>
+    <text id="rcBoxT" x="0" y="110" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="1.5" fill="#252320">MATCHER</text>
+    <rect x="1010" y="20" width="18" height="170" fill="#252320"/>
+    <rect x="1034" y="20" width="54" height="170" fill="rgba(232,165,90,.22)"/>
+    <text x="1061" y="16" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" letter-spacing="1" fill="#6C6A64">LOAD</text>
+    <text id="rcVl" x="0" y="30" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#CC785C">|V|</text>
+    <text id="rcIl" x="0" y="190" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#7030A0">|I|</text>
+  </svg>
+  <div class="rc-cap">13.56 MHz · VF 0.66 · 2 kW DELIVERED · LOSSLESS MODEL</div>
+  <div class="rc-lab" id="rcLab">
+    <div class="rc-left">
+      <div class="ctl-row"><span class="k"><span class="t-en">Cable length</span><span class="t-ko">케이블 길이</span> &nbsp;ℓ</span><span class="v" id="rcLv">1.00 m · 25°</span></div>
+      <input type="range" id="rcLen" min="0" max="5" step="0.01" value="1">
+      <div class="ctl-row" style="margin-top:22px"><span class="k"><span class="t-en">Load at the electrode</span><span class="t-ko">전극 쪽 부하</span></span><span class="v" id="rcZl">3 − j60 Ω</span></div>
+      <div class="chips">
+        <button class="chip-btn rc-chip on" data-zl="3,-60">CCP</button>
+        <button class="chip-btn rc-chip" data-zl="2,130">ICP coil</button>
+        <button class="chip-btn rc-chip" data-zl="50,0">50Ω</button>
+      </div>
+    </div>
+    <div class="rc-right">
+      <div class="rc-k"><span class="t-en">The matcher sees</span><span class="t-ko">매처가 보는 부하</span></div>
+      <div class="rc-z"><span id="rcZin">1.5 − j23.9</span><span class="u">Ω</span></div>
+      <div class="rc-stats" id="rcStats"></div>
+      <div class="status" id="rcStatus"></div>
+    </div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What the lab computes</h4>
+<p>A lossless 50Ω cable, velocity factor 0.66, at 13.56 MHz, with 2 kW delivered into the load. The coral curve is the rms voltage envelope along the cable, the purple curve the rms current envelope. The readout is Z_in at the matcher end.</p>
+<h4>CCP example (3 − j60 Ω)</h4>
+<ul>
+<li>0.5 m → 2.0 − j38.9 Ω</li>
+<li>1.0 m → 1.5 − j23.9 Ω</li>
+<li>2.04 m → 1.2 + j0 Ω: series resonance. The cable's inductive transformation cancels the electrode capacitance; the matcher sees almost a short.</li>
+<li>Beyond that the reactance turns inductive — the opposite sign of the load the matcher was built for.</li>
+</ul>
+<h4>ICP coil example (2 + j130 Ω)</h4>
+<p>At about 0.85 m the input rises to nearly 10 kΩ: parallel resonance. Now the voltage maximum sits right at the matcher's output terminal. Less than one metre was enough.</p>
+<h4>The size of the peaks</h4>
+<div class="nf">|V⁺| = √(P · Z₀ / (1 − |Γ|²))<br>V_max = |V⁺|(1 + |Γ|), &nbsp; I_max = V_max / Z₀</div>
+<p>For the CCP example: V_max ≈ 2.0 kV rms (≈ 2.9 kV peak) and I_max ≈ 40 A rms, compared with 6.3 A in a matched 50Ω cable at the same power. The peaks do not move with length — only their positions do. The LOSS readout compares the cable's I² loss with a matched cable at the same power; on a short cable it depends on where the current maxima fall, and over many wavelengths it settles toward (1 + |Γ|²)/(1 − |Γ|²). Real cable loss and contact resistance soften the extremes, but that softening is itself heat.</p>
+</div>
+    <div class="t-ko">
+<h4>이 실험이 계산하는 것</h4>
+<p>손실 없는 50Ω 케이블, 속도계수 0.66, 13.56 MHz, 부하에 2 kW 전달 조건이다. 코랄 곡선은 케이블을 따라 나타나는 전압 실효값 포락선, 퍼플 곡선은 전류 실효값 포락선이다. 오른쪽 값은 매처 쪽 끝에서 본 Z_in이다.</p>
+<h4>CCP 예시 (3 − j60 Ω)</h4>
+<ul>
+<li>0.5 m → 2.0 − j38.9 Ω</li>
+<li>1.0 m → 1.5 − j23.9 Ω</li>
+<li>2.04 m → 1.2 + j0 Ω: 직렬 공진. 케이블의 유도성 변환이 전극 커패시턴스를 상쇄해, 매처는 거의 단락을 보게 된다.</li>
+<li>그보다 길어지면 리액턴스가 유도성으로 바뀐다 — 매처가 상정한 부하와 반대 부호다.</li>
+</ul>
+<h4>ICP 코일 예시 (2 + j130 Ω)</h4>
+<p>약 0.85 m에서 입력 임피던스가 거의 10 kΩ까지 올라간다: 병렬 공진. 이제 전압 최대점이 매처 출력 단자 바로 위에 놓인다. 1 m도 필요하지 않았다.</p>
+<h4>최대값의 크기</h4>
+<div class="nf">|V⁺| = √(P · Z₀ / (1 − |Γ|²))<br>V_max = |V⁺|(1 + |Γ|), &nbsp; I_max = V_max / Z₀</div>
+<p>CCP 예시에서 V_max ≈ 2.0 kV rms(피크 약 2.9 kV), I_max ≈ 40 A rms이며, 같은 전력의 정합된 50Ω 케이블이라면 6.3 A다. 최대값의 크기는 길이에 따라 변하지 않고 위치만 움직인다. LOSS 값은 같은 전력의 정합된 케이블 대비 I² 손실의 비율이다. 짧은 케이블에서는 전류 최대점이 어디에 놓이느냐에 따라 달라지고, 여러 파장에 걸친 긴 선로에서는 (1 + |Γ|²)/(1 − |Γ|²)에 가까워진다. 실제 케이블 손실과 접촉 저항이 극단값을 다소 누그러뜨리지만, 그렇게 누그러진 만큼이 곧 열이다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 5 · THREE FAILURES ============ -->
+<section class="slide dark" data-title-en="Three Ways It Fails" data-title-ko="세 가지 실패 방식">
+  <div class="eyebrow"><b>04</b>THE RISKS</div>
+  <h2 class="headline">
+    <span class="t-en">Three ways it fails.</span>
+    <span class="t-ko">세 가지로 무너진다.</span>
+  </h2>
+  <div class="views">
+    <div class="view rise" style="--d:.15s">
+      <div class="k">01 · TUNING</div>
+      <div class="eqn">± jX</div>
+      <div class="d"><span class="t-en">The load drifts out of the matcher's range — or flips sign. Same recipe, different chamber, different result.</span><span class="t-ko">부하가 매처의 튠 범위를 벗어나거나 부호가 뒤집힌다. 같은 레시피, 다른 챔버, 다른 결과.</span></div>
+    </div>
+    <div class="view rise" style="--d:.35s">
+      <div class="k">02 · HEAT &amp; ARC</div>
+      <div class="eqn">× 20</div>
+      <div class="d"><span class="t-en">Current and voltage peaks sit on the cable and connectors. Loss multiplies. Connectors burn.</span><span class="t-ko">전류·전압 최대점이 케이블과 커넥터 위에 놓인다. 손실이 배로 늘고 커넥터가 탄다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.55s">
+      <div class="k">03 · RETURN PATH &amp; HARMONICS</div>
+      <div class="eqn">λ/4</div>
+      <div class="d"><span class="t-en">Shield current, RF leakage, harmonic resonance. At 40.68 MHz, λ/4 is only 1.2 m.</span><span class="t-ko">차폐 전류, RF 누설, 하모닉 공진. 40.68 MHz에서 λ/4는 1.2 m에 불과하다.</span></div>
+      <a class="adv-link" href="Remote_Matcher_Harmonic_Resonance_ADV.html" target="_blank" rel="noopener"><span class="t-en">ADVANCED · HARMONIC RESONANCE →</span><span class="t-ko">고급과정 · 하모닉 공진 →</span></a>
+    </div>
+  </div>
+  <div class="foot-line rise" style="--d:.8s">
+    <span class="t-en"><b>Reflected 0 W</b> doesn't mean the cable is fine.</span>
+    <span class="t-ko"><b>Reflected 0 W</b>가 케이블이 괜찮다는 뜻은 아니다.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>01 · Tuning</h4>
+<p>A matcher's vacuum capacitor range is designed around the impedance expected at the electrode. The cable moves that target. Capacitor positions end up near their limits, small process changes push them over, and a load whose reactance has changed sign may be impossible for the matcher's topology to tune at all. Two chambers whose cables differ by 30 cm differ by about 7° of electrical length — enough for different capacitor positions and different power actually reaching the plasma on the "same" recipe.</p>
+<h4>02 · Heat &amp; arc</h4>
+<p>Conductor loss scales with I². Averaged over the line, the loss relative to a matched cable is about</p>
+<div class="nf">(1 + |Γ|²) / (1 − |Γ|²) ≈ 20 &nbsp; at VSWR ≈ 41</div>
+<p>A cable that would lose 1% matched can lose roughly 20% here — hundreds of watts at kilowatt levels — concentrated at current maxima. Voltage maxima stress the dielectric and connectors, leading to arcing, carbon tracking and discoloured centre pins. The power the matcher reports includes this loss, so the plasma receives less than the display says.</p>
+<h4>03 · Return path — where the current comes back</h4>
+<p>Every ampere that flows to the electrode on the centre conductor must come back to the matcher. In a coax it returns on the <b>inside surface of the shield</b>. At 13.56 MHz the skin depth in copper is only about 18 µm, so the inside and outside surfaces of the braid behave as two separate conductors: the forward current and its return stay inside, their fields cancel outside, and the cable neither radiates nor picks up noise.</p>
+<p>That only holds if the return current can leave the shield cleanly at both ends — 360° into the matcher chassis on one side and into the chamber body right at the electrode feed-through on the other. Any detour adds inductance:</p>
+<div class="nf">X = 2πfL<br>10 nH at 13.56 MHz → X ≈ 0.85 Ω<br>30 A × 0.85 Ω ≈ 26 V of RF across the bond</div>
+<p>A few centimetres of pigtail or a loose connector is enough. That voltage drives part of the current onto the <b>outside</b> of the shield (common-mode current). The cable then works as an antenna, and the matcher housing and chamber body sit at different RF potentials.</p>
+<h4>What follows</h4>
+<ul>
+<li>RF on frames and covers couples into nearby wiring — pressure gauges, thermocouples, chuck supplies, interlocks — giving noisy readings and nuisance alarms.</li>
+<li>The current finds a second route home through frame grounds and ground straps. These form a loop whose impedance changes with every panel opened or strap retightened, so the RF return path is no longer fixed.</li>
+<li>The chamber's RF ground is part of the plasma circuit. When it floats, parasitic discharge can appear at ports and gaps, and uniformity can shift.</li>
+<li>Bonds carrying tens of amperes heat, oxidise and arc, which raises their impedance further.</li>
+</ul>
+<h4>Harmonics on the same cable</h4>
+<p>The plasma sheath is non-linear, so the load also generates 27.12 MHz, 40.68 MHz and higher. The cable transforms impedance at those frequencies too, and a quarter wavelength there is short:</p>
+<div class="nf">λ/4 (VF 0.66): 27.12 MHz ≈ 1.8 m, 40.68 MHz ≈ 1.2 m</div>
+<p>A quarter-wave line turns a low impedance into a high one and vice versa. With the matcher's output network at one end and the electrode at the other, an ordinary cable length can form a resonance at a harmonic, letting large harmonic current flow. That changes the electrode voltage waveform — and with it the ion energy — and distorts what V-I sensors report. This is why the VNA fingerprint on the next slide covers the harmonics as well as 13.56 MHz.</p>
+<p>→ <a class="nl" href="Remote_Matcher_Harmonic_Resonance_ADV.html" target="_blank" rel="noopener">Advanced course: Harmonic resonance on the output cable</a></p>
+<h4>Why "reflected 0 W" is not enough</h4>
+<p>The forward/reflected sensor sits at the generator output or the matcher input — in front of the cable. Reflected 0 W means only one thing: the generator sees 50Ω. It says nothing about where the forward power goes after the matcher.</p>
+<p>Worse, the matcher simply tunes whatever is connected to it: cable plus electrode plus plasma. Cable loss looks to it like extra resistance, which actually makes the load easier to match. Hundreds of watts can turn into heat in the cable and connectors, current can leak onto the shield, and harmonics can resonate — all while the display shows a perfect match and full delivered power. Reflected power confirms the match, not the health of the cable. That is why the next slide relies on temperature, capacitor-position trends and VNA baselines instead.</p>
+</div>
+    <div class="t-ko">
+<h4>01 · 튜닝</h4>
+<p>매처의 진공 커패시터 범위는 전극에서 예상되는 임피던스를 기준으로 설계된다. 케이블은 그 목표점을 옮긴다. 커패시터 포지션이 한계 근처에 머물고, 작은 공정 변화에도 범위를 벗어나며, 리액턴스 부호가 바뀐 부하는 매처 토폴로지로는 아예 튠할 수 없을 수도 있다. 케이블 길이가 30 cm 다른 두 챔버는 전기적 길이가 약 7° 다르다 — '같은' 레시피에서도 커패시터 포지션과 실제로 플라즈마에 전달되는 전력이 달라지기에 충분하다.</p>
+<h4>02 · 발열과 아크</h4>
+<p>도체 손실은 I²에 비례한다. 선로 전체로 평균하면, 정합된 케이블 대비 손실 배수는 대략 다음과 같다.</p>
+<div class="nf">(1 + |Γ|²) / (1 − |Γ|²) ≈ 20 &nbsp; (VSWR ≈ 41)</div>
+<p>정합 시 1%를 잃던 케이블이 여기서는 약 20%를 잃을 수 있다 — kW급에서는 수백 W이며, 그것이 전류 최대점에 집중된다. 전압 최대점은 유전체와 커넥터에 스트레스를 주어 아크, 탄화 트래킹, 심선 변색으로 이어진다. 매처가 표시하는 전력에는 이 손실이 포함되어 있으므로, 플라즈마는 화면의 값보다 적은 전력을 받는다.</p>
+<h4>03 · 귀환 경로 — 전류는 어디로 돌아오는가</h4>
+<p>심선을 타고 전극으로 간 전류는 1 A도 빠짐없이 매처로 돌아와야 한다. 동축케이블에서 그 귀환 전류는 <b>차폐의 안쪽 면</b>을 따라 흐른다. 13.56 MHz에서 구리의 표피 깊이는 약 18 µm에 불과하므로, 편조 차폐의 안쪽 면과 바깥 면은 서로 다른 두 도체처럼 동작한다. 진행 전류와 귀환 전류가 모두 안쪽에 머물면 바깥에서 두 장이 상쇄되어, 케이블은 방사하지도 않고 노이즈를 받지도 않는다.</p>
+<p>단, 이것은 귀환 전류가 양쪽 끝에서 차폐를 깨끗하게 빠져나갈 수 있을 때만 성립한다. 한쪽은 매처 섀시로 360° 체결, 다른 한쪽은 전극 피드스루 바로 옆에서 챔버 바디로 체결되어야 한다. 돌아가는 경로가 생기면 그만큼 인덕턴스가 붙는다.</p>
+<div class="nf">X = 2πfL<br>13.56 MHz에서 10 nH → X ≈ 0.85 Ω<br>30 A × 0.85 Ω ≈ 체결부 양단에 26 V의 RF 전압</div>
+<p>수 cm의 피그테일이나 풀린 커넥터 하나면 충분하다. 이 전압이 전류의 일부를 차폐 <b>바깥 면</b>으로 밀어낸다(공통 모드 전류). 그러면 케이블은 안테나가 되고, 매처 하우징과 챔버 바디는 서로 다른 RF 전위에 놓인다.</p>
+<h4>그 결과</h4>
+<ul>
+<li>프레임과 커버에 실린 RF가 주변 배선에 결합한다 — 압력 게이지, 열전대, 척 전원, 인터락 — 측정값이 흔들리고 불필요한 알람이 뜬다.</li>
+<li>전류가 프레임 접지와 접지 스트랩을 통해 두 번째 귀환 경로를 찾는다. 이 루프의 임피던스는 패널을 열거나 스트랩을 다시 조일 때마다 바뀌므로, RF 귀환 경로가 더 이상 고정되지 않는다.</li>
+<li>챔버의 RF 접지는 플라즈마 회로의 일부다. 접지가 떠 있으면 포트나 틈새에서 기생 방전이 생기고 균일도가 움직일 수 있다.</li>
+<li>수십 A가 흐르는 체결부는 발열하고 산화되며 아크가 생기고, 그 결과 임피던스가 더 높아진다.</li>
+</ul>
+<h4>같은 케이블 위의 하모닉</h4>
+<p>플라즈마 시스는 비선형이므로 부하는 27.12 MHz, 40.68 MHz 및 그 이상의 하모닉도 만든다. 케이블은 이 주파수에서도 임피던스를 변환하며, 그곳에서의 λ/4는 짧다.</p>
+<div class="nf">λ/4 (VF 0.66): 27.12 MHz ≈ 1.8 m, 40.68 MHz ≈ 1.2 m</div>
+<p>λ/4 선로는 낮은 임피던스를 높게, 높은 임피던스를 낮게 바꾼다. 한쪽 끝에 매처 출력 회로, 다른 쪽 끝에 전극이 있는 상태에서, 흔한 케이블 길이가 하모닉에서 공진을 만들어 큰 하모닉 전류가 흐를 수 있다. 그러면 전극 전압 파형이 바뀌고 — 따라서 이온 에너지도 바뀌고 — V-I 센서가 읽는 값도 왜곡된다. 다음 슬라이드의 VNA 기준값 측정에 13.56 MHz뿐 아니라 하모닉 대역까지 포함하는 이유다.</p>
+<p>→ <a class="nl" href="Remote_Matcher_Harmonic_Resonance_ADV.html" target="_blank" rel="noopener">고급과정: 출력 케이블의 하모닉 공진</a></p>
+<h4>왜 'Reflected 0 W'로는 부족한가</h4>
+<p>Forward/Reflected 센서는 Generator 출력단이나 매처 입력단, 즉 케이블보다 앞에 있다. Reflected 0 W가 뜻하는 것은 단 하나, Generator가 50Ω을 보고 있다는 것이다. 매처를 지난 뒤 진행 전력이 어디로 가는지는 아무것도 말해 주지 않는다.</p>
+<p>더 나아가, 매처는 자기에게 연결된 것을 그대로 튠할 뿐이다 — 케이블 + 전극 + 플라즈마 전체를. 케이블 손실은 매처에게 추가 저항으로 보이고, 저항이 커지면 오히려 정합이 쉬워진다. 수백 W가 케이블과 커넥터에서 열로 바뀌고, 전류가 차폐 바깥으로 새고, 하모닉이 공진하는 동안에도 화면은 완벽한 정합과 정격 전달 전력을 보여 줄 수 있다. 반사 전력은 정합을 확인할 뿐, 케이블의 건강 상태를 확인하지 않는다. 그래서 다음 슬라이드는 온도, 커패시터 포지션 트렌드, VNA 기준값에 의존한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 6 · IF YOU MUST ============ -->
+<section class="slide" data-title-en="If You Must" data-title-ko="부득이하다면">
+  <div class="eyebrow"><b>05</b>IF YOU MUST</div>
+  <h2 class="headline">
+    <span class="t-en">Treat the cable as part of the matcher.</span>
+    <span class="t-ko">케이블을 매처의 일부로 다뤄라.</span>
+  </h2>
+  <div class="rules">
+    <div class="rcol frag" data-step="1">
+      <div class="cat">GEOMETRY</div>
+      <div class="rule"><div class="no">01</div><div class="tt"><span class="t-en">Fix the length</span><span class="t-ko">길이를 고정한다</span></div><div class="dd"><span class="t-en">One part number, one length, every chamber.</span><span class="t-ko">부품번호 하나, 길이 하나, 모든 챔버 동일.</span></div></div>
+      <div class="rule"><div class="no">02</div><div class="tt"><span class="t-en">Fix the route</span><span class="t-ko">경로를 고정한다</span></div><div class="dd"><span class="t-en">Clamped. No coils, no slack loops.</span><span class="t-ko">클램프 고정. 코일링·여유 루프 금지.</span></div></div>
+    </div>
+    <div class="rcol frag" data-step="2">
+      <div class="cat">HARDWARE</div>
+      <div class="rule"><div class="no">03</div><div class="tt"><span class="t-en">Rate for the peaks</span><span class="t-ko">최대값 기준으로 정격</span></div><div class="dd"><span class="t-en">Size for V<sub>max</sub> and I<sub>max</sub>, not nominal power.</span><span class="t-ko">공칭 파워가 아니라 V<sub>max</sub>·I<sub>max</sub> 기준.</span></div></div>
+      <div class="rule"><div class="no">04</div><div class="tt"><span class="t-en">Bond the ground</span><span class="t-ko">접지를 체결한다</span></div><div class="dd"><span class="t-en">Both ends. Short, wide straps.</span><span class="t-ko">양단 모두. 짧고 넓은 스트랩.</span></div></div>
+    </div>
+    <div class="rcol frag" data-step="3">
+      <div class="cat">VERIFICATION</div>
+      <div class="rule"><div class="no">05</div><div class="tt"><span class="t-en">Watch the matcher</span><span class="t-ko">매처를 지켜본다</span></div><div class="dd"><span class="t-en">Trend capacitor positions and cable temperature.</span><span class="t-ko">커패시터 포지션과 케이블 온도를 트렌드로.</span></div></div>
+      <div class="rule"><div class="no">06</div><div class="tt"><span class="t-en">Fingerprint it</span><span class="t-ko">기준값을 남긴다</span></div><div class="dd"><span class="t-en">VNA sweep after install, PM and every swap.</span><span class="t-ko">설치·PM·교체 후마다 VNA 스윕.</span></div></div>
+    </div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Geometry — 01 · 02</h4>
+<p>Specify the output cable as an assembly: part number, length and tolerance, and the connector type at each end. Every chamber of the same model uses the identical assembly, and a replacement must be the same assembly — never a cable that is "about the same length". Electrical length can be checked with a VNA (phase or time-domain) against the original.</p>
+<p>Route the cable once and clamp it. Excess cable coiled behind a panel becomes an inductor and couples to the chassis. Respect the minimum bend radius, keep the connectors free of the cable's weight, and keep it away from sensor and control wiring.</p>
+<h4>Hardware — 03 · 04</h4>
+<p>Calculate V_max and I_max from the expected load range and maximum power (formula on the lab slide), convert rms to peak (× 1.41), and add margin. That usually points to a larger-diameter, PTFE-dielectric cable and high-voltage connector families rather than the connector that is merely convenient.</p>
+<p>Bond the shield 360° at both ends, and add a short, wide ground strap between matcher chassis and chamber. A long thin wire is an inductor at 13.56 MHz, not a ground. Check contact surfaces and connector torque at every PM.</p>
+<h4>Verification — 05 · 06</h4>
+<p>Trend the matcher's capacitor positions per recipe step. A slow drift on an unchanged recipe often points to a cable or connector changing. Watch cable and connector temperature with thermal labels or an IR camera.</p>
+<p>After installation, with the matcher disconnected and the chamber under vacuum, sweep the cable-plus-electrode impedance with a VNA around the fundamental and its harmonics. Keep it as the baseline and repeat after every PM and every cable or connector swap.</p>
+</div>
+    <div class="t-ko">
+<h4>기하 구조 — 01 · 02</h4>
+<p>출력 케이블은 하나의 어셈블리로 규정한다. 부품번호, 길이와 허용오차, 양단 커넥터 종류까지 정한다. 같은 모델의 모든 챔버는 동일한 어셈블리를 쓰고, 교체품도 반드시 같은 어셈블리여야 한다 — '대략 비슷한 길이'의 케이블은 안 된다. 전기적 길이는 VNA(위상 또는 시간 영역 측정)로 원본과 비교해 확인할 수 있다.</p>
+<p>경로는 한 번 정하고 클램프로 고정한다. 패널 뒤에 감아 둔 여분 케이블은 인덕터가 되어 섀시와 결합한다. 최소 굴곡 반경을 지키고, 커넥터에 케이블 무게가 걸리지 않게 하며, 센서·제어 배선과 떨어뜨린다.</p>
+<h4>하드웨어 — 03 · 04</h4>
+<p>예상 부하 범위와 최대 전력으로 V_max와 I_max를 계산하고(실험 슬라이드의 공식), 실효값을 피크값으로 환산(× 1.41)한 뒤 여유를 둔다. 대개 더 굵은 PTFE 유전체 케이블과 고전압용 커넥터 계열이 필요하다는 결론이 나온다 — 단지 편한 커넥터가 아니라.</p>
+<p>차폐는 양단 모두 360°로 체결하고, 매처 섀시와 챔버 사이에 짧고 넓은 접지 스트랩을 추가한다. 길고 가는 전선은 13.56 MHz에서 접지가 아니라 인덕터다. PM마다 접촉면과 커넥터 체결 토크를 점검한다.</p>
+<h4>검증 — 05 · 06</h4>
+<p>레시피 스텝별로 매처의 커패시터 포지션을 트렌드로 본다. 레시피가 그대로인데 포지션이 서서히 움직인다면 케이블이나 커넥터의 변화를 의심할 만하다. 케이블과 커넥터 온도는 온도 라벨이나 IR 카메라로 확인한다.</p>
+<p>설치 직후, 매처를 분리하고 챔버를 진공 상태로 둔 채 VNA로 케이블+전극의 임피던스를 기본파와 하모닉 주변에서 스윕한다. 이를 기준값으로 보관하고, PM 후와 케이블·커넥터 교체 후마다 다시 측정해 비교한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 7 · ONE MORE THING ============ -->
+<section class="slide dark" data-title-en="One More Thing" data-title-ko="한 가지 더">
+  <div class="omt hides" data-hide="1">
+    <span class="t-en">One more thing.</span>
+    <span class="t-ko">그리고, 한 가지 더.</span>
+  </div>
+  <div class="eyebrow frag" data-step="1"><b>06</b>ONE MORE THING</div>
+  <div class="vs frag" data-step="1">
+    <div class="blk"><div class="n">50Ω</div><div class="l"><span class="t-en">Generator → Matcher cable</span><span class="t-ko"><span class="en">Generator</span> → 매처 케이블</span></div></div>
+    <div class="ne">+</div>
+    <div class="blk"><div class="n q">? m</div><div class="l"><span class="t-en">Does its length matter too?</span><span class="t-ko">이 길이도 중요할까?</span></div></div>
+  </div>
+  <div class="next-line frag" data-step="2">
+    <span class="t-en">Some generator makers specify even this cable's length. Why?</span>
+    <span class="t-ko">일부 Generator 제조사는 이 케이블의 길이까지 지정한다. 왜일까?</span>
+  </div>
+  <div class="next-tag frag" data-step="2">NEXT · THE GENERATOR-SIDE CABLE</div>
+  <div class="end-links frag" data-step="2">
+    <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener">benedu-insight.github.io ↗</a>
+    <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener">Instagram · @benedu.insight ↗</a>
+  </div>
+  <img class="logo-tr frag" data-step="1" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What this lecture established</h4>
+<p>The cable after the matcher is not a transmission link but part of the load. It sets what the matcher must tune, carries standing-wave peaks of voltage and current, and multiplies loss — all invisible on a reflected-power reading. Direct mounting avoids every one of these; when it is impossible, the cable has to be fixed, rated, grounded and verified as carefully as the matcher itself.</p>
+<h4>The open question</h4>
+<p>The generator-side cable is terminated in 50Ω, so by this lecture's own logic its length should not matter. Yet some generator makers still state recommended or prohibited lengths for it. The condition "terminated in 50Ω" is the place to look: ask whether the matcher input really is 50Ω at every moment — during ignition, while the capacitors are still moving, or when the RF is pulsed.</p>
+<p>Next session follows that question.</p>
+</div>
+    <div class="t-ko">
+<h4>이 강의에서 정리한 것</h4>
+<p>매처 뒤의 케이블은 전송 경로가 아니라 부하의 일부다. 매처가 튠해야 할 대상을 바꾸고, 전압·전류의 정재파 최대점을 품으며, 손실을 몇 배로 키운다 — 그리고 이 모든 것은 반사 전력 값에 나타나지 않는다. 직결 마운트는 이 문제를 모두 피한다. 그것이 불가능하다면 케이블을 매처만큼 신중하게 고정하고, 정격을 정하고, 접지하고, 검증해야 한다.</p>
+<h4>남은 질문</h4>
+<p>Generator 쪽 케이블은 50Ω으로 종단되므로, 이 강의의 논리대로라면 길이는 상관없어야 한다. 그런데도 일부 Generator 제조사는 이 케이블의 권장 길이나 피해야 할 길이를 명시한다. 살펴볼 곳은 '50Ω으로 종단된다'는 조건이다. 매처 입력이 정말 모든 순간에 50Ω인지 생각해 보자 — 점화 순간, 커패시터가 아직 움직이는 동안, 또는 RF가 펄스로 동작할 때.</p>
+<p>다음 시간에는 이 질문을 따라간다.</p>
+</div>
+  </div>
+</section>
+
+</div></div>
+
+<!-- control bar -->
+<div id="bar">
+  <button id="prevBtn" title="Previous (←)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <span class="dots" id="dots"></span>
+  <button id="nextBtn" title="Next (→)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+  <span class="sep"></span>
+  <button id="gridBtn" title="Overview (G)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <button id="notesBtn" title="Lecture notes (N)"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h6"/></svg></button>
+  <button id="langBtn" title="Language (L)">한국어</button>
+  <button id="fsBtn" title="Fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <span class="sep"></span>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="benedu-insight.github.io" aria-label="Homepage"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg></a>
+  <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener" title="Instagram · @benedu.insight" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></a>
+</div>
+
+<!-- notes -->
+<div id="notesTab">LECTURE NOTES</div>
+<aside id="notes">
+  <div class="notes-head"><div><span class="ttl"><span class="t-en">LECTURE NOTES</span><span class="t-ko en">강의 노트</span></span><span class="no" id="notesNo"></span></div><button id="notesClose" aria-label="Close">×</button></div>
+  <div class="notes-title" id="notesTitle"></div>
+  <div class="notes-body" id="notesBody"></div>
+  <div class="notes-foot"><span class="t-en">SUPPLEMENTARY EXPLANATION · N TO TOGGLE</span><span class="t-ko">수강생을 위한 보충 설명 · N 키로 열고 닫기</span></div>
+</aside>
+
+<!-- grid -->
+<div id="grid">
+  <div class="grid-head"><span class="ttl">OVERVIEW</span><span class="hint">CLICK A SLIDE · ESC TO CLOSE</span></div>
+  <div class="grid-wrap" id="gridWrap"></div>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = [].slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0, step = 0;
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+
+
+  /* ---- typography rule: Latin letters, numbers & symbols inside Korean text -> Google Sans ---- */
+  (function autoEn(root){
+    var C = "A-Za-z0-9ΩηπμεωΓλᵣ₀′√×≈≫=+/.()%°±ℓ⁺|−·-", K = "A-Za-z0-9ΩηπμεωΓλℓ";
+    var re = new RegExp("["+C+"]*["+K+"]["+C+"]*(?:\\s+["+C+"]*["+K+"]["+C+"]*)*","g");
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [];
+    while(w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(function(n){
+      var p = n.parentElement;
+      if(!p || !p.closest('.t-ko') || p.closest('.en,script,style')) return;
+      var t = n.nodeValue, m, last = 0, frag = document.createDocumentFragment(), hit = false;
+      re.lastIndex = 0;
+      while((m = re.exec(t))){
+        hit = true;
+        if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'en'; sp.textContent = m[0]; frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if(!hit) return;
+      if(last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+      p.replaceChild(frag, n);
+    });
+  })(document.body);
+
+  /* ---- generated decoration: cover E-field lines, history axis ticks ---- */
+  var ef = document.getElementById('efield'), svgNS = 'http://www.w3.org/2000/svg';
+  if(ef) for(var i=0;i<16;i++){
+    var t = i/16*Math.PI*2, l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',300+82*Math.cos(t)); l.setAttribute('y1',300+82*Math.sin(t));
+    l.setAttribute('x2',300+238*Math.cos(t)); l.setAttribute('y2',300+238*Math.sin(t));
+    l.setAttribute('stroke','rgba(204,120,92,.42)'); l.setAttribute('stroke-width','1.6'); l.setAttribute('class','flow');
+    ef.appendChild(l);
+  }
+  var tk = document.getElementById('ticks');
+  if(tk) for(var z=20; z<=90; z+=10){
+    var d = document.createElement('div'); d.className='tick';
+    d.style.left = (96 + (z-20)/70*1088) + 'px'; d.textContent = z;
+    tk.appendChild(d);
+  }
+
+
+  /* ---- radicals: drawn hook that scales with its content ---- */
+  document.querySelectorAll('.sqrt').forEach(function(q){
+    var old = q.querySelector('.rad'); if(old) old.remove();
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','rad'); svg.setAttribute('viewBox','0 0 10 20'); svg.setAttribute('preserveAspectRatio','none');
+    var pth = document.createElementNS('http://www.w3.org/2000/svg','path');
+    pth.setAttribute('d','M0.3 12.2 L2.3 11 L5.2 19.6 L9.4 0.55 L10.6 0.55');
+    svg.appendChild(pth); q.insertBefore(svg, q.firstChild);
+  });
+
+  /* ---- dot indicator ---- */
+  var dotsEl = document.getElementById('dots');
+  slides.forEach(function(s,i){ var d=document.createElement('span'); d.className='dot'; d.title=pad(i+1)+' · '+s.dataset.titleEn; d.onclick=function(){ go(i); }; dotsEl.appendChild(d); });
+
+  /* ---- footer ---- */
+  var DOC = deck.dataset.doc || '';
+  slides.forEach(function(s,i){
+    var f = document.createElement('div'); f.className='footer';
+    f.innerHTML = '<span class="fm">BENEDU INSIGHT</span><span class="fd2">'+DOC+'</span><span class="fp">'+pad(i+1)+' / '+pad(total)+'</span>';
+    s.appendChild(f);
+  });
+
+  /* ---- build steps ---- */
+  function maxStep(s){
+    var m = 0; s.querySelectorAll('[data-step]').forEach(function(e){ m = Math.max(m, +e.dataset.step); });
+    return m;
+  }
+  function applyStep(s, n){
+    s.querySelectorAll('.frag').forEach(function(e){ e.classList.toggle('on', +e.dataset.step <= n); });
+    s.querySelectorAll('.hides').forEach(function(e){ e.classList.toggle('gone', n >= +e.dataset.hide); });
+  }
+
+  function render(){
+    slides.forEach(function(s,i){
+      var was = s.classList.contains('active');
+      s.classList.toggle('active', i===idx);
+      if(i===idx && !was){ s.querySelectorAll('.rise').forEach(function(r){ r.style.animation='none'; r.offsetHeight; r.style.animation=''; }); }
+    });
+    applyStep(slides[idx], step);
+    [].forEach.call(document.querySelectorAll('#dots .dot'), function(d,i){ d.classList.toggle('on', i===idx); d.classList.toggle('done', i<idx); });
+    history.replaceState(null,'','#'+(idx+1));
+    renderNotes();
+  }
+  function go(i, atEnd){
+    idx = Math.max(0, Math.min(total-1, i));
+    step = atEnd ? maxStep(slides[idx]) : 0;
+    render();
+  }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } }
+
+  /* ---- notes ---- */
+  var notes = document.getElementById('notes');
+  function renderNotes(){
+    var s = slides[idx], n = s.querySelector('.slide-note');
+    document.getElementById('notesBody').innerHTML = n ? n.innerHTML : '';
+    document.getElementById('notesNo').textContent = pad(idx+1)+' / '+pad(total);
+    document.getElementById('notesTitle').innerHTML =
+      '<span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span>';
+  }
+  function toggleNotes(force){
+    var open = force===undefined ? !notes.classList.contains('open') : force;
+    notes.classList.toggle('open', open);
+    document.getElementById('notesBtn').classList.toggle('on', open);
+  }
+
+  /* ---- language ---- */
+  var langBtn = document.getElementById('langBtn');
+  function setLang(l){
+    document.documentElement.classList.toggle('lang-ko', l==='ko');
+    document.documentElement.lang = l;
+    langBtn.textContent = l==='ko' ? 'English' : '한국어';
+    updateLab(); if(typeof updateRC==='function') updateRC();
+  }
+  function toggleLang(){ setLang(document.documentElement.classList.contains('lang-ko') ? 'en' : 'ko'); }
+
+  /* ---- grid overview ---- */
+  var grid = document.getElementById('grid'), gw = document.getElementById('gridWrap');
+  function buildGrid(){
+    gw.innerHTML = '';
+    slides.forEach(function(s,i){
+      var th = document.createElement('div'); th.className = 'thumb' + (i===idx ? ' cur' : '');
+      var fr = document.createElement('div'); fr.className = 'frame';
+      var c = s.cloneNode(true);
+      c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+      c.classList.add('active','static'); c.classList.remove('rise');
+      applyStep(c, maxStep(c));
+      var inner = document.createElement('div'); inner.className = 'inner'; inner.appendChild(c);
+      fr.appendChild(inner); th.appendChild(fr);
+      var cap = document.createElement('div'); cap.className = 'cap';
+      cap.innerHTML = '<span class="no">'+pad(i+1)+'</span><span><span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span></span>';
+      th.appendChild(cap);
+      th.addEventListener('click', function(){ toggleGrid(false); go(i); });
+      gw.appendChild(th);
+    });
+    scaleThumbs();
+  }
+  function scaleThumbs(){
+    gw.querySelectorAll('.thumb').forEach(function(th){
+      var f = th.querySelector('.frame'), inn = th.querySelector('.inner');
+      inn.style.transform = 'scale(' + (f.clientWidth/1280) + ')';
+    });
+  }
+  function toggleGrid(force){
+    var open = force===undefined ? !grid.classList.contains('open') : force;
+    if(open){ grid.classList.add('open'); buildGrid(); } else { grid.classList.remove('open'); }
+    document.getElementById('gridBtn').classList.toggle('on', open);
+  }
+
+  /* ---- fullscreen ---- */
+  function toggleFS(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  }
+
+  /* ---- Z0 lab ---- */
+  var ba = document.getElementById('ba'), er = document.getElementById('er');
+  function updateLab(){
+    if(!ba) return;
+    var b = +ba.value, e = +er.value, z = 60/Math.sqrt(e)*Math.log(b);
+    var r = 150/b;
+    document.getElementById('cxInner').setAttribute('r', r.toFixed(1));
+    document.getElementById('cxA').setAttribute('x2', (180+r).toFixed(1));
+    document.getElementById('cxAl').setAttribute('x', (180 + Math.max(r/2,6) - 4).toFixed(1));
+    var tint = Math.min(1,(e-1)/3);
+    document.getElementById('cxDiel').setAttribute('fill', 'rgba(112,48,160,'+(0.05+tint*0.28).toFixed(3)+')');
+    document.getElementById('cxEr').textContent = 'εr = ' + e.toFixed(2);
+    document.getElementById('baV').textContent = b.toFixed(2);
+    document.getElementById('erV').textContent = e.toFixed(2);
+    var num = document.getElementById('z0'), st = document.getElementById('z0s');
+    num.textContent = z.toFixed(1);
+    num.className = 'num'; st.className = 'status';
+    if(Math.abs(z-50) <= 1.5){
+      num.classList.add('hit'); st.classList.add('hit');
+      st.innerHTML = '<span class="t-en">That\'s 50Ω — the RF standard.</span><span class="t-ko"><span class="en">50Ω</span> — <span class="en">RF</span> 표준입니다.</span>';
+    } else if(Math.abs(z-75) <= 1.5){
+      num.classList.add('hit75'); st.classList.add('hit75');
+      st.innerHTML = '<span class="t-en">That\'s 75Ω — the video / CATV standard.</span><span class="t-ko"><span class="en">75Ω</span> — 영상 · <span class="en">CATV</span> 표준입니다.</span>';
+    } else {
+      st.innerHTML = '<span class="t-en">Adjust b/a or εr until you reach 50Ω.</span><span class="t-ko"><span class="en">b/a</span> 또는 <span class="en">εr</span>을 조절해 <span class="en">50Ω</span>을 만들어 보세요.</span>';
+    }
+    document.querySelectorAll('.chip-btn').forEach(function(c){ c.classList.toggle('on', Math.abs(+c.dataset.er - e) < 0.005); });
+  }
+  if(ba){ ba.addEventListener('input', updateLab); er.addEventListener('input', updateLab); }
+  document.querySelectorAll('.chip-btn').forEach(function(c){
+    c.addEventListener('click', function(ev){ if(!er || !c.dataset.er) return; ev.stopPropagation(); er.value = c.dataset.er; updateLab(); });
+  });
+
+  /* ---- input ---- */
+  document.getElementById('prevBtn').onclick = prev;
+  document.getElementById('nextBtn').onclick = next;
+  document.getElementById('gridBtn').onclick = function(){ toggleGrid(); };
+  document.getElementById('notesBtn').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesTab').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesClose').onclick = function(){ toggleNotes(false); };
+  document.getElementById('fsBtn').onclick = toggleFS;
+  langBtn.onclick = toggleLang;
+
+  window.addEventListener('keydown', function(e){
+    if(e.target.tagName==='INPUT') return;
+    var k = e.key;
+    if(grid.classList.contains('open')){ if(k==='Escape' || k==='g' || k==='G') toggleGrid(false); return; }
+    if(['ArrowRight','PageDown',' ','Enter'].indexOf(k)>-1){ next(); e.preventDefault(); }
+    else if(['ArrowLeft','PageUp','Backspace'].indexOf(k)>-1){ prev(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); } else if(k==='End'){ go(total-1, true); }
+    else if(k==='g' || k==='G'){ toggleGrid(); }
+    else if(k==='n' || k==='N'){ toggleNotes(); }
+    else if(k==='l' || k==='L'){ toggleLang(); }
+    else if(k==='f' || k==='F'){ toggleFS(); }
+    else if(k==='Escape'){ toggleNotes(false); }
+  });
+
+  /* ---- click left/right half of the slide to navigate ---- */
+  var NO_NAV = 'a,button,input,label,.lab,.coax-svg,.chip-btn,.nav-hint,.rc-lab,.rc-strip';
+  function sideOf(e){
+    var r = deck.getBoundingClientRect();
+    return (e.clientX - r.left) < r.width * 0.5 ? 'l' : 'r';
+  }
+  deck.addEventListener('mousemove', function(e){
+    var blocked = e.target.closest(NO_NAV);
+    var sd = blocked ? '' : sideOf(e);
+    deck.classList.toggle('hov-l', sd==='l' && !(idx===0 && step===0));
+    deck.classList.toggle('hov-r', sd==='r' && !(idx===total-1 && step===maxStep(slides[idx])));
+  });
+  deck.addEventListener('mouseleave', function(){ deck.classList.remove('hov-l','hov-r'); });
+  deck.addEventListener('click', function(e){
+    if(e.target.closest(NO_NAV)) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(notes.classList.contains('open')){ toggleNotes(false); return; }
+    sideOf(e)==='l' ? prev() : next();
+    deck.dispatchEvent(new MouseEvent('mousemove', {clientX:e.clientX, clientY:e.clientY, bubbles:true}));
+  });
+
+  var tx = null;
+  deck.addEventListener('touchstart', function(e){ if(e.target.tagName!=='INPUT') tx = e.touches[0].clientX; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if(tx===null) return; var dx = e.changedTouches[0].clientX - tx;
+    if(dx < -40) next(); if(dx > 40) prev(); tx = null;
+  });
+
+  /* ---- idle: hide chrome while presenting ---- */
+  var idleT;
+  function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(!grid.classList.contains('open') && !notes.classList.contains('open')) document.body.classList.add('idle'); }, 2600); }
+  ['mousemove','mousedown','keydown','touchstart'].forEach(function(ev){ window.addEventListener(ev, wake, {passive:true}); });
+
+  /* ---- scale ---- */
+  function fit(){
+    var s = Math.min((window.innerWidth-48)/1280, (window.innerHeight-48)/720);
+    deck.style.transform = 'scale('+s+')';
+    if(grid.classList.contains('open')) scaleThumbs();
+  }
+  window.addEventListener('resize', fit);
+
+  /* ---- deck: cover standing-wave art ---- */
+  (function(){
+    var w = document.getElementById('swWave'); if(!w) return;
+    var w2 = document.getElementById('swWave2'), eu = document.getElementById('swEnvU'), ed = document.getElementById('swEnvD');
+    var x0 = 136, x1 = 470, A = 92, k = 2*Math.PI/260, ph = 0.35;
+    function env(x){ var d = x1 - x; return Math.abs(Math.cos(k*d + ph)); }
+    var u='', dd='';
+    for(var x=x0;x<=x1;x+=3){ u += (x===x0?'M':'L')+x+' '+(300-A*env(x)).toFixed(1); dd += (x===x0?'M':'L')+x+' '+(300+A*env(x)).toFixed(1); }
+    eu.setAttribute('d',u); ed.setAttribute('d',dd);
+    function frame(t){
+      var c = Math.cos(t/520), s='', s2='';
+      for(var x=x0;x<=x1;x+=3){ var d=x1-x, y=Math.cos(k*d+ph)*A*c; s += (x===x0?'M':'L')+x+' '+(300-y).toFixed(1); s2 += (x===x0?'M':'L')+x+' '+(300+y*.55).toFixed(1); }
+      w.setAttribute('d',s); w2.setAttribute('d',s2);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
+  /* ---- deck: remote-matcher cable lab ---- */
+  var rcLen = document.getElementById('rcLen'), rcZL = [3,-60];
+  function cx(a,b){ return {r:a,i:b}; }
+  function cadd(a,b){ return cx(a.r+b.r,a.i+b.i); } function csub(a,b){ return cx(a.r-b.r,a.i-b.i); }
+  function cmul(a,b){ return cx(a.r*b.r-a.i*b.i, a.r*b.i+a.i*b.r); }
+  function cdiv(a,b){ var d=b.r*b.r+b.i*b.i; return cx((a.r*b.r+a.i*b.i)/d,(a.i*b.r-a.r*b.i)/d); }
+  function cabs(a){ return Math.hypot(a.r,a.i); }
+  function cexp(t){ return cx(Math.cos(t),Math.sin(t)); }
+  function fmtZ(z){
+    var dR = Math.abs(z.r)>=100?0:1, dX = Math.abs(z.i)>=100?0:1;
+    var R = z.r.toFixed(dR), X = Math.abs(z.i).toFixed(dX);
+    if(+X===0) return R+' + j0';
+    return R + (z.i<0?' − j':' + j') + X;
+  }
+  function stat(en,ko){ return '<span class="t-en">'+en+'</span><span class="t-ko">'+ko+'</span>'; }
+  function updateRC(){
+    if(!rcLen) return;
+    var Z0=50, P=2000, lam=299792458/13.56e6*0.66, L=+rcLen.value, beta=2*Math.PI/lam;
+    var ZL = cx(rcZL[0],rcZL[1]);
+    var G = cdiv(csub(ZL,cx(Z0,0)), cadd(ZL,cx(Z0,0))), g = cabs(G);
+    var t = Math.tan(beta*L);
+    var Zin = cmul(cx(Z0,0), cdiv(cadd(ZL,cx(0,Z0*t)), cadd(cx(Z0,0),cmul(cx(0,t),ZL))));
+    var Vp = Math.sqrt(P*Z0/Math.max(1e-9,1-g*g)), Vmax=Vp*(1+g), Imax=Vmax/Z0;
+    /* geometry */
+    var xr = 1010, cabPx = L/5*820, xs = xr - cabPx, bw = 110, bx = xs - bw;
+    document.getElementById('rcCab').setAttribute('x', xs.toFixed(1));
+    document.getElementById('rcCab').setAttribute('width', cabPx.toFixed(1));
+    document.getElementById('rcBox').setAttribute('x', bx.toFixed(1));
+    document.getElementById('rcBoxT').setAttribute('x', (bx+bw/2).toFixed(1));
+    document.getElementById('rcVl').setAttribute('x', (bx-34).toFixed(1));
+    document.getElementById('rcIl').setAttribute('x', (bx-30).toFixed(1));
+    var vu='', iu='', n=Math.max(2,Math.round(cabPx/3)), loss=0;
+    var sV = 82/Vmax, sI = 82/Imax;
+    for(var j=0;j<=n;j++){
+      var x = xs + cabPx*j/n, d = (xr-x)/820*5;
+      var e1 = cexp(beta*d), e2 = cmul(G, cexp(-beta*d));
+      var v = cabs(cadd(e1,e2))*Vp, c = cabs(csub(e1,e2))*Vp/Z0;
+      loss += c*c;
+      vu += (j===0?'M':'L')+x.toFixed(1)+' '+(105-v*sV).toFixed(1);
+      iu += (j===0?'M':'L')+x.toFixed(1)+' '+(105+c*sI).toFixed(1);
+    }
+    loss = loss/(n+1)/(P/Z0);
+    if(cabPx>2){
+      vu += 'L'+xr+' 105 L'+xs.toFixed(1)+' 105 Z'; iu += 'L'+xr+' 105 L'+xs.toFixed(1)+' 105 Z';
+    } else { vu=''; iu=''; }
+    document.getElementById('rcV').setAttribute('d', vu);
+    document.getElementById('rcI').setAttribute('d', iu);
+    document.getElementById('rcLv').textContent = L.toFixed(2)+' m · '+Math.round(L/lam*360)+'°';
+    document.getElementById('rcZl').textContent = ZL.r+(ZL.i<0?' − j'+(-ZL.i):(ZL.i>0?' + j'+ZL.i:''))+' Ω';
+    var zEl = document.getElementById('rcZin'), zBox = zEl.parentNode;
+    zEl.textContent = fmtZ(L<0.005?ZL:Zin);
+    var vs = (1+g)/(1-g);
+    document.getElementById('rcStats').innerHTML =
+      '<span><i>VSWR</i> '+(g<1e-6?'1.0':vs.toFixed(vs>=100?0:1))+'</span>'+
+      '<span><i>V<sub>max</sub></i> '+(Vmax>=1000?(Vmax/1000).toFixed(1)+' kV':Vmax.toFixed(0)+' V')+'</span>'+
+      '<span><i>I<sub>max</sub></i> '+Imax.toFixed(0)+' A</span>'+
+      '<span><i>LOSS</i> '+(L<0.005?'—':'×'+(loss>=10?loss.toFixed(0):loss.toFixed(1)))+'</span>';
+    var st = document.getElementById('rcStatus');
+    zBox.className='rc-z'; st.className='status';
+    if(g<1e-6){
+      st.innerHTML = stat('A 50Ω load: length changes nothing.','<span class="en">50Ω</span> 부하: 길이는 아무것도 바꾸지 않는다.');
+    } else if(L<0.005){
+      st.innerHTML = stat('Direct mount: the matcher sees the electrode itself.','직결 마운트: 매처는 전극 그 자체를 본다.');
+    } else if(cabs(Zin)>500){
+      zBox.classList.add('hit'); st.classList.add('hit');
+      st.innerHTML = stat('Parallel resonance — voltage peaks at the matcher output.','병렬 공진 — 매처 출력 단자에 전압 최대.');
+    } else if(Math.abs(Zin.i)<4 && Zin.r<10){
+      zBox.classList.add('hit'); st.classList.add('hit');
+      st.innerHTML = stat('Series resonance — almost a short. Current peaks.','직렬 공진 — 거의 단락. 전류 최대.');
+    } else if(Zin.i*ZL.i<0){
+      zBox.classList.add('hit75'); st.classList.add('hit75');
+      st.innerHTML = stat('Reactance flipped sign — the matcher may not tune.','리액턴스 부호 반전 — 매처가 튠하지 못할 수 있다.');
+    } else {
+      st.innerHTML = stat('Same plasma, different load at the matcher.','플라즈마는 그대로, 매처가 보는 부하는 다르다.');
+    }
+  }
+  if(rcLen) rcLen.addEventListener('input', updateRC);
+  document.querySelectorAll('.rc-chip').forEach(function(c){
+    c.addEventListener('click', function(ev){ ev.stopPropagation();
+      rcZL = c.dataset.zl.split(',').map(Number);
+      document.querySelectorAll('.rc-chip').forEach(function(o){ o.classList.toggle('on', o===c); });
+      updateRC(); });
+  });
+
+  fit(); setLang('en');
+  var h = parseInt((location.hash||'').replace('#',''),10);
+  go(isNaN(h) ? 0 : h-1);
+  wake();
+})();
+</script>
+</body>
+</html>

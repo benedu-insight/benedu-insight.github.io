@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Power Delivery & Monitoring Parameters · Members · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Google+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --font-en:'Google Sans','Segoe UI',system-ui,sans-serif;
+    --font-ko:'Google Sans', 'Gowun Batang','Georgia',serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --font-body: var(--font-en);
+    --cream:#FAF9F5; --surface:#EFE9DE; --card:#FFFFFF;
+    --ink:#252320; --steel:#6C6A64; --steel-soft:#A09D96; --hairline:#E6DFD8;
+    --ink-black:#181715; --coral:#CC785C; --coral-tint:#F5E4DD;
+    --purple:#7030A0; --lavender:#F0E6F6; --green:#0F8C50; --green-tint:#E5F4EC;
+    --radius-card:14px; --radius-pill:9999px; --ease:cubic-bezier(0.4,0,0.2,1);
+    --topbar:60px;
+  }
+  *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{ font-family:var(--font-body); background:var(--cream); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  body.lang-ko{ --font-body: var(--font-ko); word-break:keep-all; }
+  /* English words / numbers inside Korean text stay in Google Sans */
+  body.lang-ko .en, body.lang-ko code, body.lang-ko .mono{ font-family:var(--font-en); }
+  ::selection{ background:var(--coral-tint); }
+  button{ font-family:inherit; cursor:pointer; }
+  :focus-visible{ outline:2.5px solid var(--coral); outline-offset:2px; }
+
+  /* ── Top bar ── */
+  .topbar{ position:sticky; top:0; z-index:50; height:var(--topbar); display:flex; align-items:center; gap:14px;
+    padding:0 22px; background:rgba(250,249,245,.94); backdrop-filter:blur(8px); border-bottom:1px solid var(--hairline); }
+  .topbar img{ height:28px; width:auto; display:block; }
+  .topbar .div{ width:1px; height:22px; background:var(--hairline); }
+  .tb-title{ font-family:var(--font-en); font-size:.86rem; font-weight:700; color:var(--ink); }
+  .tb-sub{ font-family:var(--font-mono); font-size:.58rem; color:var(--steel-soft); letter-spacing:.1em; text-transform:uppercase; }
+  .tb-right{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .member-pill{ font-family:var(--font-mono); font-size:.6rem; font-weight:600; letter-spacing:.08em;
+    background:var(--ink-black); color:#fff; padding:4px 10px; border-radius:var(--radius-pill); }
+  .user-box{ display:none; align-items:center; gap:8px; font-family:var(--font-en); font-size:.74rem; color:var(--steel); }
+  .user-box.show{ display:flex; }
+  .btn-ghost{ border:1px solid var(--hairline); background:var(--card); color:var(--ink); border-radius:var(--radius-pill);
+    padding:6px 13px; font-family:var(--font-en); font-size:.74rem; font-weight:600; transition:all .15s var(--ease); white-space:nowrap; }
+  .btn-ghost:hover{ border-color:var(--coral); color:var(--coral); }
+  .lang-toggle{ display:flex; border:1px solid var(--hairline); border-radius:var(--radius-pill); overflow:hidden; background:var(--card); }
+  .lang-toggle button{ border:none; background:transparent; padding:5px 12px; font-family:var(--font-mono); font-size:.66rem; color:var(--steel); }
+  .lang-toggle button.active{ background:var(--ink-black); color:#fff; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:38px 26px 60px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.14em; color:var(--coral); text-transform:uppercase; font-weight:600; }
+  h1{ font-size:2rem; line-height:1.25; margin:10px 0 12px; font-weight:800; letter-spacing:-.01em; }
+  body.lang-ko h1{ font-weight:700; }
+  .lead{ font-size:1rem; line-height:1.8; color:var(--steel); max-width:760px; }
+
+  /* ── Gate (not signed in) ── */
+  #gate{ display:none; }
+  #gate.show{ display:block; }
+  .gate-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:24px; margin-top:28px; align-items:start; }
+  .notice{ background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius-card); padding:28px; }
+  .notice .lock{ width:44px; height:44px; border-radius:12px; background:var(--coral-tint); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+  .notice .lock svg{ width:22px; height:22px; fill:var(--coral); }
+  .notice h2{ font-size:1.15rem; margin-bottom:10px; }
+  .notice p{ font-size:.93rem; line-height:1.85; color:var(--steel); }
+  .notice .mail{ display:inline-flex; align-items:center; gap:8px; margin-top:18px; text-decoration:none;
+    background:var(--ink-black); color:#fff; padding:10px 18px; border-radius:var(--radius-pill); font-family:var(--font-en); font-size:.84rem; font-weight:600; }
+  .notice .mail:hover{ background:var(--coral); }
+  .notice ul{ margin:16px 0 0 18px; color:var(--steel); font-size:.88rem; line-height:1.9; }
+  .login{ background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius-card); padding:26px; }
+  .login h2{ font-size:1.05rem; margin-bottom:4px; }
+  .login .sub{ font-size:.82rem; color:var(--steel); margin-bottom:18px; line-height:1.6; }
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .field label{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--steel); }
+  .field input{ border:1px solid var(--hairline); border-radius:10px; padding:11px 13px; font-family:var(--font-en); font-size:.92rem; background:var(--cream); color:var(--ink); }
+  .field input:focus{ outline:none; border-color:var(--coral); background:#fff; }
+  .id-wrap{ display:flex; align-items:stretch; }
+  .id-wrap input{ flex:1; min-width:0; border-radius:10px 0 0 10px; }
+  .id-suffix{ display:flex; align-items:center; padding:0 12px; border:1px solid var(--hairline); border-left:none;
+    border-radius:0 10px 10px 0; background:var(--surface); color:var(--steel); font-family:var(--font-en); font-size:.86rem; white-space:nowrap; }
+  .id-suffix{ display:none !important; }
+  .id-wrap input{ border-radius:10px !important; }
+  .id-wrap.full input{ border-radius:10px; }
+  .btn-primary{ width:100%; border:none; border-radius:10px; padding:12px; background:var(--coral); color:#fff; font-family:var(--font-en); font-size:.9rem; font-weight:700; transition:background .15s; }
+  .btn-primary:hover{ background:#b8664c; }
+  .btn-primary:disabled{ background:var(--steel-soft); cursor:wait; }
+  .link-btn{ border:none; background:none; color:var(--steel); font-size:.78rem; text-decoration:underline; margin-top:12px; }
+  .msg{ font-size:.82rem; line-height:1.55; margin-top:12px; padding:9px 12px; border-radius:9px; display:none; }
+  .msg.err{ display:block; background:#FCECE8; color:#A33A22; }
+  .msg.ok{ display:block; background:var(--green-tint); color:#0A6B3C; }
+
+  /* ── Course list (signed in) ── */
+  #hub{ display:none; }
+  #hub.show{ display:block; }
+  .topics{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:20px; margin-top:30px; }
+  .topic{ background:var(--card); border:1px solid var(--hairline); border-radius:var(--radius-card); padding:24px 24px 20px;
+    display:flex; flex-direction:column; transition:box-shadow .2s var(--ease), transform .2s var(--ease); }
+  .topic:hover{ box-shadow:0 10px 30px rgba(37,35,32,.08); transform:translateY(-2px); }
+  .topic-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:6px; }
+  .topic-num{ font-family:var(--font-en); font-size:2rem; font-weight:800; color:var(--coral); line-height:1; letter-spacing:-.02em; }
+  .topic-tag{ font-family:var(--font-mono); font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--steel-soft); }
+  .topic h3{ font-size:1.12rem; line-height:1.4; margin:4px 0 10px; }
+  .topic p{ font-size:.88rem; line-height:1.8; color:var(--steel); flex:1; }
+  .decks{ display:flex; flex-direction:column; gap:8px; margin-top:18px; }
+  .deck-btn{ display:flex; align-items:center; gap:12px; text-align:left; width:100%; border:1px solid var(--hairline);
+    background:var(--cream); border-radius:11px; padding:11px 14px; transition:all .15s var(--ease); color:var(--ink); }
+  .deck-btn:hover{ border-color:var(--coral); background:#fff; }
+  .deck-kind{ flex-shrink:0; font-family:var(--font-mono); font-size:.58rem; font-weight:600; letter-spacing:.08em; padding:3px 8px; border-radius:6px; }
+  .k-key{ background:var(--ink-black); color:#fff; }
+  .k-adv{ background:var(--lavender); color:var(--purple); }
+  .deck-name{ font-size:.86rem; font-weight:600; flex:1; line-height:1.4; }
+  .deck-arrow{ color:var(--steel-soft); font-size:1rem; }
+
+  /* ── Viewer ── */
+  #viewer{ display:none; position:fixed; inset:var(--topbar) 0 0 0; background:var(--cream); z-index:40; flex-direction:column; }
+  #viewer.show{ display:flex; }
+  .v-bar{ display:flex; align-items:center; gap:10px; padding:9px 16px; border-bottom:1px solid var(--hairline); background:var(--card); flex-wrap:wrap; }
+  .v-title{ font-weight:700; font-size:.9rem; margin-right:6px; }
+  .v-tabs{ display:flex; gap:6px; }
+  .v-tab{ border:1px solid var(--hairline); background:var(--cream); border-radius:var(--radius-pill); padding:5px 12px; font-family:var(--font-en); font-size:.72rem; font-weight:600; color:var(--steel); }
+  .v-tab.active{ background:var(--ink-black); color:#fff; border-color:var(--ink-black); }
+  .v-right{ margin-left:auto; display:flex; gap:8px; }
+  .v-frame-wrap{ flex:1; padding:12px; min-height:0; }
+  #deckFrame{ width:100%; height:100%; border:1px solid var(--hairline); border-radius:12px; background:#fff; display:block; }
+
+  .loading{ text-align:center; padding:120px 20px; font-family:var(--font-mono); font-size:.72rem; color:var(--steel-soft); letter-spacing:.12em; }
+  footer{ text-align:center; padding:26px 20px 40px; font-family:var(--font-en); font-size:.76rem; color:var(--steel-soft); }
+  footer a{ color:var(--steel); }
+
+  @media (max-width:860px){
+    .gate-grid, .topics{ grid-template-columns:1fr; }
+    h1{ font-size:1.6rem; }
+    .tb-sub{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" aria-label="Benedu Insight">
+    <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  </a>
+  <div class="div"></div>
+  <div>
+    <div class="tb-title">Power Delivery &amp; Monitoring Parameters</div>
+    <div class="tb-sub">Class 02 · Module 06 · Members</div>
+  </div>
+  <div class="tb-right">
+    <span class="member-pill">MEMBERS ONLY</span>
+    <button class="btn-ghost" id="btnNewWin" style="display:none" onclick="openNewWindow()"></button>
+    <div class="user-box" id="userBox">
+      <span id="userEmail"></span>
+      <button class="btn-ghost" id="btnSignOut"></button>
+    </div>
+    <div class="lang-toggle">
+      <button id="btnEn" onclick="setHubLang('en')">EN</button>
+      <button id="btnKo" onclick="setHubLang('ko')">KO</button>
+    </div>
+  </div>
+</header>
+
+<div id="boot" class="loading">CHECKING MEMBERSHIP…</div>
+
+<!-- ── Gate: shown when not signed in ── -->
+<section id="gate" class="wrap">
+  <div class="eyebrow" data-i18n="gateEyebrow"></div>
+  <h1 data-i18n="gateTitle"></h1>
+  <p class="lead" data-i18n-html="gateLead"></p>
+  <div class="gate-grid">
+    <div class="notice">
+      <div class="lock"><svg viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm-3 5c0-1.66 1.34-3 3-3s3 1.34 3 3v3H9V7z"/></svg></div>
+      <h2 data-i18n="noticeTitle"></h2>
+      <p data-i18n-html="noticeBody"></p>
+      <ul data-i18n-html="noticeList"></ul>
+      <a class="mail" href="mailto:benedu.insight@gmail.com?subject=%5BBenedu%20Insight%5D%20Class%2002%20M6%20Members%20Access%20Request">
+        ✉ benedu.insight@gmail.com
+      </a>
+    </div>
+    <form class="login" id="loginForm" autocomplete="on">
+      <h2 data-i18n="loginTitle"></h2>
+      <p class="sub" data-i18n="loginSub"></p>
+      <div class="field">
+        <label for="email">ID</label>
+        <div class="id-wrap">
+          <input id="email" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+          <span class="id-suffix" id="idSuffix"></span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn-primary" id="btnLogin" type="submit" data-i18n="loginBtn"></button>
+      <button class="link-btn" id="btnReset" type="button" data-i18n="resetBtn"></button>
+      <div class="msg" id="loginMsg"></div>
+    </form>
+  </div>
+</section>
+
+<!-- ── Hub: shown when signed in ── -->
+<section id="hub" class="wrap">
+  <div class="eyebrow" data-i18n="hubEyebrow"></div>
+  <h1 data-i18n="hubTitle"></h1>
+  <p class="lead" data-i18n-html="hubLead"></p>
+  <div class="topics" id="topics"></div>
+</section>
+
+<!-- ── Viewer: full-height embed frame ── -->
+<section id="viewer">
+  <div class="v-bar">
+    <button class="btn-ghost" onclick="closeViewer()" data-i18n="back"></button>
+    <span class="v-title" id="vTitle"></span>
+    <div class="v-tabs" id="vTabs"></div>
+    <div class="v-right">
+      <button class="btn-ghost" onclick="fullscreenDeck()" data-i18n="fullscreen"></button>
+    </div>
+  </div>
+  <div class="v-frame-wrap">
+    <iframe id="deckFrame" src="about:blank" title="Members lecture" allowfullscreen></iframe>
+  </div>
+</section>
+
+<footer>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer">Benedu Insight</a> ·
+  <a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a>
+</footer>
+
+<script>
+/* ── Member login domain ──
+   Members type only their ID; "@" + MEMBER_DOMAIN is appended automatically.
+   A full email (containing "@") is still accepted as typed. */
+const MEMBER_DOMAIN = 'arc.benedu.internal';   // internal login domain (not a real mailbox)
+function toLoginEmail(v){ v = (v || '').trim(); return v.includes('@') ? v : (v ? `${v}@${MEMBER_DOMAIN}` : ''); }
+
+/* ── Course data: 4 topics × 2 decks (files live in ./members/) ── */
+const TOPICS = [
+  { num:'0 W', tag:'RF FDC · FIELD CASES',
+    title:{ en:'RF FDC Field Case Study', ko:'RF FDC 현장 사례 연구' },
+    desc:{
+      en:'Nine field cases built around the FDC trace: what the reflected power, VVC position and other monitoring parameters showed — and what they hid. Followed by a deep dive into VVC step-out.',
+      ko:'FDC Trace를 중심으로 한 아홉 가지 현장 사례입니다. Reflected Power, VVC Position 등 모니터링 파라미터가 보여준 것과 감춘 것을 다루고, VVC Step-out 심화로 이어집니다.' },
+    decks:[
+      { kind:'key', file:'class02_module06_rf_fdc_case_study.html', name:{ en:'0 W — Zero reflected. Not zero problems.', ko:'0 W — 반사파 0, 문제도 0일까?' } },
+      { kind:'adv', file:'class02_module06_stepout_case_study.html', name:{ en:'0.9° — VVC Step-out Deep Dive', ko:'0.9° — VVC Step-out 심화' } },
+    ] },
+  { num:'1.8 Ω', tag:'RF MATCHING · POWER DELIVERY',
+    title:{ en:'RF Matching & Power Delivery', ko:'RF Matching과 Power Delivery' },
+    desc:{
+      en:'Where does the power go? Conjugate matching, the reflection paradox, and why forward power at the generator is not the power delivered to the plasma.',
+      ko:'전력은 어디로 가는가? 공액 정합(Conjugate Matching)과 반사의 역설, 그리고 RF Generator의 Forward Power가 Plasma에 전달된 전력과 같지 않은 이유를 다룹니다.' },
+    decks:[
+      { kind:'key', file:'rf_matching_keynote.html', name:{ en:'1.8 Ω — Where does the power go?', ko:'1.8 Ω — 전력은 어디로 가는가?' } },
+      { kind:'adv', file:'rf_matching_delivery_rev2.html', name:{ en:'RF Matching & the Power Delivery Paradox', ko:'RF 임피던스 매칭과 전력 전달의 역설' } },
+    ] },
+  { num:'1 m', tag:'REMOTE MATCHER · OUTPUT CABLE',
+    title:{ en:'Remote Matcher & the Output Cable', ko:'Remote Matcher와 Output Cable' },
+    desc:{
+      en:'Why an RF Matcher belongs on the electrode, what to control when it cannot be — and how the output cable can amplify plasma harmonics into a resonance.',
+      ko:'RF Matcher가 왜 전극에 직결되어야 하는지, 그럴 수 없을 때 무엇을 관리해야 하는지, 그리고 Output Cable이 Plasma Harmonic을 공진으로 키우는 방식을 다룹니다.' },
+    decks:[
+      { kind:'key', file:'Remote_Matcher_Output_Cable_Keynote.html', name:{ en:'1 m — One meter changes everything', ko:'1 m — 1미터가 모든 것을 바꾼다' } },
+      { kind:'adv', file:'Remote_Matcher_Harmonic_Resonance_ADV.html', name:{ en:'3f — Harmonic Resonance on the Output Cable', ko:'3f — Output Cable의 Harmonic 공진' } },
+    ] },
+  { num:'Δf', tag:'MULTI-STATION · CROSSTALK & BEAT',
+    title:{ en:'Crosstalk & Beat in Multi-Station Chambers', ko:'Multi-Station Chamber의 Crosstalk와 Beat' },
+    desc:{
+      en:'Four stations, one body. Why a few hundred hertz of difference at 27.12 MHz can shake a whole multi-station chamber.',
+      ko:'Station은 넷, 몸은 하나. 27.12 MHz에서 수백 Hz의 차이가 Multi-Station Chamber 전체를 흔드는 이유를 다룹니다.' },
+    decks:[
+      { kind:'key', file:'multistation_crosstalk_beat_keynote.html', name:{ en:'Δf — Four stations. One body.', ko:'Δf — Station은 넷, 몸은 하나' } },
+      { kind:'adv', file:'multistation_crosstalk_beat_module.html', name:{ en:'Multi-Station RF — Crosstalk & Beat (Module)', ko:'Multi-Station RF — Crosstalk와 Beat (모듈)' } },
+    ] },
+];
+
+const I18N = {
+  en:{
+    gateEyebrow:'Class 02 · Module 06', gateTitle:'Power Delivery & Monitoring Parameters',
+    gateLead:'Field-based lectures on RF power delivery, matching and FDC monitoring parameters — built from real cases on etch and deposition tools.',
+    noticeTitle:'This course is open to Benedu Insight members',
+    noticeBody:'Module 06 is provided to registered members only. If you need these materials, please send a request to <b class="en">benedu.insight@gmail.com</b> with your name and affiliation.',
+    noticeList:'<li>4 topics · 8 lecture decks (keynote + advanced)</li><li>Member accounts are issued by the administrator</li>',
+    loginTitle:'Member Login', loginSub:'Sign in with the account issued to you by Benedu Insight.',
+    loginBtn:'Sign in', resetBtn:'Forgot your password?',
+    hubEyebrow:'Class 02 · Module 06 · Members', hubTitle:'Power Delivery & Monitoring Parameters',
+    hubLead:'Each topic has a keynote and an advanced deck. Choose a deck to open it in the large frame below the bar; use Fullscreen for 16:9 viewing.',
+    back:'← Topics', fullscreen:'⛶ Fullscreen', signOut:'Sign out', newWin:'↗ Open in new window',
+    kindKey:'KEYNOTE', kindAdv:'ADVANCED', signingIn:'Signing in…',
+    errEmpty:'Please enter your ID and password.',
+    errCred:'ID or password is incorrect.', errDisabled:'This account has been disabled. Please contact the administrator.',
+    errMany:'Too many attempts. Please try again in a few minutes.', errNet:'Network error. Please check your connection.',
+    errDomain:'Login is not enabled for this domain yet. Please contact the administrator.',
+    errOther:'Sign-in failed. Please contact the administrator.',
+    resetNeedEmail:'Enter your ID above first, then click the link again.',
+    resetSent:'',
+    resetAdmin:'Passwords are reset by the administrator. Please email <a href="mailto:benedu.insight@gmail.com?subject=%5BBenedu%20Insight%5D%20Password%20reset%20request">benedu.insight@gmail.com</a> with your ID.',
+  },
+  ko:{
+    gateEyebrow:'Class 02 · Module 06', gateTitle:'Power Delivery & Monitoring Parameters',
+    gateLead:'RF 전력 전달, Matching, FDC 모니터링 파라미터를 Etch·Deposition 설비의 실제 사례를 바탕으로 다루는 현장 중심 강좌입니다.',
+    noticeTitle:'이 과정은 Benedu Insight 회원에게 공개됩니다',
+    noticeBody:'Module 06은 등록된 회원에게만 제공됩니다. 자료가 필요하신 경우 성함과 소속을 적어 <b class="en">benedu.insight@gmail.com</b> 으로 요청해 주세요.',
+    noticeList:'<li><span class="en">4</span>개 주제 · <span class="en">8</span>개 강의 (<span class="en">Keynote + Advanced</span>)</li><li>회원 계정은 관리자가 발급합니다</li>',
+    loginTitle:'회원 로그인', loginSub:'Benedu Insight에서 발급받은 계정으로 로그인하세요.',
+    loginBtn:'로그인', resetBtn:'비밀번호를 잊으셨나요?',
+    hubEyebrow:'Class 02 · Module 06 · Members', hubTitle:'Power Delivery & Monitoring Parameters',
+    hubLead:'각 주제는 <span class="en">Keynote</span>와 <span class="en">Advanced</span> 강의로 구성됩니다. 강의를 선택하면 큰 화면으로 열리며, 전체화면으로 <span class="en">16:9</span> 슬라이드를 볼 수 있습니다.',
+    back:'← 주제 목록', fullscreen:'⛶ 전체화면', signOut:'로그아웃', newWin:'↗ 새 창에서 열기',
+    kindKey:'KEYNOTE', kindAdv:'ADVANCED', signingIn:'로그인 중…',
+    errEmpty:'ID와 비밀번호를 입력해 주세요.',
+    errCred:'ID 또는 비밀번호가 올바르지 않습니다.', errDisabled:'사용이 중지된 계정입니다. 관리자에게 문의해 주세요.',
+    errMany:'시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.', errNet:'네트워크 오류입니다. 연결 상태를 확인해 주세요.',
+    errDomain:'이 사이트에서 아직 로그인이 허용되지 않았습니다. 관리자에게 문의해 주세요.',
+    errOther:'로그인에 실패했습니다. 관리자에게 문의해 주세요.',
+    resetNeedEmail:'위에 ID를 먼저 입력한 뒤 다시 눌러 주세요.',
+    resetSent:'',
+    resetAdmin:'비밀번호 재설정은 관리자가 처리합니다. ID를 적어 <a href="mailto:benedu.insight@gmail.com?subject=%5BBenedu%20Insight%5D%20Password%20reset%20request">benedu.insight@gmail.com</a> 으로 요청해 주세요.',
+  }
+};
+
+let hubLang = new URLSearchParams(location.search).get('lang') === 'ko' ? 'ko' : 'en';
+let currentTopic = null, currentDeck = 0, isAuthed = false;
+const t = k => I18N[hubLang][k];
+
+function applyI18n(){
+  document.documentElement.lang = hubLang;
+  document.body.classList.toggle('lang-ko', hubLang === 'ko');
+  document.getElementById('btnEn').classList.toggle('active', hubLang === 'en');
+  document.getElementById('btnKo').classList.toggle('active', hubLang === 'ko');
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+  document.getElementById('btnSignOut').textContent = t('signOut');
+  document.getElementById('btnNewWin').textContent = t('newWin');
+  if (isAuthed) renderTopics();
+  if (currentTopic !== null) renderViewerBar();
+}
+function setHubLang(l){
+  hubLang = l; applyI18n();
+  // keep the open deck in the same language (decks expose setLang)
+  try { const w = document.getElementById('deckFrame').contentWindow; if (w && typeof w.__beneduSetLang === 'function') w.__beneduSetLang(l); } catch(e){}
+}
+
+/* Topics are rendered only after sign-in */
+function renderTopics(){
+  const box = document.getElementById('topics');
+  box.innerHTML = TOPICS.map((tp, i) => `
+    <article class="topic">
+      <div class="topic-head"><span class="topic-num">${tp.num}</span><span class="topic-tag">${tp.tag}</span></div>
+      <h3>${tp.title[hubLang]}</h3>
+      <p>${tp.desc[hubLang]}</p>
+      <div class="decks">
+        ${tp.decks.map((d, j) => `
+          <button class="deck-btn" onclick="openDeck(${i},${j})">
+            <span class="deck-kind ${d.kind === 'key' ? 'k-key' : 'k-adv'}">${d.kind === 'key' ? t('kindKey') : t('kindAdv')}</span>
+            <span class="deck-name">${d.name[hubLang]}</span>
+            <span class="deck-arrow">→</span>
+          </button>`).join('')}
+      </div>
+    </article>`).join('');
+}
+
+function renderViewerBar(){
+  const tp = TOPICS[currentTopic];
+  document.getElementById('vTitle').textContent = tp.title[hubLang];
+  document.getElementById('vTabs').innerHTML = tp.decks.map((d, j) =>
+    `<button class="v-tab ${j === currentDeck ? 'active' : ''}" onclick="openDeck(${currentTopic},${j})">${d.kind === 'key' ? t('kindKey') : t('kindAdv')}</button>`).join('');
+}
+function openDeck(i, j){
+  if (!isAuthed) return;
+  currentTopic = i; currentDeck = j;
+  renderViewerBar();
+  document.getElementById('deckFrame').src = `members/${TOPICS[i].decks[j].file}?lang=${hubLang}`;
+  document.getElementById('viewer').classList.add('show');
+}
+function closeViewer(){
+  document.getElementById('viewer').classList.remove('show');
+  document.getElementById('deckFrame').src = 'about:blank';
+  currentTopic = null;
+}
+function fullscreenDeck(){
+  const f = document.getElementById('deckFrame');
+  (f.requestFullscreen ? f.requestFullscreen() : Promise.reject()).catch(() => {});
+}
+function openNewWindow(){ window.open(`m6_members.html?lang=${hubLang}`, '_blank', 'noopener'); }
+
+// Embedded inside the portal (index.html)? → offer a larger standalone window
+if (window.self !== window.top) document.getElementById('btnNewWin').style.display = '';
+
+applyI18n();
+document.getElementById('idSuffix').textContent = '@' + MEMBER_DOMAIN;
+document.getElementById('email').addEventListener('input', e => {
+  e.target.parentElement.classList.toggle('full', e.target.value.includes('@'));
+});
+</script>
+
+<!-- Firebase Authentication (arclabtool project — member accounts are created by the administrator) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAJy0GsDI8KYU_0QbdhZ4Z78tTTCeGhAFk",
+  authDomain: "arclabtool.firebaseapp.com",
+  projectId: "arclabtool",
+  storageBucket: "arclabtool.firebasestorage.app",
+  messagingSenderId: "116212119538",
+  appId: "1:116212119538:web:ca4387e00e4f26feb81d6b"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const $ = id => document.getElementById(id);
+const msg = (text, kind) => { const m = $('loginMsg'); m.className = 'msg ' + kind; m.textContent = text; };
+
+onAuthStateChanged(auth, user => {
+  $('boot').style.display = 'none';
+  isAuthed = !!user;
+  $('gate').classList.toggle('show', !user);
+  $('hub').classList.toggle('show', !!user);
+  $('userBox').classList.toggle('show', !!user);
+  $('userEmail').textContent = user ? user.email : '';
+  if (user) renderTopics(); else closeViewer();
+});
+
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = toLoginEmail($('email').value), pw = $('password').value;
+  if (!email || !pw) { msg(t('errEmpty'), 'err'); return; }
+  const btn = $('btnLogin'); btn.disabled = true; btn.textContent = t('signingIn');
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+    $('loginMsg').className = 'msg'; $('password').value = '';
+  } catch (err) {
+    const c = err.code || '';
+    msg(
+      /invalid-credential|wrong-password|user-not-found|invalid-email/.test(c) ? t('errCred') :
+      /user-disabled/.test(c) ? t('errDisabled') :
+      /too-many-requests/.test(c) ? t('errMany') :
+      /network-request-failed/.test(c) ? t('errNet') :
+      /unauthorized-domain|operation-not-allowed/.test(c) ? t('errDomain') : t('errOther'), 'err');
+  } finally { btn.disabled = false; btn.textContent = t('loginBtn'); }
+});
+
+$('btnReset').addEventListener('click', () => {
+  // Member accounts use an internal domain that cannot receive mail → reset is handled by the administrator
+  const m = $('loginMsg'); m.className = 'msg ok'; m.innerHTML = t('resetAdmin');
+});
+
+$('btnSignOut').addEventListener('click', () => signOut(auth));
+</script>
+</body>
+</html>

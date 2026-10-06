@@ -1,0 +1,1362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Δf — Crosstalk &amp; Beat in Multi-Station Chambers | Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF9F5; --surface:#EFE9DE; --ink:#252320; --steel:#6C6A64; --steel-soft:#A09D96; --hairline:#E6DFD8;
+  --ink-black:#181715; --card-dark:#232120; --hairline-dark:#3A3733; --mute-dark:#8E8A83; --text-dark:#EFE9DE;
+  --green:#0F8C50; --purple:#7030A0; --coral:#CC785C; --amber:#E8A55A;
+  --font-en:'Google Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-ko:'Gowun Batang',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0A0A09}
+body{font-family:var(--font-en);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+body.idle{cursor:none}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+
+/* ---------- language ---------- */
+.t-ko{display:none;font-family:var(--font-ko)}
+html.lang-ko .t-ko{display:revert}
+html.lang-ko .t-en{display:none}
+.en{font-family:var(--font-en)}
+
+/* ---------- stage ---------- */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{width:1280px;height:720px;position:relative;flex:0 0 auto;overflow:hidden;background:var(--cream);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);transform-origin:center center}
+
+.slide{position:absolute;inset:0;background:var(--cream);opacity:0;visibility:hidden;
+  transition:opacity .6s ease,visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.slide.dark{background:var(--ink-black);color:#fff}
+.slide-note{display:none}
+
+/* ---------- chrome ---------- */
+.logo-tr{position:absolute;right:64px;top:42px;height:34px;width:auto}
+.dark .logo-tr{filter:brightness(0) invert(1);opacity:.92}
+.eyebrow{position:absolute;left:96px;top:56px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.eyebrow b{color:var(--green);margin-right:10px}
+.dark .eyebrow{color:var(--mute-dark)} .dark .eyebrow b{color:var(--amber)}
+.footer{position:absolute;left:96px;right:64px;bottom:0;height:34px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--hairline)}
+.dark .footer{border-top-color:var(--hairline-dark)}
+.footer .fm{font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--steel)}
+.footer .fd2{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em;color:var(--steel-soft)}
+.footer .fp{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--steel)}
+.dark .footer .fm,.dark .footer .fp{color:#8E8A83}
+.dark .footer .fd2{color:#5E5A54}
+.headline{position:absolute;left:96px;right:96px;top:98px;font-size:46px;font-weight:700;letter-spacing:-.028em;line-height:1.15}
+html.lang-ko .headline{font-size:42px;letter-spacing:-.01em}
+.dark .headline{color:#fff}
+.lede{position:absolute;left:96px;right:96px;top:166px;font-size:19px;color:var(--steel);line-height:1.55}
+.dark .lede{color:#B5B0A8}
+
+/* ---------- builds ---------- */
+.frag{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .8s var(--ease)}
+.frag.on{opacity:1;transform:none}
+.frag.strike{transform:scaleX(0);transform-origin:left center;transition:transform .55s var(--ease),opacity .2s}
+.frag.strike.on{transform:scaleX(1)}
+.hides{transition:opacity .5s ease,transform .6s var(--ease)}
+.hides.gone{opacity:0;transform:scale(.94);pointer-events:none}
+.rise{opacity:0}
+.slide.active .rise{animation:rise .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.static .rise{animation:none!important;opacity:1}
+.static .frag,.static .hides{transition:none!important}
+
+/* ---------- equation typesetting ---------- */
+.eqn{font-family:var(--font-en);font-weight:700;display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em}
+.frac .fn{padding:0 .12em .04em;border-bottom:.045em solid currentColor}
+.frac .fd{padding:.04em .12em 0}
+.frac.sm{font-size:.7em}
+.sqrt{display:inline-flex;align-items:stretch;margin-left:.04em}
+.sqrt .rad{display:block;width:.52em;flex:0 0 auto;overflow:visible;margin-right:-1px}
+.sqrt .rad path{fill:none;stroke:currentColor;stroke-width:.075em;stroke-linejoin:miter;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+.sqrt .rc{border-top:.075em solid currentColor;padding:.1em .14em 0 .08em;display:inline-flex;align-items:center}
+.eqn sub{font-size:.62em;vertical-align:baseline;position:relative;top:.32em;line-height:0;font-weight:700;margin-left:.02em}
+.frac .fd .sqrt{margin-top:.16em}
+.paren{font-weight:300;font-size:1.45em;margin:0 -.02em}
+
+/* ================= 1 · COVER ================= */
+.cover-logo{position:absolute;left:96px;top:54px;height:42px;filter:brightness(0) invert(1)}
+.cover-kicker{position:absolute;left:98px;top:206px;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--coral)}
+.cover-big{position:absolute;left:86px;top:226px;font-size:214px;font-weight:700;letter-spacing:-.055em;line-height:1;color:#fff}
+.cover-big span{color:var(--coral)}
+.cover-sub{position:absolute;left:96px;top:462px;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--text-dark)}
+html.lang-ko .cover-sub{font-size:36px;font-weight:700}
+.cover-desc{position:absolute;left:96px;top:524px;width:600px;font-size:18px;line-height:1.6;color:var(--mute-dark)}
+.cover-meta{position:absolute;left:96px;bottom:62px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#6E6A63}
+.cover-art{position:absolute;right:-70px;top:60px;width:600px;height:600px}
+.cover-art .spin{transform-box:fill-box;transform-origin:center;animation:spin 90s linear infinite}
+.cover-art .flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flow{to{stroke-dashoffset:-28}}
+
+/* ================= 2 · MISCONCEPTION ================= */
+.eq-hero{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:100px;color:var(--ink)}
+.claim{position:absolute;left:0;right:0;top:428px;text-align:center;font-size:28px;color:var(--steel)}
+.claim .wrap{position:relative;display:inline-block}
+.claim .strike{position:absolute;left:-10px;right:-10px;top:52%;height:4px;background:var(--coral);border-radius:2px}
+.verdict{position:absolute;left:0;right:0;top:494px;text-align:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:var(--coral)}
+html.lang-ko .verdict{font-size:54px}
+.verdict-sub{position:absolute;left:0;right:0;top:590px;text-align:center;font-size:19px;color:var(--steel)}
+
+/* ================= 3 · CAUSALITY ================= */
+.chain{position:absolute;left:96px;right:96px;top:262px;display:flex;align-items:flex-start;justify-content:space-between}
+.node{width:300px}
+.node .w{font-size:60px;font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.node .w.c{color:var(--coral)}
+.node .s{margin-top:16px;font-size:17px;color:var(--steel);line-height:1.55}
+.arr{font-size:42px;color:var(--steel-soft);padding-top:6px;font-weight:300}
+.punch{position:absolute;left:96px;right:96px;top:500px;padding-top:36px;border-top:1px solid var(--hairline);
+  font-size:34px;font-weight:700;letter-spacing:-.025em}
+html.lang-ko .punch{font-size:31px}
+.punch .c{color:var(--coral)}
+
+/* ================= 4 · LAB ================= */
+.coax-svg{position:absolute;left:96px;top:226px;width:372px;height:372px}
+.lab{position:absolute;left:540px;right:96px;top:226px;bottom:66px;display:flex;flex-direction:column}
+.lab .eqn{font-size:34px;color:var(--ink)}
+.ctl{margin-top:30px}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ctl-row .k{font-size:15px;color:var(--steel)}
+.ctl-row .v{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink)}
+.chips{display:flex;gap:8px;margin-bottom:14px}
+.chip-btn{font-family:var(--font-en);font-size:13px;font-weight:500;color:var(--ink);padding:6px 15px;border:1px solid var(--hairline);
+  border-radius:999px;background:#fff;cursor:pointer;transition:all .2s}
+.chip-btn:hover{border-color:var(--steel-soft)}
+.chip-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--hairline);outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+.readout{margin-top:auto;display:flex;align-items:baseline;gap:14px}
+.readout .k{font-size:28px;font-weight:500;color:var(--steel)}
+.readout .num{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);transition:color .3s;font-variant-numeric:tabular-nums}
+.readout .num.hit{color:var(--coral)} .readout .num.hit75{color:var(--purple)}
+.status{margin-top:10px;font-size:17px;color:var(--steel);min-height:26px}
+.status.hit{color:var(--coral);font-weight:700} .status.hit75{color:var(--purple);font-weight:700}
+
+/* ================= 5 · THREE VIEWS ================= */
+.views{position:absolute;left:96px;right:96px;top:248px;display:grid;grid-template-columns:repeat(3,1fr)}
+.view{padding:0 36px;border-left:1px solid var(--hairline)}
+.view:first-child{padding-left:0;border-left:none}
+.view .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.view .eqn{font-size:54px;height:134px;margin:24px 0 22px;color:var(--ink)}
+.view .d{font-size:17px;color:var(--steel);line-height:1.6}
+.foot-line{position:absolute;left:96px;right:96px;top:584px;font-size:20px;color:var(--steel)}
+.foot-line b{color:var(--ink)}
+
+/* ================= 6 · HISTORY ================= */
+.axis{position:absolute;left:96px;right:96px;top:499px;height:2px;background:var(--hairline-dark)}
+.tick{position:absolute;top:514px;transform:translateX(-50%);font-family:var(--font-mono);font-size:10.5px;color:#5E5A54}
+.mk{position:absolute;top:500px;left:var(--x);width:0;height:0}
+.mk .stem{position:absolute;left:-1px;bottom:0;width:2px;height:var(--h);background:#4A4642}
+.mk .dot{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff}
+.mk .mlab{position:absolute;left:-110px;width:220px;bottom:calc(var(--h) + 14px);text-align:center}
+.mk .v{font-size:46px;font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1}
+.mk .c{margin-top:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.mk.hero .stem,.mk.hero .dot{background:var(--coral)}
+.mk.hero .v{font-size:68px;color:var(--coral)}
+.mk.hero .c{color:var(--coral)}
+.mk.below .stem{top:0;bottom:auto}
+.mk.below .dot{background:#6E6A63}
+.mk.below .mlab{top:calc(var(--h) + 10px);bottom:auto}
+.mk.below .v{font-size:24px;color:#8E8A83}
+.mk.below .c{color:#6E6A63}
+.means{position:absolute;left:330px;width:464px;top:548px;text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--mute-dark);letter-spacing:.02em}
+.src{position:absolute;left:96px;bottom:52px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5A54}
+
+/* ================= 7 · ONE MORE THING ================= */
+.omt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;font-weight:700;letter-spacing:-.035em;color:#fff}
+html.lang-ko .omt{font-size:66px}
+.vs{position:absolute;left:96px;right:96px;top:176px;display:flex;justify-content:center;align-items:flex-start;gap:72px}
+.vs .blk{text-align:center}
+.vs .n{font-size:156px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#fff}
+.vs .n.q{color:var(--coral)}
+.vs .l{margin-top:18px;font-size:18px;color:#B5B0A8}
+.vs .ne{font-size:84px;font-weight:300;color:#5E5A54;padding-top:30px}
+.next-line{position:absolute;left:96px;right:96px;top:472px;text-align:center;font-size:24px;color:var(--text-dark);letter-spacing:-.01em}
+.next-tag{position:absolute;left:0;right:0;top:524px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.end-links{position:absolute;left:0;right:0;bottom:70px;display:flex;justify-content:center;gap:36px}
+.end-links a{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:#B5B0A8;text-decoration:none;border-bottom:1px solid #3A3733;padding-bottom:4px;transition:color .2s,border-color .2s}
+.end-links a:hover{color:#fff;border-color:var(--coral)}
+
+/* ================= CLICK-TO-NAVIGATE HINTS ================= */
+.nav-hint{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(24,23,21,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;z-index:40;
+  transition:opacity .25s ease,transform .25s var(--ease)}
+.nav-hint svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-hint.l{left:22px;transform:translateX(6px)} .nav-hint.r{right:22px;transform:translateX(-6px)}
+.deck.hov-l .nav-hint.l,.deck.hov-r .nav-hint.r{opacity:1;transform:none}
+.deck.hov-l,.deck.hov-r{cursor:pointer}
+body.idle .nav-hint{opacity:0!important}
+
+/* ================= CONTROL BAR ================= */
+#bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px 8px;
+  background:rgba(24,23,21,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;z-index:90;transition:opacity .4s,transform .4s}
+body.idle #bar{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
+#bar button,#bar a{height:34px;min-width:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:none;border:none;border-radius:999px;color:#D9D4CC;font-family:var(--font-en);font-size:12.5px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+#bar button:hover,#bar a:hover{background:rgba(255,255,255,.08);color:#fff}
+#bar button.on{color:var(--coral)}
+#bar svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#bar .dots{display:flex;align-items:center;gap:7px;padding:0 10px}
+#bar .dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);cursor:pointer;transition:width .45s var(--ease),background .3s}
+#bar .dot.done{background:rgba(255,255,255,.5)}
+#bar .dot.on{width:24px;background:var(--coral)}
+#bar .dot:hover{background:rgba(255,255,255,.8)}
+#bar .sep{width:1px;height:18px;background:rgba(255,255,255,.12);margin:0 6px}
+#langBtn{font-family:var(--font-ko)!important;font-weight:700}
+html.lang-ko #langBtn{font-family:var(--font-en)!important}
+
+/* ================= NOTES DRAWER ================= */
+#notesTab{position:fixed;left:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;background:var(--ink-black);color:#D9D4CC;
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.18em;padding:18px 9px;border-radius:0 10px 10px 0;
+  border:1px solid rgba(255,255,255,.08);border-left:none;cursor:pointer;z-index:95;user-select:none;transition:color .2s,opacity .4s}
+#notesTab:hover{color:var(--coral)}
+body.idle #notesTab{opacity:.25}
+#notes{position:fixed;left:0;top:0;bottom:0;width:480px;background:#fff;z-index:100;transform:translateX(-102%);transition:transform .45s var(--ease);
+  display:flex;flex-direction:column;box-shadow:none;visibility:hidden;transition:transform .45s var(--ease),visibility 0s linear .45s}
+#notes.open{transform:none;visibility:visible;box-shadow:20px 0 60px rgba(0,0,0,.35);transition:transform .45s var(--ease)}
+.notes-head{padding:26px 28px 18px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;align-items:center}
+.notes-head .ttl{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.notes-head .no{font-family:var(--font-mono);font-size:11.5px;color:var(--steel-soft);margin-left:10px}
+#notesClose{background:none;border:none;font-size:24px;line-height:1;color:var(--steel);cursor:pointer}
+.notes-title{padding:22px 28px 0;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.notes-body{padding:16px 28px 28px;overflow-y:auto;flex:1;font-size:15.5px;line-height:1.85;color:var(--ink)}
+.notes-body p{margin:0 0 12px}
+.notes-body h4{margin:24px 0 8px;font-size:15.5px;font-weight:700;color:var(--ink)}
+.notes-body > div > h4:first-child{margin-top:4px}
+.notes-body .nf{font-family:var(--font-en);background:var(--surface);border-radius:8px;padding:11px 16px;margin:4px 0 14px;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.notes-body ul{margin:4px 0 14px;padding-left:20px}
+.notes-body li{margin:5px 0}
+.notes-body b{color:var(--ink)}
+.notes-foot{padding:14px 28px;border-top:1px solid var(--hairline);font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--steel-soft)}
+
+/* ================= GRID OVERVIEW ================= */
+#grid{position:fixed;inset:0;background:#0C0B0A;z-index:200;display:none;overflow:auto;padding:52px 64px 80px}
+#grid.open{display:block;animation:gridIn .35s var(--ease)}
+@keyframes gridIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+.grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+.grid-head .ttl{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:#EFE9DE}
+.grid-head .hint{font-family:var(--font-mono);font-size:11px;color:#6E6A63;letter-spacing:.06em}
+.grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:34px 28px}
+.thumb{cursor:pointer}
+.thumb .frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;outline:1px solid #2A2724;transition:transform .25s var(--ease),outline-color .2s}
+.thumb:hover .frame{transform:translateY(-4px);outline:2px solid #6C6A64}
+.thumb.cur .frame{outline:2px solid var(--coral)}
+.thumb .inner{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;pointer-events:none}
+.thumb .cap{display:flex;gap:12px;margin-top:12px;font-size:14px;color:#B5B0A8}
+.thumb .cap .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--coral);padding-top:1px}
+
+/* ================= DECK: MULTI-STATION ================= */
+.msr-svg{position:absolute;left:96px;top:196px;width:404px;height:404px}
+.msr-cols{position:absolute;left:576px;right:96px;top:206px}
+.msr-col{padding:22px 0 24px;border-top:1px solid var(--hairline)}
+.msr-col .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.msr-col .big{margin-top:10px;font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.1;color:var(--ink)}
+.msr-col .big.c{color:var(--coral)}
+.msr-col .d{margin-top:10px;font-size:17px;color:var(--steel);line-height:1.55}
+.punch.msr-punch{left:576px;top:520px;padding-top:26px;font-size:32px}
+html.lang-ko .punch.msr-punch{font-size:30px}
+.rp-svg{position:absolute;left:96px;top:196px;width:1088px;height:290px;overflow:visible}
+.bt-cv{position:absolute;left:96px;top:214px;width:400px;height:372px;background:#fff;outline:1px solid var(--hairline)}
+.lab.bt-lab{left:552px;top:214px}
+.bt-lab .ctl{margin-top:24px}
+.ph-lab .ctl{margin-top:0;margin-bottom:12px}
+.ph-lab .ctl-row{margin-bottom:6px}
+.ph-lab .chips{margin-bottom:4px}
+.ph-lab .readout .num{font-size:78px}
+.bt-lab .readout .num{font-size:84px}
+input[type=range]:disabled{opacity:.3}
+.view .eqn.c{color:var(--coral)}
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck" data-doc="RF FIELD NOTES — MULTI-STATION CROSSTALK &amp; BEAT">
+<div class="nav-hint l" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+<div class="nav-hint r" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+
+<!-- ============ 1 · COVER ============ -->
+<section class="slide dark active" data-title-en="Cover" data-title-ko="표지">
+  <img class="cover-logo" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  <svg class="cover-art" viewBox="0 0 600 600" aria-hidden="true">
+    <defs><linearGradient id="cvFade" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".18" stop-color="#fff" stop-opacity="1"/></linearGradient>
+      <mask id="cvMask"><rect x="0" y="0" width="600" height="600" fill="url(#cvFade)"/></mask></defs>
+    <g mask="url(#cvMask)">
+      <rect x="70" y="70" width="460" height="460" rx="64" fill="rgba(239,233,222,.025)" stroke="#2E2B28" stroke-width="16"/>
+      <g id="cvStations"></g>
+      <g id="cvLinks"></g>
+    </g>
+  </svg>
+  <div class="cover-kicker rise" style="--d:.1s">MULTI-STATION RF · CROSSTALK &amp; BEAT</div>
+  <div class="cover-big rise" style="--d:.2s">Δ<span>f</span></div>
+  <div class="cover-sub rise" style="--d:.45s">
+    <span class="t-en">Four stations. One body.</span>
+    <span class="t-ko">Station은 넷, 몸은 하나.</span>
+  </div>
+  <div class="cover-desc rise" style="--d:.6s">
+    <span class="t-en">Why a few hundred hertz at 27.12 MHz can shake a whole chamber.</span>
+    <span class="t-ko">27.12 MHz에서 수백 Hz의 차이가 Chamber 전체를 흔드는 이유.</span>
+  </div>
+  <div class="cover-meta">RF FIELD SERIES · MULTI-STATION CHAMBER &nbsp;—&nbsp; BEN · BENEDU INSIGHT</div>
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What this lecture is about</h4>
+<p>Multi-station chambers process several wafers at once inside one vacuum body, each under its own electrode, each driven by its own RF Generator and RF Matcher. On paper the stations are independent. In practice they are not: they share a body, a ground and often a gas volume, and RF energy leaks from one station into the next. That leakage is called crosstalk.</p>
+<p>When the RF Generators run at slightly different frequencies — a few hundred hertz apart at 27.12 MHz — the leaked signal and the station's own signal drift in and out of phase. The result is a slow, periodic swing in the electrode voltage called a beat.</p>
+<h4>Why field engineers should care</h4>
+<p>The symptoms look like ordinary hardware problems: a flickering reflected-power reading, an RF Matcher that never settles, station-to-station thickness differences that no single-station check can reproduce. Without the crosstalk-and-beat picture, these get chased as faulty RF Generators, RF Matchers or sensors.</p>
+<p>The path through this lecture: what a multi-station reactor is → how RF current returns → how stations couple → what a beat is (by ear first) → why the plasma follows it → how it is fixed.</p>
+</div>
+    <div class="t-ko">
+<h4>이 강의가 다루는 것</h4>
+<p>Multi-Station Chamber는 하나의 진공 몸체 안에서 여러 장의 웨이퍼를 동시에 처리한다. 웨이퍼마다 자기 전극이 있고, 각각 자기 RF Generator와 RF Matcher로 구동된다. 도면상으로 Station들은 서로 독립이다. 실제로는 그렇지 않다. 몸체와 Ground를 공유하고 종종 가스 공간까지 공유하기 때문에, 한 Station의 RF 에너지가 옆 Station으로 새어 들어간다. 이것을 Crosstalk라고 한다.</p>
+<p>RF Generator들이 아주 조금 다른 주파수로 동작하면 — 27.12 MHz에서 수백 Hz 차이 — 새어 들어온 신호와 Station 자신의 신호가 같은 위상과 반대 위상을 천천히 오간다. 그 결과 전극 전압이 느린 주기로 출렁이는데, 이것이 Beat(맥놀이)다.</p>
+<h4>현장 엔지니어가 알아야 하는 이유</h4>
+<p>증상은 평범한 하드웨어 문제처럼 보인다. 깜박이는 반사 전력 값, 자리를 잡지 못하는 RF Matcher, Station 하나만 점검해서는 재현되지 않는 Station 간 두께 차이. Crosstalk와 Beat라는 그림이 없으면 이런 증상은 RF Generator, RF Matcher, 센서 불량으로 오인되어 엉뚱한 부품 교체로 이어진다.</p>
+<p>강의 흐름: Multi-Station Reactor란 무엇인가 → RF 전류는 어떻게 돌아오는가 → Station은 어떻게 결합되는가 → Beat란 무엇인가(먼저 귀로) → 플라즈마는 왜 그것을 따라가는가 → 어떻게 해결하는가.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 2 · THE MACHINE ============ -->
+<section class="slide" data-title-en="The Multi-Station Reactor" data-title-ko="Multi-Station Reactor">
+  <div class="eyebrow"><b>01</b>THE MACHINE</div>
+  <h2 class="headline">
+    <span class="t-en">One chamber. Four reactors.</span>
+    <span class="t-ko">Chamber는 하나, Reactor는 넷.</span>
+  </h2>
+  <svg class="msr-svg" viewBox="0 0 400 400" aria-label="Quad-station chamber, top view">
+    <rect x="30" y="30" width="340" height="340" rx="40" fill="#EFE9DE" stroke="#6C6A64" stroke-width="10"/>
+    <g font-family="Google Sans,sans-serif" font-weight="700" text-anchor="middle">
+      <g><circle cx="130" cy="130" r="62" fill="#fff" stroke="#A09D96" stroke-width="2"/><circle cx="130" cy="130" r="48" fill="none" stroke="#CC785C" stroke-width="2" stroke-dasharray="3 5"/><text x="130" y="137" font-size="22" fill="#252320">S1</text></g>
+      <g><circle cx="270" cy="130" r="62" fill="#fff" stroke="#A09D96" stroke-width="2"/><circle cx="270" cy="130" r="48" fill="none" stroke="#CC785C" stroke-width="2" stroke-dasharray="3 5"/><text x="270" y="137" font-size="22" fill="#252320">S2</text></g>
+      <g><circle cx="130" cy="270" r="62" fill="#fff" stroke="#A09D96" stroke-width="2"/><circle cx="130" cy="270" r="48" fill="none" stroke="#CC785C" stroke-width="2" stroke-dasharray="3 5"/><text x="130" y="277" font-size="22" fill="#252320">S3</text></g>
+      <g><circle cx="270" cy="270" r="62" fill="#fff" stroke="#A09D96" stroke-width="2"/><circle cx="270" cy="270" r="48" fill="none" stroke="#CC785C" stroke-width="2" stroke-dasharray="3 5"/><text x="270" y="277" font-size="22" fill="#252320">S4</text></g>
+    </g>
+    <text x="200" y="393" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#6C6A64" letter-spacing="1.5">TOP VIEW · ONE VACUUM BODY</text>
+  </svg>
+  <div class="msr-cols">
+    <div class="msr-col frag" data-step="1">
+      <div class="k">SEPARATE</div>
+      <div class="big">RF Generator · RF Matcher</div>
+      <div class="d"><span class="t-en">Showerhead electrode, heater — one set per station.</span><span class="t-ko">Showerhead 전극, Heater — Station마다 한 세트.</span></div>
+    </div>
+    <div class="msr-col frag" data-step="2">
+      <div class="k">SHARED</div>
+      <div class="big c">Body · Ground · Vacuum</div>
+      <div class="d"><span class="t-en">Chamber wall, lid, pumping — and often the gas space between stations.</span><span class="t-ko">Chamber 벽, Lid, 배기 — 그리고 대개 Station 사이의 가스 공간.</span></div>
+    </div>
+  </div>
+  <div class="punch msr-punch frag" data-step="3">
+    <span class="t-en">Separate RF. <span class="c">Shared body.</span></span>
+    <span class="t-ko">RF는 따로, <span class="c">몸은 함께.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What a multi-station reactor is</h4>
+<p>A multi-station (or multi-wafer) process module places several wafer stations — typically two or four — inside one vacuum chamber. Each station has its own pedestal and heater, its own showerhead electrode, and its own RF supply chain: one RF Generator and one RF Matcher per station. Common examples are quad-station PECVD and PE-ALD modules.</p>
+<h4>Why build it this way</h4>
+<ul>
+<li><b>Throughput:</b> four wafers per pump-down and per transfer instead of one. ALD in particular repeats hundreds of short cycles; processing wafers in parallel multiplies output.</li>
+<li><b>Footprint and cost:</b> one vacuum body, one pumping system and one transfer interface serve four wafers.</li>
+<li><b>Station matching:</b> some designs move wafers between stations during the process so that each wafer sees every station, averaging out station-to-station differences.</li>
+</ul>
+<h4>What it costs</h4>
+<p>The stations share metal, vacuum and, in many designs, the gas volume above the pedestals. For DC or low-frequency electronics this sharing would be harmless. At 13.56 or 27.12 MHz, the shared metal is not a perfect ground and the stations can "hear" each other. The rest of the lecture is about what that means.</p>
+<p>Engineers from etch or single-wafer CVD often assume one RF Generator per electrode means full electrical independence. In a shared body, that assumption is the first thing to drop.</p>
+</div>
+    <div class="t-ko">
+<h4>Multi-Station Reactor란</h4>
+<p>Multi-Station(Multi-Wafer) 공정 모듈은 하나의 진공 Chamber 안에 웨이퍼 Station을 여러 개 — 보통 2개나 4개 — 배치한다. Station마다 자기 Pedestal과 Heater, 자기 Showerhead 전극, 자기 RF 공급 계통(RF Generator 1대와 RF Matcher 1대)을 갖는다. 4-Station PECVD, PE-ALD 모듈이 대표적인 예다.</p>
+<h4>왜 이렇게 만드는가</h4>
+<ul>
+<li><b>생산성:</b> 한 번의 Pump-down과 Transfer로 웨이퍼 4장을 처리한다. 특히 ALD는 짧은 사이클을 수백 번 반복하므로, 병렬 처리가 생산량을 곱절로 늘린다.</li>
+<li><b>Footprint와 비용:</b> 진공 몸체 하나, 배기 계통 하나, Transfer 인터페이스 하나로 웨이퍼 4장을 처리한다.</li>
+<li><b>Station 간 편차 관리:</b> 일부 설계는 공정 중 웨이퍼를 Station 사이로 옮겨, 각 웨이퍼가 모든 Station을 거치게 함으로써 Station 간 차이를 평균화한다.</li>
+</ul>
+<h4>대가는 무엇인가</h4>
+<p>Station들은 금속 몸체와 진공을 공유하고, 많은 설계에서 Pedestal 위의 가스 공간까지 공유한다. DC나 저주파 전자회로라면 이런 공유는 문제가 되지 않는다. 그러나 13.56 MHz나 27.12 MHz에서는 공유된 금속이 완벽한 Ground가 아니며, Station들이 서로의 신호를 '듣게' 된다. 이 강의의 나머지가 바로 그 이야기다.</p>
+<p>Etch나 Single-Wafer CVD 출신 엔지니어는 전극마다 RF Generator가 따로 있으니 전기적으로 완전히 독립이라고 생각하기 쉽다. 몸체를 공유하는 구조에서는 이 가정부터 내려놓아야 한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 3 · RETURN PATH ============ -->
+<section class="slide" data-title-en="The Return Path" data-title-ko="RF 귀환 경로">
+  <div class="eyebrow"><b>02</b>THE RETURN PATH</div>
+  <h2 class="headline">
+    <span class="t-en">RF current always comes home.</span>
+    <span class="t-ko">RF 전류는 반드시 집으로 돌아온다.</span>
+  </h2>
+  <svg class="rp-svg" viewBox="0 0 1088 290" aria-label="RF forward and return path">
+    <defs>
+      <marker id="arC" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" orient="auto"><path d="M0 0L10 5L0 10z" fill="#CC785C"/></marker>
+      <marker id="arB" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" orient="auto"><path d="M0 0L10 5L0 10z" fill="#2F6FD6"/></marker>
+      <linearGradient id="plGlow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7030A0" stop-opacity=".10"/><stop offset=".5" stop-color="#7030A0" stop-opacity=".28"/><stop offset="1" stop-color="#7030A0" stop-opacity=".10"/></linearGradient>
+    </defs>
+    <g font-family="Google Sans,sans-serif" text-anchor="middle">
+      <rect x="0" y="70" width="150" height="110" fill="#fff" stroke="#252320" stroke-width="2"/>
+      <text x="75" y="122" font-size="17" font-weight="700" fill="#252320">RF Generator</text>
+      <text x="75" y="144" font-size="13" fill="#6C6A64">27.12 MHz</text>
+      <rect x="330" y="70" width="150" height="110" fill="#fff" stroke="#252320" stroke-width="2"/>
+      <text x="405" y="130" font-size="17" font-weight="700" fill="#252320">RF Matcher</text>
+      <rect x="600" y="10" width="480" height="270" rx="6" fill="#F4F0E8" stroke="#6C6A64" stroke-width="8"/>
+      <text x="840" y="40" font-size="12.5" fill="#6C6A64" font-family="JetBrains Mono,monospace" letter-spacing="1.5">CHAMBER BODY</text>
+      <rect x="700" y="94" width="280" height="16" fill="#A09D96"/>
+      <text x="1030" y="106" font-size="12" fill="#6C6A64">Showerhead</text>
+      <rect x="700" y="114" width="280" height="62" fill="url(#plGlow)"/>
+      <text x="840" y="150" font-size="15" font-weight="700" fill="#7030A0">Plasma</text>
+      <rect x="700" y="180" width="280" height="16" fill="#6C6A64"/>
+      <rect x="822" y="196" width="36" height="66" fill="#6C6A64"/>
+      <text x="1030" y="192" font-size="12" fill="#6C6A64">Pedestal</text>
+    </g>
+    <g class="frag" data-step="1">
+      <path d="M150 104 H330" stroke="#CC785C" stroke-width="5" fill="none" marker-end="url(#arC)"/>
+      <path d="M480 104 H700" stroke="#CC785C" stroke-width="5" fill="none" marker-end="url(#arC)"/>
+      <path d="M840 114 V176" stroke="#CC785C" stroke-width="3" stroke-dasharray="5 6" fill="none" marker-end="url(#arC)"/>
+      <text x="240" y="92" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#CC785C">COAX CENTER</text>
+      <text x="590" y="92" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#CC785C">FEED</text>
+    </g>
+    <g class="frag" data-step="2">
+      <path d="M840 262 H616 V152 H480" stroke="#2F6FD6" stroke-width="5" fill="none" marker-end="url(#arB)"/>
+      <path d="M330 152 H150" stroke="#2F6FD6" stroke-width="5" fill="none" marker-end="url(#arB)"/>
+      <text x="240" y="176" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#2F6FD6">COAX SHIELD</text>
+      <text x="540" y="176" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#2F6FD6">HOUSING</text>
+      <text x="632" y="252" text-anchor="start" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#2F6FD6">WALL · INNER SURFACE</text>
+    </g>
+  </svg>
+  <div class="punch frag" data-step="3" style="top:520px;font-size:31px">
+    <span class="t-en">It returns by the lowest <span class="c">inductance</span> — not the lowest resistance.</span>
+    <span class="t-ko">저항이 아니라 <span class="c">인덕턴스</span>가 가장 낮은 길로 돌아온다.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>A circuit is a loop</h4>
+<p>Every ampere that leaves the RF Generator on the coax centre conductor must return to it. The forward path is easy to see: centre conductor → RF Matcher → feed rod → showerhead → through the plasma (as displacement and conduction current across the sheaths) → wafer and pedestal. The return path is everything after that: pedestal → chamber body → RF Matcher housing → coax shield → RF Generator.</p>
+<h4>Where the current actually flows</h4>
+<p>At RF the current crowds into a thin surface layer (skin effect). In copper at 27.12 MHz the skin depth is only about 13 µm; in aluminium about 16 µm. The return current therefore runs along the inner surfaces of the chamber, straps and housings — not through the bulk metal.</p>
+<p>It also follows the path of lowest impedance, which at RF is dominated by inductance. The current hugs the forward path as closely as possible because that minimises the loop area and the inductance. A thick but distant ground strap can carry less RF current than a thin but short one.</p>
+<div class="nf">X_L = 2π f L<br>10 nH at 27.12 MHz → 1.7 Ω<br>10 A return current × 1.7 Ω ≈ 17 V on "ground"</div>
+<h4>Why this matters here</h4>
+<p>A few centimetres of strap or wall is a few nanohenries. "Ground" therefore is not 0 V at RF; it carries a voltage that depends on how much current flows through it. If two stations share part of that path, each one's current shifts the other's ground. That is the doorway to crosstalk.</p>
+</div>
+    <div class="t-ko">
+<h4>회로는 고리다</h4>
+<p>동축케이블 심선으로 RF Generator를 떠난 전류는 1암페어도 빠짐없이 RF Generator로 돌아와야 한다. 가는 길은 눈에 잘 보인다. 심선 → RF Matcher → Feed rod → Showerhead → 플라즈마(Sheath를 가로지르는 변위전류와 전도전류) → 웨이퍼와 Pedestal. 돌아오는 길은 그 나머지 전부다. Pedestal → Chamber 몸체 → RF Matcher Housing → 동축케이블 차폐 → RF Generator.</p>
+<h4>전류는 실제로 어디로 흐르는가</h4>
+<p>RF 전류는 도체 표면의 얇은 층으로 몰린다(표피효과). 27.12 MHz에서 구리의 표피 깊이는 약 13 µm, 알루미늄은 약 16 µm에 불과하다. 따라서 귀환 전류는 금속 덩어리 전체가 아니라 Chamber, Strap, Housing의 안쪽 표면을 따라 흐른다.</p>
+<p>또한 전류는 임피던스가 가장 낮은 길을 택하는데, RF에서 이를 좌우하는 것은 인덕턴스다. 전류는 고리 면적과 인덕턴스를 최소로 하기 위해 가는 길에 최대한 붙어서 돌아온다. 굵지만 멀리 돌아가는 Ground Strap보다 가늘어도 짧은 Strap에 RF 전류가 더 많이 흐를 수 있다.</p>
+<div class="nf">X_L = 2π f L<br>27.12 MHz에서 10 nH → 1.7 Ω<br>귀환 전류 10 A × 1.7 Ω ≈ 'Ground' 위에 17 V</div>
+<h4>여기서 왜 중요한가</h4>
+<p>몇 cm의 Strap이나 벽면도 수 nH의 인덕턴스를 갖는다. 그래서 RF에서 Ground는 0 V가 아니며, 흐르는 전류에 비례한 전압이 실린다. 두 Station이 이 경로의 일부를 공유하면 한 Station의 전류가 다른 Station의 Ground 전위를 흔든다. 이것이 Crosstalk의 입구다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 4 · MISCONCEPTION ============ -->
+<section class="slide" data-title-en="The Misconception" data-title-ko="흔한 오해">
+  <div class="eyebrow"><b>03</b>THE MISCONCEPTION</div>
+  <div class="eq-hero" style="font-size:92px"><span class="eqn">4 × <span style="color:var(--steel-soft);font-weight:500">(</span>RFG + RFM<span style="color:var(--steel-soft);font-weight:500">)</span></span></div>
+  <div class="claim frag" data-step="1"><span class="wrap">
+    <span class="t-en">“Each station has its own RF Generator and RF Matcher — so they're independent.”</span>
+    <span class="t-ko">“Station마다 RF Generator와 RF Matcher가 따로 있으니, 서로 독립이다.”</span>
+    <span class="strike frag" data-step="2"></span>
+  </span></div>
+  <div class="verdict frag" data-step="2">
+    <span class="t-en">One ground.</span>
+    <span class="t-ko">Ground는 하나입니다.</span>
+  </div>
+  <div class="verdict-sub frag" data-step="3">
+    <span class="t-en">Separate supplies, shared return. The stations talk through the body.</span>
+    <span class="t-ko">공급은 따로, 귀환은 함께. Station들은 몸체를 통해 서로 이야기한다.</span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Why the belief is natural</h4>
+<p>On the tool's schematic each station is a separate chain: its own RF Generator, its own RF Matcher, its own electrode, its own recipe set-point. Alarms, logs and FDC are reported per station. Everything in the user interface says "four independent systems".</p>
+<h4>What breaks it</h4>
+<p>The four chains close their loops through the same chamber body. They also sit a few tens of centimetres apart, close enough for electric fields from one showerhead to reach the neighbouring pedestal, and in many designs the plasma regions are not fully walled off from each other. Independence holds for DC power and control signals — not for 27 MHz current.</p>
+<h4>Field symptoms that point here</h4>
+<ul>
+<li>Every station passes when run alone, but problems appear only when several stations run together.</li>
+<li>Reflected power on one station flickers or "breathes" at a steady rate, with no hardware fault found.</li>
+<li>An RF Matcher keeps moving in small steps (hunting) during a stable step.</li>
+<li>Station-to-station thickness or uniformity differences change when the neighbour's power changes.</li>
+<li>Swapping RF Generators or RF Matchers between stations moves nothing — the problem stays with the combination.</li>
+</ul>
+<p>The single most useful test is the first one: compare one station alone against all stations together.</p>
+</div>
+    <div class="t-ko">
+<h4>왜 이렇게 믿게 되는가</h4>
+<p>장비 회로도에서 각 Station은 별개의 계통이다. 자기 RF Generator, 자기 RF Matcher, 자기 전극, 자기 레시피 설정값. 알람, 로그, FDC도 Station별로 나온다. 사용자 화면의 모든 것이 '독립된 시스템 4개'라고 말한다.</p>
+<h4>무엇이 그 믿음을 깨는가</h4>
+<p>네 계통은 모두 같은 Chamber 몸체를 통해 고리를 닫는다. 또 서로 수십 cm 거리에 붙어 있어서 한 Showerhead의 전계가 옆 Pedestal까지 닿고, 많은 설계에서 플라즈마 영역도 완전히 막혀 있지 않다. 독립성은 DC 전원과 제어 신호에서는 성립하지만, 27 MHz 전류에서는 성립하지 않는다.</p>
+<h4>이 주제를 가리키는 현장 증상</h4>
+<ul>
+<li>Station을 하나씩 돌리면 모두 정상인데, 여러 Station을 함께 돌릴 때만 문제가 생긴다.</li>
+<li>한 Station의 반사 전력이 일정한 주기로 깜박이거나 '숨을 쉬는데', 하드웨어 불량은 나오지 않는다.</li>
+<li>안정된 스텝인데도 RF Matcher가 조금씩 계속 움직인다(Hunting).</li>
+<li>옆 Station의 파워를 바꾸면 Station 간 두께·균일도 차이가 달라진다.</li>
+<li>RF Generator나 RF Matcher를 Station끼리 맞바꿔도 문제가 따라 움직이지 않는다 — 문제는 '조합'에 있다.</li>
+</ul>
+<p>가장 쓸모 있는 시험은 첫 번째다. Station 하나만 켰을 때와 전부 켰을 때를 비교하라.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 5 · CROSSTALK ============ -->
+<section class="slide" data-title-en="Crosstalk" data-title-ko="Crosstalk">
+  <div class="eyebrow"><b>04</b>CROSSTALK</div>
+  <h2 class="headline">
+    <span class="t-en">Ground is not zero ohms at 27 MHz.</span>
+    <span class="t-ko">27 MHz에서 Ground는 0 Ω이 아니다.</span>
+  </h2>
+  <div class="views">
+    <div class="view rise" style="--d:.15s">
+      <div class="k">SHARED RETURN</div>
+      <div class="eqn" style="font-size:50px">10 nH ≈ 1.7 Ω</div>
+      <div class="d"><span class="t-en">One station's return current lifts the ground its neighbour stands on.</span><span class="t-ko">한 Station의 귀환 전류가 옆 Station이 딛고 선 Ground를 들어 올린다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.35s">
+      <div class="k">STRAY CAPACITANCE</div>
+      <div class="eqn" style="font-size:50px">C<sub>stray</sub></div>
+      <div class="d"><span class="t-en">Showerheads, pedestals and heater lines couple through the space between them.</span><span class="t-ko">Showerhead, Pedestal, Heater 배선이 사이 공간을 통해 용량성으로 결합한다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.55s">
+      <div class="k">SHARED GAS SPACE</div>
+      <div class="eqn" style="font-size:50px">Plasma</div>
+      <div class="d"><span class="t-en">Where stations are not walled off, plasma and sheaths link them directly.</span><span class="t-ko">Station이 막혀 있지 않으면 플라즈마와 Sheath가 직접 둘을 잇는다.</span></div>
+    </div>
+  </div>
+  <div class="foot-line rise" style="--d:.8s">
+    <span class="t-en">Isolation of −20 dB is only 1% of the power — but <b>10% of the voltage.</b></span>
+    <span class="t-ko"><span class="en">−20 dB</span> 격리는 전력으로 1%에 불과하지만, <b>전압으로는 10%다.</b></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Crosstalk, defined</h4>
+<p>Crosstalk is any unintended transfer of RF energy from one station's circuit into another's. It is measured as isolation: the ratio of the signal that appears at station B to the signal driven at station A, usually in dB (an S₂₁ measurement with a network analyser on an un-lit chamber).</p>
+<h4>Three paths</h4>
+<ul>
+<li><b>Shared return (common-impedance coupling).</b> Both stations' return currents flow through some common metal. The inductive voltage that one station's current develops there appears in series with the other station's circuit.</li>
+<li><b>Stray capacitance.</b> Any two conductors at different RF potentials are coupled by capacitance — adjacent showerheads, a showerhead and a neighbouring pedestal, heater and thermocouple leads.</li>
+<li><b>Shared gas space.</b> If the plasma or the gas volume is continuous between stations, charged particles and fields cross over directly. This path depends strongly on pressure and power.</li>
+</ul>
+<h4>Reading dB the right way</h4>
+<div class="nf">Power ratio = 10^(dB/10) &nbsp;·&nbsp; Voltage ratio = 10^(dB/20)<br>−40 dB → 0.01% power, 1% voltage<br>−30 dB → 0.1% power, 3.2% voltage<br>−20 dB → 1% power, 10% voltage</div>
+<p>Engineers tend to read isolation as a power figure and dismiss it. But the leaked signal adds to the station's own signal as a voltage, so it is the voltage ratio that sets how much the electrode voltage can swing. A 10% voltage disturbance is not small.</p>
+</div>
+    <div class="t-ko">
+<h4>Crosstalk의 정의</h4>
+<p>Crosstalk는 한 Station 회로의 RF 에너지가 의도치 않게 다른 Station 회로로 옮겨 가는 모든 현상이다. 크기는 격리도(Isolation)로 표시한다. Station A를 구동했을 때 Station B에 나타나는 신호의 비율이며, 보통 dB로 나타낸다(플라즈마를 켜지 않은 Chamber에서 Network Analyzer로 S₂₁을 측정).</p>
+<h4>세 가지 경로</h4>
+<ul>
+<li><b>공유 귀환 경로(공통 임피던스 결합).</b> 두 Station의 귀환 전류가 공통 금속을 지난다. 한 Station의 전류가 그곳에 만드는 유도 전압이 다른 Station 회로에 직렬로 끼어든다.</li>
+<li><b>부유 커패시턴스.</b> RF 전위가 다른 두 도체는 반드시 용량성으로 결합된다 — 인접한 Showerhead끼리, Showerhead와 옆 Pedestal, Heater와 Thermocouple 배선.</li>
+<li><b>공유 가스 공간.</b> Station 사이의 플라즈마나 가스 공간이 이어져 있으면 하전입자와 전계가 직접 넘어간다. 이 경로는 압력과 파워에 따라 크게 달라진다.</li>
+</ul>
+<h4>dB를 제대로 읽기</h4>
+<div class="nf">전력비 = 10^(dB/10) &nbsp;·&nbsp; 전압비 = 10^(dB/20)<br>−40 dB → 전력 0.01%, 전압 1%<br>−30 dB → 전력 0.1%, 전압 3.2%<br>−20 dB → 전력 1%, 전압 10%</div>
+<p>엔지니어는 격리도를 전력 수치로 읽고 무시하기 쉽다. 그러나 새어 들어온 신호는 Station 자신의 신호에 '전압'으로 더해지므로, 전극 전압이 얼마나 출렁일 수 있는지를 정하는 것은 전압비다. 10%의 전압 교란은 결코 작지 않다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 6 · HEAR THE BEAT ============ -->
+<section class="slide" data-title-en="Hear the Beat" data-title-ko="Beat를 들어보기">
+  <div class="eyebrow"><b>05</b>HEAR IT</div>
+  <h2 class="headline">
+    <span class="t-en">Two ambulances, almost in tune.</span>
+    <span class="t-ko">거의 같은 음의 구급차 두 대.</span>
+  </h2>
+  <canvas class="bt-cv" id="sndCv" width="800" height="744" aria-label="Siren waveforms"></canvas>
+  <div class="lab bt-lab">
+    <div><span class="eqn">f<sub>beat</sub> = <span style="font-weight:400">|</span>f<sub>A</sub> − f<sub>B</sub><span style="font-weight:400">|</span></span></div>
+    <div class="ctl">
+      <div class="ctl-row"><span class="k"><span class="t-en">Play</span><span class="t-ko">재생</span></span><span class="v" id="sndState">OFF</span></div>
+      <div class="chips">
+        <button class="chip-btn" data-snd="A">Siren A</button>
+        <button class="chip-btn" data-snd="B">Siren B</button>
+        <button class="chip-btn" data-snd="AB"><span class="t-en">Both</span><span class="t-ko">둘 다</span></button>
+        <button class="chip-btn" data-snd="off">■</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-row"><span class="k"><span class="t-en">Siren B detuned by</span><span class="t-ko">Siren B의 음정 차이</span> &nbsp;Δf</span><span class="v" id="sndDfV">3.0 Hz</span></div>
+      <input type="range" id="sndDf" min="0" max="8" step="0.1" value="3">
+    </div>
+    <div class="readout"><span class="k">beat</span><span class="num" id="sndBeat">3.0</span><span class="k">/ s</span></div>
+    <div class="status" id="sndSt"></div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>What you hear</h4>
+<p>Each siren alternates between a high tone (960 Hz) and a low tone (770 Hz). Siren B is the same siren, detuned by Δf. Played alone, each sounds steady. Played together, the loudness swells and fades — "wah-wah-wah" — exactly Δf times per second. That rhythmic swelling is a beat.</p>
+<h4>Where it comes from</h4>
+<p>Two sine waves of nearly the same frequency add up to one wave at the average frequency whose amplitude rises and falls slowly:</p>
+<div class="nf">sin(2πf₁t) + sin(2πf₂t) = 2 · cos(π(f₁ − f₂)t) · sin(π(f₁ + f₂)t)</div>
+<p>The cosine term is the envelope. Its magnitude peaks twice per cycle of cos(π Δf t), so the loudness peaks Δf times per second. When the two waves line up in phase they reinforce; half a beat period later they are opposite and cancel. Nothing new is created — the two waves simply slide past each other.</p>
+<h4>Same mathematics, different scale</h4>
+<p>Replace 960 Hz with 27.12 MHz and a 3 Hz detune with a few hundred hertz. A station's own RF and the crosstalk leaking in from its neighbour behave exactly like the two sirens. The "loudness" is now the electrode voltage amplitude, and it swells and fades hundreds of times per second.</p>
+<p>Musicians use this every day: when tuning a guitar string against a reference, the beats slow down as the pitches approach and stop when they match. Stopping the beat by matching the frequencies is precisely the RF fix discussed later.</p>
+</div>
+    <div class="t-ko">
+<h4>무엇이 들리는가</h4>
+<p>각 사이렌은 높은 음(960 Hz)과 낮은 음(770 Hz)을 번갈아 낸다. Siren B는 같은 사이렌을 Δf만큼 음정을 틀어 놓은 것이다. 하나씩 들으면 둘 다 일정한 소리다. 함께 들으면 소리가 커졌다 작아졌다 — '웅-웅-웅' — 정확히 1초에 Δf번 반복한다. 이 주기적인 울렁임이 Beat(맥놀이)다.</p>
+<h4>어디서 오는가</h4>
+<p>주파수가 거의 같은 두 사인파를 더하면, 평균 주파수로 진동하면서 진폭이 천천히 커졌다 작아지는 하나의 파가 된다.</p>
+<div class="nf">sin(2πf₁t) + sin(2πf₂t) = 2 · cos(π(f₁ − f₂)t) · sin(π(f₁ + f₂)t)</div>
+<p>코사인 항이 Envelope(포락선)다. 그 크기는 cos(π Δf t)의 한 주기에 두 번 최대가 되므로, 소리는 1초에 Δf번 커진다. 두 파의 위상이 맞으면 보강되고, 반 Beat 주기 뒤에는 반대가 되어 상쇄된다. 새로운 무언가가 생기는 것이 아니라, 두 파가 서로를 천천히 지나쳐 갈 뿐이다.</p>
+<h4>같은 수학, 다른 스케일</h4>
+<p>960 Hz를 27.12 MHz로, 3 Hz의 음정 차이를 수백 Hz로 바꿔 보자. Station 자신의 RF와 옆 Station에서 새어 들어온 Crosstalk는 두 사이렌과 똑같이 행동한다. 이번에는 '소리 크기'가 전극 전압의 진폭이며, 1초에 수백 번 커졌다 작아진다.</p>
+<p>음악가는 이것을 매일 쓴다. 기타 줄을 기준음에 맞출 때 음이 가까워질수록 맥놀이가 느려지고, 일치하면 멈춘다. 주파수를 일치시켜 Beat를 멈추는 것 — 이것이 뒤에서 다룰 RF 해결책 그대로다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 7 · PHASE LAB ============ -->
+<section class="slide" data-title-en="Phase, Walking" data-title-ko="걸어가는 위상">
+  <div class="eyebrow"><b>06</b>TRY IT</div>
+  <h2 class="headline">
+    <span class="t-en">A beat is just phase, walking.</span>
+    <span class="t-ko">Beat는 걸어가는 위상일 뿐이다.</span>
+  </h2>
+  <canvas class="bt-cv" id="phCv" width="800" height="744" aria-label="Phasor of own signal and crosstalk"></canvas>
+  <div class="lab bt-lab ph-lab">
+    <div class="ctl">
+      <div class="ctl-row"><span class="k"><span class="t-en">RF Generators</span><span class="t-ko">RF Generator 동작</span></span><span class="v" id="phMode">FREE</span></div>
+      <div class="chips">
+        <button class="chip-btn on" data-sync="0"><span class="t-en">Free-running</span><span class="t-ko">각자 동작</span></button>
+        <button class="chip-btn" data-sync="1"><span class="t-en">Synced · Δf = 0</span><span class="t-ko">동기화 · Δf = 0</span></button>
+      </div>
+    </div>
+    <div class="ctl" id="phDfRow">
+      <div class="ctl-row"><span class="k"><span class="t-en">Frequency offset</span><span class="t-ko">주파수 차이</span> &nbsp;Δf</span><span class="v" id="phDfV">300 Hz</span></div>
+      <input type="range" id="phDf" min="10" max="1000" step="10" value="300">
+    </div>
+    <div class="ctl" id="phPhRow">
+      <div class="ctl-row"><span class="k"><span class="t-en">Phase offset</span><span class="t-ko">위상 오프셋</span> &nbsp;φ</span><span class="v" id="phPhV">—</span></div>
+      <input type="range" id="phPh" min="0" max="360" step="5" value="90" disabled>
+    </div>
+    <div class="ctl">
+      <div class="ctl-row"><span class="k"><span class="t-en">Station isolation</span><span class="t-ko">Station 격리도</span></span><span class="v" id="phIsoV">−20 dB</span></div>
+      <input type="range" id="phIso" min="-40" max="-10" step="1" value="-20">
+    </div>
+    <div class="readout"><span class="k">ΔV</span><span class="num" id="phNum">±10</span><span class="k">%</span></div>
+    <div class="status" id="phSt"></div>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Reading the phasor</h4>
+<p>The dark arrow is the station's own RF voltage at the electrode, normalised to 1. The purple arrow is the crosstalk from the neighbour, with length k set by the isolation (k = 10^(dB/20)). It is attached to the tip of the own vector, and the coral arrow is their sum — the voltage the plasma actually sees.</p>
+<p>When the neighbour runs Δf away in frequency, the purple arrow rotates relative to the dark one, completing one turn every 1/Δf seconds. The tip of the sum traces a circle, so its length swings between 1 − k and 1 + k. That swing, repeating at Δf, is the beat.</p>
+<div class="nf">|V| = |1 + k·e^(j2πΔf·t)| &nbsp;→&nbsp; 1 − k … 1 + k<br>−20 dB: k = 0.10 → voltage ±10%, power roughly 0.81 … 1.21<br>Δf = 300 Hz → one full swing every 3.3 ms</div>
+<h4>Where a few hundred hertz comes from</h4>
+<p>Each RF Generator derives 27.12 MHz from its own crystal reference. A tolerance of ±10 ppm is already ±271 Hz; two units at opposite ends differ by over 500 Hz. Generators that tune their frequency to help matching can be kHz apart. Nobody set a beat — it appears by default.</p>
+<h4>Synchronised: the walk stops</h4>
+<p>With a shared reference (Δf = 0) the purple arrow stops rotating. The voltage no longer swings; it sits at a fixed value set by the phase offset φ. Notice that the coupling k has not changed — only its effect has become static. Which φ is best depends on the hardware, not on a rule of thumb (slide 8).</p>
+<p>The rotation on screen is slowed by several hundred times so the eye can follow it.</p>
+</div>
+    <div class="t-ko">
+<h4>페이저 읽기</h4>
+<p>검은 화살표는 전극에서 본 Station 자신의 RF 전압이며, 크기를 1로 정규화했다. 보라색 화살표는 옆 Station에서 넘어온 Crosstalk로, 길이 k는 격리도로 정해진다(k = 10^(dB/20)). 이것을 검은 화살표 끝에 붙이고, 둘의 합인 코랄 화살표가 플라즈마가 실제로 보는 전압이다.</p>
+<p>옆 Station이 Δf만큼 다른 주파수로 동작하면 보라색 화살표가 검은 화살표에 대해 회전하며, 1/Δf초마다 한 바퀴를 돈다. 합의 끝점은 원을 그리므로 그 길이는 1 − k와 1 + k 사이를 오간다. Δf 주기로 반복되는 이 출렁임이 Beat다.</p>
+<div class="nf">|V| = |1 + k·e^(j2πΔf·t)| &nbsp;→&nbsp; 1 − k … 1 + k<br>−20 dB: k = 0.10 → 전압 ±10%, 전력 약 0.81 … 1.21<br>Δf = 300 Hz → 3.3 ms마다 한 번씩 출렁임</div>
+<h4>수백 Hz는 어디서 오는가</h4>
+<p>각 RF Generator는 자기 수정 발진기(Crystal)로 27.12 MHz를 만든다. 공차 ±10 ppm만 해도 ±271 Hz이고, 양 끝에 있는 두 대라면 500 Hz 넘게 차이 난다. 정합을 돕기 위해 주파수를 움직이는 RF Generator라면 kHz 단위로 벌어질 수도 있다. 아무도 Beat를 설정하지 않았지만, 기본값으로 생긴다.</p>
+<h4>동기화하면: 걸음이 멈춘다</h4>
+<p>공통 기준 신호를 쓰면(Δf = 0) 보라색 화살표가 회전을 멈춘다. 전압은 더 이상 출렁이지 않고, 위상 오프셋 φ가 정하는 고정값에 머문다. 결합 크기 k는 그대로라는 점에 주목하자 — 그 영향이 정적으로 바뀌었을 뿐이다. 어떤 φ가 최선인지는 경험칙이 아니라 하드웨어가 정한다(8번 슬라이드).</p>
+<p>화면의 회전은 눈으로 따라갈 수 있도록 수백 배 느리게 표시했다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 8 · THREE CLOCKS ============ -->
+<section class="slide" data-title-en="Three Clocks" data-title-ko="세 개의 시계">
+  <div class="eyebrow"><b>07</b>THREE CLOCKS</div>
+  <h2 class="headline">
+    <span class="t-en">Who notices a 3 ms wobble?</span>
+    <span class="t-ko">3 ms의 출렁임, 누가 알아차리는가?</span>
+  </h2>
+  <div class="views">
+    <div class="view rise" style="--d:.15s">
+      <div class="k">PLASMA · µs</div>
+      <div class="eqn"><span class="t-en">Follows.</span><span class="t-ko">따라간다.</span></div>
+      <div class="d"><span class="t-en">It averages over 37 ns RF cycles, but rides a 3 ms beat — density and sheath voltage swing with it.</span><span class="t-ko">37 ns의 RF 주기는 평균내지만, 3 ms의 Beat는 그대로 탄다 — 밀도와 Sheath 전압이 함께 출렁인다.</span></div>
+    </div>
+    <div class="view rise" style="--d:.35s">
+      <div class="k">CONTROL LOOPS · ms–s</div>
+      <div class="eqn"><span class="t-en">Fight.</span><span class="t-ko">싸운다.</span></div>
+      <div class="d"><span class="t-en">Power regulation and the RF Matcher chase an error that never settles — hunting.</span><span class="t-ko">파워 제어와 RF Matcher가 자리 잡지 않는 오차를 쫓는다 — Hunting.</span></div>
+    </div>
+    <div class="view rise" style="--d:.55s">
+      <div class="k">FDC · 100 ms</div>
+      <div class="eqn c"><span class="t-en">Lies.</span><span class="t-ko">속인다.</span></div>
+      <div class="d"><span class="t-en">At 10 Hz sampling, a 303 Hz beat looks like a 3 Hz wander — or vanishes into the average.</span><span class="t-ko">10 Hz 샘플링에서 303 Hz Beat는 3 Hz의 느린 흔들림으로 보이거나, 평균 속에 사라진다.</span></div>
+    </div>
+  </div>
+  <div class="foot-line rise" style="--d:.8s">
+    <span class="t-en">The plasma sees it. The loops fight it. <b>The log hides it.</b></span>
+    <span class="t-ko">플라즈마는 보고, 제어 루프는 싸우고, <b>로그는 숨긴다.</b></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>Plasma: it follows</h4>
+<p>One RF cycle at 27.12 MHz lasts 36.9 ns. The plasma density cannot change that fast, so it responds to the average RF power. But density builds and decays on time scales of roughly tens of microseconds to about a millisecond, and the sheath voltage responds faster still. A beat period of 3.3 ms (Δf = 300 Hz) is slow by comparison, so the plasma follows it almost fully: density, sheath voltage (Vdc) and ion energy are amplitude-modulated at Δf. At beats near a kHz the plasma follows only partly.</p>
+<p>Because deposition integrates over the whole step, the beat itself does not print on the film. What prints is the change in the time-averaged plasma — and a nonlinear plasma does not average a ±10% voltage swing back to the same result as a steady voltage. Stations with different coupling end up with different average conditions.</p>
+<h4>Control loops: they fight</h4>
+<p>The leaked signal arrives at the neighbouring RF Matcher and travels back toward that station's RF Generator, where the sensor reads it as part of the reflected wave. A few hundred hertz is well inside the sensor's measurement bandwidth, so it is not filtered out; it adds to the station's own small reflection and makes the reading flicker at Δf. The RF Generator's power loop (millisecond response) partly chases it; the RF Matcher's capacitors (hundreds of ms) cannot follow, but keep reacting to the noisy error — small, endless corrections.</p>
+<h4>FDC: it hides</h4>
+<div class="nf">Apparent frequency = |Δf − n · f_sample| (nearest n)<br>303 Hz at 10 Hz → 3 Hz &nbsp;·&nbsp; 300 Hz at 10 Hz → 0 Hz (a fixed offset)</div>
+<p>If FDC point-samples, the beat aliases into a slow wander or a constant offset that shifts between runs. If FDC averages, the swing disappears and only its small effect on the mean remains. Either way the trace does not look like a 300 Hz problem. Seeing it needs fast capture of the V/I Probe or sensor signal, or a spectrum view showing sidebands at ±Δf around the carrier.</p>
+</div>
+    <div class="t-ko">
+<h4>플라즈마: 따라간다</h4>
+<p>27.12 MHz의 한 주기는 36.9 ns다. 플라즈마 밀도는 그렇게 빨리 변하지 못하므로 평균 RF 파워에 반응한다. 그러나 밀도가 쌓이고 사라지는 데는 대략 수십 µs에서 1 ms 정도가 걸리고, Sheath 전압은 그보다도 빠르게 반응한다. 3.3 ms의 Beat 주기(Δf = 300 Hz)는 이에 비해 느리기 때문에, 플라즈마는 거의 그대로 따라간다. 밀도, Sheath 전압(Vdc), 이온 에너지가 Δf로 진폭 변조된다. kHz 근처의 Beat에서는 일부만 따라간다.</p>
+<p>증착은 스텝 전체에 걸쳐 적분되므로 Beat 자체가 막에 찍히지는 않는다. 찍히는 것은 시간 평균된 플라즈마 상태의 변화다. 비선형인 플라즈마에서 ±10% 출렁이는 전압의 평균 결과는 일정한 전압의 결과와 같지 않다. 결합 정도가 다른 Station들은 서로 다른 평균 조건에 놓이게 된다.</p>
+<h4>제어 루프: 싸운다</h4>
+<p>새어 들어온 신호는 옆 Station의 RF Matcher에 도착해 그 Station의 RF Generator 쪽으로 거슬러 올라가고, 센서는 이것을 반사파의 일부로 읽는다. 수백 Hz는 센서의 측정 대역 안에 충분히 들어오므로 걸러지지 않는다. Station 자신의 작은 반사와 더해져 측정값이 Δf로 깜박인다. RF Generator의 파워 루프(ms 단위 응답)는 이것을 일부 쫓아가고, RF Matcher의 커패시터(수백 ms)는 따라가지 못하면서도 시끄러운 오차에 계속 반응한다 — 끝없는 미세 보정이다.</p>
+<h4>FDC: 숨긴다</h4>
+<div class="nf">겉보기 주파수 = |Δf − n · f_sample| (가장 가까운 n)<br>303 Hz를 10 Hz로 샘플링 → 3 Hz &nbsp;·&nbsp; 300 Hz를 10 Hz로 → 0 Hz (고정 오프셋)</div>
+<p>FDC가 순간값을 샘플링하면 Beat는 Aliasing되어 느린 흔들림이나, 런마다 달라지는 고정 오프셋으로 보인다. FDC가 평균을 내면 출렁임은 사라지고 평균값에 남은 작은 영향만 보인다. 어느 쪽이든 트레이스는 300 Hz 문제처럼 보이지 않는다. 보려면 V/I Probe나 센서 신호를 고속으로 캡처하거나, 반송파 양옆 ±Δf에 생기는 Sideband를 스펙트럼으로 확인해야 한다.</p>
+</div>
+  </div>
+</section>
+
+<!-- ============ 9 · THE FIX ============ -->
+<section class="slide" data-title-en="The Fix" data-title-ko="해결">
+  <div class="eyebrow"><b>08</b>THE FIX</div>
+  <h2 class="headline">
+    <span class="t-en">Lock the frequency. Then choose the phase.</span>
+    <span class="t-ko">주파수를 잠그고, 그다음 위상을 고른다.</span>
+  </h2>
+  <div class="chain">
+    <div class="node frag" data-step="1">
+      <div class="w">Δf = 0</div>
+      <div class="s"><span class="t-en">Common Exciter: one reference clock for every RF Generator. The beat stops.</span><span class="t-ko">Common Exciter: 모든 RF Generator에 하나의 기준 신호. Beat가 멈춘다.</span></div>
+    </div>
+    <div class="arr frag" data-step="2">→</div>
+    <div class="node frag" data-step="2">
+      <div class="w">φ</div>
+      <div class="s"><span class="t-en">Phase offset — tuned on the tool. Not "always 180°".</span><span class="t-ko">위상 오프셋 — 장비에서 맞춘다. '항상 180°'가 아니다.</span></div>
+    </div>
+    <div class="arr frag" data-step="3">→</div>
+    <div class="node frag" data-step="3">
+      <div class="w c">−dB</div>
+      <div class="s"><span class="t-en">Isolation: RF gaskets, short direct-contact returns, shielding.</span><span class="t-ko">격리: RF Gasket, 짧은 Direct Contact 귀환, Shielding.</span></div>
+    </div>
+  </div>
+  <div class="punch frag" data-step="4">
+    <span class="t-en">Sync stops the walk. <span class="c">Only isolation removes the path.</span></span>
+    <span class="t-ko">동기화는 걸음을 멈출 뿐, <span class="c">길을 없애는 것은 격리뿐이다.</span></span>
+  </div>
+  <img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>1. Lock the frequency</h4>
+<p>Many RF Generators accept an external reference (often called Common Exciter, CEX, or master–slave sync). One unit — or a separate exciter — supplies the 27.12 MHz reference and all others lock to it, so Δf = 0 exactly. The beat disappears because the relative phase stops moving.</p>
+<h4>2. Choose the phase — carefully</h4>
+<p>Once locked, the relative phase between stations is a fixed, adjustable number. A common claim is that 90° or 180° offsets "cancel" interference. That is not a general rule:</p>
+<ul>
+<li>Driving adjacent electrodes in phase (0°) minimises the voltage between them, so less current crosses directly from station to station — but their return currents add in the shared ground.</li>
+<li>Driving them at 180° doubles the voltage between adjacent electrodes and strengthens direct station-to-station coupling — while return currents in shared metal partly cancel.</li>
+</ul>
+<p>Which effect dominates depends on the geometry and on which coupling path is strongest. The best offset is found on the tool, by checking station-to-station results across offsets.</p>
+<h4>3. Remove the path</h4>
+<p>Sync turns a moving disturbance into a static one; the energy still crosses over. Reducing it means hardware: continuous RF gaskets and contact at every seam, the shortest possible direct-contact return from pedestal to the RF Matcher housing, shields between stations, and decoupling or filtering on heater and sensor lines.</p>
+<h4>Diagnostic checklist</h4>
+<ul>
+<li>One station alone vs. all stations together.</li>
+<li>Read each RF Generator's actual output frequency.</li>
+<li>Capture reflected power or V/I Probe signals at kHz rate, not FDC rate.</li>
+<li>Look for sidebands at ±Δf around 27.12 MHz.</li>
+<li>Measure station-to-station isolation (S₂₁) after PM, especially after gasket or strap work.</li>
+</ul>
+</div>
+    <div class="t-ko">
+<h4>1. 주파수를 잠근다</h4>
+<p>많은 RF Generator는 외부 기준 신호를 받을 수 있다(Common Exciter, CEX, Master–Slave Sync 등으로 부른다). 한 대 — 또는 별도의 Exciter — 가 27.12 MHz 기준을 공급하고 나머지는 모두 거기에 잠기므로 Δf는 정확히 0이 된다. 상대 위상이 움직이지 않으니 Beat가 사라진다.</p>
+<h4>2. 위상을 고른다 — 신중하게</h4>
+<p>동기화되면 Station 간 상대 위상은 고정되고 조절 가능한 값이 된다. 흔히 90°나 180° 오프셋이 간섭을 '상쇄'한다고 말하지만, 일반적인 규칙이 아니다.</p>
+<ul>
+<li>인접 전극을 같은 위상(0°)으로 구동하면 두 전극 사이의 전압이 최소가 되어 Station 사이로 직접 건너가는 전류가 줄어든다 — 대신 공유 Ground에서는 귀환 전류가 더해진다.</li>
+<li>180°로 구동하면 인접 전극 사이의 전압이 두 배가 되어 Station 간 직접 결합이 강해진다 — 대신 공유 금속의 귀환 전류는 일부 상쇄된다.</li>
+</ul>
+<p>어느 효과가 이기는지는 형상과, 어떤 결합 경로가 가장 강한지에 달려 있다. 최적 오프셋은 장비에서 오프셋을 바꿔 가며 Station 간 결과를 비교해 찾는다.</p>
+<h4>3. 길을 없앤다</h4>
+<p>동기화는 움직이는 교란을 정지된 교란으로 바꿀 뿐, 에너지는 여전히 넘어온다. 그것을 줄이는 일은 하드웨어의 몫이다. 모든 이음부의 연속된 RF Gasket과 접촉, Pedestal에서 RF Matcher Housing까지 가능한 한 짧은 Direct Contact 귀환, Station 사이의 Shield, Heater와 센서 배선의 디커플링·필터.</p>
+<h4>진단 체크리스트</h4>
+<ul>
+<li>Station 하나만 켰을 때와 전부 켰을 때를 비교한다.</li>
+<li>각 RF Generator의 실제 출력 주파수를 읽는다.</li>
+<li>반사 전력이나 V/I Probe 신호를 FDC 속도가 아니라 kHz 속도로 캡처한다.</li>
+<li>27.12 MHz 양옆 ±Δf의 Sideband를 찾는다.</li>
+<li>PM 후, 특히 Gasket이나 Strap 작업 후에 Station 간 격리도(S₂₁)를 측정한다.</li>
+</ul>
+</div>
+  </div>
+</section>
+
+<!-- ============ 10 · ONE MORE THING ============ -->
+<section class="slide dark" data-title-en="One More Thing" data-title-ko="한 가지 더">
+  <div class="omt hides" data-hide="1">
+    <span class="t-en">One more thing.</span>
+    <span class="t-ko">그리고, 한 가지 더.</span>
+  </div>
+  <div class="eyebrow frag" data-step="1"><b>09</b>ONE MORE THING</div>
+  <div class="vs frag" data-step="1">
+    <div class="blk"><div class="n">AFT</div><div class="l"><span class="t-en">Auto Frequency Tuning — each station finds its own f</span><span class="t-ko">Auto Frequency Tuning — Station마다 자기 f를 찾는다</span></div></div>
+    <div class="ne">≠</div>
+    <div class="blk"><div class="n q">Sync</div><div class="l"><span class="t-en">Common Exciter — every station on one f</span><span class="t-ko">Common Exciter — 모든 Station이 하나의 f</span></div></div>
+  </div>
+  <div class="next-line frag" data-step="2">
+    <span class="t-en">Tuning by frequency lets every station walk away from the others.</span>
+    <span class="t-ko">주파수로 정합하면, Station마다 서로에게서 멀어진다.</span>
+  </div>
+  <div class="next-tag frag" data-step="2">NEXT · FREQUENCY TUNING vs SYNCHRONIZATION</div>
+  <div class="end-links frag" data-step="2">
+    <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener">benedu-insight.github.io ↗</a>
+    <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener">Instagram · @benedu.insight ↗</a>
+  </div>
+  <img class="logo-tr frag" data-step="1" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="">
+  <div class="slide-note">
+    <div class="t-en">
+<h4>A feature that works against sync</h4>
+<p>Many RF Generators can match fast by shifting their own frequency within a few percent of 27.12 MHz (auto frequency tuning). It is quick — no moving parts — and very attractive for short ALD plasma steps.</p>
+<p>But frequency tuning means each station settles at whatever frequency suits its own load. Four stations with slightly different loads end up at four different frequencies, often kHz apart, and the offset changes from step to step. That is exactly the condition that creates beats.</p>
+<h4>The tension</h4>
+<p>A Common Exciter forces all stations onto one frequency, which removes frequency as a matching tool. Mixing the two — stations free to tune while sharing a body — brings back Δf by design.</p>
+<p>How to get fast matching and synchronisation at the same time — fixed frequency with fast RF Matchers, coordinated frequency moves, or tuning only during ignition — is the subject of the next session.</p>
+</div>
+    <div class="t-ko">
+<h4>동기화와 반대로 가는 기능</h4>
+<p>많은 RF Generator는 27.12 MHz에서 몇 % 범위 안으로 자기 주파수를 옮겨 빠르게 정합할 수 있다(Auto Frequency Tuning). 움직이는 부품이 없어 빠르고, 짧은 ALD 플라즈마 스텝에 매우 매력적이다.</p>
+<p>그러나 주파수 튜닝은 각 Station이 자기 부하에 맞는 주파수에 자리 잡는다는 뜻이다. 부하가 조금씩 다른 Station 4개는 서로 다른 주파수 4개에 — 흔히 kHz 단위로 떨어져 — 자리 잡고, 그 차이는 스텝마다 바뀐다. Beat를 만드는 조건 그 자체다.</p>
+<h4>긴장 관계</h4>
+<p>Common Exciter는 모든 Station을 하나의 주파수에 묶으므로, 주파수를 정합 수단으로 쓸 수 없게 된다. 몸체를 공유하면서 각자 튜닝하도록 두면 Δf가 설계상 다시 생긴다.</p>
+<p>빠른 정합과 동기화를 어떻게 동시에 얻을 것인가 — 고정 주파수와 빠른 RF Matcher, 조율된 주파수 이동, 점화 구간에만 튜닝 — 는 다음 시간의 주제다.</p>
+</div>
+  </div>
+</section>
+
+
+</div></div>
+
+<!-- control bar -->
+<div id="bar">
+  <button id="prevBtn" title="Previous (←)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <span class="dots" id="dots"></span>
+  <button id="nextBtn" title="Next (→)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+  <span class="sep"></span>
+  <button id="gridBtn" title="Overview (G)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <button id="notesBtn" title="Lecture notes (N)"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h6"/></svg></button>
+  <button id="langBtn" title="Language (L)">한국어</button>
+  <button id="fsBtn" title="Fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <span class="sep"></span>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="benedu-insight.github.io" aria-label="Homepage"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg></a>
+  <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener" title="Instagram · @benedu.insight" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></a>
+</div>
+
+<!-- notes -->
+<div id="notesTab">LECTURE NOTES</div>
+<aside id="notes">
+  <div class="notes-head"><div><span class="ttl"><span class="t-en">LECTURE NOTES</span><span class="t-ko en">강의 노트</span></span><span class="no" id="notesNo"></span></div><button id="notesClose" aria-label="Close">×</button></div>
+  <div class="notes-title" id="notesTitle"></div>
+  <div class="notes-body" id="notesBody"></div>
+  <div class="notes-foot"><span class="t-en">SUPPLEMENTARY EXPLANATION · N TO TOGGLE</span><span class="t-ko">수강생을 위한 보충 설명 · N 키로 열고 닫기</span></div>
+</aside>
+
+<!-- grid -->
+<div id="grid">
+  <div class="grid-head"><span class="ttl">OVERVIEW</span><span class="hint">CLICK A SLIDE · ESC TO CLOSE</span></div>
+  <div class="grid-wrap" id="gridWrap"></div>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = [].slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0, step = 0;
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+
+
+  /* ---- typography rule: Latin letters, numbers & symbols inside Korean text -> Google Sans ---- */
+  (function autoEn(root){
+    var C = "A-Za-z0-9ΩηπμεωΓλᵣ₀₁₂′√×≈≫=+/.()%±°·−µΔφ|-", K = "A-Za-z0-9ΩηπμεωΔφµ";
+    var re = new RegExp("["+C+"]*["+K+"]["+C+"]*(?:\\s+["+C+"]*["+K+"]["+C+"]*)*","g");
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [];
+    while(w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(function(n){
+      var p = n.parentElement;
+      if(!p || !p.closest('.t-ko') || p.closest('.en,script,style')) return;
+      var t = n.nodeValue, m, last = 0, frag = document.createDocumentFragment(), hit = false;
+      re.lastIndex = 0;
+      while((m = re.exec(t))){
+        hit = true;
+        if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'en'; sp.textContent = m[0]; frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if(!hit) return;
+      if(last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+      p.replaceChild(frag, n);
+    });
+  })(document.body);
+
+  /* ---- generated decoration: cover E-field lines, history axis ticks ---- */
+  var ef = document.getElementById('efield'), svgNS = 'http://www.w3.org/2000/svg';
+  if(ef) for(var i=0;i<16;i++){
+    var t = i/16*Math.PI*2, l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',300+82*Math.cos(t)); l.setAttribute('y1',300+82*Math.sin(t));
+    l.setAttribute('x2',300+238*Math.cos(t)); l.setAttribute('y2',300+238*Math.sin(t));
+    l.setAttribute('stroke','rgba(204,120,92,.42)'); l.setAttribute('stroke-width','1.6'); l.setAttribute('class','flow');
+    ef.appendChild(l);
+  }
+  var tk = document.getElementById('ticks');
+  if(tk) for(var z=20; z<=90; z+=10){
+    var d = document.createElement('div'); d.className='tick';
+    d.style.left = (96 + (z-20)/70*1088) + 'px'; d.textContent = z;
+    tk.appendChild(d);
+  }
+
+
+  /* ---- radicals: drawn hook that scales with its content ---- */
+  document.querySelectorAll('.sqrt').forEach(function(q){
+    var old = q.querySelector('.rad'); if(old) old.remove();
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','rad'); svg.setAttribute('viewBox','0 0 10 20'); svg.setAttribute('preserveAspectRatio','none');
+    var pth = document.createElementNS('http://www.w3.org/2000/svg','path');
+    pth.setAttribute('d','M0.3 12.2 L2.3 11 L5.2 19.6 L9.4 0.55 L10.6 0.55');
+    svg.appendChild(pth); q.insertBefore(svg, q.firstChild);
+  });
+
+  /* ---- dot indicator ---- */
+  var dotsEl = document.getElementById('dots');
+  slides.forEach(function(s,i){ var d=document.createElement('span'); d.className='dot'; d.title=pad(i+1)+' · '+s.dataset.titleEn; d.onclick=function(){ go(i); }; dotsEl.appendChild(d); });
+
+  /* ---- footer ---- */
+  var DOC = deck.dataset.doc || '';
+  slides.forEach(function(s,i){
+    var f = document.createElement('div'); f.className='footer';
+    f.innerHTML = '<span class="fm">BENEDU INSIGHT</span><span class="fd2">'+DOC+'</span><span class="fp">'+pad(i+1)+' / '+pad(total)+'</span>';
+    s.appendChild(f);
+  });
+
+  /* ---- build steps ---- */
+  function maxStep(s){
+    var m = 0; s.querySelectorAll('[data-step]').forEach(function(e){ m = Math.max(m, +e.dataset.step); });
+    return m;
+  }
+  function applyStep(s, n){
+    s.querySelectorAll('.frag').forEach(function(e){ e.classList.toggle('on', +e.dataset.step <= n); });
+    s.querySelectorAll('.hides').forEach(function(e){ e.classList.toggle('gone', n >= +e.dataset.hide); });
+  }
+
+  function render(){
+    slides.forEach(function(s,i){
+      var was = s.classList.contains('active');
+      s.classList.toggle('active', i===idx);
+      if(i===idx && !was){ s.querySelectorAll('.rise').forEach(function(r){ r.style.animation='none'; r.offsetHeight; r.style.animation=''; }); }
+    });
+    applyStep(slides[idx], step);
+    [].forEach.call(document.querySelectorAll('#dots .dot'), function(d,i){ d.classList.toggle('on', i===idx); d.classList.toggle('done', i<idx); });
+    history.replaceState(null,'','#'+(idx+1));
+    renderNotes();
+  }
+  function go(i, atEnd){
+    idx = Math.max(0, Math.min(total-1, i));
+    step = atEnd ? maxStep(slides[idx]) : 0;
+    render();
+  }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } }
+
+  /* ---- notes ---- */
+  var notes = document.getElementById('notes');
+  function renderNotes(){
+    var s = slides[idx], n = s.querySelector('.slide-note');
+    document.getElementById('notesBody').innerHTML = n ? n.innerHTML : '';
+    document.getElementById('notesNo').textContent = pad(idx+1)+' / '+pad(total);
+    document.getElementById('notesTitle').innerHTML =
+      '<span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span>';
+  }
+  function toggleNotes(force){
+    var open = force===undefined ? !notes.classList.contains('open') : force;
+    notes.classList.toggle('open', open);
+    document.getElementById('notesBtn').classList.toggle('on', open);
+  }
+
+  /* ---- language ---- */
+  var langBtn = document.getElementById('langBtn');
+  function setLang(l){
+    document.documentElement.classList.toggle('lang-ko', l==='ko');
+    document.documentElement.lang = l;
+    langBtn.textContent = l==='ko' ? 'English' : '한국어';
+    updateLab();
+  }
+  function toggleLang(){ setLang(document.documentElement.classList.contains('lang-ko') ? 'en' : 'ko'); }
+
+  /* ---- grid overview ---- */
+  var grid = document.getElementById('grid'), gw = document.getElementById('gridWrap');
+  function buildGrid(){
+    gw.innerHTML = '';
+    slides.forEach(function(s,i){
+      var th = document.createElement('div'); th.className = 'thumb' + (i===idx ? ' cur' : '');
+      var fr = document.createElement('div'); fr.className = 'frame';
+      var c = s.cloneNode(true);
+      c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+      c.classList.add('active','static'); c.classList.remove('rise');
+      applyStep(c, maxStep(c));
+      var inner = document.createElement('div'); inner.className = 'inner'; inner.appendChild(c);
+      fr.appendChild(inner); th.appendChild(fr);
+      var cap = document.createElement('div'); cap.className = 'cap';
+      cap.innerHTML = '<span class="no">'+pad(i+1)+'</span><span><span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span></span>';
+      th.appendChild(cap);
+      th.addEventListener('click', function(){ toggleGrid(false); go(i); });
+      gw.appendChild(th);
+    });
+    scaleThumbs();
+  }
+  function scaleThumbs(){
+    gw.querySelectorAll('.thumb').forEach(function(th){
+      var f = th.querySelector('.frame'), inn = th.querySelector('.inner');
+      inn.style.transform = 'scale(' + (f.clientWidth/1280) + ')';
+    });
+  }
+  function toggleGrid(force){
+    var open = force===undefined ? !grid.classList.contains('open') : force;
+    if(open){ grid.classList.add('open'); buildGrid(); } else { grid.classList.remove('open'); }
+    document.getElementById('gridBtn').classList.toggle('on', open);
+  }
+
+  /* ---- fullscreen ---- */
+  function toggleFS(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  }
+
+  /* ---- cover art: four stations + coupling lines ---- */
+  (function(){
+    var g = document.getElementById('cvStations'), lk = document.getElementById('cvLinks');
+    if(!g) return;
+    var NS = 'http://www.w3.org/2000/svg', P = [[200,200],[400,200],[200,400],[400,400]];
+    function el(n, a, p){ var e = document.createElementNS(NS, n); for(var k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; }
+    P.forEach(function(c, i){
+      el('circle', {cx:c[0], cy:c[1], r:78, fill:'rgba(239,233,222,.04)', stroke:'#3A3733', 'stroke-width':2}, g);
+      el('circle', {cx:c[0], cy:c[1], r:58, fill:'none', stroke:'rgba(255,255,255,.10)', 'stroke-width':1.5, 'stroke-dasharray':'2 8', 'class':'spin'}, g);
+      el('circle', {cx:c[0], cy:c[1], r:20, fill:i===0 ? '#CC785C' : 'rgba(204,120,92,.45)'}, g);
+    });
+    [[0,1],[0,2],[1,3],[2,3],[0,3]].forEach(function(pr){
+      var a = P[pr[0]], b = P[pr[1]], dx = b[0]-a[0], dy = b[1]-a[1], L = Math.sqrt(dx*dx+dy*dy), ux = dx/L, uy = dy/L;
+      el('line', {x1:a[0]+ux*84, y1:a[1]+uy*84, x2:b[0]-ux*84, y2:b[1]-uy*84, stroke:'rgba(204,120,92,.55)', 'stroke-width':2, 'class':'flow'}, lk);
+    });
+  })();
+
+  function isOn(id){ var c = document.getElementById(id); return c && c.closest('.slide').classList.contains('active'); }
+  function lang(){ return document.documentElement.classList.contains('lang-ko') ? 'ko' : 'en'; }
+  function dual(en, ko){ return '<span class="t-en">'+en+'</span><span class="t-ko">'+ko+'</span>'; }
+  function ko(s){ return s.replace(/([A-Za-z0-9Δφ±%°.−+=]+(?:\s+[A-Za-z0-9Δφ±%°.−+=]+)*)/g,'<span class="en">$1</span>'); }
+
+  /* ================= SOUND LAB: two sirens ================= */
+  var sndCv = document.getElementById('sndCv');
+  var snd = { mode:'off', df:3, AC:null, oA:null, oB:null, gA:null, gB:null, hi:true, timer:null, t:0 };
+  function sndFreqs(){
+    if(!snd.AC) return;
+    var base = snd.hi ? 960 : 770, t = snd.AC.currentTime;
+    snd.oA.frequency.setTargetAtTime(base, t, 0.01);
+    snd.oB.frequency.setTargetAtTime(base + snd.df, t, 0.01);
+  }
+  function sndEnsure(){
+    if(!snd.AC){
+      var AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+      snd.AC = new AC();
+      var m = snd.AC.createGain(); m.gain.value = 0.16; m.connect(snd.AC.destination);
+      snd.oA = snd.AC.createOscillator(); snd.oB = snd.AC.createOscillator();
+      snd.oA.type = 'sine'; snd.oB.type = 'sine';
+      snd.gA = snd.AC.createGain(); snd.gB = snd.AC.createGain(); snd.gA.gain.value = 0; snd.gB.gain.value = 0;
+      snd.oA.connect(snd.gA); snd.gA.connect(m); snd.oB.connect(snd.gB); snd.gB.connect(m);
+      snd.oA.start(); snd.oB.start(); sndFreqs();
+      snd.timer = setInterval(function(){ snd.hi = !snd.hi; sndFreqs(); }, 650);
+    }
+    if(snd.AC.state === 'suspended') snd.AC.resume();
+  }
+  function sndMode(m){
+    snd.mode = m;
+    if(m !== 'off') sndEnsure();
+    if(snd.AC){
+      var t = snd.AC.currentTime;
+      snd.gA.gain.setTargetAtTime((m==='A'||m==='AB') ? 1 : 0, t, 0.04);
+      snd.gB.gain.setTargetAtTime((m==='B'||m==='AB') ? 1 : 0, t, 0.04);
+    }
+    updSnd();
+  }
+  function updSnd(){
+    if(!sndCv) return;
+    var df = snd.df, st = document.getElementById('sndSt');
+    document.getElementById('sndDfV').textContent = df.toFixed(1) + ' Hz';
+    document.getElementById('sndState').textContent = snd.mode === 'off' ? 'OFF' : (snd.mode === 'AB' ? 'A + B' : snd.mode);
+    var num = document.getElementById('sndBeat');
+    num.textContent = snd.mode === 'AB' ? df.toFixed(1) : '0';
+    num.className = 'num' + (snd.mode === 'AB' && df > 0 ? ' hit' : '');
+    st.className = 'status';
+    document.querySelectorAll('[data-snd]').forEach(function(c){ c.classList.toggle('on', c.dataset.snd === snd.mode && snd.mode !== 'off'); });
+    if(snd.mode === 'off'){
+      st.innerHTML = dual('Press <b>Both</b> and listen to the loudness.', '<b>둘 다</b>를 눌러 소리 크기에 귀를 기울여 보세요.');
+    } else if(snd.mode !== 'AB'){
+      st.innerHTML = dual('One siren alone: steady loudness, no beat.', '사이렌 하나만: 크기가 일정하고 Beat가 없다.');
+    } else if(df === 0){
+      st.className = 'status hit75';
+      st.innerHTML = dual('Perfectly in tune: no beat at all.', ko('음정이 완전히 일치: Beat가 전혀 없다.'));
+    } else {
+      st.className = 'status hit';
+      var T = (1/df).toFixed(2);
+      st.innerHTML = dual('Loudness pulses '+df.toFixed(1)+' times a second — one beat every '+T+' s.',
+                         ko('소리가 1초에 '+df.toFixed(1)+'번 울렁인다 — '+T+' s마다 한 번.'));
+    }
+  }
+  function drawSnd(dt){
+    var c = sndCv.getContext('2d'), W = 400, H = 372;
+    c.setTransform(2,0,0,2,0,0); c.clearRect(0,0,W,H);
+    snd.t += dt;
+    var fv = 22, span = 2.0, x0 = 20, x1 = W-20, rows = [70, 170, 290];
+    var aOn = snd.mode==='A'||snd.mode==='AB', bOn = snd.mode==='B'||snd.mode==='AB', live = snd.mode !== 'off';
+    var labels = ['SIREN A', 'SIREN B · +Δf', 'A + B — WHAT YOU HEAR'];
+    c.font = '700 10px "JetBrains Mono", monospace'; c.textBaseline = 'alphabetic';
+    for(var r=0;r<3;r++){
+      c.fillStyle = '#A09D96'; c.fillText(labels[r], x0, rows[r] - (r===2 ? 62 : 38));
+      c.strokeStyle = '#E6DFD8'; c.lineWidth = 1; c.beginPath(); c.moveTo(x0, rows[r]); c.lineTo(x1, rows[r]); c.stroke();
+    }
+    var tNow = live ? snd.t : 0;
+    function wave(row, amp, fn, color, w){
+      c.strokeStyle = color; c.lineWidth = w; c.beginPath();
+      for(var x=x0; x<=x1; x++){
+        var tt = tNow - (x1 - x)/(x1 - x0)*span, y = row - amp*fn(tt);
+        x===x0 ? c.moveTo(x,y) : c.lineTo(x,y);
+      }
+      c.stroke();
+    }
+    var fA = function(t){ return Math.sin(2*Math.PI*fv*t); };
+    var fB = function(t){ return Math.sin(2*Math.PI*(fv+snd.df)*t); };
+    wave(rows[0], 24, fA, aOn ? '#252320' : '#D8D2C8', 1.4);
+    wave(rows[1], 24, fB, bOn ? '#7030A0' : '#D8D2C8', 1.4);
+    var sum = function(t){ return (aOn ? fA(t) : 0) + (bOn ? fB(t) : 0); };
+    if(aOn || bOn) wave(rows[2], 26, sum, '#252320', 1.2);
+    if(aOn && bOn){
+      var env = function(t){ return Math.abs(2*Math.cos(Math.PI*snd.df*t)); };
+      c.setLineDash([5,4]);
+      wave(rows[2], 26, env, '#CC785C', 2.2);
+      wave(rows[2], 26, function(t){ return -env(t); }, '#CC785C', 2.2);
+      c.setLineDash([]);
+    }
+    c.fillStyle = '#A09D96'; c.font = '400 10px "JetBrains Mono", monospace';
+    c.fillText('← 2 s window · carrier drawn slower than real', x0, H - 14);
+  }
+  if(sndCv){
+    document.getElementById('sndDf').addEventListener('input', function(e){ snd.df = +e.target.value; sndFreqs(); updSnd(); });
+    document.querySelectorAll('[data-snd]').forEach(function(b){
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); sndMode(b.dataset.snd); });
+    });
+  }
+
+  /* ================= PHASE LAB: own RF + crosstalk ================= */
+  var phCv = document.getElementById('phCv');
+  var ph = { sync:false, df:300, iso:-20, phi:90, vis:0, hist:[] };
+  function phK(){ return Math.pow(10, ph.iso/20); }
+  function phMag(a){ var k = phK(); return Math.sqrt(Math.pow(1 + k*Math.cos(a), 2) + Math.pow(k*Math.sin(a), 2)); }
+  function updPh(){
+    if(!phCv) return;
+    var k = phK(), st = document.getElementById('phSt'), num = document.getElementById('phNum');
+    document.getElementById('phDfV').textContent = ph.sync ? '0 Hz' : ph.df + ' Hz';
+    document.getElementById('phIsoV').textContent = '−' + Math.abs(ph.iso) + ' dB';
+    document.getElementById('phPhV').textContent = ph.sync ? ph.phi + '°' : '—';
+    document.getElementById('phMode').textContent = ph.sync ? 'SYNC' : 'FREE';
+    document.getElementById('phDf').disabled = ph.sync;
+    document.getElementById('phPh').disabled = !ph.sync;
+    document.querySelectorAll('[data-sync]').forEach(function(c){ c.classList.toggle('on', (+c.dataset.sync === 1) === ph.sync); });
+    var pct = k*100, d = pct < 10 ? 1 : 0;
+    if(!ph.sync){
+      num.textContent = '±' + pct.toFixed(d);
+      num.className = 'num hit'; st.className = 'status';
+      var T = (1000/ph.df).toFixed(ph.df >= 100 ? 1 : 0);
+      st.innerHTML = dual('Phase walks 360° every '+T+' ms — the plasma sees the swing.',
+                          ko('위상이 '+T+' ms마다 360°를 돈다 — 플라즈마는 이 출렁임을 본다.'));
+    } else {
+      var off = (phMag(ph.phi*Math.PI/180) - 1)*100;
+      num.textContent = (off >= 0 ? '+' : '−') + Math.abs(off).toFixed(1);
+      num.className = 'num hit75'; st.className = 'status hit75';
+      st.innerHTML = dual('Walk stopped at φ = '+ph.phi+'°: a steady offset. The coupling is still there.',
+                          ko('φ = '+ph.phi+'°에서 정지: 일정한 오프셋. 결합은 그대로 남아 있다.'));
+    }
+  }
+  function drawPh(dt){
+    var c = phCv.getContext('2d'), W = 400, H = 372, k = phK();
+    c.setTransform(2,0,0,2,0,0); c.clearRect(0,0,W,H);
+    if(ph.sync){ ph.vis = ph.phi*Math.PI/180; }
+    else { ph.vis += dt * 2*Math.PI * (0.25 + ph.df/1000*0.9); }
+    var a = ph.vis, mag = phMag(a);
+    ph.hist.push(mag); if(ph.hist.length > 360) ph.hist.shift();
+    var O = [26, 132], L = 176, P = [O[0]+L, O[1]], vx = k*L*Math.cos(a), vy = -k*L*Math.sin(a), T = [P[0]+vx, P[1]+vy];
+    c.font = '700 10px "JetBrains Mono", monospace'; c.fillStyle = '#A09D96';
+    c.fillText('PHASOR AT THE ELECTRODE', 20, 28);
+    function arrow(x0,y0,x1,y1,col,w){
+      c.strokeStyle = col; c.fillStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(x0,y0); c.lineTo(x1,y1); c.stroke();
+      var an = Math.atan2(y1-y0, x1-x0), h = 6 + w;
+      if(Math.hypot(x1-x0, y1-y0) > h){ c.beginPath(); c.moveTo(x1,y1); c.lineTo(x1-h*Math.cos(an-0.4), y1-h*Math.sin(an-0.4)); c.lineTo(x1-h*Math.cos(an+0.4), y1-h*Math.sin(an+0.4)); c.closePath(); c.fill(); }
+    }
+    arrow(O[0], O[1], P[0], P[1], '#252320', 2.5);
+    arrow(O[0], O[1], T[0], T[1], '#CC785C', 2.5);
+    c.beginPath(); c.fillStyle = '#252320'; c.arc(O[0], O[1], 3.5, 0, 2*Math.PI); c.fill();
+    // zoom inset around the tip
+    var Z = Math.max(1, 50/(k*L)), C = [306, 132], R = 74;
+    c.strokeStyle = '#D8D2C8'; c.lineWidth = 1; c.setLineDash([2,3]);
+    c.beginPath(); c.arc(P[0], P[1], Math.max(k*L,4)+3, 0, 2*Math.PI); c.stroke();
+    c.beginPath(); c.moveTo(P[0]+Math.max(k*L,4)+3, P[1]); c.lineTo(C[0]-R, C[1]); c.stroke(); c.setLineDash([]);
+    c.save(); c.beginPath(); c.arc(C[0], C[1], R, 0, 2*Math.PI); c.fillStyle = '#FBF8F3'; c.fill(); c.strokeStyle = '#A09D96'; c.lineWidth = 1.2; c.stroke(); c.clip();
+    var r = k*L*Z, tx = C[0] + r*Math.cos(a), ty = C[1] - r*Math.sin(a);
+    c.setLineDash([3,4]); c.strokeStyle = '#C9B6DA'; c.lineWidth = 1.2; c.beginPath(); c.arc(C[0], C[1], r, 0, 2*Math.PI); c.stroke(); c.setLineDash([]);
+    arrow(C[0]-R-10, C[1], C[0], C[1], '#252320', 2.5);
+    var dx = T[0]-O[0], dy = T[1]-O[1], dl = Math.hypot(dx,dy);
+    c.strokeStyle = '#CC785C'; c.lineWidth = 3; c.beginPath(); c.moveTo(tx - dx/dl*200, ty - dy/dl*200); c.lineTo(tx, ty); c.stroke();
+    arrow(C[0], C[1], tx, ty, '#7030A0', 2.5);
+    c.beginPath(); c.fillStyle = '#CC785C'; c.arc(tx, ty, 4, 0, 2*Math.PI); c.fill();
+    c.restore();
+    c.font = '700 10px "JetBrains Mono", monospace'; c.fillStyle = '#A09D96'; c.textAlign = 'center';
+    c.fillText('ZOOM ×' + Math.round(Z), C[0], C[1]+R+16); c.textAlign = 'left';
+    var ko_ = lang() === 'ko';
+    c.font = '700 12px "Google Sans", sans-serif';
+    c.fillStyle = '#252320'; c.fillText(ko_ ? 'Station 자신의 RF' : 'own RF', O[0]+40, O[1]+22);
+    c.fillStyle = '#CC785C'; c.fillText(ko_ ? '합 = 플라즈마가 보는 전압' : 'sum = what the plasma sees', O[0]+8, O[1]-40);
+    c.fillStyle = '#7030A0'; c.fillText(ko_ ? 'Crosstalk (k)' : 'crosstalk (k)', C[0]-34, 46);
+    // envelope strip
+    var top = 250, mid = 306, S = 150, x0 = 20, x1 = W-20;
+    c.font = '700 10px "JetBrains Mono", monospace'; c.fillStyle = '#A09D96';
+    c.fillText('|V| OVER TIME', x0, top);
+    c.strokeStyle = '#E6DFD8'; c.lineWidth = 1;
+    [mid, mid - k*S, mid + k*S].forEach(function(y, i){ c.setLineDash(i ? [3,4] : []); c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke(); });
+    c.setLineDash([]);
+    c.fillStyle = '#A09D96'; c.font = '400 10px "JetBrains Mono", monospace';
+    c.fillText('1.00', x0, mid-4);
+    c.strokeStyle = '#CC785C'; c.lineWidth = 2; c.beginPath();
+    var n = ph.hist.length;
+    for(var i=0;i<n;i++){ var x = x1 - (n-1-i)*(x1-x0)/359, y = mid - (ph.hist[i]-1)*S; i ? c.lineTo(x,y) : c.moveTo(x,y); }
+    c.stroke();
+    c.fillStyle = '#A09D96'; c.fillText(ph.sync ? 'SYNC · STATIC' : 'ROTATION SLOWED FOR VIEWING', x0, H-14);
+  }
+  if(phCv){
+    document.getElementById('phDf').addEventListener('input', function(e){ ph.df = +e.target.value; updPh(); });
+    document.getElementById('phIso').addEventListener('input', function(e){ ph.iso = +e.target.value; updPh(); });
+    document.getElementById('phPh').addEventListener('input', function(e){ ph.phi = +e.target.value; updPh(); });
+    document.querySelectorAll('[data-sync]').forEach(function(b){
+      b.addEventListener('click', function(ev){ ev.stopPropagation(); ph.sync = b.dataset.sync === '1'; updPh(); });
+    });
+  }
+
+  function updateLab(){ updSnd(); updPh(); }
+
+  (function loop(){
+    var last = performance.now();
+    function f(now){
+      var dt = Math.min((now-last)/1000, 0.05); last = now;
+      if(sndCv){ if(isOn('sndCv')) drawSnd(dt); else if(snd.mode !== 'off') sndMode('off'); }
+      if(phCv && isOn('phCv')) drawPh(dt);
+      requestAnimationFrame(f);
+    }
+    requestAnimationFrame(f);
+  })();
+
+  /* ---- input ---- */
+  document.getElementById('prevBtn').onclick = prev;
+  document.getElementById('nextBtn').onclick = next;
+  document.getElementById('gridBtn').onclick = function(){ toggleGrid(); };
+  document.getElementById('notesBtn').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesTab').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesClose').onclick = function(){ toggleNotes(false); };
+  document.getElementById('fsBtn').onclick = toggleFS;
+  langBtn.onclick = toggleLang;
+
+  window.addEventListener('keydown', function(e){
+    if(e.target.tagName==='INPUT') return;
+    var k = e.key;
+    if(grid.classList.contains('open')){ if(k==='Escape' || k==='g' || k==='G') toggleGrid(false); return; }
+    if(['ArrowRight','PageDown',' ','Enter'].indexOf(k)>-1){ next(); e.preventDefault(); }
+    else if(['ArrowLeft','PageUp','Backspace'].indexOf(k)>-1){ prev(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); } else if(k==='End'){ go(total-1, true); }
+    else if(k==='g' || k==='G'){ toggleGrid(); }
+    else if(k==='n' || k==='N'){ toggleNotes(); }
+    else if(k==='l' || k==='L'){ toggleLang(); }
+    else if(k==='f' || k==='F'){ toggleFS(); }
+    else if(k==='Escape'){ toggleNotes(false); }
+  });
+
+  /* ---- click left/right half of the slide to navigate ---- */
+  var NO_NAV = 'a,button,input,label,.lab,.bt-cv,.chip-btn,.nav-hint';
+  function sideOf(e){
+    var r = deck.getBoundingClientRect();
+    return (e.clientX - r.left) < r.width * 0.5 ? 'l' : 'r';
+  }
+  deck.addEventListener('mousemove', function(e){
+    var blocked = e.target.closest(NO_NAV);
+    var sd = blocked ? '' : sideOf(e);
+    deck.classList.toggle('hov-l', sd==='l' && !(idx===0 && step===0));
+    deck.classList.toggle('hov-r', sd==='r' && !(idx===total-1 && step===maxStep(slides[idx])));
+  });
+  deck.addEventListener('mouseleave', function(){ deck.classList.remove('hov-l','hov-r'); });
+  deck.addEventListener('click', function(e){
+    if(e.target.closest(NO_NAV)) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(notes.classList.contains('open')){ toggleNotes(false); return; }
+    sideOf(e)==='l' ? prev() : next();
+    deck.dispatchEvent(new MouseEvent('mousemove', {clientX:e.clientX, clientY:e.clientY, bubbles:true}));
+  });
+
+  var tx = null;
+  deck.addEventListener('touchstart', function(e){ if(e.target.tagName!=='INPUT') tx = e.touches[0].clientX; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if(tx===null) return; var dx = e.changedTouches[0].clientX - tx;
+    if(dx < -40) next(); if(dx > 40) prev(); tx = null;
+  });
+
+  /* ---- idle: hide chrome while presenting ---- */
+  var idleT;
+  function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(!grid.classList.contains('open') && !notes.classList.contains('open')) document.body.classList.add('idle'); }, 2600); }
+  ['mousemove','mousedown','keydown','touchstart'].forEach(function(ev){ window.addEventListener(ev, wake, {passive:true}); });
+
+  /* ---- scale ---- */
+  function fit(){
+    var s = Math.min((window.innerWidth-48)/1280, (window.innerHeight-48)/720);
+    deck.style.transform = 'scale('+s+')';
+    if(grid.classList.contains('open')) scaleThumbs();
+  }
+  window.addEventListener('resize', fit);
+
+  fit(); setLang('en');
+  var h = parseInt((location.hash||'').replace('#',''),10);
+  go(isNaN(h) ? 0 : h-1);
+  wake();
+})();
+</script>
+</body>
+</html>
