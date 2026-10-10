@@ -856,14 +856,15 @@ const SLIDES_KO = [
     title: '줄에서 RF 전송선로로',
     subtitle: '물리적 직관에서 실제 RF 시스템으로의 다리',
     theories: [
-      { icon: '🔁', title: '완전한 대응 구조', body: '줄의 장력 T는 인덕턴스 L에, 선밀도 μ는 커패시턴스 C에 대응됩니다. 파동 속도 √(T/μ)는 1/√(LC)에 대응됩니다. 수식이 같으니 거동도 같습니다.' },
+      { icon: '🔁', title: '완전한 대응 구조', body: '줄의 변위 y를 전압 V에 대응시키면, 선밀도 μ는 커패시턴스 C에, 장력 T는 인덕턴스의 역수 1/L에 대응됩니다. 이때 파동 속도 √(T/μ)는 1/√(LC)와 일치하고, 줄 임피던스 √(Tμ)는 특성 어드미턴스 Y₀ = 1/Z₀ = √(C/L)에 대응됩니다. 따라서 줄의 변위 반사계수가 선로의 전압 반사계수 Γ = (Z<sub>L</sub>−Z₀)/(Z<sub>L</sub>+Z₀)와 같은 식이 되어, 고정단 ↔ 단락(Γ = −1), 자유단 ↔ 개방(Γ = +1)이 성립합니다.' },
       { icon: '📡', title: '동축케이블의 물성', body: '동축케이블은 특성 임피던스 Z₀ = √(L/C)를 가집니다. 반도체 RF 시스템의 표준은 50Ω. 이 값은 케이블 내부·외부 도체의 직경 비율로 결정됩니다.' },
       { icon: '⚗️', title: 'CCP Reactor의 경계조건', body: 'CCP 전극은 Open circuit에 가까운 특성을 가지나, 플라즈마가 점화되면 저항성+용량성 복합 임피던스로 변합니다. 즉, 경계조건이 동적으로 변하는 시스템입니다.' },
       { icon: '🔌', title: 'Poynting Vector로 보면', body: '동축케이블 속을 흐르는 에너지는 전자가 아니라 E×H(Poynting Vector), 즉 E-field와 B-field의 교차 공간입니다. 줄에서 파동에너지가 공간을 통해 전달되는 것과 동일한 구조입니다.' },
     ],
     equations: [
       { label: '특성 임피던스', tex: 'Z_0 = \\sqrt{\\dfrac{L}{C}} \\approx 50\\,\\Omega' },
-      { label: '줄 ↔ 선로 파동속도 대응', tex: 'v = \\sqrt{\\dfrac{T}{\\mu}} \\longleftrightarrow v = \\dfrac{1}{\\sqrt{LC}}' },
+      { label: '줄 ↔ 선로 파동속도 대응 (T ↔ 1/L, μ ↔ C)', tex: 'v = \\sqrt{\\dfrac{T}{\\mu}} \\longleftrightarrow v = \\dfrac{1}{\\sqrt{LC}}' },
+      { label: '줄 임피던스 ↔ 특성 어드미턴스', tex: 'Z_s = \\sqrt{T\\mu} \\longleftrightarrow Y_0 = \\dfrac{1}{Z_0} = \\sqrt{\\dfrac{C}{L}}' },
     ],
     classroom: {
       q: '동축케이블의 특성 임피던스 Z₀를 결정하는 것은?',
@@ -1060,14 +1061,15 @@ const SLIDES_EN = [
     title: 'From String to RF Transmission Line',
     subtitle: 'Bridging physical intuition to real RF systems',
     theories: [
-      { icon: '🔁', title: 'Complete Correspondence', body: 'Tension T maps to inductance L; linear mass density μ maps to capacitance C. Wave speed √(T/μ) maps to 1/√(LC). Same equations — same behavior.' },
+      { icon: '🔁', title: 'Complete Correspondence', body: 'Mapping string displacement y to voltage V, linear mass density μ maps to capacitance C and tension T maps to the inverse inductance 1/L. Wave speed √(T/μ) then equals 1/√(LC), and the string impedance √(Tμ) maps to the characteristic admittance Y₀ = 1/Z₀ = √(C/L). As a result, the displacement reflection coefficient of the string takes the same form as the voltage reflection coefficient Γ = (Z<sub>L</sub>−Z₀)/(Z<sub>L</sub>+Z₀) — so fixed end ↔ short (Γ = −1) and free end ↔ open (Γ = +1).' },
       { icon: '📡', title: 'Coaxial Cable Properties', body: 'Coaxial cables have a characteristic impedance Z₀ = √(L/C). The standard in semiconductor RF systems is 50Ω, set by the ratio of inner to outer conductor diameters.' },
       { icon: '⚗️', title: 'CCP Reactor as a Boundary', body: 'CCP electrodes approximate an open circuit before plasma ignition. Once plasma lights, they present a complex resistive+capacitive impedance that varies dynamically.' },
       { icon: '🔌', title: 'The Poynting Vector View', body: 'Energy in a coaxial cable travels not as electrons but as E×H (Poynting Vector) — the cross-product of E-field and B-field in the space between conductors. Exactly as energy travels through the space around a vibrating string.' },
     ],
     equations: [
       { label: 'Characteristic impedance', tex: 'Z_0 = \\sqrt{\\dfrac{L}{C}} \\approx 50\\,\\Omega' },
-      { label: 'String ↔ Line wave speed', tex: 'v = \\sqrt{\\dfrac{T}{\\mu}} \\longleftrightarrow v = \\dfrac{1}{\\sqrt{LC}}' },
+      { label: 'String ↔ Line wave speed (T ↔ 1/L, μ ↔ C)', tex: 'v = \\sqrt{\\dfrac{T}{\\mu}} \\longleftrightarrow v = \\dfrac{1}{\\sqrt{LC}}' },
+      { label: 'String impedance ↔ characteristic admittance', tex: 'Z_s = \\sqrt{T\\mu} \\longleftrightarrow Y_0 = \\dfrac{1}{Z_0} = \\sqrt{\\dfrac{C}{L}}' },
     ],
     classroom: {
       q: 'What determines the characteristic impedance Z₀ of a coaxial cable?',
@@ -2198,20 +2200,22 @@ function buildC27Diagram(isEn) {
 function buildC28Diagram(isEn) {
   const rows = isEn ? [
     ['String Property','Symbol','RF Line Property','Symbol'],
-    ['Tension','T','Inductance per unit length','L'],
+    ['Displacement','y','Voltage','V'],
+    ['Tension','T','Inverse of inductance per unit length','1/L'],
     ['Linear mass density','μ','Capacitance per unit length','C'],
     ['Wave speed','√(T/μ)','Wave speed','1/√(LC)'],
+    ['String impedance','Z<sub>s</sub> = √(Tμ)','Characteristic admittance','Y₀ = 1/Z₀ = √(C/L)'],
     ['Fixed end','y=0 boundary','Short circuit','Z<sub>L</sub> = 0'],
     ['Free end','dy/dx=0','Open circuit','Z<sub>L</sub> = ∞'],
-    ['Impedance ratio','√(T₁μ₁)/√(T₂μ₂)','Characteristic impedance','Z₀ = √(L/C)'],
   ] : [
     ['줄의 물성','기호','RF 선로 물성','기호'],
-    ['장력','T','단위길이당 인덕턴스','L'],
+    ['변위','y','전압','V'],
+    ['장력','T','단위길이당 인덕턴스의 역수','1/L'],
     ['선밀도','μ','단위길이당 커패시턴스','C'],
     ['파동속도','√(T/μ)','파동속도','1/√(LC)'],
+    ['줄 임피던스','Z<sub>s</sub> = √(Tμ)','특성 어드미턴스','Y₀ = 1/Z₀ = √(C/L)'],
     ['고정단','y=0 경계','단락 회로','Z<sub>L</sub> = 0'],
     ['자유단','dy/dx=0','개방 회로','Z<sub>L</sub> = ∞'],
-    ['임피던스 비율','√(T₁μ₁)/√(T₂μ₂)','특성 임피던스','Z₀ = √(L/C)'],
   ];
   return `
 <div class="d-wrap">
