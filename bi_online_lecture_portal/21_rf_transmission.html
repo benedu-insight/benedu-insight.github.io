@@ -1270,13 +1270,13 @@ const SLIDES_KO = [
     nameKr: 'FCC ISM 대역과 반도체가 RF를 사용하는 이유',
     period: 'FCC RF Frequency Ranges · ISM 대역(13.56MHz 등) · RF를 쓰는 4가지 이유',
     tags: ['FCC', 'ISM Band', '13.56MHz', '무허가 주파수', 'Anodized Aluminum'],
-    bio: `📡에서 RF가 전자기 스펙트럼의 한 구간이라는 것을 확인했습니다. 그런데 왜 반도체 장비는 그 넓은 RF 구간 중에서도 거의 항상 <b>13.56 MHz</b>라는 한 점을 쓸까요? 그 답은 "물리학적 필연"이 아니라 <b>전파 규제(FCC/ITU)의 약속</b>입니다.\n\n<b>ISM 대역이란?</b> FCC(미국 연방통신위원회)는 전자기 스펙트럼 중 일부 대역을 <b>산업·과학·의료(Industrial, Scientific, Medical, ISM)</b> 목적의 장비가 별도 라이선스 없이 사용할 수 있도록 지정했습니다. 13.56 MHz, 27.12 MHz, 40.68 MHz, 60 MHz, 100 MHz, 2.45 GHz가 대표적인 ISM 대역입니다. 반도체 RF Generator가 13.56 MHz를 표준으로 쓰는 이유는, 이 주파수가 통신 주파수를 방해하지 않으면서도 별도의 방출(emission) 허가 없이 합법적으로 운용 가능하기 때문입니다.\n\n<b>그렇다면 왜 애초에 "RF"를 써야 할까?</b> 크게 4가지 이유로 정리할 수 있습니다: ① DC로는 불가능한 공정을 가능하게 함, ② 절연성 전극(Insulating Electrode) 사용이 가능함 — RF는 양극산화(anodized) 알루미늄 같은 유전체 코팅을 잘 통과함, ③ 공정에 맞춰 최적의 주파수를 선택할 수 있음, ④ DC보다 훨씬 효율적으로 에너지를 플라즈마에 결합(couple)시킴.`,
+    bio: `📡에서 RF가 전자기 스펙트럼의 한 구간이라는 것을 확인했습니다. 그런데 왜 반도체 장비는 그 넓은 RF 구간 중에서도 거의 항상 <b>13.56 MHz</b>라는 한 점을 쓸까요? 그 답은 "물리학적 필연"이 아니라 <b>전파 규제(FCC/ITU)의 약속</b>입니다.\n\n<b>ISM 대역이란?</b> FCC(미국 연방통신위원회)는 전자기 스펙트럼 중 일부 대역을 <b>산업·과학·의료(Industrial, Scientific, Medical, ISM)</b> 목적의 장비가 별도 라이선스 없이 사용할 수 있도록 지정했습니다. ITU 무선통신규칙(Radio Regulations)과 FCC Part 18(§18.301)이 지정한 대표적인 ISM 주파수는 6.78 MHz, 13.56 MHz, 27.12 MHz, 40.68 MHz, 915 MHz(미주, ITU Region 2 한정), 2.45 GHz입니다. 반도체 장비에서 Source RF로 자주 쓰는 60 MHz·100 MHz는 이 목록에 없는 <b>비-ISM 주파수</b>입니다. 반도체 RF Generator가 13.56 MHz를 표준으로 쓰는 이유는, 이 주파수가 통신 주파수를 방해하지 않으면서도 별도의 방출(emission) 허가 없이 합법적으로 운용 가능하기 때문입니다.\n\n<b>그렇다면 왜 애초에 "RF"를 써야 할까?</b> 크게 4가지 이유로 정리할 수 있습니다: ① DC로는 불가능한 공정을 가능하게 함, ② 절연성 전극(Insulating Electrode) 사용이 가능함 — RF는 양극산화(anodized) 알루미늄 같은 유전체 코팅을 잘 통과함, ③ 공정에 맞춰 최적의 주파수를 선택할 수 있음, ④ DC보다 훨씬 효율적으로 에너지를 플라즈마에 결합(couple)시킴.`,
     showDiagram: 'ism',
     theories: [
       { year: '규제 구조', name: 'FCC RF Frequency Ranges — ELF부터 EHF까지', desc: '3 Hz(ELF)부터 300 GHz(EHF)까지 FCC가 정의한 12단계 주파수 분류 체계. HF(3~30MHz) 대역에 13.56MHz가 위치하며, 이 분류는 "RF가 어디서부터 어디까지인가"를 규제 관점에서 정리한 표.' },
-      { year: 'ISM 대역', name: 'Industrial, Scientific, Medical (ISM) 대역', desc: '13.56MHz, 27.12MHz, 40.68MHz, 60MHz, 100MHz, 2.45GHz — FCC가 산업·과학·의료용으로 지정해, 특정 출력 이하에서는 별도 라이선스 없이 사용 가능. ISM이 아닌 주파수를 쓰는 시스템은 통신 장비와의 간섭을 막기 위해 완전히 차폐(shield)해야 함.' },
+      { year: 'ISM 대역', name: 'Industrial, Scientific, Medical (ISM) 대역', desc: '6.78MHz, 13.56MHz, 27.12MHz, 40.68MHz, 915MHz(미주), 2.45GHz — ITU/FCC(Part 18)가 산업·과학·의료용으로 지정해, 개별 무선국 허가(license) 없이 운용 가능하며, 지정 대역 안의 방사 에너지에는 제한이 없음(FCC §18.305). 60MHz·100MHz는 이 목록에 없는 비-ISM 주파수. ISM이 아닌 주파수를 쓰는 장비는 기본파 방사까지 전계강도 한도를 만족해야 하므로 차폐(shielding)·필터 설계 부담이 큼.' },
       { year: 'RF를 쓰는 이유 ①②', name: 'DC로 불가능한 공정 + 절연성 전극', desc: 'DC는 절연체 표면에 전하가 쌓여(charge-up) 방전이 꺼지므로 절연성 Target/기판에 사용 불가. RF는 양극산화 알루미늄 같은 유전체 코팅을 잘 통과(transmit)하므로, 챔버 내부를 내식성·내플라즈마성이 강한 anodized Al로 구성할 수 있게 함.' },
-      { year: 'RF를 쓰는 이유 ③④', name: '주파수 선택의 자유 + 효율적 에너지 결합', desc: 'RF는 공정 목적(이온 에너지 제어 vs 플라즈마 밀도 제어)에 맞춰 주파수를 선택할 수 있음(예: 2MHz Bias vs 13.56/27/60MHz Source). 단, 2MHz는 ISM 대역이 아니므로 Part 18의 비간섭 혜택 없이 Part 15 수준의 더 엄격한 방출 규제를 적용받음 — 같은 챔버 안의 두 RF Generator가 서로 다른 규제 카테고리에 속할 수 있음. 또한 전자기파는 DC보다 훨씬 효율적으로 에너지를 플라즈마에 결합(couple)시킴 — 이는 이후 모듈에서 다룰 CCP/ICP 결합 메커니즘의 출발점.' },
+      { year: 'RF를 쓰는 이유 ③④', name: '주파수 선택의 자유 + 효율적 에너지 결합', desc: 'RF는 공정 목적(이온 에너지 제어 vs 플라즈마 밀도 제어)에 맞춰 주파수를 선택할 수 있음(예: 2MHz Bias vs 13.56/27/60MHz Source). 단, 2MHz는 ISM 대역이 아니므로, 같은 Part 18 장비라도 ISM 대역 내 무제한 방사 허용을 받지 못하고 비-ISM 주파수의 방출 한도(§18.305)를 만족해야 함 — 같은 챔버 안의 두 RF Generator가 같은 규정(Part 18) 안에서 서로 다른 방출 한도를 적용받음. 또한 전자기파는 DC보다 훨씬 효율적으로 에너지를 플라즈마에 결합(couple)시킴 — 이는 이후 모듈에서 다룰 CCP/ICP 결합 메커니즘의 출발점.' },
     ],
     showParams: 'ism',
     showProcess: 'ism',
@@ -1284,7 +1284,7 @@ const SLIDES_KO = [
     showContext: 'ism',
     showSim: 'none',
     equations: [
-      'f_{ISM} \\in \\{13.56,\\ 27.12,\\ 40.68,\\ 60,\\ 100\\}\\ \\text{MHz},\\ 2.45\\ \\text{GHz}',
+      'f_{ISM} \\in \\{6.78,\\ 13.56,\\ 27.12,\\ 40.68,\\ 915\\}\\ \\text{MHz},\\ 2.45\\ \\text{GHz}',
     ],
     classroom: `FCC ISM Bands 이해 점검:\n1. 13.56 MHz가 "물리적으로 유일하게 가능한" 주파수가 아니라 "규제상 합의된" 주파수인 이유를 설명하세요.\n2. ISM 대역이 아닌 주파수를 RF 공정 장비에 사용한다면, 장비 설계 시 추가로 고려해야 할 것은 무엇입니까?\n3. RF를 사용하는 4가지 이유 중, "절연성 전극 사용 가능"이 의미하는 실제 챔버 설계상의 장점을 한 가지 예시로 설명하세요.\n4. Source RF와 Bias RF에 서로 다른 주파수(예: 60MHz / 2MHz)를 쓸 수 있는 이유를, "RF를 쓰는 이유 ③ 주파수 선택의 자유"와 연결하여 설명하세요.`,
     connections: ['c21', 'c21b', 'c23', 'c24'],
@@ -1419,13 +1419,13 @@ const SLIDES_EN = [
     nameKr: 'FCC ISM Bands and Why the Semiconductor Industry Uses RF',
     period: 'FCC RF Frequency Ranges · ISM Band (13.56MHz, etc.) · 4 Reasons to Use RF',
     tags: ['FCC', 'ISM Band', '13.56MHz', 'License-Free', 'Anodized Aluminum'],
-    bio: `📡 established that RF is just one segment of the EM spectrum. So why does semiconductor equipment almost always lock onto a single point within that segment — <b>13.56 MHz</b>? The answer isn't a law of physics; it's a <b>regulatory agreement (FCC/ITU)</b>.\n\n<b>What is an ISM band?</b> The FCC (US Federal Communications Commission) designated certain bands of the spectrum for <b>Industrial, Scientific, and Medical (ISM)</b> equipment to use without a separate license. 13.56 MHz, 27.12 MHz, 40.68 MHz, 60 MHz, 100 MHz, and 2.45 GHz are the well-known ISM bands. Semiconductor RF generators standardize on 13.56 MHz because it can be legally operated without an emissions license, without interfering with communications.\n\n<b>So why use "RF" in the first place?</b> There are four main reasons: ① it enables processes that DC cannot perform; ② it allows insulating electrodes — RF transmits well through dielectric coatings such as anodized aluminum; ③ the frequency can be chosen to optimize performance for a given process; ④ electromagnetic waves couple energy into the plasma far more efficiently than DC.`,
+    bio: `📡 established that RF is just one segment of the EM spectrum. So why does semiconductor equipment almost always lock onto a single point within that segment — <b>13.56 MHz</b>? The answer isn't a law of physics; it's a <b>regulatory agreement (FCC/ITU)</b>.\n\n<b>What is an ISM band?</b> The FCC (US Federal Communications Commission) designated certain bands of the spectrum for <b>Industrial, Scientific, and Medical (ISM)</b> equipment to use without a separate license. The main ISM frequencies designated by the ITU Radio Regulations and FCC Part 18 (§18.301) are 6.78 MHz, 13.56 MHz, 27.12 MHz, 40.68 MHz, 915 MHz (Americas / ITU Region 2 only), and 2.45 GHz. 60 MHz and 100 MHz, often used as Source RF in semiconductor tools, are <b>not</b> on this list — they are non-ISM frequencies. Semiconductor RF generators standardize on 13.56 MHz because it can be legally operated without an emissions license, without interfering with communications.\n\n<b>So why use "RF" in the first place?</b> There are four main reasons: ① it enables processes that DC cannot perform; ② it allows insulating electrodes — RF transmits well through dielectric coatings such as anodized aluminum; ③ the frequency can be chosen to optimize performance for a given process; ④ electromagnetic waves couple energy into the plasma far more efficiently than DC.`,
     showDiagram: 'ism',
     theories: [
       { year: 'Regulatory Structure', name: 'FCC RF Frequency Ranges — ELF to EHF', desc: 'A 12-tier classification defined by the FCC spanning roughly 3 Hz (ELF) to 300 GHz (EHF). 13.56 MHz falls within the HF (3–30 MHz) band — this table is essentially a regulatory map of "where RF begins and ends."' },
-      { year: 'ISM Band', name: 'Industrial, Scientific, Medical (ISM) Bands', desc: '13.56MHz, 27.12MHz, 40.68MHz, 60MHz, 100MHz, 2.45GHz — designated by the FCC for industrial, scientific and medical use, usable without a separate license below certain power levels. Systems on non-ISM frequencies must be fully shielded to avoid interfering with communications equipment.' },
+      { year: 'ISM Band', name: 'Industrial, Scientific, Medical (ISM) Bands', desc: '6.78MHz, 13.56MHz, 27.12MHz, 40.68MHz, 915MHz (Americas), 2.45GHz — designated by the ITU/FCC (Part 18) for industrial, scientific and medical use, operable without an individual station license, with no limit on radiated energy inside the designated band (FCC §18.305). 60MHz and 100MHz are not on this list (non-ISM). Equipment on non-ISM frequencies must keep even its fundamental radiation within field-strength limits, which places a heavier burden on shielding and filtering.' },
       { year: 'Reasons ①②', name: 'Enables Processes DC Cannot + Allows Insulating Electrodes', desc: 'DC causes charge build-up on insulating surfaces, which extinguishes the discharge — so DC cannot be used on insulating targets/substrates. RF transmits well through dielectric coatings like anodized aluminum, allowing chambers to use durable, plasma-resistant anodized Al components.' },
-      { year: 'Reasons ③④', name: 'Frequency Flexibility + Efficient Energy Coupling', desc: 'RF frequency can be chosen to match the process objective (controlling ion energy vs. plasma density) — e.g. 2 MHz bias vs. 13.56/27/60 MHz source. Note that 2MHz isn\'t an ISM band, so it doesn\'t get Part 18\'s non-interference treatment and instead falls under the stricter Part 15 emission limits — meaning two RF generators in the same chamber can fall into different regulatory categories. Electromagnetic waves also couple energy into a plasma far more efficiently than DC — the starting point for the CCP/ICP coupling mechanisms covered in later modules.' },
+      { year: 'Reasons ③④', name: 'Frequency Flexibility + Efficient Energy Coupling', desc: 'RF frequency can be chosen to match the process objective (controlling ion energy vs. plasma density) — e.g. 2 MHz bias vs. 13.56/27/60 MHz source. Note that 2MHz isn\'t an ISM band: the generator is still Part 18 equipment, but it does not get the unlimited in-band radiation allowance and must meet the non-ISM emission limits of §18.305 — so two RF generators in the same chamber fall under the same rule (Part 18) but with different emission limits. Electromagnetic waves also couple energy into a plasma far more efficiently than DC — the starting point for the CCP/ICP coupling mechanisms covered in later modules.' },
     ],
     showParams: 'ism',
     showProcess: 'ism',
@@ -1433,7 +1433,7 @@ const SLIDES_EN = [
     showContext: 'ism',
     showSim: 'none',
     equations: [
-      'f_{ISM} \\in \\{13.56,\\ 27.12,\\ 40.68,\\ 60,\\ 100\\}\\ \\text{MHz},\\ 2.45\\ \\text{GHz}',
+      'f_{ISM} \\in \\{6.78,\\ 13.56,\\ 27.12,\\ 40.68,\\ 915\\}\\ \\text{MHz},\\ 2.45\\ \\text{GHz}',
     ],
     classroom: `FCC ISM Bands — Comprehension Check:\n1. Explain why 13.56 MHz is a "regulatory agreement" rather than a "physical necessity."\n2. If a process tool used a non-ISM frequency, what additional design considerations would be required?\n3. Of the four reasons for using RF, pick "allows insulating electrodes" and describe one concrete chamber-design benefit it provides.\n4. Why can Source RF and Bias RF use different frequencies (e.g. 60 MHz / 2 MHz)? Connect your answer to reason ③, "frequency flexibility."`,
     connections: ['c21', 'c21b', 'c23', 'c24'],
@@ -1717,13 +1717,13 @@ function renderDetail(slide) {
   } else if (slide.showParams === 'ism') {
     const params = isEn ? [
       { label: 'Primary ISM Frequency', value: '13.56', unit: 'MHz', desc: 'Most common semiconductor RF standard' },
-      { label: 'Other ISM Frequencies', value: '27.12 / 40.68 / 60 / 100', unit: 'MHz', desc: 'Higher-order harmonics & alternative ISM bands' },
-      { label: 'Microwave ISM', value: '2.45', unit: 'GHz', desc: 'Also used for domestic ovens (915MHz industrial)' },
+      { label: 'Other ISM Frequencies', value: '6.78 / 27.12 / 40.68', unit: 'MHz', desc: 'Other HF/VHF ISM bands (60·100 MHz are non-ISM)' },
+      { label: 'Microwave ISM', value: '2.45', unit: 'GHz', desc: 'Microwave ovens; 915MHz is ISM in the Americas (Region 2) only' },
       { label: '13.56 MHz Half-Cycle', value: '≈ 36.9', unit: 'ns', desc: 'Polarity reversal interval — key to insulator handling' },
     ] : [
       { label: '대표 ISM 주파수', value: '13.56', unit: 'MHz', desc: '반도체 RF 표준에서 가장 널리 사용' },
-      { label: '기타 ISM 주파수', value: '27.12 / 40.68 / 60 / 100', unit: 'MHz', desc: '고조파 및 대안 ISM 대역' },
-      { label: 'Microwave ISM', value: '2.45', unit: 'GHz', desc: '가정용 오븐에도 사용 (산업용 915MHz)' },
+      { label: '기타 ISM 주파수', value: '6.78 / 27.12 / 40.68', unit: 'MHz', desc: 'HF·VHF의 기타 ISM 대역 (60·100MHz는 비-ISM)' },
+      { label: 'Microwave ISM', value: '2.45', unit: 'GHz', desc: '전자레인지에 사용 (915MHz는 미주 Region 2 한정 ISM)' },
       { label: '13.56 MHz 반주기', value: '≈ 36.9', unit: 'ns', desc: '극성 반전 주기 — 절연체 처리의 핵심' },
     ];
     paramHtml = `
@@ -1847,12 +1847,12 @@ function renderDetail(slide) {
   } else if (slide.showProcess === 'ism') {
     const steps = isEn ? [
       { title: 'FCC Classifies the Spectrum', desc: 'The FCC divides the EM spectrum into 12 named ranges (ELF through EHF) based on frequency decades — a regulatory, not physical, classification.' },
-      { title: 'ISM Bands Are Carved Out', desc: 'Within this classification, specific narrow bands (13.56MHz, 27.12MHz, 40.68MHz, 60MHz, 100MHz, 2.45GHz) are reserved for industrial/scientific/medical use without a license.' },
+      { title: 'ISM Bands Are Carved Out', desc: 'Within this classification, specific narrow bands (6.78MHz, 13.56MHz, 27.12MHz, 40.68MHz, 915MHz in the Americas, 2.45GHz) are reserved for industrial/scientific/medical use without a license. 60MHz and 100MHz are not among them.' },
       { title: 'Semiconductor RF Standardizes on 13.56 MHz', desc: 'Most RF generators for plasma processing default to 13.56 MHz — legal to operate without emissions licensing, and unlikely to interfere with communications.' },
       { title: 'Four Reasons RF Is Used at All', desc: '① Enables DC-incompatible processes, ② allows insulating electrodes (anodized Al), ③ frequency can be tuned to the process, ④ couples energy into plasma more efficiently than DC.' },
     ] : [
       { title: 'FCC가 스펙트럼을 분류', desc: 'FCC는 전자기 스펙트럼을 주파수 십진수 단위로 12개 구간(ELF~EHF)으로 분류 — 물리적 분류가 아닌 규제상의 분류.' },
-      { title: 'ISM 대역이 별도로 지정됨', desc: '이 분류 안에서 13.56MHz, 27.12MHz, 40.68MHz, 60MHz, 100MHz, 2.45GHz 등 특정 협대역이 산업/과학/의료용으로 무허가 사용 가능하게 지정됨.' },
+      { title: 'ISM 대역이 별도로 지정됨', desc: '이 분류 안에서 6.78MHz, 13.56MHz, 27.12MHz, 40.68MHz, 915MHz(미주), 2.45GHz 등 특정 협대역이 산업/과학/의료용으로 무허가 사용 가능하게 지정됨. 60MHz·100MHz는 여기에 포함되지 않음.' },
       { title: '반도체 RF는 13.56MHz로 표준화', desc: '플라즈마 공정용 RF Generator 대부분이 13.56MHz를 기본값으로 사용 — 방출 허가 없이 합법 운용 가능하고 통신 간섭 가능성도 낮음.' },
       { title: 'RF를 쓰는 4가지 근본 이유', desc: '① DC로 불가능한 공정 가능, ② 절연성 전극(양극산화 Al) 사용 가능, ③ 공정에 맞춘 주파수 선택, ④ DC보다 효율적인 플라즈마 에너지 결합.' },
     ];
@@ -2612,11 +2612,11 @@ const FCC_RANGES = [
     id: 'vhf', name: 'VHF', range: '30 – 300 MHz', wavelength: '1 – 10 m',
     info: {
       ko: `<b>VHF (Very High Frequency)</b>는 FM 라디오·아날로그 TV 방송으로 잘 알려진 대역입니다.<br><br>
-      <b>주요 응용:</b> FM 라디오 방송(88~108MHz), 아날로그 TV 방송, 항공 관제 통신, 일부 RF Generator의 고주파 대역(예: 60MHz, 100MHz — Source RF로 자주 사용됨).<br><br>
-      <b>이 모듈과의 관계:</b> 27.12MHz는 HF 끝부분, 40.68MHz·60MHz·100MHz는 HF 상단~VHF에 걸쳐 있습니다. ICP/CCP 장비에서 Source RF로 60MHz를 사용하는 경우가 많은데, 이는 VHF 대역에 속합니다.`,
+      <b>주요 응용:</b> FM 라디오 방송(88~108MHz), 아날로그 TV 방송, 항공 관제 통신, 일부 RF Generator의 고주파 대역(예: 60MHz, 100MHz — Source RF로 자주 사용되지만 ISM 주파수는 아님).<br><br>
+      <b>이 모듈과의 관계:</b> ISM 주파수 중 27.12MHz는 HF 상단, 40.68MHz는 VHF 하단에 위치합니다. CCP/ICP 장비에서 Source RF로 많이 쓰는 60MHz·100MHz도 VHF 대역에 속하지만, ITU/FCC ISM 목록에는 없는 <b>비-ISM 주파수</b>입니다.`,
       en: `<b>VHF (Very High Frequency)</b> is best known for FM radio and analog TV broadcasting.<br><br>
-      <b>Key applications:</b> FM radio broadcasting (88–108MHz), analog TV broadcasting, air traffic control communication, and higher RF generator frequencies (e.g. 60MHz, 100MHz — often used as Source RF).<br><br>
-      <b>Relevance to this module:</b> 27.12MHz sits near the top of HF, while 40.68MHz, 60MHz, and 100MHz span the HF/VHF boundary. CCP/ICP tools commonly use 60MHz as Source RF, which falls in this VHF band.`
+      <b>Key applications:</b> FM radio broadcasting (88–108MHz), analog TV broadcasting, air traffic control communication, and higher RF generator frequencies (e.g. 60MHz, 100MHz — often used as Source RF, but not ISM frequencies).<br><br>
+      <b>Relevance to this module:</b> among the ISM frequencies, 27.12MHz sits near the top of HF and 40.68MHz at the bottom of VHF. The 60MHz and 100MHz commonly used as Source RF in CCP/ICP tools also fall in VHF, but they are <b>non-ISM frequencies</b> — not on the ITU/FCC ISM list.`
     }
   },
   {
@@ -2658,15 +2658,28 @@ const FCC_RANGES = [
 // ISM band chip data
 const ISM_BANDS = [
   {
+    id: 'ism_678', label: '6.78 MHz',
+    info: {
+      ko: `<b>6.78 MHz</b> — 13.56MHz의 정확히 1/2인 ISM 주파수입니다.<br><br>
+      <b>위치:</b> HF 대역(3~30MHz), 파장 약 44.2m.<br><br>
+      <b>규제상 위치:</b> FCC Part 18(§18.301)에서는 ISM 주파수(6.78MHz ±15kHz)로 지정되어 있고, ITU 무선통신규칙에서는 6.765–6.795MHz가 각국 주관청(administration)의 개별 승인을 조건으로 하는 ISM 대역입니다.<br><br>
+      <b>반도체 연결고리:</b> 반도체 플라즈마 장비에서는 거의 사용되지 않으며, 주로 무선 전력 전송(공진형 무선충전) 등에 사용됩니다.`,
+      en: `<b>6.78 MHz</b> — an ISM frequency at exactly half of 13.56MHz.<br><br>
+      <b>Location:</b> HF band (3–30MHz), wavelength ≈ 44.2m.<br><br>
+      <b>Regulatory status:</b> designated as an ISM frequency (6.78MHz ±15kHz) in FCC Part 18 (§18.301); in the ITU Radio Regulations, 6.765–6.795MHz is an ISM band subject to special authorization by each national administration.<br><br>
+      <b>Semiconductor link:</b> rarely used in semiconductor plasma tools; mainly used for applications such as resonant wireless power transfer.`
+    }
+  },
+  {
     id: 'ism_1356', label: '13.56 MHz', primary: true,
     info: {
       ko: `<b>13.56 MHz</b> — 반도체 RF Generator의 압도적 표준 주파수입니다. ⭐<br><br>
       <b>위치:</b> HF 대역(3~30MHz) 내부, 파장 약 22.1m.<br><br>
-      <b>ISM 지정의 의미:</b> FCC/ITU가 이 주파수를 산업·과학·의료(ISM) 목적으로 지정했기 때문에, 일정 출력 이하에서는 별도의 방송 라이선스 없이 자유롭게 사용 가능합니다. 대신 이 대역 밖으로의 불요 방출(spurious emission)은 규제 대상입니다.<br><br>
+      <b>ISM 지정의 의미:</b> FCC/ITU가 이 주파수를 산업·과학·의료(ISM) 목적으로 지정했기 때문에, 개별 무선국 허가 없이 운용할 수 있고, 지정 대역(13.553–13.567MHz) 안의 방사 에너지에는 제한이 없습니다(FCC §18.305). 대신 이 대역 밖으로의 불요 방출(spurious emission, 고조파 포함)은 전계강도 한도를 적용받습니다.<br><br>
       <b>반도체 연결고리:</b> CCP/ICP 장비의 Source RF 또는 Bias RF 표준 주파수로 가장 널리 사용되며, RF Matcher의 임피던스 매칭 설계 기준 주파수입니다.`,
       en: `<b>13.56 MHz</b> — the overwhelmingly dominant standard frequency for semiconductor RF generators. ⭐<br><br>
       <b>Location:</b> within the HF band (3–30MHz), wavelength ≈ 22.1m.<br><br>
-      <b>What ISM designation means:</b> because the FCC/ITU designated this frequency for Industrial, Scientific, and Medical (ISM) use, it can be used freely without a separate broadcast license below certain power levels — though spurious emissions outside this band remain regulated.<br><br>
+      <b>What ISM designation means:</b> because the FCC/ITU designated this frequency for Industrial, Scientific, and Medical (ISM) use, it can be operated without an individual station license, and radiated energy inside the designated band (13.553–13.567MHz) is not limited (FCC §18.305) — while spurious emissions outside the band, including harmonics, are subject to field-strength limits.<br><br>
       <b>Semiconductor link:</b> the most widely used standard frequency for Source RF or Bias RF in CCP/ICP tools, and the reference frequency for RF matcher impedance-matching design.`
     }
   },
@@ -2675,11 +2688,11 @@ const ISM_BANDS = [
     info: {
       ko: `<b>27.12 MHz</b> — 13.56MHz의 정확히 2배(2차 고조파) 주파수입니다.<br><br>
       <b>위치:</b> HF 대역 상단, 파장 약 11.1m.<br><br>
-      <b>왜 ISM으로 지정되었나:</b> 13.56MHz 장비에서 자연적으로 발생하는 2차 고조파가 "불법 방출"이 아니라 "또 다른 ISM 대역 안의 신호"가 되도록, ISM 대역 지정 시 기본파의 정수배 대역도 함께 지정되었습니다.<br><br>
+      <b>13.56MHz와의 관계:</b> 27.12MHz는 13.56MHz의 정확히 2배이며, 13.56MHz(±7kHz) 장비의 2차 고조파는 27.12MHz ISM 대역(26.957–27.283MHz) 안에 놓입니다. 다만 "고조파를 수용하기 위해 정수배로 지정했다"는 지정 이유는 ITU·FCC 공식 문서로 확인되지 않으므로, 정수배 관계는 결과적 사실로만 이해하는 것이 정확합니다.<br><br>
       <b>반도체 연결고리:</b> 일부 RF Generator는 27.12MHz를 직접 동작 주파수로 사용하기도 하며(예: 일부 PECVD 장비), 13.56MHz Generator의 출력에 섞여 나오는 2차 고조파 성분도 이 대역에 해당합니다.`,
       en: `<b>27.12 MHz</b> — exactly 2× 13.56MHz (the 2nd harmonic).<br><br>
       <b>Location:</b> top of the HF band, wavelength ≈ 11.1m.<br><br>
-      <b>Why it's an ISM band:</b> when ISM bands were designated, integer-multiple (harmonic) bands of the fundamental were also designated as ISM — so the 2nd harmonic naturally produced by 13.56MHz equipment falls within "another ISM band" rather than counting as an illegal emission.<br><br>
+      <b>Relation to 13.56MHz:</b> 27.12MHz is exactly 2× 13.56MHz, and the 2nd harmonic of 13.56MHz (±7kHz) equipment falls inside the 27.12MHz ISM band (26.957–27.283MHz). However, the claim that the bands were chosen as integer multiples in order to accommodate harmonics is not supported by ITU/FCC documents — the integer relationship is best treated as a fact, not as the reason for the designation.<br><br>
       <b>Semiconductor link:</b> some RF generators operate directly at 27.12MHz (e.g. some PE-CVD tools), and the 2nd-harmonic content naturally present in a 13.56MHz generator's output also falls in this band.`
     }
   },
@@ -2688,34 +2701,51 @@ const ISM_BANDS = [
     info: {
       ko: `<b>40.68 MHz</b> — 13.56MHz의 정확히 3배(3차 고조파) 주파수입니다.<br><br>
       <b>위치:</b> HF 대역을 약간 벗어난 VHF 경계 부근, 파장 약 7.4m.<br><br>
-      <b>왜 ISM으로 지정되었나:</b> 27.12MHz와 마찬가지로, 13.56MHz의 3차 고조파가 규제상 충돌 없이 처리되도록 ISM 대역으로 함께 지정되었습니다.<br><br>
+      <b>13.56MHz와의 관계:</b> 40.68MHz는 13.56MHz의 정확히 3배이며, 13.56MHz 장비의 3차 고조파는 40.68MHz ISM 대역(40.66–40.70MHz)과 겹칩니다. 27.12MHz와 마찬가지로, 이 정수배 관계가 지정 이유였다는 공식 근거는 확인되지 않습니다.<br><br>
       <b>반도체 연결고리:</b> 일부 CCP 장비는 40.68MHz를 Source RF로 사용하여, 더 높은 주파수가 주는 이점(플라즈마 밀도 증가)을 활용합니다 — 주파수에 따라 플라즈마 특성이 달라지는 이유는 다음 Class에서 본격적으로 다룹니다.`,
       en: `<b>40.68 MHz</b> — exactly 3× 13.56MHz (the 3rd harmonic).<br><br>
       <b>Location:</b> just past the HF band near the VHF boundary, wavelength ≈ 7.4m.<br><br>
-      <b>Why it's an ISM band:</b> like 27.12MHz, the 3rd harmonic of 13.56MHz was designated ISM so it could be handled without regulatory conflict.<br><br>
+      <b>Relation to 13.56MHz:</b> 40.68MHz is exactly 3× 13.56MHz, and the 3rd harmonic of 13.56MHz equipment overlaps the 40.68MHz ISM band (40.66–40.70MHz). As with 27.12MHz, there is no official record that this integer relationship was the reason for the designation.<br><br>
       <b>Semiconductor link:</b> some CCP tools use 40.68MHz as Source RF to take advantage of higher-frequency benefits (increased plasma density) — how plasma characteristics change with frequency is covered in depth in the next class.`
     }
   },
   {
-    id: 'ism_60', label: '60 MHz',
+    id: 'ism_60', label: '60 MHz (Non-ISM)', nonIsm: true,
     info: {
-      ko: `<b>60 MHz</b> — VHF 대역에 위치한 ISM 주파수로, 반도체 장비에서 자주 사용되는 Source RF 주파수입니다.<br><br>
+      ko: `<b>60 MHz</b> — 반도체 장비에서 자주 사용되는 Source RF 주파수이지만, <b>ISM 주파수가 아닙니다</b>.<br><br>
       <b>위치:</b> VHF 대역(30~300MHz), 파장 약 5m.<br><br>
+      <b>규제상 위치:</b> ITU 무선통신규칙과 FCC Part 18(§18.301)의 ISM 주파수 목록(6.78 · 13.56 · 27.12 · 40.68 · 915(미주) · 2,450MHz 등)에 60MHz는 없습니다. ISM 대역 안에서는 방사 세기 제한이 적용되지 않지만, 60MHz처럼 ISM 대역 밖에서 동작하는 장비는 비-ISM 주파수에 대한 방출 한도를 만족해야 합니다 — 60MHz Generator·Matcher·전송선로의 차폐(shielding)와 필터 설계를 13.56MHz보다 더 엄격하게 해야 하는 이유입니다.<br><br>
       <b>반도체 연결고리:</b> Dual-frequency CCP 장비에서 60MHz는 흔히 Source RF(플라즈마 밀도 제어)로 사용되고, 별도의 저주파(2MHz 등)가 Bias RF(이온 에너지 제어)로 사용됩니다 — 이는 "RF를 쓰는 이유 ③ 주파수 선택의 자유"의 대표적인 예시입니다.`,
-      en: `<b>60 MHz</b> — an ISM frequency in the VHF band, commonly used as Source RF in semiconductor tools.<br><br>
+      en: `<b>60 MHz</b> — commonly used as Source RF in semiconductor tools, but <b>not an ISM frequency</b>.<br><br>
       <b>Location:</b> VHF band (30–300MHz), wavelength ≈ 5m.<br><br>
+      <b>Regulatory status:</b> 60MHz is not on the ISM frequency list of the ITU Radio Regulations or FCC Part 18 (§18.301) (6.78 · 13.56 · 27.12 · 40.68 · 915 (Americas) · 2,450MHz, etc.). Radiation inside an ISM band is not field-strength limited, but equipment operating outside the ISM bands, such as at 60MHz, must meet the emission limits for non-ISM frequencies — which is why shielding and filtering of 60MHz generators, matchers and transmission lines must be stricter than at 13.56MHz.<br><br>
       <b>Semiconductor link:</b> in dual-frequency CCP tools, 60MHz is often used as Source RF (controlling plasma density), while a separate lower frequency (e.g. 2MHz) serves as Bias RF (controlling ion energy) — a textbook example of reason ③, "frequency flexibility."`
     }
   },
   {
-    id: 'ism_100', label: '100 MHz',
+    id: 'ism_100', label: '100 MHz (Non-ISM)', nonIsm: true,
     info: {
-      ko: `<b>100 MHz</b> — VHF 대역 상단의 ISM 주파수입니다.<br><br>
+      ko: `<b>100 MHz</b> — VHF 대역의 고주파 Source RF 주파수이며, <b>ISM 주파수가 아닙니다</b>.<br><br>
       <b>위치:</b> VHF 대역, 파장 약 3m.<br><br>
+      <b>규제상 위치:</b> 60MHz와 마찬가지로 ITU/FCC ISM 목록에 없습니다. 또한 100MHz는 FM 라디오 방송 대역(88~108MHz) 안에 있으므로, 불요 방사가 방송 수신에 직접 간섭을 줄 수 있어 차폐·필터 요구가 더 큽니다.<br><br>
       <b>반도체 연결고리:</b> 일부 최신 CCP/ICP 장비는 100MHz 이상의 고주파를 Source RF로 사용하여, 더 높은 플라즈마 밀도와 낮은 시스 전압(sheath voltage)을 동시에 얻으려 합니다. 주파수가 높아질수록 RF Matcher의 부품값(인덕턴스/커패시턴스)이 작아지고, 전송선로의 분포 소자 효과가 더 중요해집니다.`,
-      en: `<b>100 MHz</b> — an ISM frequency at the top of the VHF band.<br><br>
+      en: `<b>100 MHz</b> — a high-frequency Source RF in the VHF band, and <b>not an ISM frequency</b>.<br><br>
       <b>Location:</b> VHF band, wavelength ≈ 3m.<br><br>
+      <b>Regulatory status:</b> like 60MHz, it is not on the ITU/FCC ISM list. 100MHz also lies inside the FM broadcast band (88–108MHz), so unwanted radiation can interfere directly with broadcast reception — making shielding and filtering requirements even more demanding.<br><br>
       <b>Semiconductor link:</b> some advanced CCP/ICP tools use Source RF frequencies of 100MHz or higher to achieve higher plasma density together with lower sheath voltage. As frequency increases, RF matcher component values (inductance/capacitance) shrink, and distributed-element effects in transmission lines become more significant.`
+    }
+  },
+  {
+    id: 'ism_915', label: '915 MHz (Americas)',
+    info: {
+      ko: `<b>915 MHz</b> — 미주(ITU Region 2)에서만 지정된 ISM 대역(902–928MHz)입니다.<br><br>
+      <b>위치:</b> UHF 대역(300MHz~3GHz), 파장 약 32.8cm.<br><br>
+      <b>규제상 위치:</b> ITU 무선통신규칙에서 Region 2에 한해 ISM 대역으로 지정되며, FCC Part 18에서도 ISM 주파수입니다. 한국(Region 3)·유럽(Region 1)에서는 ISM 대역이 아닙니다 — 유럽에서만 ISM인 433.92MHz와 마찬가지로 지역에 따라 달라지는 사례입니다.<br><br>
+      <b>반도체 연결고리:</b> 미국의 대형 산업용 마이크로파 가열 장비에 사용되며, 반도체 공정 장비에서의 사용은 드뭅니다.`,
+      en: `<b>915 MHz</b> — an ISM band (902–928MHz) designated only in the Americas (ITU Region 2).<br><br>
+      <b>Location:</b> UHF band (300MHz–3GHz), wavelength ≈ 32.8cm.<br><br>
+      <b>Regulatory status:</b> designated as ISM in ITU Region 2 only, and listed as an ISM frequency in FCC Part 18. It is not an ISM band in Korea (Region 3) or Europe (Region 1) — a region-dependent case, like 433.92MHz, which is ISM only in Europe.<br><br>
+      <b>Semiconductor link:</b> used for large industrial microwave heating systems in the US; rarely used in semiconductor process equipment.`
     }
   },
   {
@@ -2734,12 +2764,12 @@ const ISM_BANDS = [
     info: {
       ko: `<b>370kHz, 430kHz, 2MHz</b> 등은 ISM 대역에 <b>포함되지 않는</b> 일반 주파수입니다.<br><br>
       <b>왜 ISM이 아닌가:</b> FCC/ITU가 지정한 ISM 대역은 약 6.78MHz, 13.56MHz, 27.12MHz, 40.68MHz, 915MHz, 2.45GHz, 5.8GHz 등 정해진 목록뿐입니다. 370kHz·430kHz·2MHz는 이 목록에 없으므로 ISM 면제 혜택을 받지 못합니다. (참고: 433MHz는 유럽 등 ITU Region 1에서는 ISM이지만 미주 Region 2에서는 ISM이 아닌 "지역에 따라 다른" 사례입니다.)<br><br>
-      <b>규제상 차이 — Part 18 vs Part 15:</b> ISM 대역(13.56MHz 등)에서 동작하는 장비는 FCC <b>Part 18</b> 규정의 적용을 받아, 지정된 대역 안에서는 통신 서비스에 대해 비교적 관용적인 비간섭(non-interference) 기준으로 운용됩니다. 반면 2MHz 같은 비-ISM 주파수에서 의도적으로 RF를 방사하는 장비는 <b>Part 15</b>(또는 그 이상의 인증) 규정을 적용받으며, Part 15의 방출 허용치는 Part 18보다 훨씬 엄격합니다 — 주변 통신 주파수와의 간섭 가능성이 더 높기 때문입니다.<br><br>
-      <b>실무 연결고리:</b> RF Generator의 Bias RF로 2MHz를 사용하는 경우, 이 장비는 "RF를 쓰는 이유 ③ 주파수 선택의 자유"의 실제 사례이지만, 동시에 13.56MHz Source RF(ISM 대역)와는 다른 규제 카테고리에 속하게 됩니다 — 즉 같은 챔버 안의 두 RF Generator가 서로 다른 인증·방출 규제를 받을 수 있습니다.`,
+      <b>규제상 위치 — 둘 다 Part 18, 방출 한도만 다름:</b> 플라즈마 공정용 RF Generator는 RF 에너지를 통신이 아닌 플라즈마 생성·가열 같은 산업 목적에 쓰는 장비이므로, 동작 주파수와 관계없이 FCC <b>Part 18</b>(ISM 장비) 규정의 적용을 받습니다. 차이는 Part 18 안의 방출 한도(§18.305)입니다: §18.301의 ISM 주파수 대역 안에서 동작하면 그 대역 안의 방사 에너지에 제한이 없고, 2MHz 같은 비-ISM 주파수에서 동작하면 기본파를 포함한 방사가 전계강도 한도를 만족해야 합니다. 비-ISM 주파수에서 동작한다고 해서 <b>Part 15</b>(통신·정보기기의 무선 방사 규정)로 넘어가는 것은 아닙니다.<br><br>
+      <b>실무 연결고리:</b> RF Generator의 Bias RF로 2MHz를 사용하는 경우, 이 장비는 "RF를 쓰는 이유 ③ 주파수 선택의 자유"의 실제 사례이지만, 동시에 13.56MHz Source RF(ISM 대역)와 달리 대역 내 무제한 방사 허용을 받지 못합니다 — 즉 같은 챔버 안의 두 RF Generator는 같은 Part 18 장비이지만, 2MHz Generator는 비-ISM 주파수 방출 한도를 적용받으므로 차폐·필터 요구가 더 큽니다.`,
       en: `<b>370kHz, 430kHz, 2MHz</b> and similar frequencies are <b>not included</b> in the ISM band list.<br><br>
       <b>Why they're not ISM:</b> the FCC/ITU-designated ISM bands are a fixed list — roughly 6.78MHz, 13.56MHz, 27.12MHz, 40.68MHz, 915MHz, 2.45GHz, 5.8GHz, and a few others. 370kHz, 430kHz, and 2MHz simply aren't on that list, so they don't get ISM exemptions. (Note: 433MHz is a region-dependent case — it's an ISM band under ITU Region 1 (Europe etc.) but not under Region 2 (the Americas).)<br><br>
-      <b>Regulatory difference — Part 18 vs Part 15:</b> equipment operating in an ISM band (e.g. 13.56MHz) falls under FCC <b>Part 18</b>, which applies a relatively lenient non-interference standard toward communication services within the designated band. Equipment intentionally radiating RF at a non-ISM frequency (e.g. 2MHz) instead falls under <b>Part 15</b> (or stricter certification) — and Part 15's emission limits are considerably tighter than Part 18's, since interference with nearby communication frequencies is more likely.<br><br>
-      <b>Practical link:</b> using 2MHz as Bias RF is a real example of reason ③, "frequency flexibility" — but it also means that generator falls into a different regulatory category than a 13.56MHz Source RF (ISM band). In other words, two RF generators in the same chamber can be subject to different certification and emission requirements.`
+      <b>Regulatory status — both Part 18, different emission limits:</b> a plasma-process RF generator uses RF energy for industrial purposes (plasma generation, heating) rather than communication, so it falls under FCC <b>Part 18</b> (ISM equipment) regardless of its operating frequency. The difference lies in the Part 18 emission limits (§18.305): operating inside an ISM band listed in §18.301, radiated energy within that band is unlimited; operating at a non-ISM frequency such as 2MHz, radiation including the fundamental must meet field-strength limits. Operating at a non-ISM frequency does not move the equipment into <b>Part 15</b> (the rule for radio emissions from communication and IT devices).<br><br>
+      <b>Practical link:</b> using 2MHz as Bias RF is a real example of reason ③, "frequency flexibility" — but unlike a 13.56MHz Source RF (ISM band), that generator does not get the unlimited in-band radiation allowance. In other words, both generators in the same chamber are Part 18 equipment, but the 2MHz generator is subject to the non-ISM emission limits and therefore needs more shielding and filtering.`
     }
   },
 ];
@@ -3282,16 +3312,16 @@ function buildISMDeepLearn(isEn, slideId) {
         {
           icon: '⚖️',
           title: 'ISM 대역에서 "License-Free"는 정확히 무엇을 의미하는가?',
-          body: `<p>"무허가(license-free)"는 "아무 출력으로나 마음대로 사용해도 된다"는 의미가 아닙니다. FCC/ITU는 ISM 대역에 대해 <b>특정 출력 한도 이하</b>에서는 개별 방송국처럼 별도의 주파수 사용 허가(license)를 받지 않아도 된다고 규정한 것입니다.</p>
-<div class="dl-highlight">대신, ISM 대역을 사용하는 장비는 그 대역 밖으로의 <b>불요 방출(spurious emission)</b>을 일정 수준 이하로 억제해야 하는 EMC(전자파 적합성) 규제를 따라야 합니다. 즉, "주파수 사용 자유"와 "방출 관리 의무"가 한 세트로 묶여 있습니다 — RF Generator/Matcher 설계에서 필터(저역통과/고조파 필터)가 항상 포함되는 이유 중 하나입니다.</div>`
+          body: `<p>"무허가(license-free)"는 방송국 같은 무선국처럼 <b>개별 주파수 사용 허가(license)를 받을 필요가 없다</b>는 뜻입니다. 출력 한도 이하일 때만 허가가 면제되는 구조가 아닙니다 — FCC Part 18은 §18.301의 ISM 주파수 대역 안의 방사 에너지에 <b>제한을 두지 않습니다</b>(§18.305).</p>
+<div class="dl-highlight">대신, ISM 대역을 사용하는 장비는 그 대역 밖으로의 <b>불요 방출(spurious emission)</b>을 전계강도 한도 이하로 억제해야 하는 EMC(전자파 적합성) 규제를 따라야 합니다. 즉, "주파수 사용 자유"와 "방출 관리 의무"가 한 세트로 묶여 있습니다 — RF Generator/Matcher 설계에서 필터(저역통과/고조파 필터)가 항상 포함되는 이유 중 하나입니다.</div>`
         },
         {
           icon: '🔢',
-          title: '왜 13.56, 27.12, 40.68 MHz는 서로 정수배(harmonic) 관계인가?',
+          title: '13.56, 27.12, 40.68 MHz의 정수배(harmonic) 관계가 의미하는 것',
           body: `<div class="dl-eq">13.56 MHz × 2 = 27.12 MHz
 13.56 MHz × 3 = 40.68 MHz</div>
-<p>이것은 우연이 아닙니다. ISM 대역을 지정할 때, 기본 주파수(fundamental, 13.56MHz)의 정수배(harmonic) 대역도 함께 ISM으로 지정하면, 13.56MHz 장비에서 자연적으로 발생하는 2차/3차 고조파가 "불법 방출"이 아니라 "또 다른 ISM 대역 안의 신호"가 되어 규제상 충돌을 줄일 수 있기 때문입니다.</p>
-<div class="dl-highlight">실무적으로는, 13.56MHz RF Generator의 출력에는 항상 2차(27.12MHz), 3차(40.68MHz) 고조파 성분이 일부 포함됩니다. RF Matcher와 필터의 설계 목표 중 하나는 이 고조파가 챔버 밖으로 과도하게 방출되지 않도록 억제하는 것이며, ISM 대역 지정 덕분에 "기본 주파수 + 주요 고조파"가 모두 동일한 규제 틀 안에서 다뤄질 수 있습니다.</div>`
+<p>세 주파수가 정수배 관계인 것은 사실이며, 13.56MHz 장비의 2·3차 고조파는 27.12MHz·40.68MHz ISM 대역 안이나 그 경계에 놓입니다. 그러나 "고조파를 수용하기 위해 정수배로 지정했다"는 설명은 ITU·FCC 공식 문서로 확인되는 근거가 없습니다. 또한 FCC §18.305는 <b>장비의 동작 주파수에 해당하는 ISM 대역 안</b>의 방사를 무제한 허용하는 구조이므로, 13.56MHz 장비의 고조파가 다른 ISM 대역에 들어간다고 해서 규제에서 자동으로 면제된다고 단정할 수 없습니다.</p>
+<div class="dl-highlight">실무적으로는, 13.56MHz RF Generator의 출력에는 항상 2차(27.12MHz), 3차(40.68MHz) 고조파 성분이 일부 포함됩니다. RF Generator 출력단의 저역통과/고조파 필터와 챔버·전송선로 차폐는, 고조파가 ISM 대역에 놓이는지와 관계없이 고조파 방사를 억제하는 것을 전제로 설계됩니다.</div>`
         },
         {
           icon: '🛡️',
@@ -3308,16 +3338,16 @@ function buildISMDeepLearn(isEn, slideId) {
         {
           icon: '⚖️',
           title: 'What does "license-free" actually mean for an ISM band?',
-          body: `<p>"License-free" doesn't mean "use any power level you like." The FCC/ITU rule is that, <b>below a certain power level</b>, equipment using an ISM band doesn't need an individual frequency-use license the way a broadcast station would.</p>
+          body: `<p>"License-free" means the equipment <b>does not need an individual frequency-use license</b> the way a broadcast station does. It is not an exemption that applies only below a power limit — FCC Part 18 places <b>no limit</b> on radiated energy inside the ISM bands listed in §18.301 (§18.305).</p>
 <div class="dl-highlight">In exchange, equipment using ISM bands must comply with EMC (electromagnetic compatibility) regulations limiting <b>spurious emissions</b> outside the band to acceptable levels. "Freedom to use the frequency" and "an obligation to control emissions" come as a pair — one reason RF generator/matcher designs always include filtering (low-pass / harmonic filters).</div>`
         },
         {
           icon: '🔢',
-          title: 'Why are 13.56, 27.12, and 40.68 MHz integer multiples of each other?',
+          title: 'What the integer (harmonic) relationship of 13.56, 27.12, and 40.68 MHz means',
           body: `<div class="dl-eq">13.56 MHz × 2 = 27.12 MHz
 13.56 MHz × 3 = 40.68 MHz</div>
-<p>This isn't a coincidence. When ISM bands were designated, the harmonic bands (integer multiples) of the fundamental 13.56 MHz were also designated as ISM. This means the 2nd/3rd harmonics naturally generated by 13.56 MHz equipment fall within "another ISM band" rather than counting as illegal emissions — reducing regulatory conflicts.</p>
-<div class="dl-highlight">In practice, the output of a 13.56 MHz RF generator always contains some 2nd (27.12 MHz) and 3rd (40.68 MHz) harmonic content. One goal of RF matcher and filter design is to suppress these harmonics from radiating excessively outside the chamber — and because of the ISM harmonic designation, "the fundamental plus its main harmonics" can all be handled within the same regulatory framework.</div>`
+<p>The three frequencies are indeed integer multiples, and the 2nd/3rd harmonics of 13.56 MHz equipment fall inside or at the edge of the 27.12 MHz and 40.68 MHz ISM bands. However, the claim that the bands were chosen as multiples to accommodate harmonics is not supported by ITU/FCC documents. Moreover, FCC §18.305 allows unlimited radiation <b>inside the ISM band of the equipment's own operating frequency</b>, so a 13.56 MHz device's harmonics falling into another ISM band cannot be assumed to be automatically exempt.</p>
+<div class="dl-highlight">In practice, the output of a 13.56 MHz RF generator always contains some 2nd (27.12 MHz) and 3rd (40.68 MHz) harmonic content. Low-pass/harmonic filters at the generator output and shielding of the chamber and transmission line are designed to suppress harmonic radiation regardless of whether a harmonic happens to fall in an ISM band.</div>`
         },
         {
           icon: '🛡️',
