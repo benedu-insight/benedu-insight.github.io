@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>benedu.insight - 3D Periodic Table</title>
+    
+    <!-- favicon link -->
+    <link rel="icon" type="image/png" href="https://benedu-insight.github.io/logo_png/benedu_insight_Symbol.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandGreen: '#009444',
+                        brandPurple: '#7B2CBF',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js & Plugins via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- CSS3DRenderer for crisp 3D HTML Elements -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
+    <!-- TWEEN for smooth layout transitions -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+
+    <!-- Google Fonts CDN - 구글 전용 폰트(Google Sans / Product Sans)와 완전히 동일하게 매칭되는 Outfit 및 Noto Sans KR 서체 로드 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* 구글 공식 Arts & Experiments 전용 폰트 매커니즘 100% 동기화 적용 */
+        html, body {
+            background-color: #f8f9fa !important;
+            color: #202124 !important;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Google Sans', 'Product Sans', 'Outfit', 'Noto Sans KR', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            user-select: none;
+        }
+
+        /* 미니멀 브라우저 스크롤바 디자인 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* 3D 원소 카드 외부 래퍼 Container (Three.js 3D 트랜스폼 독립 보장) */
+        .element-card {
+            width: 100px;
+            height: 100px;
+            pointer-events: none; /* 클릭 이벤트가 하위 이중 구조 내부 엘리먼트로 원활히 전파되도록 함 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 구글 Arts & Culture 100% 동기화 정사각 원소 카드 디자인 */
+        .element-card-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto; /* 마우스 인터랙션을 안전하게 독점 */
+            box-shadow: 0 1px 2px rgba(60,64,67,0.1), 0 1px 3px 1px rgba(60,64,67,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: #ffffff;
+            box-sizing: border-box;
+            border: 1px solid transparent;
+        }
+
+        /* 인터랙티브 호버 액션 - 3D 매트릭스 간섭 없이 안정적인 줌 인 */
+        .element-card-inner:hover {
+            transform: scale(1.06);
+            box-shadow: 0 6px 16px rgba(60,64,67,0.14), 0 3px 6px rgba(60,64,67,0.08);
+            z-index: 50;
+        }
+
+        /* 클릭 선택 활성화 시 - 구글 스타일의 강력한 고유 계열 텍스트색 대응 아웃라인 테두리 처리 */
+        .selected-active .element-card-inner {
+            outline: 3px solid currentColor !important;
+            outline-offset: 2.5px;
+            box-shadow: 0 0 18px currentColor !important;
+            transform: scale(1.06);
+            z-index: 60 !important;
+        }
+
+        /* 카드 내부 서체 고화질 렌더링 세팅 */
+        .element-name {
+            font-size: 20px !important;
+            font-weight: 400;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            letter-spacing: -0.02em;
+        }
+
+        .atomic-number {
+            font-size: 20px !important;
+            font-weight: 200;
+        }
+
+        .symbol {
+            font-family: 'Google Sans', 'Product Sans', 'Outfit', sans-serif;
+            font-weight: 800;
+        }
+
+        /* 구글 Arts & Culture 주기율표 공식 파스텔 스펙트럼 정의 */
+        .alkali-metal { background-color: rgb(214, 248, 255) !important; color: rgb(0, 117, 140) !important; }
+        .alkaline-earth { background-color: rgb(255, 230, 230) !important; color: rgb(214, 0, 36) !important; }
+        .transition-metal { background-color: rgb(243, 232, 253) !important; color: rgb(98, 50, 236) !important; }
+        .post-transition-metal { background-color: rgb(215, 249, 233) !important; color: rgb(0, 44, 0) !important; }
+        .metalloid { background-color: rgb(254, 247, 225) !important; color: rgb(148, 87, 0) !important; }
+        .reactive-nonmetal { background-color: rgb(224, 237, 255) !important; color: rgb(0, 96, 240) !important; }
+        .noble-gas { background-color: rgb(255, 230, 234) !important; color: rgb(205, 29, 94) !important; }
+        .lanthanide { background-color: rgb(224, 243, 255) !important; color: rgb(0, 51, 85) !important; }
+        .actinide { background-color: rgb(255, 231, 214) !important; color: rgb(199, 50, 0) !important; }
+        .unknown-properties { background-color: rgb(230, 230, 234) !important; color: rgb(63, 55, 79) !important; }
+
+        /* 검색 필터링 완전 아웃 상태 (강한 디밍 및 제어권 제거) */
+        .dimmed {
+            opacity: 0.12 !important;
+            filter: grayscale(90%);
+            pointer-events: none;
+        }
+
+        /* 드래그 기동성 피드백 커서 지정 */
+        #container-3d {
+            cursor: grab;
+        }
+        #container-3d:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col justify-between">
+
+    <!-- HEADER / TOP NAV BAR -->
+    <header class="relative z-30 w-full px-6 py-4 flex flex-col md:flex-row items-center justify-between border-b border-neutral-200 bg-white shadow-sm">
+        <!-- Logo & Title -->
+        <div class="flex items-center space-x-4 mb-4 md:mb-0">
+            <div class="h-12 flex items-center justify-center p-1.5 bg-neutral-50 rounded-lg border border-neutral-200">
+                <img src="images/benedu_insight_logo_EN_horizontal.png" 
+                     onerror="this.src='https://placehold.co/240x80/ffffff/000000?text=benedu+insight'" 
+                     alt="benedu.insight" 
+                     class="h-full object-contain max-w-[170px]" />
+            </div>
+            <div class="h-8 w-[1px] bg-neutral-200 hidden md:block"></div>
+            <div>
+                <h1 id="site-title" class="text-xl font-bold tracking-tight text-neutral-800 flex items-center">
+                    <span class="text-brandGreen">3D</span> 
+                    <span class="text-brandPurple ml-1">PERIODIC TABLE</span>
+                </h1>
+                <p id="site-subtitle" class="text-xs text-neutral-500">Interactive Element Visualization Platform</p>
+            </div>
+        </div>
+
+        <!-- Realtime Search Bar -->
+        <div class="relative w-full max-w-md mx-4 mb-4 md:mb-0">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-400">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" id="searchInput" 
+                   class="w-full pl-10 pr-4 py-2 bg-neutral-100 border border-neutral-200 rounded-full text-sm focus:outline-none focus:border-brandPurple focus:ring-1 focus:ring-brandPurple text-neutral-800 placeholder-neutral-500 transition-all duration-300">
+        </div>
+
+        <!-- Top Right Language Switcher Pill -->
+        <div class="flex bg-neutral-100 p-1 rounded-full border border-neutral-200 font-mono text-xs">
+            <button id="lang-en" class="px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider transition-all duration-300">EN</button>
+            <button id="lang-ko" class="px-3.5 py-1.5 rounded-full font-bold uppercase tracking-wider transition-all duration-300">KO</button>
+        </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE WORKSPACE -->
+    <main class="relative flex-1 w-full flex overflow-hidden z-10 bg-[#f8f9fa]">
+        <!-- Sidebar: Filter Categories (구글 공식 주기율표 분류 체계 반영) -->
+        <aside class="hidden lg:flex flex-col w-72 border-r border-neutral-200 bg-white p-5 space-y-4 overflow-y-auto">
+            
+            <!-- 테이블 뷰 레이아웃 선택기 (Standard VS Lewis) -->
+            <div class="flex flex-col space-y-2 p-3 bg-neutral-50 rounded-xl border border-neutral-200 shadow-sm">
+                <span id="view-mode-title" class="text-xs font-bold text-neutral-500 uppercase tracking-wider px-1"><i class="fa-solid fa-eye mr-1.5 text-brandPurple"></i>Table Layout View</span>
+                <div class="grid grid-cols-2 gap-1 p-0.5 bg-neutral-200 rounded-lg text-[11px] font-bold">
+                    <button id="btn-view-standard" class="py-1.5 rounded-md bg-white shadow-sm text-neutral-800 transition-all duration-150">Standard</button>
+                    <button id="btn-view-lewis" class="py-1.5 rounded-md text-neutral-500 hover:text-neutral-800 transition-all duration-150">Lewis Dot</button>
+                </div>
+            </div>
+
+            <div class="text-sm font-extrabold text-neutral-600 uppercase tracking-wider flex items-center border-t border-neutral-100 pt-3">
+                <i class="fa-solid fa-tags text-brandGreen mr-2 text-base"></i><span id="sidebar-title">Element Categories</span>
+            </div>
+            <div class="flex flex-col space-y-1.5" id="categoryFilters">
+                <button data-cat="all" class="w-full text-left px-4 py-2.5 rounded-lg text-sm bg-neutral-100 border border-neutral-200 font-bold text-neutral-800 flex items-center justify-between transition-all duration-200">
+                    <span>All Elements</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-neutral-400"></span>
+                </button>
+                <button data-cat="alkali-metal" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Alkali Metals</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#00758C]"></span>
+                </button>
+                <button data-cat="alkaline-earth" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Alkaline Earth Metals</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#D60024]"></span>
+                </button>
+                <button data-cat="transition-metal" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Transition Metals</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#6232EC]"></span>
+                </button>
+                <button data-cat="post-transition-metal" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Post-transition Metals</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#002C00]"></span>
+                </button>
+                <button data-cat="metalloid" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Metalloids</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#945700]"></span>
+                </button>
+                <button data-cat="reactive-nonmetal" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Reactive Nonmetals</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#0060F0]"></span>
+                </button>
+                <button data-cat="noble-gas" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Noble Gases</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#CD1D5E]"></span>
+                </button>
+                <button data-cat="lanthanide" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Lanthanides</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#003355]"></span>
+                </button>
+                <button data-cat="actinide" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Actinides</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#C73200]"></span>
+                </button>
+                <button data-cat="unknown-properties" class="w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150">
+                    <span>Unknown Properties</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#3F374F]"></span>
+                </button>
+            </div>
+
+            <!-- Minimalist Brand Badge -->
+            <div class="mt-auto p-4 bg-neutral-50 rounded-xl border border-neutral-200 text-xs text-neutral-500 flex items-center space-x-3">
+                <i class="fa-solid fa-circle-check text-brandGreen text-lg"></i>
+                <div>
+                    <span class="font-extrabold text-neutral-800 block">benedu.insight</span>
+                    <span class="text-[11px] text-neutral-400">Stable 3D Space Mode</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 3D Render Canvas Container -->
+        <div id="container-3d" class="flex-1 h-full relative overflow-hidden">
+            <!-- Loading Indicator -->
+            <div id="loader" class="absolute inset-0 flex flex-col items-center justify-center bg-[#f8f9fa] z-20 transition-all duration-500">
+                <div class="relative w-16 h-16 mb-4">
+                    <div class="absolute inset-0 border-4 border-brandPurple/20 rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-t-brandGreen rounded-full animate-spin"></div>
+                </div>
+                <div class="text-sm tracking-wider font-semibold text-neutral-600 uppercase">Generating 3D space...</div>
+            </div>
+
+            <!-- Floating View Navigation Controls (Arts & Experiments Style) -->
+            <div class="absolute bottom-6 left-6 z-20 flex flex-col space-y-2">
+                <button id="btn-zoom-in" class="w-10 h-10 rounded-full bg-white border border-neutral-200 shadow-md flex items-center justify-center text-neutral-600 hover:text-neutral-800 transition-all duration-150 hover:bg-neutral-50" title="Zoom In">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+                <button id="btn-zoom-out" class="w-10 h-10 rounded-full bg-white border border-neutral-200 shadow-md flex items-center justify-center text-neutral-600 hover:text-neutral-800 transition-all duration-150 hover:bg-neutral-50" title="Zoom Out">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+                <button id="btn-reset-view" class="w-10 h-10 rounded-full bg-white border border-neutral-200 shadow-md flex items-center justify-center text-neutral-600 hover:text-neutral-800 transition-all duration-150 hover:bg-neutral-50" title="Reset View Area">
+                    <i class="fa-solid fa-compress-arrows-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Detail Drawer Panel -->
+        <div id="detailPanel" class="relative h-full w-full sm:w-[460px] bg-white border-l border-neutral-200 shadow-xl z-20 flex flex-col">
+            <!-- Drawer Content Container -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Header Card (Atom Info) -->
+                <div class="flex items-start space-x-5 pt-2">
+                    <div id="detailClassGlow" class="w-24 h-28 flex flex-col justify-between p-3 rounded-lg border text-center font-bold shadow-sm">
+                        <span id="detailNum" class="text-sm text-left opacity-75">1</span>
+                        <span id="detailSymbol" class="text-4xl">H</span>
+                        <span id="detailMass" class="text-xs opacity-80 font-mono">1.008</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <span id="detailCategoryName" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-neutral-100 text-neutral-600">Reactive Nonmetal</span>
+                        <h2 id="detailKoName" class="text-3xl font-extrabold mt-1 text-neutral-800 tracking-tight">수소</h2>
+                        <h3 id="detailEnName" class="text-lg font-semibold text-neutral-500">Hydrogen</h3>
+                    </div>
+                </div>
+
+                <!-- Interactive 3D Bohr / Quantum Model Selector Section -->
+                <div class="bg-neutral-50 rounded-2xl p-4 border border-neutral-200 flex flex-col items-center justify-center shadow-sm">
+                    <div class="flex justify-between items-center w-full mb-3">
+                        <h4 id="lbl-bohr-title" class="text-xs font-bold text-neutral-500 tracking-wider"><i class="fa-solid fa-atom mr-1.5 text-brandPurple"></i>Realtime Bohr Model</h4>
+                        
+                        <!-- Quantum Model Tab Selector (루이스 탭 추가 통합) -->
+                        <div class="flex bg-neutral-200 p-0.5 rounded-lg text-[10px] font-bold">
+                            <button id="btn-model-bohr" class="px-2 py-1 rounded-md bg-white shadow-sm text-neutral-800 transition-all duration-150">Bohr</button>
+                            <button id="btn-model-schrodinger" class="px-2 py-1 rounded-md text-neutral-500 hover:text-neutral-800 transition-all duration-150">Schrödinger</button>
+                            <button id="btn-model-orbital" class="px-2 py-1 rounded-md text-neutral-500 hover:text-neutral-800 transition-all duration-150">Orbital</button>
+                            <button id="btn-model-lewis" class="px-2 py-1 rounded-md text-neutral-500 hover:text-neutral-800 transition-all duration-150">Lewis</button>
+                        </div>
+                    </div>
+                    <div class="relative w-44 h-44 flex items-center justify-center">
+                        <canvas id="bohrCanvas" width="176" height="176" class="w-full h-full"></canvas>
+                        <!-- Bohr Central Nucleus -->
+                        <div id="bohrCenter" class="absolute w-7 h-7 rounded-full bg-[#ea4335] text-white flex items-center justify-center font-bold text-[11px] shadow-lg shadow-red-500/30 transition-all duration-300">1+</div>
+                    </div>
+                    <div id="shellConfig" class="text-xs text-neutral-500 mt-2 text-center">Shell Config: <span class="text-neutral-800 font-mono font-extrabold">1</span></div>
+                </div>
+
+                <!-- Properties Grid -->
+                <div class="grid grid-cols-2 gap-3.5">
+                    <div class="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200">
+                        <div id="lbl-electron-conf" class="text-xs text-neutral-500 uppercase font-bold">Electron Conf</div>
+                        <div id="propElectronConf" class="text-[14px] font-bold text-neutral-800 mt-1">1s¹</div>
+                    </div>
+                    <div class="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200">
+                        <div id="lbl-phase" class="text-xs text-neutral-500 uppercase font-bold">Phase (STP)</div>
+                        <div id="propPhase" class="text-[14px] font-bold text-neutral-800 mt-1">Gas</div>
+                    </div>
+                    <div class="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200">
+                        <div id="lbl-melting" class="text-xs text-neutral-500 uppercase font-bold">Melting Point</div>
+                        <div id="propMelting" class="text-[14px] font-bold text-neutral-800 mt-1">14.01 K</div>
+                    </div>
+                    <div class="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200">
+                        <div id="lbl-boiling" class="text-xs text-neutral-500 uppercase font-bold">Boiling Point</div>
+                        <div id="propBoiling" class="text-[14px] font-bold text-neutral-800 mt-1">20.28 K</div>
+                    </div>
+                    <div class="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200 col-span-2">
+                        <div id="lbl-discoverer" class="text-xs text-neutral-500 uppercase font-bold">Discoverer</div>
+                        <div id="propDiscoverer" class="text-[14px] font-bold text-neutral-800 mt-1">Henry Cavendish (1766)</div>
+                    </div>
+                </div>
+
+                <!-- Discovery & Name Origin Story Section -->
+                <div class="space-y-2.5">
+                    <h4 id="lbl-story-title" class="text-sm font-bold text-neutral-500 tracking-wider flex items-center">
+                        <i class="fa-solid fa-book-open mr-1.5 text-brandPurple"></i>Discovery & Name Origin
+                    </h4>
+                    <p id="detailStory" class="text-[13.5px] text-neutral-600 leading-relaxed bg-neutral-50 p-4.5 rounded-xl border border-neutral-200 shadow-inner">
+                        Detailed story goes here...
+                    </p>
+                </div>
+
+                <!-- Major Natural Isotopes Section -->
+                <div class="space-y-2.5">
+                    <h4 id="lbl-isotopes-title" class="text-sm font-bold text-neutral-500 tracking-wider flex items-center">
+                        <i class="fa-solid fa-circle-nodes mr-1.5 text-brandGreen"></i>Natural Isotopes
+                    </h4>
+                    <div id="detailIsotopes" class="grid grid-cols-2 gap-2.5 bg-neutral-50 p-4 rounded-xl border border-neutral-200 shadow-inner">
+                        <!-- Dynamic items inside -->
+                    </div>
+                </div>
+
+                <!-- Detailed Chemistry Description -->
+                <div class="space-y-2.5">
+                    <h4 id="lbl-details-title" class="text-sm font-bold text-neutral-500 tracking-wider"><i class="fa-solid fa-circle-info mr-1.5 text-brandGreen"></i>Details & Properties</h4>
+                    <p id="detailDescription" class="text-[14px] text-neutral-600 leading-relaxed bg-neutral-50 p-4.5 rounded-xl border border-neutral-200 shadow-inner">
+                        Description goes here...
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Sound Toggle / Bottom Actions inside Drawer -->
+            <div class="p-4 border-t border-neutral-200 bg-neutral-50 flex justify-between items-center text-xs">
+                <span id="lbl-sfx-title" class="text-neutral-500"><i class="fa-solid fa-wave-square mr-1 text-brandPurple"></i>Interaction Sounds</span>
+                <button id="soundToggle" class="px-3 py-1 bg-brandGreen/10 hover:bg-brandGreen/20 text-brandGreen rounded-full font-bold transition-all duration-150">
+                    <i class="fa-solid fa-volume-high mr-1"></i>ON
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="relative z-10 w-full px-6 py-3 border-t border-neutral-200 bg-white flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500">
+        <div>&copy; 2026 benedu.insight. All rights reserved.</div>
+        <div class="flex space-x-4 mt-2 sm:mt-0">
+            <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-brandGreen mr-1.5"></span>Active Engine: Three.js + CSS3D (Google Experiments Engine)</span>
+            <span>Ver 1.9.9</span>
+        </div>
+    </footer>
+
+    <!-- INTERACTION LOGIC / JAVASCRIPT -->
+    <script>
+        // 다국어 i18n 번역 사전 데이터셋
+        const i18n = {
+            en: {
+                title: '<span class="text-brandGreen">3D</span> <span class="text-brandPurple ml-1">PERIODIC TABLE</span>',
+                subtitle: 'Interactive Element Visualization Platform',
+                placeholder: 'Search by symbol, name, or atomic number...',
+                sidebarTitle: 'Element Categories',
+                allElements: 'All Elements',
+                alkali: 'Alkali Metals',
+                alkaline: 'Alkaline Earth Metals',
+                transition: 'Transition Metals',
+                postTransition: 'Post-transition Metals',
+                metalloid: 'Metalloids',
+                nonmetal: 'Reactive Nonmetals',
+                nobleGas: 'Noble Gases',
+                lanthanide: 'Lanthanides',
+                actinide: 'Actinides',
+                unknownProperties: 'Unknown Properties',
+                bohrTitle: 'Realtime Bohr Model',
+                modelBohr: 'Bohr Model',
+                modelSchrodinger: 'Schrödinger Cloud',
+                modelOrbital: 'Orbital Node',
+                modelLewis: 'Lewis Dot Structure',
+                shellInfo: 'Shell Config:',
+                conf: 'Electron Conf',
+                phase: 'Phase (STP)',
+                melting: 'Melting Point',
+                boiling: 'Boiling Point',
+                discoverer: 'Discoverer',
+                detailsTitle: 'Details & Properties',
+                storyTitle: 'Discovery & Name Origin',
+                isotopesTitle: 'Natural Isotopes',
+                sfxTitle: 'Interaction Sounds',
+                on: 'ON',
+                off: 'OFF',
+                gas: 'Gas',
+                solid: 'Solid',
+                liquid: 'Liquid',
+                synthetic: 'Synthetic',
+                unknown: 'Unknown',
+                viewModeTitle: 'Table Layout View',
+                viewModeStandard: 'Standard Table',
+                viewModeLewis: 'Lewis Dot Table'
+            },
+            ko: {
+                title: '<span class="text-brandGreen">3D</span> <span class="text-brandPurple ml-1">주기율표</span>',
+                subtitle: '인터랙티브 원소 시각화 플랫폼',
+                placeholder: '원소 기호, 이름, 번호로 검색...',
+                sidebarTitle: '원소 계열 필터',
+                allElements: '전체 원소 보기',
+                alkali: '알칼리 금속',
+                alkaline: '알칼리 토금속',
+                transition: '전이 금속',
+                postTransition: '전이후 금속',
+                metalloid: '준금속',
+                nonmetal: '반응성 비금속',
+                nobleGas: '비활성 기체',
+                lanthanide: '란타넘족',
+                actinide: '악티늄족',
+                unknownProperties: '미상 원소 계열',
+                bohrTitle: '실시간 보어 원자 모형',
+                modelBohr: '보어 원자 모형',
+                modelSchrodinger: '슈뢰딩거 확률 구름',
+                modelOrbital: '오비탈 노드 모델',
+                modelLewis: '루이스 전자점식 모델',
+                shellInfo: '전자 껍질 정보:',
+                conf: '전자 배치',
+                phase: '상태 (실온)',
+                melting: '녹는점',
+                boiling: '끓는점',
+                discoverer: '발견자',
+                detailsTitle: '상세 설명 및 특성',
+                storyTitle: '발견 일화 및 이름의 유래',
+                isotopesTitle: '자연계 동위원소 점유율',
+                sfxTitle: '인터랙션 효과음',
+                on: '켜짐',
+                off: '꺼짐',
+                gas: '기체',
+                solid: '고체',
+                liquid: '액체',
+                synthetic: '인공 합성',
+                unknown: '미상',
+                viewModeTitle: '테이블 뷰 레이아웃',
+                viewModeStandard: '일반 주기율표',
+                viewModeLewis: '루이스 전자점표'
+            }
+        };
+
+        // 다국어 계열 속성 매핑 도우미
+        function getCategoryKey(cls) {
+            const cleanCls = cls.replace('alk ', '');
+            const map = {
+                'reactive-nonmetal': 'nonmetal',
+                'noble-gas': 'nobleGas',
+                'alkali-metal': 'alkali',
+                'alkaline-earth': 'alkaline',
+                'metalloid': 'metalloid',
+                'transition-metal': 'transition',
+                'post-transition-metal': 'postTransition',
+                'lanthanide': 'lanthanide',
+                'actinide': 'actinide',
+                'unknown-properties': 'unknownProperties'
+            };
+            return map[cleanCls] || 'transition';
+        }
+
+        // 다국어 뱃지 가공 클래스 대응 함수 정의 복구
+        function getCategoryKorean(cls) {
+            return i18n.ko[getCategoryKey(cls)] || '금속 원소';
+        }
+
+        function getCategoryEnglish(cls) {
+            return i18n.en[getCategoryKey(cls)] || 'Metal';
+        }
+
+        function getCategoryBadgeClass(cls) {
+            const cleanCls = cls.replace('alk ', '');
+            const map = {
+                'reactive-nonmetal': 'bg-blue-100 text-blue-700 border border-blue-200',
+                'noble-gas': 'bg-purple-100 text-purple-700 border border-purple-200',
+                'alkali-metal': 'bg-cyan-100 text-cyan-700 border border-cyan-200',
+                'alkaline-earth': 'bg-red-100 text-red-700 border border-red-200',
+                'metalloid': 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+                'transition-metal': 'bg-purple-100 text-purple-700 border border-purple-200',
+                'post-transition-metal': 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+                'lanthanide': 'bg-blue-50 text-blue-800 border border-blue-100',
+                'actinide': 'bg-orange-100 text-orange-700 border border-orange-200',
+                'unknown-properties': 'bg-neutral-100 text-neutral-600 border border-neutral-200'
+            };
+            return map[cleanCls] || 'bg-neutral-100 text-neutral-700';
+        }
+
+        function getPhaseTranslated(phase, lang) {
+            if (phase === 'Gas') return i18n[lang].gas;
+            if (phase === 'Solid') return i18n[lang].solid;
+            if (phase === 'Liquid') return i18n[lang].liquid;
+            if (phase === 'Synthetic') return i18n[lang].synthetic;
+            return phase;
+        }
+
+        const basicSymbols = ["H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og"];
+        const basicKoNames = ["수소", "헬륨", "리튬", "베릴륨", "붕소", "탄소", "질소", "산소", "플루오린", "네온", "나트륨", "마그네슘", "알루미늄", "규소", "인", "황", "염소", "아르곤", "칼륨", "칼슘", "스칸듐", "티타늄", "바나듐", "크롬", "망가니즈", "철", "코발트", "니켈", "구리", "아연", "갈륨", "게르마늄", "비소", "셀레늄", "브로민", "크립톤", "루비듐", "스트론튬", "이트륨", "지르코늄", "나이오븀", "몰리브데넘", "테크네튬", "루테늄", "로듐", "팔라듐", "은", "카드뮴", "인듐", "주석", "안티모니", "텔루륨", "아이오딘", "제논", "세슘", "바륨", "란타넘", "세륨", "프라세오디뮴", "네오디뮴", "프로메튬", "사마륨", "유로퓸", "가돌리늄", "터븀", "디스프로슘", "홀뮴", "어븀", "툴륨", "이터븀", "루테튬", "하프늄", "탄탈럼", "텅스텐", "레늄", "오스뮴", "이리듐", "백금", "금", "수은", "탈륨", "납", "비스무트", "폴로늄", "아스타틴", "라돈", "프랑슘", "라듐", "악티늄", "토륨", "프로토악티늄", "우라늄", "넵투늄", "플루토늄", "아메리슘", "퀴륨", "버클륨", "캘리포늄", "아인슈타이니엄", "페르뮴", "멘델레븀", "노벨륨", "로렌슘", "러더포듐", "두브늄", "시보귬", "보륨", "하슘", "마이트너륨", "다름슈타튬", "뢴트게늄", "코페르니슘", "니호늄", "플레로븀", "모스코븀", "리버모륨", "테네신", "오가네손"];
+        const enNames = ["Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon", "Sodium", "Magnesium", "Aluminium", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", "Potassium", "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon", "Caesium", "Barium", "Lanthanum", "Cerium", "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "AcTinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium", "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium", "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium", "Copernicium", "Nihonium", "Flerovium", "Moscovium", "Livermorium", "Tennessine", "Oganesson"];
+
+        // 118개 원소 완벽 동기화 압축 데이터베이스 스트링
+        const exactMassesStr = "1.008;4.0026;6.94;9.0122;10.81;12.011;14.007;15.999;18.998;20.180;22.990;24.305;26.982;28.085;30.974;32.06;35.45;39.948;39.098;40.078;44.956;47.867;50.942;51.996;54.938;55.845;58.933;58.693;63.546;65.38;69.723;72.630;74.922;78.971;79.904;83.798;85.468;87.62;88.906;91.224;92.906;95.95;[98];101.07;102.91;106.42;107.87;112.41;114.82;118.71;121.76;127.60;126.90;131.29;132.91;137.33;138.91;140.12;140.91;144.24;[145];150.36;151.96;157.25;158.93;162.50;164.93;167.26;168.93;173.05;174.97;178.49;180.95;183.84;186.21;190.23;192.22;195.08;196.97;200.59;204.38;207.2;208.98;[209];[210];[222];[223];[226];[227];232.04;231.04;238.03;[237];[244];[243];[247];[247];[251];[252];[257];[258];[259];[262];[267];[268];[271];[270];[277];[278];[281];[280];[285];[286];[289];[289];[293];[294];[294]";
+        const exactShellsStr = "1;2;2,1;2,2;2,3;2,4;2,5;2,6;2,7;2,8;2,8,1;2,8,2;2,8,3;2,8,4;2,8,5;2,8,6;2,8,7;2,8,8;2,8,8,1;2,8,8,2;2,8,9,2;2,8,10,2;2,8,11,2;2,8,13,1;2,8,13,2;2,8,14,2;2,8,15,2;2,8,16,2;2,8,18,1;2,8,18,2;2,8,18,3;2,8,18,4;2,8,18,5;2,8,18,6;2,8,18,7;2,8,18,8;2,8,18,8,1;2,8,18,8,2;2,8,18,9,2;2,8,18,10,2;2,8,18,12,1;2,8,18,13,1;2,8,18,13,2;2,8,18,15,1;2,8,18,16,1;2,8,18,18;2,8,18,18,1;2,8,18,18,2;2,8,18,18,3;2,8,18,18,4;2,8,18,18,5;2,8,18,18,6;2,8,18,18,7;2,8,18,18,8;2,8,18,18,8,1;2,8,18,18,8,2;2,8,18,18,9,2;2,8,18,19,9,2;2,8,18,21,8,2;2,8,18,22,8,2;2,8,18,23,8,2;2,8,18,24,8,2;2,8,18,25,8,2;2,8,18,25,9,2;2,8,18,27,8,2;2,8,18,28,8,2;2,8,18,29,8,2;2,8,18,30,8,2;2,8,18,31,8,2;2,8,18,32,8,2;2,8,18,32,9,2;2,8,18,32,10,2;2,8,18,32,11,2;2,8,18,32,12,2;2,8,18,32,13,2;2,8,18,32,14,2;2,8,18,32,15,2;2,8,18,32,17,1;2,8,18,32,18,1;2,8,18,32,18,2;2,8,18,32,18,3;2,8,18,32,18,4;2,8,18,32,18,5;2,8,18,32,18,6;2,8,18,32,18,7;2,8,18,32,18,8;2,8,18,32,18,8,1;2,8,18,32,18,8,2;2,8,18,32,18,9,2;2,8,18,32,18,10,2;2,8,18,32,20,9,2;2,8,18,32,21,9,2;2,8,18,32,22,9,2;2,8,18,32,24,8,2;2,8,18,32,25,8,2;2,8,18,32,25,9,2;2,8,18,32,27,8,2;2,8,18,32,28,8,2;2,8,18,32,29,8,2;2,8,18,32,30,8,2;2,8,18,32,31,8,2;2,8,18,32,32,8,2;2,8,18,32,32,9,2;2,8,18,32,32,10,2;2,8,18,32,32,11,2;2,8,18,32,32,12,2;2,8,18,32,32,13,2;2,8,18,32,32,14,2;2,8,18,32,32,15,2;2,8,18,32,32,16,2;2,8,18,32,32,18,1;2,8,18,32,32,18,2;2,8,18,32,32,18,3;2,8,18,32,32,18,4;2,8,18,32,32,18,5;2,8,18,32,32,18,6;2,8,18,32,32,18,7;2,8,18,32,32,18,8";
+        const exactConfsStr = "1s¹;1s²;[He] 2s¹;[He] 2s²;[He] 2s² 2p¹;[He] 2s² 2p²;[He] 2s² 2p³;[He] 2s² 2p⁴;[He] 2s² 2p⁵;[He] 2s² 2p⁶;[Ne] 3s¹;[Ne] 3s²;[Ne] 3s² 3p¹;[Ne] 3s² 3p²;[Ne] 3s² 3p³;[Ne] 3s² 3p⁴;[Ne] 3s² 3p⁵;[Ne] 3s² 3p⁶;[Ar] 4s¹;[Ar] 4s²;[Ar] 3d¹ 4s²;[Ar] 3d² 4s²;[Ar] 3d³ 4s²;[Ar] 3d⁵ 4s¹;[Ar] 3d⁵ 4s²;[Ar] 3d⁶ 4s²;[Ar] 3d⁷ 4s²;[Ar] 3d⁸ 4s²;[Ar] 3d¹⁰ 4s¹;[Ar] 3d¹⁰ 4s²;[Ar] 3d¹⁰ 4s² 4p¹;[Ar] 3d¹⁰ 4s² 4p²;[Ar] 3d¹⁰ 4s² 4p³;[Ar] 3d¹⁰ 4s² 4p⁴;[Ar] 3d¹⁰ 4s² 4p⁵;[Ar] 3d¹⁰ 4s² 4p⁶;[Kr] 5s¹;[Kr] 5s²;[Kr] 4d¹ 5s²;[Kr] 4d² 5s²;[Kr] 4d⁴ 5s¹;[Kr] 4d⁵ 5s¹;[Kr] 4d⁵ 5s²;[Kr] 4d⁷ 5s¹;[Kr] 4d⁸ 5s¹;[Kr] 4d¹⁰;[Kr] 4d¹⁰ 5s¹;[Kr] 4d¹⁰ 5s²;[Kr] 4d¹⁰ 5s² 5p¹;[Kr] 4d¹⁰ 5s² 5p²;[Kr] 4d¹⁰ 5s² 5p³;[Kr] 4d¹⁰ 5s² 5p⁴;[Kr] 4d¹⁰ 5s² 5p⁵;[Kr] 4d¹⁰ 5s² 5p⁶;[Xe] 6s¹;[Xe] 6s²;[Xe] 5d¹ 6s²;[Xe] 4f¹ 5d¹ 6s²;[Xe] 4f³ 6s²;[Xe] 4f⁴ 6s²;[Xe] 4f⁵ 6s²;[Xe] 4f⁶ 6s²;[Xe] 4f⁷ 6s²;[Xe] 4f⁷ 5d¹ 6s²;[Xe] 4f⁹ 6s²;[Xe] 4f¹⁰ 6s²;[Xe] 4f¹¹ 6s²;[Xe] 4f¹² 6s²;[Xe] 4f¹³ 6s²;[Xe] 4f¹⁴ 6s²;[Xe] 4f¹⁴ 5d¹ 6s²;[Xe] 4f¹⁴ 5d² 6s²;[Xe] 4f¹⁴ 5d³ 6s²;[Xe] 4f¹⁴ 5d⁴ 6s²;[Xe] 4f¹⁴ 5d⁵ 6s²;[Xe] 4f¹⁴ 5d⁶ 6s²;[Xe] 4f¹⁴ 5d⁷ 6s²;[Xe] 4f¹⁴ 5d⁹ 6s¹;[Xe] 4f¹⁴ 5d¹⁰ 6s¹;[Xe] 4f¹⁴ 5d¹⁰ 6s²;[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹;[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²;[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³;[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴;[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵;[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶;[Rn] 7s¹;[Rn] 7s²;[Rn] 6d¹ 7s²;[Rn] 5f¹ 6d¹ 7s²;[Rn] 5f² 6d¹ 7s²;[Rn] 5f³ 6d¹ 7s²;[Rn] 5f⁴ 6d¹ 7s²;[Rn] 5f⁶ 7s²;[Rn] 5f⁷ 7s²;[Rn] 5f⁷ 6d¹ 7s²;[Rn] 5f⁹ 7s²;[Rn] 5f¹⁰ 7s²;[Rn] 5f¹¹ 7s²;[Rn] 5f¹² 7s²;[Rn] 5f¹³ 7s²;[Rn] 5f¹⁴ 7s²;[Rn] 5f¹⁴ 6d¹ 7s²;[Rn] 5f¹⁴ 6d² 7s²;[Rn] 5f¹⁴ 6d³ 7s²;[Rn] 5f¹⁴ 6d⁴ 7s²;[Rn] 5f¹⁴ 6d⁵ 7s²;[Rn] 5f¹⁴ 6d⁶ 7s²;[Rn] 5f¹⁴ 6d⁷ 7s²;[Rn] 5f¹⁴ 6d⁸ 7s²;[Rn] 5f¹⁴ 6d⁹ 7s²;[Rn] 5f¹⁴ 6d¹⁰ 7s²;[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹;[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²;[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³;[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴;[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵;[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶";
+        const exactPhasesStr = "Gas;Gas;Solid;Solid;Solid;Solid;Solid;Gas;Gas;Gas;Solid;Solid;Solid;Solid;Solid;Solid;Gas;Gas;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Liquid;Gas;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Gas;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Liquid;Solid;Solid;Solid;Solid;Solid;Gas;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Solid;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic;Synthetic";
+        const exactMeltingStr = "14.01;0.95;453.69;1560;2349;3823;63.15;54.36;53.48;24.56;370.87;923;933.47;1687;317.3;388.36;171.6;83.8;336.5;1115;1814;1941;2183;2180;1519;1811;1768;1728;1357.77;692.68;302.91;1211.4;1090;494;265.8;115.79;312.46;1050;1799;2128;2750;2896;2430;2607;2237;1828.05;1234.93;594.22;429.75;505.08;903.78;727.1;386.85;161.4;301.59;1000;1193;1068;1208;1297;1315;1345;1099;1585;1629;1680;1734;1802;1818;1097;1925;2506;3290;3695;3459;3306;2739;2041.4;1337.33;234.32;577;600.61;544.7;527;575;202;300;973;1323;2023;2115;1405.3;912;912;1269;1340;1250;1050;1133;1100;1100;1097;1193;2400;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a";
+        const exactBoilingStr = "20.28;4.22;1615;2742;4200;4300;77.36;90.2;85.03;27.07;1156;1363;2792;3538;553.6;717.8;239.11;87.3;1032;1757;3109;3560;3680;2944;2334;3134;3200;3186;2835;1180;2477;3120;887;958;332;119.93;961;1655;3609;4682;5017;4912;4538;4423;3968;3236;2435;1040;2345;2875;1860;1261;457.4;165.03;944;2170;3737;3716;3793;3347;3273;2067;1802;3546;3396;2840;2993;3141;2223;1469;3675;4876;5697;5828;5873;5285;4701;4098;3129;629.88;1746;2022;1837;1235;610;211;950;2010;3470;5061;3300;4404;4175;3501;2280;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a;n/a";
+        const exactDiscoverersStr = "Henry Cavendish (1766);Jules Janssen & Norman Lockyer (1868);Johan August Arfwedson (1817);Louis Nicolas Vauquelin (1798);Joseph Louis Gay-Lussac & Louis Jacques Thénard (1808);Ancient Egypt (B.C. 3750);Daniel Rutherford (1772);Carl Wilhelm Scheele (1771);André-Marie Ampère (1810);William Ramsay & Morris Travers (1898);Humphry Davy (1807);Humphry Davy (1808);Hans Christian Ørsted (1825);Jöns Jacob Berzelius (1823);Hennig Brand (1669);Ancient times (B.C. 2000);Carl Wilhelm Scheele (1774);Lord Rayleigh & William Ramsay (1894);Humphry Davy (1807);Humphry Davy (1808);Lars Fredrik Nilson (1879);William Gregor (1791);Andrés Manuel del Río (1801);Martin Heinrich Klaproth (1789);Johan Gottlieb Gahn (1774);Ancient times (B.C. 2500);Georg Brandt (1735);Axel Fredrik Cronstedt (1751);Middle East (B.C. 9000);Ancient times (B.C. 1000);Paul-Émile Lecoq de Boisbaudran (1875);Clemens Winkler (1886);Albertus Magnus (1250);Jöns Jacob Berzelius (1817);Antoine Jérôme Balard (1826);William Ramsay & Morris Travers (1898);Robert Bunsen & Gustav Kirchhoff (1861);Adair Crawford (1790);Johan Gadolin (1794);Martin Heinrich Klaproth (1789);Charles Hatchett (1801);Carl Wilhelm Scheele (1778);Emilio Segrè & Carlo Perrier (1937);Karl Ernst Claus (1844);William Hyde Wollaston (1803);William Hyde Wollaston (1803);Ancient times (B.C. 3000);Friedrich Stromeyer (1817);Ferdinand Reich & Hieronymous Theodor Richter (1863);Ancient times (B.C. 3000);Nicolas Lémery (1707);Franz-Joseph Müller von Reichenstein (1782);Bernard Courtois (1811);William Ramsay & Morris Travers (1898);Robert Bunsen & Gustav Kirchhoff (1860);Carl Axel Arrhenius (1788);Martin Heinrich Klaproth (1803);Carl Gustaf Mosander (1839);Carl Gustaf Mosander (1843);Carl Auer von Welsbach (1885);Emilio Segrè & Chien-Shiung Wu (1945);Jean Charles Galissard de Marignac (1853);Paul-Émile Lecoq de Boisbaudran (1896);Jean Charles Galissard de Marignac (1880);Paul-Émile Lecoq de Boisbaudran (1886);Paul-Émile Lecoq de Boisbaudran (1886);Per Teodor Cleve (1879);Carl Gustaf Mosander (1842);Per Teodor Cleve (1879);Jean Charles Galissard de Marignac (1878);Georges Urbain (1907);Dirk Coster & George de Hevesy (1923);Anders Gustaf Ekeberg (1802);Fausto & Juan José Elhuyar (1783);Masataka Ogawa (1908);Smithson Tennant (1803);Smithson Tennant (1803);Julius Lothar Meyer (1864);Ancient times (B.C. 3000);Ancient times (B.C. 1500);Claude François Geoffroy (1753);Ancient times (B.C. 3000);Claude François Geoffroy (1753);Marie & Pierre Curie (1898);Dale R. Corson, Kenneth MacKenzie, & Emilio Segrè (1940);Friedrich Ernst Dorn (1898);Marguerite Perey (1939);Marie Curie (1898);Friedrich Oskar Giesel (1902);Jöns Jacob Berzelius (1829);Filippo Sellwood (1913);Martin Heinrich Klaproth (1789);Edwin McMillan & Philip Abelson (1940);Glenn T. Seaborg (1940);Glenn T. Seaborg (1944);Glenn T. Seaborg (1944);Albert Ghiorso (1949);Albert Ghiorso (1950);Albert Ghiorso (1952);Albert Ghiorso (1952);Albert Ghiorso (1955);Albert Ghiorso (1958);Albert Ghiorso (1961);Albert Ghiorso (1964);Albert Ghiorso (1967);Albert Ghiorso (1974);Yuri Oganessian (1981);Peter Armbruster & Gottfried Münzenberg (1984);Peter Armbruster & Gottfried Münzenberg (1982);Peter Armbruster & Gottfried Münzenberg (1984);Sigurd Hofmann (1994);Sigurd Hofmann (1996);Yuri Oganessian (1996);Yuri Oganessian (1998);Yuri Oganessian (2003);Yuri Oganessian (2000);Yuri Oganessian (2010);Yuri Oganessian (2002)";
+
+        const exactMasses = exactMassesStr.split(';');
+        const exactShells = exactShellsStr.split(';').map(s => s.split(',').map(Number));
+        const exactConfs = exactConfsStr.split(';');
+        const exactPhases = exactPhasesStr.split(';');
+        const exactMelting = exactMeltingStr.split(';');
+        const exactBoiling = exactBoilingStr.split(';');
+        const exactDiscoverers = exactDiscoverersStr.split(';');
+
+        // 118개 원소 기하 정렬 좌표 맵 구성 (IUPAC 정밀 배치)
+        function getGridCoords(num) {
+            // 1주기
+            if (num === 1) return { col: 1, row: 1, cat: 'reactive-nonmetal' };
+            if (num === 2) return { col: 18, row: 1, cat: 'noble-gas' };
+
+            // 2주기
+            if (num >= 3 && num <= 4) return { col: num - 2, row: 2, cat: num === 3 ? 'alkali-metal' : 'alkaline-earth' };
+            if (num >= 5 && num <= 10) {
+                let cat = 'reactive-nonmetal';
+                if (num === 5) cat = 'metalloid';
+                if (num === 9) cat = 'reactive-nonmetal'; 
+                if (num === 10) cat = 'noble-gas';
+                return { col: num + 8, row: 2, cat: cat };
+            }
+
+            // 3주기
+            if (num >= 11 && num <= 12) return { col: num - 10, row: 3, cat: num === 11 ? 'alkali-metal' : 'alkaline-earth' };
+            if (num >= 13 && num <= 18) {
+                let cat = 'reactive-nonmetal';
+                if (num === 13) cat = 'post-transition-metal';
+                if (num === 14) cat = 'metalloid';
+                if (num === 17) cat = 'reactive-nonmetal';
+                if (num === 18) cat = 'noble-gas';
+                return { col: num, row: 3, cat: cat };
+            }
+
+            // 4주기
+            if (num >= 19 && num <= 36) {
+                let col = num - 18;
+                let cat = 'transition-metal';
+                if (col === 1) cat = 'alkali-metal';
+                if (col === 2) cat = 'alkaline-earth';
+                if (col === 13) cat = 'post-transition-metal';
+                if (col === 14) cat = 'metalloid';
+                if (col === 15) cat = 'metalloid'; 
+                if (col === 16) cat = 'reactive-nonmetal'; 
+                if (col === 17) cat = 'reactive-nonmetal'; 
+                if (col === 18) cat = 'noble-gas'; 
+                return { col: col, row: 4, cat: cat };
+            }
+
+            // 5주기
+            if (num >= 37 && num <= 54) {
+                let col = num - 36;
+                let cat = 'transition-metal';
+                if (col === 1) cat = 'alkali-metal';
+                if (col === 2) cat = 'alkaline-earth';
+                if (col === 13) cat = 'post-transition-metal';
+                if (col === 14) cat = 'post-transition-metal'; 
+                if (col === 15) cat = 'metalloid'; 
+                if (col === 16) cat = 'metalloid'; 
+                if (col === 17) cat = 'reactive-nonmetal'; 
+                if (col === 18) cat = 'noble-gas'; 
+                return { col: col, row: 5, cat: cat };
+            }
+
+            // 6주기 (57번 La은 6주기 3족에 배치)
+            if (num >= 55 && num <= 57) {
+                let col = num - 54;
+                let cat = 'transition-metal';
+                if (col === 1) cat = 'alkali-metal';
+                if (col === 2) cat = 'alkaline-earth';
+                if (col === 3) cat = 'lanthanide'; 
+                return { col: col, row: 6, cat: cat };
+            }
+            if (num >= 72 && num <= 86) {
+                let col = num - 68; 
+                let cat = 'transition-metal';
+                if (col === 13) cat = 'post-transition-metal'; 
+                if (col === 14) cat = 'post-transition-metal'; 
+                if (col === 15) cat = 'post-transition-metal'; 
+                if (col === 16) cat = 'post-transition-metal'; 
+                if (col === 17) cat = 'post-transition-metal'; 
+                if (col === 18) cat = 'noble-gas'; 
+                return { col: col, row: 6, cat: cat };
+            }
+
+            // 7주기 (89번 Ac는 7주기 3족에 배치)
+            if (num >= 87 && num <= 89) {
+                let col = num - 86;
+                let cat = 'transition-metal';
+                if (col === 1) cat = 'alkali-metal';
+                if (col === 2) cat = 'alkaline-earth';
+                if (col === 3) cat = 'actinide'; 
+                return { col: col, row: 7, cat: cat };
+            }
+            if (num >= 104 && num <= 118) {
+                let col = num - 100; 
+                let cat = 'transition-metal';
+                if (num >= 109) {
+                    cat = 'unknown-properties';
+                }
+                return { col: col, row: 7, cat: cat };
+            }
+
+            // 하단 분리 란타넘족 (58 - 71) Ce ~ Lu (col 3 ~ 16, row 9에 정렬 배치)
+            if (num >= 58 && num <= 71) {
+                return { col: num - 55, row: 9, cat: 'lanthanide' }; 
+            }
+
+            // 하단 분리 악티늄족 (90 - 103) Th ~ Lr (col 3 ~ 16, row 10에 정렬 배치)
+            if (num >= 90 && num <= 103) {
+                return { col: num - 87, row: 10, cat: 'actinide' }; 
+            }
+
+            return { col: 1, row: 1, cat: 'transition-metal' };
+        }
+
+        // 화학 결합 블록 구획 연산 (s, p, d, f 오비탈 판별 엔진)
+        function getElementBlock(num) {
+            if (num === 1 || num === 2) return 's';
+            if ([3, 4, 11, 12, 19, 20, 37, 38, 55, 56, 87, 88].includes(num)) return 's';
+            if (num >= 57 && num <= 71) return 'f';
+            if (num >= 89 && num <= 103) return 'f';
+            if (num >= 21 && num <= 30) return 'd';
+            if (num >= 39 && num <= 48) return 'd';
+            if (num >= 72 && num <= 80) return 'd';
+            if (num >= 104 && num <= 112) return 'd';
+            return 'p';
+        }
+
+        // 최외각 전자수 (Valence Electrons / 루이스 구조식용 핵심 엔진)
+        function getValenceElectrons(num) {
+            if ([2, 10, 18, 36, 54, 86, 118].includes(num)) {
+                return num === 2 ? 2 : 8; 
+            }
+            if ([1, 3, 11, 19, 37, 55, 87].includes(num)) return 1;
+            if ([4, 12, 20, 38, 56, 88].includes(num)) return 2;
+            if ([5, 13, 31, 49, 81, 113].includes(num)) return 3;
+            if ([6, 14, 32, 50, 82, 114].includes(num)) return 4;
+            if ([7, 15, 33, 51, 83, 115].includes(num)) return 5;
+            if ([8, 16, 34, 52, 84, 116].includes(num)) return 6;
+            if ([9, 17, 35, 53, 85, 117].includes(num)) return 7;
+            return 2;
+        }
+
+        // 고성능 다국어 상세 설명 및 동위원소 데이터셋 사전
+        const customElements = [
+            {
+                number: 1,
+                descKo: "우주에서 가장 가볍고 가장 많이 존재하는 비금속 원소입니다. 높은 에너지를 방출하며 연소 후 물만 남겨 미래 청정 환경 에너지 산업의 핵심입니다.",
+                descEn: "The lightest and most abundant chemical element in the universe. Highly flammable, it burns cleanly to form water, making it the core of next-gen green energy.",
+                storyKo: "1766년 영국의 화학자 헨리 캐번디시가 금속과 산의 반응에서 최초 분리했습니다. 이후 안투안 라부아지에가 그리스어 'hydro'(물)와 'genes'(생성하다)를 조합해 명명했습니다.",
+                storyEn: "Isolated in 1766 by Henry Cavendish. Antoine Lavoisier named it from Greek 'hydro' and 'genes', showing that it reacts with oxygen to form water.",
+                isotopes: [
+                    { mass: "1", symbol: "H", ratio: "99.985%" },
+                    { mass: "2", symbol: "H", ratio: "0.015%" }
+                ]
+            },
+            {
+                number: 2,
+                descKo: "화학 반응성이 전혀 없는 우주에서 두 번째로 풍부한 비활성 가스입니다. 초저온 냉각 장비와 공중 부양 가스로 다양하게 활용됩니다.",
+                descEn: "The second lightest and second most abundant element. It is a completely stable noble gas used in cryogenics, superconducting magnet cooling, and lifting.",
+                storyKo: "1868년 개기일식 관측 중 피에르 장센과 노먼 로키어가 태양 스펙트럼에서 발견했습니다. 그리스 태양신 'Helios'에서 착안해 헬륨이라 불리게 되었습니다.",
+                storyEn: "Discovered in 1868 by Pierre Janssen and Norman Lockyer in the solar spectrum. Named after 'Helios', the Greek god of the Sun.",
+                isotopes: [
+                    { mass: "3", symbol: "He", ratio: "0.0001%" },
+                    { mass: "4", symbol: "He", ratio: "99.999%" }
+                ]
+            },
+            {
+                number: 3,
+                descKo: "밀도가 매우 낮아 물에 뜨는 가장 가벼운 고체 알칼리 금속입니다. 현대 이차전지(리튬 이온 배터리)와 전기 전자기기의 필수 핵심 원소입니다.",
+                descEn: "The lightest of all solid metals, boasting an extremely low density. It is the critical anode material for modern lithium-ion batteries and smart devices.",
+                storyKo: "1817년 스웨덴의 요한 아우구스트 아르프베드손이 엽석광 분석 도중 발견했습니다. 최초로 식물이 아닌 광석(돌)에서 분리해냈기 때문에 그리스어 'lithos'(돌)에서 명명되었습니다.",
+                storyEn: "Isolated in 1817 by Johan August Arfwedson. Unlike other alkali metals extracted from plants, it was found in solid minerals, hence named after Greek 'lithos' (stone).",
+                isotopes: [
+                    { mass: "6", symbol: "Li", ratio: "7.59%" },
+                    { mass: "7", symbol: "Li", ratio: "92.41%" }
+                ]
+            },
+            {
+                number: 4,
+                descKo: "강도가 극도로 높고 탄성과 전도성이 훌륭한 고기능 희귀 알칼리 토금속입니다. 우주항공 장비 및 반사경(제임스 웹 망원경 등)에 주로 활용됩니다.",
+                descEn: "A rare, alkaline earth metal with an exceptionally high strength-to-weight ratio. Highly valued in aerospace engineering and James Webb Space Telescope mirrors.",
+                storyKo: "1798년 프랑스의 보클랭이 녹주석(Beryl)의 분석 도중 분리해냈습니다. 단맛을 내는 고유의 염 성분 때문에 초기에는 '글루시늄'이라고도 불렸습니다.",
+                storyEn: "Discovered in 1798 by Louis Nicolas Vauquelin within emerald and beryl ores. Due to its sweet-tasting salts, it was initially referred to as 'glucinium'.",
+                isotopes: [
+                    { mass: "9", symbol: "Be", ratio: "100%" }
+                ]
+            },
+            {
+                number: 5,
+                descKo: "내열성이 탁월한 초고강도의 준금속 원소입니다. 반도체 미세 공정의 P형 도핑 물질이며, 고기능 강화 내열 유리의 주재료입니다.",
+                descEn: "A high-strength, lightweight metalloid used as a P-type dopant in semiconductor fabrication. Essential in high-temperature borosilicate glass.",
+                storyKo: "1808년 게이뤼삭, 테나르, 데이비가 독립적으로 환원 추출에 성공했습니다. 페르시아어 'burah'(흰색 백반)에서 어원이 유래했습니다.",
+                storyEn: "Isolated in 1808 independently by Gay-Lussac and Thénard, and by Humphry Davy. Derived from 'borax', a mineral named after Persian 'burah'.",
+                isotopes: [
+                    { mass: "10", symbol: "B", ratio: "19.9%" },
+                    { mass: "11", symbol: "B", ratio: "80.1%" }
+                ]
+            },
+            {
+                number: 6,
+                descKo: "지구상 모든 유기체 생물 구성의 뼈대가 되는 원소입니다. 다이아몬드, 그래핀, 탄소 나노튜브(CNT) 등 극단적인 나노 첨단 신소재 산업의 근간입니다.",
+                descEn: "The fundamental building block of all organic life on Earth. Its allotropes like graphene and carbon nanotubes drive pioneering aerospace and battery research.",
+                storyKo: "선사시대부터 숯과 그을음 형태로 이용되어 왔습니다. 라틴어로 숯을 의미하는 'carbo'에서 명명되었으며, 1772년 라부아지에가 화학적 원소임을 입증했습니다.",
+                storyEn: "Known since antiquity in forms of charcoal and soot. Named from Latin 'carbo' (coal), Antoine Lavoisier proved its elemental nature in 1772.",
+                isotopes: [
+                    { mass: "12", symbol: "C", ratio: "98.93%" },
+                    { mass: "13", symbol: "C", ratio: "1.07%" }
+                ]
+            },
+            {
+                number: 7,
+                descKo: "대기 성분의 약 78%를 차지하는 비활성 가스 원소입니다. 반도체 디스플레이 퍼지 가스 및 초저온 액체 냉각 공정에 널리 필수적으로 쓰입니다.",
+                descEn: "An inert gas making up about 78% of Earth's atmosphere. Crucial in high-tech manufacturing to create pure inert environments and for cryogenic cooling.",
+                storyKo: "1772년 대니얼 러더퍼드가 유독가스로 처음 보고했습니다. 초석(Nitre)을 생성하는 성질에서 그리스어 'nitron'과 'genes'를 조합해 명명되었습니다.",
+                storyEn: "Isolated in 1772 by Daniel Rutherford. Named from Greek 'nitron' (nitre) and 'genes' (born) due to its presence in potassium nitrate.",
+                isotopes: [
+                    { mass: "14", symbol: "N", ratio: "99.63%" },
+                    { mass: "15", symbol: "N", ratio: "0.37%" }
+                ]
+            },
+            {
+                number: 8,
+                descKo: "지구상의 거의 모든 생물 호흡에 반드시 필요한 핵심 생명 원소입니다. 강력한 산화 성질로 산화막 형성, 철강 야금, 우주선 고출력 추진 연료로 쓰입니다.",
+                descEn: "An essential element for respiration and life on Earth. Highly reactive, it is used as an oxidant in rocket propulsion, steel refining, and oxide layering.",
+                storyKo: "1771년 셸레와 1774년 프리스틀리가 각각 산소 기체 분리에 성공했습니다. 라부아지에가 당시 모든 산성 화합물에 포함되어 있다고 오인해 산소라 불렀습니다.",
+                storyEn: "First produced by Scheele in 1771 and published by Priestley in 1774. Antoine Lavoisier named it from Greek 'oxys' (acid) and 'genes' (born).",
+                isotopes: [
+                    { mass: "16", symbol: "O", ratio: "99.76%" },
+                    { mass: "17", symbol: "O", ratio: "0.04%" },
+                    { mass: "18", symbol: "O", ratio: "0.20%" }
+                ]
+            },
+            {
+                number: 9,
+                descKo: "전체 화학 원소 중 반응성과 산화력이 압도적으로 가장 높은 할로겐 가스입니다. 초미세 반도체 디스플레이 건식 식각 가스로 대체불가한 자원입니다.",
+                descEn: "The most electronegative and reactive of all elements. It is highly valued as an etching gas in semiconductor fabrication and in high-durability Teflon.",
+                storyKo: "광석 제련 중 찌꺼기를 녹여 잘 흐르게 하던 형석(Fluorite) 광석에서 유래했습니다. 형석을 흐르게 한다는 라틴어 'fluere'에서 왔습니다.",
+                storyEn: "Derived from its occurrence in the mineral 'fluorite', named from Latin 'fluere' (to flow).",
+                isotopes: [
+                    { mass: "19", symbol: "F", ratio: "100%" }
+                ]
+            },
+            {
+                number: 10,
+                descKo: "낮은 압력에서 전기가 방전될 때 환상적인 붉은빛을 방출하는 가스입니다. 고휘도 네온사인 조명 및 정밀 엑시머 레이저(반도체 노광용)에 쓰입니다.",
+                descEn: "A noble gas emitting a bright reddish-orange light when discharged. Heavily utilized in advanced excimer lithography lasers and high-visibility displays.",
+                storyKo: "1898년 윌리엄 램지와 모리스 트래버스가 액체 공기 분류로 발견했습니다. 새로운 기체라는 의미의 그리스어 'neos'에서 네온이라 불립니다.",
+                storyEn: "Discovered in 1898 by William Ramsay and Morris Travers. Named from the Greek word for new, 'neos'.",
+                isotopes: [
+                    { mass: "20", symbol: "Ne", ratio: "90.48%" },
+                    { mass: "21", symbol: "Ne", ratio: "0.27%" },
+                    { mass: "22", symbol: "Ne", ratio: "9.25%" }
+                ]
+            },
+            {
+                number: 11,
+                descKo: "반응성이 극도로 높아 물과 접촉 시 격렬히 폭발하는 은백색 알칼리 금속입니다. 소금의 주성분이며 생체 전해질 균형의 핵입니다.",
+                descEn: "A soft, silvery-white, highly reactive alkali metal that reacts violently with water. Essential for nerve impulse transmission and electrolyte balance.",
+                storyKo: "1807년 험프리 데이비가 수산화나트륨을 전기분해하여 분리했습니다. Na 기호는 라틴어 'natrium'에서 유래했습니다.",
+                storyEn: "Isolated in 1807 by Humphry Davy via electrolysis of sodium hydroxide. Chemical symbol 'Na' is from Latin 'natrium'.",
+                isotopes: [
+                    { mass: "23", symbol: "Na", ratio: "100%" }
+                ]
+            },
+            {
+                number: 12,
+                descKo: "가볍고 단단하며 은백색 광택을 지닌 고기능 알칼리 토금속입니다. 엽록소 분자의 핵심 원소이자 경량 고강도 모빌리티 합금의 심장입니다.",
+                descEn: "A lightweight, silvery-white, structural alkaline earth metal. The central coordinator in chlorophyll and highly vital for high-strength, lightweight alloys.",
+                storyKo: "1808년 험프리 데이비가 전기분해로 최초 분리했습니다. 독특한 광석이 풍부히 생산되던 그리스의 마그네시아 지방 이름에서 착안되었습니다.",
+                storyEn: "First isolated in 1808 by Humphry Davy. Named after Magnesia, a district of Thessaly in Greece rich in magnetic and magnesium ores.",
+                isotopes: [
+                    { mass: "24", symbol: "Mg", ratio: "78.99%" },
+                    { mass: "25", symbol: "Mg", ratio: "10.00%" },
+                    { mass: "26", symbol: "Mg", ratio: "11.01%" }
+                ]
+            },
+            {
+                number: 13,
+                descKo: "가볍고 부식에 우수하며 전도성이 뛰어난 금속입니다. 은백색의 미려한 외관을 자랑하며 항공 소재부터 캔까지 우리 삶에 가장 깊게 밀착된 핵심 자원입니다.",
+                descEn: "A lightweight, highly corrosion-resistant post-transition metal. The most abundant metal in Earth's crust, crucial for aerospace, power cables, and structures.",
+                storyKo: "1825년 한스 크리스티안 외르스테드가 백반에서 최초 분리했습니다. 라틴어로 명반을 의미하는 'alumen'에서 명칭이 정립되었습니다.",
+                storyEn: "First isolated in 1825 by Hans Christian Ørsted. The name is derived from 'alumen', the Latin word for alum mineral compounds.",
+                isotopes: [
+                    { mass: "27", symbol: "Al", ratio: "100%" }
+                ]
+            },
+            {
+                number: 14,
+                descKo: "지구 지각의 상당부분을 구성하는 준금속 원소입니다. 초고순도 정밀 집적 회로 기판의 주원료이며 인류 디지털 스마트 문명의 실질적인 뇌 세포입니다.",
+                descEn: "The silicon metalloid is the fundamental backbone of the modern semiconductor industry. Crucial for solar cells, integrated microchips, and optical glass.",
+                storyKo: "1823년 베르셀리우스가 순수한 규소 분리에 성공했습니다. 단단한 광석인 부싯돌을 뜻하는 라틴어 'silex'가 규소를 뜻하는 실리콘의 모태가 되었습니다.",
+                storyEn: "First isolated in 1823 by Jöns Jacob Berzelius. The name originates from 'silex', the Latin word for flint or hard silicate stone.",
+                isotopes: [
+                    { mass: "28", symbol: "Si", ratio: "92.23%" },
+                    { mass: "29", symbol: "Si", ratio: "4.67%" },
+                    { mass: "30", symbol: "Si", ratio: "3.10%" }
+                ]
+            },
+            {
+                number: 26,
+                descKo: "인류 문명 발전과 산업 혁명의 대동맥이 되어 준 가장 흔하고 견고한 전이 금속 원소입니다. 헤모글로빈 중심핵에서 혈중 산소 운반을 책임집니다.",
+                descEn: "The most common and robust transition metal forming the backbone of human infrastructure. It carries life-giving oxygen in blood at the center of hemoglobin.",
+                storyKo: "선사시대부터 제련되어 사용된 원소입니다. 기호 'Fe'는 라틴어 'Ferrum'(철)에서 유래되었습니다.",
+                storyEn: "Used since antiquity. Early iron tools were forged directly from heavy iron-nickel meteorites. Its chemical symbol 'Fe' is derived from Latin 'Ferrum'.",
+                isotopes: [
+                    { mass: "54", symbol: "Fe", ratio: "5.85%" },
+                    { mass: "56", symbol: "Fe", ratio: "91.75%" },
+                    { mass: "57", symbol: "Fe", ratio: "2.12%" }
+                ]
+            },
+            {
+                number: 29,
+                descKo: "인류가 최초로 활용한 은은한 붉은 광택의 전도성 금속입니다. 부식에 견디며 저항이 낮아 글로벌 전기 선로와 전자기기 인쇄회로의 핵심입니다.",
+                descEn: "A highly ductile and conductive reddish transition metal. Boasting incredibly low electrical resistance, it is the world standard for electrical wiring.",
+                storyKo: "고대 주산지인 지중해 키프로스(Cyprus) 섬에서 이름을 인용하여 라틴어 'Cuprum'이 명명되었고 이것이 구리를 가리키는 원소 기호 Cu가 되었습니다.",
+                storyEn: "Known since B.C. 9000. Its name and symbol 'Cu' are derived from Latin 'cuprum', which comes from Cyprus.",
+                isotopes: [
+                    { mass: "63", symbol: "Cu", ratio: "69.17%" },
+                    { mass: "65", symbol: "Cu", ratio: "30.83%" }
+                ]
+            },
+            {
+                number: 47,
+                descKo: "아름다운 백색 광택과 우수한 열, 전기 전도성을 지닌 귀금속 전이 금속입니다. 고순도 은막 반사 거울, 접점 전자기 부품에 다방면 활용됩니다.",
+                descEn: "A shiny white transition metal with the highest electrical and thermal conductivity of any metal. Essential for solar grids, high-end electronics, and mirrors.",
+                storyKo: "선사시대부터 인류와 함께해 온 금속입니다. 기호 Ag는 라틴어 'Argentum'(하얗게 빛나는 물질)에서 유래했습니다.",
+                storyEn: "Utilized since antiquity. Its symbol 'Ag' is inherited from the Latin word 'argentum', which translates to shiny, bright, or silver-white.",
+                isotopes: [
+                    { mass: "107", symbol: "Ag", ratio: "51.839%" },
+                    { mass: "109", symbol: "Ag", ratio: "48.161%" }
+                ]
+            },
+            {
+                number: 78,
+                descKo: "비반응성 및 고융점 내열성을 자랑하는 최고급 천연 은백색 귀금속입니다. 친환경 자동차 촉매, 영구적 보석, 암 치료 정밀 화학 분야에 필수입니다.",
+                descEn: "An extremely rare, highly unreactive precious transition metal. Highly valued for automotive catalytic converters, luxury jewelry, and chemotherapy.",
+                storyKo: "1735년 우요아가 보고하였습니다. 스페인어 'Platina'(작은 은)라는 멸칭에서 백금이라는 기품 있는 원소 명칭이 탄생했습니다.",
+                storyEn: "Discovered by Antonio de Ulloa in 1735. The Spanish conquerors mockingly named it 'platina' (little silver).",
+                isotopes: [
+                    { mass: "194", symbol: "Pt", ratio: "32.967%" },
+                    { mass: "195", symbol: "Pt", ratio: "33.782%" }
+                ]
+            },
+            {
+                number: 79,
+                descKo: "어떠한 환경에서도 완벽한 무반응과 불멸의 황금빛 광택을 내뿜는 최고급 귀금속입니다. 반도체 패키징 골드 와이어 접점재로 대체가 불가합니다.",
+                descEn: "The ultimate precious metal, completely immune to oxidation and corrosion. Celebrated for its malleability and flawless connectivity in microchips.",
+                storyKo: "새벽의 여명과 태양의 햇빛을 가리키는 고상한 라틴어 'Aurum'에서 원소기호 'Au'가 유래되었으며 오랜 부와 신분의 상징이었습니다.",
+                storyEn: "Known since antiquity. The chemical symbol 'Au' comes from the Latin 'Aurum', translating directly to 'shining dawn'.",
+                isotopes: [
+                    { mass: "197", symbol: "Au", ratio: "100%" }
+                ]
+            },
+            {
+                number: 80,
+                descKo: "금속 원소 중 상온(실온) 상태에서 오직 유일하게 액체 구조로 머무는 아주 특이한 전이 금속입니다. 높은 비중과 독창적인 물성으로 가득합니다.",
+                descEn: "The only metallic element that remains liquid at standard room temperature. Possessing extreme density and thermal expansion, its toxic fumes are hazardous.",
+                storyKo: "고대 무덤 보존 용액 등으로 오랜 역사를 자랑합니다. 원소 기호인 'Hg'는 물과 같은 액체 은을 가리키는 그리스어 'Hydrargyrum'에서 추출되었습니다.",
+                storyEn: "Used in ancient Egyptian tomb preserves. Symbol 'Hg' is from Greek 'hydrargyrum' (liquid silver). Commonly known as quicksilver.",
+                isotopes: [
+                    { mass: "202", symbol: "Hg", ratio: "29.86%" }
+                ]
+            },
+            {
+                number: 82,
+                descKo: "밀도가 매우 높고 가공성이 뛰어난 회백색의 연성 포스트 전이 금속입니다. 방사선을 가로막는 성질이 우수하여 차폐 의복 및 특수 전지에 활용됩니다.",
+                descEn: "A heavy, dense, malleable post-transition metal. Widely utilized in lead-acid batteries and as a robust shield against dangerous X-rays and gamma radiation.",
+                storyKo: "고대 로마 하수도 수도관으로 쓰였습니다. 라틴어로 납 덩어리를 의미하던 'Plumbum'에서 기호 Pb가 유래했으며, 영단어 배관(Plumbing)의 어원이기도 합니다.",
+                storyEn: "Known since B.C. 3000. Its symbol 'Pb' originates from Latin 'Plumbum' (heavy stone), which is also the etymological root for 'plumber' and 'plumbing'.",
+                isotopes: [
+                    { mass: "206", symbol: "Pb", ratio: "24.1%" },
+                    { mass: "207", symbol: "Pb", ratio: "22.1%" },
+                    { mass: "208", symbol: "Pb", ratio: "52.4%" }
+                ]
+            },
+            {
+                number: 92,
+                descKo: "가장 질량이 무겁고 밀도가 높은 천연 방사성 악티늄족 원소입니다. 원자로 연쇄 핵분열 반응을 주도하여 청정 저탄소 고밀도 전력을 생산해냅니다.",
+                descEn: "The heaviest naturally occurring element. A dense, radioactive actinide that undergoes sustained nuclear fission, releasing enormous energy for power grids.",
+                storyKo: "1789년 독일 화학자 마틴 클라프로트가 발견했습니다. 태양계 7번째 행성인 천왕성(Uranus)의 발견을 기념하고 경외하여 우라늄이라 명명했습니다.",
+                storyEn: "Discovered in 1789 by Martin Heinrich Klaproth in pitchblende ore. He named the newly identified metal uranium in honor of the planet Uranus.",
+                isotopes: [
+                    { mass: "235", symbol: "U", ratio: "0.72%" },
+                    { mass: "238", symbol: "U", ratio: "99.27%" }
+                ]
+            }
+        ];
+
+        const fullElements = [];
+
+        // 118개 화학 사전 루프 빌더 (메모리 최적화 및 100% 무결점 정밀 제어 통합)
+        for (let i = 1; i <= 118; i++) {
+            const predefined = customElements.find(e => e.number === i);
+            const info = getGridCoords(i);
+            const sym = basicSymbols[i - 1];
+            const ko = basicKoNames[i - 1];
+            
+            const mass = exactMasses[i - 1];
+            const shells = exactShells[i - 1];
+            const conf = exactConfs[i - 1];
+            const phase = exactPhases[i - 1];
+            const melting = exactMelting[i - 1];
+            const boiling = exactBoiling[i - 1];
+            const disc = exactDiscoverers[i - 1];
+
+            if (predefined) {
+                predefined.col = info.col;
+                predefined.row = info.row;
+                predefined.symbol = sym;
+                predefined.koName = ko;
+                predefined.enName = enNames[i - 1];
+                predefined.mass = mass;
+                predefined.shells = shells;
+                predefined.conf = conf;
+                predefined.phase = phase;
+                predefined.melting = melting;
+                predefined.boiling = boiling;
+                predefined.disc = disc;
+                predefined.class = info.cat;
+                fullElements.push(predefined);
+            } else {
+                fullElements.push({
+                    number: i,
+                    symbol: sym,
+                    koName: ko,
+                    enName: enNames[i - 1],
+                    mass: mass,
+                    col: info.col,
+                    row: info.row,
+                    class: info.cat,
+                    phase: phase,
+                    shells: shells,
+                    conf: conf,
+                    melting: melting,
+                    boiling: boiling,
+                    disc: disc,
+                    descKo: `${ko}(${sym})은 원자번호 ${i}번의 원소이며, 계열은 ${getCategoryKorean(info.cat)}입니다. 실온 상태에서는 ${getPhaseTranslated(phase, 'ko')}입니다.`,
+                    descEn: `${enNames[i - 1]} (${sym}) is a chemical element with atomic number ${i}, belonging to the ${getCategoryEnglish(info.cat)} category. Its standard state is ${getPhaseTranslated(phase, 'en')}.`,
+                    storyKo: `${ko}은 화학 주기율표 체계의 원자번호 ${i}번에 해당하며, ${disc}에 의해 발견되었습니다. 고유의 전자 배치 ${conf}를 지니며 학술적으로 매우 가치있습니다.`,
+                    storyEn: `${enNames[i - 1]} is located at atomic number ${i} in the periodic table. It has the electron configuration ${conf} and was identified by ${disc}.`,
+                    isotopes: [
+                        { mass: Math.round(parseFloat(mass)).toString(), symbol: sym, ratio: ">99%" }
+                    ]
+                });
+            }
+        }
+
+        // --- GLOBAL APP STATES ---
+        let currentLang = 'en'; 
+        let selectedElement = fullElements[0]; // 수소(H)를 초기 선택 원소로 로드
+        let currentModelMode = 'bohr'; // 모델 제어 상태: 'bohr', 'schrodinger', 'orbital', 'lewis'
+        let currentViewMode = 'standard'; // 테이블 레이아웃 모드: 'standard' (일반) 또는 'lewis' (전자점표)
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        // --- WEB AUDIO API (인터랙션 효과음 발전기) ---
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playBeep(freq = 440, type = 'sine', duration = 0.08, volume = 0.04) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.warn("Audio initiation blocked by browser policy.");
+            }
+        }
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            updateSoundToggleButton();
+            playBeep(soundEnabled ? 650 : 350, 'triangle', 0.1, 0.06);
+        });
+
+        function updateSoundToggleButton() {
+            const btn = document.getElementById('soundToggle');
+            if (soundEnabled) {
+                btn.className = "px-3 py-1 bg-brandGreen/10 hover:bg-brandGreen/20 text-brandGreen rounded-full font-bold transition-all duration-150";
+                btn.innerHTML = `<i class="fa-solid fa-volume-high mr-1"></i>${i18n[currentLang].on}`;
+            } else {
+                btn.className = "px-3 py-1 bg-neutral-200 hover:bg-neutral-300 text-neutral-500 rounded-full font-bold transition-all duration-150";
+                btn.innerHTML = `<i class="fa-solid fa-volume-xmark mr-1"></i>${i18n[currentLang].off}`;
+            }
+        }
+
+        // --- BOHR / SCHRÖDINGER / ORBITAL / LEWIS MODEL JAVASCRIPT RENDERER ---
+        const bohrCanvas = document.getElementById('bohrCanvas');
+        const ctxBohr = bohrCanvas.getContext('2d');
+        let bohrAnimationId = null;
+        let currentBohrShells = [1];
+
+        // 과학적으로 완전히 정확한 전자 껍질별 순환 경로 렌더러
+        function drawBohrModel() {
+            ctxBohr.clearRect(0, 0, bohrCanvas.width, bohrCanvas.height);
+            const cx = bohrCanvas.width / 2;
+            const cy = bohrCanvas.height / 2;
+            const maxRadius = Math.min(cx, cy) - 10;
+            const time = Date.now() * 0.001;
+
+            if (currentModelMode === 'bohr') {
+                document.getElementById('bohrCenter').style.opacity = '1';
+                document.getElementById('bohrCenter').style.transform = 'scale(1)';
+                
+                const numShells = currentBohrShells.length;
+                currentBohrShells.forEach((electrons, index) => {
+                    const radius = ((index + 1) / numShells) * maxRadius;
+                    
+                    // 전자 오빗 고정 궤도 묘사
+                    ctxBohr.beginPath();
+                    ctxBohr.arc(cx, cy, radius, 0, Math.PI * 2);
+                    ctxBohr.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+                    ctxBohr.lineWidth = 1;
+                    ctxBohr.stroke();
+
+                    // 순환 주기를 도는 실시간 입자적 전자 파티클 구현
+                    for (let j = 0; j < electrons; j++) {
+                        const baseAngle = (j / electrons) * Math.PI * 2;
+                        const speed = 2.4 / (index + 1);
+                        const angle = baseAngle + time * speed;
+                        
+                        const ex = cx + radius * Math.cos(angle);
+                        const ey = cy + radius * Math.sin(angle);
+
+                        ctxBohr.beginPath();
+                        ctxBohr.arc(ex, ey, 4.5, 0, Math.PI * 2);
+                        ctxBohr.fillStyle = '#34a853'; 
+                        ctxBohr.shadowColor = 'rgba(52, 168, 83, 0.4)';
+                        ctxBohr.shadowBlur = 4;
+                        ctxBohr.fill();
+                        ctxBohr.shadowBlur = 0; 
+                    }
+                });
+            } 
+            else if (currentModelMode === 'schrodinger') {
+                document.getElementById('bohrCenter').style.opacity = '0.35';
+                document.getElementById('bohrCenter').style.transform = 'scale(0.9)';
+
+                const numShells = currentBohrShells.length;
+                currentBohrShells.forEach((electrons, index) => {
+                    const radius = ((index + 1) / numShells) * maxRadius;
+                    
+                    // 불확정성 원리에 입각한 미세 고조파 파동 수치 가미
+                    const waveFactor = 1 + 0.07 * Math.sin(time * 2.5 + index);
+                    const shellRadius = radius * waveFactor;
+                    
+                    // 전자가 발견될 수 있는 통계학적 확률 분포(Gaussian Noise)를 실시간 난수로 생성 연산
+                    const dotCount = 80 + electrons * 14;
+                    ctxBohr.fillStyle = 'rgba(52, 168, 83, 0.16)'; 
+                    
+                    for (let d = 0; d < dotCount; d++) {
+                        const u1 = Math.random() || 0.0001;
+                        const u2 = Math.random() || 0.0001;
+                        const normalRand = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+                        
+                        const spreadWidth = 10 + index * 4;
+                        const r = shellRadius + normalRand * spreadWidth;
+                        const angle = (d / dotCount) * Math.PI * 2 + Math.sin(d * 0.5 + time * 0.15) * 0.15;
+                        
+                        const dx = cx + r * Math.cos(angle);
+                        const dy = cy + r * Math.sin(angle);
+                        
+                        ctxBohr.beginPath();
+                        ctxBohr.arc(dx, dy, 1.2 + Math.random() * 1.5, 0, Math.PI * 2);
+                        ctxBohr.fill();
+                    }
+                });
+            } 
+            else if (currentModelMode === 'orbital') {
+                document.getElementById('bohrCenter').style.opacity = '0';
+                
+                const block = getElementBlock(selectedElement.number);
+                const rotX = time * 0.55;
+                const rotY = time * 0.75;
+                
+                // 3차원 좌표계 회전 변환 프로젝션 헬퍼 함수
+                function project3D(x, y, z) {
+                    let cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+                    let x1 = x * cosY - z * sinY;
+                    let z1 = x * sinY + z * cosY;
+                    
+                    let cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+                    let y2 = y * cosX - z1 * sinX;
+                    let z2 = y * sinX + z1 * cosX;
+                    
+                    return {
+                        x: cx + x1 * (1 + z2 * 0.0012),
+                        y: cy + y2 * (1 + z2 * 0.0012),
+                        z: z2
+                    };
+                }
+
+                if (block === 's') {
+                    const grad = ctxBohr.createRadialGradient(cx, cy, 2, cx, cy, maxRadius * 0.65);
+                    grad.addColorStop(0, 'rgba(0, 180, 216, 0.85)');
+                    grad.addColorStop(0.4, 'rgba(0, 180, 216, 0.45)');
+                    grad.addColorStop(1, 'rgba(0, 180, 216, 0)');
+                    
+                    ctxBohr.beginPath();
+                    ctxBohr.arc(cx, cy, maxRadius * 0.65, 0, Math.PI * 2);
+                    ctxBohr.fillStyle = grad;
+                    ctxBohr.fill();
+                    
+                    ctxBohr.beginPath();
+                    ctxBohr.arc(cx, cy, maxRadius * 0.65 * (1 + 0.04 * Math.sin(time * 3)), 0, Math.PI * 2);
+                    ctxBohr.strokeStyle = 'rgba(0, 180, 216, 0.35)';
+                    ctxBohr.lineWidth = 1.5;
+                    ctxBohr.stroke();
+                } 
+                else if (block === 'p') {
+                    const lobes = [
+                        { dx: 0, dy: 0, dz: 40, color: 'rgba(0, 180, 216, 0.8)' },  
+                        { dx: 0, dy: 0, dz: -40, color: 'rgba(234, 67, 53, 0.8)' }   
+                    ];
+                    
+                    const sorted = lobes.map(l => {
+                        return { pt: project3D(l.dx, l.dy, l.dz), color: l.color, size: 26 };
+                    }).sort((a, b) => a.pt.z - b.pt.z);
+                    
+                    sorted.forEach(l => {
+                        const grad = ctxBohr.createRadialGradient(l.pt.x, l.pt.y, 1, l.pt.x, l.pt.y, l.size);
+                        grad.addColorStop(0, l.color);
+                        grad.addColorStop(0.6, l.color.replace('0.8', '0.25'));
+                        grad.addColorStop(1, 'rgba(0,0,0,0)');
+                        
+                        ctxBohr.beginPath();
+                        ctxBohr.arc(l.pt.x, l.pt.y, l.size, 0, Math.PI * 2);
+                        ctxBohr.fillStyle = grad;
+                        ctxBohr.fill();
+                    });
+                } 
+                else if (block === 'd') {
+                    const lobes = [
+                        { dx: 30, dy: 30, dz: 0, color: 'rgba(0, 180, 216, 0.75)' },
+                        { dx: -30, dy: -30, dz: 0, color: 'rgba(0, 180, 216, 0.75)' },
+                        { dx: -30, dy: 30, dz: 0, color: 'rgba(234, 67, 53, 0.75)' },
+                        { dx: 30, dy: -30, dz: 0, color: 'rgba(234, 67, 53, 0.75)' }
+                    ];
+                    
+                    const sorted = lobes.map(l => {
+                        return { pt: project3D(l.dx, l.dy, l.dz), color: l.color, size: 20 };
+                    }).sort((a, b) => a.pt.z - b.pt.z);
+                    
+                    sorted.forEach(l => {
+                        const grad = ctxBohr.createRadialGradient(l.pt.x, l.pt.y, 1, l.pt.x, l.pt.y, l.size);
+                        grad.addColorStop(0, l.color);
+                        grad.addColorStop(0.6, l.color.replace('0.75', '0.22'));
+                        grad.addColorStop(1, 'rgba(0,0,0,0)');
+                        
+                        ctxBohr.beginPath();
+                        ctxBohr.arc(l.pt.x, l.pt.y, l.size, 0, Math.PI * 2);
+                        ctxBohr.fillStyle = grad;
+                        ctxBohr.fill();
+                    });
+                } 
+                else if (block === 'f') {
+                    const lobes = [];
+                    for (let i = 0; i < 6; i++) {
+                        const theta = (i / 6) * Math.PI * 2;
+                        const col = i % 2 === 0 ? 'rgba(0, 180, 216, 0.72)' : 'rgba(234, 67, 53, 0.72)';
+                        lobes.push({
+                            dx: Math.cos(theta) * 35,
+                            dy: Math.sin(theta) * 35,
+                            dz: (i % 2 === 0 ? 12 : -15),
+                            color: col
+                        });
+                    }
+                    
+                    const sorted = lobes.map(l => {
+                        return { pt: project3D(l.dx, l.dy, l.dz), color: l.color, size: 15 };
+                    }).sort((a, b) => a.pt.z - b.pt.z);
+                    
+                    sorted.forEach(l => {
+                        const grad = ctxBohr.createRadialGradient(l.pt.x, l.pt.y, 1, l.pt.x, l.pt.y, l.size);
+                        grad.addColorStop(0, l.color);
+                        grad.addColorStop(0.6, l.color.replace('0.72', '0.22'));
+                        grad.addColorStop(1, 'rgba(0,0,0,0)');
+                        
+                        ctxBohr.beginPath();
+                        ctxBohr.arc(l.pt.x, l.pt.y, l.size, 0, Math.PI * 2);
+                        ctxBohr.fillStyle = grad;
+                        ctxBohr.fill();
+                    });
+                }
+            }
+            else if (currentModelMode === 'lewis') {
+                document.getElementById('bohrCenter').style.opacity = '0'; 
+                
+                const symbol = selectedElement.symbol;
+                const valence = getValenceElectrons(selectedElement.number);
+
+                // 원소기호 대형 렌더링
+                ctxBohr.font = '900 48px "Outfit", "Google Sans", sans-serif';
+                ctxBohr.fillStyle = '#202124';
+                ctxBohr.textAlign = 'center';
+                ctxBohr.textBaseline = 'middle';
+                ctxBohr.fillText(symbol, cx, cy);
+
+                // 전자점 점유도 연산
+                let topDots = 0, rightDots = 0, bottomDots = 0, leftDots = 0;
+                if (valence >= 1) topDots++;
+                if (valence >= 2) rightDots++;
+                if (valence >= 3) bottomDots++;
+                if (valence >= 4) leftDots++;
+                if (valence >= 5) topDots++;
+                if (valence >= 6) rightDots++;
+                if (valence >= 7) bottomDots++;
+                if (valence >= 8) leftDots++;
+
+                const pulse = 1 + 0.05 * Math.sin(time * 5);
+                const dist = 38 * pulse; 
+                const dotRadius = 5.5;
+
+                ctxBohr.fillStyle = '#009444'; 
+                ctxBohr.shadowColor = 'rgba(0, 148, 68, 0.45)';
+
+                const drawDotsOnFace = (count, xOffset, yOffset, isVertical) => {
+                    if (count === 0) return;
+                    ctxBohr.shadowBlur = 6;
+                    if (count === 1) {
+                        ctxBohr.beginPath();
+                        ctxBohr.arc(cx + xOffset, cy + yOffset, dotRadius, 0, Math.PI * 2);
+                        ctxBohr.fill();
+                    } else if (count === 2) {
+                        const spread = 9;
+                        if (isVertical) {
+                            ctxBohr.beginPath();
+                            ctxBohr.arc(cx + xOffset, cy + yOffset - spread, dotRadius, 0, Math.PI * 2);
+                            ctxBohr.arc(cx + xOffset, cy + yOffset + spread, dotRadius, 0, Math.PI * 2);
+                            ctxBohr.fill();
+                        } else {
+                            ctxBohr.beginPath();
+                            ctxBohr.arc(cx + xOffset - spread, cy + yOffset, dotRadius, 0, Math.PI * 2);
+                            ctxBohr.arc(cx + xOffset + spread, cy + yOffset, dotRadius, 0, Math.PI * 2);
+                            ctxBohr.fill();
+                        }
+                    }
+                    ctxBohr.shadowBlur = 0;
+                };
+
+                drawDotsOnFace(topDots, 0, -dist, false);
+                drawDotsOnFace(rightDots, dist, 0, true);
+                drawDotsOnFace(bottomDots, 0, dist, false);
+                drawDotsOnFace(leftDots, -dist, 0, true);
+            }
+
+            bohrAnimationId = requestAnimationFrame(drawBohrModel);
+        }
+
+        // 양자 모델 전환 핸들러
+        function selectModelMode(mode) {
+            currentModelMode = mode;
+            
+            const btnBohr = document.getElementById('btn-model-bohr');
+            const btnSch = document.getElementById('btn-model-schrodinger');
+            const btnOrb = document.getElementById('btn-model-orbital');
+            const btnLew = document.getElementById('btn-model-lewis');
+            
+            [btnBohr, btnSch, btnOrb, btnLew].forEach(btn => {
+                if (btn) btn.className = "px-2 py-1 rounded-md text-neutral-500 hover:text-neutral-800 transition-all duration-150";
+            });
+            
+            if (mode === 'bohr') {
+                btnBohr.className = "px-2 py-1 rounded-md bg-white shadow-sm text-neutral-800 font-extrabold transition-all duration-150";
+                document.getElementById('lbl-bohr-title').innerHTML = `<i class="fa-solid fa-atom mr-1.5 text-brandPurple animate-spin" style="animation-duration: 4s;"></i>${i18n[currentLang].modelBohr}`;
+            } else if (mode === 'schrodinger') {
+                btnSch.className = "px-2 py-1 rounded-md bg-white shadow-sm text-neutral-800 font-extrabold transition-all duration-150";
+                document.getElementById('lbl-bohr-title').innerHTML = `<i class="fa-solid fa-wave-square mr-1.5 text-brandGreen"></i>${i18n[currentLang].modelSchrodinger}`;
+            } else if (mode === 'orbital') {
+                btnOrb.className = "px-2 py-1 rounded-md bg-white shadow-sm text-neutral-800 font-extrabold transition-all duration-150";
+                document.getElementById('lbl-bohr-title').innerHTML = `<i class="fa-solid fa-circle-nodes mr-1.5 text-brandPurple animate-pulse"></i>${i18n[currentLang].modelOrbital}`;
+            } else if (mode === 'lewis') {
+                btnLew.className = "px-2 py-1 rounded-md bg-white shadow-sm text-neutral-800 font-extrabold transition-all duration-150";
+                document.getElementById('lbl-bohr-title').innerHTML = `<i class="fa-solid fa-cubes-stacked mr-1.5 text-brandGreen"></i>${i18n[currentLang].modelLewis}`;
+            }
+            
+            playBeep(750, 'sine', 0.05, 0.02);
+        }
+
+        // --- 원소 카드 동적 생성 템플릿 마크업 수치 규정 ---
+
+        function getStandardCardHTML(el) {
+            const name = currentLang === 'en' ? el.enName : el.koName;
+            return `
+                <div class="atomic-number self-start text-xl font-normal opacity-60 leading-none p-1.5">${el.number}</div>
+                <div class="symbol text-4xl font-normal leading-none my-auto select-none">${el.symbol}</div>
+                <div class="element-name text-xl font-normal tracking-tight leading-none truncate max-w-full pb-2 px-1" data-number="${el.number}">${name}</div>
+            `;
+        }
+
+        function getLewisCardHTML(el) {
+            const valence = getValenceElectrons(el.number);
+
+            let topDots = 0, rightDots = 0, bottomDots = 0, leftDots = 0;
+            if (valence >= 1) topDots++;
+            if (valence >= 2) rightDots++;
+            if (valence >= 3) bottomDots++;
+            if (valence >= 4) leftDots++;
+            if (valence >= 5) topDots++;
+            if (valence >= 6) rightDots++;
+            if (valence >= 7) bottomDots++;
+            if (valence >= 8) leftDots++;
+
+            // 늘어난 폰트 크기에 맞춰 전자점(Dot)의 크기와 여백도 키워줌
+            const dotSpan = '<span class="w-2 h-2 rounded-full bg-current block"></span>';
+            const leftSpans = Array(leftDots).fill(dotSpan).join('');
+            const rightSpans = Array(rightDots).fill(dotSpan).join('');
+            const topSpans = Array(topDots).fill(dotSpan).join('');
+            const bottomSpans = Array(bottomDots).fill(dotSpan).join('');
+
+            return `
+                <div class="atomic-number self-start text-xl font-normal opacity-60 leading-none p-1.5">${el.number}</div>
+                
+                <div class="relative w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <div class="absolute top-[-4px] left-1/2 -translate-x-1/2 flex space-x-1 items-center justify-center">${topSpans}</div>
+                    <div class="absolute right-[-4px] top-1/2 -translate-y-1/2 flex flex-col space-y-1 items-center justify-center">${rightSpans}</div>
+                    <div class="absolute bottom-[-4px] left-1/2 -translate-x-1/2 flex space-x-1 items-center justify-center">${bottomSpans}</div>
+                    <div class="absolute left-[-4px] top-1/2 -translate-y-1/2 flex flex-col space-y-1 items-center justify-center">${leftSpans}</div>
+                    <span class="symbol text-4xl font-normal leading-none select-none">${el.symbol}</span>
+                </div>
+            `;
+        }
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            const btnStandard = document.getElementById('btn-view-standard');
+            const btnLewis = document.getElementById('btn-view-lewis');
+
+            if (mode === 'standard') {
+                btnStandard.className = "py-1.5 rounded-md bg-white shadow-sm text-neutral-800 transition-all duration-150";
+                btnStandard.classList.add('shadow-sm');
+                btnLewis.className = "py-1.5 rounded-md text-neutral-500 hover:text-neutral-800 transition-all duration-150";
+            } else {
+                btnLewis.className = "py-1.5 rounded-md bg-white shadow-sm text-neutral-800 transition-all duration-150";
+                btnLewis.classList.add('shadow-sm');
+                btnStandard.className = "py-1.5 rounded-md text-neutral-500 hover:text-neutral-800 transition-all duration-150";
+            }
+
+            fullElements.forEach(el => {
+                const cardInner = document.querySelector(`#el-${el.number} .element-card-inner`);
+                if (cardInner) {
+                    if (mode === 'standard') {
+                        cardInner.innerHTML = getStandardCardHTML(el);
+                    } else {
+                        cardInner.innerHTML = getLewisCardHTML(el);
+                    }
+                }
+            });
+
+            playBeep(700, 'triangle', 0.08, 0.03);
+        }
+
+        // --- OPEN DETAIL DRAWER FUNCTION ---
+        function openDetailDrawer(el, triggerSound = true) {
+            selectedElement = el;
+
+            document.querySelectorAll('.element-card').forEach(card => {
+                card.classList.remove('selected-active');
+            });
+            const activeCard = document.getElementById(`el-${el.number}`);
+            if (activeCard) {
+                activeCard.classList.add('selected-active');
+            }
+
+            applyActiveFilters();
+
+            document.getElementById('detailNum').textContent = el.number;
+            document.getElementById('detailSymbol').textContent = el.symbol;
+            document.getElementById('detailMass').textContent = el.mass;
+            
+            document.getElementById('detailKoName').textContent = currentLang === 'en' ? el.enName : el.koName;
+            document.getElementById('detailEnName').textContent = el.enName;
+
+            const detailClassGlow = document.getElementById('detailClassGlow');
+            detailClassGlow.className = `w-24 h-28 flex flex-col justify-between p-3 rounded-lg border text-center font-bold ${el.class}`;
+            
+            const catBadge = document.getElementById('detailCategoryName');
+            catBadge.textContent = currentLang === 'en' ? getCategoryEnglish(el.class) : getCategoryKorean(el.class);
+            catBadge.className = `text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded ${getCategoryBadgeClass(el.class)}`;
+
+            document.getElementById('propElectronConf').textContent = el.conf;
+            document.getElementById('propPhase').textContent = getPhaseTranslated(el.phase, currentLang);
+            
+            document.getElementById('propMelting').textContent = el.melting === 'n/a' ? i18n[currentLang].unknown : el.melting + " K" + (el.melting !== 'n/a' ? ` (${(parseFloat(el.melting) - 273.15).toFixed(1)} °C)` : "");
+            document.getElementById('propBoiling').textContent = el.boiling === 'n/a' ? i18n[currentLang].unknown : el.boiling + " K" + (el.boiling !== 'n/a' ? ` (${(parseFloat(el.boiling) - 273.15).toFixed(1)} °C)` : "");
+            document.getElementById('propDiscoverer').textContent = el.disc === 'Unknown' ? i18n[currentLang].unknown : el.disc;
+            
+            document.getElementById('detailDescription').textContent = currentLang === 'en' ? el.descEn : el.descKo;
+
+            const storyNode = document.getElementById('detailStory');
+            const hasStory = el.storyEn && el.storyKo;
+            if (hasStory) {
+                storyNode.textContent = currentLang === 'en' ? el.storyEn : el.storyKo;
+            } else {
+                storyNode.textContent = currentLang === 'en' ? 
+                    `${el.enName} (${el.symbol}) was meticulously cataloged during the active historical compilation of the modern periodic system. Its name stems from classical linguistic roots reflecting its core elemental characteristics.` :
+                    `${el.koName}(${el.symbol})은 현대 화학 주기 체계의 지속적인 확장 과정 중에서 정밀하게 특성화되었습니다. 어원은 고유의 물리화학적 속성을 대변하는 고대 라틴/그리스어 어근에서 탄생했습니다.`;
+            }
+
+            const isotopesContainer = document.getElementById('detailIsotopes');
+            isotopesContainer.innerHTML = '';
+            
+            let isotopesList = el.isotopes;
+            if (!isotopesList || isotopesList.length === 0) {
+                const massNum = Math.round(parseFloat(el.mass));
+                if (isNaN(massNum)) {
+                    isotopesList = [{ mass: "N/A", symbol: el.symbol, ratio: "100%" }];
+                } else {
+                    isotopesList = [{ mass: massNum.toString(), symbol: el.symbol, ratio: ">99%" }];
+                }
+            }
+
+            isotopesList.forEach(iso => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between bg-white border border-neutral-200 px-3 py-2 rounded-lg shadow-sm font-mono text-neutral-800";
+                item.innerHTML = `
+                    <span class="font-extrabold text-sm"><sup>${iso.mass}</sup>${iso.symbol}</span>
+                    <span class="text-xs text-neutral-500 font-bold">${iso.ratio}</span>
+                `;
+                isotopesContainer.appendChild(item);
+            });
+
+            document.getElementById('bohrCenter').textContent = el.number + '+';
+            currentBohrShells = el.shells;
+
+            selectModelMode(currentModelMode);
+
+            if (bohrAnimationId) cancelAnimationFrame(bohrAnimationId);
+            drawBohrModel();
+
+            if (triggerSound) {
+                playBeep(880, 'sine', 0.12, 0.08);
+            }
+        }
+
+        // --- MULTILINGUAL i18n CONTROLLER ---
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            const btnEn = document.getElementById('lang-en');
+            const btnKo = document.getElementById('lang-ko');
+            if (lang === 'en') {
+                btnEn.className = "px-3.5 py-1.5 rounded-full bg-neutral-800 text-white transition-all duration-300 shadow-sm";
+                btnKo.className = "px-3.5 py-1.5 rounded-full text-neutral-500 hover:text-neutral-800 transition-all duration-300";
+            } else {
+                btnKo.className = "px-3.5 py-1.5 rounded-full bg-neutral-800 text-white transition-all duration-300 shadow-sm";
+                btnEn.className = "px-3.5 py-1.5 rounded-full text-neutral-500 hover:text-neutral-800 transition-all duration-300";
+            }
+
+            document.getElementById('site-title').innerHTML = i18n[lang].title;
+            document.getElementById('site-subtitle').textContent = i18n[lang].subtitle;
+            document.getElementById('searchInput').placeholder = i18n[lang].placeholder;
+            document.getElementById('sidebar-title').textContent = i18n[lang].sidebarTitle;
+
+            document.getElementById('lbl-electron-conf').textContent = i18n[lang].conf;
+            document.getElementById('lbl-phase').textContent = i18n[lang].phase;
+            document.getElementById('lbl-melting').textContent = i18n[lang].melting;
+            document.getElementById('lbl-boiling').textContent = i18n[lang].boiling;
+            document.getElementById('lbl-discoverer').textContent = i18n[lang].discoverer;
+            
+            document.getElementById('view-mode-title').innerHTML = `<i class="fa-solid fa-eye mr-1.5 text-brandPurple"></i>${i18n[lang].viewModeTitle}`;
+            document.getElementById('btn-view-standard').textContent = i18n[lang].viewModeStandard;
+            document.getElementById('btn-view-lewis').textContent = i18n[lang].viewModeLewis;
+
+            selectModelMode(currentModelMode);
+
+            document.getElementById('lbl-details-title').innerHTML = `<i class="fa-solid fa-circle-info mr-1.5 text-brandGreen"></i>${i18n[lang].detailsTitle}`;
+            document.getElementById('lbl-story-title').innerHTML = `<i class="fa-solid fa-book-open mr-1.5 text-brandPurple"></i>${i18n[lang].storyTitle}`;
+            document.getElementById('lbl-isotopes-title').innerHTML = `<i class="fa-solid fa-circle-nodes mr-1.5 text-brandGreen"></i>${i18n[lang].isotopesTitle}`;
+            document.getElementById('lbl-sfx-title').innerHTML = `<i class="fa-solid fa-wave-square mr-1 text-brandPurple"></i>${i18n[lang].sfxTitle}`;
+            
+            updateSoundToggleButton();
+
+            document.querySelectorAll('#categoryFilters button').forEach(btn => {
+                const cat = btn.getAttribute('data-cat');
+                const span = btn.querySelector('span');
+                if (cat === 'all') {
+                    span.textContent = i18n[lang].allElements;
+                } else {
+                    span.textContent = i18n[lang][getCategoryKey(cat)];
+                }
+            });
+
+            setViewMode(currentViewMode);
+
+            if (selectedElement) {
+                openDetailDrawer(selectedElement, false);
+            }
+        }
+
+        document.getElementById('lang-en').addEventListener('click', () => {
+            setLanguage('en');
+            playBeep(600, 'sine', 0.08, 0.03);
+        });
+        document.getElementById('lang-ko').addEventListener('click', () => {
+            setLanguage('ko');
+            playBeep(600, 'sine', 0.08, 0.03);
+        });
+
+        // --- DYNAMIC FUZZY SEARCH & CATEGORY FILTERS ---
+        const searchInput = document.getElementById('searchInput');
+
+        function applyActiveFilters() {
+            const query = searchInput.value.trim().toLowerCase();
+            const activeCategory = document.querySelector('#categoryFilters button.bg-neutral-100')?.dataset.cat || 'all';
+
+            fullElements.forEach(el => {
+                const cardDom = document.getElementById(`el-${el.number}`);
+                if (!cardDom) return;
+
+                const matchQuery = !query || 
+                                   el.symbol.toLowerCase().includes(query) || 
+                                   el.koName.includes(query) || 
+                                   el.enName.toLowerCase().includes(query) ||
+                                   el.number.toString() === query;
+
+                const matchCategory = (activeCategory === 'all' || el.class === activeCategory);
+
+                if (matchQuery && matchCategory) {
+                    cardDom.classList.remove('dimmed');
+                } else {
+                    cardDom.classList.add('dimmed');
+                    if (selectedElement && selectedElement.number === el.number) {
+                        cardDom.classList.remove('selected-active');
+                    }
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', () => {
+            applyActiveFilters();
+            playBeep(950, 'triangle', 0.02, 0.02);
+        });
+
+        document.querySelectorAll('#categoryFilters button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const clickedBtn = e.currentTarget;
+                
+                document.querySelectorAll('#categoryFilters button').forEach(b => {
+                    b.className = "w-full text-left px-4 py-2 rounded-lg text-[13.5px] hover:bg-neutral-50 text-neutral-600 flex items-center justify-between transition-all duration-150";
+                });
+
+                if (clickedBtn.dataset.cat === 'all') {
+                    clickedBtn.className = "w-full text-left px-4 py-2.5 rounded-lg text-sm bg-neutral-100 border border-neutral-200 font-bold text-neutral-800 flex items-center justify-between transition-all duration-200";
+                } else {
+                    clickedBtn.className = "w-full text-left px-4 py-2 rounded-lg text-[13.5px] bg-neutral-100 border border-neutral-200 font-bold text-neutral-800 flex items-center justify-between transition-all duration-150";
+                }
+
+                playBeep(450, 'triangle', 0.08, 0.03);
+                applyActiveFilters();
+            });
+        });
+
+        // --- 카메라 반응형 최적화 및 리셋 (누락 복구 영역) ---
+        let camera, scene, renderer;
+        const targets = { table: [] };
+        const objects = [];
+
+        function getFullOverviewZ() {
+            if (!camera) return 2400;
+            const container = document.getElementById('container-3d');
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+            
+            // 주기율표 렌더링에 적합한 가상 해상도 바운더리
+            const requiredWidth = 2600; 
+            const requiredHeight = 1600;
+            
+            const fovRad = (camera.fov * Math.PI) / 180;
+            const tanHalfFov = Math.tan(fovRad / 2);
+            const aspect = w / h;
+            
+            const zByHeight = requiredHeight / (2 * tanHalfFov);
+            const zByWidth = requiredWidth / (2 * tanHalfFov * aspect);
+            
+            return Math.max(zByHeight, zByWidth);
+        }
+
+        function adjustCameraZ(animateTransition = false) {
+            if (!camera) return;
+            const targetZ = getFullOverviewZ();
+            
+            if (animateTransition) {
+                new TWEEN.Tween(camera.position)
+                    .to({ x: 0, y: 0, z: targetZ }, 600)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start();
+            } else {
+                camera.position.set(0, 0, targetZ);
+                camera.lookAt(0, 0, 0);
+            }
+        }
+
+        // --- 시스템 초기화 트리거 (무한 로딩 버그 해결 영역) ---
+        window.onload = function() {
+            init3D();
+            animate();
+            
+            setLanguage('en');
+            openDetailDrawer(selectedElement, false);
+
+            // 엔진 렌더링이 완료된 후 페이드아웃하며 로딩 스크린 종료
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.classList.add('opacity-0');
+                    setTimeout(() => loader.classList.add('hidden'), 500);
+                }
+            }, 800);
+        };
+
+        // --- THREE.JS 3D ENGINE WORKSPACE SETUP ---
+        function init3D() {
+            const container = document.getElementById('container-3d');
+            const w = container.clientWidth;
+            const h = container.clientHeight;
+
+            camera = new THREE.PerspectiveCamera(40, w / h, 1, 10000);
+            scene = new THREE.Scene();
+
+            fullElements.forEach(el => {
+                const target = new THREE.Object3D();
+                target.position.x = (el.col * 112) - 1060;
+                target.position.y = - (el.row * 118) + 600;
+                target.position.z = 0;
+                targets.table.push(target);
+            });
+
+            fullElements.forEach((el, index) => {
+                const elementCard = document.createElement('div');
+                elementCard.className = `element-card`;
+                elementCard.id = `el-${el.number}`;
+
+                const inner = document.createElement('div');
+                inner.className = `element-card-inner ${el.class}`;
+                inner.innerHTML = getStandardCardHTML(el);
+
+                elementCard.appendChild(inner);
+
+                const object3D = new THREE.CSS3DObject(elementCard);
+                const target = targets.table[index];
+                object3D.position.copy(target.position);
+                object3D.rotation.copy(target.rotation);
+                
+                scene.add(object3D);
+                objects.push(object3D);
+
+                inner.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    openDetailDrawer(el, true);
+                });
+            });
+
+            renderer = new THREE.CSS3DRenderer();
+            renderer.setSize(w, h);
+            container.appendChild(renderer.domElement);
+
+            // 초기 실행 시 화면 스케일 조정
+            adjustCameraZ();
+
+            // 부드러운 드래그 및 줌 내비게이션 초기화
+            initNavigationControls();
+
+            document.getElementById('btn-view-standard').addEventListener('click', () => setViewMode('standard'));
+            document.getElementById('btn-view-lewis').addEventListener('click', () => setViewMode('lewis'));
+
+            document.getElementById('btn-model-bohr').addEventListener('click', () => selectModelMode('bohr'));
+            document.getElementById('btn-model-schrodinger').addEventListener('click', () => selectModelMode('schrodinger'));
+            document.getElementById('btn-model-orbital').addEventListener('click', () => selectModelMode('orbital'));
+            document.getElementById('btn-model-lewis').addEventListener('click', () => selectModelMode('lewis'));
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // --- 마우스 및 터치 드래그 컨트롤러 ---
+        function initNavigationControls() {
+            const container = document.getElementById('container-3d');
+            let isDragging = false;
+            let prevPointer = { x: 0, y: 0 };
+
+            container.addEventListener('mousedown', (e) => {
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.element-card-inner')) return;
+                isDragging = true;
+                prevPointer = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - prevPointer.x;
+                const deltaY = e.clientY - prevPointer.y;
+
+                const panFactor = camera.position.z / 1500;
+                camera.position.x -= deltaX * panFactor;
+                camera.position.y += deltaY * panFactor;
+
+                prevPointer = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            container.addEventListener('touchstart', (e) => {
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.element-card-inner')) return;
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    prevPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            });
+
+            container.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - prevPointer.x;
+                const deltaY = e.touches[0].clientY - prevPointer.y;
+
+                const panFactor = camera.position.z / 1500;
+                camera.position.x -= deltaX * panFactor;
+                camera.position.y += deltaY * panFactor;
+
+                prevPointer = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            });
+
+            container.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomSpeed = 0.5;
+                let newZ = camera.position.z + e.deltaY * zoomSpeed;
+                
+                const minZ = 350;
+                const maxZ = getFullOverviewZ() * 1.5;
+                
+                camera.position.z = Math.max(minZ, Math.min(maxZ, newZ));
+            }, { passive: false });
+
+            document.getElementById('btn-zoom-in').addEventListener('click', () => {
+                const targetZ = Math.max(350, camera.position.z - 200);
+                new TWEEN.Tween(camera.position)
+                    .to({ z: targetZ }, 300)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start();
+                playBeep(500, 'sine', 0.05, 0.02);
+            });
+
+            document.getElementById('btn-zoom-out').addEventListener('click', () => {
+                const maxZ = getFullOverviewZ() * 1.5;
+                const targetZ = Math.min(maxZ, camera.position.z + 200);
+                new TWEEN.Tween(camera.position)
+                    .to({ z: targetZ }, 300)
+                    .easing(TWEEN.Easing.Cubic.Out)
+                    .start();
+                playBeep(450, 'sine', 0.05, 0.02);
+            });
+
+            document.getElementById('btn-reset-view').addEventListener('click', () => {
+                adjustCameraZ(true);
+                playBeep(600, 'sine', 0.1, 0.03);
+            });
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('container-3d');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            adjustCameraZ(); // 창 크기가 변할 때 주기율표가 잘리지 않도록 정밀 자동 비율 조절
+            render();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            TWEEN.update();
+            render();
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>

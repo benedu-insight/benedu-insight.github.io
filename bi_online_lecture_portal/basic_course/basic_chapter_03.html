@@ -1,0 +1,1666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basic Chapter 03 — Atoms & Energy Levels | Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF9F5; --surface:#EFE9DE; --ink:#252320; --steel:#6C6A64; --steel-soft:#A09D96; --hairline:#E6DFD8;
+  --ink-black:#181715; --card-dark:#232120; --hairline-dark:#3A3733; --mute-dark:#8E8A83; --text-dark:#EFE9DE;
+  --green:#0F8C50; --purple:#7030A0; --coral:#CC785C; --amber:#E8A55A;
+  --font-en:'Google Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-ko:'Gowun Batang',serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#0A0A09}
+body{font-family:var(--font-en);color:var(--ink);-webkit-font-smoothing:antialiased;overflow:hidden}
+body.idle{cursor:none}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+
+/* ---------- language ---------- */
+.t-ko{display:none;font-family:var(--font-ko)}
+html.lang-ko .t-ko{display:revert}
+html.lang-ko .t-en{display:none}
+.en{font-family:var(--font-en)}
+
+/* ---------- stage ---------- */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{width:1280px;height:720px;position:relative;flex:0 0 auto;overflow:hidden;background:var(--cream);
+  box-shadow:0 40px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.04);transform-origin:center center}
+
+.slide{position:absolute;inset:0;background:var(--cream);opacity:0;visibility:hidden;
+  transition:opacity .6s ease,visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.slide.dark{background:var(--ink-black);color:#fff}
+.slide-note{display:none}
+
+/* ---------- chrome ---------- */
+.logo-tr{position:absolute;right:64px;top:42px;height:34px;width:auto}
+.dark .logo-tr{filter:brightness(0) invert(1);opacity:.92}
+.eyebrow{position:absolute;left:96px;top:56px;font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.eyebrow b{color:var(--green);margin-right:10px}
+.dark .eyebrow{color:var(--mute-dark)} .dark .eyebrow b{color:var(--amber)}
+.footer{position:absolute;left:96px;right:64px;bottom:0;height:34px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--hairline)}
+.dark .footer{border-top-color:var(--hairline-dark)}
+.footer .fm{font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--steel)}
+.footer .fd2{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em;color:var(--steel-soft)}
+.footer .fp{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--steel)}
+.dark .footer .fm,.dark .footer .fp{color:#8E8A83}
+.dark .footer .fd2{color:#5E5A54}
+.headline{position:absolute;left:96px;right:96px;top:98px;font-size:46px;font-weight:700;letter-spacing:-.028em;line-height:1.15}
+html.lang-ko .headline{font-size:42px;letter-spacing:-.01em}
+.dark .headline{color:#fff}
+.lede{position:absolute;left:96px;right:96px;top:166px;font-size:19px;color:var(--steel);line-height:1.55}
+.dark .lede{color:#B5B0A8}
+
+/* ---------- builds ---------- */
+.frag{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .8s var(--ease)}
+.frag.on{opacity:1;transform:none}
+.frag.strike{transform:scaleX(0);transform-origin:left center;transition:transform .55s var(--ease),opacity .2s}
+.frag.strike.on{transform:scaleX(1)}
+.hides{transition:opacity .5s ease,transform .6s var(--ease)}
+.hides.gone{opacity:0;transform:scale(.94);pointer-events:none}
+.rise{opacity:0}
+.slide.active .rise{animation:rise .9s var(--ease) both;animation-delay:var(--d,0s)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.static .rise{animation:none!important;opacity:1}
+.static .frag,.static .hides{transition:none!important}
+
+/* ---------- equation typesetting ---------- */
+.eqn{font-family:var(--font-en);font-weight:700;display:inline-flex;align-items:center;gap:.18em;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em}
+.frac .fn{padding:0 .12em .04em;border-bottom:.045em solid currentColor}
+.frac .fd{padding:.04em .12em 0}
+.frac.sm{font-size:.7em}
+.sqrt{display:inline-flex;align-items:stretch;margin-left:.04em}
+.sqrt .rad{display:block;width:.52em;flex:0 0 auto;overflow:visible;margin-right:-1px}
+.sqrt .rad path{fill:none;stroke:currentColor;stroke-width:.075em;stroke-linejoin:miter;stroke-linecap:butt;vector-effect:non-scaling-stroke}
+.sqrt .rc{border-top:.075em solid currentColor;padding:.1em .14em 0 .08em;display:inline-flex;align-items:center}
+.eqn sub{font-size:.62em;vertical-align:baseline;position:relative;top:.32em;line-height:0;font-weight:700;margin-left:.02em}
+.frac .fd .sqrt{margin-top:.16em}
+.paren{font-weight:300;font-size:1.45em;margin:0 -.02em}
+
+/* ================= 1 · COVER ================= */
+.cover-logo{position:absolute;left:96px;top:54px;height:42px;filter:brightness(0) invert(1)}
+.cover-kicker{position:absolute;left:98px;top:206px;font-family:var(--font-mono);font-size:13px;font-weight:700;letter-spacing:.22em;color:var(--coral)}
+.cover-big{position:absolute;left:86px;top:226px;font-size:214px;font-weight:700;letter-spacing:-.055em;line-height:1;color:#fff}
+.cover-big span{color:var(--coral)}
+.cover-sub{position:absolute;left:96px;top:462px;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--text-dark)}
+html.lang-ko .cover-sub{font-size:36px;font-weight:700}
+.cover-desc{position:absolute;left:96px;top:524px;width:600px;font-size:18px;line-height:1.6;color:var(--mute-dark)}
+.cover-meta{position:absolute;left:96px;bottom:62px;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;color:#6E6A63}
+.cover-art{position:absolute;right:-70px;top:60px;width:600px;height:600px}
+.cover-art .spin{transform-box:fill-box;transform-origin:center;animation:spin 90s linear infinite}
+.cover-art .flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flow{to{stroke-dashoffset:-28}}
+
+/* ================= 2 · MISCONCEPTION ================= */
+.eq-hero{position:absolute;left:0;right:0;top:150px;text-align:center;font-size:100px;color:var(--ink)}
+.claim{position:absolute;left:0;right:0;top:428px;text-align:center;font-size:28px;color:var(--steel)}
+.claim .wrap{position:relative;display:inline-block}
+.claim .strike{position:absolute;left:-10px;right:-10px;top:52%;height:4px;background:var(--coral);border-radius:2px}
+.verdict{position:absolute;left:0;right:0;top:494px;text-align:center;font-size:64px;font-weight:700;letter-spacing:-.03em;color:var(--coral)}
+html.lang-ko .verdict{font-size:54px}
+.verdict-sub{position:absolute;left:0;right:0;top:590px;text-align:center;font-size:19px;color:var(--steel)}
+
+/* ================= 3 · CAUSALITY ================= */
+.chain{position:absolute;left:96px;right:96px;top:262px;display:flex;align-items:flex-start;justify-content:space-between}
+.node{width:300px}
+.node .w{font-size:60px;font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.node .w.c{color:var(--coral)}
+.node .s{margin-top:16px;font-size:17px;color:var(--steel);line-height:1.55}
+.arr{font-size:42px;color:var(--steel-soft);padding-top:6px;font-weight:300}
+.punch{position:absolute;left:96px;right:96px;top:500px;padding-top:36px;border-top:1px solid var(--hairline);
+  font-size:34px;font-weight:700;letter-spacing:-.025em}
+html.lang-ko .punch{font-size:31px}
+.punch .c{color:var(--coral)}
+
+/* ================= 4 · LAB ================= */
+.coax-svg{position:absolute;left:96px;top:226px;width:372px;height:372px}
+.lab{position:absolute;left:540px;right:96px;top:226px;bottom:66px;display:flex;flex-direction:column}
+.lab .eqn{font-size:34px;color:var(--ink)}
+.ctl{margin-top:30px}
+.ctl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ctl-row .k{font-size:15px;color:var(--steel)}
+.ctl-row .v{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ink)}
+.chips{display:flex;gap:8px;margin-bottom:14px}
+.chip-btn{font-family:var(--font-en);font-size:13px;font-weight:500;color:var(--ink);padding:6px 15px;border:1px solid var(--hairline);
+  border-radius:999px;background:#fff;cursor:pointer;transition:all .2s}
+.chip-btn:hover{border-color:var(--steel-soft)}
+.chip-btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--hairline);outline:none;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:4px solid var(--cream);box-shadow:0 0 0 1px var(--ink);cursor:pointer}
+.readout{margin-top:auto;display:flex;align-items:baseline;gap:14px}
+.readout .k{font-size:28px;font-weight:500;color:var(--steel)}
+.readout .num{font-size:96px;font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--ink);transition:color .3s;font-variant-numeric:tabular-nums}
+.readout .num.hit{color:var(--coral)} .readout .num.hit75{color:var(--purple)}
+.status{margin-top:10px;font-size:17px;color:var(--steel);min-height:26px}
+.status.hit{color:var(--coral);font-weight:700} .status.hit75{color:var(--purple);font-weight:700}
+
+/* ================= 5 · THREE VIEWS ================= */
+.views{position:absolute;left:96px;right:96px;top:248px;display:grid;grid-template-columns:repeat(3,1fr)}
+.view{padding:0 36px;border-left:1px solid var(--hairline)}
+.view:first-child{padding-left:0;border-left:none}
+.view .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.view .eqn{font-size:54px;height:134px;margin:24px 0 22px;color:var(--ink)}
+.view .d{font-size:17px;color:var(--steel);line-height:1.6}
+.foot-line{position:absolute;left:96px;right:96px;top:584px;font-size:20px;color:var(--steel)}
+.foot-line b{color:var(--ink)}
+
+/* ================= 6 · HISTORY ================= */
+.axis{position:absolute;left:96px;right:96px;top:499px;height:2px;background:var(--hairline-dark)}
+.tick{position:absolute;top:514px;transform:translateX(-50%);font-family:var(--font-mono);font-size:10.5px;color:#5E5A54}
+.mk{position:absolute;top:500px;left:var(--x);width:0;height:0}
+.mk .stem{position:absolute;left:-1px;bottom:0;width:2px;height:var(--h);background:#4A4642}
+.mk .dot{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#fff}
+.mk .mlab{position:absolute;left:-110px;width:220px;bottom:calc(var(--h) + 14px);text-align:center}
+.mk .v{font-size:46px;font-weight:700;letter-spacing:-.03em;color:#fff;line-height:1}
+.mk .c{margin-top:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--amber)}
+.mk.hero .stem,.mk.hero .dot{background:var(--coral)}
+.mk.hero .v{font-size:68px;color:var(--coral)}
+.mk.hero .c{color:var(--coral)}
+.mk.below .stem{top:0;bottom:auto}
+.mk.below .dot{background:#6E6A63}
+.mk.below .mlab{top:calc(var(--h) + 10px);bottom:auto}
+.mk.below .v{font-size:24px;color:#8E8A83}
+.mk.below .c{color:#6E6A63}
+.means{position:absolute;left:330px;width:464px;top:548px;text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--mute-dark);letter-spacing:.02em}
+.src{position:absolute;left:96px;bottom:52px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;color:#5E5A54}
+
+/* ================= 7 · ONE MORE THING ================= */
+.omt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:78px;font-weight:700;letter-spacing:-.035em;color:#fff}
+html.lang-ko .omt{font-size:66px}
+.vs{position:absolute;left:96px;right:96px;top:176px;display:flex;justify-content:center;align-items:flex-start;gap:72px}
+.vs .blk{text-align:center}
+.vs .n{font-size:156px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#fff}
+.vs .n.q{color:var(--coral)}
+.vs .l{margin-top:18px;font-size:18px;color:#B5B0A8}
+.vs .ne{font-size:84px;font-weight:300;color:#5E5A54;padding-top:30px}
+.next-line{position:absolute;left:96px;right:96px;top:472px;text-align:center;font-size:24px;color:var(--text-dark);letter-spacing:-.01em}
+.next-tag{position:absolute;left:0;right:0;top:524px;text-align:center;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.end-links{position:absolute;left:0;right:0;bottom:70px;display:flex;justify-content:center;gap:36px}
+.end-links a{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;color:#B5B0A8;text-decoration:none;border-bottom:1px solid #3A3733;padding-bottom:4px;transition:color .2s,border-color .2s}
+.end-links a:hover{color:#fff;border-color:var(--coral)}
+
+/* ================= CLICK-TO-NAVIGATE HINTS ================= */
+.nav-hint{position:absolute;top:50%;width:52px;height:52px;margin-top:-26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:rgba(24,23,21,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;z-index:40;
+  transition:opacity .25s ease,transform .25s var(--ease)}
+.nav-hint svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nav-hint.l{left:22px;transform:translateX(6px)} .nav-hint.r{right:22px;transform:translateX(-6px)}
+.deck.hov-l .nav-hint.l,.deck.hov-r .nav-hint.r{opacity:1;transform:none}
+.deck.hov-l,.deck.hov-r{cursor:pointer}
+body.idle .nav-hint{opacity:0!important}
+
+/* ================= CONTROL BAR ================= */
+#bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px 8px;
+  background:rgba(24,23,21,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.08);
+  border-radius:999px;z-index:90;transition:opacity .4s,transform .4s}
+body.idle #bar{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
+#bar button,#bar a{height:34px;min-width:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  background:none;border:none;border-radius:999px;color:#D9D4CC;font-family:var(--font-en);font-size:12.5px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+#bar button:hover,#bar a:hover{background:rgba(255,255,255,.08);color:#fff}
+#bar button.on{color:var(--coral)}
+#bar svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#bar .dots{display:flex;align-items:center;gap:7px;padding:0 10px}
+#bar .dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);cursor:pointer;transition:width .45s var(--ease),background .3s}
+#bar .dot.done{background:rgba(255,255,255,.5)}
+#bar .dot.on{width:24px;background:var(--coral)}
+#bar .dot:hover{background:rgba(255,255,255,.8)}
+#bar .sep{width:1px;height:18px;background:rgba(255,255,255,.12);margin:0 6px}
+#langBtn{font-family:var(--font-ko)!important;font-weight:700}
+html.lang-ko #langBtn{font-family:var(--font-en)!important}
+
+/* ================= NOTES DRAWER ================= */
+#notesTab{position:fixed;left:0;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;background:var(--ink-black);color:#D9D4CC;
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.18em;padding:18px 9px;border-radius:0 10px 10px 0;
+  border:1px solid rgba(255,255,255,.08);border-left:none;cursor:pointer;z-index:95;user-select:none;transition:color .2s,opacity .4s}
+#notesTab:hover{color:var(--coral)}
+body.idle #notesTab{opacity:.25}
+#notes{position:fixed;left:0;top:0;bottom:0;width:480px;background:#fff;z-index:100;transform:translateX(-102%);transition:transform .45s var(--ease);
+  display:flex;flex-direction:column;box-shadow:none;visibility:hidden;transition:transform .45s var(--ease),visibility 0s linear .45s}
+#notes.open{transform:none;visibility:visible;box-shadow:20px 0 60px rgba(0,0,0,.35);transition:transform .45s var(--ease)}
+.notes-head{padding:26px 28px 18px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between;align-items:center}
+.notes-head .ttl{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:var(--coral)}
+.notes-head .no{font-family:var(--font-mono);font-size:11.5px;color:var(--steel-soft);margin-left:10px}
+#notesClose{background:none;border:none;font-size:24px;line-height:1;color:var(--steel);cursor:pointer}
+.notes-title{padding:22px 28px 0;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+.notes-body{padding:16px 28px 28px;overflow-y:auto;flex:1;font-size:15.5px;line-height:1.85;color:var(--ink)}
+.notes-body p{margin:0 0 12px}
+.notes-body h4{margin:24px 0 8px;font-size:15.5px;font-weight:700;color:var(--ink)}
+.notes-body > div > h4:first-child{margin-top:4px}
+.notes-body .nf{font-family:var(--font-en);background:var(--surface);border-radius:8px;padding:11px 16px;margin:4px 0 14px;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.notes-body ul{margin:4px 0 14px;padding-left:20px}
+.notes-body li{margin:5px 0}
+.notes-body b{color:var(--ink)}
+.notes-foot{padding:14px 28px;border-top:1px solid var(--hairline);font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--steel-soft)}
+
+/* ================= GRID OVERVIEW ================= */
+#grid{position:fixed;inset:0;background:#0C0B0A;z-index:200;display:none;overflow:auto;padding:52px 64px 80px}
+#grid.open{display:block;animation:gridIn .35s var(--ease)}
+@keyframes gridIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+.grid-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+.grid-head .ttl{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:#EFE9DE}
+.grid-head .hint{font-family:var(--font-mono);font-size:11px;color:#6E6A63;letter-spacing:.06em}
+.grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:34px 28px}
+.thumb{cursor:pointer}
+.thumb .frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;outline:1px solid #2A2724;transition:transform .25s var(--ease),outline-color .2s}
+.thumb:hover .frame{transform:translateY(-4px);outline:2px solid #6C6A64}
+.thumb.cur .frame{outline:2px solid var(--coral)}
+.thumb .inner{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;pointer-events:none}
+.thumb .cap{display:flex;gap:12px;margin-top:12px;font-size:14px;color:#B5B0A8}
+.thumb .cap .no{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--coral);padding-top:1px}
+
+/* ================= DECK: MULTI-STATION ================= */
+.msr-svg{position:absolute;left:96px;top:196px;width:404px;height:404px}
+.msr-cols{position:absolute;left:576px;right:96px;top:206px}
+.msr-col{padding:22px 0 24px;border-top:1px solid var(--hairline)}
+.msr-col .k{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--steel-soft)}
+.msr-col .big{margin-top:10px;font-size:34px;font-weight:700;letter-spacing:-.03em;line-height:1.1;color:var(--ink)}
+.msr-col .big.c{color:var(--coral)}
+.msr-col .d{margin-top:10px;font-size:17px;color:var(--steel);line-height:1.55}
+.punch.msr-punch{left:576px;top:520px;padding-top:26px;font-size:32px}
+html.lang-ko .punch.msr-punch{font-size:30px}
+.rp-svg{position:absolute;left:96px;top:196px;width:1088px;height:290px;overflow:visible}
+.bt-cv{position:absolute;left:96px;top:214px;width:400px;height:372px;background:#fff;outline:1px solid var(--hairline)}
+.lab.bt-lab{left:552px;top:214px}
+.bt-lab .ctl{margin-top:24px}
+.ph-lab .ctl{margin-top:0;margin-bottom:12px}
+.ph-lab .ctl-row{margin-bottom:6px}
+.ph-lab .chips{margin-bottom:4px}
+.ph-lab .readout .num{font-size:78px}
+.bt-lab .readout .num{font-size:84px}
+input[type=range]:disabled{opacity:.3}
+.view .eqn.c{color:var(--coral)}
+/* ================= CLAY PALETTE OVERRIDES ================= */
+:root{
+  --cream:#fffaf0; --surface:#f5f0e0; --ink:#0a0a0a; --steel:#5f5f5a; --steel-soft:#9a9a92; --hairline:#e8e2d0;
+  --ink-black:#0a1a1a; --card-dark:#1a2a2a; --hairline-dark:#2a3c3c; --mute-dark:#9db0aa; --text-dark:#faf5e8;
+  --green:#1a3a3a; --purple:#b8a4ed; --coral:#ff4d8b; --amber:#e8b94a;
+  --pink:#ff4d8b; --teal:#1a3a3a; --lav:#b8a4ed; --peach:#ffb084; --ochre:#e8b94a; --mint:#a4d4c5; --soft:#faf5e8; --strong:#ebe6d6;
+  --ac:#ff4d8b;
+}
+html,body{background:#050d0d}
+.deck{box-shadow:0 40px 120px -30px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.05)}
+.eyebrow b{color:var(--ac)}
+.dark .eyebrow b{color:var(--ochre)}
+.headline{font-weight:500;letter-spacing:-.03em}
+html.lang-ko .headline{font-weight:700;letter-spacing:-.015em}
+#bar,#notesTab{background:rgba(10,26,26,.82)}
+.logo-tr{opacity:.9}
+.slide:not(.dark) .logo-tr{filter:none}
+
+/* ---------- cover ---------- */
+.cover-kicker{color:var(--pink);top:196px}
+.cover-big{font-size:184px;font-weight:500;letter-spacing:-.05em;top:214px;left:80px}
+.cover-big span{color:var(--pink)}
+.cover-sub{top:454px;font-weight:500}
+html.lang-ko .cover-sub{font-weight:700}
+.cover-art2{position:absolute;right:30px;top:70px;width:560px;height:560px}
+.cover-art2 .flow{stroke-dasharray:4 10;animation:flow 2.4s linear infinite}
+.cover-art2 .glow{animation:pulseG 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.cover-art2 .fl{animation:floatY 5s ease-in-out infinite}
+@keyframes pulseG{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+/* ---------- layout helpers ---------- */
+.body{position:absolute;left:96px;right:96px;top:230px;bottom:84px}
+.body.hi{top:214px}
+.grid2,.grid3,.grid4{display:grid;gap:18px;height:100%}
+.grid2{grid-template-columns:1fr 1fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+.grid4{grid-template-columns:repeat(4,1fr)}
+.col{display:flex;flex-direction:column}
+.src{position:absolute;left:96px;bottom:50px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:var(--steel-soft)}
+.dark .src{color:#5f7a74}
+
+/* ---------- cards ---------- */
+.cd{border-radius:24px;padding:24px 26px;position:relative;overflow:hidden;color:var(--ink);background:var(--surface);display:flex;flex-direction:column}
+.cd.pk{background:var(--pink);color:#fff}
+.cd.tl{background:var(--teal);color:#fff}
+.cd.lv{background:var(--lav)} .cd.pc{background:var(--peach)} .cd.oc{background:var(--ochre)}
+.cd.cr{background:var(--surface)} .cd.mt{background:var(--mint)} .cd.ink{background:var(--ink-black);color:#fff}
+.cd.line{background:transparent;border:1.5px solid var(--hairline)}
+.cd h3{font-size:27px;font-weight:500;letter-spacing:-.025em;line-height:1.14}
+html.lang-ko .cd h3{font-weight:700;font-size:24px;letter-spacing:-.01em}
+.cd p{font-size:16.5px;line-height:1.55;margin-top:9px}
+html.lang-ko .cd p{font-size:15.5px;line-height:1.62}
+.cd .k{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;opacity:.72;margin-bottom:8px}
+.cd .big{font-size:76px;font-weight:500;letter-spacing:-.045em;line-height:1;margin:6px 0 6px}
+.cd .big.m{font-size:58px}
+.cd .push{margin-top:auto}
+.imgslot{border:2px dashed rgba(10,10,10,.38);border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;line-height:1.5;color:rgba(10,10,10,.6);padding:8px 12px;background:rgba(255,255,255,.32)}
+.cd.pk .imgslot,.cd.tl .imgslot,.cd.ink .imgslot{border-color:rgba(255,255,255,.65);color:rgba(255,255,255,.85);background:rgba(255,255,255,.08)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pill{font-size:14px;font-weight:500;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.55);color:var(--ink);letter-spacing:-.005em;white-space:nowrap}
+.cd.pk .pill,.cd.tl .pill{background:rgba(255,255,255,.2);color:#fff}
+.callout{position:absolute;left:96px;right:96px;bottom:84px;height:62px;border-radius:16px;background:var(--ink-black);color:#fff;
+  display:flex;align-items:center;padding:0 28px;font-size:22px;font-weight:500;letter-spacing:-.02em}
+html.lang-ko .callout{font-size:20px;font-weight:700}
+.callout.soft{background:var(--surface);color:var(--ink)}
+.callout b{color:var(--pink);font-weight:inherit}
+.callout div{width:100%}
+
+/* ---------- 8-step lab ---------- */
+.stwrap{position:absolute;left:96px;right:96px;top:166px}
+.stwrap .chips{margin:0}
+.chip-btn.on{background:var(--ink);color:#fff}
+#stGrid{position:absolute;left:96px;right:96px;top:222px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.st8{border-radius:20px;height:128px;padding:16px 18px;cursor:pointer;position:relative;color:var(--ink);transition:background .4s,color .4s,opacity .4s,transform .25s var(--ease),box-shadow .25s;border:2px solid transparent}
+.st8:hover{transform:translateY(-3px)}
+.st8.sel{box-shadow:0 0 0 3px var(--ink)}
+.st8 .n{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.12em;opacity:.65}
+.st8 .nm{margin-top:10px;font-size:22px;font-weight:500;letter-spacing:-.02em;line-height:1.15}
+html.lang-ko .st8 .nm{font-size:19px;font-weight:700}
+.st8 .nk{font-size:13px;margin-top:4px;opacity:.7}
+.st8 .star{position:absolute;right:16px;top:12px;font-size:11px;font-family:var(--font-mono);font-weight:700;letter-spacing:.1em;opacity:0;transition:opacity .3s}
+.st8.c1{background:var(--lav)} .st8.c2{background:var(--peach)} .st8.c3{background:var(--ochre)} .st8.c4{background:var(--mint)}
+#stGrid.pl .st8{background:var(--strong);opacity:.38}
+#stGrid.pl .st8.p{background:var(--pink);color:#fff;opacity:1}
+#stGrid.pl .st8.p .star{opacity:1}
+#stGrid.pl .st8.p .n{opacity:.85}
+#stInfo{position:absolute;left:96px;right:96px;top:520px;height:104px;border-radius:20px;background:var(--ink-black);color:#fff;padding:20px 28px;font-size:19px;line-height:1.5}
+#stInfo .ttl{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--ochre);margin-bottom:6px}
+html.lang-ko #stInfo{font-size:17.5px}
+.inf{display:none}
+
+/* ---------- etch cross-section ---------- */
+.etch-svg{position:absolute;left:96px;top:222px;width:540px;height:400px}
+.etch-list{position:absolute;left:690px;right:96px;top:230px}
+.etch-list .it{display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--hairline)}
+.etch-list .it .no{flex:0 0 38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--font-mono);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.etch-list .it.pl .no{background:var(--pink)}
+.etch-list .tt{font-size:21px;font-weight:500;letter-spacing:-.02em}
+html.lang-ko .etch-list .tt{font-weight:700;font-size:19px}
+.etch-list .dd{font-size:15.5px;color:var(--steel);margin-top:3px;line-height:1.5}
+.etch-why{position:absolute;left:690px;right:96px;top:574px;font-size:17px;line-height:1.5;color:var(--ink);background:var(--soft);border-radius:16px;padding:12px 18px}
+.etch-why b{color:var(--pink)}
+
+/* ---------- canvases / labs ---------- */
+.cv{position:absolute;background:#fff;border-radius:24px;outline:1px solid var(--hairline)}
+.lab.lb{left:700px;right:96px;top:230px;bottom:84px}
+.lab .chips{flex-wrap:wrap}
+.lab .stt{font-size:60px;font-weight:500;letter-spacing:-.04em;line-height:1}
+.lab .sd{margin-top:10px;font-size:17px;color:var(--steel);line-height:1.5;min-height:52px}
+.lab .tick-row{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--steel-soft);margin-top:4px}
+.legend{display:flex;gap:18px;font-size:14px;color:var(--steel);margin-top:18px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:7px;vertical-align:-1px}
+.lab .num2{font-size:72px;font-weight:500;letter-spacing:-.045em;line-height:1;color:var(--ink);margin-top:20px}
+html.lang-ko .lab .num2{font-size:58px;font-weight:700}
+.lab .num2.pk{color:var(--pink)}
+
+/* ---------- temperature bars ---------- */
+.tbx{position:absolute;left:96px;right:96px;top:262px;height:300px}
+.tb-ov{position:absolute;left:190px;right:170px;top:0;bottom:0}
+.tb-row{position:absolute;left:0;right:0;height:62px;display:flex;align-items:center}
+.tb-k{width:190px;flex:0 0 190px}
+.tb-k b{display:block;font-size:24px;font-weight:500;letter-spacing:-.02em}
+.tb-k small{font-size:13px;color:var(--steel)}
+.tb-track{flex:1;height:34px;border-radius:17px;background:var(--surface);position:relative;overflow:hidden}
+.tb-bar{position:absolute;left:0;top:0;bottom:0;border-radius:17px;width:0;transition:width .9s var(--ease),background .5s}
+.tb-v{width:170px;flex:0 0 170px;padding-left:18px;font-family:var(--font-mono);font-size:15px;font-weight:700}
+.mkr{position:absolute;top:-30px;bottom:-4px;width:0;border-left:1.5px dashed rgba(10,10,10,.35)}
+.mkr span{position:absolute;top:-2px;left:6px;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;color:var(--steel);white-space:nowrap;line-height:1.3;transform:translateY(-100%)}
+.tb-axis{position:absolute;left:190px;right:170px;top:268px;height:24px}
+.tb-axis i{position:absolute;top:0;transform:translateX(-50%);font-style:normal;font-family:var(--font-mono);font-size:11px;color:var(--steel-soft)}
+.tb-take{position:absolute;left:96px;right:96px;bottom:84px;font-size:21px;font-weight:500;letter-spacing:-.015em;line-height:1.45;min-height:62px}
+html.lang-ko .tb-take{font-size:19px;font-weight:700}
+.tb-take b{color:var(--pink)}
+
+/* ---------- timeline (dark) ---------- */
+.tlx{position:absolute;left:96px;right:96px;top:250px;height:2px;background:var(--hairline-dark)}
+.tl-col{position:absolute;top:240px;width:250px}
+.tl-col .dt{width:22px;height:22px;border-radius:50%;margin-bottom:22px;box-shadow:0 0 0 6px var(--ink-black)}
+.tl-col .t{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--mute-dark)}
+.tl-col .v{margin-top:10px;font-size:50px;font-weight:500;letter-spacing:-.04em;line-height:1;color:#fff}
+.tl-col .n{margin-top:12px;font-size:22px;font-weight:500;letter-spacing:-.015em;color:var(--text-dark)}
+html.lang-ko .tl-col .n{font-weight:700;font-size:20px}
+.tl-col .s{margin-top:8px;font-size:15px;line-height:1.55;color:#aebfba}
+.dark .callout{background:var(--card-dark)}
+
+/* ---------- fission / fusion ---------- */
+.ff{display:grid;grid-template-columns:1fr 1fr;gap:18px;position:absolute;left:96px;right:96px;top:230px;height:310px}
+.ff .cd{padding:22px 26px}
+.ff svg{position:absolute;right:16px;bottom:14px;width:300px;height:170px}
+.ff .rx{margin-top:12px;font-family:var(--font-mono);font-size:13.5px;font-weight:700;letter-spacing:.02em}
+.ffeq{position:absolute;left:96px;right:96px;bottom:84px;height:62px;border-radius:16px;background:var(--ink-black);color:#fff;display:flex;align-items:center;justify-content:center;gap:26px;font-size:19px}
+.ffeq .eqn{font-size:30px;color:var(--ochre)}
+html.lang-ko .ffeq{font-size:17.5px}
+
+/* ---------- teaser ---------- */
+.tz{position:absolute;left:96px;right:96px;top:196px;font-size:64px;font-weight:500;letter-spacing:-.04em;line-height:1.12;color:#fff}
+html.lang-ko .tz{font-size:50px;font-weight:700;letter-spacing:-.02em}
+.tz em{font-style:normal;color:var(--pink)}
+.next-line{top:470px;text-align:left;font-size:24px}
+.next-tag{top:520px;text-align:left;left:96px;color:var(--pink)}
+.next-line{left:96px}
+.tap{cursor:default}
+.etch-svg .hides,.etch-svg .frag{transform-box:fill-box;transform-origin:center}
+.etch-svg .frag:not(.on){transform:translateY(10px)}
+.cd.hz{flex-direction:row;align-items:center;gap:22px}
+.cd.sm{padding:18px 22px}
+.cd.sm h3{font-size:22px} html.lang-ko .cd.sm h3{font-size:20px}
+.cd.sm p{font-size:15px;margin-top:5px;line-height:1.45} html.lang-ko .cd.sm p{font-size:14.5px}
+.cd.sm .imgslot{font-size:9.5px}
+.cd .tag{position:absolute;right:20px;top:18px;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.12em;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.5);color:var(--ink)}
+.cd.pk .tag,.cd.tl .tag{background:rgba(255,255,255,.22);color:#fff}
+
+html.lang-ko body{word-break:keep-all}
+.etch-list .it{padding:10px 0}
+.etch-list .tt{font-size:20px}
+.etch-list .dd{font-size:15px;line-height:1.45}
+.etch-why{top:588px;font-size:16px;padding:10px 16px}
+.mkr>span{font-size:11px}
+.mkr span span{position:static;transform:none;font-size:inherit;top:auto;left:auto}
+.tb-axis i{font-size:12px}
+.cd.sm .k{margin-bottom:6px}
+.tz{top:176px}
+.next-line{top:392px}
+.next-tag{top:446px}
+.op-no{position:absolute;left:84px;top:120px;font-size:260px;font-weight:500;letter-spacing:-.06em;line-height:1;color:var(--ac)}
+.op-t{position:absolute;left:96px;top:400px;right:96px;font-size:56px;font-weight:500;letter-spacing:-.035em;line-height:1.1;color:#fff}
+html.lang-ko .op-t{font-size:46px;font-weight:700;letter-spacing:-.015em}
+.op-list{position:absolute;left:96px;right:96px;top:500px;display:flex;flex-wrap:wrap;gap:12px}
+.op-pill{font-size:18px;padding:9px 20px;border-radius:999px;background:var(--card-dark);color:var(--text-dark);border:1px solid var(--hairline-dark)}
+html.lang-ko .op-pill{font-size:16.5px}
+.end-links{bottom:84px;justify-content:flex-start;left:96px}
+.end-links a{font-size:14px;color:#fff;border-bottom-color:var(--pink)}
+/* periodic table */
+#ptab{display:grid;grid-template-columns:repeat(18,1fr);grid-template-rows:repeat(3,66px) 40px;gap:5px}
+.pt{border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:background .4s,opacity .4s,color .4s;color:var(--ink)}
+.pt b{font-size:22px;font-weight:700}.pt i{position:absolute;left:6px;top:3px;font-style:normal;font-size:10px;font-family:var(--font-mono);opacity:.6}
+.pt.mt{background:var(--lav)}.pt.md{background:var(--ochre)}.pt.nm{background:var(--peach)}.pt.hl{background:var(--pink);color:#fff}.pt.ng{background:var(--mint)}
+#ptab.u .pt{background:var(--strong);opacity:.4;color:var(--ink)}
+#ptab.u .pt.u{background:var(--pink);color:#fff;opacity:1}
+.pv{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:17px;color:var(--ac)}
+.pv.cap{font-size:13px;color:var(--steel);justify-content:flex-start;font-weight:500}
+/* energy rows */
+.en-row{display:flex;align-items:center;gap:16px;height:36px}
+.en-k{width:190px;font-size:19px}.en-k small{color:var(--steel);font-size:13px;margin-left:6px}
+.en-t{flex:1;height:22px;border-radius:11px;background:var(--surface);position:relative}
+.en-f{height:100%;border-radius:11px;background:var(--steel-soft);width:0;transition:background .3s}
+.en-t i{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--ink);border-radius:2px}
+.en-row.ok .en-f{background:var(--pink)}
+.en-v{width:80px;font-family:var(--font-mono);font-weight:700;font-size:14px}
+.en-s{width:150px;font-size:14px;font-weight:700;color:var(--steel-soft)}
+.en-row.ok .en-s{color:var(--pink)}
+
+/* ---------- ch01 revision: chart, images, simulators, HBM ---------- */
+.cover-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.17;pointer-events:none;
+  -webkit-mask-image:linear-gradient(100deg,transparent 22%,#000 70%);mask-image:linear-gradient(100deg,transparent 22%,#000 70%)}
+.frag.ln{opacity:1;transform:none;stroke-dasharray:1 3;stroke-dashoffset:1.05;transition:stroke-dashoffset 1.7s cubic-bezier(.4,0,.2,1)}
+.frag.ln.on{stroke-dashoffset:0}
+.frag.flow{stroke-dasharray:4 8;animation:flow 1.4s linear infinite;transform:none}
+.aichart{display:grid;grid-template-columns:700px 1fr;gap:24px;height:340px}
+.aisvg{width:700px;height:340px;display:block;overflow:visible}
+.aisvg .ax{font-family:var(--font-mono);font-size:11px;fill:#5b6b66}
+.aisvg .ax2{font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;fill:#5b6b66}
+.lgs{display:flex;flex-direction:column;gap:10px}
+.lg{flex:1;border-radius:16px;padding:9px 14px 9px 22px;background:var(--surface);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.lg{border:3px solid var(--c);padding-left:16px}
+.lg b{display:block;font-size:17px;font-weight:500;letter-spacing:-.01em;line-height:1.2}
+html.lang-ko .lg b{font-weight:700;font-size:16px}
+.lgx{display:grid;margin-top:3px;font-size:13.5px;line-height:1.38;color:#3d4a46}
+html.lang-ko .lgx{font-size:13px;line-height:1.42}
+.lgx>div{grid-area:1/1}
+.lgx .pull{color:var(--ink);font-weight:500}
+.simbar{position:absolute;left:96px;right:96px;bottom:84px;height:62px;border-radius:16px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 12px 0 26px;font-size:18px;font-weight:500;letter-spacing:-.01em}
+html.lang-ko .simbar{font-size:17px;font-weight:700}
+.simbtn{flex:none;background:var(--pink);color:#fff;text-decoration:none;border-radius:999px;padding:11px 22px;font-size:16px;font-weight:700;white-space:nowrap;cursor:pointer;transition:transform .2s}
+.simbtn:hover{transform:scale(1.05)}
+.imgbox{position:relative;margin:-24px -26px 18px;height:226px;background:rgba(255,255,255,.28)}
+.imgbox .imgslot{position:absolute;inset:14px}
+.imgbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hbmgrid{display:grid;grid-template-columns:600px 1fr;gap:24px;height:100%}
+.hbmsvg{width:600px;height:330px;display:block}
+.hbmsvg .hl{font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.1em}
+.hbmsvg .hb{font-size:20px;font-weight:600}
+.hbmsvg .frag{transform:none}
+.hbmr{display:flex;flex-direction:column;gap:14px}
+.hbmr .cd{flex:1;padding:18px 22px}
+.hbmr .cd p{margin-top:2px;font-size:15.5px;line-height:1.5}
+html.lang-ko .hbmr .cd p{font-size:14.5px;line-height:1.55}
+.hbmr .cd.frag{transform:translateY(16px)} .hbmr .cd.frag.on{transform:none}
+/* simulator overlay */
+#simOv{position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.86);display:none;flex-direction:column;padding:2.2vh 2.2vw;gap:1.2vh}
+#simOv.open{display:flex}
+#simOv .sim-head{display:flex;justify-content:space-between;align-items:center;color:#fff;font-family:var(--font-body,inherit);font-size:16px;font-weight:600}
+#simOv .sim-act{display:flex;gap:14px;align-items:center}
+#simOv a{color:#fff;opacity:.8;font-size:14px;text-decoration:none}
+#simOv a:hover{opacity:1}
+#simOv button{background:var(--pink);color:#fff;border:0;border-radius:999px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+#simOv iframe{flex:1;width:100%;border:0;border-radius:14px;background:#fff}
+.ax2h{position:absolute;left:64px;top:-2px;font-family:var(--font-mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;color:#5b6b66;z-index:1}
+.aisvg{padding-top:10px}
+.hbmlg{position:absolute;left:20px;top:6px;font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.04em;line-height:1.7;color:#3d4a46}
+.hbmlg .frag{transform:none}
+.imgbox.sm{height:112px;margin-bottom:14px}
+.ytlink{position:absolute;right:96px;top:112px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);background:var(--surface);border-radius:999px;padding:7px 18px 7px 9px;font-size:14px;font-weight:500;transition:transform .2s;z-index:3}
+html.lang-ko .ytlink{font-weight:700;font-size:13.5px}
+.ytlink:hover{transform:scale(1.04)}
+.ytlink svg{width:34px;height:24px;flex:none}
+.etch-svg.frag{transform:none}
+.etch-svg.frag:not(.on){transform:none}
+.etch-list .tt b,.etch-list .dd b{font-weight:700;color:var(--ink)}
+.imgfull{position:absolute;left:170px;top:164px;width:940px;height:470px;border-radius:18px;overflow:hidden;cursor:zoom-in;background:#050a1a}
+.imgfull .imgslot{position:absolute;inset:14px;color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.06)}
+.imgfull img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.zhint{position:absolute;right:12px;bottom:10px;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.08em;color:#fff;background:rgba(10,10,10,.6);border-radius:999px;padding:5px 12px;z-index:2}
+#zoomOv{position:fixed;inset:0;z-index:9999;background:rgba(5,8,20,.94);display:none;align-items:center;justify-content:center;cursor:zoom-out}
+#zoomOv.open{display:flex}
+#zoomOv img{max-width:97vw;max-height:97vh;object-fit:contain}
+.pc2{padding:0!important}
+.pc2 .pimg{position:relative;height:120px;flex:none;background:rgba(255,255,255,.28)}
+.pc2 .pimg .imgslot{position:absolute;inset:8px;font-size:9.5px;border-radius:12px}
+.pc2 .pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.pc2 .ptx{padding:9px 16px 10px}
+.pc2 .ptx .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+html .pc2 .ptx h3,html.lang-ko .pc2 .ptx h3{font-size:19px!important;margin:0!important;line-height:1.2}
+.pc2 .ptx .k{margin:0!important;font-size:10px!important;letter-spacing:.12em;white-space:nowrap}
+html .pc2 .ptx p,html.lang-ko .pc2 .ptx p{font-size:13.5px!important;line-height:1.35!important;margin-top:3px!important}
+.imgbox.r43{height:auto;aspect-ratio:4/3}
+.cd.hz.him{padding:0;gap:0;align-items:stretch}
+.him .himg{position:relative;flex:0 0 auto;height:100%;aspect-ratio:4/3;background:rgba(255,255,255,.28)}
+.him .himg .imgslot{position:absolute;inset:10px;font-size:9.5px;border-radius:12px}
+.him .himg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.him .htx{flex:1;min-width:0;padding:16px 22px;display:flex;flex-direction:column;justify-content:center}
+.cd.bgc{padding:0;justify-content:flex-end}
+.bgc .bgi{position:absolute;inset:0;background:#e0407a}
+.bgc .bgi .imgslot{position:absolute;left:20px;right:20px;top:20px;bottom:190px}
+.bgc .bgi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.bgc .bgov{position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(to top,rgba(255,77,139,.97) 0%,rgba(255,77,139,.92) 38%,rgba(255,77,139,0) 100%)}
+.bgc .bgtx{position:relative;padding:0 30px 26px}
+html.lang-ko .bgc .bgtx h3{font-size:30px!important}
+.tb-v small{display:block;font-size:12px;font-weight:500;color:var(--steel);margin-top:2px}
+.vidbtn{position:absolute;right:96px;top:112px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);background:var(--surface);border-radius:999px;padding:7px 18px 7px 8px;font-size:14px;font-weight:500;transition:transform .2s;z-index:3;cursor:pointer}
+html.lang-ko .vidbtn{font-weight:700;font-size:13.5px}
+.vidbtn:hover{transform:scale(1.04)}
+.vidbtn svg{width:28px;height:28px;flex:none}
+#vidOv{position:fixed;inset:0;z-index:9999;background:#0a0a0a;display:none;flex-direction:column;align-items:center;padding:2.2vh 2.2vw;gap:1.2vh}
+#vidOv.open{display:flex}
+#vidOv .vid-head{width:100%;display:flex;justify-content:space-between;align-items:center;color:#fff;font-size:16px;font-weight:600}
+#vidOv video{flex:1;min-height:0;max-width:100%;border-radius:12px;background:#000}
+#vidOv .vid-credit{color:#d8d4cc;font-size:14px}
+#vidOv .vid-credit a{color:#fff}
+#vidOv button{background:var(--pink);color:#fff;border:0;border-radius:999px;padding:8px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.ff .lgd{position:absolute;left:26px;bottom:20px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+.ff .lgd i{width:14px;height:14px;border-radius:50%;background:#e8b94a;border:1.5px solid #0a0a0a;display:inline-block}
+.ltsvg{position:absolute;left:26px;right:26px;bottom:12px;width:calc(100% - 52px);height:160px;overflow:visible}
+.ltsvg text{font-family:var(--font-body,inherit)}
+.cd.frag{transform:translateY(16px)} .cd.frag.on{transform:none}
+
+.logo-link{display:contents}
+.logo-link img{cursor:pointer}
+
+.mgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:-62px}
+.mc{position:relative;height:170px;border:2px solid var(--c);border-radius:16px;background:color-mix(in srgb,var(--c) 9%,#fffaf0);padding:10px 12px 0;overflow:hidden}
+.mc.frag{transform:translateY(16px)} .mc.frag.on{transform:none}
+.mc .mn{position:absolute;left:10px;top:9px;width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;font:700 12px/22px var(--font-mono,monospace);text-align:center}
+.mc .my{position:absolute;right:12px;top:10px;font:600 12px var(--font-mono,monospace);color:var(--c)}
+.mc svg{display:block;margin:14px auto 0}
+.mc h3{font-size:16px;font-weight:700;margin:2px 0 0;text-align:center;color:#0a0a0a;line-height:1.15}
+.mc .mw{font-size:11.5px;text-align:center;color:#6b6659;margin-bottom:3px}
+.mc p{font-size:12.5px;line-height:1.35;margin:0;text-align:center;color:#2b2a26;word-break:keep-all}
+.mtl{position:absolute;left:112px;right:112px;top:534px;height:30px}
+.mtl .tline{position:absolute;left:0;right:0;top:6px;height:2px;background:linear-gradient(90deg,#7a5fd1,#3b82c4,#3f8f78,#d99a1b,#e07a45,#e0508a,#5a6fd6,#2aa3a3,#8aa62a,#cc785c)}
+.mtl .tdot{position:absolute;top:0;transform:translateX(-50%);text-align:center}
+.mtl .tdot i{display:block;width:14px;height:14px;border-radius:50%;background:var(--c);margin:0 auto;border:2px solid #fffaf0}
+.mtl .tdot b{display:block;font:600 11px var(--font-mono,monospace);color:var(--c);margin-top:3px;white-space:nowrap}
+
+/* ---- ch03 atom stage (slides 5, 6) ---- */
+.astage{position:absolute;border-radius:24px;background:radial-gradient(120% 95% at 32% 48%,#15283b 0%,#0c1520 55%,#070b11 100%);box-shadow:0 22px 44px -22px rgba(7,11,17,.6),inset 0 0 0 1px rgba(255,255,255,.06)}
+.astage-tag{position:absolute;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.16em;color:rgba(220,236,255,.55);pointer-events:none}
+.lab.hl{left:724px;top:196px;bottom:70px}
+.lab.hl .ctl-row{margin-bottom:8px}
+.lab.hl .chips{margin-bottom:12px}
+.hl-act{display:flex;gap:10px;margin-top:4px}
+.fire{flex:1;height:50px;border:0;border-radius:999px;background:var(--ink);color:#fff;font:600 16px var(--font-en);display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:transform .12s,opacity .2s}
+html.lang-ko .fire{font-family:var(--font-ko);font-weight:700}
+.fire i{width:13px;height:13px;border-radius:50%;background:var(--pc,#8fe9ff);box-shadow:0 0 12px 3px var(--pc,#8fe9ff)}
+.fire:active{transform:scale(.97)} .fire:disabled{opacity:.38;cursor:default}
+.hl-act .chip-btn{height:50px;padding:0 20px;border-radius:999px}
+.hl-ro{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 16px;margin-top:16px}
+.hl-ro>div{border-top:1px solid var(--hairline);padding-top:7px}
+.hl-ro .k{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--steel-soft)}
+.hl-ro .v{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--ink);margin-top:3px;white-space:nowrap}
+.hl-ro .w{grid-column:1/-1}
+.hl-ro .w .v{font-family:var(--font-en);font-size:18px}
+html.lang-ko .hl-ro .w .v{font-family:var(--font-ko)}
+.hl-sp{margin-top:14px}
+.hl-sph{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.hl-sph .k{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--steel-soft)}
+.hl-sph #hlUvIr{flex:1;font-family:var(--font-mono);font-size:11px;color:var(--steel);text-align:right}
+.chip-btn.sm{padding:3px 12px;font-size:12px}
+#hlSpec{display:block;border-radius:10px}
+.ex-rp{position:absolute;left:118px;top:588px;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:rgba(230,242,255,.85)}
+.ex-rp:hover{background:rgba(255,255,255,.16)}
+
+/* ---- story popup ---- */
+.story-src{display:none}
+.story-btn{margin-top:auto;align-self:flex-start;font-family:var(--font-en);font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;border:0;background:rgba(10,10,10,.82);color:#fff;cursor:pointer;transition:transform .15s,background .2s}
+html.lang-ko .story-btn{font-family:var(--font-ko);font-weight:700}
+.story-btn:hover{background:#0a0a0a;transform:translateY(-1px)}
+#storyOv{position:fixed;inset:0;z-index:9998;background:rgba(5,10,12,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+#storyOv.open{display:flex;animation:stoIn .35s cubic-bezier(.2,.7,.2,1)}
+@keyframes stoIn{from{opacity:0}to{opacity:1}}
+.sto-panel{position:relative;width:min(900px,96vw);max-height:92vh;background:#fffaf0;border-radius:24px;box-shadow:0 40px 100px -20px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden;animation:stoUp .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes stoUp{from{transform:translateY(18px) scale(.985)}to{transform:none}}
+.sto-x{position:absolute;right:16px;top:14px;width:36px;height:36px;border-radius:50%;border:1px solid #e8e2d0;background:#fff;font-size:15px;cursor:pointer;color:#0a0a0a;z-index:2}
+.sto-body{overflow-y:auto;padding:34px 40px 30px;color:#0a0a0a;font-family:var(--font-en)}
+html.lang-ko .sto-body{font-family:var(--font-ko);word-break:keep-all}
+.sto-k{font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.16em;color:#7a5fd1}
+.sto-hd{display:flex;gap:24px;align-items:center;margin-top:12px}
+.sto-hd figure{margin:0;flex:0 0 112px;height:140px;border-radius:16px;overflow:hidden;background:#ebe6d6}
+.sto-hd figure img{width:100%;height:100%;object-fit:cover;filter:grayscale(.15)}
+.sto-hd h3{margin:0;font-size:34px;font-weight:500;letter-spacing:-.03em;line-height:1.1;font-family:var(--font-en)}
+.sto-hd .y{font-family:var(--font-mono);font-size:13px;color:#5f5f5a;margin-top:6px}
+.sto-hd .ld{margin-top:12px;font-size:19px;line-height:1.5;letter-spacing:-.01em}
+html.lang-ko .sto-hd .ld{font-size:18px;font-weight:700}
+.sto-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}
+.sto-it{background:#f5f0e0;border-radius:16px;padding:16px 18px}
+.sto-it .t{font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:.12em;color:#7a5fd1}
+.sto-it h4{margin:6px 0 6px;font-size:18px;font-weight:600;letter-spacing:-.015em}
+html.lang-ko .sto-it h4{font-weight:700;font-size:17px}
+.sto-it p{margin:0;font-size:14.5px;line-height:1.55;color:#2b2a26}
+.sto-also{margin-top:16px;padding:14px 18px;border-radius:14px;border:1.5px solid #e8e2d0;font-size:14.5px;line-height:1.6;color:#2b2a26}
+.sto-also b{color:#0a0a0a}
+.sto-link{margin-top:14px;padding:14px 18px;border-radius:14px;background:#0a1a1a;color:#faf5e8;font-size:15px;line-height:1.55}
+.sto-link b{color:#ff4d8b;font-weight:inherit}
+.eyebrow .must{display:inline-block;margin-left:16px;padding:4px 11px 4px 10px;border-radius:999px;background:var(--pink);color:#fff;font-size:11px;letter-spacing:.1em;vertical-align:1px;animation:mustP 2.4s ease-in-out infinite}
+html.lang-ko .eyebrow .must{font-family:var(--font-ko);letter-spacing:.02em;font-size:12px}
+@keyframes mustP{0%,100%{box-shadow:0 0 0 0 rgba(255,77,139,.45)}50%{box-shadow:0 0 0 7px rgba(255,77,139,0)}}
+.lab.hl{top:212px}
+.ex-rp{top:600px}
+
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck" data-doc="BASIC · CHAPTER 03 — ATOMS &amp; ENERGY LEVELS" data-next="basic_chapter_04.html" data-prev="basic_chapter_02.html">
+<div class="nav-hint l" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+<div class="nav-hint r" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+
+<section class="slide dark" style="--ac:#b8a4ed" data-title-en="Chapter 03" data-title-ko="챕터 03">
+  <div class="eyebrow"><b>CHAPTER</b>03</div>
+
+  <div class="op-no rise">03</div>
+  <div class="op-t rise" style="--d:.2s"><span class="t-en">Atoms & Energy Levels</span><span class="t-ko">원자와 에너지 준위</span></div>
+  <div class="op-list"><span class="op-pill rise" style="--d:0.50s"><span class="t-en">Atom structure</span><span class="t-ko">원자의 구조</span></span><span class="op-pill rise" style="--d:0.65s"><span class="t-en">Atom models</span><span class="t-ko">원자 모형</span></span><span class="op-pill rise" style="--d:0.80s"><span class="t-en">The eV unit</span><span class="t-ko">eV 단위</span></span><span class="op-pill rise" style="--d:0.95s"><span class="t-en">Energy levels</span><span class="t-ko">에너지 준위</span></span><span class="op-pill rise" style="--d:1.10s"><span class="t-en">Excitation</span><span class="t-ko">여기</span></span><span class="op-pill rise" style="--d:1.25s"><span class="t-en">Light spectrum</span><span class="t-ko">빛의 스펙트럼</span></span><span class="op-pill rise" style="--d:1.40s"><span class="t-en">Ionization</span><span class="t-ko">이온화</span></span><span class="op-pill rise" style="--d:1.55s"><span class="t-en">Recombination</span><span class="t-ko">재결합</span></span></div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>This chapter: Atom structure, Atom models, The eV unit, Energy levels, Excitation, Light spectrum, Ionization, Recombination.</p>
+</div>
+<div class="t-ko">
+<p>이 챕터에서 다룰 내용: 원자의 구조, 원자 모형, eV 단위, 에너지 준위, 여기, 빛의 스펙트럼, 이온화, 재결합.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Inside the Atom" data-title-ko="원자의 구조">
+  <div class="eyebrow"><b>03</b>ATOMS</div>
+  <h2 class="headline"><span class="t-en">An atom: a tiny nucleus and its electrons.</span><span class="t-ko">원자: 작은 핵과 그 둘레의 전자</span></h2>
+<svg class="etch-svg" style="width:480px;height:390px" viewBox="0 0 480 390" aria-label="Helium atom">
+ <circle cx="240" cy="195" r="125" fill="none" stroke="#b8a4ed" stroke-width="2" stroke-dasharray="3 9"/>
+ <circle cx="240" cy="195" r="50" fill="#fff5e0"/>
+ <circle cx="228" cy="184" r="14" fill="#ff4d8b"/><circle cx="254" cy="190" r="14" fill="#ff4d8b"/><circle cx="234" cy="210" r="14" fill="#9a9a92"/><circle cx="256" cy="212" r="14" fill="#9a9a92"/>
+ <text x="228" y="189" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Google Sans,sans-serif">+</text><text x="254" y="195" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="Google Sans,sans-serif">+</text>
+ <g><circle cx="365" cy="195" r="11" fill="#1a3a3a"/><text x="365" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="#fff" font-family="Google Sans,sans-serif">−</text>
+ <circle cx="115" cy="195" r="11" fill="#1a3a3a"/><text x="115" y="200" text-anchor="middle" font-size="15" font-weight="700" fill="#fff" font-family="Google Sans,sans-serif">−</text>
+ <animateTransform attributeName="transform" type="rotate" from="0 240 195" to="360 240 195" dur="12s" repeatCount="indefinite"/></g>
+ <text x="240" y="372" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" letter-spacing="2" fill="#6a6a6a">HELIUM · 2 PROTONS · 2 NEUTRONS · 2 ELECTRONS</text>
+</svg>
+ <div class="etch-list" style="left:640px;top:228px">
+  <div class="cd pk rise sm" style="--d:.1s;margin-bottom:12px"><div class="k">PROTON · +</div><p style="margin-top:0"><span class="t-en">In the nucleus. Positive charge. Its number defines the element.</span><span class="t-ko">원자핵 안에 있습니다. 양전하. 이 개수가 원소를 결정합니다.</span></p></div>
+  <div class="cd cr rise sm" style="--d:.25s;margin-bottom:12px"><div class="k">NEUTRON · 0</div><p style="margin-top:0"><span class="t-en">In the nucleus. No charge. About the same mass as a proton.</span><span class="t-ko">원자핵 안에 있습니다. 전하가 없습니다. 질량은 양성자와 거의 같습니다.</span></p></div>
+  <div class="cd tl rise sm" style="--d:.4s;margin-bottom:12px"><div class="k">ELECTRON · −</div><p style="margin-top:0"><span class="t-en">Outside the nucleus. Negative charge. Nearly 2,000 times lighter than a proton.</span><span class="t-ko">원자핵 바깥에 있습니다. 음전하. 양성자보다 2,000배 가까이 가볍습니다.</span></p></div>
+ </div>
+ <div class="etch-why rise" style="top:588px;--d:.6s"><span class="t-en">If the nucleus were a <b>marble</b>, the atom would be about <b>1 km</b> wide. Mostly empty space.</span><span class="t-ko">핵이 <b>구슬</b>만 하다면 원자는 지름 약 <b>1 km</b>입니다. 거의 빈 공간입니다.</span></div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>An atom has a tiny, dense nucleus of protons and neutrons, and electrons around it. A neutral atom has equal numbers of protons and electrons, so the charges cancel. Number of protons = atomic number: 1 is hydrogen, 2 helium, 14 silicon, 18 argon.</p><p>The picture is not to scale. The nucleus is about 100,000 times smaller than the atom, so a drawing to scale would show the nucleus as an invisible dot. The electrons are what matter for plasma: plasma is made by removing them.</p>
+</div>
+<div class="t-ko">
+<p>원자는 양성자와 중성자로 이루어진 작고 조밀한 핵과 그 둘레의 전자로 이루어집니다. 중성 원자는 양성자 수와 전자 수가 같아 전하가 상쇄됩니다. 양성자 수가 원자번호이며 1은 수소, 2는 헬륨, 14는 실리콘, 18은 아르곤입니다.</p><p>그림은 실제 비율이 아닙니다. 핵은 원자보다 약 10만 배 작아서 비율대로 그리면 점으로도 보이지 않습니다. 플라즈마에서 중요한 것은 전자입니다. 플라즈마는 전자를 떼어내서 만듭니다.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Atom Models" data-title-ko="원자 모형의 변천">
+  <div class="eyebrow"><b>03</b>ATOMS</div>
+  <h2 class="headline"><span class="t-en">Ten pictures of the atom.</span><span class="t-ko">원자를 보는 열 가지 그림</span></h2>
+<div class="body"><div class="mgrid"><div class="mc rise" style="--c:#7a5fd1;--d:0.00s"><div class="mn">1</div><div class="my">~400 BC</div><svg viewBox="0 0 80 52" width="76" height="50"><circle cx="40" cy="26" r="20" fill="#7a5fd1" opacity=".55"/><circle cx="33" cy="19" r="5" fill="#fff" opacity=".5"/></svg><h3><span class="t-en">Ancient Atomism</span><span class="t-ko">고대 원자론</span></h3><div class="mw"><span class="t-en">Democritus</span><span class="t-ko">데모크리토스</span></div><p><span class="t-en">Matter is made of tiny particles that cannot be cut.</span><span class="t-ko">물질은 더 쪼갤 수 없는 작은 알갱이로 이루어져 있다.</span></p></div><div class="mc rise" style="--c:#3b82c4;--d:0.08s"><div class="mn">2</div><div class="my">1803</div><svg viewBox="0 0 80 52" width="76" height="50"><circle cx="40" cy="26" r="20" fill="#3b82c4"/><circle cx="33" cy="19" r="5" fill="#fff" opacity=".45"/></svg><h3><span class="t-en">Dalton</span><span class="t-ko">돌턴</span></h3><div class="mw"><span class="t-en">John Dalton</span><span class="t-ko">존 돌턴</span></div><p><span class="t-en">Atoms are solid balls. Each element has its own kind.</span><span class="t-ko">원자는 단단한 공이다. 원소마다 종류가 다르다.</span></p></div><div class="mc rise" style="--c:#3f8f78;--d:0.16s"><div class="mn">3</div><div class="my">1904</div><svg viewBox="0 0 80 52" width="76" height="50"><circle cx="40" cy="26" r="22" fill="#3f8f78" opacity=".35"/><circle cx="30" cy="19" r="3.2" fill="#1a3a3a"/><circle cx="46" cy="17" r="3.2" fill="#1a3a3a"/><circle cx="36" cy="33" r="3.2" fill="#1a3a3a"/><circle cx="51" cy="30" r="3.2" fill="#1a3a3a"/><circle cx="40" cy="25" r="3.2" fill="#1a3a3a"/></svg><h3><span class="t-en">Thomson</span><span class="t-ko">톰슨</span></h3><div class="mw"><span class="t-en">J.J. Thomson</span><span class="t-ko">J.J. 톰슨</span></div><p><span class="t-en">Plum pudding: electrons inside a positive blob.</span><span class="t-ko">푸딩 모형: 양전하 덩어리 속에 전자가 박혀 있다.</span></p></div><div class="mc rise" style="--c:#d99a1b;--d:0.24s"><div class="mn">4</div><div class="my">1911</div><svg viewBox="0 0 80 52" width="76" height="50"><circle cx="40" cy="26" r="3.5" fill="#ff4d8b"/><circle cx="68" cy="11" r="3" fill="#1a3a3a"/><circle cx="11" cy="36" r="3" fill="#1a3a3a"/><circle cx="62" cy="44" r="3" fill="#1a3a3a"/><circle cx="16" cy="12" r="3" fill="#1a3a3a"/></svg><h3><span class="t-en">Rutherford</span><span class="t-ko">러더퍼드</span></h3><div class="mw"><span class="t-en">Ernest Rutherford</span><span class="t-ko">어니스트 러더퍼드</span></div><p><span class="t-en">A tiny dense nucleus. The rest is empty space.</span><span class="t-ko">아주 작고 조밀한 핵. 나머지는 빈 공간이다.</span></p></div><div class="mc rise" style="--c:#e07a45;--d:0.32s"><div class="mn">5</div><div class="my">1913</div><svg viewBox="0 0 80 52" width="76" height="50"><circle cx="40" cy="26" r="3.5" fill="#ff4d8b"/><circle cx="40" cy="26" r="12" fill="none" stroke="#1a3a3a" stroke-width="1.4"/><circle cx="40" cy="26" r="23" fill="none" stroke="#1a3a3a" stroke-width="1.4"/><circle cx="52" cy="26" r="3" fill="#1a3a3a"/><circle cx="17" cy="26" r="3" fill="#1a3a3a"/></svg><h3><span class="t-en">Bohr</span><span class="t-ko">보어</span></h3><div class="mw"><span class="t-en">Niels Bohr</span><span class="t-ko">닐스 보어</span></div><p><span class="t-en">Electrons on orbits with fixed energies.</span><span class="t-ko">전자는 정해진 에너지의 궤도에 있다.</span></p></div><div class="mc frag rise" style="--c:#e0508a;--d:0.00s" data-step="1"><div class="mn">6</div><div class="my">1916</div><svg viewBox="0 0 80 52" width="76" height="50"><circle cx="34" cy="26" r="3.5" fill="#ff4d8b"/><ellipse cx="40" cy="26" rx="14" ry="10" fill="none" stroke="#1a3a3a" stroke-width="1.4"/><ellipse cx="42" cy="26" rx="30" ry="18" fill="none" stroke="#1a3a3a" stroke-width="1.4" transform="rotate(-18 42 26)"/><circle cx="68" cy="16" r="3" fill="#1a3a3a"/></svg><h3><span class="t-en">Sommerfeld</span><span class="t-ko">좀머펠트</span></h3><div class="mw"><span class="t-en">Arnold Sommerfeld</span><span class="t-ko">아르놀트 좀머펠트</span></div><p><span class="t-en">Elliptical orbits and sub-levels.</span><span class="t-ko">타원 궤도와 세부 준위가 있다.</span></p></div><div class="mc frag rise" style="--c:#5a6fd6;--d:0.00s" data-step="1"><div class="mn">7</div><div class="my">1924</div><svg viewBox="0 0 80 52" width="76" height="50"><path d="M4 26 Q14 6 24 26 T44 26 T64 26 T76 26" fill="none" stroke="#5a6fd6" stroke-width="2.4" stroke-linecap="round"/><circle cx="40" cy="26" r="4" fill="#ff4d8b"/></svg><h3><span class="t-en">de Broglie</span><span class="t-ko">드브로이</span></h3><div class="mw"><span class="t-en">Louis de Broglie</span><span class="t-ko">루이 드브로이</span></div><p><span class="t-en">Electrons also behave like waves.</span><span class="t-ko">전자는 파동처럼도 행동한다.</span></p></div><div class="mc frag rise" style="--c:#2aa3a3;--d:0.00s" data-step="1"><div class="mn">8</div><div class="my">1926</div><svg viewBox="0 0 80 52" width="76" height="50"><circle cx="40" cy="26" r="3.5" fill="#ff4d8b"/><ellipse cx="40" cy="26" rx="30" ry="10" fill="none" stroke="#2aa3a3" stroke-width="1.2" opacity=".6" transform="rotate(0 40 26)"/><ellipse cx="40" cy="26" rx="30" ry="10" fill="none" stroke="#2aa3a3" stroke-width="1.2" opacity=".6" transform="rotate(60 40 26)"/><ellipse cx="40" cy="26" rx="30" ry="10" fill="none" stroke="#2aa3a3" stroke-width="1.2" opacity=".6" transform="rotate(120 40 26)"/></svg><h3><span class="t-en">Schrödinger</span><span class="t-ko">슈뢰딩거</span></h3><div class="mw"><span class="t-en">Erwin Schrödinger</span><span class="t-ko">에르빈 슈뢰딩거</span></div><p><span class="t-en">Waves give orbitals: where an electron is likely.</span><span class="t-ko">파동방정식으로 오비탈, 즉 전자가 있을 만한 영역을 구한다.</span></p></div><div class="mc frag rise" style="--c:#8aa62a;--d:0.00s" data-step="1"><div class="mn">9</div><div class="my">1927</div><svg viewBox="0 0 80 52" width="76" height="50"><defs><radialGradient id="mg"><stop offset="0" stop-color="#8aa62a" stop-opacity=".9"/><stop offset="1" stop-color="#8aa62a" stop-opacity="0"/></radialGradient></defs><ellipse cx="40" cy="26" rx="34" ry="24" fill="url(#mg)"/><circle cx="40" cy="26" r="3.5" fill="#ff4d8b"/></svg><h3><span class="t-en">Heisenberg</span><span class="t-ko">하이젠베르크</span></h3><div class="mw"><span class="t-en">Werner Heisenberg</span><span class="t-ko">베르너 하이젠베르크</span></div><p><span class="t-en">Position and speed cannot both be known exactly.</span><span class="t-ko">위치와 속도를 동시에 정확히 알 수는 없다.</span></p></div><div class="mc frag rise" style="--c:#cc785c;--d:0.00s" data-step="1"><div class="mn">10</div><div class="my">Today</div><svg viewBox="0 0 80 52" width="76" height="50"><ellipse cx="25" cy="26" rx="14" ry="9" fill="#cc785c" opacity=".5"/><ellipse cx="55" cy="26" rx="14" ry="9" fill="#cc785c" opacity=".5"/><circle cx="40" cy="26" r="3.5" fill="#ff4d8b"/></svg><h3><span class="t-en">Electron cloud</span><span class="t-ko">전자구름</span></h3><div class="mw"><span class="t-en">Quantum model</span><span class="t-ko">양자역학 모형</span></div><p><span class="t-en">No fixed path, only the probability of finding an electron.</span><span class="t-ko">정해진 경로는 없고, 전자를 찾을 확률만 있다.</span></p></div></div></div><div class="mtl frag" data-step="2"><div class="tline"></div><span class="tdot" style="--c:#7a5fd1;left:0.00%"><i></i><b>~400 BC</b></span><span class="tdot" style="--c:#3b82c4;left:11.11%"><i></i><b>1803</b></span><span class="tdot" style="--c:#3f8f78;left:22.22%"><i></i><b>1904</b></span><span class="tdot" style="--c:#d99a1b;left:33.33%"><i></i><b>1911</b></span><span class="tdot" style="--c:#e07a45;left:44.44%"><i></i><b>1913</b></span><span class="tdot" style="--c:#e0508a;left:55.56%"><i></i><b>1916</b></span><span class="tdot" style="--c:#5a6fd6;left:66.67%"><i></i><b>1924</b></span><span class="tdot" style="--c:#2aa3a3;left:77.78%"><i></i><b>1926</b></span><span class="tdot" style="--c:#8aa62a;left:88.89%"><i></i><b>1927</b></span><span class="tdot" style="--c:#cc785c;left:100.00%"><i></i><b>Today</b></span></div><div class="callout frag" data-step="3"><div><span class="t-en">Bohr's orbits are not real paths, but his <b>energy levels</b> are right. We use them.</span><span class="t-ko">보어의 궤도는 실제 경로가 아니지만 <b>에너지 준위</b>는 옳습니다. 우리는 이것을 씁니다.</span></div></div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>The atom was not discovered in one step. Each model fixed a problem with the one before it. Dalton gave atoms to chemistry. Thomson found the electron, so atoms had to have parts. Rutherford's gold-foil experiment showed that most of the atom is empty with a tiny nucleus. Bohr explained why atoms emit only certain colors of light: electrons can only have certain energies.</p><p>Sommerfeld added elliptical orbits. de Broglie suggested that electrons behave like waves, and Schrödinger turned that into an equation. Heisenberg showed that position and speed cannot both be known exactly. Together they replaced orbits with orbitals, regions where the electron is likely to be. Nobody has seen an electron circling like a planet.</p><p>You do not need to memorize all ten. Remember the road: solid ball, then plum pudding, then nucleus, then orbits, then clouds. We still draw Bohr-style energy ladders because they explain light, ionization and plasma very well.</p>
+</div>
+<div class="t-ko">
+<p>원자는 한 번에 밝혀지지 않았습니다. 모형은 앞 모형의 문제를 하나씩 고쳐 왔습니다. 돌턴은 화학에 원자를 가져왔고, 톰슨은 전자를 발견해서 원자에도 부품이 있음을 알렸습니다. 러더퍼드의 금박 실험은 원자의 대부분이 빈 공간이고 아주 작은 핵이 있음을 보여 주었습니다. 보어는 원자가 특정한 색의 빛만 내는 이유를 설명했습니다. 전자는 정해진 에너지만 가질 수 있기 때문입니다.</p><p>좀머펠트는 타원 궤도를 더했고, 드브로이는 전자가 파동처럼도 행동한다고 제안했으며, 슈뢰딩거가 이를 방정식으로 만들었습니다. 하이젠베르크는 위치와 속도를 동시에 정확히 알 수 없음을 보였습니다. 이 결과로 궤도는 오비탈, 즉 전자가 발견될 확률이 높은 영역으로 바뀌었습니다. 전자가 행성처럼 도는 모습을 본 사람은 없습니다.</p><p>열 개를 모두 외울 필요는 없습니다. 단단한 공, 푸딩, 핵, 궤도, 구름이라는 흐름만 기억하세요. 그래도 보어식 에너지 사다리를 그리는 이유는 빛, 이온화, 플라즈마를 매우 잘 설명하기 때문입니다.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="The eV Unit" data-title-ko="에너지 단위 eV">
+  <div class="eyebrow"><b>03</b>ATOMS</div>
+  <h2 class="headline"><span class="t-en">A unit for tiny energies: the eV.</span><span class="t-ko">아주 작은 에너지를 재는 단위, eV</span></h2>
+<div class="body hi"><div class="cd ink rise" style="height:96px;flex-direction:row;align-items:center;gap:22px;padding:0 28px"><div class="big m" style="margin:0;font-size:44px;color:#e8b94a">1 eV</div><p style="margin:0;font-size:19px"><span class="t-en">The energy one electron gains when it moves through <b>1 volt</b>.</span><span class="t-ko">전자 하나가 <b>1 V</b>의 전압 차를 지나며 얻는 에너지.</span></p></div>
+ <div class="grid4" style="height:236px;margin-top:18px">
+  <div class="cd cr rise" style="--d:.2s"><div class="k">THERMAL · 300 K</div><div class="big m">0.026</div><p><span class="t-en">eV: the energy of room-temperature motion</span><span class="t-ko">eV: 상온에서 입자가 가진 운동 에너지</span></p></div>
+  <div class="cd lv rise" style="--d:.35s"><div class="k">VISIBLE LIGHT</div><div class="big m">1.6–3.1</div><p><span class="t-en">eV per photon, red to violet</span><span class="t-ko">eV (광자 하나당, 빨강에서 보라까지)</span></p></div>
+  <div class="cd pk rise" style="--d:.5s"><div class="k">PLASMA ELECTRONS</div><div class="big m">~4</div><p><span class="t-en">eV, typical in chip-factory plasma</span><span class="t-ko">eV, 반도체 공정 플라즈마 전자의 대표값</span></p></div>
+  <div class="cd oc rise" style="--d:.65s"><div class="k">IONIZE HYDROGEN</div><div class="big m">13.6</div><p><span class="t-en">eV needed to free the electron</span><span class="t-ko">eV, 전자를 떼어내는 데 필요한 에너지</span></p></div>
+ </div></div>
+ <div class="src">1 eV = 1.602 × 10⁻¹⁹ J · 1 eV ≈ 11,600 K</div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>Joules are too big for single atoms, so physicists use the electron-volt. 1 eV = 1.602×10⁻¹⁹ J. It is convenient because the energy of an electron accelerated by V volts is simply V electron-volts.</p><p>Temperature can also be written in eV: 1 eV corresponds to about 11,600 K. That is why we say a plasma electron has "4 eV", the same as saying about 46,000 K. Keep the scale in mind: visible light, chemical bonds and ionization are all in the range of a few to a few tens of eV.</p>
+</div>
+<div class="t-ko">
+<p>주울(J)은 원자 하나를 다루기에는 너무 큰 단위라서 전자볼트(eV)를 씁니다. 1 eV = 1.602×10⁻¹⁹ J입니다. V볼트로 가속된 전자의 에너지가 곧 V eV이므로 편리합니다.</p><p>온도도 eV로 쓸 수 있습니다. 1 eV는 약 11,600 K에 해당합니다. 그래서 플라즈마 전자가 "4 eV"라는 말은 약 46,000 K라는 말과 같습니다. 규모를 기억하세요. 가시광선, 화학 결합, 이온화는 모두 수 eV에서 수십 eV 범위입니다.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Hydrogen Energy Levels" data-title-ko="수소의 에너지 준위">
+  <div class="eyebrow"><b>03</b>TRY IT<span class="must"><span class="t-en">★ KEY CONCEPT · MUST KNOW</span><span class="t-ko">★ 핵심 개념 · 꼭 알아야 합니다</span></span></div>
+  <h2 class="headline"><span class="t-en">Jump between levels, and see the light.</span><span class="t-ko">준위 사이를 뛰어 보며 빛을 확인하세요</span></h2>
+  <p class="lede"><span class="t-en">Excitation &amp; De-excitation</span><span class="t-ko">여기와 탈여기 (Excitation &amp; De-excitation)</span></p>
+
+ <canvas class="astage tap" id="hlCv" width="1200" height="888" style="left:96px;top:212px;width:600px;height:444px"></canvas>
+ <div class="astage-tag" style="left:122px;top:232px"><span class="t-en">HYDROGEN ATOM · BOHR MODEL</span><span class="t-ko">수소 원자 · 보어 모형</span></div>
+ <div class="astage-tag r" style="left:470px;top:232px"><span class="t-en">ENERGY</span><span class="t-ko">에너지</span></div>
+ <div class="lab lb hl">
+  <div class="ctl-row"><span class="k"><span class="t-en">The electron is on n =</span><span class="t-ko">전자의 현재 준위 n =</span></span></div>
+  <div class="chips"><button class="chip-btn on" data-from="1">1</button><button class="chip-btn" data-from="2">2</button><button class="chip-btn" data-from="3">3</button><button class="chip-btn" data-from="4">4</button><button class="chip-btn" data-from="5">5</button><button class="chip-btn" data-from="6">6</button></div>
+  <div class="ctl-row"><span class="k"><span class="t-en">Move it to n =</span><span class="t-ko">이동할 준위 n =</span></span></div>
+  <div class="chips"><button class="chip-btn" data-to="1">1</button><button class="chip-btn" data-to="2">2</button><button class="chip-btn on" data-to="3">3</button><button class="chip-btn" data-to="4">4</button><button class="chip-btn" data-to="5">5</button><button class="chip-btn" data-to="6">6</button><button class="chip-btn" data-to="0">∞</button></div>
+  <div class="hl-act"><button class="fire" id="hlFire" type="button"><i></i><span id="hlFireT"></span></button><button class="chip-btn" id="hlAuto" type="button"><span class="t-en">Auto ▶</span><span class="t-ko">자동 ▶</span></button></div>
+  <div class="hl-ro">
+   <div><div class="k">ΔE</div><div class="v" id="hlE">—</div></div>
+   <div><div class="k"><span class="t-en">WAVELENGTH λ</span><span class="t-ko">파장 λ</span></div><div class="v" id="hlL">—</div></div>
+   <div><div class="k"><span class="t-en">FREQUENCY f</span><span class="t-ko">주파수 f</span></div><div class="v" id="hlF">—</div></div>
+   <div class="w"><div class="k"><span class="t-en">LIGHT TYPE</span><span class="t-ko">빛의 종류</span></div><div class="v" id="hlS">—</div></div>
+  </div>
+  <div class="hl-sp"><div class="hl-sph"><span class="k"><span class="t-en">EMITTED LIGHT (VISIBLE)</span><span class="t-ko">방출된 빛 (가시광선)</span></span><span id="hlUvIr"></span><button class="chip-btn sm" id="hlClr" type="button"><span class="t-en">Clear</span><span class="t-ko">지우기</span></button></div>
+   <canvas id="hlSpec" width="920" height="96" style="width:460px;height:48px"></canvas>
+   <div class="tick-row"><span>380 nm</span><span>750 nm</span></div></div>
+ </div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>Hydrogen has the simplest levels: E(n) = −13.6 eV / n². The minus sign means the electron is bound; 0 eV is a free electron. Pick a start and an end level. Going down, the atom emits a photon with energy ΔE; going up, it must absorb exactly ΔE.</p><p>Wavelength follows from λ (nm) ≈ 1240 / ΔE (eV). Try 3 → 2: 1.89 eV, 656 nm, the red Hα line. Try 2 → 1: 10.2 eV, 122 nm, ultraviolet. Try any level → ∞: that is ionization. Remember that this simple formula works for hydrogen only; other atoms have messier ladders.</p><p>On the stage, light always comes in and leaves on the left. Watch the wave itself: ultraviolet light has a short, tight wave; red light a longer one. Frequency is f = ΔE / h, so 1 eV is about 242 THz. Press Auto to run a series of jumps: every visible line you emit is added to the strip on the right, and ultraviolet or infrared emissions are only counted, because the eye cannot see them.</p>
+</div>
+<div class="t-ko">
+<p>수소의 준위가 가장 간단합니다. E(n) = −13.6 eV / n². 음수는 전자가 묶여 있다는 뜻이고, 0 eV가 자유 전자입니다. 출발 준위와 도착 준위를 골라 보세요. 내려가면 ΔE만큼의 광자를 방출하고, 올라가려면 정확히 ΔE를 흡수해야 합니다.</p><p>파장은 λ (nm) ≈ 1240 / ΔE (eV)로 구합니다. 3 → 2를 해 보세요. 1.89 eV, 656 nm, 붉은 Hα선입니다. 2 → 1은 10.2 eV, 122 nm, 자외선입니다. 아무 준위에서 ∞로 가면 이온화입니다. 이 간단한 식은 수소에만 맞고, 다른 원자의 사다리는 더 복잡합니다.</p><p>화면에서 빛은 항상 원자의 왼쪽으로 들어오고 나갑니다. 파동 모양을 보세요. 자외선은 파장이 짧아 촘촘하고, 붉은 빛은 길게 늘어집니다. 주파수는 f = ΔE / h이며, 1 eV는 약 242 THz입니다. 자동 버튼을 누르면 여러 번의 도약이 이어집니다. 방출된 가시광선은 오른쪽 띠에 선으로 쌓이고, 자외선과 적외선은 눈에 보이지 않으므로 개수만 셉니다.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Excitation and De-excitation" data-title-ko="여기와 탈여기">
+  <div class="eyebrow"><b>03</b>ATOMS<span class="must"><span class="t-en">★ KEY CONCEPT · MUST KNOW</span><span class="t-ko">★ 핵심 개념 · 꼭 알아야 합니다</span></span></div>
+  <h2 class="headline"><span class="t-en">Absorb energy, rise. Fall back, glow.</span><span class="t-ko">에너지를 받으면 오르고, 내려오면 빛납니다</span></h2>
+  <p class="lede"><span class="t-en">Excitation &amp; De-excitation</span><span class="t-ko">여기와 탈여기 (Excitation &amp; De-excitation)</span></p>
+<canvas class="astage tap" id="exCv" width="1120" height="860" style="left:96px;top:212px;width:560px;height:430px"></canvas>
+ <div class="astage-tag" style="left:122px;top:232px"><span class="t-en">HYDROGEN ATOM</span><span class="t-ko">수소 원자</span></div>
+ <button class="chip-btn ex-rp" id="exReplay" type="button"><span class="t-en">↻ Replay</span><span class="t-ko">↻ 다시 보기</span></button><div class="etch-list" style="top:232px"><div class="it frag" data-step="0"><div class="no">1</div><div><div class="tt"><span class="t-en">Ground state</span><span class="t-ko">바닥 상태</span></div><div class="dd"><span class="t-en">The electron sits on the lowest level.</span><span class="t-ko">전자가 가장 낮은 준위에 있습니다.</span></div></div></div><div class="it frag" data-step="1"><div class="no">2</div><div><div class="tt"><span class="t-en">Absorbs energy</span><span class="t-ko">에너지 흡수</span></div><div class="dd"><span class="t-en">A fast electron collides, or a photon hits, with exactly ΔE.</span><span class="t-ko">빠른 전자가 충돌하거나 광자가 와서 정확히 ΔE를 줍니다.</span></div></div></div><div class="it frag" data-step="2"><div class="no">3</div><div><div class="tt"><span class="t-en">Excited state</span><span class="t-ko">들뜬 상태</span></div><div class="dd"><span class="t-en">Higher level. Unstable: it lasts only about 10⁻⁸ s.</span><span class="t-ko">더 높은 준위. 불안정해서 약 10⁻⁸ 초밖에 머물지 못합니다.</span></div></div></div><div class="it frag" data-step="3"><div class="no">4</div><div><div class="tt"><span class="t-en">Falls back, emits light</span><span class="t-ko">내려오며 빛 방출</span></div><div class="dd"><span class="t-en">It drops down and releases a photon. This is the glow.</span><span class="t-ko">아래로 떨어지며 광자를 내보냅니다. 이것이 플라즈마의 빛입니다.</span></div></div></div></div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>Excitation means lifting an electron to a higher level; de-excitation is the fall back down. The energy must match the gap exactly, like a step on a staircase: you cannot stand between two steps.</p><p>In a plasma, fast electrons keep colliding with atoms and exciting them. The atoms fall back within nanoseconds and emit light. A plasma's glow is the sum of all those tiny flashes, and its color tells you which atoms are present.</p><p>The animation shows one real case. A fast electron hits the hydrogen atom and hands over 12.09 eV, lifting its electron from n = 1 to n = 3, then flies on more slowly because it lost that energy. The excited electron does not stay. It falls to n = 2 and emits red light at 656 nm (the Hα line), then falls to n = 1 and emits ultraviolet light at 122 nm. One excitation can give two photons on the way down.</p>
+</div>
+<div class="t-ko">
+<p>여기(Excitation)는 전자를 더 높은 준위로 올리는 것이고, 탈여기는 다시 내려오는 것입니다. 에너지는 준위 간격과 정확히 같아야 합니다. 계단과 같아서 두 계단 사이에는 설 수 없습니다.</p><p>플라즈마에서는 빠른 전자가 원자와 계속 충돌해 원자를 들뜨게 합니다. 원자는 수 ns 안에 내려오며 빛을 냅니다. 플라즈마의 빛은 이런 작은 섬광들의 합이며, 그 색으로 어떤 원자가 있는지 알 수 있습니다.</p><p>애니메이션은 실제 한 가지 경우를 보여 줍니다. 빠른 전자가 수소 원자에 부딪혀 12.09 eV를 넘겨주면 전자가 n = 1에서 n = 3으로 올라가고, 부딪힌 전자는 그만큼 에너지를 잃어 더 느리게 날아갑니다. 들뜬 전자는 오래 머물지 않습니다. 먼저 n = 2로 떨어지며 656 nm의 붉은 빛(Hα선)을 내고, 다시 n = 1로 떨어지며 122 nm의 자외선을 냅니다. 한 번의 여기로 내려오는 길에 광자 두 개가 나올 수도 있습니다.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Hydrogen Spectrum" data-title-ko="수소 스펙트럼">
+  <div class="eyebrow"><b>03</b>ATOMS</div>
+  <h2 class="headline"><span class="t-en">Each atom lights up in its own colors.</span><span class="t-ko">원자마다 자기만의 색으로 빛납니다</span></h2>
+<div class="body hi">
+ <svg viewBox="0 0 1088 164" width="1088" height="164" class="rise"><defs><linearGradient id="spg" x1="0" x2="1"><stop offset="0.000" stop-color="#ff00ff"/><stop offset="0.027" stop-color="#d400ff"/><stop offset="0.054" stop-color="#aa00ff"/><stop offset="0.081" stop-color="#7f00ff"/><stop offset="0.108" stop-color="#5500ff"/><stop offset="0.135" stop-color="#2a00ff"/><stop offset="0.162" stop-color="#0000ff"/><stop offset="0.189" stop-color="#0033ff"/><stop offset="0.216" stop-color="#0066ff"/><stop offset="0.243" stop-color="#0099ff"/><stop offset="0.270" stop-color="#00ccff"/><stop offset="0.297" stop-color="#00ffff"/><stop offset="0.324" stop-color="#00ff7f"/><stop offset="0.351" stop-color="#00ff00"/><stop offset="0.378" stop-color="#24ff00"/><stop offset="0.405" stop-color="#48ff00"/><stop offset="0.432" stop-color="#6dff00"/><stop offset="0.459" stop-color="#91ff00"/><stop offset="0.486" stop-color="#b6ff00"/><stop offset="0.514" stop-color="#daff00"/><stop offset="0.541" stop-color="#ffff00"/><stop offset="0.568" stop-color="#ffd700"/><stop offset="0.595" stop-color="#ffb000"/><stop offset="0.622" stop-color="#ff8900"/><stop offset="0.649" stop-color="#ff6200"/><stop offset="0.676" stop-color="#ff3a00"/><stop offset="0.703" stop-color="#ff1300"/><stop offset="0.730" stop-color="#ff0000"/><stop offset="0.757" stop-color="#ff0000"/><stop offset="0.784" stop-color="#ff0000"/><stop offset="0.811" stop-color="#ff0000"/><stop offset="0.838" stop-color="#ff0000"/><stop offset="0.865" stop-color="#ff0000"/><stop offset="0.892" stop-color="#ff0000"/><stop offset="0.919" stop-color="#ff0000"/><stop offset="0.946" stop-color="#ff0000"/><stop offset="0.973" stop-color="#ff0000"/><stop offset="1.000" stop-color="#ff0000"/></linearGradient></defs>
+ <rect x="0" y="0" width="1088" height="92" rx="14" fill="url(#spg)" opacity=".55"/><line x1="811.6" y1="0" x2="811.6" y2="92" stroke="#0a0a0a" stroke-width="3"/><text x="811.6" y="118" text-anchor="middle" font-family="Google Sans,sans-serif" font-size="17" font-weight="700">Hα</text><text x="811.6" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#5f5f5a">656 nm</text><text x="811.6" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8a8a82">457 THz</text><line x1="311.7" y1="0" x2="311.7" y2="92" stroke="#0a0a0a" stroke-width="3"/><text x="311.7" y="118" text-anchor="middle" font-family="Google Sans,sans-serif" font-size="17" font-weight="700">Hβ</text><text x="311.7" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#5f5f5a">486 nm</text><text x="311.7" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8a8a82">617 THz</text><line x1="158.8" y1="0" x2="158.8" y2="92" stroke="#0a0a0a" stroke-width="3"/><text x="158.8" y="118" text-anchor="middle" font-family="Google Sans,sans-serif" font-size="17" font-weight="700">Hγ</text><text x="158.8" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#5f5f5a">434 nm</text><text x="158.8" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8a8a82">691 THz</text><line x1="88.2" y1="0" x2="88.2" y2="92" stroke="#0a0a0a" stroke-width="3"/><text x="88.2" y="118" text-anchor="middle" font-family="Google Sans,sans-serif" font-size="17" font-weight="700">Hδ</text><text x="88.2" y="138" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#5f5f5a">410 nm</text><text x="88.2" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#8a8a82">731 THz</text></svg>
+ <div class="grid3" style="height:218px;margin-top:12px">
+  <div class="cd lv rise" style="--d:.2s"><div class="k">HYDROGEN</div><h3><span class="t-en">A fingerprint</span><span class="t-ko">지문</span></h3><p><span class="t-en">Four visible lines: 656, 486, 434, 410 nm. Every element has its own set.</span><span class="t-ko">가시광선 영역의 선 네 개: 656, 486, 434, 410 nm. 원소마다 자기만의 선 묶음이 있습니다.</span></p><button class="story-btn tap" data-story="stPayne" type="button"><span class="t-en">★ Story · Cecilia Payne</span><span class="t-ko">★ 일화 · 세실리아 페인</span></button></div>
+  <div class="cd pc rise" style="--d:.35s"><div class="k">NEON SIGN</div><h3><span class="t-en">Orange-red glow</span><span class="t-ko">주황빛 붉은색</span></h3><p><span class="t-en">Neon has strong lines around 585–700 nm, so the tube glows orange-red.</span><span class="t-ko">네온은 585~700 nm 부근에 강한 선이 있어 관이 주황빛 붉은색으로 빛납니다.</span></p></div>
+  <div class="cd mt rise" style="--d:.5s"><div class="k">IN THE FAB</div><h3>OES</h3><p><span class="t-en">Optical Emission Spectroscopy reads the glow to see what is in the plasma, or when an etch has finished.</span><span class="t-ko">Optical Emission Spectroscopy는 빛을 읽어 플라즈마 속 성분이나 Etch가 끝나는 시점을 알아냅니다.</span></p></div>
+ </div></div><div class="story-src" id="stPayne">
+ <div class="sto-k"><span class="t-en">STORY · READING STARLIGHT</span><span class="t-ko">일화 · 별빛을 읽은 사람</span></div>
+ <div class="sto-hd"><figure><img src="./images/cecilia_payne.jpg" alt="" onerror="this.parentNode.remove()"></figure>
+  <div><h3>Cecilia Payne-Gaposchkin</h3><div class="y">1900 – 1979</div>
+  <div class="ld"><span class="t-en">She read the dark lines in starlight and found out what the stars are made of.</span><span class="t-ko">별빛 속 어두운 선을 읽어, 별이 무엇으로 이루어졌는지 처음 밝혔습니다.</span></div></div></div>
+ <div class="sto-cols"><div class="sto-it"><div class="t">1925</div><h4><span class="t-en">Stars are mostly hydrogen and helium</span><span class="t-ko">별은 대부분 수소와 헬륨</span></h4><p><span class="t-en">In her PhD thesis she analysed the absorption lines in starlight with the new atomic physics of the time. Everyone believed stars had roughly the same mix of elements as the Earth. Her answer: they are made mostly of hydrogen and helium.</span><span class="t-ko">박사 학위 논문에서 당시 새로 나온 원자물리학으로 별빛의 흡수선을 분석했습니다. 모두가 별의 성분이 지구와 비슷하다고 믿던 때였습니다. 그녀가 얻은 답은, 별이 대부분 수소와 헬륨으로 이루어져 있다는 것이었습니다.</span></p></div><div class="sto-it"><div class="t">NOT BELIEVED</div><h4><span class="t-en">Too strange to accept</span><span class="t-ko">받아들이기엔 너무 낯선 결과</span></h4><p><span class="t-en">Henry Norris Russell, the leading astronomer of the day, told her it could not be right, and she wrote in her thesis that the result was "almost certainly not real". A few years later Russell reached the same conclusion. Astronomer Otto Struve later called her thesis "the most brilliant PhD thesis ever written in astronomy".</span><span class="t-ko">당대 최고의 천문학자 헨리 노리스 러셀은 이 결과가 맞을 리 없다고 했고, 그녀는 논문에 이 결과가 "거의 확실히 실제가 아니다"라고 적어야 했습니다. 몇 년 뒤 러셀도 같은 결론에 이르렀습니다. 천문학자 오토 스트루베는 이 논문을 "천문학 역사상 가장 뛰어난 박사 학위 논문"이라고 불렀습니다.</span></p></div><div class="sto-it"><div class="t">HARVARD</div><h4><span class="t-en">A string of firsts</span><span class="t-ko">이어진 최초의 기록</span></h4><p><span class="t-en">In 1956 she became the first woman promoted to full professor in Harvard’s Faculty of Arts and Sciences, and then the first woman to chair a department at Harvard.</span><span class="t-ko">1956년 하버드 대학교 인문과학대학에서 여성 최초로 정교수가 되었고, 이어서 하버드에서 여성 최초로 학과장을 맡았습니다.</span></p></div></div>
+ <div class="sto-also"><span class="t-en"><b>Also: the "Harvard Computers".</b> From the late 1800s, a team of women at Harvard Observatory measured and sorted hundreds of thousands of star spectra on glass photographic plates. <b>Annie Jump Cannon</b> built the star classes O, B, A, F, G, K, M that astronomers still use. <b>Henrietta Leavitt</b> found the law of Cepheid variable stars that lets us measure distances across the universe.</span><span class="t-ko"><b>함께 기억할 사람들: "하버드 컴퓨터즈".</b> 19세기 말부터 하버드 천문대에서는 여성 연구원들이 유리 사진판에 찍힌 수십만 장의 별 스펙트럼을 측정하고 분류했습니다. <b>애니 점프 캐넌</b>은 지금도 쓰이는 별의 분류 O, B, A, F, G, K, M을 만들었고, <b>헨리에타 리비트</b>는 세페이드 변광성의 법칙을 발견해 우주의 거리를 잴 수 있게 했습니다.</span></div>
+ <div class="sto-link"><span class="t-en"><b>Link to this lecture.</b> An absorption line is the "absorb" case from the energy-level lab: atoms in a star’s outer layer take exactly ΔE out of the passing light, leaving a dark line at that one wavelength. The same fingerprint idea runs OES in a fab today.</span><span class="t-ko"><b>이번 강의와의 연결.</b> 흡수선은 에너지 준위 실습의 "흡수"와 같습니다. 별의 바깥층 원자가 지나가는 빛에서 정확히 ΔE만큼을 가져가므로, 그 파장 하나에만 어두운 선이 남습니다. 같은 지문 원리가 오늘날 반도체 공장의 OES에 쓰입니다.</span></div>
+</div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>The four lines come from electrons falling from n = 3, 4, 5, 6 down to n = 2 (the Balmer series). Use the previous lab to check: 3 → 2 gives 656 nm, 4 → 2 gives 486 nm. Each line also has a frequency, f = c / λ: 656 nm is about 457 THz and 410 nm about 731 THz. Shorter wavelength means higher frequency and more energy per photon. Falls to n = 1 are ultraviolet (Lyman), falls to n = 3 are infrared (Paschen).</p><p>Because the gaps are different in every atom, the pattern of lines is a fingerprint. In a real Chamber, a spectrometer watches particular lines. When the film being etched is gone, the by-products change and a line rises or falls: that moment is the etch end point. The colors drawn here are an approximation.</p>
+</div>
+<div class="t-ko">
+<p>네 개의 선은 전자가 n = 3, 4, 5, 6에서 n = 2로 떨어질 때 나옵니다(발머 계열). 앞의 실습으로 확인해 보세요. 3 → 2는 656 nm, 4 → 2는 486 nm입니다. 각 선은 주파수로도 나타낼 수 있습니다(f = c / λ). 656 nm는 약 457 THz, 410 nm는 약 731 THz입니다. 파장이 짧을수록 주파수가 높고, 광자 하나의 에너지도 큽니다. n = 1로 떨어지면 자외선(라이먼), n = 3으로 떨어지면 적외선(파셴)입니다.</p><p>준위 간격이 원자마다 다르므로 선의 패턴은 지문과 같습니다. 실제 Chamber에서는 분광기가 특정 선을 지켜봅니다. 깎던 막이 다 없어지면 부산물이 바뀌어 어떤 선이 커지거나 작아지는데, 그 순간이 Etch 종료점입니다. 그림의 색은 근사값입니다.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Ionization Energy" data-title-ko="이온화 에너지">
+  <div class="eyebrow"><b>03</b>ATOMS</div>
+  <h2 class="headline"><span class="t-en">How hard is it to pull one electron off?</span><span class="t-ko">전자 하나를 떼어내기는 얼마나 어려울까?</span></h2>
+<div class="body hi"><div class="rise"><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">Si</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:32.6%;height:100%;border-radius:11px;background:#ffb084"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">8.15 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 94,600 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">Xe</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:48.5%;height:100%;border-radius:11px;background:#b8a4ed"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">12.13 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 140,800 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">Cl</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:51.9%;height:100%;border-radius:11px;background:#ffb084"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">12.97 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 150,500 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">H</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:54.4%;height:100%;border-radius:11px;background:#ffb084"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">13.60 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 157,800 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">O</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:54.5%;height:100%;border-radius:11px;background:#ffb084"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">13.62 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 158,100 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">Ar</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:63.0%;height:100%;border-radius:11px;background:#ff4d8b"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">15.76 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 182,900 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">F</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:69.7%;height:100%;border-radius:11px;background:#ffb084"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">17.42 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 202,200 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">Ne</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:86.2%;height:100%;border-radius:11px;background:#b8a4ed"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">21.56 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 250,200 K)</span></div></div><div style="display:flex;align-items:center;gap:14px;height:32px"><div style="width:44px;font-weight:700;font-size:20px">He</div><div style="flex:1;height:22px;border-radius:11px;background:var(--surface)"><div style="width:98.4%;height:100%;border-radius:11px;background:#b8a4ed"></div></div><div style="width:236px;font-family:var(--font-mono);font-weight:700;font-size:15px;white-space:nowrap">24.59 eV <span style="font-weight:500;color:var(--steel-soft)">(≈ 285,400 K)</span></div></div></div></div><div class="callout soft rise" style="--d:.5s"><div><span class="t-en">Ionization energy: the minimum energy to remove one electron. <b>Ar</b> is the workhorse gas.</span><span class="t-ko">이온화 에너지: 전자 하나를 떼어내는 데 필요한 최소 에너지. <b>Ar</b>이 대표 가스입니다.</span></div></div><div class="src" style="bottom:52px">PURPLE = NOBLE GAS · PINK = ARGON · 1 eV ≈ 11,600 K</div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>First ionization energy is the energy needed to pull the outermost electron off a neutral atom. Hydrogen needs 13.6 eV, which is exactly the depth of its ground level. Noble gases are tightly bound: helium needs 24.6 eV, the highest of all elements. Silicon, a metalloid, lets go at 8.2 eV.</p><p>Why is argon the common plasma gas? It does not react chemically, and at 15.8 eV it is cheaper to ionize than helium or neon, and cheaper than the lighter noble gases. Values here are rounded; they are for single atoms, and molecules like O₂ and N₂ have their own values.</p><p>The temperature in brackets is the same energy written as a temperature (T = E / k, 1 eV ≈ 11,600 K). A gas does not have to reach 180,000 K before argon ionizes. In a plasma only the fastest electrons need that much energy, and a few always have it, so a few-eV electron population is enough.</p>
+</div>
+<div class="t-ko">
+<p>첫 번째 이온화 에너지는 중성 원자에서 가장 바깥 전자 하나를 떼어내는 데 필요한 에너지입니다. 수소는 13.6 eV로, 바닥 준위의 깊이와 같습니다. 비활성 기체는 단단히 묶여 있습니다. 헬륨은 24.6 eV로 모든 원소 중 가장 높습니다. 준금속인 실리콘은 8.2 eV에서 놓아 줍니다.</p><p>아르곤이 대표적인 플라즈마 가스인 이유는 화학 반응을 하지 않고, 15.8 eV로 헬륨이나 네온보다 이온화하기 쉽기 때문입니다. 값은 반올림했고 단일 원자 기준입니다. O₂, N₂ 같은 분자는 따로 값이 있습니다.</p><p>괄호 속 온도는 같은 에너지를 온도로 바꿔 쓴 값입니다(T = E / k, 1 eV ≈ 11,600 K). 기체 전체가 18만 K가 되어야 아르곤이 이온화되는 것은 아닙니다. 플라즈마에서는 가장 빠른 일부 전자만 그만한 에너지를 가지면 되고, 그런 전자는 늘 조금씩 있으므로 평균 수 eV의 전자로 충분합니다.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Recombination" data-title-ko="재결합">
+  <div class="eyebrow"><b>03</b>ATOMS<span class="must"><span class="t-en">★ KEY CONCEPT · MUST KNOW</span><span class="t-ko">★ 핵심 개념 · 꼭 알아야 합니다</span></span></div>
+  <h2 class="headline"><span class="t-en">Pull an electron off, and let one back.</span><span class="t-ko">전자를 떼어내고, 다시 붙잡히고</span></h2>
+  <p class="lede"><span class="t-en">Ionization &amp; Recombination</span><span class="t-ko">이온화와 재결합 (Ionization &amp; Recombination)</span></p>
+<div class="body hi"><div class="grid2" style="height:196px">
+ <div class="cd pk rise" style="--d:.1s"><div class="k">IONIZATION</div><h3><span class="t-en">Atom + fast electron → ion + 2 electrons</span><span class="t-ko">원자 + 빠른 전자 → 이온 + 전자 2개</span></h3><p><span class="t-en">A collision with at least 13.6 eV (for hydrogen) knocks an electron out.</span><span class="t-ko">13.6 eV 이상(수소 기준)의 충돌이 전자를 떼어냅니다.</span></p><div class="rx" style="font-family:var(--font-mono);font-weight:700;margin-top:auto">A + e⁻ → A⁺ + 2 e⁻</div></div>
+ <div class="cd tl frag" data-step="1"><div class="k">RECOMBINATION</div><h3><span class="t-en">Ion + electron → atom + light</span><span class="t-ko">이온 + 전자 → 원자 + 빛</span></h3><p><span class="t-en">A free electron is captured and the extra energy leaves as a photon.</span><span class="t-ko">자유 전자가 붙잡히고 남는 에너지가 광자로 나갑니다.</span></p><div class="rx" style="font-family:var(--font-mono);font-weight:700;margin-top:auto">A⁺ + e⁻ → A + hν</div></div>
+ </div></div>
+ <div class="callout frag" data-step="2" style="bottom:84px"><div><span class="t-en">In a steady plasma, ionization and recombination <b>balance</b>. That balance is what we control.</span><span class="t-ko">안정된 플라즈마에서는 이온화와 재결합이 <b>균형</b>을 이룹니다. 우리가 제어하는 것이 이 균형입니다.</span></div></div>
+ <div class="body frag" data-step="3" style="top:454px;bottom:160px;font-size:17px;color:var(--steel)"><span class="t-en">The same thing happened in the early universe, 380,000 years after the Big Bang: electrons joined nuclei and the plasma became gas.</span><span class="t-ko">초기 우주에서도 같은 일이 있었습니다. 빅뱅 38만 년 뒤 전자가 원자핵에 붙으면서 플라즈마가 기체가 되었습니다.</span></div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>Recombination is ionization run backwards. The electron falls into a level of the ion, and the energy it had to lose is emitted as light. In a chip-factory plasma it also happens on the Chamber walls, where ions and electrons meet and neutralize.</p><p>If we stop supplying energy, recombination wins within a fraction of a second and the plasma disappears. When we supply power continuously, ionization keeps pace with recombination and the plasma stays alive. Press next to build the slide.</p>
+</div>
+<div class="t-ko">
+<p>재결합은 이온화를 거꾸로 돌린 것입니다. 전자가 이온의 한 준위로 떨어지고, 내놓아야 할 에너지가 빛으로 나갑니다. 반도체 공정 플라즈마에서는 이온과 전자가 만나 중성이 되는 Chamber 벽에서도 일어납니다.</p><p>에너지 공급을 멈추면 재결합이 이겨서 1초도 안 되어 플라즈마가 사라집니다. 전력을 계속 공급하면 이온화가 재결합을 따라가며 플라즈마가 유지됩니다. 다음 키를 눌러 슬라이드를 완성해 보세요.</p>
+</div>
+</div>
+</section>
+<section class="slide" style="--ac:#7a5fd1" data-title-en="Ionization and Recombination" data-title-ko="이온화와 재결합">
+  <div class="eyebrow"><b>03</b>TRY IT<span class="must"><span class="t-en">★ KEY CONCEPT · MUST KNOW</span><span class="t-ko">★ 핵심 개념 · 꼭 알아야 합니다</span></span></div>
+  <h2 class="headline"><span class="t-en">Knock it out, catch it back.</span><span class="t-ko">떼어내고, 다시 붙잡는 순간</span></h2>
+  <p class="lede"><span class="t-en">Ionization &amp; Recombination</span><span class="t-ko">이온화와 재결합 (Ionization &amp; Recombination)</span></p>
+<canvas class="astage tap" id="irCv" width="1120" height="860" style="left:96px;top:212px;width:560px;height:430px"></canvas>
+ <div class="astage-tag" style="left:122px;top:232px"><span class="t-en">HYDROGEN ATOM</span><span class="t-ko">수소 원자</span></div>
+ <button class="chip-btn ex-rp" id="irReplay" type="button"><span class="t-en">↻ Replay</span><span class="t-ko">↻ 다시 보기</span></button><div class="etch-list" style="top:240px"><div class="it frag" data-step="0"><div class="no">1</div><div><div class="tt"><span class="t-en">Neutral atom</span><span class="t-ko">중성 원자</span></div><div class="dd"><span class="t-en">The electron is bound on n = 1.</span><span class="t-ko">전자가 n = 1에 묶여 있습니다.</span></div></div></div><div class="it frag" data-step="1"><div class="no">2</div><div><div class="tt"><span class="t-en">Ionization</span><span class="t-ko">이온화</span></div><div class="dd"><span class="t-en">A fast electron brings at least 13.6 eV and knocks it out: one ion, two free electrons.</span><span class="t-ko">빠른 전자가 13.6 eV 이상을 가져와 전자를 떼어냅니다. 이온 하나와 자유 전자 두 개가 남습니다.</span></div></div></div><div class="it frag" data-step="2"><div class="no">3</div><div><div class="tt"><span class="t-en">Recombination</span><span class="t-ko">재결합</span></div><div class="dd"><span class="t-en">The ion catches a slow free electron. The extra energy leaves as one photon.</span><span class="t-ko">이온이 느린 자유 전자를 붙잡습니다. 남는 에너지는 광자 하나로 나갑니다.</span></div></div></div><div class="it frag" data-step="3"><div class="no">4</div><div><div class="tt"><span class="t-en">Cascade, glow</span><span class="t-ko">계단식으로 내려오며 빛</span></div><div class="dd"><span class="t-en">Caught on a high level, the electron steps down and emits light at each step.</span><span class="t-ko">높은 준위에 붙잡힌 전자는 한 계단씩 내려오며 그때마다 빛을 냅니다.</span></div></div></div></div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>Step 2 is ionization by electron impact, the main way a chip-factory plasma makes new ions. The incoming electron must bring at least the ionization energy (13.6 eV for hydrogen). It leaves slower, and now there are two free electrons and one positive ion. In the ladder the electron goes above the ∞ line: it is free.</p><p>Step 3 is recombination. A free electron moving with about 1 eV is caught on n = 3. It must give up its kinetic energy plus the binding energy of that level (1.0 + 1.51 = 2.51 eV), so one photon of about 494 nm flies out. Then, in step 4, the electron cascades down: 3 → 2 gives red 656 nm light and 2 → 1 gives ultraviolet 122 nm light.</p><p>A plasma survives only while ionization keeps up with recombination. Turn off the RF power and recombination wins: the glow fades within a fraction of a second. In a real Chamber most recombination actually happens on the walls, where ions and electrons meet the surface.</p>
+</div>
+<div class="t-ko">
+<p>2단계는 전자 충돌에 의한 이온화로, 반도체 공정 플라즈마가 새 이온을 만드는 주된 방법입니다. 들어오는 전자는 적어도 이온화 에너지(수소는 13.6 eV)를 가져와야 합니다. 부딪힌 전자는 느려져서 나가고, 이제 자유 전자 두 개와 양이온 하나가 남습니다. 사다리에서 전자는 ∞ 선 위로 올라가는데, 이것이 자유롭다는 뜻입니다.</p><p>3단계는 재결합입니다. 약 1 eV로 움직이던 자유 전자가 n = 3에 붙잡힙니다. 이때 운동 에너지와 그 준위의 결합 에너지를 함께 내놓아야 하므로(1.0 + 1.51 = 2.51 eV) 약 494 nm의 광자 하나가 나갑니다. 이어서 4단계에서 전자가 계단식으로 내려오며 3 → 2에서 붉은 656 nm, 2 → 1에서 122 nm 자외선을 냅니다.</p><p>플라즈마는 이온화가 재결합을 따라잡는 동안에만 유지됩니다. RF 전력을 끄면 재결합이 이겨서 1초도 안 되어 빛이 사라집니다. 실제 Chamber에서는 재결합의 대부분이 이온과 전자가 벽 표면을 만나는 곳에서 일어납니다.</p>
+</div>
+</div>
+</section>
+<section class="slide dark" style="--ac:#7a5fd1" data-title-en="Next" data-title-ko="다음">
+  <div class="eyebrow"><b>NEXT</b>CHAPTER 03 → 04</div>
+
+  <div class="tz rise" style="--d:.1s"><span class="t-en">Atoms rarely stay alone. <em>Molecules</em> are what we put in a Chamber.</span><span class="t-ko">원자는 혼자 있는 경우가 드뭅니다. Chamber에 넣는 것은 대부분 <em>분자</em>입니다.</span></div>
+  <div class="next-line frag" data-step="1"><span class="t-en">So how do atoms bond, and how do we break them apart?</span><span class="t-ko">그렇다면 원자는 어떻게 결합하고, 우리는 그것을 어떻게 끊을까요?</span></div>
+  <div class="next-tag frag" data-step="2">NEXT · CHAPTER 04 — BONDING & DISSOCIATION</div>
+  <div class="end-links"><a href="basic_chapter_04.html">CHAPTER 04 →</a></div>
+  <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
+<div class="slide-note">
+<div class="t-en">
+<p>We saw that electrons sit on energy levels and that enough energy frees them. Next we look at outer electrons, which decide how atoms bond into molecules, and how plasma breaks those molecules.</p>
+</div>
+<div class="t-ko">
+<p>전자가 에너지 준위에 있고 충분한 에너지가 주어지면 떨어져 나간다는 것을 보았습니다. 다음은 원자들이 분자로 결합하는 방식을 결정하는 바깥 전자와, 플라즈마가 그 분자를 끊는 과정입니다.</p>
+</div>
+</div>
+</section>
+
+</div></div>
+
+<!-- control bar -->
+<div id="bar">
+  <button id="prevBtn" title="Previous (←)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <span class="dots" id="dots"></span>
+  <button id="nextBtn" title="Next (→)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+  <span class="sep"></span>
+  <button id="gridBtn" title="Overview (G)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+  <button id="notesBtn" title="Lecture notes (N)"><svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h6"/></svg></button>
+  <button id="langBtn" title="Language (L)">한국어</button>
+  <button id="fsBtn" title="Fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  <span class="sep"></span>
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="benedu-insight.github.io" aria-label="Homepage"><svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg></a>
+  <a href="https://www.instagram.com/benedu.insight/" target="_blank" rel="noopener" title="Instagram · @benedu.insight" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg></a>
+</div>
+
+<!-- notes -->
+<div id="notesTab">LECTURE NOTES</div>
+<aside id="notes">
+  <div class="notes-head"><div><span class="ttl"><span class="t-en">LECTURE NOTES</span><span class="t-ko en">강의 노트</span></span><span class="no" id="notesNo"></span></div><button id="notesClose" aria-label="Close">×</button></div>
+  <div class="notes-title" id="notesTitle"></div>
+  <div class="notes-body" id="notesBody"></div>
+  <div class="notes-foot"><span class="t-en">SUPPLEMENTARY EXPLANATION · N TO TOGGLE</span><span class="t-ko">수강생을 위한 보충 설명 · N 키로 열고 닫기</span></div>
+</aside>
+
+<!-- grid -->
+<div id="grid">
+  <div class="grid-head"><span class="ttl">OVERVIEW</span><span class="hint">CLICK A SLIDE · ESC TO CLOSE</span></div>
+  <div class="grid-wrap" id="gridWrap"></div>
+</div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = [].slice.call(deck.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0, step = 0;
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+
+
+  /* ---- typography rule: Latin letters, numbers & symbols inside Korean text -> Google Sans ---- */
+  (function autoEn(root){
+    var C = "A-Za-z0-9ΩηπμεωΓλᵣ₀₁₂′√×≈≫=+/.()%±°·−µΔφ|-", K = "A-Za-z0-9ΩηπμεωΔφµ";
+    var re = new RegExp("["+C+"]*["+K+"]["+C+"]*(?:\\s+["+C+"]*["+K+"]["+C+"]*)*","g");
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes = [];
+    while(w.nextNode()) nodes.push(w.currentNode);
+    nodes.forEach(function(n){
+      var p = n.parentElement;
+      if(!p || !p.closest('.t-ko') || p.closest('.en,script,style')) return;
+      var t = n.nodeValue, m, last = 0, frag = document.createDocumentFragment(), hit = false;
+      re.lastIndex = 0;
+      while((m = re.exec(t))){
+        hit = true;
+        if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+        var sp = document.createElement('span'); sp.className = 'en'; sp.textContent = m[0]; frag.appendChild(sp);
+        last = m.index + m[0].length;
+      }
+      if(!hit) return;
+      if(last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+      p.replaceChild(frag, n);
+    });
+  })(document.body);
+
+  /* ---- generated decoration: cover E-field lines, history axis ticks ---- */
+  var ef = document.getElementById('efield'), svgNS = 'http://www.w3.org/2000/svg';
+  if(ef) for(var i=0;i<16;i++){
+    var t = i/16*Math.PI*2, l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',300+82*Math.cos(t)); l.setAttribute('y1',300+82*Math.sin(t));
+    l.setAttribute('x2',300+238*Math.cos(t)); l.setAttribute('y2',300+238*Math.sin(t));
+    l.setAttribute('stroke','rgba(204,120,92,.42)'); l.setAttribute('stroke-width','1.6'); l.setAttribute('class','flow');
+    ef.appendChild(l);
+  }
+  var tk = document.getElementById('ticks');
+  if(tk) for(var z=20; z<=90; z+=10){
+    var d = document.createElement('div'); d.className='tick';
+    d.style.left = (96 + (z-20)/70*1088) + 'px'; d.textContent = z;
+    tk.appendChild(d);
+  }
+
+
+  /* ---- radicals: drawn hook that scales with its content ---- */
+  document.querySelectorAll('.sqrt').forEach(function(q){
+    var old = q.querySelector('.rad'); if(old) old.remove();
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('class','rad'); svg.setAttribute('viewBox','0 0 10 20'); svg.setAttribute('preserveAspectRatio','none');
+    var pth = document.createElementNS('http://www.w3.org/2000/svg','path');
+    pth.setAttribute('d','M0.3 12.2 L2.3 11 L5.2 19.6 L9.4 0.55 L10.6 0.55');
+    svg.appendChild(pth); q.insertBefore(svg, q.firstChild);
+  });
+
+  /* ---- dot indicator ---- */
+  var dotsEl = document.getElementById('dots');
+  slides.forEach(function(s,i){ var d=document.createElement('span'); d.className='dot'; d.title=pad(i+1)+' · '+s.dataset.titleEn; d.onclick=function(){ go(i); }; dotsEl.appendChild(d); });
+
+  /* ---- footer ---- */
+  var DOC = deck.dataset.doc || '';
+  slides.forEach(function(s,i){
+    var f = document.createElement('div'); f.className='footer';
+    f.innerHTML = '<span class="fm">BENEDU INSIGHT</span><span class="fd2">'+DOC+'</span><span class="fp">'+pad(i+1)+' / '+pad(total)+'</span>';
+    s.appendChild(f);
+  });
+
+  /* ---- build steps ---- */
+  function maxStep(s){
+    var m = 0; s.querySelectorAll('[data-step]').forEach(function(e){ m = Math.max(m, +e.dataset.step); });
+    return m;
+  }
+  function applyStep(s, n){
+    s.querySelectorAll('.frag').forEach(function(e){ e.classList.toggle('on', +e.dataset.step <= n); });
+    s.querySelectorAll('.hides').forEach(function(e){ e.classList.toggle('gone', n >= +e.dataset.hide); });
+  }
+
+  function render(){
+    slides.forEach(function(s,i){
+      var was = s.classList.contains('active');
+      s.classList.toggle('active', i===idx);
+      if(i===idx && !was){ s.querySelectorAll('.rise').forEach(function(r){ r.style.animation='none'; r.offsetHeight; r.style.animation=''; }); }
+    });
+    applyStep(slides[idx], step);
+    [].forEach.call(document.querySelectorAll('#dots .dot'), function(d,i){ d.classList.toggle('on', i===idx); d.classList.toggle('done', i<idx); });
+    history.replaceState(null,'','#'+(idx+1));
+    renderNotes();
+  }
+  function go(i, atEnd){
+    idx = Math.max(0, Math.min(total-1, i));
+    step = atEnd ? maxStep(slides[idx]) : 0;
+    render();
+  }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } else if(deck.dataset.next){ location.href = deck.dataset.next; } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } else if(deck.dataset.prev){ location.href = deck.dataset.prev + '#end'; } }
+
+  /* ---- notes ---- */
+  var notes = document.getElementById('notes');
+  function renderNotes(){
+    var s = slides[idx], n = s.querySelector('.slide-note');
+    document.getElementById('notesBody').innerHTML = n ? n.innerHTML : '';
+    document.getElementById('notesNo').textContent = pad(idx+1)+' / '+pad(total);
+    document.getElementById('notesTitle').innerHTML =
+      '<span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span>';
+  }
+  function toggleNotes(force){
+    var open = force===undefined ? !notes.classList.contains('open') : force;
+    notes.classList.toggle('open', open);
+    document.getElementById('notesBtn').classList.toggle('on', open);
+  }
+
+  /* ---- language ---- */
+  var langBtn = document.getElementById('langBtn');
+  function setLang(l){
+    document.documentElement.classList.toggle('lang-ko', l==='ko');
+    document.documentElement.lang = l;
+    langBtn.textContent = l==='ko' ? 'English' : '한국어';
+    updateLab();
+  }
+  function toggleLang(){ setLang(document.documentElement.classList.contains('lang-ko') ? 'en' : 'ko'); }
+
+  /* ---- grid overview ---- */
+  var grid = document.getElementById('grid'), gw = document.getElementById('gridWrap');
+  function buildGrid(){
+    gw.innerHTML = '';
+    slides.forEach(function(s,i){
+      var th = document.createElement('div'); th.className = 'thumb' + (i===idx ? ' cur' : '');
+      var fr = document.createElement('div'); fr.className = 'frame';
+      var c = s.cloneNode(true);
+      c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(function(e){ e.removeAttribute('id'); });
+      c.classList.add('active','static'); c.classList.remove('rise');
+      applyStep(c, maxStep(c));
+      var inner = document.createElement('div'); inner.className = 'inner'; inner.appendChild(c);
+      fr.appendChild(inner); th.appendChild(fr);
+      var cap = document.createElement('div'); cap.className = 'cap';
+      cap.innerHTML = '<span class="no">'+pad(i+1)+'</span><span><span class="t-en">'+s.dataset.titleEn+'</span><span class="t-ko">'+s.dataset.titleKo+'</span></span>';
+      th.appendChild(cap);
+      th.addEventListener('click', function(){ toggleGrid(false); go(i); });
+      gw.appendChild(th);
+    });
+    scaleThumbs();
+  }
+  function scaleThumbs(){
+    gw.querySelectorAll('.thumb').forEach(function(th){
+      var f = th.querySelector('.frame'), inn = th.querySelector('.inner');
+      inn.style.transform = 'scale(' + (f.clientWidth/1280) + ')';
+    });
+  }
+  function toggleGrid(force){
+    var open = force===undefined ? !grid.classList.contains('open') : force;
+    if(open){ grid.classList.add('open'); buildGrid(); } else { grid.classList.remove('open'); }
+    document.getElementById('gridBtn').classList.toggle('on', open);
+  }
+
+  /* ---- fullscreen ---- */
+  function toggleFS(){
+    if(!document.fullscreenElement){ document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+    else { document.exitFullscreen && document.exitFullscreen(); }
+  }
+
+  var LABS = [];
+  /* ================= helpers ================= */
+  function isOn(id){ var c = document.getElementById(id); return c && c.closest('.slide').classList.contains('active'); }
+  function dual(en, ko){ return '<span class="t-en">'+en+'</span><span class="t-ko">'+ko+'</span>'; }
+  function ko(s){ return s.replace(/([A-Za-z0-9Δφ±%°.−+=,]+(?:\s+[A-Za-z0-9Δφ±%°.−+=,]+)*)/g,'<span class="en">$1</span>'); }
+  function chipSet(btns, fn){
+    btns.forEach(function(b){ b.addEventListener('click', function(ev){ ev.stopPropagation();
+      btns.forEach(function(x){ x.classList.toggle('on', x===b); }); fn(b); }); });
+  }
+
+  
+  function updateLab(){ LABS.forEach(function(l){ if(l.upd) l.upd(); }); }
+  (function loop(){
+    var last = performance.now();
+    function f(now){
+      var dt = Math.min((now-last)/1000, 0.05); last = now;
+      LABS.forEach(function(l){ if(isOn(l.id)) l.draw(dt); });
+      requestAnimationFrame(f);
+    }
+    requestAnimationFrame(f);
+  })();
+
+  /* ================= simulator overlay ================= */
+  (function(){
+    var ov = document.createElement('div'); ov.id = 'simOv';
+    ov.innerHTML = '<div class="sim-head"><span id="simTtl"></span><span class="sim-act"><a id="simTab" target="_blank" rel="noopener"><span class="t-en">Open in new tab ↗</span><span class="t-ko">새 탭에서 열기 ↗</span></a><button id="simClose" type="button"><span class="t-en">✕ Close (Esc)</span><span class="t-ko">✕ 닫기 (Esc)</span></button></span></div><iframe id="simFr" src="about:blank" allow="fullscreen"></iframe>';
+    document.body.appendChild(ov);
+    var fr = ov.querySelector('#simFr');
+    function open(a){
+      ov.querySelector('#simTtl').innerHTML = dual(a.dataset.ttlEn || 'Simulator', a.dataset.ttlKo || '시뮬레이터');
+      ov.querySelector('#simTab').href = a.dataset.sim; fr.src = a.dataset.sim; ov.classList.add('open');
+    }
+    function close(){ ov.classList.remove('open'); fr.src = 'about:blank'; }
+    document.addEventListener('click', function(e){
+      if(e.target.closest('#simOv')){ if(e.target === ov || e.target.closest('#simClose')){ close(); } e.stopPropagation(); return; }
+      var a = e.target.closest('[data-sim]'); if(!a) return;
+      e.preventDefault(); e.stopPropagation(); open(a);
+    }, true);
+    window.addEventListener('keydown', function(e){
+      if(!ov.classList.contains('open')) return;
+      if(e.key === 'Escape') close();
+      e.stopImmediatePropagation(); e.preventDefault();
+    }, true);
+  })();
+
+  /* ================= image zoom ================= */
+  (function(){
+    var ov = document.createElement('div'); ov.id = 'zoomOv'; ov.innerHTML = '<img alt="">'; document.body.appendChild(ov);
+    var im = ov.querySelector('img');
+    function close(){ ov.classList.remove('open'); im.removeAttribute('src'); }
+    document.addEventListener('click', function(e){
+      if(e.target.closest('#zoomOv')){ close(); e.stopPropagation(); return; }
+      var a = e.target.closest('[data-zoom]'); if(!a) return;
+      var src = a.querySelector('img'); if(!src) return;
+      e.preventDefault(); e.stopPropagation(); im.src = src.src; ov.classList.add('open');
+    }, true);
+    window.addEventListener('keydown', function(e){
+      if(!ov.classList.contains('open')) return;
+      if(e.key === 'Escape') close(); e.stopImmediatePropagation(); e.preventDefault();
+    }, true);
+  })();
+
+  /* ================= video overlay (looping) ================= */
+  (function(){
+    var ov = document.createElement('div'); ov.id = 'vidOv';
+    ov.innerHTML = '<div class="vid-head"><span id="vidTtl"></span><button id="vidClose" type="button"><span class="t-en">✕ Close (Esc)</span><span class="t-ko">✕ 닫기 (Esc)</span></button></div><video id="vidEl" loop muted autoplay playsinline controls></video><div class="vid-credit"><span class="t-en">Video: Instagram </span><span class="t-ko">영상 출처: Instagram </span><a id="vidCr" target="_blank" rel="noopener">@chemdoubtclinic_</a></div>';
+    document.body.appendChild(ov);
+    var v = ov.querySelector('#vidEl');
+    function open(a){
+      ov.querySelector('#vidTtl').innerHTML = dual(a.dataset.ttlEn || 'Video', a.dataset.ttlKo || '영상');
+      ov.querySelector('#vidCr').href = a.dataset.credit || '#';
+      v.src = a.dataset.vid; v.loop = true; v.muted = true; ov.classList.add('open');
+      var p = v.play(); if(p && p.catch) p.catch(function(){});
+    }
+    function close(){ ov.classList.remove('open'); v.pause(); v.removeAttribute('src'); v.load(); }
+    document.addEventListener('click', function(e){
+      if(e.target.closest('#vidOv')){ if(e.target === ov || e.target.closest('#vidClose')) close(); e.stopPropagation(); return; }
+      var a = e.target.closest('[data-vid]'); if(!a) return;
+      e.preventDefault(); e.stopPropagation(); open(a);
+    }, true);
+    window.addEventListener('keydown', function(e){
+      if(!ov.classList.contains('open')) return;
+      if(e.key === 'Escape') close();
+      e.stopImmediatePropagation(); e.preventDefault();
+    }, true);
+  })();
+
+  /* ================= story popup ([data-story] -> hidden .story-src) ================= */
+  (function(){
+    var ov = document.createElement('div'); ov.id = 'storyOv';
+    ov.innerHTML = '<div class="sto-panel"><button class="sto-x" type="button" aria-label="close">✕</button><div class="sto-body"></div></div>';
+    document.body.appendChild(ov);
+    var bd = ov.querySelector('.sto-body');
+    function close(){ ov.classList.remove('open'); }
+    document.addEventListener('click', function(e){
+      if(e.target.closest('#storyOv')){
+        if(e.target.closest('.sto-x') || !e.target.closest('.sto-panel')) close();
+        e.stopPropagation(); return;
+      }
+      var a = e.target.closest('[data-story]'); if(!a) return;
+      var src = document.getElementById(a.dataset.story); if(!src) return;
+      e.preventDefault(); e.stopPropagation();
+      bd.innerHTML = src.innerHTML; bd.scrollTop = 0; ov.classList.add('open');
+    }, true);
+    window.addEventListener('keydown', function(e){
+      if(!ov.classList.contains('open')) return;
+      if(e.key === 'Escape') close();
+      if(e.key !== 'ArrowDown' && e.key !== 'ArrowUp'){ e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
+  })();
+
+  /* ================= ATOM STAGE engine (ch03 · slides 5 & 6) =================
+     Bohr atom + energy ladder on one dark canvas. Light always enters and leaves
+     on the left side of the atom; the electron glides there to meet it.          */
+  function wlCol(nm){
+    if(nm < 380) return 'rgb(185,162,255)';          // UV: shown as soft violet
+    if(nm > 750) return 'rgb(255,127,102)';          // IR: shown as soft red
+    var r=0,g=0,b=0;
+    if(nm<440){ r=-(nm-440)/60; b=1; } else if(nm<490){ g=(nm-440)/50; b=1; } else if(nm<510){ g=1; b=-(nm-510)/20; }
+    else if(nm<580){ r=(nm-510)/70; g=1; } else if(nm<645){ r=1; g=-(nm-645)/65; } else { r=1; }
+    var f = nm>700 ? .35+.65*(750-nm)/50 : nm<420 ? .35+.65*(nm-380)/40 : 1;
+    function h(v){ return Math.round(255*Math.pow(Math.max(0,v*f),.8)); }
+    return 'rgb('+h(r)+','+Math.max(h(g),40)+','+Math.max(h(b),40)+')';
+  }
+  function H_E(n){ return n===0 ? 0 : -13.6/(n*n); }
+  function H_dE(a,b){ return Math.abs(H_E(a)-H_E(b)); }
+  function H_lam(a,b){ return 1239.84/H_dE(a,b); }
+  var H_NM = {'3-2':'Hα','4-2':'Hβ','5-2':'Hγ','6-2':'Hδ'};
+
+  function AtomStage(cv, P){
+    var c = cv.getContext('2d'); c.scale(2,2);
+    var W = cv.width/2, Hh = cv.height/2, PI = Math.PI;
+    var S = {cur:1, ang:-.7, rad:0, ladY:0, alpha:1, busy:false, anim:null, photons:[], flashes:[], proj:null, arrow:null, timers:[], t:0};
+    function rN(n){ return n===0 ? P.R*2.2 : P.R*(.14+.86*(n*n-1)/(P.N*P.N-1)); }
+    function Y(e){ return P.ly0 + Math.sqrt(-e/13.6)*(P.ly1-P.ly0); }
+    function ease(x){ x = Math.max(0,Math.min(1,x)); return x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
+    function wrap(x){ while(x>PI) x-=2*PI; while(x<=-PI) x+=2*PI; return x; }
+    function period(L){ var k = Math.log(Math.max(90,Math.min(1900,L))/90)/Math.log(1900/90); return 6+20*k; }
+    function rgba(col,a){ return col.replace('rgb(','rgba(').replace(')',','+a+')'); }
+    var dust = []; for(var i=0;i<70;i++) dust.push([Math.random()*W, Math.random()*Hh, Math.random()*1.1+.3, Math.random()]);
+
+    function set(n){
+      S.timers=[]; S.anim=null; S.fp=null; S.photons=[]; S.flashes=[]; S.proj=null; S.arrow=null; S.busy=false; S.fade=0;
+      S.cur=n; S.rad=rN(n); S.ladY=Y(H_E(n)); S.alpha=1;
+    }
+    function after(sec, fn){ S.timers.push({t:sec, fn:fn}); }
+
+    /* to > from or to = 0 : absorb (photon or fast-electron collision); to < from : emit */
+    function go(to, mode, cb, keep){
+      if(S.busy || to===S.cur) return false;
+      var from = S.cur, up = to===0 || to>from, L = H_lam(from,to), col = wlCol(L), d = H_dE(from,to);
+      var r0 = S.rad, r1 = rN(to), y0 = S.ladY, y1 = to===0 ? P.ly0-30 : Y(H_E(to));
+      var a0 = S.ang, da = wrap(PI - S.ang);
+      S.busy = true; S.arrow = {y0:y0, y1:y1, p:0, col:col, d:d, L:L, up:up, coll:mode==='collision'};
+      var t = 0, hit = false;
+      if(up){
+        var TA = .95, TR = to===0 ? 1.3 : .85;
+        var hx = P.ax - r0, hy = P.ay;
+        if(mode==='collision'){
+          S.proj = {x0:-24, y0:P.ay-100, x1:hx-4, y1:hy-2, tr:[], x:-24, y:P.ay-100, free:false};
+        } else {
+          S.photons.push({x0:-90, y0:hy, x1:hx-6, y1:hy, dur:TA, t:0, L:L, col:col, inb:true});
+        }
+        S.anim = function(dt){
+          t += dt;
+          if(t < TA){ S.ang = a0 + da*ease(t/TA);
+            if(S.proj){ var k0 = t/TA; S.proj.x = S.proj.x0+(S.proj.x1-S.proj.x0)*k0; S.proj.y = S.proj.y0+(S.proj.y1-S.proj.y0)*k0; }
+            return; }
+          if(!hit){ hit = true; S.ang = a0+da;
+            S.flashes.push({x:P.ax+r0*Math.cos(S.ang), y:P.ay+r0*Math.sin(S.ang), t:0, col:mode==='collision' ? 'rgb(191,243,255)' : col, big:1});
+            if(S.proj){ var dx = S.proj.x1-S.proj.x0, dy = S.proj.y1-S.proj.y0, m = Math.hypot(dx,dy), sp = .5*m/TA, th = Math.atan2(dy,dx)+.62;
+              S.proj.free = true; S.proj.vx = Math.cos(th)*sp; S.proj.vy = Math.sin(th)*sp; }
+          }
+          var k = ease((t-TA)/TR);
+          S.rad = r0+(r1-r0)*k; S.ladY = y0+(y1-y0)*k; S.arrow.p = k;
+          if(to===0 && !keep) S.alpha = 1-Math.max(0,(k-.35)/.65);
+          if(t >= TA+TR){
+            S.anim = null; S.cur = to;
+            if(to===0 && keep){ S.busy = false; cb && cb(); }
+            else if(to===0){ after(1.5, function(){ S.cur = from; S.rad = rN(from); S.ladY = Y(H_E(from)); S.arrow = null; S.alpha = 0; S.fade = 1; S.busy = false; cb && cb(); }); }
+            else { S.busy = false; cb && cb(); }
+          }
+        };
+      } else {
+        var TD = .8;
+        S.anim = function(dt){
+          t += dt;
+          var k = ease(t/TD);
+          S.ang = a0 + da*k; S.rad = r0+(r1-r0)*k; S.ladY = y0+(y1-y0)*k; S.arrow.p = k;
+          if(t >= TD && !hit){ hit = true; S.cur = to;
+            var ex = P.ax + r1*Math.cos(S.ang), ey = P.ay + r1*Math.sin(S.ang);
+            S.flashes.push({x:ex, y:ey, t:0, col:col, big:1.25});
+            S.photons.push({x0:ex-8, y0:ey, x1:-130, y1:ey, dur:(ex+122)/360, t:0, L:L, col:col});
+          }
+          if(t >= TD+.55){ S.anim = null; S.busy = false; cb && cb(); }
+        };
+      }
+      return true;
+    }
+
+    function packet(ph){
+      var k = ph.t/ph.dur, x = ph.x0+(ph.x1-ph.x0)*k, y = ph.y0+(ph.y1-ph.y0)*k;
+      var th = Math.atan2(ph.y1-ph.y0, ph.x1-ph.x0), cs = Math.cos(th), sn = Math.sin(th), per = period(ph.L);
+      var fade = Math.min(1, ph.t/.15); if(ph.inb) fade *= Math.min(1, (1-k)/.1);
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for(var pass=0; pass<2; pass++){
+        c.beginPath();
+        for(var s=-58; s<=58; s+=1.2){
+          var env = Math.exp(-(s*s)/(24*24)), off = 9*env*Math.sin(2*PI*s/per - S.t*9);
+          var px = x + s*cs - off*sn, py = y + s*sn + off*cs;
+          if(s===-58) c.moveTo(px,py); else c.lineTo(px,py);
+        }
+        c.strokeStyle = ph.col; c.lineCap = 'round';
+        if(pass===0){ c.lineWidth = 9; c.globalAlpha = .16*fade; } else { c.lineWidth = 2.4; c.shadowColor = ph.col; c.shadowBlur = 14; c.globalAlpha = fade; }
+        c.stroke();
+      }
+      c.shadowBlur = 0; c.globalCompositeOperation = 'source-over'; c.globalAlpha = fade;
+      c.fillStyle = ph.col; c.font = '700 11px JetBrains Mono, monospace'; c.textAlign = 'center';
+      c.fillText(Math.round(ph.L)+' nm'+(ph.L<380 ? ' · UV' : ph.L>750 ? ' · IR' : ''), Math.max(40,x), y-20);
+      c.restore();
+    }
+
+    function glow(x,y,r,col,a){
+      var g = c.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0, rgba(col,a)); g.addColorStop(1, rgba(col,0));
+      c.fillStyle = g; c.beginPath(); c.arc(x,y,r,0,2*PI); c.fill();
+    }
+
+    function draw(dt){
+      S.t += dt;
+      var tms = S.timers; S.timers = [];
+      tms.forEach(function(tm){ tm.t -= dt; if(tm.t<=0) tm.fn(); else S.timers.push(tm); });
+      if(S.anim) S.anim(dt);
+      else if(S.cur!==0) S.ang += 1.5*Math.pow(rN(1)/S.rad, .85)*dt;
+      if(S.fade){ S.alpha = Math.min(1, S.alpha + dt*2); if(S.alpha>=1) S.fade = 0; }
+
+      c.clearRect(0,0,W,Hh);
+      dust.forEach(function(p){ c.fillStyle = 'rgba(200,225,255,'+(.08+.06*Math.sin(S.t*.7+p[3]*6))+')'; c.fillRect(p[0],p[1],p[2],p[2]); });
+
+      /* orbits */
+      for(var n=1;n<=P.N;n++){
+        var r = rN(n), on = (n===S.cur && !S.busy);
+        c.beginPath(); c.arc(P.ax,P.ay,r,0,2*PI);
+        c.setLineDash(on ? [] : [2,5]); c.lineWidth = on ? 1.5 : 1;
+        c.strokeStyle = on ? 'rgba(143,233,255,.6)' : 'rgba(170,205,255,.2)'; c.stroke(); c.setLineDash([]);
+        c.fillStyle = on ? 'rgba(143,233,255,.95)' : 'rgba(220,235,255,.4)'; c.font = (on?'700 ':'500 ')+'10px JetBrains Mono, monospace'; c.textAlign = 'center';
+        c.fillText(String(n), P.ax + r*Math.cos(-PI/4)+7, P.ay + r*Math.sin(-PI/4)-5);
+      }
+      /* nucleus */
+      c.save(); c.globalCompositeOperation = 'lighter'; glow(P.ax,P.ay,30,'rgb(255,170,90)',.42); c.restore();
+      c.beginPath(); c.arc(P.ax,P.ay,8.5,0,2*PI); c.fillStyle = '#ffb067'; c.fill();
+      c.beginPath(); c.arc(P.ax-2.5,P.ay-2.5,2.6,0,2*PI); c.fillStyle = 'rgba(255,255,255,.75)'; c.fill();
+      c.fillStyle = 'rgba(255,200,150,.8)'; c.font = '700 10px JetBrains Mono, monospace'; c.textAlign = 'left'; c.fillText(S.cur===0 && !S.anim ? 'H⁺ ion' : 'p⁺', P.ax+12, P.ay-12);
+
+      /* flashes */
+      S.flashes = S.flashes.filter(function(f){ f.t += dt; var k = f.t/.6; if(k>=1) return false;
+        c.save(); c.globalCompositeOperation = 'lighter'; glow(f.x,f.y,(8+46*k)*f.big,f.col,.85*(1-k));
+        c.beginPath(); c.arc(f.x,f.y,(6+60*k)*f.big,0,2*PI); c.strokeStyle = f.col; c.globalAlpha = .6*(1-k); c.lineWidth = 1.5; c.stroke(); c.restore(); return true; });
+
+      /* electron (+ motion trail) */
+      var ex = P.ax + S.rad*Math.cos(S.ang), ey = P.ay + S.rad*Math.sin(S.ang);
+      if(S.fp){ ex = S.fp.x; ey = S.fp.y; S.fp.tr.unshift([ex,ey]); if(S.fp.tr.length>20) S.fp.tr.pop();
+        c.save(); c.globalCompositeOperation = 'lighter';
+        for(var q=1;q<S.fp.tr.length;q++){ c.beginPath(); c.moveTo(S.fp.tr[q-1][0],S.fp.tr[q-1][1]); c.lineTo(S.fp.tr[q][0],S.fp.tr[q][1]); c.strokeStyle = 'rgba(143,233,255,'+(.5*(1-q/S.fp.tr.length))+')'; c.lineWidth = 4*(1-q/S.fp.tr.length)+.5; c.stroke(); }
+        c.restore(); }
+      var hide = (S.cur===0 && !S.anim && !S.fp);
+      if(S.alpha > 0 && !hide){
+        c.save(); c.globalAlpha = S.alpha;
+        if(!S.anim && !S.fp){
+          for(var i=1;i<=14;i++){ var aa = S.ang - i*.045; c.beginPath(); c.arc(P.ax + S.rad*Math.cos(aa), P.ay + S.rad*Math.sin(aa), 3.6*(1-i/16), 0, 2*PI); c.fillStyle = 'rgba(143,233,255,'+(.3*(1-i/14))+')'; c.fill(); }
+        }
+        if(P.halo && S.cur>1 && !S.busy){ var pul = .5+.5*Math.sin(S.t*7);
+          c.beginPath(); c.arc(ex,ey,12+5*pul,0,2*PI); c.strokeStyle = 'rgba(255,190,110,'+(.35+.4*pul)+')'; c.lineWidth = 1.6; c.stroke(); }
+        c.globalCompositeOperation = 'lighter'; glow(ex,ey,20,'rgb(143,233,255)',.55); c.globalCompositeOperation = 'source-over';
+        c.beginPath(); c.arc(ex,ey,6,0,2*PI); c.fillStyle = '#e9fbff'; c.fill();
+        c.fillStyle = 'rgba(200,240,255,.85)'; c.font = '700 10px JetBrains Mono, monospace'; c.textAlign = 'center'; c.fillText('e⁻', ex, ey+19);
+        c.restore();
+      }
+
+      /* fast projectile electron (collision excitation) */
+      if(S.proj){ var pj = S.proj;
+        if(pj.free){ pj.x += pj.vx*dt; pj.y += pj.vy*dt; if(pj.x>W+30 || pj.y>Hh+30) S.proj = null; }
+        if(S.proj){ pj.tr.unshift([pj.x,pj.y]); if(pj.tr.length>22) pj.tr.pop();
+          c.save(); c.globalCompositeOperation = 'lighter';
+          for(var j=1;j<pj.tr.length;j++){ c.beginPath(); c.moveTo(pj.tr[j-1][0],pj.tr[j-1][1]); c.lineTo(pj.tr[j][0],pj.tr[j][1]); c.strokeStyle = 'rgba(127,233,255,'+(.55*(1-j/pj.tr.length))+')'; c.lineWidth = 4*(1-j/pj.tr.length)+.5; c.stroke(); }
+          glow(pj.x,pj.y,16,'rgb(127,233,255)',.6); c.restore();
+          c.beginPath(); c.arc(pj.x,pj.y,4.5,0,2*PI); c.fillStyle = '#e9fbff'; c.fill();
+          c.fillStyle = 'rgba(200,240,255,.85)'; c.font = '700 10px JetBrains Mono, monospace'; c.textAlign = 'left'; c.fillText(pj.free ? 'e⁻ slower' : 'e⁻ fast', pj.x+10, pj.y-8);
+        }
+      }
+
+      /* photons */
+      S.photons = S.photons.filter(function(ph){ ph.t += dt; if(ph.t>=ph.dur) return false; packet(ph); return true; });
+
+      /* energy ladder */
+      var lx0 = P.lx0, lx1 = P.lx1;
+      c.setLineDash([3,5]); c.strokeStyle = 'rgba(220,235,255,.3)'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(lx0,P.ly0); c.lineTo(lx1,P.ly0); c.stroke(); c.setLineDash([]);
+      c.font = '700 13px Google Sans, sans-serif'; c.textAlign = 'right'; c.fillStyle = 'rgba(220,235,255,.55)'; c.fillText('∞', lx0-8, P.ly0+4);
+      c.font = '10.5px JetBrains Mono, monospace'; c.textAlign = 'left'; c.fillText('0 eV', lx1+8, P.ly0+4);
+      for(var m=1;m<=P.N;m++){
+        var y = Y(H_E(m)), on2 = (m===S.cur && !S.busy), ty = y+4 + (P.N>=6 ? (m===6 ? -3 : m===5 ? 3 : 0) : 0);
+        c.beginPath(); c.moveTo(lx0,y); c.lineTo(lx1,y); c.lineWidth = on2 ? 3 : 2;
+        c.strokeStyle = on2 ? 'rgba(143,233,255,.95)' : 'rgba(220,235,255,.42)'; c.stroke();
+        c.font = (on2?'700 ':'500 ')+'11.5px Google Sans, sans-serif'; c.textAlign = 'right'; c.fillStyle = on2 ? '#bff3ff' : 'rgba(220,235,255,.6)'; c.fillText('n='+m, lx0-8, ty);
+        c.font = '10.5px JetBrains Mono, monospace'; c.textAlign = 'left'; c.fillStyle = 'rgba(220,235,255,.45)'; c.fillText(H_E(m).toFixed(2), lx1+8, ty);
+      }
+      if(S.arrow){ var A = S.arrow, ax = lx0+14, ya = A.y0, yb = A.y0+(A.y1-A.y0)*A.p, al = S.busy ? 1 : .6;
+        c.save(); c.globalAlpha = al; c.strokeStyle = A.col; c.fillStyle = A.col; c.lineWidth = 2.4; c.shadowColor = A.col; c.shadowBlur = 8;
+        c.beginPath(); c.moveTo(ax,ya); c.lineTo(ax,yb); c.stroke();
+        if(A.p > .9){ var dir = A.up ? -1 : 1; c.beginPath(); c.moveTo(ax,yb+dir*2); c.lineTo(ax-5,yb-dir*8); c.lineTo(ax+5,yb-dir*8); c.closePath(); c.fill(); }
+        c.shadowBlur = 0; c.font = '700 10.5px JetBrains Mono, monospace'; c.textAlign = 'left';
+        var my = (A.y0 + Math.max(A.y1, P.ly0))/2;
+        if(A.p > .05){ c.fillText(A.d.toFixed(2)+' eV', ax+8, my-3); if(!A.coll) c.fillText(Math.round(A.L)+' nm', ax+8, my+11); }
+        c.restore();
+      }
+      var dx = lx1-12;
+      if(S.alpha > 0){ c.save(); c.globalAlpha = S.alpha; c.globalCompositeOperation = 'lighter'; glow(dx,S.ladY-7,15,'rgb(143,233,255)',.55); c.restore();
+        c.save(); c.globalAlpha = S.alpha; c.beginPath(); c.arc(dx,S.ladY-7,5.5,0,2*PI); c.fillStyle = '#e9fbff'; c.fill(); c.restore(); }
+      if(S.cur===0 && !S.anim){ c.fillStyle = 'rgba(200,240,255,.85)'; c.font = '700 10.5px JetBrains Mono, monospace'; c.textAlign = 'right'; c.fillText('free e⁻', dx-14, S.ladY-4); }
+      if(P.halo && S.cur>1 && !S.busy){ c.fillStyle = 'rgba(255,190,110,.95)'; c.font = '700 10.5px JetBrains Mono, monospace'; c.textAlign = 'right'; c.fillText('≈ 10 ns', dx-12, S.ladY-16); }
+    }
+    /* recombination: a free electron (kinetic energy ke) is caught on level n; one photon carries ke + binding energy */
+    function capture(n, cb, ke){
+      if(S.busy || S.cur!==0) return false;
+      ke = ke || 1.0;
+      var Eph = -H_E(n) + ke, L = 1239.84/Eph, col = wlCol(L);
+      var x0 = -20, y0 = P.ay-90, x1 = P.ax-rN(n), y1 = P.ay, cxp = (x0+x1)/2 - 10, cyp = P.ay-170;
+      var la = P.ly0-30, lb = Y(H_E(n)), t = 0, T = 1.2, hit = false;
+      S.busy = true; S.alpha = 1; S.fp = {x:x0, y:y0, tr:[]}; S.ladY = la;
+      S.arrow = {y0:la, y1:lb, p:0, col:col, d:Eph, L:L, up:false};
+      S.anim = function(dt){
+        t += dt;
+        if(t < T){ var u = 1-Math.pow(1-t/T, 2.2), v = 1-u;
+          S.fp.x = v*v*x0 + 2*v*u*cxp + u*u*x1; S.fp.y = v*v*y0 + 2*v*u*cyp + u*u*y1; return; }
+        if(!hit){ hit = true; S.fp = null; S.cur = n; S.ang = PI; S.rad = rN(n);
+          S.flashes.push({x:x1, y:y1, t:0, col:col, big:1.3});
+          S.photons.push({x0:x1-8, y0:y1, x1:-130, y1:y1, dur:(x1+122)/360, t:0, L:L, col:col}); }
+        var k = ease((t-T)/.55); S.ladY = la+(lb-la)*k; S.arrow.p = k;
+        if(t >= T+.65){ S.anim = null; S.busy = false; cb && cb(); }
+      };
+      return true;
+    }
+    function free(){ set(1); S.cur = 0; S.rad = rN(0); S.ladY = P.ly0-30; }
+    set(1);
+    return {draw:draw, go:go, set:set, after:after, capture:capture, free:free, s:S};
+  }
+
+  /* ================= LAB: hydrogen levels (slide 5) ================= */
+  (function(){
+    var cv = document.getElementById('hlCv'); if(!cv) return;
+    var sl = cv.closest('.slide');
+    var A = AtomStage(cv, {ax:204, ay:238, R:176, N:6, lx0:440, lx1:526, ly0:62, ly1:404});
+    var to = 3, auto = false, ai = 0, wait = 0, lines = [], uv = 0, ir = 0;
+    var SEQ = [3,2,1,4,2,1,5,2,1,6,2,1];
+    var frB = [].slice.call(sl.querySelectorAll('[data-from]')), toB = [].slice.call(sl.querySelectorAll('[data-to]'));
+    var fire = sl.querySelector('#hlFire'), autoB = sl.querySelector('#hlAuto');
+    var sp = sl.querySelector('#hlSpec'), sc = sp.getContext('2d'); sc.scale(2,2);
+    function $(i){ return sl.querySelector('#'+i); }
+    function mark(){ frB.forEach(function(b){ b.classList.toggle('on', +b.dataset.from===A.s.cur); }); toB.forEach(function(b){ b.classList.toggle('on', +b.dataset.to===to); }); }
+    function info(){
+      var cur = A.s.cur;
+      if(to===cur){ fire.disabled = true; $('hlFireT').innerHTML = dual('Pick another level','다른 준위를 고르세요'); fire.style.setProperty('--pc','#8a8f98');
+        ['hlE','hlL','hlF','hlS'].forEach(function(i){ $(i).textContent = '—'; }); $('hlS').style.color = ''; return; }
+      var up = to===0 || to>cur, d = H_dE(cur,to), L = 1239.84/d, f = d*241.799, low = Math.min(cur, to===0?99:to);
+      fire.disabled = false; fire.style.setProperty('--pc', wlCol(L));
+      $('hlFireT').innerHTML = to===0 ? dual('▲ Ionize: absorb '+d.toFixed(2)+' eV','▲ 이온화: '+d.toFixed(2)+' eV 흡수')
+                         : up ? dual('▲ Absorb a photon','▲ 광자 흡수') : dual('▼ Emit a photon','▼ 광자 방출');
+      $('hlE').textContent = d.toFixed(2)+' eV';
+      $('hlL').textContent = Math.round(L)+' nm';
+      $('hlF').textContent = f>=1000 ? (f/1000).toFixed(2)+' PHz' : Math.round(f)+' THz';
+      var nm = (!up && H_NM[cur+'-'+to]) ? ' · '+H_NM[cur+'-'+to] : '';
+      $('hlS').innerHTML = (low===1 ? dual('Ultraviolet (Lyman)','자외선 (라이먼)') : low===2 ? dual('Visible (Balmer)','가시광선 (발머)') : low===3 ? dual('Infrared (Paschen)','적외선 (파셴)') : dual('Infrared','적외선')) + nm;
+      $('hlS').style.color = L<380 ? '#7a5fd1' : L>750 ? '#c4553b' : '';
+    }
+    function spec(){
+      var w = 460, h = 48;
+      sc.clearRect(0,0,w,h);
+      sc.save(); sc.beginPath(); if(sc.roundRect) sc.roundRect(0,0,w,h,10); else sc.rect(0,0,w,h); sc.clip();
+      sc.fillStyle = '#0b131d'; sc.fillRect(0,0,w,h);
+      for(var x=0;x<w;x++){ sc.fillStyle = wlCol(380+370*x/w); sc.globalAlpha = .13; sc.fillRect(x,0,1,h); } sc.globalAlpha = 1;
+      lines.forEach(function(Lm){ var x = (Lm.L-380)/370*w, col = wlCol(Lm.L);
+        sc.save(); sc.globalCompositeOperation = 'lighter'; var g = sc.createLinearGradient(x-10,0,x+10,0);
+        g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.5,col); g.addColorStop(1,'rgba(0,0,0,0)'); sc.globalAlpha = .6; sc.fillStyle = g; sc.fillRect(x-10,0,20,h); sc.restore();
+        sc.fillStyle = col; sc.fillRect(x-1,0,2,h);
+        if(Lm.nm){ sc.fillStyle = 'rgba(255,255,255,.88)'; sc.font = '700 10px JetBrains Mono, monospace'; var rt = x>w-34; sc.textAlign = rt ? 'right' : 'left'; sc.fillText(Lm.nm, x + (rt ? -5 : 5), 14); }
+      });
+      sc.restore();
+      $('hlUvIr').textContent = (uv||ir) ? ('+ UV ×'+uv+' · IR ×'+ir) : '';
+    }
+    function done(from, t2){
+      return function(){
+        if(t2 < from && t2 !== 0){ var L = H_lam(from,t2);
+          if(L<380) uv++; else if(L>750) ir++; else if(!lines.some(function(x){ return Math.abs(x.L-L)<.5; })) lines.push({L:L, nm:H_NM[from+'-'+t2]||''});
+          spec(); }
+        mark(); info();
+      };
+    }
+    function fireIt(t2){ var from = A.s.cur; if(A.go(t2,'photon',done(from,t2))){ fire.disabled = true; } }
+    function stopAuto(){ auto = false; autoB.classList.remove('on'); }
+    frB.forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); stopAuto(); A.set(+b.dataset.from); mark(); info(); }); });
+    toB.forEach(function(b){ b.addEventListener('click', function(e){ e.stopPropagation(); stopAuto(); to = +b.dataset.to; mark(); info(); }); });
+    fire.addEventListener('click', function(e){ e.stopPropagation(); stopAuto(); if(!A.s.busy) fireIt(to); });
+    autoB.addEventListener('click', function(e){ e.stopPropagation(); auto = !auto; autoB.classList.toggle('on', auto); wait = 0; });
+    $('hlClr').addEventListener('click', function(e){ e.stopPropagation(); lines = []; uv = ir = 0; spec(); });
+    mark(); info(); spec();
+    function draw(dt){
+      if(auto && !A.s.busy){ wait -= dt;
+        if(wait <= 0){ var nx = SEQ[ai % SEQ.length]; ai++;
+          if(nx !== A.s.cur){ to = nx; mark(); info(); fireIt(nx); }
+          wait = .9; }
+      }
+      A.draw(dt);
+    }
+    LABS.push({id:'hlCv', draw:draw, upd:function(){ info(); spec(); }});
+  })();
+
+  /* ================= excitation story, driven by build steps (slide 6) ================= */
+  (function(){
+    var cv = document.getElementById('exCv'); if(!cv) return;
+    var sl = cv.closest('.slide');
+    var A = AtomStage(cv, {ax:190, ay:226, R:150, N:4, lx0:400, lx1:478, ly0:72, ly1:396, halo:true});
+    var last = -1, seen = 0;
+    function step(){ var m = 0; [].forEach.call(sl.querySelectorAll('.frag.on'), function(f){ m = Math.max(m, +f.dataset.step||0); }); return m; }
+    function stat(s){ A.set(s===1 || s===2 ? 3 : 1); }
+    function excite(){ A.go(3,'collision'); }
+    function fall(){ if(A.s.cur!==3 || A.s.busy) A.set(3); A.go(2,'photon',function(){ A.after(.35, function(){ A.go(1,'photon'); }); }); }
+    sl.querySelector('#exReplay').addEventListener('click', function(e){
+      e.stopPropagation(); A.set(1);
+      A.after(.4, function(){ A.go(3,'collision',function(){ A.after(1.3, fall); }); });
+    });
+    function draw(dt){
+      var now = performance.now(), s = step();
+      if(now - seen > 300) last = -1;          // slide was just (re)entered
+      seen = now;
+      if(s !== last){
+        if(last >= 0 && s === last+1){ if(s===1) excite(); else if(s===3) fall(); }
+        else stat(s);
+        last = s;
+      }
+      A.draw(dt);
+    }
+    LABS.push({id:'exCv', draw:draw});
+  })();
+
+
+  /* ================= ionization & recombination story (slide 10) ================= */
+  (function(){
+    var cv = document.getElementById('irCv'); if(!cv) return;
+    var sl = cv.closest('.slide');
+    var A = AtomStage(cv, {ax:190, ay:236, R:150, N:4, lx0:400, lx1:478, ly0:92, ly1:400});
+    var last = -1, seen = 0;
+    function step(){ var m = 0; [].forEach.call(sl.querySelectorAll('.frag.on'), function(f){ m = Math.max(m, +f.dataset.step||0); }); return m; }
+    function stat(s){ if(s===1) A.free(); else if(s===2) A.set(3); else A.set(1); }
+    function ionize(cb){ if(A.s.cur!==1 || A.s.busy) A.set(1); A.go(0,'collision',cb,true); }
+    function catchIt(cb){ if(A.s.cur!==0 || A.s.busy) A.free(); A.capture(3,cb); }
+    function fall(){ if(A.s.cur!==3 || A.s.busy) A.set(3); A.go(2,'photon',function(){ A.after(.35, function(){ A.go(1,'photon'); }); }); }
+    sl.querySelector('#irReplay').addEventListener('click', function(e){
+      e.stopPropagation(); A.set(1);
+      A.after(.4, function(){ ionize(function(){ A.after(1.0, function(){ catchIt(function(){ A.after(.9, fall); }); }); }); });
+    });
+    function draw(dt){
+      var now = performance.now(), s = step();
+      if(now - seen > 300) last = -1;
+      seen = now;
+      if(s !== last){
+        if(last >= 0 && s === last+1){ if(s===1) ionize(); else if(s===2) catchIt(); else if(s===3) fall(); }
+        else stat(s);
+        last = s;
+      }
+      A.draw(dt);
+    }
+    LABS.push({id:'irCv', draw:draw});
+  })();
+
+  /* ---- input ---- */
+  document.getElementById('prevBtn').onclick = prev;
+  document.getElementById('nextBtn').onclick = next;
+  document.getElementById('gridBtn').onclick = function(){ toggleGrid(); };
+  document.getElementById('notesBtn').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesTab').onclick = function(){ toggleNotes(); };
+  document.getElementById('notesClose').onclick = function(){ toggleNotes(false); };
+  document.getElementById('fsBtn').onclick = toggleFS;
+  langBtn.onclick = toggleLang;
+
+  window.addEventListener('keydown', function(e){
+    if(e.target.tagName==='INPUT') return;
+    var k = e.key;
+    if(grid.classList.contains('open')){ if(k==='Escape' || k==='g' || k==='G') toggleGrid(false); return; }
+    if(['ArrowRight','PageDown',' ','Enter'].indexOf(k)>-1){ next(); e.preventDefault(); }
+    else if(['ArrowLeft','PageUp','Backspace'].indexOf(k)>-1){ prev(); e.preventDefault(); }
+    else if(k==='Home'){ go(0); } else if(k==='End'){ go(total-1, true); }
+    else if(k==='g' || k==='G'){ toggleGrid(); }
+    else if(k==='n' || k==='N'){ toggleNotes(); }
+    else if(k==='l' || k==='L'){ toggleLang(); }
+    else if(k==='f' || k==='F'){ toggleFS(); }
+    else if(k==='Escape'){ toggleNotes(false); }
+  });
+
+  /* ---- click left/right half of the slide to navigate ---- */
+  var NO_NAV = 'a,button,input,label,.lab,.bt-cv,.chip-btn,.nav-hint,.tap';
+  function sideOf(e){
+    var r = deck.getBoundingClientRect();
+    return (e.clientX - r.left) < r.width * 0.5 ? 'l' : 'r';
+  }
+  deck.addEventListener('mousemove', function(e){
+    var blocked = e.target.closest(NO_NAV);
+    var sd = blocked ? '' : sideOf(e);
+    deck.classList.toggle('hov-l', sd==='l' && !(idx===0 && step===0));
+    deck.classList.toggle('hov-r', sd==='r' && !(idx===total-1 && step===maxStep(slides[idx])));
+  });
+  deck.addEventListener('mouseleave', function(){ deck.classList.remove('hov-l','hov-r'); });
+  deck.addEventListener('click', function(e){
+    if(e.target.closest(NO_NAV)) return;
+    if(window.getSelection && String(window.getSelection()).length) return;
+    if(notes.classList.contains('open')){ toggleNotes(false); return; }
+    sideOf(e)==='l' ? prev() : next();
+    deck.dispatchEvent(new MouseEvent('mousemove', {clientX:e.clientX, clientY:e.clientY, bubbles:true}));
+  });
+
+  var tx = null;
+  deck.addEventListener('touchstart', function(e){ if(e.target.tagName!=='INPUT') tx = e.touches[0].clientX; }, {passive:true});
+  deck.addEventListener('touchend', function(e){
+    if(tx===null) return; var dx = e.changedTouches[0].clientX - tx;
+    if(dx < -40) next(); if(dx > 40) prev(); tx = null;
+  });
+
+  /* ---- idle: hide chrome while presenting ---- */
+  var idleT;
+  function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(!grid.classList.contains('open') && !notes.classList.contains('open')) document.body.classList.add('idle'); }, 2600); }
+  ['mousemove','mousedown','keydown','touchstart'].forEach(function(ev){ window.addEventListener(ev, wake, {passive:true}); });
+
+  /* ---- scale ---- */
+  function fit(){
+    var s = Math.min((window.innerWidth-48)/1280, (window.innerHeight-48)/720);
+    deck.style.transform = 'scale('+s+')';
+    if(grid.classList.contains('open')) scaleThumbs();
+  }
+  window.addEventListener('resize', fit);
+
+  fit(); setLang('en');
+  var h = parseInt((location.hash||'').replace('#',''),10);
+  if(location.hash==='#end') go(total-1,true); else go(isNaN(h) ? 0 : h-1);
+  wake();
+})();
+</script>
+</body>
+</html>

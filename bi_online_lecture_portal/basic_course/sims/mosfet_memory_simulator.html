@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOSFET Memory Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gr:#0F8C50;--gr-lt:#E6F4ED;--gr-dk:#0A6B3C;
+  --pu:#7030A0;--pu-lt:#F0E8F8;--pu-md:#9B59D0;
+  --bg:#F7F9FC;--cd:#FFFFFF;--bd:#E2E8F0;
+  --tx:#1A202C;--t2:#4A5568;--t3:#718096;
+  --sh:0 2px 16px rgba(0,0,0,.07);--rr:16px;--rs:10px;
+  --bl:#2563EB;--bl-lt:#EFF6FF;
+  --rd:#DC2626;--rd-lt:#FEF2F2;
+  --am:#D97706;--am-lt:#FFFBEB;
+  --or:#EA580C;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Google Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
+.hdr{background:var(--cd);border-bottom:1.5px solid var(--bd);padding:0 26px;height:62px;
+  display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:200;
+  box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.hdr-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  display:flex;align-items:center;gap:16px;}
+.logo-img{height:34px;object-fit:contain;}
+.hdiv{width:1.5px;height:26px;background:var(--bd);}
+.htitle{font-size:14px;font-weight:700;} .hsub{font-size:11px;color:var(--t3);margin-top:1px;} .hinfo{text-align:center;}
+.ltog{display:flex;gap:3px;background:#F1F5F9;border-radius:8px;padding:3px;}
+.lbtn{border:none;cursor:pointer;padding:4px 11px;border-radius:5px;font-family:'Google Sans',sans-serif;
+  font-size:12px;font-weight:600;color:var(--t3);background:transparent;transition:all .15s;}
+.lbtn.on{background:var(--cd);color:var(--pu);box-shadow:0 1px 4px rgba(0,0,0,.10);}
+.main{max-width:1000px;margin:0 auto;padding:22px 16px 60px;}
+.tabbar{display:flex;gap:0;background:var(--cd);border:1.5px solid var(--bd);border-radius:14px;
+  padding:5px;margin-bottom:20px;box-shadow:var(--sh);}
+.tab{flex:1;border:none;cursor:pointer;padding:11px 0;border-radius:10px;
+  font-family:'Google Sans',sans-serif;font-size:14px;font-weight:700;
+  color:var(--t3);background:transparent;transition:all .2s;}
+.tab.on{background:var(--pu);color:#fff;box-shadow:0 2px 8px rgba(112,48,160,.25);}
+.pane{display:none;} .pane.on{display:block;}
+.card{background:var(--cd);border:1.5px solid var(--bd);border-radius:var(--rr);
+  box-shadow:var(--sh);margin-bottom:18px;overflow:hidden;}
+.chead{padding:16px 22px 13px;border-bottom:1px solid var(--bd);}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
+  letter-spacing:.08em;padding:3px 10px;border-radius:20px;margin-bottom:7px;
+  background:var(--gr-lt);color:var(--gr);}
+.bdot{width:6px;height:6px;border-radius:50%;background:var(--gr);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.ctitle{font-size:17px;font-weight:700;} .csub{font-size:12px;color:var(--t3);margin-top:3px;}
+.ctrl{padding:16px 22px 12px;}
+.crow{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;align-items:center;}
+.clbl{font-size:12px;font-weight:600;color:var(--t2);width:108px;flex-shrink:0;}
+.opbtns{display:flex;gap:7px;flex-wrap:wrap;}
+.obtn{border:1.5px solid var(--bd);background:var(--cd);color:var(--t2);font-family:'Google Sans',sans-serif;
+  font-size:12px;font-weight:700;padding:6px 16px;border-radius:8px;cursor:pointer;transition:all .15s;}
+.obtn:hover{border-color:var(--gr);color:var(--gr);}
+.aw{background:var(--bl)!important;border-color:var(--bl)!important;color:#fff!important;}
+.ar{background:var(--pu)!important;border-color:var(--pu)!important;color:#fff!important;}
+.af{background:var(--am)!important;border-color:var(--am)!important;color:#fff!important;}
+.ap{background:var(--rd)!important;border-color:var(--rd)!important;color:#fff!important;}
+.ae{background:var(--or)!important;border-color:var(--or)!important;color:#fff!important;}
+.ard{background:var(--gr)!important;border-color:var(--gr)!important;color:#fff!important;}
+.dbtns{display:flex;gap:7px;}
+.dbtn{border:1.5px solid var(--bd);background:var(--cd);font-family:'JetBrains Mono',monospace;
+  font-size:14px;font-weight:700;padding:6px 20px;border-radius:8px;cursor:pointer;color:var(--t2);}
+.d1{background:var(--pu)!important;border-color:var(--pu)!important;color:#fff!important;}
+.d0{background:#64748B!important;border-color:#64748B!important;color:#fff!important;}
+.mbtns{display:flex;gap:7px;}
+.mbtn{border:1.5px solid var(--bd);background:var(--cd);font-family:'Google Sans',sans-serif;
+  font-size:12px;font-weight:600;padding:5px 14px;border-radius:8px;cursor:pointer;color:var(--t2);}
+.mbtn.on{background:var(--pu-lt);border-color:var(--pu);color:var(--pu);}
+.runbtn{background:var(--gr);color:#fff;border:none;font-family:'Google Sans',sans-serif;
+  font-size:13px;font-weight:700;padding:9px 26px;border-radius:9px;cursor:pointer;}
+.runbtn:hover{background:var(--gr-dk);}
+.carea{padding:0 22px 16px;display:flex;gap:14px;flex-wrap:wrap;}
+canvas{border-radius:11px;border:1.5px solid var(--bd);display:block;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 22px 14px;}
+.stat{background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--rs);padding:11px 13px;}
+.sn{font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--t3);margin-bottom:5px;}
+.sv{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;color:var(--pu);}
+.su{font-size:11px;color:var(--t3);margin-left:3px;}
+.sinfo{margin:0 22px 14px;border-radius:var(--rs);padding:12px 15px;
+  background:var(--bl-lt);border:1.5px solid #BFDBFE;}
+.sinfo.pgm{background:var(--rd-lt);border-color:#FCA5A5;}
+.sinfo.era{background:var(--am-lt);border-color:#FED7AA;}
+.sinfo.rdo{background:var(--gr-lt);border-color:#A7F3D0;}
+.sinfo.ref{background:var(--am-lt);border-color:#FED7AA;}
+.sinfo.pur{background:var(--pu-lt);border-color:#DDD6FE;}
+.stag{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--bl);}
+.stag.pgm{color:var(--rd);}.stag.era{color:var(--or);}.stag.rdo{color:var(--gr);}
+.stag.ref{color:var(--am);}.stag.pur{color:var(--pu);}
+.stxt{font-size:13px;color:var(--tx);line-height:1.55;margin-top:3px;}
+.fpanel{background:var(--gr-lt);border-top:1px solid #C5E5D4;padding:13px 22px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:11px;}
+.fl{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--gr-dk);margin-bottom:3px;}
+.fe{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gr-dk);}
+.twrap{padding:0 22px 16px;}
+.itable{width:100%;border-collapse:collapse;font-size:12px;}
+.itable th{background:var(--bg);font-weight:700;color:var(--t2);padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--bd);}
+.itable td{padding:8px 12px;border-bottom:1px solid var(--bd);color:var(--tx);}
+.itable tr:last-child td{border-bottom:none;}
+.itable td:first-child{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--pu);}
+.slwrap{padding:13px 22px 8px;}
+.slrow{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.slrow label{font-size:12px;font-weight:600;color:var(--t2);width:155px;}
+input[type=range]{flex:1;accent-color:var(--gr);}
+.slval{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--pu);width:55px;text-align:right;}
+@media(max-width:660px){
+  .hdr{padding:0 12px;} .main{padding:12px 8px 50px;}
+  .stats{grid-template-columns:repeat(2,1fr);} .carea{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<header class="hdr" style="position:relative;">
+  <div class="hdr-center">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <img src="https://github.com/benedu-insight/benedu-insight.github.io/blob/main/logo_png/benedu_insight_logo_EN_horizontal.png?raw=true"
+           class="logo-img" alt="Benedu Insight"
+           onerror="this.style.display='none';document.getElementById('lf').style.display='flex';">
+      <div id="lf" style="display:none;align-items:center;gap:8px;">
+        <svg width="32" height="32" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="15" stroke="#0F8C50" stroke-width="3.5" fill="none"/></svg>
+        <div><span style="color:#7030A0;font-size:17px;font-weight:700;">bene</span><span style="color:#7030A0;font-size:17px;">du</span><span style="display:block;color:#7030A0;font-size:11px;">insight</span></div>
+      </div>
+    </div>
+    <div class="hdiv"></div>
+    <div class="hinfo">
+      <div class="htitle" id="Htt">MOSFET Memory Simulator</div>
+      <div class="hsub"  id="Hst">DRAM 1T-1C · NAND Flash FG · CTF (Charge Trap) · Interactive Cross-Section</div>
+    </div>
+  </div>
+  <div class="ltog" style="margin-left:auto;">
+    <button class="lbtn on" id="bEN" onclick="setLang('en')">EN</button>
+    <button class="lbtn"    id="bKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="tabbar">
+    <button class="tab on" id="tDRAM" onclick="switchTab('dram')">💾  DRAM (1T-1C)</button>
+    <button class="tab"    id="tNAND" onclick="switchTab('nand')">⚡  NAND Flash (Floating Gate)</button>
+  </div>
+
+  <!-- ══ DRAM ══ -->
+  <div class="pane on" id="paneDRAM">
+    <div class="card">
+      <div class="chead">
+        <span class="badge"><span class="bdot"></span><span id="D_b1">INTERACTIVE</span></span>
+        <div class="ctitle" id="D_t1">DRAM 1T-1C Cell — Write / Read / Refresh</div>
+        <div class="csub"  id="D_s1">Select operation and data bit, then run the simulation</div>
+      </div>
+      <div class="ctrl">
+        <div class="crow">
+          <span class="clbl" id="D_lop">Operation</span>
+          <div class="opbtns">
+            <button class="obtn aw" id="dW" onclick="dSetOp('W')">WRITE</button>
+            <button class="obtn"    id="dR" onclick="dSetOp('R')">READ</button>
+            <button class="obtn"    id="dF" onclick="dSetOp('F')">REFRESH</button>
+          </div>
+        </div>
+        <div class="crow" id="dDataRow">
+          <span class="clbl" id="D_ldt">Data Bit</span>
+          <div class="dbtns">
+            <button class="dbtn d1" id="dB1" onclick="dSetBit(1)">1</button>
+            <button class="dbtn"    id="dB0" onclick="dSetBit(0)">0</button>
+          </div>
+        </div>
+        <div class="crow"><button class="runbtn" id="D_run" onclick="dRun()">&#9654; Run Simulation</button></div>
+      </div>
+      <div class="carea">
+        <canvas id="dCell" style="width:460px;height:370px;"></canvas>
+        <canvas id="dWave" style="width:430px;height:370px;"></canvas>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="sn" id="D_s1n">WORDLINE (WL)</div><div><span class="sv" id="D_s1v">—</span></div></div>
+        <div class="stat"><div class="sn" id="D_s2n">BITLINE (BL)</div><div><span class="sv" id="D_s2v">—</span></div></div>
+        <div class="stat"><div class="sn" id="D_s3n">MOSFET</div><div><span class="sv" id="D_s3v">—</span></div></div>
+        <div class="stat"><div class="sn" id="D_s4n">CAPACITOR</div><div><span class="sv" id="D_s4v">—</span></div></div>
+      </div>
+      <div class="sinfo" id="D_si"><div class="stag" id="D_stag">READY</div><div class="stxt" id="D_stxt">Select operation and click Run.</div></div>
+      <div class="fpanel">
+        <div><div class="fl" id="D_f1l">STORAGE</div><div class="fe">Q = C &times; V</div></div>
+        <div><div class="fl" id="D_f2l">SWITCH ON</div><div class="fe">VGS &gt; Vth</div></div>
+        <div><div class="fl" id="D_f3l">SENSE AMP</div><div class="fe">&Delta;V = Q/(C_BL+C_S)</div></div>
+        <div><div class="fl" id="D_f4l">REFRESH</div><div class="fe">T &asymp; 64 ms</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chead">
+        <span class="badge" style="background:var(--am-lt);color:var(--am);"><span class="bdot" style="background:var(--am);animation:none"></span><span id="D_b2">CONCEPT</span></span>
+        <div class="ctitle" id="D_t2">Why Does DRAM Need Refresh?</div>
+        <div class="csub"  id="D_s2">Capacitor leakage current gradually destroys stored data</div>
+      </div>
+      <div class="ctrl" style="padding-bottom:2px;">
+        <canvas id="dLeak" style="width:100%;height:165px;border-radius:10px;border:1.5px solid var(--bd);"></canvas>
+      </div>
+      <div class="sinfo rdo" style="margin-top:0;"><div class="stag rdo" id="D_lktag">LEAKAGE</div><div class="stxt" id="D_lktxt">The storage capacitor (~10&#8211;30 fF) slowly loses charge through MOSFET sub-threshold leakage. Without refresh, a stored &#8220;1&#8221; decays to &#8220;0&#8221; within ~64 ms &#8212; making DRAM <strong>volatile</strong> memory.</div></div>
+    </div>
+    <div class="card">
+      <div class="chead">
+        <span class="badge" style="background:var(--pu-lt);color:var(--pu);"><span class="bdot" style="background:var(--pu);animation:none"></span><span id="D_b3">REFERENCE</span></span>
+        <div class="ctitle" id="D_t3">DRAM Cell Key Parameters</div>
+        <div class="csub"  id="D_s3">Typical values &#8212; DDR5 / LPDDR5</div>
+      </div>
+      <div class="twrap" style="padding-top:13px;">
+        <table class="itable"><thead><tr><th id="D_th1">Parameter</th><th id="D_th2">Symbol</th><th id="D_th3">Value</th><th id="D_th4">Notes</th></tr></thead><tbody id="D_ptbl"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ NAND ══ -->
+  <div class="pane" id="paneNAND">
+    <div class="card">
+      <div class="chead">
+        <span class="badge"><span class="bdot"></span><span id="N_b1">INTERACTIVE</span></span>
+        <div class="ctitle" id="N_t1">Floating Gate MOSFET &#8212; Program / Erase / Read</div>
+        <div class="csub"  id="N_s1">Visualize F-N tunneling and Vth shift in real time</div>
+      </div>
+      <div class="ctrl">
+        <div class="crow">
+          <span class="clbl" id="N_lst">Cell Structure</span>
+          <div class="mbtns">
+            <button class="mbtn on" id="stFG"  onclick="nSetStruct('FG')">FG (Floating Gate)</button>
+            <button class="mbtn"    id="stCTF" onclick="nSetStruct('CTF')">CTF (Charge Trap)</button>
+          </div>
+        </div>
+        <div class="crow">
+          <span class="clbl" id="N_lop">Operation</span>
+          <div class="opbtns">
+            <button class="obtn" id="nP" onclick="nSetOp('P')">PROGRAM</button>
+            <button class="obtn" id="nE" onclick="nSetOp('E')">ERASE</button>
+            <button class="obtn" id="nR" onclick="nSetOp('R')">READ</button>
+          </div>
+        </div>
+        <div class="crow">
+          <span class="clbl" id="N_lmd">Cell Type</span>
+          <div class="mbtns">
+            <button class="mbtn on" id="mSLC" onclick="nSetMode('SLC')">SLC</button>
+            <button class="mbtn"    id="mMLC" onclick="nSetMode('MLC')">MLC</button>
+            <button class="mbtn"    id="mTLC" onclick="nSetMode('TLC')">TLC</button>
+          </div>
+        </div>
+        <div class="crow"><button class="runbtn" id="N_run" onclick="nRun()">&#9654; Run Simulation</button></div>
+      </div>
+      <div class="carea">
+        <canvas id="nFG"  style="width:460px;height:390px;"></canvas>
+        <canvas id="nCTF" style="width:460px;height:390px;display:none;"></canvas>
+        <canvas id="nVt"  style="width:430px;height:390px;"></canvas>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="sn" id="N_s1n">GATE VOLTAGE</div><div><span class="sv" id="N_s1v">—</span><span class="su">V</span></div></div>
+        <div class="stat"><div class="sn" id="N_s2n">CHARGE STORE</div><div><span class="sv" id="N_s2v">—</span></div></div>
+        <div class="stat"><div class="sn" id="N_s3n">THRESHOLD Vth</div><div><span class="sv" id="N_s3v">—</span><span class="su">V</span></div></div>
+        <div class="stat"><div class="sn" id="N_s4n">DATA STATE</div><div><span class="sv" id="N_s4v">—</span></div></div>
+      </div>
+      <div class="sinfo" id="N_si"><div class="stag" id="N_stag">READY</div><div class="stxt" id="N_stxt">Select operation and click Run.</div></div>
+      <div class="fpanel" id="N_fpFG">
+        <div><div class="fl" id="N_f1l">F-N TUNNELING</div><div class="fe">J &prop; E&sup2;&middot;exp(&minus;B/E)</div></div>
+        <div><div class="fl" id="N_f2l">Vth SHIFT</div><div class="fe">&Delta;Vth = &minus;Q_FG/C_ONO</div></div>
+        <div><div class="fl" id="N_f3l">PROGRAM V</div><div class="fe">V_pgm &asymp; 15&#8211;20 V</div></div>
+        <div><div class="fl" id="N_f4l">ERASE V</div><div class="fe">V_era &asymp; &minus;15~&minus;20 V</div></div>
+      </div>
+      <div class="fpanel" id="N_fpCTF" style="display:none;">
+        <div><div class="fl">TRAP MECHANISM</div><div class="fe">Si&#8323;N&#8324; trap sites</div></div>
+        <div><div class="fl">Vth SHIFT</div><div class="fe">&Delta;Vth = Q_trap/C_block</div></div>
+        <div><div class="fl">PROGRAM V</div><div class="fe">V_pgm &asymp; 15&#8211;18 V</div></div>
+        <div><div class="fl">ERASE</div><div class="fe">GIDL or Hot-hole injection</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chead">
+        <span class="badge" style="background:var(--pu-lt);color:var(--pu);"><span class="bdot" style="background:var(--pu);animation:none"></span><span id="N_b2">INTERACTIVE</span></span>
+        <div class="ctitle" id="N_t2">Vth Distribution &#8212; SLC / MLC / TLC</div>
+        <div class="csub"  id="N_s2">Drag V_read slider to observe read margin changes</div>
+      </div>
+      <div class="slwrap">
+        <div class="slrow">
+          <label id="N_lrv">Read Voltage (V_read)</label>
+          <input type="range" id="rvSlider" min="-3" max="6.5" step="0.1" value="1" oninput="drawDist()">
+          <span class="slval" id="rvVal">1.0 V</span>
+        </div>
+      </div>
+      <div class="ctrl" style="padding-top:0;">
+        <canvas id="nDist" style="width:100%;height:255px;border-radius:10px;border:1.5px solid var(--bd);"></canvas>
+      </div>
+      <div class="sinfo pur" id="N_di"><div class="stag pur" id="N_dtag">Vth WINDOW</div><div class="stxt" id="N_dtxt">SLC: 1 bit/cell wide margin. MLC: 2 bits. TLC: 3 bits &#8212; narrow margin, higher BER risk.</div></div>
+    </div>
+    <div class="card">
+      <div class="chead">
+        <span class="badge" style="background:var(--am-lt);color:var(--am);"><span class="bdot" style="background:var(--am);animation:none"></span><span id="N_b3">REFERENCE</span></span>
+        <div class="ctitle" id="N_t3">NAND Flash vs DRAM &#8212; Key Differences</div>
+        <div class="csub"  id="N_s3">Structural and operational comparison</div>
+      </div>
+      <div class="twrap" style="padding-top:13px;">
+        <table class="itable"><thead><tr><th id="N_th1">Property</th><th id="N_th2">DRAM (1T-1C)</th><th id="N_th3">NAND Flash (FG)</th></tr></thead><tbody id="N_ctbl"></tbody></table>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+'use strict';
+// ══ I18N ══════════════════════════════════════════
+const TX={
+en:{
+  Htt:'MOSFET Memory Simulator',Hst:'DRAM 1T-1C \u00B7 NAND Flash Floating Gate \u00B7 Interactive Cross-Section',
+  tDRAM:'\uD83D\uDCBE  DRAM (1T-1C)',tNAND:'\u26A1  NAND Flash (Floating Gate)',
+  D_b1:'INTERACTIVE',D_b2:'CONCEPT',D_b3:'REFERENCE',
+  D_t1:'DRAM 1T-1C Cell \u2014 Write / Read / Refresh',D_s1:'Select operation and data bit, then run the simulation',
+  D_t2:'Why Does DRAM Need Refresh?',D_s2:'Capacitor leakage current gradually destroys stored data',
+  D_t3:'DRAM Cell Key Parameters',D_s3:'Typical values \u2014 DDR5 / LPDDR5',
+  D_lop:'Operation',D_ldt:'Data Bit',D_run:'\u25B6 Run Simulation',
+  D_s1n:'WORDLINE (WL)',D_s2n:'BITLINE (BL)',D_s3n:'MOSFET',D_s4n:'CAPACITOR',
+  D_f1l:'STORAGE',D_f2l:'SWITCH ON',D_f3l:'SENSE AMP',D_f4l:'REFRESH',
+  D_lktag:'LEAKAGE',D_lktxt:'The storage capacitor (~10\u201330 fF) slowly loses charge through MOSFET sub-threshold leakage. Without refresh, a stored \u201C1\u201D decays to \u201C0\u201D within ~64 ms \u2014 making DRAM <strong>volatile</strong> memory.',
+  D_th1:'Parameter',D_th2:'Symbol',D_th3:'Value',D_th4:'Notes',
+  N_b1:'INTERACTIVE',N_b2:'INTERACTIVE',N_b3:'REFERENCE',
+  N_t1:'Floating Gate MOSFET \u2014 Program / Erase / Read',N_s1:'Visualize F-N tunneling and Vth shift in real time',
+  N_t2:'Vth Distribution \u2014 SLC / MLC / TLC',N_s2:'Drag V_read slider to observe read margin changes',
+  N_t3:'NAND Flash vs DRAM \u2014 Key Differences',N_s3:'Structural and operational comparison',
+  N_lop:'Operation',N_lmd:'Cell Type',N_run:'\u25B6 Run Simulation',N_lrv:'Read Voltage (V_read)',
+  N_s1n:'GATE VOLTAGE',N_s2n:'FLOATING GATE',N_s3n:'THRESHOLD Vth',N_s4n:'DATA STATE',
+  N_f1l:'F-N TUNNELING',N_f2l:'Vth SHIFT',N_f3l:'PROGRAM V',N_f4l:'ERASE V',
+  N_dtag:'Vth WINDOW',N_dtxt:'SLC: 1 bit/cell wide margin. MLC: 2 bits. TLC: 3 bits \u2014 narrow margin, higher BER risk.',
+  N_th1:'Property',N_th2:'DRAM (1T-1C)',N_th3:'NAND Flash (FG)',
+  dops:{
+    W:{tag:'WRITE OPERATION',
+       d1:'\u2460 WL HIGH \u2192 MOSFET ON (VGS &gt; Vth) &nbsp;\u2461 BL = VDD \u2192 Capacitor charges \u2192 stores \u201C1\u201D (Q = C \u00D7 VDD)',
+       d0:'\u2460 WL HIGH \u2192 MOSFET ON (VGS &gt; Vth) &nbsp;\u2461 BL = 0 V \u2192 Capacitor discharges \u2192 stores \u201C0\u201D (Q \u2248 0)'},
+    R:{tag:'READ OPERATION',cls:'rdo',txt:'\u2460 BL pre-charged to VDD/2 &nbsp;\u2461 WL HIGH \u2192 MOSFET ON \u2192 charge sharing between BL and C_S \u2192 Sense Amp detects \u0394V and restores full swing. (Destructive read \u2014 write-back required.)'},
+    F:{tag:'REFRESH OPERATION',cls:'ref',txt:'Controller issues Refresh command \u2192 all rows periodically re-read and re-written (tRFC ~350 ns, tREFI ~7.8 \u03bcs/row). Prevents charge decay below sense threshold. Essential every ~64 ms.'},
+  },
+  dparams:[
+    ['Cell Capacitance','C_S','10\u201330 fF','Shrinks each node; hard below 10 fF'],
+    ['Threshold Voltage','Vth','~0.4\u20130.5 V','High Vth limits leakage'],
+    ['Supply Voltage','VDD','1.1 V (DDR5)','Lower VDD narrows sense margin'],
+    ['Refresh Interval','tREFI','7.8 \u03bcs','Per row (64 ms \u00F7 8192 rows)'],
+    ['Refresh Cycle','tRFC','~350 ns (16 Gb)','Longer for higher density'],
+    ['Retention Time','t_ret','\u226564 ms @85\u00B0C','Doubles per 10\u00B0C decrease'],
+    ['Cell Area','A_cell','~4\u20136 F\u00B2','F = min feature size'],
+  ],
+  nops:{
+    P:{tag:'PROGRAM',cls:'pgm',txt:'High +V_CG (~15\u201320 V) applied \u2192 strong E-field across tunnel oxide \u2192 Fowler-Nordheim tunneling injects electrons FROM channel INTO Floating Gate. Trapped electrons raise Vth above Vpgm_verify. \u201C1\u201D\u2192\u201C0\u201D: cell off at V_read.'},
+    E:{tag:'ERASE',cls:'era',txt:'High \u2212V_CG (~\u221215 to \u221220 V) applied \u2192 reverse F-N tunneling \u2192 electrons tunnel OUT of Floating Gate back to substrate. Vth drops below Vera_verify. Block-granular erase. \u201C0\u201D\u2192\u201C1\u201D: cell conducts at V_read.'},
+    R:{tag:'READ',cls:'rdo',txt:'Apply V_pass to unselected cells, V_read (~0 V) to selected cell. Vth &lt; V_read \u2192 transistor ON \u2192 current \u2192 \u201C1\u201D. Vth &gt; V_read \u2192 transistor OFF \u2192 no current \u2192 \u201C0\u201D. Non-destructive read.'},
+  },
+  ncmp:[
+    ['Storage element','Capacitor (C_S ~10 fF)','Floating Gate (trapped e\u207B)'],
+    ['Volatile?','YES \u2014 refresh every 64 ms','NO \u2014 retains 10+ years'],
+    ['Write mechanism','Charge via MOSFET (VDD)','F-N tunneling (~18 V)'],
+    ['Erase mechanism','Overwrite (discharge)','Block erase (~\u221218 V)'],
+    ['Read mechanism','Sense amp \u0394V','Cell current (Vth compare)'],
+    ['Endurance','>10\u00B9\u2075 cycles','10\u00B3 (TLC)\u201310\u2075 (SLC) P/E'],
+    ['Density','~6F\u00B2','4F\u00B2 (3D NAND 200+ layers)'],
+    ['Write speed','ns','\u03bcs\u2013ms (slow program)'],
+    ['Application','Main memory (volatile)','Storage: SSD, eMMC, UFS'],
+  ],
+},
+ko:{
+  Htt:'MOSFET \uBA54\ubaa8\ub9ac \uc2dc\uBBAC\ub808\uc774\ud130',Hst:'DRAM 1T-1C \u00B7 NAND Flash \ud50c\ub85c\ud305 \uac8c\uc774\ud2b8 \u00B7 \uc778\ud130\ub799\ud2f0\ube0c \ub2e8\uba74\ub3c4',
+  tDRAM:'\uD83D\uDCBE  DRAM (1T-1C)',tNAND:'\u26A1  NAND Flash (\ud50c\ub85c\ud305 \uac8c\uc774\ud2b8)',
+  D_b1:'\uc778\ud130\ub799\ud2f0\ube0c',D_b2:'\uac1c\ub150',D_b3:'\uc798\uc870',
+  D_t1:'DRAM 1T-1C \uc140 \u2014 \uc4f0\uae30 / \uc77d\uae30 / \ub9ac\ud504\ub808\uc2dc',D_s1:'\ub3d9\uc791 \ubaa8\ub4dc\uc640 \ub370\uc774\ud130 \ube44\ud2b8\ub97c \uc120\ud0dd\ud55c \ub4a4 \uc2dc\uBBAC\ub808\uc774\uc158\uc744 \uc2e4\ud589\ud558\uc138\uc694',
+  D_t2:'\uc655 DRAM\uc740 \ub9ac\ud504\ub808\uc2dc\uac00 \ud544\uc694\ud55c\uac00?',D_s2:'\ucee4\ud328\uc2dc\ud130 \ub204\uc124 \uc804\ub958\uac00 \uc800\uc7a5 \ub370\uc774\ud130\ub97c \uc11c\uc11c\ud788 \ud30c\uad34\ud569\ub2c8\ub2e4',
+  D_t3:'DRAM \uc140 \uc8fc\uc694 \ud30c\ub77c\ubbf8\ud130',D_s3:'\ub300\ud45c\uac12 \u2014 DDR5 / LPDDR5',
+  D_lop:'\ub3d9\uc791 \uc120\ud0dd',D_ldt:'\ub370\uc774\ud130 \ube44\ud2b8',D_run:'\u25B6 \uc2dc\uBBAC\ub808\uc774\uc158 \uc2e4\ud589',
+  D_s1n:'\uc6cc\ub4dc\ub77c\uc778 (WL)',D_s2n:'\ube44\ud2b8\ub77c\uc778 (BL)',D_s3n:'MOSFET',D_s4n:'\ucee4\ud328\uc2dc\ud130',
+  D_f1l:'\uc800\uc7a5 \uc6d0\ub9ac',D_f2l:'\uc2a4\uc704\uce58 ON',D_f3l:'\uc13c\uc2a4 \uc564\ud504',D_f4l:'\ub9ac\ud504\ub808\uc2dc',
+  D_lktag:'\ub204\uc124 \uc804\ub958',D_lktxt:'\uc800\uc7a5 \ucee4\ud328\uc2dc\ud130(~10\u201330 fF)\ub294 MOSFET \uc11c\ube0c\uc2a4\ub808\uc22d\ub4dc \uc804\ub958\ub85c \uc804\ud558\ub97c \uc78a\uc2b5\ub2c8\ub2e4. \ub9ac\ud504\ub808\uc2dc \uc5c6\uc774\ub294 \uc800\uc7a5\ub41c \u201C1\u201D\uc774 ~64 ms \uc774\ub0b4\uc5d0 \u201C0\u201D\uc73c\ub85c \ubd95\uad34\ud569\ub2c8\ub2e4 \u2014 DRAM\uc774 <strong>\ud718\ubc1c\uc131(Volatile)</strong> \uba54\ubaa8\ub9ac\uc778 \uc774\uc720\uc785\ub2c8\ub2e4.',
+  D_th1:'\ud30c\ub77c\ubbf8\ud130',D_th2:'\uae30\ud638',D_th3:'\ub300\ud45c\uac12',D_th4:'\ube44\uace0',
+  N_b1:'\uc778\ud130\ub799\ud2f0\ube0c',N_b2:'\uc778\ud130\ub799\ud2f0\ube0c',N_b3:'\ucc38\uc870',
+  N_t1:'\ud50c\ub85c\ud305 \uac8c\uc774\ud2b8 MOSFET \u2014 \ud504\ub85c\uadf8\ub7a8 / \uc18c\uac70 / \uc77d\uae30',N_s1:'F-N \ud130\ub110\ub9c1\uacfc Vth \uc774\ub3d9\uc744 \uc2e4\uc2dc\uac04\uc73c\ub85c \uc2dc\uac01\ud654\ud569\ub2c8\ub2e4',
+  N_t2:'Vth \ubd84\ud3ec \u2014 SLC / MLC / TLC',N_s2:'V_read \uc2ac\ub77c\uc774\ub354\ub97c \ub4dc\ub798\uadf8\ud558\uc5ec \uc77d\uae30 \ub9c8\uc9c4 \ubcc0\ud654\ub97c \ud655\uc778\ud558\uc138\uc694',
+  N_t3:'NAND Flash vs DRAM \u2014 \ud575\uc2ec \ucc28\uc774\uc810',N_s3:'\uad6c\uc870\u00B7\ub3d9\uc791 \ube44\uad50',
+  N_lop:'\ub3d9\uc791 \uc120\ud0dd',N_lmd:'\uc140 \uc885\ub958',N_run:'\u25B6 \uc2dc\uBBAC\ub808\uc774\uc158 \uc2e4\ud589',N_lrv:'\uc77d\uae30 \uc804\uc555 (V_read)',
+  N_s1n:'\uac8c\uc774\ud2b8 \uc804\uc555',N_s2n:'\ud50c\ub85c\ud305 \uac8c\uc774\ud2b8',N_s3n:'\ubb38\ud134 \uc804\uc555 Vth',N_s4n:'\ub370\uc774\ud130 \uc0c1\ud0dc',
+  N_f1l:'F-N \ud130\ub110\ub9c1',N_f2l:'Vth \uc774\ub3d9',N_f3l:'\ud504\ub85c\uadf8\ub7a8 \uc804\uc555',N_f4l:'\uc18c\uac70 \uc804\uc555',
+  N_dtag:'Vth \uc708\ub3c4\uc6b0',N_dtxt:'SLC: 1\ube44\ud2b8/\uc140 \u2014 \ub113\uc740 \ub9c8\uc9c4. MLC: 2\ube44\ud2b8. TLC: 3\ube44\ud2b8 \u2014 \uc88c\uc740 \ub9c8\uc9c4, \ub192\uc740 BER \uc704\ud5d8.',
+  N_th1:'\ud56d\ubaa9',N_th2:'DRAM (1T-1C)',N_th3:'NAND Flash (FG)',
+  dops:{
+    W:{tag:'\uc4f0\uae30 \ub3d9\uc791',
+       d1:'\u2460 WL HIGH \u2192 MOSFET ON (VGS &gt; Vth) &nbsp;\u2461 BL = VDD \u2192 \ucee4\ud328\uc2dc\ud130 \ucda9\uc804 \u2192 \u201C1\u201D \uc800\uc7a5 (Q = C \u00D7 VDD)',
+       d0:'\u2460 WL HIGH \u2192 MOSFET ON (VGS &gt; Vth) &nbsp;\u2461 BL = 0 V \u2192 \ucee4\ud328\uc2dc\ud130 \ubc29\uc804 \u2192 \u201C0\u201D \uc800\uc7a5 (Q \u2248 0)'},
+    R:{tag:'\uc77d\uae30 \ub3d9\uc791',cls:'rdo',txt:'\u2460 BL\uc744 VDD/2\ub85c \uc608\ucda9\uc804 &nbsp;\u2461 WL HIGH \u2192 MOSFET ON \u2192 BL\uacfc C_S \uac04 \uc804\ud558 \uacf5\uc720 \u2192 \uc13c\uc2a4 \uc564\ud504\uac00 \u0394V \uac10\uc9c0 \ud6c4 \uc804\uc555 \ubcf5\uc6d0. (\ud30c\uad34\uc801 \uc77d\uae30 \u2014 Write-back \ud544\uc218)'},
+    F:{tag:'\ub9ac\ud504\ub808\uc2dc \ub3d9\uc791',cls:'ref',txt:'\ucee8\ud2b8\ub864\ub7ec\uac00 Refresh \uba85\ub839 \ubc1c\ud589 \u2192 \ubaa8\ub4e0 \ud589 \uc8fc\uae30\uc801 \uc7ac\uc77d\uae30/\uc7ac\uc4f0\uae30 (tRFC ~350 ns, tREFI ~7.8 \u03bcs/\ud589). \uac10\uc9c0 \uc784\uacc4\uac12 \uc774\ud558 \uc804\ud558 \ubd95\uad34 \ubc29\uc9c0. \uc57d 64 ms\ub9c8\ub2e4 \ud544\uc218.'},
+  },
+  dparams:[
+    ['\uc140 \ucee4\ud328\uc2dc\ud134\uc2a4','C_S','10\u201330 fF','\ub178\ub4dc \ucd95\uc18c\ub9c8\ub2e4 \uac10\uc18c; 10 fF \uc720\uc9c0 \uacf3\ub09c'],
+    ['\ubb38\ud134 \uc804\uc555','Vth','~0.4\u20130.5 V','\ub204\uc124 \uc5b5\uc81c \uc704\ud574 \ub192\uc740 Vth \ud544\uc694'],
+    ['\uacf5\uae09 \uc804\uc555','VDD','1.1 V (DDR5)','\ub099\uc740 VDD \u2192 \uc13c\uc2a4 \ub9c8\uc9c4 \uac10\uc18c'],
+    ['\ub9ac\ud504\ub808\uc2dc \uac04\uaca9','tREFI','7.8 \u03bcs','\ud589\ub2f9 (64 ms \u00F7 8192 \ud589)'],
+    ['\ub9ac\ud504\ub808\uc2dc \uc0ac\uc774\ud074','tRFC','~350 ns (16 Gb)','\uace0\ubc00\ub3c4\uc77c\uc218\ub85d \uae38\uc5b4\uc9d0'],
+    ['\ubcf4\uc874 \uc2dc\uac04','t_ret','\u226564 ms @85\u00B0C','10\u00B0C \ud558\ub77d\ub9c8\ub2e4 \uc57d 2\ubc30'],
+    ['\uc140 \uba74\uc801','A_cell','~4\u20136 F\u00B2','F = \ucd5c\uc18c \ud328\ud134 \ud06c\uae30'],
+  ],
+  nops:{
+    P:{tag:'\ud504\ub85c\uadf8\ub7a8 \ub3d9\uc791',cls:'pgm',txt:'\ub192\uc740 \uc591\uc758 \uc804\uc555 V_CG (~15\u201320 V) \uc778\uac00 \u2192 \ud130\ub110 \uc0b0\ud654\ub9c9\uc5d0 \uac15\ud55c \uc804\uacc4 \u2192 F-N \ud130\ub110\ub9c1\uc73c\ub85c \uc544\ub110 \uc804\uc790\uac00 \ud50c\ub85c\ud305 \uac8c\uc774\ud2b8\ub85c \uc8fc\uc785\ub428. \uac87\ud78c \uc804\uc790\uac00 Vth\ub97c Vpgm_verify \uc774\uc0c1\uc73c\ub85c \uc62c\ub9bc. \u201C1\u201D\u2192\u201C0\u201D.'},
+    E:{tag:'\uc18c\uac70 \ub3d9\uc791',cls:'era',txt:'\ub192\uc740 \uc74c\uc758 \uc804\uc555 V_CG (~\u221215~\u221220 V) \uc778\uac00 \u2192 \uc5ed\ubc29\ud5a5 F-N \ud130\ub110\ub9c1 \u2192 \ud50c\ub85c\ud305 \uac8c\uc774\ud2b8 \uc804\uc790\uac00 \uae30\ud310\uc73c\ub85c \ubc29\ucd9c\ub428. Vth\uac00 Vera_verify \uc544\ub798\ub85c \ud558\ub77d. \ube14\ub85d \ub2e8\uc704 \uc77c\uad04 \uc18c\uac70. \u201C0\u201D\u2192\u201C1\u201D.'},
+    R:{tag:'\uc77d\uae30 \ub3d9\uc791',cls:'rdo',txt:'\ube44\uc120\ud0dd \uc140\uc5d0 V_pass, \uc120\ud0dd \uc140\uc5d0 V_read (~0 V) \uc778\uac00. Vth &lt; V_read \u2192 \ud2b8\ub79c\uc9c0\uc2a4\ud130 ON \u2192 \uc804\ub958 \uac80\uc2e4 \u2192 \u201C1\u201D. Vth &gt; V_read \u2192 OFF \u2192 \uc804\ub958 \uc5c6\uc74c \u2192 \u201C0\u201D. \ube44\ud30c\uad34\uc801 \uc77d\uae30.'},
+  },
+  ncmp:[
+    ['\uc800\uc7a5 \uc18c\uc790','\ucee4\ud328\uc2dc\ud130 (C_S ~10 fF)','\ud50c\ub85c\ud305 \uac8c\uc774\ud2b8 (\uac87\ud78c \uc804\uc790)'],
+    ['\ud718\ubc1c\uc131?','YES \u2014 64 ms\ub9c8\ub2e4 \ub9ac\ud504\ub808\uc2dc','NO \u2014 10\ub144 \uc774\uc0c1 \ubcf4\uc874'],
+    ['\uc4f0\uae30 \ubc29\uc2dd','MOSFET \ucda9\uc804 (VDD)','F-N \ud130\ub110\ub9c1 (~18 V)'],
+    ['\uc18c\uac70 \ubc29\uc2dd','\ub36e\uc5b4\uc4f0\uae30 (\ubc29\uc804)','\ube14\ub85d \uc18c\uac70 (~\u221218 V)'],
+    ['\uc77d\uae30 \ubc29\uc2dd','\uc13c\uc2a4 \uc564\ud504 \u0394V','\uc140 \uc804\ub958 (Vth \ube44\uad50)'],
+    ['\ub0b4\uad6c\uc131','>10\u00B9\u2075 \uc0ac\uc774\ud074','10\u00B3 (TLC)\u201310\u2075 (SLC) P/E'],
+    ['\uc9d1\uc801\ub3c4','~6F\u00B2','4F\u00B2 (3D NAND 200+ \ub808\uc774\uc5b4)'],
+    ['\uc4f0\uae30 \uc18d\ub3c4','ns','\u03bcs\u2013ms (\ub290\ub9b0 \ud504\ub85c\uadf8\ub7a8)'],
+    ['\uc751\uc6a9','\uba54\uc778 \uba54\ubaa8\ub9ac (\ud718\ubc1c\uc131)','\uc2a4\ud1a0\ub9ac\uc9c0: SSD, eMMC, UFS'],
+  ],
+}
+};
+
+// ══ STATE ═══════════════════════════════════════
+let lang='en', dOp='W', dBit=1, nOp='P', nMode='SLC', nCharge=0, nStruct='FG';
+let dAid=null, nAid=null, dFr=0, nFr=0;
+const FR=90;
+
+// ══ LANG ════════════════════════════════════════
+function setLang(l){
+  lang=l;
+  document.getElementById('bEN').classList.toggle('on',l==='en');
+  document.getElementById('bKO').classList.toggle('on',l==='ko');
+  document.documentElement.lang=l;
+  const L=TX[l];
+  Object.keys(L).forEach(k=>{
+    if(typeof L[k]==='string'){const e=document.getElementById(k);if(e)e.innerHTML=L[k];}
+  });
+  renderDparams();renderNcmp();drawDist();dUpdInfo(false);nUpdInfo(false);
+  setTimeout(drawDLeak,60);
+}
+
+// ══ TABS ════════════════════════════════════════
+function switchTab(t){
+  document.getElementById('paneDRAM').classList.toggle('on',t==='dram');
+  document.getElementById('paneNAND').classList.toggle('on',t==='nand');
+  document.getElementById('tDRAM').classList.toggle('on',t==='dram');
+  document.getElementById('tNAND').classList.toggle('on',t==='nand');
+  if(t==='nand') setTimeout(()=>{if(nStruct==='FG'){drawNFG(0,0,nCharge);}else{drawCTF(0,0,nCharge);}drawNVt([]);drawDist();},50);
+  if(t==='dram') setTimeout(()=>{drawDCell(false,false,0);drawDWave([],[],[]);drawDLeak();},50);
+}
+
+// ══ DRAM CONTROLS ════════════════════════════════
+function dSetOp(o){
+  dOp=o;
+  const M={W:'dW',R:'dR',F:'dF'}, C={W:'aw',R:'ar',F:'af'};
+  Object.keys(M).forEach(k=>{const b=document.getElementById(M[k]);b.className='obtn'+(k===o?' '+C[k]:'');});
+  document.getElementById('dDataRow').style.display=o==='W'?'flex':'none';
+  dUpdInfo(false); drawDCell(false,false,0); drawDWave([],[],[]);
+}
+function dSetBit(b){
+  dBit=b;
+  document.getElementById('dB1').className='dbtn'+(b===1?' d1':'');
+  document.getElementById('dB0').className='dbtn'+(b===0?' d0':'');
+}
+function dRun(){
+  if(dAid)cancelAnimationFrame(dAid);dFr=0;
+  const wl=[],bl=[],cp=[];
+  function step(){
+    dFr++;const t=dFr/FR;
+    const ph=dPhase(t);
+    wl.push(ph.wlH?1:0); bl.push(dBlV(t)); cp.push(ph.cap);
+    drawDCell(ph.wlH,ph.mosOn,ph.cap);
+    drawDWave(wl,bl,cp);dUpdStats(ph);
+    if(dFr<FR)dAid=requestAnimationFrame(step);else dUpdInfo(true);
+  }step();
+}
+function dPhase(t){
+  const wlH=t>0.15&&t<0.85, mosOn=wlH;
+  let cap=0;
+  if(dOp==='W') cap=dBit===1?Math.min(1,t>0.2?(t-0.2)/0.35:0):Math.max(0,1-t/0.5);
+  else if(dOp==='R') cap=0.55+0.1*Math.sin(t*Math.PI*3);
+  else cap=t<0.1?0.2:(t<0.55?0.2+(t-0.1)/0.45*0.8:1);
+  return{wlH,mosOn,cap};
+}
+function dBlV(t){
+  if(dOp==='W') return dBit===1?(t>0.12?1:0.5):(t>0.12?0:0.5);
+  if(dOp==='R') return t<0.1?0.5:(t>0.15&&t<0.85?0.5+0.3*Math.sin((t-0.15)*Math.PI/0.7):1);
+  return t>0.1&&t<0.55?1:0.5;
+}
+function dUpdStats(ph){
+  const s=(id,v,c)=>{const e=document.getElementById(id);if(e){e.textContent=v;if(c)e.style.color=c;}};
+  s('D_s1v',ph.wlH?'HIGH':'LOW',ph.wlH?'#0F8C50':'#DC2626');
+  s('D_s2v',dOp==='W'?(dBit?'VDD':'0 V'):(dOp==='R'?'VDD/2':'VDD'));
+  s('D_s3v',ph.mosOn?'ON':'OFF',ph.mosOn?'#0F8C50':'#DC2626');
+  const c=ph.cap;s('D_s4v',c>0.7?'"1"':c<0.25?'"0"':'Sharing',c>0.7?'#7030A0':c<0.25?'#64748B':'#D97706');
+}
+function dUpdInfo(done){
+  const L=TX[lang],oi=L.dops[dOp];
+  const si=document.getElementById('D_si'),stag=document.getElementById('D_stag'),stxt=document.getElementById('D_stxt');
+  si.className='sinfo';stag.className='stag';
+  if(!done){stag.textContent=oi.tag;stxt.textContent=lang==='en'?'Click \u25B6 Run Simulation to start.':'\u25B6 \uc2dc\uBBAC\ub808\uc774\uc158 \uc2e4\ud589\uc744 \ud074\ub9ad\ud558\uc138\uc694.';return;}
+  const cls=oi.cls||'';if(cls){si.classList.add(cls);stag.classList.add(cls);}
+  stag.textContent=oi.tag;
+  stxt.innerHTML=dOp==='W'?(dBit===1?oi.d1:oi.d0):oi.txt;
+}
+
+// ══ DRAW DRAM CELL ════════════════════════════════
+function drawDCell(wlH,mosOn,cap){
+  const cv=document.getElementById('dCell');
+  const W=460,H=370,dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#F8FAFC';ctx.fillRect(0,0,W,H);
+  fill(ctx,'#4A5568','600 12px "Google Sans"','left');
+  ctx.fillText(lang==='en'?'Cross-section \u2014 DRAM 1T-1C Cell':'\ub2e8\uba74\ub3c4 \u2014 DRAM 1T-1C \uc140',16,21);
+
+  // ── Layout ─────────────────────────────────────────────
+  // Legend strip at bottom, substrate above it, MOSFET pushed well up
+  const legY   = H - 20;           // legend baseline
+  const subH   = 72;               // substrate is tall — S/D buried inside
+  const subY   = legY - 30 - subH; // substrate top Y  (≈ H-122 for H=370)
+  const subBot = subY + subH;      // substrate bottom
+
+  // S/D n+ regions sit INSIDE substrate, flush at substrate top
+  const sdW=68, sdH=40;
+  const sdY = subY;                 // top of S/D = top of substrate
+  const chX = 165, chW = 142;
+  const srcX = chX - sdW;
+  const drnX = chX + chW;
+
+  // Channel = Substrate surface between S/D (same top as S/D)
+  const chH = 28, chY = subY;
+
+  // Gate oxide above channel / substrate surface
+  const goxH=11, goxY=subY-goxH;
+  // Gate block above gate oxide
+  const gateH=40, gateY=goxY-gateH;
+
+  // ── p-type Substrate (drawn first so S/D drawn on top) ──
+  grad2(ctx,0,subY,0,subBot,'#CBD5E0','#D8DFE9');
+  ctx.fillRect(36,subY,W-56,subH);
+  stroke(ctx,'#94A3B8',1.5);ctx.strokeRect(36,subY,W-56,subH);
+  fill(ctx,'#64748B','600 10px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'p-type Si Substrate (P-well)':'p\ud615 Si \uae30\ud310 (P-\uc6f9)',
+    (srcX+drnX+sdW)/2, subBot-10);
+
+  // ── Source n+ (buried in substrate left side) ──
+  // Draw as a rounded-top block inside substrate
+  const g1=ctx.createLinearGradient(srcX,sdY,srcX,sdY+sdH);
+  g1.addColorStop(0,'#93C5FD');g1.addColorStop(1,'#60A5FA');
+  ctx.fillStyle=g1;
+  ctx.fillRect(srcX, sdY, sdW, sdH);
+  stroke(ctx,'#3B82F6',1.5);ctx.strokeRect(srcX,sdY,sdW,sdH);
+  fill(ctx,'#1E3A8A','700 11px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Source':'\uc18c\uc2a4', srcX+sdW/2, sdY+sdH/2-2);
+  fill(ctx,'#1D4ED8','600 9px "JetBrains Mono"','center');
+  ctx.fillText('(n+)', srcX+sdW/2, sdY+sdH/2+11);
+
+  // ── Drain n+ (buried in substrate right side) ──
+  const g2=ctx.createLinearGradient(drnX,sdY,drnX,sdY+sdH);
+  g2.addColorStop(0,'#93C5FD');g2.addColorStop(1,'#60A5FA');
+  ctx.fillStyle=g2;
+  ctx.fillRect(drnX, sdY, sdW, sdH);
+  stroke(ctx,'#3B82F6',1.5);ctx.strokeRect(drnX,sdY,sdW,sdH);
+  fill(ctx,'#1E3A8A','700 11px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Drain':'\ub4dc\ub808\uc778', drnX+sdW/2, sdY+sdH/2-2);
+  fill(ctx,'#1D4ED8','600 9px "JetBrains Mono"','center');
+  ctx.fillText('(n+)', drnX+sdW/2, sdY+sdH/2+11);
+
+  // ── Si Channel (p-type surface between S/D, same top) ──
+  ctx.fillStyle=mosOn?'rgba(15,140,80,0.22)':'rgba(226,232,240,0.0)'; // transparent when OFF (substrate shows)
+  if(mosOn){ctx.fillRect(chX,chY,chW,chH);}
+  // Channel border (dashed when OFF to show it's part of substrate)
+  ctx.strokeStyle=mosOn?'#0F8C50':'#94A3B8';
+  ctx.lineWidth=mosOn?2:1;
+  if(!mosOn){ctx.setLineDash([4,3]);}
+  ctx.strokeRect(chX,chY,chW,chH);
+  ctx.setLineDash([]);
+  fill(ctx,mosOn?'#064E3B':'#64748B','600 10px "Google Sans"','center');
+  ctx.fillText(mosOn?'Si Channel (ON)':'Si Channel', chX+chW/2, chY+chH/2+4);
+
+  // ── Gate Oxide (sits above channel/substrate surface) ──
+  const gog=ctx.createLinearGradient(chX,goxY,chX,goxY+goxH);
+  gog.addColorStop(0,'#BFDBFE');gog.addColorStop(1,'#93C5FD');
+  ctx.fillStyle=gog;ctx.fillRect(chX,goxY,chW,goxH);
+  stroke(ctx,'#60A5FA',1);ctx.strokeRect(chX,goxY,chW,goxH);
+  fill(ctx,'#1E40AF','600 9px "JetBrains Mono"','center');
+  ctx.fillText('Gate Oxide (SiO\u2082/HfO\u2082)',chX+chW/2,goxY+goxH-1);
+
+  // ── Gate block ──
+  const wlc=wlH?'#0F8C50':'#374151';
+  const gg=ctx.createLinearGradient(chX,gateY,chX,gateY+gateH);
+  gg.addColorStop(0,wlH?'#A7F3D0':'#B0B8C4');
+  gg.addColorStop(1,wlH?'#6EE7B7':'#8090A0');
+  ctx.fillStyle=gg;ctx.fillRect(chX,gateY,chW,gateH);
+  stroke(ctx,wlc,2);ctx.strokeRect(chX,gateY,chW,gateH);
+  fill(ctx,wlH?'#064E3B':'#fff','700 12px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Gate (Word Line)':'\uac8c\uc774\ud2b8 (\uc6cc\ub4dc\ub77c\uc778)',chX+chW/2,gateY+gateH/2+5);
+
+  // ── WL wire: exits top-left corner of Gate, runs left with voltage label ──
+  const wlWireY = gateY + 6;
+  const wlEndX  = 14;
+  stroke(ctx,wlc,2.5);
+  ctx.beginPath();ctx.moveTo(chX,wlWireY);ctx.lineTo(wlEndX,wlWireY);ctx.stroke();
+  // arrowhead
+  ctx.fillStyle=wlc;
+  ctx.beginPath();ctx.moveTo(wlEndX+10,wlWireY-4);ctx.lineTo(wlEndX,wlWireY);ctx.lineTo(wlEndX+10,wlWireY+4);ctx.fill();
+  // "Word Line" label above Gate top
+  fill(ctx,wlc,'700 11px "Google Sans"','left');
+  ctx.fillText('Word Line', chX+4, gateY-7);
+  // Voltage value on wire
+  const wlc2=wlH?'#0F8C50':'#DC2626';
+  const voltTxt=wlH?'VPP \u2248 +2.5 V':'VKK \u2248 \u22120.5 V';
+  fill(ctx,wlc2,'700 10px "JetBrains Mono"','left');
+  ctx.fillText(voltTxt, wlEndX+14, wlWireY-5);
+
+  // ── BL wire: from Drain top, up to ~gate level ──
+  const blX = drnX+sdW/2;
+  const blTopY = wlWireY-6;
+  stroke(ctx,'#2563EB',2.5);
+  ctx.beginPath();ctx.moveTo(blX,sdY);ctx.lineTo(blX,blTopY);ctx.stroke();
+  ctx.fillStyle='#2563EB';
+  ctx.beginPath();ctx.moveTo(blX-5,blTopY+10);ctx.lineTo(blX,blTopY);ctx.lineTo(blX+5,blTopY+10);ctx.fill();
+  fill(ctx,'#2563EB','700 11px "Google Sans"','center');ctx.fillText('Bit Line',blX,blTopY-5);
+  const blTxt=dOp==='W'?(dBit?'VDD':'0 V'):(dOp==='R'?'VDD/2':'VDD');
+  pill(ctx,blX+6,blTopY+6,blTxt,'#2563EB','#EFF6FF');
+
+  // ── Capacitor: wired from Drain mid, sits to the right ──
+  const cpX   = drnX+sdW+30;
+  const cpMidY= sdY+sdH*0.45;
+  const ptY=cpMidY+12, pbY=ptY+20, cpW=44;
+  stroke(ctx,'#4A5568',2);
+  ctx.beginPath();ctx.moveTo(drnX+sdW,cpMidY);ctx.lineTo(cpX-6,cpMidY);ctx.lineTo(cpX-6,ptY);ctx.stroke();
+  stroke(ctx,'#4A5568',3);
+  ctx.beginPath();ctx.moveTo(cpX-cpW/2,ptY);ctx.lineTo(cpX+cpW/2,ptY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cpX-cpW/2,pbY);ctx.lineTo(cpX+cpW/2,pbY);ctx.stroke();
+  if(cap>0.05){ctx.fillStyle=cap>0.5?'rgba(112,48,160,0.22)':'rgba(100,116,139,0.12)';ctx.fillRect(cpX-cpW/2+2,ptY+1,cpW-4,16*cap);}
+  stroke(ctx,'#64748B',2);
+  ctx.beginPath();ctx.moveTo(cpX,pbY);ctx.lineTo(cpX,subBot-4);ctx.stroke();
+  fill(ctx,cap>0.6?'#7030A0':'#64748B','600 10px "JetBrains Mono"','center');
+  ctx.fillText(cap>0.6?'"1" Q=C\u00B7VDD':cap<0.2?'"0" Q\u22480':'Charging\u2026',cpX,ptY-9);
+  fill(ctx,'#64748B','500 9px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Storage Cap.':'\uc800\uc7a5 Cap.',cpX,pbY+14);
+  fill(ctx,'#94A3B8','500 9px "Google Sans"','left');ctx.fillText('Plate Line',cpX+26,pbY+8);
+
+  // ── Source GND (wire from Source bottom to substrate bottom) ──
+  stroke(ctx,'#4A5568',2);
+  ctx.beginPath();ctx.moveTo(srcX+sdW/2,sdY+sdH);ctx.lineTo(srcX+sdW/2,subBot-4);ctx.stroke();
+
+  // ── Legend ──
+  const leg=[
+    {c:'#6B7280',l:lang==='en'?'Gate':'\\uac8c\\uc774\\ud2b8'},
+    {c:'#60A5FA',l:lang==='en'?'Gate Oxide':'\\uac8c\\uc774\\ud2b8 \\uc0b0\\ud654\\ub9c9'},
+    {c:'#3B82F6',l:lang==='en'?'n+ S/D (in Substrate)':'n+ S/D (\uae30\ud310 \ub0b4\uc7a5)'},
+    {c:mosOn?'#0F8C50':'#94A3B8',l:lang==='en'?'Si Channel':'Si \ucc44\ub110'},
+  ];
+  let lx=14;
+  leg.forEach(it=>{ctx.fillStyle=it.c;ctx.fillRect(lx,legY-8,10,10);ctx.fillStyle='#4A5568';ctx.font='10px "Google Sans"';ctx.textAlign='left';ctx.fillText(it.l,lx+13,legY+1);lx+=ctx.measureText(it.l).width+28;});
+}
+
+// ══ DRAW DRAM WAVE ════════════════════════════════
+function drawDWave(wl,bl,cp){
+  const cv=document.getElementById('dWave');
+  const W=430,H=370,dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#F8FAFC';ctx.fillRect(0,0,W,H);
+  fill(ctx,'#4A5568','600 12px "Google Sans"','left');
+  ctx.fillText(lang==='en'?'Signal Waveforms':'\uc2e0\ud638 \ud30c\ud615',14,21);
+  if(!wl.length){fill(ctx,'#CBD5E0','13px "Google Sans"','center');ctx.fillText(lang==='en'?'Click \u25B6 Run to see waveforms':'\u25B6 \uc2e4\ud589 \ud6c4 \ud30c\ud615 \ud45c\uc2dc',W/2,H/2);return;}
+  const lx=56,rx=W-16,ty=36,rH=90;
+  const tr=[{l:'WL',d:wl,c:'#0F8C50',hi:'HIGH',lo:'LOW'},{l:'BL',d:bl,c:'#2563EB',hi:'VDD',lo:'0V'},{l:'CAP',d:cp,c:'#7030A0',hi:'"1"',lo:'"0"'}];
+  tr.forEach((t,i)=>{
+    const y0=ty+i*rH,yb=y0+rH-14,yt2=y0+18;
+    ctx.strokeStyle='#E2E8F0';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(lx,yb);ctx.lineTo(rx,yb);ctx.stroke();ctx.setLineDash([]);
+    fill(ctx,t.c,'700 11px "JetBrains Mono"','right');ctx.fillText(t.l,lx-5,y0+rH/2+4);
+    ctx.strokeStyle=t.c;ctx.lineWidth=2.5;ctx.beginPath();
+    t.d.forEach((v,j)=>{const x=lx+(rx-lx)*j/t.d.length,y=yb-(yb-yt2)*v;j===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.stroke();
+    fill(ctx,t.c,'9px "JetBrains Mono"','right');ctx.fillText(t.hi,W-3,yt2+2);
+    fill(ctx,'#94A3B8','9px "JetBrains Mono"','right');ctx.fillText(t.lo,W-3,yb);
+  });
+  fill(ctx,'#94A3B8','10px "JetBrains Mono"','center');
+  ['0','tRCD','tCL','tRP','end'].forEach((l,i)=>{
+    const x=lx+(rx-lx)*i/4;ctx.fillText(l,x,ty+3*rH+13);
+    ctx.strokeStyle='#E2E8F0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,ty);ctx.lineTo(x,ty+3*rH);ctx.stroke();
+  });
+}
+
+// ══ DRAW DRAM LEAKAGE ════════════════════════════
+function drawDLeak(){
+  const cv=document.getElementById('dLeak');if(!cv)return;
+  const dpr=window.devicePixelRatio||1,W=cv.offsetWidth||900,H=165;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#F8FAFC';ctx.fillRect(0,0,W,H);
+  const lx=52,rx=W-22,by=H-34,ty=14;
+  stroke(ctx,'#CBD5E0',1.5);ctx.beginPath();ctx.moveTo(lx,ty);ctx.lineTo(lx,by);ctx.lineTo(rx,by);ctx.stroke();
+  fill(ctx,'#4A5568','600 11px "Google Sans"','center');ctx.fillText(lang==='en'?'Time \u2192':'\uc2dc\uac04 \u2192',(lx+rx)/2,H-6);
+  ctx.save();ctx.translate(11,(ty+by)/2);ctx.rotate(-Math.PI/2);ctx.fillText(lang==='en'?'Charge (Q)':'\uc804\ud558 (Q)',0,0);ctx.restore();
+  stroke(ctx,'#7030A0',2.5);ctx.beginPath();
+  for(let i=0;i<=200;i++){const t=i/200,x=lx+(rx-lx)*t,y=by-(by-ty-4)*Math.exp(-t*3);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  const thr=by-(by-ty-4)*0.22;
+  ctx.setLineDash([5,4]);stroke(ctx,'#DC2626',1.5);ctx.beginPath();ctx.moveTo(lx,thr);ctx.lineTo(rx,thr);ctx.stroke();ctx.setLineDash([]);
+  fill(ctx,'#DC2626','500 10px "JetBrains Mono"','left');ctx.fillText(lang==='en'?'Sense threshold':'\uc13c\uc2a4 \uc784\uacc4\uac12',lx+3,thr-4);
+  [0.28,0.55,0.82].forEach(tp=>{
+    const rx2=lx+(rx-lx)*tp;
+    stroke(ctx,'#0F8C50',2);ctx.beginPath();ctx.moveTo(rx2,by);ctx.lineTo(rx2,ty+3);ctx.stroke();
+    ctx.fillStyle='rgba(15,140,80,0.07)';ctx.fillRect(rx2-7,ty+3,14,by-ty-3);
+    fill(ctx,'#0F8C50','700 9px "Google Sans"','center');ctx.fillText('\u2191',rx2,ty+1);
+    ctx.fillText(lang==='en'?'Refresh':'\uac31\uc2e0',rx2,by+12);
+  });
+  ctx.fillStyle='#7030A0';ctx.fillRect(lx,by+15,16,3);
+  fill(ctx,'#4A5568','9px "Google Sans"','left');ctx.fillText(lang==='en'?'"1" decay':'"1" \ubd95\uad34',lx+20,by+20);
+  ctx.fillStyle='#DC2626';ctx.fillRect(lx+78,by+15,16,3);ctx.fillText(lang==='en'?'Read margin':'\uc77d\uae30 \ub9c8\uc9c4',lx+98,by+20);
+  ctx.fillStyle='#0F8C50';ctx.fillRect(lx+168,by+15,16,3);ctx.fillText(lang==='en'?'Refresh pulse':'\ub9ac\ud504\ub808\uc2dc \ud384\uc2a4',lx+188,by+20);
+}
+
+// ══ DRAM PARAMS TABLE ════════════════════════════
+function renderDparams(){
+  const tb=document.getElementById('D_ptbl');tb.innerHTML='';
+  TX[lang].dparams.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="color:#718096;font-size:11px">${r[3]}</td>`;tb.appendChild(tr);});
+}
+
+// ══ NAND CONTROLS ════════════════════════════════
+function nSetStruct(s){
+  nStruct=s;
+  document.getElementById('stFG').classList.toggle('on',s==='FG');
+  document.getElementById('stCTF').classList.toggle('on',s==='CTF');
+  // canvas 전환
+  document.getElementById('nFG').style.display=s==='FG'?'block':'none';
+  document.getElementById('nCTF').style.display=s==='CTF'?'block':'none';
+  // fpanel 전환
+  document.getElementById('N_fpFG').style.display=s==='FG'?'grid':'none';
+  document.getElementById('N_fpCTF').style.display=s==='CTF'?'grid':'none';
+  // stat 라벨
+  const e=document.getElementById('N_s2n');
+  if(e) e.textContent=s==='FG'?(lang==='en'?'FLOATING GATE':'플로팅 게이트'):(lang==='en'?'NITRIDE TRAP':'질화막 트랩');
+  // 카드 제목
+  const t=document.getElementById('N_t1'),sb=document.getElementById('N_s1');
+  if(s==='FG'){
+    if(t) t.textContent=lang==='en'?'Floating Gate NAND \u2014 Program / Erase / Read':'FG NAND \u2014 \ud504\ub85c\uadf8\ub7a8 / \uc18c\uac70 / \uc77d\uae30';
+    if(sb) sb.textContent=lang==='en'?'Fowler-Nordheim tunneling into Floating Gate Poly':'F-N \ud130\ub110\ub9c1\uc73c\ub85c \ud50c\ub85c\ud305 \uac8c\uc774\ud2b8 Poly\uc5d0 \uc804\uc790 \uc800\uc7a5';
+  } else {
+    if(t) t.textContent=lang==='en'?'CTF NAND (V-NAND / BiCS) \u2014 Program / Erase / Read':'CTF NAND (V-NAND / BiCS) \u2014 \ud504\ub85c\uadf8\ub7a8 / \uc18c\uac70 / \uc77d\uae30';
+    if(sb) sb.textContent=lang==='en'?'Electrons trapped in Si\u2083N\u2084 Nitride layer (ONO) \u2014 no Floating Gate Poly':'Si\u2083N\u2084 \uc9c8\ud654\ub9c9 \ud2b8\ub7a9 \uc0ac\uc774\ud2b8\uc5d0 \uc804\uc790 \uc800\uc7a5 \u2014 \ud50c\ub85c\ud305 \uac8c\uc774\ud2b8 Poly \uc5c6\uc74c';
+  }
+  nCharge=0;
+  if(s==='FG'){drawNFG(0,0,0);} else {drawCTF(0,0,0);}
+  drawNVt([]);
+  nUpdInfo(false);
+}
+
+function nSetOp(o){
+  nOp=o;
+  const M={P:'nP',E:'nE',R:'nR'},C={P:'ap',E:'ae',R:'ard'};
+  Object.keys(M).forEach(k=>{const b=document.getElementById(M[k]);b.className='obtn'+(k===o?' '+C[k]:'');});
+  nUpdInfo(false);drawNFG(0,0,nCharge);drawNVt([]);
+}
+function nSetMode(m){
+  nMode=m;['SLC','MLC','TLC'].forEach(x=>document.getElementById('m'+x).classList.toggle('on',x===m));drawDist();
+}
+function nRun(){
+  if(nAid)cancelAnimationFrame(nAid);nFr=0;
+  const startC=nCharge,targetC=nOp==='P'?1:nOp==='E'?0:nCharge,hist=[];
+  function step(){
+    nFr++;const t=nFr/FR;
+    const ease=t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const curC=nOp==='P'?startC+(targetC-startC)*ease:nOp==='E'?startC*(1-ease):startC;
+    const Vg=nOp==='P'?18*t:nOp==='E'?-18*t:2.0,Vth=nVth(curC);
+    hist.push({t,Vg,Vth});if(nStruct==='FG'){drawNFG(Vg,t,curC);}else{drawCTF(Vg,t,curC);}drawNVt(hist);nUpdStat(Vg,curC,Vth);
+    if(nFr<FR)nAid=requestAnimationFrame(step);else{nCharge=targetC;nUpdInfo(true);}
+  }step();
+}
+function nVth(c){return -1+c*4;}
+function nUpdStat(Vg,c,Vth){
+  const s=(id,v,co)=>{const e=document.getElementById(id);if(e){e.textContent=v;if(co)e.style.color=co;}};
+  s('N_s1v',Vg.toFixed(1),Vg>8?'#DC2626':Vg<-8?'#EA580C':'#0F8C50');
+  s('N_s2v',nStruct==='CTF'?(c>0.6?'e\u207B in trap':c<0.2?'trap empty':'partial'):(c>0.6?'e\u207B in FG':c<0.2?'depleted':'partial'),c>0.6?'#DC2626':'#0F8C50');
+  s('N_s3v',Vth.toFixed(2),Vth>1.5?'#DC2626':'#0F8C50');
+  s('N_s4v',c>0.7?'"0" (pgm)':c<0.2?'"1" (era)':'\u2013');
+}
+function nUpdInfo(done){
+  const L=TX[lang],oi=L.nops[nOp];
+  const si=document.getElementById('N_si'),stag=document.getElementById('N_stag'),stxt=document.getElementById('N_stxt');
+  si.className='sinfo';stag.className='stag';
+  if(!done){stag.textContent=oi.tag;stxt.textContent=lang==='en'?'Click \u25B6 Run Simulation to start.':'\u25B6 \uc2dc\uBBAC\ub808\uc774\uc158 \uc2e4\ud589\uc744 \ud074\ub9ad\ud558\uc138\uc694.';return;}
+  if(oi.cls){si.classList.add(oi.cls);stag.classList.add(oi.cls);}
+  stag.textContent=oi.tag;stxt.innerHTML=oi.txt;
+}
+
+// ══ DRAW NAND FG ═════════════════════════════════
+function drawNFG(Vg,t,ch){
+  const cv=document.getElementById('nFG');
+  const W=460,H=390,dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#F8FAFC';ctx.fillRect(0,0,W,H);
+  fill(ctx,'#4A5568','600 12px "Google Sans"','left');
+  ctx.fillText(lang==='en'?'Cross-section \u2014 NAND Flash (Floating Gate)':'\ub2e8\uba74\ub3c4 \u2014 NAND Flash (\ud50c\ub85c\ud305 \uac8c\uc774\ud2b8)',16,21);
+
+  // ── Layout ─────────────────────────────────────────────
+  const legY  = H - 20;
+  const subH  = 72;               // tall substrate — S/D buried inside
+  const subY  = legY - 30 - subH;
+  const subBot= subY + subH;
+
+  const sdW=66, sdH=40;
+  const sdY = subY;               // S/D tops flush with substrate top
+  const chX=152, chW=156;
+  const srcX=chX-sdW, drnX=chX+chW;
+
+  const chH=28, chY=subY;        // channel at substrate surface
+  const toxH=13, toxY=chY-toxH;
+  const fgH=38,  fgY=toxY-fgH;
+  const boxH=13, boxY=fgY-boxH;
+  const cgH=40,  cgY=boxY-cgH;
+
+  // ── p-type Substrate ──
+  grad2(ctx,0,subY,0,subBot,'#CBD5E0','#D8DFE9');
+  ctx.fillRect(34,subY,W-52,subH);
+  stroke(ctx,'#94A3B8',1.5);ctx.strokeRect(34,subY,W-52,subH);
+  fill(ctx,'#64748B','600 10px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'p-type Si Substrate (P-well)':'p\ud615 Si \uae30\ud310 (P-\uc6f9)',
+    (srcX+drnX+sdW)/2, subBot-10);
+
+  // ── Source n+ (buried in substrate) ──
+  const gs=ctx.createLinearGradient(srcX,sdY,srcX,sdY+sdH);
+  gs.addColorStop(0,'#93C5FD');gs.addColorStop(1,'#60A5FA');
+  ctx.fillStyle=gs;ctx.fillRect(srcX,sdY,sdW,sdH);
+  stroke(ctx,'#3B82F6',1.5);ctx.strokeRect(srcX,sdY,sdW,sdH);
+  fill(ctx,'#1E3A8A','700 11px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Source':'\uc18c\uc2a4',srcX+sdW/2,sdY+sdH/2-2);
+  fill(ctx,'#1D4ED8','600 9px "JetBrains Mono"','center');
+  ctx.fillText('(n+)',srcX+sdW/2,sdY+sdH/2+11);
+
+  // ── Drain n+ (buried in substrate) ──
+  const gd=ctx.createLinearGradient(drnX,sdY,drnX,sdY+sdH);
+  gd.addColorStop(0,'#93C5FD');gd.addColorStop(1,'#60A5FA');
+  ctx.fillStyle=gd;ctx.fillRect(drnX,sdY,sdW,sdH);
+  stroke(ctx,'#3B82F6',1.5);ctx.strokeRect(drnX,sdY,sdW,sdH);
+  fill(ctx,'#1E3A8A','700 11px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Drain':'\ub4dc\ub808\uc778',drnX+sdW/2,sdY+sdH/2-2);
+  fill(ctx,'#1D4ED8','600 9px "JetBrains Mono"','center');
+  ctx.fillText('(n+)',drnX+sdW/2,sdY+sdH/2+11);
+
+  // ── Si Channel (surface between S/D) ──
+  const chOn=nOp==='R'&&ch<0.2;
+  if(chOn){ctx.fillStyle='rgba(15,140,80,0.22)';ctx.fillRect(chX,chY,chW,chH);}
+  ctx.strokeStyle=chOn?'#0F8C50':'#94A3B8';ctx.lineWidth=chOn?2:1;
+  if(!chOn){ctx.setLineDash([4,3]);}
+  ctx.strokeRect(chX,chY,chW,chH);
+  ctx.setLineDash([]);
+  fill(ctx,chOn?'#064E3B':'#64748B','600 10px "Google Sans"','center');
+  ctx.fillText(chOn?'Si Channel (ON)':'Si Channel',chX+chW/2,chY+chH/2+4);
+
+  // ── Tunnel Oxide ──
+  const gt=ctx.createLinearGradient(chX,toxY,chX,toxY+toxH);
+  gt.addColorStop(0,'#BFDBFE');gt.addColorStop(1,'#93C5FD');
+  ctx.fillStyle=gt;ctx.fillRect(chX,toxY,chW,toxH);
+  stroke(ctx,'#60A5FA',1);ctx.strokeRect(chX,toxY,chW,toxH);
+  fill(ctx,'#1E40AF','600 9px "JetBrains Mono"','center');
+  ctx.fillText('Tunnel Oxide (~8 nm)',chX+chW/2,toxY+toxH-1);
+
+  // ── Floating Gate ──
+  const fgAlpha=0.15+ch*0.45;
+  ctx.fillStyle=ch>0?`rgba(234,88,12,${fgAlpha})`:'rgba(15,140,80,0.12)';
+  ctx.fillRect(chX,fgY,chW,fgH);
+  stroke(ctx,ch>0.5?'#EA580C':'#0F8C50',2);ctx.strokeRect(chX,fgY,chW,fgH);
+  fill(ctx,ch>0.5?'#7C2D12':'#064E3B','700 11px "Google Sans"','center');
+  ctx.fillText('Floating Gate',chX+chW/2,fgY+fgH/2+4);
+  if(ch>0.08){
+    const nEl=Math.round(ch*14),cols=Math.min(7,nEl),rows=Math.ceil(nEl/cols);
+    for(let i=0;i<nEl;i++){
+      const col=i%cols,row=Math.floor(i/cols);
+      const ex=chX+16+(col*(chW-32)/(Math.max(cols-1,1)));
+      const ey=fgY+10+row*(fgH-18)/(Math.max(rows-1,1)||1);
+      ctx.beginPath();ctx.arc(ex,ey,5.5,0,Math.PI*2);
+      ctx.fillStyle='#DC2626';ctx.fill();
+      fill(ctx,'#fff','700 8px sans-serif','center');ctx.fillText('e\u207B',ex,ey+3);
+    }
+  }
+
+  // ── Blocking Oxide (ONO) ──
+  ctx.fillStyle='#FDE68A';ctx.fillRect(chX,boxY,chW,boxH);
+  stroke(ctx,'#D97706',1);ctx.strokeRect(chX,boxY,chW,boxH);
+  fill(ctx,'#78350F','600 9px "JetBrains Mono"','center');
+  ctx.fillText('Blocking Oxide (ONO)',chX+chW/2,boxY+boxH-1);
+
+  // ── Control Gate ──
+  const cgc=Vg>8?'#DC2626':Vg<-8?'#EA580C':'#374151';
+  const gcg=ctx.createLinearGradient(chX,cgY,chX,cgY+cgH);
+  gcg.addColorStop(0,Vg>8?'#FCA5A5':Vg<-8?'#FDBA74':'#B0B8C4');
+  gcg.addColorStop(1,Vg>8?'#F87171':Vg<-8?'#FB923C':'#8090A0');
+  ctx.fillStyle=gcg;ctx.fillRect(chX,cgY,chW,cgH);
+  stroke(ctx,cgc,2);ctx.strokeRect(chX,cgY,chW,cgH);
+  fill(ctx,Math.abs(Vg)>1?'#1C1917':'#fff','700 12px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Gate (Word Line)':'\uac8c\uc774\ud2b8 (\uc6cc\ub4dc\ub77c\uc778)',chX+chW/2,cgY+cgH/2+5);
+
+  // ── WL wire: top-left of Control Gate → left, voltage on wire ──
+  const wlWireY=cgY+6;
+  const wlEndX=14;
+  stroke(ctx,cgc,2.5);
+  ctx.beginPath();ctx.moveTo(chX,wlWireY);ctx.lineTo(wlEndX,wlWireY);ctx.stroke();
+  ctx.fillStyle=cgc;
+  ctx.beginPath();ctx.moveTo(wlEndX+10,wlWireY-4);ctx.lineTo(wlEndX,wlWireY);ctx.lineTo(wlEndX+10,wlWireY+4);ctx.fill();
+  fill(ctx,cgc,'700 11px "Google Sans"','left');
+  ctx.fillText('Word Line',chX+4,cgY-7);
+  const vcgTxt=Math.abs(Vg)>1?`V_CG = ${Vg.toFixed(0)} V`:'V_CG \u2248 0';
+  fill(ctx,cgc,'700 10px "JetBrains Mono"','left');
+  ctx.fillText(vcgTxt,wlEndX+14,wlWireY-5);
+
+  // ── Tunneling arrows ──
+  const tdir=nOp==='P'&&nFr>4?1:nOp==='E'&&nFr>4?-1:0;
+  if(tdir!==0){
+    const ac=tdir>0?'#DC2626':'#0F8C50';
+    for(let i=0;i<4;i++){
+      const ax=chX+18+i*(chW-36)/3;
+      const ay1=tdir>0?chY-2:fgY+toxH+2;
+      const ay2=tdir>0?fgY+fgH-toxH:chY+2;
+      arrowLine(ctx,ax,ay1,ax,ay2,ac,2);
+    }
+  }
+
+  // ── BL wire: from Drain top, aligned with WL wire height ──
+  const blX=drnX+sdW/2;
+  const blTopY=wlWireY-6;
+  stroke(ctx,'#2563EB',2.5);
+  ctx.beginPath();ctx.moveTo(blX,sdY);ctx.lineTo(blX,blTopY);ctx.stroke();
+  ctx.fillStyle='#2563EB';
+  ctx.beginPath();ctx.moveTo(blX-5,blTopY+10);ctx.lineTo(blX,blTopY);ctx.lineTo(blX+5,blTopY+10);ctx.fill();
+  fill(ctx,'#2563EB','700 11px "Google Sans"','center');ctx.fillText('Bit Line',blX,blTopY-5);
+
+  // ── Source GND (wire into substrate bottom) ──
+  stroke(ctx,'#4A5568',2);
+  ctx.beginPath();ctx.moveTo(srcX+sdW/2,sdY+sdH);ctx.lineTo(srcX+sdW/2,subBot-4);ctx.stroke();
+
+  // ── Vth annotation ──
+  const Vth=nVth(ch),vtc=Vth>1.5?'#DC2626':'#0F8C50';
+  ctx.fillStyle=vtc+'28';rr(ctx,drnX+sdW+6,fgY+fgH/2-12,112,22,6);ctx.fill();
+  fill(ctx,vtc,'700 12px "JetBrains Mono"','left');
+  ctx.fillText(`Vth = ${Vth.toFixed(2)} V`,drnX+sdW+11,fgY+fgH/2+4);
+
+  // ── Legend ──
+  const leg=[
+    {c:'#6B7280',l:lang==='en'?'Gate (Poly/Metal)':'\uac8c\uc774\ud2b8'},
+    {c:'#60A5FA',l:lang==='en'?'Gate Oxide/ONO':'\uac8c\uc774\ud2b8 \uc0b0\ud654\ub9c9/ONO'},
+    {c:'#EA580C',l:lang==='en'?'Floating Gate':'\ud50c\ub85c\ud305 \uac8c\uc774\ud2b8'},
+    {c:'#3B82F6',l:lang==='en'?'n+ S/D (in Sub)':'n+ S/D (\uae30\ud310 \ub0b4\uc7a5)'},
+  ];
+  let lx=14;
+  leg.forEach(it=>{ctx.fillStyle=it.c;ctx.fillRect(lx,legY-8,10,10);ctx.fillStyle='#4A5568';ctx.font='10px "Google Sans"';ctx.textAlign='left';ctx.fillText(it.l,lx+13,legY+1);lx+=ctx.measureText(it.l).width+28;});
+}
+
+// ══ DRAW CTF (Charge Trap Flash) ════════════════════
+function drawCTF(Vg,t,ch){
+  const cv=document.getElementById('nCTF');
+  const W=460,H=390,dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#F8FAFC';ctx.fillRect(0,0,W,H);
+  fill(ctx,'#4A5568','600 12px "Google Sans"','left');
+  ctx.fillText(lang==='en'?'Cross-section \u2014 CTF NAND (V-NAND / BiCS)':'\ub2e8\uba74\ub3c4 \u2014 CTF NAND (V-NAND / BiCS)',16,21);
+
+  // ── Layout ──────────────────────────────────────────
+  const legY=H-20, subH=72, subY=legY-30-subH, subBot=subY+subH;
+  const sdW=66,sdH=40,sdY=subY;
+  const chX=152,chW=156,chH=28,chY=subY;
+  const srcX=chX-sdW,drnX=chX+chW;
+
+  // ONO stack above channel:
+  //  Bottom Oxide (Tunnel) / Si3N4 (Trap layer) / Top Oxide (Blocking) / Control Gate
+  const toxH=12, toxY=chY-toxH;          // Tunnel Oxide (SiO2 bottom)
+  const nitH=28, nitY=toxY-nitH;         // Si3N4 Nitride — charge trap
+  const boxH=12, boxY=nitY-boxH;         // Blocking Oxide (SiO2 top)
+  const cgH=38,  cgY=boxY-cgH;           // Control Gate (Metal/Poly)
+
+  // ── p-type Substrate ──
+  grad2(ctx,0,subY,0,subBot,'#CBD5E0','#D8DFE9');
+  ctx.fillRect(34,subY,W-52,subH);
+  stroke(ctx,'#94A3B8',1.5);ctx.strokeRect(34,subY,W-52,subH);
+  fill(ctx,'#64748B','600 10px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'p-type Si Substrate (P-well)':'p\ud615 Si \uae30\ud310 (P-\uc6f9)',(srcX+drnX+sdW)/2,subBot-10);
+
+  // ── Source n+ ──
+  const gs=ctx.createLinearGradient(srcX,sdY,srcX,sdY+sdH);
+  gs.addColorStop(0,'#93C5FD');gs.addColorStop(1,'#60A5FA');
+  ctx.fillStyle=gs;ctx.fillRect(srcX,sdY,sdW,sdH);
+  stroke(ctx,'#3B82F6',1.5);ctx.strokeRect(srcX,sdY,sdW,sdH);
+  fill(ctx,'#1E3A8A','700 11px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Source':'\uc18c\uc2a4',srcX+sdW/2,sdY+sdH/2-2);
+  fill(ctx,'#1D4ED8','600 9px "JetBrains Mono"','center');
+  ctx.fillText('(n+)',srcX+sdW/2,sdY+sdH/2+11);
+
+  // ── Drain n+ ──
+  const gd=ctx.createLinearGradient(drnX,sdY,drnX,sdY+sdH);
+  gd.addColorStop(0,'#93C5FD');gd.addColorStop(1,'#60A5FA');
+  ctx.fillStyle=gd;ctx.fillRect(drnX,sdY,sdW,sdH);
+  stroke(ctx,'#3B82F6',1.5);ctx.strokeRect(drnX,sdY,sdW,sdH);
+  fill(ctx,'#1E3A8A','700 11px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Drain':'\ub4dc\ub808\uc778',drnX+sdW/2,sdY+sdH/2-2);
+  fill(ctx,'#1D4ED8','600 9px "JetBrains Mono"','center');
+  ctx.fillText('(n+)',drnX+sdW/2,sdY+sdH/2+11);
+
+  // ── Si Channel ──
+  const chOn=nOp==='R'&&ch<0.2;
+  if(chOn){ctx.fillStyle='rgba(15,140,80,0.22)';ctx.fillRect(chX,chY,chW,chH);}
+  ctx.strokeStyle=chOn?'#0F8C50':'#94A3B8';ctx.lineWidth=chOn?2:1;
+  if(!chOn)ctx.setLineDash([4,3]);
+  ctx.strokeRect(chX,chY,chW,chH);ctx.setLineDash([]);
+  fill(ctx,chOn?'#064E3B':'#64748B','600 10px "Google Sans"','center');
+  ctx.fillText(chOn?'Si Channel (ON)':'Si Channel',chX+chW/2,chY+chH/2+4);
+
+  // ── Tunnel Oxide (SiO2 Bottom) ──
+  const gtox=ctx.createLinearGradient(chX,toxY,chX,toxY+toxH);
+  gtox.addColorStop(0,'#BFDBFE');gtox.addColorStop(1,'#93C5FD');
+  ctx.fillStyle=gtox;ctx.fillRect(chX,toxY,chW,toxH);
+  stroke(ctx,'#60A5FA',1);ctx.strokeRect(chX,toxY,chW,toxH);
+  fill(ctx,'#1E40AF','600 9px "JetBrains Mono"','center');
+  ctx.fillText('Tunnel Oxide / SiO\u2082 (~4 nm)',chX+chW/2,toxY+toxH-1);
+
+  // ── Si3N4 Nitride — Charge Trap Layer (key CTF layer) ──
+  // Fill with gradient + show trapped electrons as dots in nitride
+  const nitBase=ch<0.15?'rgba(124,58,237,0.12)':'rgba(124,58,237,'+(0.12+ch*0.45)+')';
+  ctx.fillStyle=nitBase;ctx.fillRect(chX,nitY,chW,nitH);
+  // Nitride texture: subtle horizontal lines
+  ctx.strokeStyle='rgba(109,40,217,0.18)';ctx.lineWidth=1;
+  for(let y=nitY+5;y<nitY+nitH-4;y+=5){
+    ctx.beginPath();ctx.moveTo(chX+2,y);ctx.lineTo(chX+chW-2,y);ctx.stroke();
+  }
+  stroke(ctx,ch>0.3?'#7C3AED':'#6D28D9',2);ctx.strokeRect(chX,nitY,chW,nitH);
+
+  // Trapped electrons in nitride (distributed, not floating gate)
+  if(ch>0.08){
+    const nEl=Math.round(ch*20);
+    const seed=42;
+    // deterministic pseudo-random positions spread across nitride
+    for(let i=0;i<nEl;i++){
+      const px=chX+12+((i*73+seed*17)%(chW-24));
+      const row=i%3, rows=3;
+      const py=nitY+6+row*(nitH-12)/(rows-1||1);
+      ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);
+      ctx.fillStyle='#DC2626';ctx.fill();
+      fill(ctx,'#fff','700 7px sans-serif','center');ctx.fillText('e\u207B',px,py+2.5);
+    }
+  }
+  // Label
+  fill(ctx,ch>0.3?'#4C1D95':'#5B21B6','700 10px "Google Sans"','center');
+  ctx.fillText(lang==='en'
+    ?'Si\u2083N\u2084 — Charge Trap Layer (ONO middle)'
+    :'Si\u2083N\u2084 \ud2b8\ub7a9 \ub808\uc774\uc5b4 (ONO \uc911\uc559)',
+    chX+chW/2,nitY+nitH/2+4);
+
+  // Trap count badge
+  if(ch>0.05){
+    const tc=Math.round(ch*20);
+    ctx.fillStyle='rgba(109,40,217,0.12)';rr(ctx,drnX+sdW+6,nitY+nitH/2-11,108,22,6);ctx.fill();
+    fill(ctx,'#6D28D9','700 10px "JetBrains Mono"','left');
+    ctx.fillText(`Trapped: ~${tc} e\u207B`,drnX+sdW+11,nitY+nitH/2+4);
+  }
+
+  // ── Blocking Oxide (SiO2 Top) ──
+  ctx.fillStyle='#FDE68A';ctx.fillRect(chX,boxY,chW,boxH);
+  stroke(ctx,'#D97706',1);ctx.strokeRect(chX,boxY,chW,boxH);
+  fill(ctx,'#78350F','600 9px "JetBrains Mono"','center');
+  ctx.fillText('Blocking Oxide / SiO\u2082 (~8 nm)',chX+chW/2,boxY+boxH-1);
+
+  // ONO bracket (right side annotation)
+  const onoTop=toxY, onoBot=boxY+boxH;
+  const bx=drnX+sdW+6;
+  stroke(ctx,'#374151',1.5);
+  ctx.beginPath();
+  ctx.moveTo(bx,onoTop);ctx.lineTo(bx+6,onoTop);
+  ctx.moveTo(bx+6,onoTop);ctx.lineTo(bx+6,onoBot);
+  ctx.moveTo(bx+6,onoBot);ctx.lineTo(bx,onoBot);
+  ctx.stroke();
+  fill(ctx,'#374151','700 9px "JetBrains Mono"','left');
+  ctx.fillText('ONO',bx+9,(onoTop+onoBot)/2+3);
+
+  // ── Control Gate (Metal — no Poly FG!) ──
+  const cgc=Vg>8?'#DC2626':Vg<-8?'#EA580C':'#374151';
+  const gcg=ctx.createLinearGradient(chX,cgY,chX,cgY+cgH);
+  // Metal gate: darker, more metallic look
+  gcg.addColorStop(0,Vg>8?'#FCA5A5':Vg<-8?'#FDBA74':'#94A3B8');
+  gcg.addColorStop(0.5,Vg>8?'#F87171':Vg<-8?'#FB923C':'#CBD5E0');
+  gcg.addColorStop(1,Vg>8?'#EF4444':Vg<-8?'#F97316':'#94A3B8');
+  ctx.fillStyle=gcg;ctx.fillRect(chX,cgY,chW,cgH);
+  stroke(ctx,cgc,2);ctx.strokeRect(chX,cgY,chW,cgH);
+  fill(ctx,Math.abs(Vg)>1?'#1C1917':'#fff','700 12px "Google Sans"','center');
+  ctx.fillText(lang==='en'?'Control Gate (Metal — no FG Poly)':'컨트롤 게이트 (Metal / FG Poly 없음)',chX+chW/2,cgY+cgH/2+5);
+
+  // ── WL wire: top-left of CG ──
+  const wlWireY=cgY+6, wlEndX=14;
+  stroke(ctx,cgc,2.5);
+  ctx.beginPath();ctx.moveTo(chX,wlWireY);ctx.lineTo(wlEndX,wlWireY);ctx.stroke();
+  ctx.fillStyle=cgc;
+  ctx.beginPath();ctx.moveTo(wlEndX+10,wlWireY-4);ctx.lineTo(wlEndX,wlWireY);ctx.lineTo(wlEndX+10,wlWireY+4);ctx.fill();
+  fill(ctx,cgc,'700 11px "Google Sans"','left');ctx.fillText('Word Line',chX+4,cgY-7);
+  const vcgTxt=Math.abs(Vg)>1?`V_CG = ${Vg.toFixed(0)} V`:'V_CG \u2248 0';
+  fill(ctx,cgc,'700 10px "JetBrains Mono"','left');
+  ctx.fillText(vcgTxt,wlEndX+14,wlWireY-5);
+
+  // ── Tunneling arrows (into/out of Nitride layer) ──
+  const tdir=nOp==='P'&&nFr>4?1:nOp==='E'&&nFr>4?-1:0;
+  if(tdir!==0){
+    const ac=tdir>0?'#DC2626':'#0F8C50';
+    for(let i=0;i<4;i++){
+      const ax=chX+18+i*(chW-36)/3;
+      const ay1=tdir>0?chY-2:nitY+4;
+      const ay2=tdir>0?nitY+nitH-4:chY+2;
+      arrowLine(ctx,ax,ay1,ax,ay2,ac,2);
+    }
+  }
+
+  // ── GIDL Erase annotation ──
+  if(nOp==='E'&&nFr>20){
+    fill(ctx,'#EA580C','600 9px "Google Sans"','left');
+    ctx.fillText(lang==='en'?'\u2190 GIDL hot-hole erase':'\u2190 GIDL \ud640\ud640 \uc18c\uac70',srcX+sdW+4,nitY+nitH/2+4);
+  }
+
+  // ── BL wire ──
+  const blX=drnX+sdW/2, blTopY=wlWireY-6;
+  stroke(ctx,'#2563EB',2.5);
+  ctx.beginPath();ctx.moveTo(blX,sdY);ctx.lineTo(blX,blTopY);ctx.stroke();
+  ctx.fillStyle='#2563EB';
+  ctx.beginPath();ctx.moveTo(blX-5,blTopY+10);ctx.lineTo(blX,blTopY);ctx.lineTo(blX+5,blTopY+10);ctx.fill();
+  fill(ctx,'#2563EB','700 11px "Google Sans"','center');ctx.fillText('Bit Line',blX,blTopY-5);
+
+  // ── Source GND ──
+  stroke(ctx,'#4A5568',2);
+  ctx.beginPath();ctx.moveTo(srcX+sdW/2,sdY+sdH);ctx.lineTo(srcX+sdW/2,subBot-4);ctx.stroke();
+
+  // ── Vth annotation ──
+  const Vth=nVth(ch),vtc=Vth>1.5?'#DC2626':'#0F8C50';
+  ctx.fillStyle=vtc+'28';rr(ctx,drnX+sdW+6,nitY-18,112,20,5);ctx.fill();
+  fill(ctx,vtc,'700 11px "JetBrains Mono"','left');
+  ctx.fillText(`Vth = ${Vth.toFixed(2)} V`,drnX+sdW+11,nitY-5);
+
+  // ── Legend ──
+  const leg=[
+    {c:'#94A3B8',l:lang==='en'?'Control Gate (Metal)':'컨트롤 게이트'},
+    {c:'#FDE68A',l:lang==='en'?'Blocking Oxide':'블로킹 산화막'},
+    {c:'#7C3AED',l:lang==='en'?'Si\u2083N\u2084 Trap Layer':'질화막 트랩'},
+    {c:'#60A5FA',l:lang==='en'?'Tunnel Oxide':'터널 산화막'},
+    {c:'#3B82F6',l:lang==='en'?'n+ S/D':'n+ S/D'},
+  ];
+  let lx=14;
+  leg.forEach(it=>{
+    ctx.fillStyle=it.c;ctx.fillRect(lx,legY-8,10,10);
+    ctx.fillStyle='#4A5568';ctx.font='9.5px "Google Sans"';ctx.textAlign='left';
+    ctx.fillText(it.l,lx+13,legY+1);lx+=ctx.measureText(it.l).width+26;
+  });
+}
+
+// ══ DRAW NAND Vth CHART ═══════════════════════════
+function drawNVt(hist){
+  const cv=document.getElementById('nVt');
+  const W=430,H=390,dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#F8FAFC';ctx.fillRect(0,0,W,H);
+  fill(ctx,'#4A5568','600 12px "Google Sans"','left');ctx.fillText(lang==='en'?'Vth & V_CG Change':'Vth & V_CG \ubcc0\ud654',14,21);
+  const lx=54,rx=W-16,ty=36,by=H-36;
+  const toY=v=>by-(by-ty)*((v+22)/44),toX=t2=>lx+(rx-lx)*t2;
+  [-20,-15,-10,-5,0,5,10,15,20].forEach(v=>{
+    const y=toY(v);ctx.strokeStyle='#E2E8F0';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(lx,y);ctx.lineTo(rx,y);ctx.stroke();ctx.setLineDash([]);
+    fill(ctx,'#94A3B8','10px "JetBrains Mono"','right');ctx.fillText(v+'V',lx-4,y+4);
+  });
+  if(!hist.length){fill(ctx,'#CBD5E0','13px "Google Sans"','center');ctx.fillText(lang==='en'?'Click \u25B6 Run to see Vth change':'\u25B6 \uc2e4\ud589 \ud6c4 Vth \ubcc0\ud654 \ud45c\uc2dc',W/2,H/2);return;}
+  ctx.strokeStyle='#64748B';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+  ctx.beginPath();hist.forEach((h,i)=>i===0?ctx.moveTo(toX(h.t),toY(h.Vg)):ctx.lineTo(toX(h.t),toY(h.Vg)));ctx.stroke();ctx.setLineDash([]);
+  const vtc=nOp==='E'?'#0F8C50':'#DC2626';
+  ctx.strokeStyle=vtc;ctx.lineWidth=2.5;ctx.beginPath();
+  hist.forEach((h,i)=>i===0?ctx.moveTo(toX(h.t),toY(h.Vth)):ctx.lineTo(toX(h.t),toY(h.Vth)));ctx.stroke();
+  const vl=nOp==='P'?2.5:nOp==='E'?-0.5:NaN;
+  if(!isNaN(vl)){
+    ctx.strokeStyle=vtc;ctx.lineWidth=1.2;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(lx,toY(vl));ctx.lineTo(rx,toY(vl));ctx.stroke();ctx.setLineDash([]);
+    fill(ctx,vtc,'10px "JetBrains Mono"','left');ctx.fillText(nOp==='P'?'Verify (pgm)':'Verify (era)',lx+4,toY(vl)-4);
+  }
+  ctx.setLineDash([6,4]);stroke(ctx,'#64748B',2);ctx.beginPath();ctx.moveTo(14,by+20);ctx.lineTo(30,by+20);ctx.stroke();ctx.setLineDash([]);
+  fill(ctx,'#64748B','10px "Google Sans"','left');ctx.fillText('V_CG',34,by+24);
+  stroke(ctx,vtc,2.5);ctx.beginPath();ctx.moveTo(74,by+20);ctx.lineTo(90,by+20);ctx.stroke();
+  fill(ctx,vtc,'10px "Google Sans"','left');ctx.fillText('Vth',94,by+24);
+  ctx.save();ctx.translate(11,(ty+by)/2);ctx.rotate(-Math.PI/2);fill(ctx,'#94A3B8','10px "Google Sans"','center');ctx.fillText('Voltage (V)',0,0);ctx.restore();
+}
+
+// ══ Vth DISTRIBUTION ═════════════════════════════
+function drawDist(){
+  const cv=document.getElementById('nDist');if(!cv)return;
+  const dpr=window.devicePixelRatio||1,W=cv.offsetWidth||900,H=255;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#F8FAFC';ctx.fillRect(0,0,W,H);
+  const rv=parseFloat(document.getElementById('rvSlider').value);
+  document.getElementById('rvVal').textContent=rv.toFixed(1)+' V';
+  const DS={
+    SLC:[{mu:-1,sig:.35,c:'#0F8C50',l:'E (1)'},{mu:3.5,sig:.35,c:'#DC2626',l:'P (0)'}],
+    MLC:[{mu:-1,sig:.28,c:'#0F8C50',l:'11'},{mu:1.2,sig:.28,c:'#2563EB',l:'01'},{mu:2.8,sig:.28,c:'#D97706',l:'00'},{mu:4.4,sig:.28,c:'#DC2626',l:'10'}],
+    TLC:[{mu:-1,sig:.2,c:'#0F8C50',l:'111'},{mu:.5,sig:.2,c:'#22C55E',l:'011'},{mu:1.5,sig:.2,c:'#84CC16',l:'001'},{mu:2.5,sig:.2,c:'#EAB308',l:'101'},{mu:3.2,sig:.2,c:'#F97316',l:'100'},{mu:3.9,sig:.2,c:'#EF4444',l:'000'},{mu:4.6,sig:.2,c:'#DC2626',l:'010'},{mu:5.3,sig:.2,c:'#991B1B',l:'110'}],
+  };
+  const lx=46,rx=W-16,ty=16,by=H-40,cur=DS[nMode]||DS.SLC,N=400;
+  const toX=v=>lx+(rx-lx)*(v+3)/10,gauss=(x,mu,sig)=>Math.exp(-.5*((x-mu)/sig)**2);
+  cur.forEach(d=>{
+    ctx.beginPath();
+    for(let i=0;i<=N;i++){const x=-3+i*10/N,y=by-gauss(x,d.mu,d.sig)*(by-ty-8);i===0?ctx.moveTo(toX(x),y):ctx.lineTo(toX(x),y);}
+    ctx.lineTo(toX(7),by);ctx.lineTo(toX(-3),by);ctx.closePath();
+    ctx.fillStyle=d.c+'28';ctx.fill();
+    ctx.strokeStyle=d.c;ctx.lineWidth=2;ctx.beginPath();
+    for(let i=0;i<=N;i++){const x=-3+i*10/N,y=by-gauss(x,d.mu,d.sig)*(by-ty-8);i===0?ctx.moveTo(toX(x),y):ctx.lineTo(toX(x),y);}
+    ctx.stroke();
+    fill(ctx,d.c,'700 10px "JetBrains Mono"','center');ctx.fillText(d.l,toX(d.mu),by-gauss(d.mu,d.mu,d.sig)*(by-ty-8)-7);
+  });
+  const rvX=toX(rv);
+  ctx.setLineDash([5,4]);stroke(ctx,'#7030A0',2);ctx.beginPath();ctx.moveTo(rvX,ty);ctx.lineTo(rvX,by);ctx.stroke();ctx.setLineDash([]);
+  fill(ctx,'#7030A0','700 11px "JetBrains Mono"','center');ctx.fillText(`V_read=${rv.toFixed(1)}V`,rvX,ty+12);
+  stroke(ctx,'#CBD5E0',1.5);ctx.beginPath();ctx.moveTo(lx,by);ctx.lineTo(rx,by);ctx.stroke();
+  for(let v=-2;v<=6;v++){
+    const x=toX(v);ctx.strokeStyle='#E2E8F0';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,ty);ctx.lineTo(x,by);ctx.stroke();
+    fill(ctx,'#94A3B8','10px "JetBrains Mono"','center');ctx.fillText(v+'V',x,by+13);
+  }
+  fill(ctx,'#4A5568','600 11px "Google Sans"','center');ctx.fillText(lang==='en'?'Threshold Voltage Vth (V)':'\ub9c8\uc9c4 Vth (V)',(lx+rx)/2,H-5);
+  const hit=cur.filter(d=>Math.abs(rv-d.mu)<d.sig*2.2).map(d=>d.l);
+  const di=document.getElementById('N_di'),dtag=document.getElementById('N_dtag'),dtxt=document.getElementById('N_dtxt');
+  if(hit.length){
+    di.className='sinfo pgm';dtag.className='stag pgm';dtag.textContent=lang==='en'?'OVERLAP RISK':'\uc911\ucca9 \uc704\ud5d8';
+    dtxt.textContent=lang==='en'?`V_read=${rv.toFixed(1)} V overlaps state(s): ${hit.join(', ')} \u2192 possible read error!`:`V_read=${rv.toFixed(1)} V\uac00 \uc0c1\ud0dc ${hit.join(', ')}\uc640 \uc911\ucca9 \u2192 \uc77d\uae30 \uc624\ub958 \uc704\ud5d8!`;
+  } else {di.className='sinfo pur';dtag.className='stag pur';dtag.textContent=TX[lang].N_dtag;dtxt.textContent=TX[lang].N_dtxt;}
+}
+
+// ══ NAND COMPARE TABLE ═══════════════════════════
+function renderNcmp(){
+  const tb=document.getElementById('N_ctbl');tb.innerHTML='';
+  TX[lang].ncmp.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r[0]}</td><td style="color:#2563EB;font-size:12px">${r[1]}</td><td style="color:#0F8C50;font-size:12px">${r[2]}</td>`;tb.appendChild(tr);});
+}
+
+// ══ DRAW HELPERS ═════════════════════════════════
+function grad2(ctx,x0,y0,x1,y1,c0,c1){const g=ctx.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,c0);g.addColorStop(1,c1);ctx.fillStyle=g;}
+function gradFill(ctx,x,y,c0,c1){const g=ctx.createLinearGradient(x,y,x,y+30);g.addColorStop(0,c0);g.addColorStop(1,c1);ctx.fillStyle=g;}
+function stroke(ctx,c,w){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.setLineDash([]);}
+function fill(ctx,c,f,ta){ctx.fillStyle=c;ctx.font=f;ctx.textAlign=ta;}
+function nSDLabel(ctx,x,y,w,h,label){
+  fill(ctx,'#1D4ED8','700 11px "Google Sans"','center');ctx.fillText(label,x+w/2,y+h/2+2);
+  fill(ctx,'#3B82F6','600 9px "JetBrains Mono"','center');ctx.fillText('(n+)',x+w/2,y+h/2+14);
+}
+function gnd(ctx,x,y){stroke(ctx,'#94A3B8',2);[14,9,4].forEach((w,i)=>{ctx.beginPath();ctx.moveTo(x-w/2,y+i*5);ctx.lineTo(x+w/2,y+i*5);ctx.stroke();});}
+function pill(ctx,x,y,txt,fg,bg){
+  ctx.font='600 10px "JetBrains Mono"';const tw=ctx.measureText(txt).width,pw=tw+14,ph2=18;
+  ctx.fillStyle=bg;rr(ctx,x,y-ph2/2,pw,ph2,6);ctx.fill();
+  stroke(ctx,fg,1);rr(ctx,x,y-ph2/2,pw,ph2,6);ctx.stroke();
+  fill(ctx,fg,'600 10px "JetBrains Mono"','left');ctx.fillText(txt,x+7,y+4);
+}
+function arrow(ctx,x1,y1,x2,y2,c){
+  const a=Math.atan2(y2-y1,x2-x1);
+  stroke(ctx,c,0);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  ctx.fillStyle=c;ctx.save();ctx.translate(x2,y2);ctx.rotate(a);
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-8,-4);ctx.lineTo(-8,4);ctx.closePath();ctx.fill();ctx.restore();
+}
+function arrowLine(ctx,x1,y1,x2,y2,c,w){stroke(ctx,c,w);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();arrow(ctx,x1,y1,x2,y2,c);}
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+// ══ INIT ═════════════════════════════════════════
+window.addEventListener('load',()=>{
+  setLang('en');dSetOp('W');dSetBit(1);nSetOp('P');nSetMode('SLC');
+  drawDCell(false,false,0);drawDWave([],[],[]);
+  drawNFG(0,0,0);drawCTF(0,0,0);drawNVt([]);
+  setTimeout(()=>{drawDLeak();drawDist();},120);
+});
+window.addEventListener('resize',()=>setTimeout(()=>{drawDLeak();drawDist();},80));
+</script>
+</body>
+</html>

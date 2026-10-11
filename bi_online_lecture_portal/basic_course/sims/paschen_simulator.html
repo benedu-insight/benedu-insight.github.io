@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paschen's Law Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<script>
+try{
+  var __t = localStorage.getItem('benedu-paschen-theme');
+  if(__t!=='light' && __t!=='dark'){ __t = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; }
+  document.documentElement.setAttribute('data-theme', __t);
+}catch(e){}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Gowun Batang, restricted to Hangul + Korean punctuation only (unicode-range).
+   Gowun Batang bundles its own full Latin alphabet (KS X 1001 / "Google Latin plus
+   set") which would otherwise render English words/numbers embedded in Korean text
+   in its own serif Latin glyphs. Excluding Basic Latin + Latin-1 Supplement here
+   makes those characters fall through to the Google Sans / system-ui chain instead,
+   matching how they render in EN mode. Single unsubsetted TTF (not Google's own
+   smart per-syllable split) -- simpler/fully deterministic, at some extra download
+   weight versus the default <link>-based loading.
+*/
+@font-face{
+  font-family:'Gowun Batang KO';
+  font-style:normal;
+  font-weight:400 700;
+  src:url('https://fonts.gstatic.com/s/gowunbatang/v12/ijwSs5nhRMIjYsdSgcMa3wRhXA.ttf') format('truetype');
+  unicode-range:U+1100-11FF,U+3130-318F,U+A960-A97F,U+AC00-D7A3,U+D7B0-D7FF,U+3000-303F,U+2000-206F;
+  font-display:swap;
+}
+</style>
+<style>
+:root{
+  --green:#0F8C50;--green-lt:#E6F4ED;--green-dk:#0A6B3C;
+  --purple:#7030A0;--purple-lt:#F0E8F8;--purple-mid:#9B59D0;
+  --bg:#F8FAFB;--card:#FFFFFF;--border:#E2E8F0;--text:#1A202C;--muted:#64748B;--label:#94A3B8;
+  --shadow:0 2px 12px rgba(0,0,0,0.07);
+  --plot-bg:#FAFBFC;--grid:#E9EEF3;--axis:#CBD5E1;
+  --danger:#D93A52;--danger-lt:#FDECEF;--warn:#C98A12;--warn-lt:#FDF4E1;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --green:#3DBE80;--green-lt:#12291E;--green-dk:#8FE0B5;
+  --purple:#C39AE8;--purple-lt:#271B35;--purple-mid:#9B59D0;
+  --bg:#0F1318;--card:#171C23;--border:#2A323C;--text:#E6EAF0;--muted:#9AA6B2;--label:#6F7B88;
+  --shadow:0 2px 12px rgba(0,0,0,0.4);
+  --plot-bg:#12171D;--grid:#222A33;--axis:#3A4552;
+  --danger:#F06A7E;--danger-lt:#3A1A21;--warn:#E8B04A;--warn-lt:#35290F;
+}}
+:root[data-theme="dark"]{
+  --green:#3DBE80;--green-lt:#12291E;--green-dk:#8FE0B5;
+  --purple:#C39AE8;--purple-lt:#271B35;--purple-mid:#9B59D0;
+  --bg:#0F1318;--card:#171C23;--border:#2A323C;--text:#E6EAF0;--muted:#9AA6B2;--label:#6F7B88;
+  --shadow:0 2px 12px rgba(0,0,0,0.4);
+  --plot-bg:#12171D;--grid:#222A33;--axis:#3A4552;
+  --danger:#F06A7E;--danger-lt:#3A1A21;--warn:#E8B04A;--warn-lt:#35290F;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+:root{--font-ui:'Google Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+html[lang="ko"]{--font-ui:'Gowun Batang KO','Google Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);height:100%;display:flex;flex-direction:column;overflow:hidden}
+.mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
+
+.header{flex:0 0 auto;background:var(--card);border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;justify-content:center;gap:16px}
+.logo-img{height:36px;display:block}
+:root[data-theme="dark"] .logo-img{filter:brightness(1.6) saturate(.8)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .logo-img{filter:brightness(1.6) saturate(.8)}}
+.header-divider{width:1px;height:28px;background:var(--border);margin:0 4px}
+.header-title{font-size:14px;font-weight:500;color:var(--muted)}
+.lang-toggle{display:flex;align-items:center;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:2px;margin-left:8px}
+.lang-btn{font-family:inherit;font-size:12px;font-weight:600;padding:3px 12px;border-radius:16px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .18s}
+.lang-btn.active{background:var(--purple);color:#fff}
+.lang-btn.icon{font-size:14px;line-height:1;padding:4px 10px}
+
+.app{flex:1 1 auto;display:grid;grid-template-columns:clamp(540px,43vw,700px) 1fr;min-height:0;overflow:hidden}
+.pane{overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch}
+.pane-left{border-right:1px solid var(--border)}
+.pane-inner{padding:20px 16px 40px}
+.pane-left .pane-inner{max-width:680px;margin:0 auto}
+.pane-right .pane-inner{max-width:920px;margin:0 auto}
+.pane-left .row-label,.pane-left .quick-label{min-width:100%}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:20px}
+.card-head{padding:16px 24px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.card-head-text h2{font-size:15px;font-weight:600}
+.card-head-text p{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.5}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--green-lt);color:var(--green);font-size:11px;font-weight:600;letter-spacing:.08em;padding:3px 10px;border-radius:4px;flex-shrink:0;margin-top:1px}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.badge.pur{background:var(--purple-lt);color:var(--purple)}
+.badge.pur .badge-dot{background:var(--purple)}
+.badge.amb{background:var(--warn-lt);color:var(--warn)}
+.badge.amb .badge-dot{background:var(--warn)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.controls{padding:18px 24px 10px;border-bottom:1px solid var(--border)}
+.row{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.row-label{font-size:13px;font-weight:500;color:var(--muted);min-width:118px}
+.slider-track{flex:1;min-width:160px}
+.inputs{display:flex;align-items:center;gap:6px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(to right,var(--green) 0%,var(--purple-mid) 55%,#DDD4F5 100%);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--green);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:pointer;transition:transform .1s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--green);border:2px solid #fff;cursor:pointer}
+.num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:5px 10px;width:110px;text-align:right;outline:none;transition:border-color .2s}
+.num:focus{border-color:var(--green)}
+.sel{font-family:inherit;font-size:13px;font-weight:500;background:var(--bg);border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);cursor:pointer;outline:none;min-width:70px}
+.sel:focus{border-color:var(--green)}
+.unit-fixed{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);min-width:70px;padding-left:4px}
+
+.quick-row{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:-4px 0 14px}
+.quick-label{font-size:11.5px;color:var(--label);font-weight:500;min-width:118px}
+.qbtn{font-family:inherit;font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s}
+.qbtn:hover{border-color:var(--purple-mid);color:var(--purple)}
+.qbtn.active{background:var(--purple-lt);border-color:var(--purple);color:var(--purple)}
+.qbtn.hw{border-color:var(--green);color:var(--green);background:var(--green-lt)}
+.qbtn.hw.active{background:var(--green);color:#fff}
+
+.scen-box{margin:0 24px 16px;padding:12px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);font-size:12.5px;line-height:1.6;color:var(--text);display:none}
+.scen-box.show{display:block}
+.scen-box b{color:var(--green)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px;padding:14px 24px 0;align-items:center}
+.lchip{font-family:inherit;font-size:11px;font-weight:600;padding:3px 9px 3px 7px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.lchip i{width:10px;height:3px;border-radius:2px;display:inline-block}
+.lchip.on{color:var(--text);border-color:var(--axis)}
+.lchip.main{cursor:default;border-color:var(--purple);color:var(--purple);background:var(--purple-lt)}
+
+.canvas-wrap{padding:0 24px}
+canvas.plot{width:100%;display:block;border:1px solid var(--border);border-radius:8px;background:var(--plot-bg);margin-top:10px;touch-action:none}
+#paschenCanvas{height:400px;cursor:crosshair}
+#mapCanvas{height:380px;cursor:crosshair}
+.canvas-note{font-size:11.5px;color:var(--muted);margin:7px 0 16px;padding:0 2px;line-height:1.5}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 24px 18px}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px 14px;text-align:center}
+.stat-name{font-size:11px;color:var(--label);font-weight:500;letter-spacing:.04em;margin-bottom:5px}
+.stat-value{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:600;color:var(--purple);line-height:1}
+.stat-unit{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-left:3px}
+.stat.st-danger{background:var(--danger-lt);border-color:var(--danger)}
+.stat.st-danger .stat-value{color:var(--danger)}
+.stat.st-warn{background:var(--warn-lt);border-color:var(--warn)}
+.stat.st-warn .stat-value{color:var(--warn)}
+.stat.st-safe{background:var(--green-lt);border-color:var(--green)}
+.stat.st-safe .stat-value{color:var(--green)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:5px}
+
+.insight{margin:0 24px 20px;padding:13px 16px;border-left:3px solid var(--purple);background:var(--purple-lt);border-radius:0 8px 8px 0;font-size:12.8px;line-height:1.65}
+.insight .ins-title{font-size:10.5px;font-weight:700;color:var(--purple);letter-spacing:.08em;margin-bottom:3px}
+.warnline{margin-top:6px;font-size:11.8px;color:var(--warn)}
+
+.formula-panel{border-top:1px solid var(--border);padding:14px 24px;background:var(--green-lt);display:flex;flex-wrap:wrap;gap:14px 30px;align-items:center}
+.formula-label{font-size:10.5px;font-weight:600;color:var(--green);letter-spacing:.08em;margin-bottom:1px}
+.formula-eq{font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:500;color:var(--green-dk)}
+
+.map-legend{display:flex;gap:16px;flex-wrap:wrap;padding:12px 24px 0;font-size:11.5px;color:var(--muted);align-items:center}
+.map-legend span{display:inline-flex;align-items:center;gap:6px}
+.map-legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+
+.tbl-wrap{padding:12px 24px 20px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--bg)}
+th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+td.m{font-family:'JetBrains Mono',monospace}
+td.v{font-family:'JetBrains Mono',monospace;color:var(--purple);font-weight:600}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--bg)}
+tr.selected td{background:var(--purple-lt)!important}
+.tnote{font-size:11.5px;color:var(--muted);padding:0 24px 18px;line-height:1.6}
+
+.foot{flex:0 0 auto;background:var(--card);border-top:1px solid var(--border);text-align:center;font-size:11px;color:var(--label);padding:7px 16px;line-height:1.5}
+
+@media (max-width:1000px){
+  html,body{height:auto}
+  body{overflow:visible;display:block}
+  .app{display:block;height:auto;overflow:visible}
+  .pane{overflow-y:visible;height:auto}
+  .pane-left{border-right:none;border-bottom:1px solid var(--border)}
+  .pane-inner{max-width:640px}
+  .foot{padding:14px 16px 28px}
+}
+@media (max-width:640px){
+  .stats{grid-template-columns:1fr 1fr}
+  .header{padding:10px 12px;gap:10px;flex-wrap:wrap}
+  .header-divider{display:none}
+  .controls,.canvas-wrap,.stats,.legend,.map-legend,.tbl-wrap,.tnote{padding-left:12px;padding-right:12px}
+  .card-head{padding:12px 12px 10px}
+  .formula-panel{padding:12px}
+  .insight,.scen-box{margin-left:12px;margin-right:12px}
+  .row-label,.quick-label{min-width:100%}
+  #paschenCanvas{height:320px}
+  #mapCanvas{height:300px}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="data:image/png;base64,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" alt="Benedu Insight" class="logo-img">
+  <div class="header-divider"></div>
+  <span class="header-title" data-i18n="headerTitle"></span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+  <div class="header-divider"></div>
+  <div class="lang-toggle" id="themeToggle">
+    <button class="lang-btn icon" id="btnLight" onclick="setTheme('light')" aria-label="Light mode" title="Light">☀</button>
+    <button class="lang-btn icon" id="btnDark" onclick="setTheme('dark')" aria-label="Dark mode" title="Dark">☾</button>
+  </div>
+</header>
+
+<div class="app">
+<aside class="pane pane-left"><div class="pane-inner">
+
+  <!-- CARD 1A: Settings (left pane) -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span data-i18n="badgeSettings"></span></span>
+      <div class="card-head-text">
+        <h2 data-i18n="leftTitle"></h2>
+        <p data-i18n="leftSub"></p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="quick-row">
+        <span class="quick-label" data-i18n="lblScenario"></span>
+        <span id="scenBtns" style="display:contents"></span>
+      </div>
+
+      <div class="row">
+        <span class="row-label" data-i18n="lblGas"></span>
+        <select id="gasSel" class="sel" style="min-width:180px;flex:1"></select>
+      </div>
+      <div class="row">
+        <span class="row-label" data-i18n="lblGamma"></span>
+        <div class="slider-track"><input type="range" id="gSlider" min="0" max="1000"></div>
+        <div class="inputs"><input type="text" id="gInput" class="num" style="width:80px"></div>
+      </div>
+      <div class="quick-row">
+        <span class="quick-label" data-i18n="lblGammaQuick"></span>
+        <span id="gammaBtns" style="display:contents"></span>
+      </div>
+
+      <div class="row">
+        <span class="row-label" data-i18n="lblP"></span>
+        <div class="slider-track"><input type="range" id="pSlider" min="0" max="1000"></div>
+        <div class="inputs">
+          <input type="text" id="pInput" class="num">
+          <select id="pUnit" class="sel"><option value="mTorr">mTorr</option><option value="Torr" selected>Torr</option><option value="Pa">Pa</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <span class="row-label" data-i18n="lblD"></span>
+        <div class="slider-track"><input type="range" id="dSlider" min="0" max="1000"></div>
+        <div class="inputs">
+          <input type="text" id="dInput" class="num">
+          <select id="dUnit" class="sel"><option value="um">µm</option><option value="mm" selected>mm</option><option value="cm">cm</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <span class="row-label" data-i18n="lblT"></span>
+        <div class="slider-track"><input type="range" id="tSlider" min="-50" max="500" step="1"></div>
+        <div class="inputs"><input type="text" id="tInput" class="num"><span class="unit-fixed">°C</span></div>
+      </div>
+      <div class="row">
+        <span class="row-label" data-i18n="lblV"></span>
+        <div class="slider-track"><input type="range" id="vSlider" min="0" max="1000"></div>
+        <div class="inputs"><input type="text" id="vInput" class="num"><span class="unit-fixed">V</span></div>
+      </div>
+    </div>
+
+    <div class="scen-box" id="scenBox"></div>
+  </div>
+
+  <!-- CARD 3: gas constant table (left pane — selecting a row sets the gas) -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge pur"><span class="badge-dot"></span><span data-i18n="badgeTable"></span></span>
+      <div class="card-head-text">
+        <h2 data-i18n="c3Title"></h2>
+        <p data-i18n="c3Sub"></p>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th data-i18n="thGas"></th><th>A <span style="font-weight:400">(cm⁻¹Torr⁻¹)</span></th><th>B <span style="font-weight:400">(V·cm⁻¹Torr⁻¹)</span></th>
+          <th data-i18n="thRange"></th><th>(pd)<sub>min</sub></th><th>V<sub>min</sub></th><th data-i18n="thNote"></th>
+        </tr></thead>
+        <tbody id="gasTbody"></tbody>
+      </table>
+    </div>
+    <div class="tnote" data-i18n="c3Foot"></div>
+  </div>
+
+</div></aside>
+
+<main class="pane pane-right"><div class="pane-inner">
+
+  <!-- CARD 1B: Paschen curve output (right pane) -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge"><span class="badge-dot"></span><span data-i18n="badgeInteractive"></span></span>
+      <div class="card-head-text">
+        <h2 data-i18n="c1Title"></h2>
+        <p data-i18n="c1Sub"></p>
+      </div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+    <div class="canvas-wrap">
+      <canvas id="paschenCanvas" class="plot"></canvas>
+      <div class="canvas-note" data-i18n="c1Note"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat" id="stVb"><div class="stat-name" data-i18n="sVb"></div><div><span class="stat-value" id="dVb">—</span><span class="stat-unit" id="dVbU">V</span></div></div>
+      <div class="stat" id="stStatus"><div class="stat-name" data-i18n="sStatus"></div><div><span class="stat-value" id="dStatus">—</span></div><div class="stat-sub" id="dMargin"></div></div>
+      <div class="stat"><div class="stat-name" data-i18n="sPd"></div><div><span class="stat-value" id="dPd">—</span><span class="stat-unit">Torr·cm</span></div><div class="stat-sub" id="dBranch"></div></div>
+      <div class="stat"><div class="stat-name" data-i18n="sPdMin"></div><div><span class="stat-value" id="dPdMin">—</span><span class="stat-unit">Torr·cm</span></div></div>
+      <div class="stat"><div class="stat-name" data-i18n="sVmin"></div><div><span class="stat-value" id="dVmin">—</span><span class="stat-unit">V</span></div></div>
+      <div class="stat"><div class="stat-name" data-i18n="sEp"></div><div><span class="stat-value" id="dEp">—</span><span class="stat-unit">V/(cm·Torr)</span></div><div class="stat-sub" id="dEpRange"></div></div>
+    </div>
+
+    <div class="insight">
+      <div class="ins-title" data-i18n="insTitle"></div>
+      <div id="insText"></div>
+      <div class="warnline" id="insWarn"></div>
+    </div>
+
+    <div class="formula-panel">
+      <div><div class="formula-label" data-i18n="fBreak"></div><div class="formula-eq">V<sub>b</sub> = B·pd / [ ln(A·pd) − ln(ln(1+1/γ)) ]</div></div>
+      <div><div class="formula-label" data-i18n="fMin"></div><div class="formula-eq">(pd)<sub>min</sub> = e·ln(1+1/γ) / A</div></div>
+      <div><div class="formula-label" data-i18n="fVmin"></div><div class="formula-eq">V<sub>min</sub> = (e·B/A)·ln(1+1/γ)</div></div>
+      <div><div class="formula-label" data-i18n="fTemp"></div><div class="formula-eq">(pd)<sub>eq</sub> = p·d·(293 K / T)</div></div>
+      <div><div class="formula-label" data-i18n="fAlpha"></div><div class="formula-eq">α/p = A·exp(−B·p/E)</div></div>
+    </div>
+  </div>
+
+  <!-- CARD 2: p–d danger map -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge pur"><span class="badge-dot"></span><span data-i18n="badgeMap"></span></span>
+      <div class="card-head-text">
+        <h2 data-i18n="c2Title"></h2>
+        <p data-i18n="c2Sub"></p>
+      </div>
+    </div>
+    <div class="map-legend">
+      <span><i style="background:rgba(217,58,82,.75)"></i><span data-i18n="lgBreak"></span></span>
+      <span><i style="background:rgba(201,138,18,.6)"></i><span data-i18n="lgMarg"></span></span>
+      <span><i style="background:rgba(15,140,80,.45)"></i><span data-i18n="lgSafe"></span></span>
+      <span><i style="background:rgba(120,130,145,.18)"></i><span data-i18n="lgNone"></span></span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="mapCanvas" class="plot"></canvas>
+      <div class="canvas-note" id="mapNote"></div>
+    </div>
+  </div>
+
+  <!-- CARD 4: RF breakdown (v3, beta) -->
+  <div class="card">
+    <div class="card-head">
+      <span class="badge amb"><span class="badge-dot"></span><span data-i18n="badgeRF"></span></span>
+      <div class="card-head-text">
+        <h2 data-i18n="c4Title"></h2>
+        <p data-i18n="c4Sub"></p>
+      </div>
+    </div>
+
+    <div class="controls" style="padding:14px 24px 4px">
+      <div class="row">
+        <span class="row-label" data-i18n="lblFreq"></span>
+        <select id="freqSel" class="sel" style="min-width:140px"></select>
+      </div>
+    </div>
+
+    <div id="rfUnsupported" class="warnline" style="padding:0 24px 16px"></div>
+
+    <div id="rfBody">
+      <div class="stats">
+        <div class="stat" id="stV0rf"><div class="stat-name" data-i18n="sV0rf"></div><div><span class="stat-value" id="dV0rf">—</span><span class="stat-unit" id="dV0rfU">V</span></div><div class="stat-sub" id="dVpp"></div></div>
+        <div class="stat"><div class="stat-name" data-i18n="sVdcRf"></div><div><span class="stat-value" id="dVdcRf">—</span><span class="stat-unit" id="dVdcRfU">V</span></div></div>
+        <div class="stat"><div class="stat-name" data-i18n="sENeffRf"></div><div><span class="stat-value" id="dENeffRf">—</span><span class="stat-unit">Td</span></div></div>
+        <div class="stat"><div class="stat-name" data-i18n="sNumRf"></div><div><span class="stat-value" id="dNumRf">—</span><span class="stat-unit">m⁻³</span></div></div>
+      </div>
+
+      <div class="insight">
+        <div class="ins-title" data-i18n="rfInsTitle"></div>
+        <div data-i18n="rfInsText"></div>
+        <div class="warnline" id="rfWarn"></div>
+      </div>
+
+      <div class="formula-panel">
+        <div><div class="formula-label" data-i18n="fEeff"></div><div class="formula-eq">E<sub>eff</sub>² = (E₀²/2) · ν<sub>m</sub>² / (ν<sub>m</sub>² + ω²)</div></div>
+        <div><div class="formula-label" data-i18n="fRfCrit"></div><div class="formula-eq">ν<sub>i</sub>(E<sub>eff</sub>/N) = D<sub>e</sub>(E<sub>eff</sub>/N) / Λ²</div></div>
+        <div><div class="formula-label" data-i18n="fRfLambda"></div><div class="formula-eq">Λ = d / π</div></div>
+      </div>
+    </div>
+  </div>
+
+</div></main>
+</div>
+<div class="foot" data-i18n="foot"></div>
+
+<script>
+/* ============================ DATA ============================ */
+// Classic Townsend coefficients (Raizer, Gas Discharge Physics; Lieberman & Lichtenberg)
+const GASES = {
+  air:{A:15,B:365,ep:[100,800],col:'#6B7B8C'},
+  n2: {A:12,B:342,ep:[100,600],col:'#2F7FC1'},
+  ar: {A:12,B:180,ep:[100,600],col:'#7030A0'},
+  he: {A:3, B:34, ep:[20,150], col:'#E07A2E'},
+  ne: {A:4, B:100,ep:[100,400],col:'#D6457A'},
+  kr: {A:17,B:240,ep:[100,1000],col:'#8C6D1F'},
+  xe: {A:26,B:350,ep:[200,800],col:'#1D9A8A'},
+  h2: {A:5, B:130,ep:[150,600],col:'#4A9E3A'},
+  co2:{A:20,B:466,ep:[500,1000],col:'#A0522D'},
+  h2o:{A:13,B:290,ep:[150,1000],col:'#3B5BA9'}
+};
+const GAS_NAMES = {
+  en:{air:'Air',n2:'Nitrogen (N₂)',ar:'Argon (Ar)',he:'Helium (He)',ne:'Neon (Ne)',kr:'Krypton (Kr)',xe:'Xenon (Xe)',h2:'Hydrogen (H₂)',co2:'Carbon dioxide (CO₂)',h2o:'Water vapor (H₂O)'},
+  ko:{air:'공기 (Air)',n2:'질소 (N₂)',ar:'아르곤 (Ar)',he:'헬륨 (He)',ne:'네온 (Ne)',kr:'크립톤 (Kr)',xe:'제논 (Xe)',h2:'수소 (H₂)',co2:'이산화탄소 (CO₂)',h2o:'수증기 (H₂O)'}
+};
+const GAS_SHORT = {air:'Air',n2:'N₂',ar:'Ar',he:'He',ne:'Ne',kr:'Kr',xe:'Xe',h2:'H₂',co2:'CO₂',h2o:'H₂O'};
+const GAS_NOTES = {
+  en:{air:'Reference / vent',n2:'Purge, vent, N₂ plasma',ar:'Sputter, dilution, CCP',he:'ESC backside cooling',ne:'Reference',kr:'Reference',xe:'Reference',h2:'Strip, reduction',co2:'Reference',h2o:'Residual gas / outgassing'},
+  ko:{air:'기준 / 벤트',n2:'퍼지·벤트·N₂ 플라즈마',ar:'스퍼터·희석·CCP',he:'ESC 후면 냉각',ne:'참고',kr:'참고',xe:'참고',h2:'스트립·환원',co2:'참고',h2o:'잔류가스 / 탈가스'}
+};
+
+const GAMMA_PRESETS = [
+  {g:0.01, en:'Low · 0.01', ko:'낮음 · 0.01'},
+  {g:0.03, en:'Metal · 0.03', ko:'금속 · 0.03'},
+  {g:0.1,  en:'Oxide/ceramic · 0.1', ko:'산화막/세라믹 · 0.1'},
+  {g:0.2,  en:'High · 0.2', ko:'높음 · 0.2'}
+];
+
+// Hardware scenarios: p in Torr, d in cm, T in °C
+const SCEN = [
+  {id:'ccp', gas:'ar', p:0.3, pu:'mTorr', d:2.5, du:'cm', T:60, g:0.1, V:300,
+   en:{t:'CCP main gap', n:'<b>CCP main electrode gap</b> — Ar 300 mTorr, 2.5 cm. The operating point sits on the right of the minimum, so the bulk gap breaks down readily: this is where you <i>want</i> plasma. Remember this is DC Townsend theory; RF breakdown at 13.56 MHz follows a different curve (planned for v3).'},
+   ko:{t:'CCP 메인 갭', n:'<b>CCP 메인 전극 갭</b> — Ar 300 mTorr, 2.5 cm. 동작점이 최소점 오른쪽에 있어 벌크 갭이 쉽게 방전됩니다. 플라즈마가 <i>있어야 할</i> 곳입니다. 단, 이 결과는 DC Townsend 이론이며 13.56 MHz RF 방전은 다른 곡선을 따릅니다(v3 예정).'}},
+  {id:'shield', gas:'ar', p:0.05, pu:'mTorr', d:0.1, du:'mm', T:60, g:0.03, V:500,
+   en:{t:'Dark-space shield', n:'<b>Dark-space shield gap</b> — Ar 50 mTorr, 1 mm. pd is far to the left of the minimum: electrons cross the gap before they can build an avalanche. This is why shields keep gaps of ~1–2 mm at low pressure. Beware: on the left branch the discharge prefers a <i>longer</i> path, so it may wrap around the shield instead.'},
+   ko:{t:'다크스페이스 실드', n:'<b>다크스페이스 실드 갭</b> — Ar 50 mTorr, 1 mm. pd가 최소점보다 훨씬 왼쪽이라 전자가 전자사태를 만들기 전에 갭을 통과해 버립니다. 저압에서 실드 갭을 1–2 mm 수준으로 두는 이유입니다. 주의: 왼쪽 가지에서는 방전이 <i>더 긴</i> 경로를 선호하므로 실드를 우회해 방전될 수 있습니다.'}},
+  {id:'shower', gas:'ar', p:15, pu:'Torr', d:0.05, du:'mm', T:80, g:0.1, V:300,
+   en:{t:'Showerhead hole', n:'<b>Showerhead gas hole</b> — plenum side at ~15 Torr, hole Ø0.5 mm. Behind the faceplate the pressure is Torr-level, so a sub-mm hole lands pd right at the Paschen minimum. Result: parasitic / hollow-cathode discharge inside holes, hole erosion and particles. Hole diameter and plenum pressure must be designed together.'},
+   ko:{t:'샤워헤드 홀', n:'<b>샤워헤드 가스 홀</b> — 플레넘 측 약 15 Torr, 홀 Ø0.5 mm. 페이스플레이트 뒤쪽은 Torr 수준 압력이라 서브 mm 홀에서 pd가 정확히 Paschen 최소점 근처가 됩니다. 결과는 홀 내부 기생·할로우캐소드 방전, 홀 침식, 파티클입니다. 홀 직경과 플레넘 압력은 함께 설계해야 합니다.'}},
+  {id:'esc', gas:'he', p:10, pu:'Torr', d:0.002, du:'um', T:60, g:0.1, V:500,
+   en:{t:'ESC He groove', n:'<b>ESC backside He groove</b> — He 10 Torr, groove depth 20 µm. pd is tiny, well left of He\'s minimum, so Townsend breakdown does not occur across the groove depth. (Field-emission-driven breakdown in µm gaps is not in this model — planned for v3.)'},
+   ko:{t:'ESC He 그루브', n:'<b>ESC 후면 He 그루브</b> — He 10 Torr, 그루브 깊이 20 µm. pd가 매우 작아 He 최소점보다 한참 왼쪽이므로 그루브 깊이 방향으로는 Townsend 방전이 일어나지 않습니다. (µm 갭의 전계방출 방전은 이 모델에 없으며 v3에서 다룹니다.)'}},
+  {id:'liftpin', gas:'he', p:10, pu:'Torr', d:0.3, du:'mm', T:60, g:0.1, V:300,
+   en:{t:'Lift-pin / He hole', n:'<b>Lift-pin or He feed hole</b> — same He 10 Torr, but a 3 mm hole. pd now sits near helium\'s very low minimum (only tens of volts), so even modest RF/bias voltage across the hole causes <b>backside arcing</b>. Typical mitigations: porous ceramic plugs, dielectric sleeves, shortening the effective gap.'},
+   ko:{t:'리프트핀 / He 홀', n:'<b>리프트핀 또는 He 공급 홀</b> — 같은 He 10 Torr이지만 3 mm 홀입니다. pd가 헬륨의 매우 낮은 최소점(수십 V) 근처에 놓이므로, 홀 양단에 걸리는 RF/바이어스 전압이 크지 않아도 <b>후면 아킹</b>이 발생합니다. 대표적 대책: 다공성 세라믹 플러그, 절연 슬리브, 유효 갭 축소.'}},
+  {id:'feed', gas:'n2', p:1, pu:'Torr', d:0.5, du:'mm', T:25, g:0.01, V:1000,
+   en:{t:'RF feed at pump-down', n:'<b>RF feedthrough during pump-down / vent</b> — N₂ ~1 Torr, 5 mm insulator gap. Every pump-down and vent sweeps pressure through the Paschen minimum. Parts that are safe at atmosphere and at process pressure can break down here — which is why RF is interlocked during pressure transitions.'},
+   ko:{t:'펌핑 중 RF 피드', n:'<b>펌프다운/벤트 중 RF 피드스루</b> — N₂ 약 1 Torr, 절연 갭 5 mm. 펌프다운과 벤트 때마다 압력이 Paschen 최소점을 지나갑니다. 대기압과 공정압에서 안전한 부위도 이 구간에서는 방전될 수 있어, 압력 전이 중에는 RF를 인터록으로 차단합니다.'}},
+  {id:'atm', gas:'air', p:760, pu:'Torr', d:0.1, du:'mm', T:25, g:0.01, V:3000,
+   en:{t:'Air gap at 1 atm', n:'<b>Air gap at atmosphere</b> — 760 Torr, 1 mm. Far right branch where V<sub>b</sub> grows almost linearly with pd — the origin of the "~3 kV/mm in air" rule of thumb. The classic formula slightly over-estimates here (~4.5–5 kV vs ~3–4 kV measured) because A, B are fitted for a limited E/p range.'},
+   ko:{t:'대기압 공기 갭', n:'<b>대기압 공기 갭</b> — 760 Torr, 1 mm. V<sub>b</sub>가 pd에 거의 비례하는 오른쪽 끝 영역으로, "공기 중 약 3 kV/mm" 경험칙의 근거입니다. A, B가 제한된 E/p 범위에서 피팅된 값이라 고전 공식은 여기서 약간 과대평가합니다(계산 약 4.5–5 kV, 실측 약 3–4 kV).'}}
+];
+
+/* ============================ RF BREAKDOWN DATA (v3, beta) ============================ */
+// Reduced ionization rate coefficient k_iz(E/N) [m^3/s] and reduced diffusion/mobility
+// coefficients De*N(E/N) [1/(m s)], mu*N(E/N) [1/(V m s)] on a log-spaced E/N grid (Td),
+// solved with a 2-term Boltzmann solver (bolos) from LXCat cross-section sets:
+// Ar, N2 -- Phelps database; He -- Biagi (current) database. Room-temperature (300 K)
+// reference swarm data; see RF card insight text for scope and caveats.
+const RF_TABLES = {"Ar":{"EN_Td":[1.0,1.2278829113232004,1.5076964439195386,1.8512746989515594,2.273148567007622,2.7911602803274804,3.4272180109781867,4.208222429059205,5.167204407688807,6.344721991515005,7.79057571047778,9.565914784265267,11.74582329477328,14.422495703074084,17.709136012436957,21.744745483969616,26.700001390838633,32.784475440116445,40.25549714961413,49.429037036831005,60.69306990068637,74.52398336679725,91.5067256598248,112.35954470883911,137.9643648720386,169.40408599793517,208.0083823051904,255.4099380445264,313.6134983069915,385.0806553314422,472.833956162617,580.5847346654211,712.8900742707849,875.3455398490237,1074.8218298835984,1319.755357631202,1620.5050507625915,1989.7904595443229,2443.229702388411,3000.0],"k_iz":[1.8900580695535303e-29,0.0,0.0,0.0,6.056342478832979e-29,1.0221898987464325e-27,0.0,0.0,0.0,0.0,1.177624836814611e-24,2.241311959626867e-23,2.7213235311198315e-22,2.289581343756627e-21,1.4244353925480256e-20,6.896997485284273e-20,2.711279163284631e-19,8.96286292557844e-19,2.5649596715088305e-18,6.508089885498097e-18,1.4933445800828337e-17,3.1507191079857155e-17,6.199281308857126e-17,1.151432759551891e-16,2.040079938302851e-16,3.478721943530356e-16,5.750892000432872e-16,9.270870049408522e-16,1.4639052617514395e-15,2.2716007832552897e-15,3.4715523383684303e-15,5.230472996323455e-15,7.767454230662038e-15,1.1351106972575255e-14,1.627892447677942e-14,2.2835176782397485e-14,3.123524482350291e-14,4.157492092217246e-14,5.380048186411714e-14,6.769717359392164e-14],"diffusionN":[1.2013872842622517e+25,1.1354307113341902e+25,1.0717337542789383e+25,1.0176709543282815e+25,9.612755331432349e+24,9.0872551597042e+24,8.615577976609677e+24,8.265833238621427e+24,8.077329581018282e+24,8.001376145165203e+24,7.969429892765841e+24,7.942811964033928e+24,7.9068873155339e+24,7.857828889380666e+24,7.795714588366875e+24,7.721948210042122e+24,7.6384462808351e+24,7.547287148138761e+24,7.450277464421375e+24,7.348367867216011e+24,7.241165988777978e+24,7.127007957192296e+24,7.004038416781831e+24,6.87212348822177e+24,6.734324200313557e+24,6.596445017366163e+24,6.465127975879271e+24,6.346713008366644e+24,6.247848648497802e+24,6.177371808183383e+24,6.14859116184725e+24,6.181534770399329e+24,6.304729044203921e+24,6.555821669793118e+24,6.980287079651539e+24,7.628371466179755e+24,8.55244269852349e+24,9.80833252645585e+24,1.146215264859023e+25,1.3597258789284609e+25],"mobilityN":[3.0101838726891457e+24,2.5827257029311724e+24,2.2144708431606255e+24,1.895590315402167e+24,1.6194197710695746e+24,1.3823757823501985e+24,1.1919186307224291e+24,1.0755114999039968e+24,1.0368119781001565e+24,1.0403478305545278e+24,1.0520924568689834e+24,1.0572167194585006e+24,1.0524755121548056e+24,1.0387647122382984e+24,1.017981334743121e+24,9.92100450444103e+23,9.630084933837687e+23,9.324745296630394e+23,9.020620440820926e+23,8.729777177224329e+23,8.459719164370523e+23,8.213074154406353e+23,7.988631096564524e+23,7.782611791567872e+23,7.590284377546413e+23,7.407002834322028e+23,7.228489807913176e+23,7.051644204616837e+23,6.874587009745631e+23,6.697025868678325e+23,6.520071342093047e+23,6.345226067306177e+23,6.172795403137874e+23,6.000792707861696e+23,5.825010526032318e+23,5.640431715241104e+23,5.443206311831091e+23,5.2322420649308734e+23,5.0091115904282806e+23,4.7750797899567486e+23],"mean_energy_eV":[2.464823990437914,2.729914169026528,3.022528370924507,3.3429845228047186,3.690989852564861,4.066382920297999,4.457075620492569,4.802432117249437,5.041711460839982,5.183527569760638,5.272820078847848,5.343448515084578,5.412862338259439,5.489288687358285,5.576876924622607,5.678043141281902,5.7943271309130235,5.926635615937313,6.075340233232303,6.240452106320628,6.421950370782218,6.620237916830912,6.836633972084119,7.073845656770208,7.336400939766348,7.631151076090592,7.968050653767659,8.361246621340312,8.830727717553218,9.404514355103023,10.121706922196577,11.036780237560608,12.225403400940658,13.79117644581658,15.872217927210839,18.647030547757772,22.34210857587086,27.2463850672561,33.7348604424114,42.28747060007554]},"N2":{"EN_Td":[1.0,1.2369738328770428,1.530104263222522,1.8926989351798666,2.3412190563317368,2.8960267097154415,3.582309259231001,4.43122281494189,5.481306669730869,6.780232920431493,8.386970703385247,10.374463297193914,12.832939628772163,15.874010519681994,19.63573563566153,24.288891170604586,30.04472280763611,37.164535929089936,45.97155845530296,56.865614865787116,70.34127757944242,87.01031973691092,107.62948870482361,133.1348611738021,164.684339515711,203.71021866557314,251.9842099789746,311.69787404218584,385.5621139535881,476.9302459093451,589.9502342974733,729.7530025256546,902.6853685876895,1116.5981802639408,1381.2027308246168,1708.5116359283652,2113.3841868093373,2614.200937899276,3233.698154064029,4000.0],"k_iz":[0.0,0.0,0.0,1.0960414351027943e-31,2.061649713601192e-32,1.8615389057741105e-37,0.0,0.0,3.0551393862918587e-44,0.0,5.811998300869115e-41,1.6354475214139055e-30,0.0,0.0,0.0,2.3154018148978297e-30,1.2321640997928117e-27,2.303965582369543e-25,1.751126949104226e-23,6.485326680149551e-22,1.2964587688507114e-20,1.545359585148934e-19,1.153272113264631e-18,5.9130733128764174e-18,2.2600237686368814e-17,6.947728460989973e-17,1.8151148691491078e-16,4.186210079186359e-16,8.740316794623859e-16,1.6802924092752002e-15,3.0110525977556468e-15,5.078539697415923e-15,8.127881694051314e-15,1.2428492145114138e-14,1.8259829132626437e-14,2.588536194622041e-14,3.550843993521968e-14,4.720863710083542e-14,6.086660575393335e-14,7.60986112806878e-14],"diffusionN":[1.294467465026773e+24,1.3679533332217897e+24,1.4421389424952879e+24,1.5108295898963065e+24,1.570917337664536e+24,1.621483579822836e+24,1.6622706511203127e+24,1.6952726008068155e+24,1.7210729742077363e+24,1.7412443692108694e+24,1.753944527638708e+24,1.7620312154484888e+24,1.767274695569505e+24,1.7688743489560456e+24,1.7661636748296138e+24,1.7618704005554598e+24,1.7544521064677588e+24,1.743774095910062e+24,1.739135087396122e+24,1.7498035470721396e+24,1.8218037397630646e+24,2.0036916024500206e+24,2.3225267148524306e+24,2.7357843638217557e+24,3.175833788036334e+24,3.597234825011182e+24,3.991477113628979e+24,4.371947053998053e+24,4.7582932738240904e+24,5.168954153718403e+24,5.619321023870234e+24,6.123180294265794e+24,6.696659917517303e+24,7.364205276064383e+24,8.165380979099379e+24,9.160812172621109e+24,1.043621818446959e+25,1.210356415349621e+25,1.4293970214476962e+25,1.7130022194011373e+25],"mobilityN":[4.473672821553862e+24,3.9390181496340563e+24,3.5110265654455366e+24,3.170169141706952e+24,2.894442264842102e+24,2.6670228353568704e+24,2.4723692519561765e+24,2.3000995039408141e+24,2.1513389554546085e+24,2.0150178904485762e+24,1.887576604240154e+24,1.785720342371957e+24,1.689065540943379e+24,1.6119180347778927e+24,1.5386544828426678e+24,1.4609365316249493e+24,1.395691120002972e+24,1.3343459138393834e+24,1.26782882485671e+24,1.2116650956191903e+24,1.1514572558513014e+24,1.0997466438056916e+24,1.0456399801684703e+24,1.002510967303745e+24,9.625341108560607e+23,9.245103922341706e+23,8.867220431841973e+23,8.485409600614555e+23,8.098270391499338e+23,7.705315108223624e+23,7.306088968340065e+23,6.90135753175722e+23,6.494755802189223e+23,6.09336331989708e+23,5.7065827222803085e+23,5.343784593270227e+23,5.0116553885271395e+23,4.711669434980595e+23,4.436779446754433e+23,4.167579537516315e+23],"mean_energy_eV":[0.3684638854782557,0.44012752118828485,0.5131951662890927,0.5836352284973404,0.6488000630703732,0.7079838899730565,0.7623356413306016,0.8116166681536825,0.8564036159862798,0.8970982670666888,0.9324865434827143,0.9602521937849493,0.989047864277054,1.0098537857402115,1.0319314184518042,1.0521151161958937,1.0715998502175106,1.0967663961189227,1.1353845328014993,1.224672860552487,1.4332683177756242,1.864772347867345,2.546550339264962,3.4038254534927743,4.322864792329199,5.235792987728382,6.1469533383579185,7.101108954465691,8.156520614685215,9.374676883210071,10.82078677075987,12.569476948435925,14.713657269536466,17.377356234627285,20.73415968020639,25.031677977878186,30.62088787851853,37.98330858743583,47.72777202763828,60.49610297452308]},"He":{"EN_Td":[1.0,1.2278829113232004,1.5076964439195386,1.8512746989515594,2.273148567007622,2.7911602803274804,3.4272180109781867,4.208222429059205,5.167204407688807,6.344721991515005,7.79057571047778,9.565914784265267,11.74582329477328,14.422495703074084,17.709136012436957,21.744745483969616,26.700001390838633,32.784475440116445,40.25549714961413,49.429037036831005,60.69306990068637,74.52398336679725,91.5067256598248,112.35954470883911,137.9643648720386,169.40408599793517,208.0083823051904,255.4099380445264,313.6134983069915,385.0806553314422,472.833956162617,580.5847346654211,712.8900742707849,875.3455398490237,1074.8218298835984,1319.755357631202,1620.5050507625915,1989.7904595443229,2443.229702388411,3000.0],"k_iz":[0.0,0.0,0.0,0.0,4.699923028995869e-34,3.2903356765452164e-33,0.0,1.3326309909887268e-28,1.614305591875474e-25,2.2303992084250295e-23,6.112189699351839e-22,6.7209295688708646e-21,3.8377874477864566e-20,1.6415413191539045e-19,5.466942572563228e-19,1.5255565988135232e-18,3.7527764346168074e-18,8.52992153667277e-18,1.8027899852598637e-17,3.5964711251105187e-17,6.850163603502401e-17,1.2565002288560135e-16,2.23351282324882e-16,3.86354970729637e-16,6.51631166642298e-16,1.0710046517769346e-15,1.709935572964489e-15,2.638442491778373e-15,3.913367761586943e-15,5.559180921774751e-15,7.558206963079821e-15,9.853357388841858e-15,1.2355958106559026e-14,1.4952233457456492e-14,1.7508783788270693e-14,1.988308020896955e-14,2.194437242531216e-14,2.3603457125754047e-14,2.483779544207189e-14,2.5692475697792832e-14],"diffusionN":[2.2588111485979814e+24,2.4409450491594336e+24,2.6455541722445866e+24,2.883381603693671e+24,3.167731594604311e+24,3.511216374011818e+24,3.932474188895484e+24,4.4656272073795877e+24,5.195180115092316e+24,6.240398901719678e+24,7.444794612344022e+24,8.462400707137614e+24,9.180150797519252e+24,9.75215698431433e+24,1.0257481170418436e+25,1.0742638687850848e+25,1.1257217125203016e+25,1.1881733812534084e+25,1.2636685537773265e+25,1.3576824469875296e+25,1.4775987369242979e+25,1.633749508003182e+25,1.8408236215900724e+25,2.1198258024175533e+25,2.5005337489993756e+25,3.0238880498818484e+25,3.7426770409393864e+25,4.7185647586930875e+25,6.016049331608558e+25,7.7001954026033725e+25,9.847991483815494e+25,1.2575556984795351e+26,1.606744956713904e+26,2.0580788942286862e+26,2.6390156677868212e+26,3.3653908144725615e+26,4.223396815937141e+26,5.158260543616304e+26,6.084122624950231e+26,6.915854878171325e+26],"mobilityN":[4.91547160359375e+24,4.415801129317113e+24,3.9771169202061626e+24,3.593425325224383e+24,3.2576975558464313e+24,2.9626123790668057e+24,2.703751446212255e+24,2.4808808706309546e+24,2.3016738917596463e+24,2.1858413826358252e+24,2.147093875588279e+24,2.1570149901729815e+24,2.1778775676767102e+24,2.1984628505761894e+24,2.2111107505016882e+24,2.2259407740945116e+24,2.238165913839402e+24,2.2540001126943548e+24,2.2739809324651784e+24,2.2999022828173883e+24,2.3336444600860316e+24,2.3771389634060535e+24,2.4321666780899216e+24,2.499939632496892e+24,2.580401045206733e+24,2.6711787457633067e+24,2.766379831138288e+24,2.856051766013057e+24,2.9276287640017345e+24,2.969741411866239e+24,2.976366928074239e+24,2.9481764155974134e+24,2.889510373174345e+24,2.8020184092197994e+24,2.6784774235279276e+24,2.502363968415873e+24,2.257452429398963e+24,1.9439291243236875e+24,1.5876502301090622e+24,1.2311555072417564e+24],"mean_energy_eV":[0.5847399372005079,0.7023829707153441,0.8477100044961998,1.0297272903355248,1.2599887083707173,1.5531679376564445,1.9295751553006204,2.423156570664405,3.098970713002507,4.019503121161451,5.006408760757097,5.784765141162693,6.301110848019282,6.694942950193686,7.027931239370543,7.339447006266377,7.658528189244625,8.036893363563527,8.479738222785887,9.012021382002164,9.66537790119788,10.482089068269666,11.520401210714967,12.862539503227076,14.626210847886655,16.9796358828179,20.157242693041848,24.47181012744442,30.322485687857217,38.21214915419127,48.798988762746426,62.99517796812111,82.0740593003172,107.67123442448471,141.48332178524672,184.4950134642679,235.8614218455773,292.1537451634705,347.9677062075042,397.97862663261645]}};
+const RF_GAS_MAP = {ar:'Ar', he:'He', n2:'N2'};
+const RF_FREQS = [13.56, 27.12, 40.68, 60.00]; // MHz, common CCP drive frequencies
+
+/* ============================ I18N ============================ */
+const I18N = {
+ en:{
+  headerTitle:"Paschen's Law Simulator — Semiconductor Plasma",
+  badgeInteractive:'INTERACTIVE', badgeMap:'DESIGN MAP', badgeTable:'GAS DATA', badgeSettings:'SETTINGS',
+  leftTitle:'Configuration', leftSub:'Gas, geometry, temperature and voltage — or pick a hardware scenario below. The curve on the right updates live.',
+  c1Title:"Paschen curve — DC breakdown in process gases",
+  c1Sub:"Updates live as you change the settings on the left. Pick a hardware scenario there to see where real chamber features sit on the curve.",
+  lblScenario:'Hardware scenario:', lblGas:'Gas', lblGamma:'Cathode γ', lblGammaQuick:'γ presets:',
+  lblP:'Pressure (p)', lblD:'Gap (d)', lblT:'Gas temperature', lblV:'Voltage across gap',
+  c1Note:"Log–log axes. Shaded area above the curve = breakdown region. Drag on the plot to move the operating point (horizontal = gap, vertical = voltage). Click gas chips to overlay other gases.",
+  sVb:'BREAKDOWN VOLTAGE (Vb)', sStatus:'STATUS', sPd:'pd (T-CORRECTED)', sPdMin:'(pd) AT MINIMUM', sVmin:'MINIMUM Vb', sEp:'E/p AT BREAKDOWN',
+  stBreak:'BREAKDOWN', stMarg:'MARGINAL', stSafe:'SAFE', stNone:'NO DC BD',
+  margin:(r)=>`Vb / V = ${r}`, marginNone:'Below left asymptote',
+  left:'Left branch', right:'Right branch', atmin:'At minimum',
+  epRange:(a,b)=>`fit range ${a}–${b}`, epOut:'outside fit range',
+  insTitle:'READING THE OPERATING POINT',
+  insNone:(x0)=>`pd is below the left asymptote (${x0} Torr·cm): electrons cannot make enough ionizing collisions to sustain a Townsend avalanche at any voltage in this model. In practice breakdown can still occur via longer paths, field emission (µm gaps) or RF mechanisms.`,
+  insLeft:`<b>Left branch:</b> too few collisions. Here <b>increasing</b> the gap or the pressure <b>lowers</b> V<sub>b</sub> — counter-intuitive, and the reason discharges in low-pressure chambers seek the <i>longest</i> available path (around shields, through gas holes, behind liners). Keep critical gaps smaller, not larger.`,
+  insRight:`<b>Right branch:</b> collision-dominated. V<sub>b</sub> rises roughly with pd, like the familiar "wider gap = safer" intuition. Increasing the gap or the pressure raises V<sub>b</sub>.`,
+  insMin:`<b>Near the Paschen minimum:</b> the most dangerous place to be — the lowest voltage that can ignite this gas. Move pd by at least a factor of 3 away from (pd)<sub>min</sub> for a meaningful margin.`,
+  warnEp:'⚠ E/p at breakdown is outside the range where A and B were fitted — treat the value as a rough estimate.',
+  warnRF:'ⓘ DC model. For RF, compare against the peak voltage across the gap; true RF breakdown differs (v3).',
+  fBreak:'BREAKDOWN VOLTAGE', fMin:'MINIMUM pd', fVmin:'MINIMUM VOLTAGE', fTemp:'TEMPERATURE (NUMBER DENSITY)', fAlpha:'1st TOWNSEND COEFF.',
+  c2Title:'Pressure–gap danger map',
+  c2Sub:'Every pressure/gap combination for the selected gas, γ, temperature and voltage. Because Vb depends only on pd, the breakdown band always runs diagonally.',
+  lgBreak:'Breakdown (Vb < V)', lgMarg:'Marginal (Vb < 2V)', lgSafe:'Safe (Vb ≥ 2V)', lgNone:'No DC breakdown',
+  mapNote:(v,a,b)=> a ? `At ${v} V the gap breaks down for pd between ${a} and ${b} Torr·cm (between the two dashed lines). The dot is your current operating point.` : `At ${v} V the voltage is below Vmin — no pressure/gap combination breaks down for this gas and γ.`,
+  c3Title:'Townsend coefficients A, B',
+  c3Sub:'Click a row to use that gas. (pd)min and Vmin are computed with the current γ.',
+  thGas:'Gas', thRange:'E/p fit range', thNote:'Typical use',
+  c3Foot:'Sources: Yu. P. Raizer, <i>Gas Discharge Physics</i>; Lieberman & Lichtenberg, <i>Principles of Plasma Discharges</i>. γ values are illustrative — real γ depends strongly on cathode material, surface condition and ion energy. Electronegative etch gases (SF₆, NF₃, CF₄, Cl₂) need attachment-corrected models and are planned for v2.',
+  foot:'Benedu Insight · Paschen Simulator prototype v0.1 · Educational tool — not a substitute for hardware qualification.',
+  badgeRF:'RF MODEL · BETA',
+  c4Title:'RF breakdown — Ar / He / N₂ (diffusion-controlled)',
+  c4Sub:'Uses the same pressure, gap and temperature as Card 1. Gas, γ presets and the DC voltage slider are ignored here — RF breakdown in this model is bulk-diffusion-controlled, not cathode-emission-controlled.',
+  lblFreq:'RF frequency',
+  sV0rf:'RF BREAKDOWN VOLTAGE (V₀, amplitude)', sVppNote:(v)=>`≈ ${v} Vpp`,
+  sVdcRf:'DC Vb AT SAME p, d (CARD 1)', sENeffRf:'EFFECTIVE E/N AT BREAKDOWN', sNumRf:'GAS NUMBER DENSITY N',
+  rfUnsupported:(g)=>`This RF model currently covers Ar, He and N₂ only — ${g} is not supported yet. Pick Ar, He or N₂ in the settings panel to see the RF curve.`,
+  rfNoBreak:'No RF breakdown found in the search range for this p, d, T, gas and frequency — pd is likely too small (left of the diffusion-controlled regime this model covers), the RF equivalent of the DC left-asymptote case.',
+  rfInsTitle:'READING THE RF RESULT',
+  rfInsText:'This treats RF breakdown as diffusion-controlled: ionization must outrun free-diffusion loss to the electrodes over one RF cycle, Λ = d/π. Because electron energy relaxation is far slower than one RF period at 13.56–60 MHz, the EEDF cannot track the instantaneous field — it locks onto a cycle-averaged, electron-inertia-corrected <i>effective field</i> E<sub>eff</sub>, found self-consistently from this tool&#39;s own Boltzmann-solved mobility data (classic Margenau/Kihara effective-field theory). At high pd (ν<sub>m</sub> ≫ ω) V₀ converges to the DC-like value and is almost frequency-independent; at low pd (ν<sub>m</sub> comparable to ω) V₀ rises measurably with frequency — the diffusion-drift branch described by Lisovskiy & Yegorenkov. γ (secondary emission) does not enter here.',
+  rfCautionEdge:'⚠ Effective E/N at breakdown sits at the edge of the tabulated swarm data (1–3000/4000 Td) — treat this value as lower-confidence.',
+  rfCautionBeta:'ⓘ Beta model: swarm data solved at a 300 K reference; the temperature slider corrects gas number density N but not the underlying cross-section-derived coefficients (a second-order effect). Checked for correct qualitative trends (frequency dependence, low/high-pd limits) but not yet validated point-by-point against published RF breakdown curves — treat as an educational estimate, not a qualified value.',
+  fEeff:'EFFECTIVE (CYCLE-AVERAGED) FIELD', fRfCrit:'BREAKDOWN CRITERION', fRfLambda:'DIFFUSION LENGTH',
+ },
+ ko:{
+  headerTitle:'Paschen 법칙 시뮬레이터 — 반도체 플라즈마',
+  badgeInteractive:'INTERACTIVE', badgeMap:'DESIGN MAP', badgeTable:'GAS DATA', badgeSettings:'설정',
+  leftTitle:'설정', leftSub:'가스·형상·온도·전압을 설정하거나 아래 하드웨어 시나리오를 선택하세요. 오른쪽 곡선이 실시간으로 갱신됩니다.',
+  c1Title:'Paschen 곡선 — 공정 가스의 DC 절연파괴',
+  c1Sub:'왼쪽에서 값을 바꾸면 곡선이 실시간으로 갱신됩니다. 하드웨어 시나리오를 선택하면 실제 챔버 부위가 곡선의 어디에 놓이는지 볼 수 있습니다.',
+  lblScenario:'하드웨어 시나리오:', lblGas:'가스', lblGamma:'음극 γ', lblGammaQuick:'γ 프리셋:',
+  lblP:'압력 (p)', lblD:'갭 (d)', lblT:'가스 온도', lblV:'갭 양단 전압',
+  c1Note:'로그–로그 축입니다. 곡선 위 음영 = 방전 영역. 그래프를 드래그하면 동작점이 이동합니다(가로 = 갭, 세로 = 전압). 가스 칩을 누르면 다른 가스 곡선을 겹쳐 봅니다.',
+  sVb:'방전개시전압 (Vb)', sStatus:'판정', sPd:'pd (온도 보정)', sPdMin:'최소점 (pd)', sVmin:'최소 Vb', sEp:'방전 시 E/p',
+  stBreak:'방전', stMarg:'경계', stSafe:'안전', stNone:'DC 방전 없음',
+  margin:(r)=>`Vb / V = ${r}`, marginNone:'왼쪽 점근선 이하',
+  left:'왼쪽 가지', right:'오른쪽 가지', atmin:'최소점 부근',
+  epRange:(a,b)=>`피팅 범위 ${a}–${b}`, epOut:'피팅 범위 밖',
+  insTitle:'동작점 해석',
+  insNone:(x0)=>`pd가 왼쪽 점근선(${x0} Torr·cm)보다 작습니다. 이 모델에서는 어떤 전압에서도 전자가 Townsend 전자사태를 유지할 만큼 전리 충돌을 하지 못합니다. 실제로는 더 긴 경로, 전계방출(µm 갭), RF 메커니즘으로 방전이 일어날 수 있습니다.`,
+  insLeft:`<b>왼쪽 가지:</b> 충돌이 부족한 영역입니다. 여기서는 갭이나 압력을 <b>키우면</b> V<sub>b</sub>가 <b>낮아집니다</b>. 직관과 반대이며, 저압 챔버의 방전이 실드 주변·가스 홀·라이너 뒤처럼 <i>가장 긴</i> 경로를 찾아가는 이유입니다. 중요한 갭은 넓히지 말고 좁게 유지하세요.`,
+  insRight:`<b>오른쪽 가지:</b> 충돌 지배 영역입니다. V<sub>b</sub>가 pd에 대략 비례해 증가하므로 "갭이 넓을수록 안전하다"는 직관이 맞습니다. 갭이나 압력을 키우면 V<sub>b</sub>가 올라갑니다.`,
+  insMin:`<b>Paschen 최소점 부근:</b> 이 가스를 점화할 수 있는 가장 낮은 전압대로, 가장 위험한 위치입니다. 의미 있는 마진을 얻으려면 pd를 (pd)<sub>min</sub>에서 최소 3배 이상 떨어뜨리세요.`,
+  warnEp:'⚠ 방전 시 E/p가 A, B 피팅 범위를 벗어났습니다. 대략적인 추정값으로만 보세요.',
+  warnRF:'ⓘ DC 모델입니다. RF의 경우 갭 양단 피크 전압과 비교하세요. 실제 RF 방전은 다릅니다(v3).',
+  fBreak:'방전개시전압', fMin:'최소 pd', fVmin:'최소 전압', fTemp:'온도 보정 (수밀도)', fAlpha:'제1 Townsend 계수',
+  c2Title:'압력–갭 위험 지도',
+  c2Sub:'선택한 가스·γ·온도·전압에서 모든 압력/갭 조합을 보여줍니다. Vb는 pd에만 의존하므로 방전 띠는 항상 대각선 방향입니다.',
+  lgBreak:'방전 (Vb < V)', lgMarg:'경계 (Vb < 2V)', lgSafe:'안전 (Vb ≥ 2V)', lgNone:'DC 방전 없음',
+  mapNote:(v,a,b)=> a ? `${v} V에서는 pd가 ${a}–${b} Torr·cm 사이(두 점선 사이)일 때 방전됩니다. 점은 현재 동작점입니다.` : `${v} V는 Vmin보다 낮아, 이 가스와 γ에서는 어떤 압력/갭 조합도 방전되지 않습니다.`,
+  c3Title:'Townsend 계수 A, B',
+  c3Sub:'행을 클릭하면 해당 가스가 적용됩니다. (pd)min과 Vmin은 현재 γ로 계산합니다.',
+  thGas:'가스', thRange:'E/p 피팅 범위', thNote:'주요 용도',
+  c3Foot:'출처: Yu. P. Raizer, <i>Gas Discharge Physics</i>; Lieberman & Lichtenberg, <i>Principles of Plasma Discharges</i>. γ 값은 교육용 예시이며, 실제 γ는 음극 재질·표면 상태·이온 에너지에 따라 크게 달라집니다. 전기음성 식각가스(SF₆, NF₃, CF₄, Cl₂)는 부착(attachment) 보정 모델이 필요해 v2에서 추가 예정입니다.',
+  foot:'Benedu Insight · Paschen 시뮬레이터 프로토타입 v0.1 · 교육용 도구이며 하드웨어 검증을 대체하지 않습니다.',
+  badgeRF:'RF 모델 · BETA',
+  c4Title:'RF 방전개시 — Ar / He / N₂ (확산 지배)',
+  c4Sub:'Card 1과 같은 압력·갭·온도를 사용합니다. 가스, γ 프리셋, DC 전압 슬라이더는 여기서는 사용되지 않습니다 — 이 모델의 RF 방전은 음극 방출이 아니라 벌크 확산이 지배합니다.',
+  lblFreq:'RF 주파수',
+  sV0rf:'RF 방전개시전압 (V₀, 진폭)', sVppNote:(v)=>`≈ ${v} Vpp`,
+  sVdcRf:'같은 p, d에서 DC Vb (Card 1)', sENeffRf:'방전 시 유효 E/N', sNumRf:'가스 수밀도 N',
+  rfUnsupported:(g)=>`이 RF 모델은 현재 Ar, He, N₂만 지원합니다 — ${g}는 아직 지원되지 않습니다. 설정 패널에서 Ar, He, N₂ 중 하나를 선택하면 RF 곡선이 표시됩니다.`,
+  rfNoBreak:'현재 p, d, T, 가스, 주파수 조합에서는 탐색 범위 내 RF 방전 해를 찾지 못했습니다 — pd가 이 모델이 다루는 확산 지배 영역보다 왼쪽(작은 쪽)일 가능성이 큽니다. DC 카드의 왼쪽 점근선과 같은 상황입니다.',
+  rfInsTitle:'RF 결과 해석',
+  rfInsText:'이 모델은 RF 방전을 확산 지배 과정으로 다룹니다: 한 RF 주기 동안 전리가 전극으로의 자유확산 손실(Λ = d/π)을 앞질러야 합니다. 13.56–60 MHz에서는 전자 에너지 완화 시간이 RF 주기보다 훨씬 길어 EEDF가 순간장을 따라가지 못하고, 이 툴 자체의 Boltzmann 해석 mobility 데이터로부터 self-consistent하게 구한 cycle-averaged·전자관성 보정 <i>유효장(E<sub>eff</sub>)</i>에 고정됩니다(고전적 Margenau/Kihara effective-field 이론). pd가 클수록(ν<sub>m</sub> ≫ ω) V₀는 DC와 유사한 값으로 수렴해 주파수에 거의 무관해지고, pd가 작을수록(ν<sub>m</sub> ~ ω) V₀가 주파수에 따라 뚜렷이 상승합니다 — Lisovskiy·Yegorenkov가 기술한 diffusion-drift 가지입니다. γ(2차 전자방출)는 이 모델에 들어가지 않습니다.',
+  rfCautionEdge:'⚠ 방전 시 유효 E/N이 테이블 범위(1–3000/4000 Td) 경계에 있습니다 — 이 값은 신뢰도가 낮다고 보세요.',
+  rfCautionBeta:'ⓘ Beta 모델입니다: swarm 데이터는 300 K 기준으로 계산되었으며, 온도 슬라이더는 가스 수밀도 N만 보정하고 단면적 기반 계수 자체의 온도 의존성(2차 효과)은 보정하지 않습니다. 정성적 경향(주파수 의존성, 저/고 pd 극한)은 확인했으나 발표된 RF 방전 곡선과 점 단위로 검증하지는 않았습니다 — 검증된 값이 아닌 교육용 추정치로 취급하세요.',
+  fEeff:'유효(주기평균) 전계', fRfCrit:'방전개시 판정식', fRfLambda:'확산길이',
+ }
+};
+
+/* ============================ STATE ============================ */
+let lang='en';
+const S = { gas:'ar', gamma:0.1, p:0.3, d:2.5, Tc:25, V:300, overlay:new Set(['he','n2']), scen:null, freq:13.56 };
+const P_UNIT={mTorr:1e-3,Torr:1,Pa:1/133.322};
+const D_UNIT={um:1e-4,mm:0.1,cm:1};
+
+/* ============================ PHYSICS ============================ */
+const K = g => Math.log(Math.log(1+1/g));
+function Vb(pd, gas, g){ const G=GASES[gas]; const den=Math.log(G.A*pd)-K(g); return den<=0?Infinity:G.B*pd/den; }
+function pdMin(gas,g){ return Math.E*Math.log(1+1/g)/GASES[gas].A; }
+function Vmin(gas,g){ const G=GASES[gas]; return Math.E*G.B/G.A*Math.log(1+1/g); }
+function pdAsym(gas,g){ return Math.exp(K(g))/GASES[gas].A; }
+function Tfac(){ return 293.15/(S.Tc+273.15); }
+function pdEq(){ return S.p*S.d*Tfac(); }
+// Roots of Vb(pd)=V (left & right branch)
+function roots(gas,g,V){
+  const xm=pdMin(gas,g); if(V<=Vmin(gas,g)) return null;
+  const f=x=>Vb(x,gas,g)-V;
+  let a=pdAsym(gas,g)*(1+1e-9), b=xm;
+  for(let i=0;i<120;i++){const m=Math.sqrt(a*b); (f(m)>0)?a=m:b=m;}
+  const x1=Math.sqrt(a*b);
+  a=xm; b=xm*10; while(f(b)<0) b*=10;
+  for(let i=0;i<120;i++){const m=Math.sqrt(a*b); (f(m)<0)?a=m:b=m;}
+  return [x1,Math.sqrt(a*b)];
+}
+
+/* ============================ RF PHYSICS (v3, beta) ============================ */
+// Diffusion-controlled RF breakdown criterion: nu_i(E_eff/N) = De(E_eff/N) / Lambda^2,
+// Lambda = d/pi (first diffusion mode, parallel plate). Because the electron energy
+// relaxation time is long compared to one RF period at 13.56-60 MHz for the pressures
+// this tool covers, the EEDF cannot track the instantaneous field E(t) = E0*cos(wt);
+// instead it locks onto a cycle-averaged, electron-inertia-corrected EFFECTIVE field
+// (classic Margenau/Kihara effective-field theory):
+//   E_eff^2 = (E0^2/2) * nu_m^2 / (nu_m^2 + w^2)
+// nu_m is the momentum-transfer collision frequency, obtained self-consistently from
+// our own reduced-mobility table rather than assumed: nu_m = e*N / (m*mu),
+// mu = mobilityN(E/N)/N. E_eff/N is solved by fixed-point iteration, then the standard
+// (DC-form) ionization/diffusion balance is evaluated AT E_eff/N and root-found over E0.
+const RF = (()=>{
+  const TOWNSEND=1e-21, kB=1.380649e-23, TORR_TO_PA=133.322, QE=1.602176634e-19, ME=9.1093837015e-31;
+
+  function interpSeg(x0,y0,x1,y1,x){
+    const EPS=1e-300;
+    const ly0=Math.log(Math.max(y0,EPS)), ly1=Math.log(Math.max(y1,EPS));
+    const lx0=Math.log(x0), lx1=Math.log(x1), lx=Math.log(Math.max(x,1e-6));
+    const t=(lx-lx0)/(lx1-lx0), y=Math.exp(ly0+t*(ly1-ly0));
+    return y<1e-290?0:y;
+  }
+  // clamped log-log interpolation: no extrapolation beyond the tabulated E/N range
+  // (verified: naive multi-order-of-magnitude extrapolation of swarm data is unreliable)
+  function loglogInterp(xArr,yArr,x){
+    const n=xArr.length;
+    if(x<=xArr[0]) return yArr[0];
+    if(x>=xArr[n-1]) return yArr[n-1];
+    let lo=0,hi=n-1;
+    while(hi-lo>1){ const mid=(lo+hi)>>1; (xArr[mid]<=x)?lo=mid:hi=mid; }
+    return interpSeg(xArr[lo],yArr[lo],xArr[hi],yArr[hi],x);
+  }
+  function kiz(gas,EN){ const g=RF_TABLES[gas]; return loglogInterp(g.EN_Td,g.k_iz,EN); }
+  function DN(gas,EN){ const g=RF_TABLES[gas]; return loglogInterp(g.EN_Td,g.diffusionN,EN); }
+  function mobN(gas,EN){ const g=RF_TABLES[gas]; return loglogInterp(g.EN_Td,g.mobilityN,EN); }
+  function nuM(gas,EN,N){ return QE*N/(ME*mobN(gas,EN)); }
+  function numberDensity(pTorr,TK){ return pTorr*TORR_TO_PA/(kB*TK); }
+  function tableRange(gas){ const g=RF_TABLES[gas]; return [g.EN_Td[0], g.EN_Td[g.EN_Td.length-1]]; }
+
+  function effectiveEN_Td(gas,E0,omega,N){
+    let EN = (E0/N)/TOWNSEND/Math.SQRT2; // low-frequency (nu_m>>omega) initial guess
+    for(let it=0; it<60; it++){
+      const nm = nuM(gas,EN,N);
+      const factor = nm/Math.sqrt(nm*nm+omega*omega);
+      const Eeff = (E0/Math.SQRT2)*factor;
+      const ENnew = (Eeff/N)/TOWNSEND;
+      if(Math.abs(ENnew-EN) < 1e-6*(EN+1e-6)){ EN=ENnew; break; }
+      EN = 0.5*EN + 0.5*ENnew;
+    }
+    return EN;
+  }
+  function residual(gas,E0,omega,N,Lambda){
+    const ENeff = effectiveEN_Td(gas,E0,omega,N);
+    const nu_i = kiz(gas,ENeff)*N;
+    const De = DN(gas,ENeff)/N;
+    return nu_i - De/(Lambda*Lambda);
+  }
+  // returns {E0, V0, ENeff, atLowEdge, atHighEdge} or null if no root in [loE0,hiE0]
+  function solveE0(gas,omega,N,Lambda,d_m,loE0=10,hiE0=3e7){
+    let lo=loE0, hi=hiE0;
+    const flo=residual(gas,lo,omega,N,Lambda), fhi=residual(gas,hi,omega,N,Lambda);
+    if(flo>0 || fhi<0) return null;
+    for(let i=0;i<80;i++){ const mid=Math.sqrt(lo*hi); (residual(gas,mid,omega,N,Lambda)>0)?hi=mid:lo=mid; }
+    const E0=Math.sqrt(lo*hi);
+    const ENeff=effectiveEN_Td(gas,E0,omega,N);
+    const [rlo,rhi]=tableRange(gas);
+    return { E0, V0:E0*d_m, ENeff, atLowEdge: ENeff<=rlo*1.05, atHighEdge: ENeff>=rhi*0.95 };
+  }
+  return { kiz, DN, mobN, nuM, numberDensity, effectiveEN_Td, solveE0, tableRange, TOWNSEND };
+})();
+
+/* ============================ FORMAT ============================ */
+function fmt(x,sig=3){
+  if(!isFinite(x)) return '∞';
+  const a=Math.abs(x);
+  if(a!==0 && (a<1e-3||a>=1e5)) { const e=Math.floor(Math.log10(a)); return (x/Math.pow(10,e)).toFixed(2)+'e'+e; }
+  return (+x.toPrecision(sig)).toString();
+}
+function fmtV(v){ if(!isFinite(v)) return {v:'∞',u:'V'}; if(v>=1e4) return {v:(+(v/1e3).toPrecision(3)).toString(),u:'kV'}; return {v:Math.round(v).toString(),u:'V'}; }
+function pToUnit(u){ return S.p/P_UNIT[u]; }
+function dToUnit(u){ return S.d/D_UNIT[u]; }
+
+/* ============================ SLIDERS (log) ============================ */
+const LOGR = { p:[-4,3], d:[-4,2], V:[1,5], g:[-3,Math.log10(0.5)] };
+const s2v=(k,s)=>Math.pow(10,LOGR[k][0]+(s/1000)*(LOGR[k][1]-LOGR[k][0]));
+const v2s=(k,v)=>Math.round((Math.log10(v)-LOGR[k][0])/(LOGR[k][1]-LOGR[k][0])*1000);
+const $=id=>document.getElementById(id);
+
+function syncInputs(skip){
+  const pu=$('pUnit').value, du=$('dUnit').value;
+  if(skip!=='p'){ $('pSlider').value=v2s('p',S.p); $('pInput').value=fmt(pToUnit(pu),4); }
+  if(skip!=='d'){ $('dSlider').value=v2s('d',S.d); $('dInput').value=fmt(dToUnit(du),4); }
+  if(skip!=='t'){ $('tSlider').value=S.Tc; $('tInput').value=S.Tc; }
+  if(skip!=='v'){ $('vSlider').value=v2s('V',S.V); $('vInput').value=fmt(S.V,4); }
+  if(skip!=='g'){ $('gSlider').value=v2s('g',S.gamma); $('gInput').value=fmt(S.gamma,3); }
+  $('gasSel').value=S.gas;
+  document.querySelectorAll('#gammaBtns .qbtn').forEach(b=>b.classList.toggle('active',+b.dataset.g===S.gamma));
+}
+function clearScen(){ S.scen=null; renderScenBtns(); $('scenBox').classList.remove('show'); }
+
+function bind(){
+  $('pSlider').oninput=e=>{S.p=s2v('p',+e.target.value);clearScen();syncInputs('p');$('pInput').value=fmt(pToUnit($('pUnit').value),4);update();};
+  $('dSlider').oninput=e=>{S.d=s2v('d',+e.target.value);clearScen();syncInputs('d');$('dInput').value=fmt(dToUnit($('dUnit').value),4);update();};
+  $('tSlider').oninput=e=>{S.Tc=+e.target.value;clearScen();syncInputs();update();};
+  $('vSlider').oninput=e=>{S.V=s2v('V',+e.target.value);clearScen();syncInputs('v');$('vInput').value=fmt(S.V,4);update();};
+  $('gSlider').oninput=e=>{S.gamma=+s2v('g',+e.target.value).toPrecision(3);clearScen();syncInputs('g');$('gInput').value=fmt(S.gamma,3);update();};
+  const num=(id,fn)=>$(id).addEventListener('change',e=>{const x=parseFloat(e.target.value); if(isFinite(x)&&x>0||id==='tInput'&&isFinite(x)){fn(x);clearScen();} syncInputs(); update();});
+  num('pInput',x=>S.p=x*P_UNIT[$('pUnit').value]);
+  num('dInput',x=>S.d=x*D_UNIT[$('dUnit').value]);
+  num('tInput',x=>S.Tc=Math.max(-200,Math.min(1500,x)));
+  num('vInput',x=>S.V=x);
+  num('gInput',x=>S.gamma=Math.min(0.99,x));
+  $('pUnit').onchange=()=>syncInputs(); $('dUnit').onchange=()=>syncInputs();
+  $('gasSel').onchange=e=>{S.gas=e.target.value;clearScen();update();};
+  $('freqSel').onchange=e=>{S.freq=+e.target.value;update();};
+}
+
+/* ============================ UI BUILDERS ============================ */
+function renderGasSel(){
+  $('gasSel').innerHTML=Object.keys(GASES).map(k=>`<option value="${k}">${GAS_NAMES[lang][k]}</option>`).join('');
+  $('gasSel').value=S.gas;
+}
+function renderFreqSel(){
+  $('freqSel').innerHTML=RF_FREQS.map(f=>`<option value="${f}">${f.toFixed(2)} MHz</option>`).join('');
+  $('freqSel').value=S.freq;
+}
+function renderGammaBtns(){
+  $('gammaBtns').innerHTML=GAMMA_PRESETS.map(p=>`<button class="qbtn" data-g="${p.g}">${p[lang]}</button>`).join('');
+  document.querySelectorAll('#gammaBtns .qbtn').forEach(b=>b.onclick=()=>{S.gamma=+b.dataset.g;clearScen();syncInputs();update();});
+  syncInputs();
+}
+function renderScenBtns(){
+  $('scenBtns').innerHTML=SCEN.map(s=>`<button class="qbtn hw${S.scen===s.id?' active':''}" data-id="${s.id}">${s[lang].t}</button>`).join('');
+  document.querySelectorAll('#scenBtns .qbtn').forEach(b=>b.onclick=()=>applyScen(b.dataset.id));
+}
+function applyScen(id){
+  const s=SCEN.find(x=>x.id===id);
+  Object.assign(S,{gas:s.gas,p:s.p,d:s.d,Tc:s.T,gamma:s.g,V:s.V,scen:id});
+  $('pUnit').value=s.pu; $('dUnit').value=s.du;
+  renderScenBtns(); syncInputs(); showScenBox(); update();
+}
+function showScenBox(){
+  if(!S.scen){$('scenBox').classList.remove('show');return;}
+  const s=SCEN.find(x=>x.id===S.scen); $('scenBox').innerHTML=s[lang].n; $('scenBox').classList.add('show');
+}
+function renderLegend(){
+  const main=`<span class="lchip main"><i style="background:var(--purple)"></i>${GAS_SHORT[S.gas]}</span>`;
+  const others=Object.keys(GASES).filter(k=>k!==S.gas).map(k=>`<button class="lchip${S.overlay.has(k)?' on':''}" data-k="${k}"><i style="background:${S.overlay.has(k)?GASES[k].col:'var(--axis)'}"></i>${GAS_SHORT[k]}</button>`).join('');
+  $('legend').innerHTML=main+others;
+  document.querySelectorAll('#legend button.lchip').forEach(b=>b.onclick=()=>{const k=b.dataset.k; S.overlay.has(k)?S.overlay.delete(k):S.overlay.add(k); update();});
+}
+function renderTable(){
+  $('gasTbody').innerHTML=Object.keys(GASES).map(k=>{const G=GASES[k];return `<tr data-k="${k}" class="${k===S.gas?'selected':''}">
+    <td style="font-weight:600"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${G.col};margin-right:7px"></span>${GAS_NAMES[lang][k]}</td>
+    <td class="m">${G.A}</td><td class="m">${G.B}</td><td class="m">${G.ep[0]}–${G.ep[1]}</td>
+    <td class="v">${fmt(pdMin(k,S.gamma))}</td><td class="v">${Math.round(Vmin(k,S.gamma))} V</td>
+    <td style="color:var(--muted)">${GAS_NOTES[lang][k]}</td></tr>`;}).join('');
+  document.querySelectorAll('#gasTbody tr').forEach(r=>r.onclick=()=>{S.gas=r.dataset.k;clearScen();syncInputs();update();window.scrollTo({top:0,behavior:'smooth'});});
+}
+
+/* ============================ STATS & INSIGHT ============================ */
+function renderStats(){
+  const T=I18N[lang], pd=pdEq(), vb=Vb(pd,S.gas,S.gamma), xm=pdMin(S.gas,S.gamma), vm=Vmin(S.gas,S.gamma);
+  const fv=fmtV(vb); $('dVb').textContent=fv.v; $('dVbU').textContent=fv.u;
+  $('dPd').textContent=fmt(pd); $('dPdMin').textContent=fmt(xm); $('dVmin').textContent=Math.round(vm);
+  const st=$('stStatus'); st.className='stat';
+  const ratio=vb/S.V;
+  if(!isFinite(vb)){ $('dStatus').textContent=T.stNone; st.classList.add('st-safe'); $('dMargin').textContent=T.marginNone; }
+  else { $('dStatus').textContent= ratio<1?T.stBreak: ratio<2?T.stMarg:T.stSafe; st.classList.add(ratio<1?'st-danger':ratio<2?'st-warn':'st-safe'); $('dMargin').textContent=T.margin(ratio.toFixed(2)); }
+  const near = pd/xm>1/3 && pd/xm<3 && Math.abs(Math.log10(pd/xm))<0.2;
+  $('dBranch').textContent = !isFinite(vb)?T.left : near?T.atmin : pd<xm?T.left:T.right;
+  const G=GASES[S.gas];
+  if(isFinite(vb)){ const ep=vb/pd; $('dEp').textContent=fmt(ep); const inR=ep>=G.ep[0]&&ep<=G.ep[1]; $('dEpRange').textContent=inR?T.epRange(G.ep[0],G.ep[1]):T.epOut; $('dEpRange').style.color=inR?'':'var(--warn)'; }
+  else { $('dEp').textContent='—'; $('dEpRange').textContent=''; }
+  // insight
+  let ins;
+  if(!isFinite(vb)) ins=T.insNone(fmt(pdAsym(S.gas,S.gamma)));
+  else if(Math.abs(Math.log10(pd/xm))<0.35) ins=T.insMin;
+  else ins= pd<xm?T.insLeft:T.insRight;
+  $('insText').innerHTML=ins;
+  let w=[]; if(isFinite(vb)){const ep=vb/pd; if(ep<G.ep[0]||ep>G.ep[1]) w.push(T.warnEp);} w.push(T.warnRF);
+  $('insWarn').innerHTML=w.join('<br>');
+}
+
+function renderRF(){
+  const T=I18N[lang];
+  const rfGas = RF_GAS_MAP[S.gas];
+  if(!rfGas){
+    $('rfUnsupported').innerHTML = T.rfUnsupported(GAS_NAMES[lang][S.gas]);
+    $('rfUnsupported').style.display='block';
+    $('rfBody').style.display='none';
+    return;
+  }
+  $('rfUnsupported').style.display='none';
+  $('rfBody').style.display='';
+
+  const TK = S.Tc+273.15, d_m = S.d/100, omega = 2*Math.PI*S.freq*1e6;
+  const N = RF.numberDensity(S.p, TK);
+  const Lambda = d_m/Math.PI;
+  const sol = RF.solveE0(rfGas, omega, N, Lambda, d_m);
+
+  $('dNumRf').textContent = N.toExponential(2);
+
+  const pd = pdEq(), vbDC = Vb(pd, S.gas, S.gamma);
+  const fvDC = fmtV(vbDC); $('dVdcRf').textContent=fvDC.v; $('dVdcRfU').textContent=fvDC.u;
+
+  if(!sol){
+    $('dV0rf').textContent='—'; $('dV0rfU').textContent='V'; $('dVpp').textContent='';
+    $('dENeffRf').textContent='—';
+    $('rfWarn').innerHTML = T.rfNoBreak;
+    return;
+  }
+  const fv=fmtV(sol.V0); $('dV0rf').textContent=fv.v; $('dV0rfU').textContent=fv.u;
+  $('dVpp').textContent = T.sVppNote(fmtV(2*sol.V0).v+' '+fmtV(2*sol.V0).u);
+  $('dENeffRf').textContent = fmt(sol.ENeff);
+
+  let w=[T.rfCautionBeta];
+  if(sol.atLowEdge||sol.atHighEdge) w.unshift(T.rfCautionEdge);
+  $('rfWarn').innerHTML = w.join('<br>');
+}
+
+/* ============================ CANVAS UTIL ============================ */
+function css(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function prep(cv){ const dpr=window.devicePixelRatio||1, r=cv.getBoundingClientRect(); cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr); const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); return {c,w:r.width,h:r.height}; }
+function hexA(h,a){ const n=parseInt(h.slice(1),16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; }
+function logAxis(c,X,Y,x0,x1,y0,y1,L,xt,yt){
+  const mono="10.5px 'JetBrains Mono', monospace";
+  c.lineWidth=1; c.font=mono;
+  for(let e=Math.floor(x0);e<=x1;e++){ for(let m=1;m<10;m++){ const v=e+Math.log10(m); if(v<x0||v>x1) continue; const px=X(v); c.strokeStyle=css('--grid'); c.globalAlpha=m===1?1:.45; c.beginPath(); c.moveTo(px,L.t); c.lineTo(px,L.b); c.stroke(); } }
+  for(let e=Math.floor(y0);e<=y1;e++){ for(let m=1;m<10;m++){ const v=e+Math.log10(m); if(v<y0||v>y1) continue; const py=Y(v); c.strokeStyle=css('--grid'); c.globalAlpha=m===1?1:.45; c.beginPath(); c.moveTo(L.l,py); c.lineTo(L.r,py); c.stroke(); } }
+  c.globalAlpha=1; c.strokeStyle=css('--axis'); c.strokeRect(L.l,L.t,L.r-L.l,L.b-L.t);
+  c.fillStyle=css('--label'); c.textAlign='center'; c.textBaseline='top';
+  for(let e=Math.ceil(x0);e<=x1;e++) c.fillText(xt(e),X(e),L.b+6);
+  c.textAlign='right'; c.textBaseline='middle';
+  for(let e=Math.ceil(y0);e<=y1;e++) c.fillText(yt(e),L.l-6,Y(e));
+}
+const pow10lbl=e=>{ const m={'-4':'10⁻⁴','-3':'10⁻³','-2':'0.01','-1':'0.1','0':'1','1':'10','2':'100','3':'10³','4':'10⁴','5':'10⁵'}; return m[e]||('1e'+e); };
+
+/* ============================ PASCHEN PLOT ============================ */
+const PX=[-3,3], PY=[1,5];
+let pl=null, hover=null;
+function drawPaschen(){
+  const cv=$('paschenCanvas'); const {c,w,h}=prep(cv);
+  const L={l:58,r:w-16,t:16,b:h-40};
+  const X=v=>L.l+(v-PX[0])/(PX[1]-PX[0])*(L.r-L.l), Y=v=>L.b-(v-PY[0])/(PY[1]-PY[0])*(L.b-L.t);
+  const Xi=px=>PX[0]+(px-L.l)/(L.r-L.l)*(PX[1]-PX[0]), Yi=py=>PY[0]+(L.b-py)/(L.b-L.t)*(PY[1]-PY[0]);
+  pl={L,X,Y,Xi,Yi};
+  c.clearRect(0,0,w,h);
+  logAxis(c,X,Y,PX[0],PX[1],PY[0],PY[1],L,pow10lbl,e=>e>=4?pow10lbl(e):pow10lbl(e));
+  c.fillStyle=css('--muted'); c.font="500 11.5px 'Google Sans', sans-serif"; c.textAlign='center'; c.textBaseline='bottom';
+  c.fillText('pd  [Torr·cm]',(L.l+L.r)/2,h-4);
+  c.save(); c.translate(14,(L.t+L.b)/2); c.rotate(-Math.PI/2); c.textBaseline='middle'; c.fillText('Vb  [V]',0,0); c.restore();
+
+  c.save(); c.beginPath(); c.rect(L.l,L.t,L.r-L.l,L.b-L.t); c.clip();
+  const curve=(gas,g)=>{ const pts=[]; const x0=Math.log10(pdAsym(gas,g)); const N=500;
+    for(let i=0;i<=N;i++){ const lx=Math.max(PX[0], x0+1e-6)+(PX[1]-Math.max(PX[0],x0+1e-6))*Math.pow(i/N,1); const pd=Math.pow(10,lx); const v=Vb(pd,gas,g); if(isFinite(v)&&v>0) pts.push([lx,Math.log10(v)]); }
+    // densify near asymptote
+    const extra=[]; for(let i=1;i<60;i++){ const lx=x0+Math.pow(i/60,3)*0.3; if(lx<PX[0]) continue; const v=Vb(Math.pow(10,lx),gas,g); if(isFinite(v)) extra.push([lx,Math.log10(v)]); }
+    return extra.concat(pts).sort((a,b)=>a[0]-b[0]);
+  };
+  const stroke=(pts,col,lw,alpha)=>{ c.strokeStyle=col; c.lineWidth=lw; c.globalAlpha=alpha; c.beginPath(); let st=false; for(const [x,y] of pts){ const yy=Math.min(y,PY[1]+1); if(!st){c.moveTo(X(x),Y(yy));st=true;} else c.lineTo(X(x),Y(yy)); } c.stroke(); c.globalAlpha=1; };
+  // overlays
+  for(const k of S.overlay){ if(k===S.gas) continue; stroke(curve(k,S.gamma),GASES[k].col,1.5,.75); }
+  // main curve + breakdown shading
+  const pts=curve(S.gas,S.gamma); const purple=css('--purple');
+  if(pts.length){ c.fillStyle=hexA(purple.startsWith('#')?purple:'#7030A0',.08); c.beginPath(); c.moveTo(X(pts[0][0]),Y(PY[1]+1)); for(const [x,y] of pts) c.lineTo(X(x),Y(Math.min(y,PY[1]+1))); c.lineTo(X(PX[1]),Y(PY[1]+1)); c.closePath(); c.fill(); }
+  stroke(pts,purple,2.4,1);
+  // minimum marker
+  const xm=pdMin(S.gas,S.gamma), vm=Vmin(S.gas,S.gamma);
+  c.fillStyle=purple; c.beginPath(); c.arc(X(Math.log10(xm)),Y(Math.log10(vm)),3.5,0,7); c.fill();
+  c.font="10.5px 'JetBrains Mono', monospace"; c.textAlign='left'; c.textBaseline='top'; c.fillText(`min ${Math.round(vm)} V`,X(Math.log10(xm))+6,Y(Math.log10(vm))+4);
+  // operating point
+  const pd=pdEq(), vb=Vb(pd,S.gas,S.gamma), lx=Math.log10(pd), ly=Math.log10(S.V);
+  const green=css('--green'), danger=css('--danger');
+  c.setLineDash([5,4]); c.lineWidth=1.2;
+  c.strokeStyle=green; c.beginPath(); c.moveTo(L.l,Y(ly)); c.lineTo(L.r,Y(ly)); c.stroke();
+  c.strokeStyle=css('--muted'); c.globalAlpha=.6; c.beginPath(); c.moveTo(X(lx),L.t); c.lineTo(X(lx),L.b); c.stroke(); c.globalAlpha=1;
+  c.setLineDash([]);
+  if(isFinite(vb)&&Math.log10(vb)<=PY[1]){ c.fillStyle=purple; c.strokeStyle=css('--card'); c.lineWidth=2; c.beginPath(); c.arc(X(lx),Y(Math.log10(vb)),5,0,7); c.fill(); c.stroke(); }
+  const bd=isFinite(vb)&&S.V>=vb;
+  c.fillStyle=bd?danger:green; c.strokeStyle=css('--card'); c.lineWidth=2.5; c.beginPath(); c.arc(X(lx),Y(ly),7,0,7); c.fill(); c.stroke();
+  c.font="600 11px 'JetBrains Mono', monospace"; c.fillStyle=bd?danger:green; c.textAlign=X(lx)>L.r-120?'right':'left'; c.textBaseline='bottom';
+  c.fillText(`${fmt(S.V)} V @ ${fmt(pd)}`, X(lx)+(c.textAlign==='left'?10:-10), Y(ly)-6);
+  // hover readout
+  if(hover){ const hx=Math.pow(10,Xi(hover.x)); const hv=Vb(hx,S.gas,S.gamma); c.font="10.5px 'JetBrains Mono', monospace"; c.fillStyle=css('--text'); c.textAlign='left'; c.textBaseline='top';
+    c.fillText(`pd ${fmt(hx)} → Vb ${isFinite(hv)?fmt(hv):'∞'} V`, L.l+8, L.t+6); }
+  c.restore();
+}
+function bindPlotDrag(){
+  const cv=$('paschenCanvas'); let drag=false;
+  const at=e=>{ const r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; };
+  const apply=pt=>{ if(!pl) return; const lx=Math.min(PX[1],Math.max(PX[0],pl.Xi(pt.x))), ly=Math.min(PY[1],Math.max(PY[0],pl.Yi(pt.y)));
+    S.d=Math.min(100,Math.max(1e-4,Math.pow(10,lx)/(S.p*Tfac()))); S.V=+Math.pow(10,ly).toPrecision(3); clearScen(); syncInputs(); update(); };
+  cv.addEventListener('pointerdown',e=>{drag=true;cv.setPointerCapture(e.pointerId);apply(at(e));});
+  cv.addEventListener('pointermove',e=>{ hover=at(e); if(drag) apply(hover); else drawPaschen(); });
+  cv.addEventListener('pointerup',()=>drag=false);
+  cv.addEventListener('pointerleave',()=>{hover=null;drawPaschen();});
+}
+
+/* ============================ DANGER MAP ============================ */
+const MX=[-4,3], MY=[-4,2]; // log10 p [Torr], log10 d [cm]
+function drawMap(){
+  const cv=$('mapCanvas'); const {c,w,h}=prep(cv);
+  const L={l:62,r:w-16,t:16,b:h-40};
+  const X=v=>L.l+(v-MX[0])/(MX[1]-MX[0])*(L.r-L.l), Y=v=>L.b-(v-MY[0])/(MY[1]-MY[0])*(L.b-L.t);
+  c.clearRect(0,0,w,h);
+  // heat
+  const cell=3, tf=Tfac(), R=[217,58,82], A=[201,138,18], G=[15,140,80], N=[120,130,145];
+  for(let px=L.l; px<L.r; px+=cell){ const lp=MX[0]+(px-L.l+cell/2)/(L.r-L.l)*(MX[1]-MX[0]);
+    for(let py=L.t; py<L.b; py+=cell){ const ld=MY[0]+(L.b-py-cell/2)/(L.b-L.t)*(MY[1]-MY[0]);
+      const pd=Math.pow(10,lp+ld)*tf, v=Vb(pd,S.gas,S.gamma), r=v/S.V; let col,a;
+      if(!isFinite(v)){col=N;a=.16;} else if(r<1){col=R;a=.55+.25*Math.min(1,Math.log10(1/r));} else if(r<2){col=A;a=.5;} else {col=G;a=Math.max(.12,.45-.12*Math.log10(r/2));}
+      c.fillStyle=`rgba(${col[0]},${col[1]},${col[2]},${a})`; c.fillRect(px,py,cell,cell); } }
+  logAxis(c,X,Y,MX[0],MX[1],MY[0],MY[1],L,
+    e=>({'-4':'0.1m','-3':'1m','-2':'10m','-1':'100m','0':'1','1':'10','2':'100','3':'1000'})[e],
+    e=>({'-4':'1µm','-3':'10µm','-2':'100µm','-1':'1mm','0':'1cm','1':'10cm','2':'1m'})[e]);
+  c.fillStyle=css('--muted'); c.font="500 11.5px 'Google Sans', sans-serif"; c.textAlign='center'; c.textBaseline='bottom';
+  c.fillText('p  [Torr]   (m = mTorr)',(L.l+L.r)/2,h-4);
+  c.save(); c.translate(14,(L.t+L.b)/2); c.rotate(-Math.PI/2); c.textBaseline='middle'; c.fillText('d',0,0); c.restore();
+  // boundary lines (iso-pd)
+  c.save(); c.beginPath(); c.rect(L.l,L.t,L.r-L.l,L.b-L.t); c.clip();
+  const rt=roots(S.gas,S.gamma,S.V);
+  const iso=(pd,col,dash)=>{ const k=Math.log10(pd/tf); c.strokeStyle=col; c.lineWidth=1.6; c.setLineDash(dash); c.beginPath(); c.moveTo(X(MX[0]),Y(k-MX[0])); c.lineTo(X(MX[1]),Y(k-MX[1])); c.stroke(); c.setLineDash([]); };
+  if(rt){ iso(rt[0],css('--danger'),[6,4]); iso(rt[1],css('--danger'),[6,4]); }
+  iso(pdMin(S.gas,S.gamma),css('--purple'),[2,3]);
+  // current point
+  const lp=Math.log10(S.p), ld=Math.log10(S.d);
+  c.fillStyle=css('--text'); c.strokeStyle=css('--card'); c.lineWidth=2.5; c.beginPath(); c.arc(X(lp),Y(ld),6,0,7); c.fill(); c.stroke();
+  c.restore();
+  const T=I18N[lang]; $('mapNote').innerHTML = rt? T.mapNote(fmt(S.V),fmt(rt[0]),fmt(rt[1])) : T.mapNote(fmt(S.V));
+}
+function bindMapClick(){
+  const cv=$('mapCanvas');
+  cv.addEventListener('pointerdown',e=>{ const r=cv.getBoundingClientRect(), w=r.width, h=r.height, L={l:62,r:w-16,t:16,b:h-40};
+    const x=e.clientX-r.left, y=e.clientY-r.top; if(x<L.l||x>L.r||y<L.t||y>L.b) return;
+    S.p=Math.pow(10,MX[0]+(x-L.l)/(L.r-L.l)*(MX[1]-MX[0])); S.d=Math.pow(10,MY[0]+(L.b-y)/(L.b-L.t)*(MY[1]-MY[0]));
+    clearScen(); syncInputs(); update(); });
+}
+
+/* ============================ LANG & MAIN ============================ */
+function setLang(l){
+  lang=l; $('btnEN').classList.toggle('active',l==='en'); $('btnKO').classList.toggle('active',l==='ko'); document.documentElement.lang=l;
+  const T=I18N[l]; document.querySelectorAll('[data-i18n]').forEach(el=>{const v=T[el.dataset.i18n]; if(typeof v==='string') el.innerHTML=v;});
+  renderGasSel(); renderGammaBtns(); renderScenBtns(); renderFreqSel(); showScenBox(); update();
+}
+function update(){ renderLegend(); renderStats(); renderTable(); drawPaschen(); drawMap(); renderRF(); }
+
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  $('btnLight').classList.toggle('active', t==='light');
+  $('btnDark').classList.toggle('active', t==='dark');
+  try{ localStorage.setItem('benedu-paschen-theme', t); }catch(e){}
+  if(pl) update();
+}
+function initTheme(){
+  setTheme(document.documentElement.getAttribute('data-theme')||'light');
+}
+
+window.addEventListener('load',()=>{
+  bind(); bindPlotDrag(); bindMapClick(); initTheme(); setLang('en'); applyScen('ccp');
+  window.addEventListener('resize',()=>{drawPaschen();drawMap();});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HBM Architecture Simulator — Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gr: #0F8C50; --gr-lt: #E6F4ED; --gr-dk: #0A6B3C;
+  --pu: #7030A0; --pu-lt: #F0E8F8; --pu-md: #9B59D0;
+  --bg: #F7F9FC; --cd: #FFFFFF; --bd: #E2E8F0;
+  --tx: #1A202C; --t2: #4A5568; --t3: #718096;
+  --sh: 0 2px 16px rgba(0,0,0,.07); --rr: 16px; --rs: 10px;
+  --bl: #2563EB; --bl-lt: #EFF6FF;
+  --rd: #DC2626; --rd-lt: #FEF2F2;
+  --am: #D97706; --am-lt: #FFFBEB;
+  --or: #EA580C;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Google Sans', sans-serif; background: var(--bg); color: var(--tx); min-height: 100vh; }
+
+/* Header Styling */
+.hdr {
+  background: var(--cd); border-bottom: 1.5px solid var(--bd); padding: 0 26px; height: 62px;
+  display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 1px 6px rgba(0,0,0,.05);
+}
+.hdr-center {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  display: flex; align-items: center; gap: 16px;
+}
+.logo-img { height: 34px; object-fit: contain; }
+.hdiv { width: 1.5px; height: 26px; background: var(--bd); }
+.htitle { font-size: 14px; font-weight: 700; color: var(--pu); } 
+.hsub { font-size: 11px; color: var(--t3); margin-top: 1px; } 
+.hinfo { text-align: center; }
+
+/* Language Toggle */
+.ltog { display: flex; gap: 3px; background: #F1F5F9; border-radius: 8px; padding: 3px; }
+.lbtn {
+  border: none; cursor: pointer; padding: 4px 11px; border-radius: 5px; font-family: 'Google Sans', sans-serif;
+  font-size: 12px; font-weight: 600; color: var(--t3); background: transparent; transition: all .15s;
+}
+.lbtn.on { background: var(--cd); color: var(--pu); box-shadow: 0 1px 4px rgba(0,0,0,.10); }
+
+/* Main layout */
+.main { max-width: 1000px; margin: 0 auto; padding: 22px 16px 60px; }
+.card {
+  background: var(--cd); border: 1.5px solid var(--bd); border-radius: var(--rr);
+  box-shadow: var(--sh); margin-bottom: 20px; overflow: hidden;
+}
+.chead { padding: 16px 22px 13px; border-bottom: 1px solid var(--bd); }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; padding: 3px 10px; border-radius: 20px; margin-bottom: 7px;
+  background: var(--pu-lt); color: var(--pu);
+}
+.badge.concept { background: var(--gr-lt); color: var(--gr); }
+.badge.reference { background: var(--bl-lt); color: var(--bl); }
+
+.bdot { width: 6px; height: 6px; border-radius: 50%; background: var(--pu); animation: pulse 1.8s ease-in-out infinite; }
+.bdot.concept { background: var(--gr); }
+.bdot.reference { background: var(--bl); }
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+.ctitle { font-size: 17px; font-weight: 700; } 
+.csub { font-size: 12px; color: var(--t3); margin-top: 3px; }
+
+/* Controls styling */
+.ctrl { padding: 16px 22px 12px; display: flex; flex-direction: column; gap: 12px; }
+.crow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.clbl { font-size: 12px; font-weight: 600; color: var(--t2); width: 140px; flex-shrink: 0; }
+.mbtns { display: flex; gap: 7px; flex-wrap: wrap; }
+.mbtn {
+  border: 1.5px solid var(--bd); background: var(--bg); font-family: 'Google Sans', sans-serif;
+  font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 8px; cursor: pointer; color: var(--t2);
+  transition: all .2s;
+}
+.mbtn:hover { border-color: var(--pu-md); }
+.mbtn.on { background: var(--pu); border-color: var(--pu); color: #fff; box-shadow: 0 2px 6px rgba(112,48,160,.25); }
+.sbtn.on { background: var(--bl); border-color: var(--bl); color: #fff; box-shadow: 0 2px 6px rgba(37,99,235,.25); }
+.mbtn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; background: #F1F5F9; border-color: var(--bd); color: var(--t3); }
+
+/* Range Slider */
+.slrow { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px; }
+input[type=range] { flex: 1; accent-color: var(--gr); height: 6px; }
+.slval { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--gr); width: 85px; text-align: right; }
+
+/* Stats Grid */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 22px 14px; }
+.stat { background: var(--bg); border: 1.5px solid var(--bd); border-radius: var(--rs); padding: 11px 13px; position: relative; overflow: hidden; }
+.stat::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background: var(--pu); }
+.stat:nth-child(2)::before { background: var(--bl); }
+.stat:nth-child(3)::before { background: var(--am); }
+.stat:nth-child(4)::before { background: var(--gr); }
+.sn { font-size: 10px; font-weight: 700; letter-spacing: .07em; color: var(--t3); margin-bottom: 5px; }
+.sv { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--tx); }
+.su { font-size: 11px; font-weight: 600; color: var(--t3); margin-left: 3px; }
+
+/* Info box */
+.sinfo { margin: 0 22px 14px; border-radius: var(--rs); padding: 12px 15px; background: var(--bl-lt); border: 1.5px solid #BFDBFE; }
+.stag { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--bl); }
+.stxt { font-size: 13px; color: var(--tx); line-height: 1.55; margin-top: 3px; }
+
+/* Canvas Area */
+.carea { padding: 0 22px 16px; }
+canvas { border-radius: 11px; border: 1.5px solid var(--bd); display: block; width: 100%; background: #F8FAFC; cursor: pointer; }
+
+/* Performance Compare Chart */
+.barchart-wrap { padding: 12px 22px 18px; }
+.bar-row { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
+.bar-lbl { width: 150px; font-weight: 700; font-size: 12px; color: var(--t2); text-align: right; }
+.bar-track { flex: 1; background: var(--bg); height: 28px; border-radius: 14px; border: 1px solid var(--bd); position: relative; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 14px; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.bar-fill.gddr { background: linear-gradient(90deg, #94A3B8, #64748B); width: 25%; }
+.bar-fill.hbm { background: linear-gradient(90deg, #9B59D0, #7030A0); width: 10%; box-shadow: inset 0 2px 4px rgba(255,255,255,0.2); }
+.bar-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #fff; }
+
+/* Formula Panel */
+.fpanel {
+  background: var(--gr-lt); border-top: 1.5px solid #C5E5D4; padding: 13px 22px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 11px;
+}
+.fl { font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--gr-dk); margin-bottom: 3px; }
+.fe { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--gr-dk); font-weight: 700; }
+
+/* Parameter reference table */
+.twrap { padding: 0 22px 16px; }
+.itable { width: 100%; border-collapse: collapse; font-size: 12px; }
+.itable th { background: var(--bg); font-weight: 700; color: var(--t2); padding: 8px 12px; text-align: left; border-bottom: 1.5px solid var(--bd); }
+.itable td { padding: 12px 12px; border-bottom: 1px solid var(--bd); color: var(--tx); line-height: 1.4; }
+.itable tr:last-child td { border-bottom: none; }
+.itable td:first-child { font-family: 'Google Sans', sans-serif; font-weight: 700; color: var(--t2); }
+.twrap.spec-table .itable td:first-child { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--pu); }
+
+/* Image Link & Deep Dive Additions */
+.img-link-wrap { padding: 8px 22px 22px; text-align: center; }
+.img-btn {
+  display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+  background: var(--bg); color: var(--bl); border: 1.5px solid var(--bd);
+  padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 13px;
+  text-decoration: none; transition: all .2s; width: 100%;
+}
+.img-btn:hover { background: var(--bl-lt); border-color: #BFDBFE; }
+
+details.card { transition: all 0.3s ease; }
+details.card summary { cursor: pointer; list-style: none; outline: none; }
+details.card summary::-webkit-details-marker { display: none; }
+details.card summary .chead { position: relative; }
+details.card summary .chead::after {
+  content: '▼'; position: absolute; right: 22px; top: 50%; transform: translateY(-50%);
+  color: var(--t3); font-size: 14px; transition: transform 0.3s;
+}
+details.card[open] summary .chead::after { transform: translateY(-50%) rotate(180deg); }
+.dd-content { padding: 18px 22px; font-size: 13px; line-height: 1.6; color: var(--t2); border-top: 1px solid var(--bd); }
+.dd-content strong { color: var(--tx); }
+.dd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+.dd-box { background: var(--bg); border: 1px solid var(--bd); border-radius: 10px; padding: 14px; }
+.dd-box-title { font-weight: 700; color: var(--gr); font-size: 13px; margin-bottom: 6px; }
+
+@media(max-width: 768px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .crow { flex-direction: column; align-items: flex-start; }
+  .bar-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .bar-lbl { text-align: left; width: 100%; }
+  .dd-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="hdr" style="position:relative;">
+  <div class="hdr-center">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <img src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png"
+           class="logo-img" alt="Benedu Insight"
+           onerror="this.style.display='none';document.getElementById('lf').style.display='flex';">
+      <div id="lf" style="display:none;align-items:center;gap:8px;">
+        <svg width="32" height="32" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="15" stroke="#7030A0" stroke-width="3.5" fill="none"/></svg>
+        <div><span style="color:#7030A0;font-size:17px;font-weight:700;">bene</span><span style="color:#7030A0;font-size:17px;">du</span><span style="display:block;color:#7030A0;font-size:11px;">insight</span></div>
+      </div>
+    </div>
+    <div class="hdiv"></div>
+    <div class="hinfo">
+      <div class="htitle" id="hdrTitle">HBM Architecture Simulator</div>
+      <div class="hsub" id="hdrSub">High Bandwidth Memory 2.5D Packaging & TSV Interconnection</div>
+    </div>
+  </div>
+  <div class="ltog" style="margin-left:auto;">
+    <button class="lbtn on" id="btnEN" onclick="setLang('en')">EN</button>
+    <button class="lbtn" id="btnKO" onclick="setLang('ko')">한국어</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="card">
+    <div class="chead">
+      <span class="badge"><span class="bdot"></span><span id="pnlConfigBadge">PARAMETERS</span></span>
+      <div class="ctitle" id="pnlConfigTitle">HBM Configuration</div>
+      <div class="csub" id="pnlConfigSub">Select HBM generation, stack height and customize data rate to analyze memory bandwidth.</div>
+    </div>
+    
+    <div class="ctrl">
+      <div class="crow">
+        <span class="clbl" id="lblGen">HBM Generation</span>
+        <div class="mbtns" id="genBtns">
+          <button class="mbtn" data-gen="HBM2" data-rate="2.4">HBM2</button>
+          <button class="mbtn" data-gen="HBM2E" data-rate="3.6">HBM2E</button>
+          <button class="mbtn on" data-gen="HBM3" data-rate="6.4">HBM3</button>
+          <button class="mbtn" data-gen="HBM3E" data-rate="9.6">HBM3E</button>
+          <button class="mbtn" data-gen="HBM4" data-rate="10.0">HBM4</button>
+        </div>
+      </div>
+      
+      <div class="crow">
+        <span class="clbl" id="lblStack">Stack Height</span>
+        <div class="mbtns" id="stackBtns">
+          <button class="mbtn sbtn" data-stack="4">4-Hi</button>
+          <button class="mbtn sbtn on" data-stack="8">8-Hi</button>
+          <button class="mbtn sbtn" data-stack="12">12-Hi</button>
+          <button class="mbtn sbtn" data-stack="16">16-Hi</button>
+        </div>
+      </div>
+      
+      <div class="crow">
+        <span class="clbl" id="lblDataRate">Data Rate per Pin</span>
+        <div class="slrow">
+          <input type="range" id="rateSlider" min="1.0" max="14.0" step="0.1" value="6.4">
+          <span class="slval" id="rateVal">6.4 Gbps</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Real-time Stats Grid -->
+    <div class="stats">
+      <div class="stat"><div class="sn" id="statBusTitle">BUS WIDTH</div><div><span class="sv" id="statBus">1024</span><span class="su">bits</span></div></div>
+      <div class="stat"><div class="sn" id="statRateTitle">DATA RATE</div><div><span class="sv" id="statRate">6.4</span><span class="su">Gbps</span></div></div>
+      <div class="stat"><div class="sn" id="statStackTitle">STACK HEIGHT</div><div><span class="sv" id="statStack">8</span><span class="su">-Hi</span></div></div>
+      <div class="stat"><div class="sn" id="statBWTitle" style="color:var(--gr)">TOTAL BANDWIDTH</div><div><span class="sv" id="statBW" style="color:var(--gr)">819.2</span><span class="su">GB/s</span></div></div>
+    </div>
+    
+    <!-- Calculation Explanation Panel -->
+    <div class="fpanel">
+      <div><div class="fl" id="lblFormulaTitle">BANDWIDTH FORMULA</div><div class="fe" id="lblFormula">Bandwidth = (1024-bit × Data Rate) / 8</div></div>
+      <div><div class="fl" id="lblCalcPrincipleTitle">CALCULATION PRINCIPLE</div><div class="stxt" style="margin-top:0; font-size:12px;" id="lblCalcPrinciple">HBM routes signal lines through a 1024-bit ultra-wide bus. Dividing by 8 converts Gigabit bandwidth into GigaByte per second.</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chead">
+      <span class="badge concept"><span class="bdot concept"></span><span id="pnlVisualBadge">INTERACTIVE VIEW</span></span>
+      <div class="ctitle" id="pnlVisualTitle">2.5D Packaging Cross-Section</div>
+      <div class="csub" id="pnlVisualSub">Interactive physical cross-section illustrating GPU, Silicon Interposer, Base Logic Die, and TSVs. (Click canvas to play/pause dataflow)</div>
+    </div>
+    <div class="carea" style="padding-top: 18px;">
+      <canvas id="hbmCanvas" height="420"></canvas>
+    </div>
+    <div class="sinfo">
+      <div class="stag" id="lblInfoTag">2.5D PACKAGING & SYSTEM OVERVIEW</div>
+      <div class="stxt" id="lblInfoText">Silicon Interposer acts as a dense routing substrate to enable high-density connections with very small spacing between GPU and HBM, bypassing traditional PCB limitations. Continuous vertical copper channels (TSVs) connect DRAM stacks.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chead">
+      <span class="badge reference"><span class="bdot reference"></span><span id="pnlPerfBadge">PERFORMANCE</span></span>
+      <div class="ctitle" id="pnlPerfTitle">Bandwidth Comparison</div>
+      <div class="csub" id="pnlPerfSub">Visual comparison between standard GDDR6 (384-bit) memory and HBM's scalable architecture.</div>
+    </div>
+    <div class="barchart-wrap">
+      <div class="bar-row">
+        <div class="bar-lbl" id="lblGddr6">GDDR6 (384-bit)</div>
+        <div class="bar-track">
+          <div class="bar-fill gddr" id="gddrBar"><span class="bar-val">~672 GB/s</span></div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-lbl" id="hbmLabel">HBM3 (8-Hi)</div>
+        <div class="bar-track">
+          <div class="bar-fill hbm" id="hbmBar"><span class="bar-val" id="hbmBarVal">819.2 GB/s</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chead">
+      <span class="badge reference"><span class="bdot reference"></span><span id="pnlTableBadge">SPECIFICATIONS</span></span>
+      <div class="ctitle" id="pnlTableTitle">HBM Generations Comparison</div>
+      <div class="csub" id="pnlTableSub">Evolutionary changes across modern memory packaging generations.</div>
+    </div>
+    <div class="twrap spec-table" style="padding-top:13px;">
+      <table class="itable">
+        <thead>
+          <tr>
+            <th id="thGen">Generation</th>
+            <th id="thBus">Max Bus Width</th>
+            <th id="thPinRate">Pin Speed Range</th>
+            <th id="thMaxHeight">Max Stack Height</th>
+            <th id="thMaxBW">Max Bandwidth / Stack</th>
+          </tr>
+        </thead>
+        <tbody id="specTableBody">
+          <!-- Dynamic language rendering will insert content here -->
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="img-link-wrap">
+      <a href="../images/hbm_generation.png" target="_blank" class="img-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        <span id="lblImgLink">View HBM Generations & Roadmap Image</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DEEP DIVE 1: Glass Substrates -->
+  <details class="card">
+    <summary>
+      <div class="chead">
+        <span class="badge concept"><span class="bdot concept"></span><span id="pnlDDBadge">DEEP DIVE</span></span>
+        <div class="ctitle" id="pnlDDTitle">Deep Dive: Glass Substrates & Next-Gen Packaging</div>
+        <div class="csub" id="pnlDDSub">Overcoming Silicon Interposer limitations with Glass Core technology. (Click to fold/unfold)</div>
+      </div>
+    </summary>
+    <div class="dd-content" id="pnlDDContent">
+      <!-- Dynamic language rendering will insert Deep Dive content here -->
+    </div>
+  </details>
+
+  <!-- DEEP DIVE 2: HBM4 Manufacturer Specs Comparison -->
+  <details class="card">
+    <summary>
+      <div class="chead">
+        <span class="badge concept"><span class="bdot concept"></span><span id="pnlDD2Badge">DEEP DIVE</span></span>
+        <div class="ctitle" id="pnlDD2Title">Deep Dive: HBM4 Core Specifications Comparison</div>
+        <div class="csub" id="pnlDD2Sub">As of June 2026. (Click to fold/unfold)</div>
+      </div>
+    </summary>
+    <div class="dd-content" id="pnlDD2Content" style="padding: 0;">
+      <!-- Dynamic language rendering will insert HBM4 Deep Dive content here -->
+    </div>
+  </details>
+  
+</main>
+
+<script>
+'use strict';
+
+const TX = {
+  en: {
+    hdrTitle: "HBM Architecture Simulator",
+    hdrSub: "High Bandwidth Memory 2.5D Packaging & TSV Interconnection",
+    pnlConfigBadge: "PARAMETERS",
+    pnlConfigTitle: "HBM Configuration",
+    pnlConfigSub: "Select HBM generation, stack height and customize data rate to analyze memory bandwidth.",
+    lblGen: "HBM Generation",
+    lblStack: "Stack Height",
+    lblDataRate: "Data Rate per Pin",
+    statBusTitle: "BUS WIDTH",
+    statRateTitle: "DATA RATE",
+    statStackTitle: "STACK HEIGHT",
+    statBWTitle: "TOTAL BANDWIDTH",
+    lblFormulaTitle: "BANDWIDTH FORMULA",
+    lblFormula: "Bandwidth = (Bus Width × Data Rate) / 8",
+    lblCalcPrincipleTitle: "CALCULATION PRINCIPLE",
+    lblCalcPrinciple: "HBM3E and older route signals through a 1024-bit wide bus, while HBM4 doubles this to 2048-bit. Dividing by 8 converts Gigabit into GigaByte per second.",
+    pnlVisualBadge: "INTERACTIVE VIEW",
+    pnlVisualTitle: "2.5D Packaging Cross-Section",
+    pnlVisualSub: "Interactive physical cross-section illustrating GPU, Silicon Interposer, Base Logic Die, and TSVs. (Click canvas to play/pause dataflow)",
+    lblInfoTag: "2.5D PACKAGING & SYSTEM OVERVIEW",
+    lblInfoText: "Silicon Interposer acts as a dense routing substrate to enable high-density connections with very small spacing between GPU and HBM, bypassing traditional PCB limitations. Continuous vertical copper channels (TSVs) connect DRAM stacks.",
+    pnlPerfBadge: "PERFORMANCE",
+    pnlPerfTitle: "Bandwidth Comparison",
+    pnlPerfSub: "Visual comparison between standard GDDR6 (384-bit) memory and HBM's scalable architecture.",
+    lblGddr6: "GDDR6 (384-bit)",
+    pnlTableBadge: "SPECIFICATIONS",
+    pnlTableTitle: "HBM Generations Comparison",
+    pnlTableSub: "Evolutionary changes across modern memory packaging generations.",
+    thGen: "Generation",
+    thBus: "Max Bus Width",
+    thPinRate: "Pin Speed Range",
+    thMaxHeight: "Max Stack Height",
+    thMaxBW: "Max Bandwidth / Stack",
+    pausedText: "PAUSED — Click to Resume Animation",
+    lblImgLink: "View HBM Generations & Roadmap (High-Res Image)",
+    pnlDDBadge: "DEEP DIVE",
+    pnlDDTitle: "Deep Dive: Glass Substrates & Next-Gen Packaging",
+    pnlDDSub: "Overcoming Silicon Interposer limitations with Glass Core technology. (Click to fold/unfold)",
+    ddBody: `
+      <p>As AI accelerators demand larger packages and more HBM stacks, traditional <strong>Silicon Interposers</strong> are facing severe limitations in manufacturing cost and size (reticle limits). <strong>Glass Substrates (유리기판)</strong> are rapidly emerging as the next-generation paradigm shift.</p>
+      <div class="dd-grid">
+        <div class="dd-box">
+          <div class="dd-box-title">Why Glass Substrates? (TGV)</div>
+          Glass provides superior rigidity, allowing for massively large package sizes without warping. <strong>Through-Glass Vias (TGV)</strong> enable ultra-fine pitch routing, lower signal loss, and exceptional electrical/thermal efficiency compared to silicon.
+        </div>
+        <div class="dd-box">
+          <div class="dd-box-title">Key Industry Players</div>
+          <strong>Intel:</strong> Pioneering the glass ecosystem (Targeting 2026-2030).<br>
+          <strong>SKC (Absolics):</strong> Leading mass-production fab construction.<br>
+          <strong>Samsung / TSMC:</strong> Actively developing glass interposers to replace current 2.5D tech (CoWoS, I-Cube).
+        </div>
+      </div>
+    `,
+    pnlDD2Title: "Deep Dive: HBM4 Core Specifications Comparison",
+    pnlDD2Sub: "Comparative analysis of HBM4 technologies by Samsung, SK Hynix, and Micron (As of June 2026).",
+    ddHbm4Body: `
+      <div style="overflow-x: auto; padding: 0 22px 18px;">
+        <table class="itable">
+          <thead>
+            <tr>
+              <th>Feature / Metric</th>
+              <th>Samsung HBM4</th>
+              <th>SK Hynix HBM4</th>
+              <th>Micron HBM4</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Max Speed / Bandwidth</td>
+              <td><strong>Up to 13 Gbps</strong><br><span style="color:var(--t3); font-weight:normal;">(3.3 TB/s per stack)</span></td>
+              <td><strong>11.7 Gbps</strong><br><span style="color:var(--t3); font-weight:normal;">(2.9 TB/s per stack)</span></td>
+              <td><strong>Over 11 Gbps</strong><br><span style="color:var(--t3); font-weight:normal;">(2.8 TB/s per stack)</span></td>
+            </tr>
+            <tr>
+              <td>DRAM Layer Node</td>
+              <td>Advanced <strong>1c nm</strong> process</td>
+              <td>Established <strong>1b nm</strong> process</td>
+              <td>Advanced <strong>1-gamma (1γ) nm</strong> process</td>
+            </tr>
+            <tr>
+              <td>Base/Logic Die Foundry</td>
+              <td>In-house <strong>Samsung Foundry 4nm FinFET</strong></td>
+              <td>Co-developed <strong>TSMC advanced process</strong> (12nm / 5nm)</td>
+              <td>Outsourced <strong>TSMC advanced process</strong></td>
+            </tr>
+            <tr>
+              <td>Packaging Technology</td>
+              <td><strong>TC-NCF</strong> (Thermal Compression Non-Conductive Film)</td>
+              <td><strong>Advanced MR-MUF</strong> (Mass Reflow Molded Underfill)</td>
+              <td>Advanced <strong>Thermal Compression (TC)</strong> bonding / In-house packaging</td>
+            </tr>
+            <tr>
+              <td>Primary Launch Configuration</td>
+              <td>12-layer stack / 16-layer custom</td>
+              <td>16-layer stack (48GB capacity)</td>
+              <td>12-layer stack (36GB capacity) / 16-layer custom</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `,
+    specs: [
+      ["HBM2", "1024 bits", "1.6 - 2.4 Gbps", "4-Hi / 8-Hi", "307.2 GB/s"],
+      ["HBM2E", "1024 bits", "2.8 - 3.6 Gbps", "4-Hi / 8-Hi", "460.8 GB/s"],
+      ["HBM3", "1024 bits", "4.0 - 6.4 Gbps", "8-Hi / 12-Hi", "819.2 GB/s"],
+      ["HBM3E", "1024 bits", "8.0 - 9.6 Gbps", "8-Hi / 12-Hi / 16-Hi", "1228.8 GB/s"],
+      ["HBM4", "2048 bits", "6.4 - 10.0+ Gbps", "12-Hi / 16-Hi", "2.5+ TB/s"]
+    ],
+    // Canvas Text Assets
+    lblSubstrate: "Package Substrate (PCB)",
+    lblInterposer: "Silicon Interposer (High Density Routing)",
+    lblBaseDie: "Base Logic Die",
+    lblGpu: "GPU / SoC",
+    lblCoreDie: "Core Die"
+  },
+  ko: {
+    hdrTitle: "HBM 아키텍처 시뮬레이터",
+    hdrSub: "고대역폭 메모리 2.5D 패키징 및 TSV 구조 분석",
+    pnlConfigBadge: "매개변수 설정",
+    pnlConfigTitle: "HBM 사양 변경",
+    pnlConfigSub: "HBM의 세대, 적층 수 및 핀당 전송 속도를 변경하면서 대역폭의 변화와 물리적인 아키텍처 변화를 시뮬레이션하세요.",
+    lblGen: "HBM 세대",
+    lblStack: "적층 단수 (Stack Height)",
+    lblDataRate: "핀당 데이터 속도",
+    statBusTitle: "버스 폭 (배선 폭)",
+    statRateTitle: "핀당 데이터 속도",
+    statStackTitle: "적층 단수",
+    statBWTitle: "총 대역폭 (Bandwidth)",
+    lblFormulaTitle: "대역폭 계산 공식",
+    lblFormula: "대역폭 = (버스폭 × 핀 속도) / 8",
+    lblCalcPrincipleTitle: "대역폭 계산 원리",
+    lblCalcPrinciple: "HBM3E 이하는 1024-bit, HBM4는 2048-bit의 극도로 넓은 I/O 핀 인터페이스를 갖습니다. 핀 속도(Gbps)를 곱한 후 8비트로 나누어 기가바이트(GB/s) 규격으로 실시간 변환합니다.",
+    pnlVisualBadge: "인터랙티브 단면 뷰",
+    pnlVisualTitle: "2.5D 패키징 및 3D 적층 단면도",
+    pnlVisualSub: "GPU, 실리콘 인터포저, 베이스 로직 다이 및 TSV가 통합된 고밀도 패키지 단면 (캔버스를 클릭하면 애니메이션이 정지/재생됩니다)",
+    lblInfoTag: "2.5D 패키징 및 시스템 개요",
+    lblInfoText: "실리콘 인터포저는 일반 인쇄회로기판(PCB) 배선 밀도의 한계를 뛰어넘어, GPU와 HBM 간에 극도로 미세하고 촘촘한 고밀도 전송 회로 구성을 보장합니다. 수직 구리 전극 관통 기둥(TSV)은 이 신호를 수직 DRAM 레이어 전체에 연결합니다.",
+    pnlPerfBadge: "성능 대역폭 비교",
+    pnlPerfTitle: "메모리 대역폭 성능 비교",
+    pnlPerfSub: "전통적인 고성능 GDDR6 (384-bit) 그래픽 메모리 스펙 대비 HBM 아키텍처의 혁신적인 전송 대역폭 확장 수준 비교.",
+    lblGddr6: "GDDR6 (384-bit 버스)",
+    pnlTableBadge: "상세 스펙 비교",
+    pnlTableTitle: "HBM 세대별 아키텍처 사양 진화",
+    pnlTableSub: "메모리 아키텍처 세대 발전에 따른 인터페이스 대역폭 및 스택 적층 사양의 진보 기록.",
+    thGen: "HBM 세대",
+    thBus: "최대 버스폭",
+    thPinRate: "핀 속도 범위",
+    thMaxHeight: "최대 적층 단수",
+    thMaxBW: "스택당 최대 대역폭",
+    pausedText: "일시정지됨 — 클릭하면 다시 애니메이션이 작동합니다",
+    lblImgLink: "HBM 세대별 진화 및 기업별 로드맵 보기 (고해상도 이미지)",
+    pnlDDBadge: "심화 학습 (DEEP DIVE)",
+    pnlDDTitle: "심화학습: 유리기판(Glass Substrate)과 차세대 패키징",
+    pnlDDSub: "실리콘 인터포저의 물리적 한계를 극복하는 유리기판 코어 기술 (클릭하여 접기/펴기)",
+    ddBody: `
+      <p>AI 가속기 칩의 크기가 커지고 탑재되는 HBM의 개수가 늘어나면서, 기존의 <strong>실리콘 인터포저</strong>는 제조 비용 급증과 면적 확장의 물리적 한계(레티클 리미트)에 직면했습니다. 이를 해결할 차세대 게임체인저로 <strong>유리기판(Glass Substrate)</strong>이 급부상하고 있습니다.</p>
+      <div class="dd-grid">
+        <div class="dd-box">
+          <div class="dd-box-title">왜 유리기판인가? (TGV 기술)</div>
+          유리는 표면이 매우 평탄하고 열변형에 강해 칩이 휘어지는 워피지(Warpage) 현상을 방지합니다. 특히 <strong>유리 관통 전극(TGV)</strong>을 통해 실리콘보다 훨씬 미세한 회로를 뚫을 수 있어 신호 손실이 적고 전력 효율이 압도적입니다.
+        </div>
+        <div class="dd-box">
+          <div class="dd-box-title">핵심 생태계 관련 기업</div>
+          <strong>인텔 (Intel):</strong> 글로벌 유리기판 생태계 주도 및 상용화 선언.<br>
+          <strong>SKC (앱솔릭스):</strong> 세계 최초 유리기판 양산 공장 설립 및 가동.<br>
+          <strong>삼성전자 / TSMC:</strong> 기존 2.5D 패키징(CoWoS, I-Cube)의 실리콘 인터포저를 유리 인터포저로 대체하기 위한 R&D 가속.
+        </div>
+      </div>
+    `,
+    pnlDD2Title: "심화학습: HBM4 3사 핵심 스펙 비교",
+    pnlDD2Sub: "삼성전자, SK하이닉스, 마이크론 HBM4 주요 스펙 요약 (2026년 6월 기준 / 클릭하여 접기/펴기)",
+    ddHbm4Body: `
+      <div style="overflow-x: auto; padding: 0 22px 18px;">
+        <table class="itable">
+          <thead>
+            <tr>
+              <th>주요 스펙 / 지표</th>
+              <th>삼성전자 HBM4</th>
+              <th>SK하이닉스 HBM4</th>
+              <th>마이크론 HBM4</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>최고 속도 / 대역폭</td>
+              <td><strong>최대 13 Gbps</strong><br><span style="color:var(--t3); font-weight:normal;">(스택당 3.3 TB/s)</span></td>
+              <td><strong>11.7 Gbps</strong><br><span style="color:var(--t3); font-weight:normal;">(스택당 2.9 TB/s)</span></td>
+              <td><strong>11 Gbps 이상</strong><br><span style="color:var(--t3); font-weight:normal;">(스택당 2.8 TB/s)</span></td>
+            </tr>
+            <tr>
+              <td>DRAM 공정 노드</td>
+              <td>차세대 <strong>1c nm</strong> 공정</td>
+              <td>검증된 <strong>1b nm</strong> 공정</td>
+              <td>차세대 <strong>1-gamma (1γ) nm</strong> 공정</td>
+            </tr>
+            <tr>
+              <td>베이스/로직 다이 파운드리</td>
+              <td>자체 <strong>삼성 파운드리 4nm FinFET</strong></td>
+              <td><strong>TSMC 첨단 공정</strong> 공동 개발 (12nm / 5nm)</td>
+              <td><strong>TSMC 첨단 공정</strong> 위탁 생산</td>
+            </tr>
+            <tr>
+              <td>패키징 기술</td>
+              <td><strong>TC-NCF</strong> (열압착 비전도성 필름)</td>
+              <td><strong>Advanced MR-MUF</strong> (매스 리플로우 몰디드 언더필)</td>
+              <td>Advanced <strong>TC 본딩</strong> / 자체 패키징</td>
+            </tr>
+            <tr>
+              <td>주요 출시 구성</td>
+              <td>12단 스택 / 16단 커스텀</td>
+              <td>16단 스택 (48GB 용량)</td>
+              <td>12단 스택 (36GB 용량) / 16단 커스텀</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `,
+    specs: [
+      ["HBM2", "1024 bits", "1.6 - 2.4 Gbps", "4-Hi / 8-Hi", "307.2 GB/s"],
+      ["HBM2E", "1024 bits", "2.8 - 3.6 Gbps", "4-Hi / 8-Hi", "460.8 GB/s"],
+      ["HBM3", "1024 bits", "4.0 - 6.4 Gbps", "8-Hi / 12-Hi", "819.2 GB/s"],
+      ["HBM3E", "1024 bits", "8.0 - 9.6 Gbps", "8-Hi / 12-Hi / 16-Hi", "1228.8 GB/s"],
+      ["HBM4", "2048 bits", "6.4 - 10.0+ Gbps", "12-Hi / 16-Hi", "2.5+ TB/s"]
+    ],
+    // Canvas Text Assets
+    lblSubstrate: "패키지 서브스트레이트 기판 (PCB)",
+    lblInterposer: "실리콘 인터포저 (초고밀도 미세 라우팅 배선 레이어)",
+    lblBaseDie: "베이스 로직 다이",
+    lblGpu: "GPU / SoC 가속기",
+    lblCoreDie: "코어 다이"
+  }
+};
+
+let currentLang = 'en';
+let currentGen = 'HBM3';
+let currentStack = 8;
+let dataRate = 6.4;
+let bandwidth = 0;
+
+// Particle System properties
+let isAnimating = true;
+let animFrame = null;
+let particles = [];
+
+// DOM elements
+const rateSlider = document.getElementById('rateSlider');
+const rateVal = document.getElementById('rateVal');
+const statBus = document.getElementById('statBus');
+const statRate = document.getElementById('statRate');
+const statStack = document.getElementById('statStack');
+const statBW = document.getElementById('statBW');
+const hbmBar = document.getElementById('hbmBar');
+const hbmBarVal = document.getElementById('hbmBarVal');
+const hbmLabel = document.getElementById('hbmLabel');
+const specTableBody = document.getElementById('specTableBody');
+const canvas = document.getElementById('hbmCanvas');
+const ctx = canvas.getContext('2d');
+
+// Initialize the simulator
+function init() {
+  setLang('en'); // Defaults to English as requested
+  setupEventListeners();
+  resizeCanvas();
+  window.addEventListener('resize', () => {
+    resizeCanvas();
+    drawArchitecture();
+  });
+  spawnParticles();
+  renderLoop();
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btnEN').classList.toggle('on', lang === 'en');
+  document.getElementById('btnKO').classList.toggle('on', lang === 'ko');
+  
+  // Set text labels
+  const translation = TX[lang];
+  document.getElementById('hdrTitle').textContent = translation.hdrTitle;
+  document.getElementById('hdrSub').textContent = translation.hdrSub;
+  document.getElementById('pnlConfigBadge').textContent = translation.pnlConfigBadge;
+  document.getElementById('pnlConfigTitle').textContent = translation.pnlConfigTitle;
+  document.getElementById('pnlConfigSub').textContent = translation.pnlConfigSub;
+  document.getElementById('lblGen').textContent = translation.lblGen;
+  document.getElementById('lblStack').textContent = translation.lblStack;
+  document.getElementById('lblDataRate').textContent = translation.lblDataRate;
+  document.getElementById('statBusTitle').textContent = translation.statBusTitle;
+  document.getElementById('statRateTitle').textContent = translation.statRateTitle;
+  document.getElementById('statStackTitle').textContent = translation.statStackTitle;
+  document.getElementById('statBWTitle').textContent = translation.statBWTitle;
+  document.getElementById('lblFormulaTitle').textContent = translation.lblFormulaTitle;
+  document.getElementById('lblFormula').textContent = translation.lblFormula;
+  document.getElementById('lblCalcPrincipleTitle').textContent = translation.lblCalcPrincipleTitle;
+  document.getElementById('lblCalcPrinciple').textContent = translation.lblCalcPrinciple;
+  document.getElementById('pnlVisualBadge').textContent = translation.pnlVisualBadge;
+  document.getElementById('pnlVisualTitle').textContent = translation.pnlVisualTitle;
+  document.getElementById('pnlVisualSub').textContent = translation.pnlVisualSub;
+  document.getElementById('lblInfoTag').textContent = translation.lblInfoTag;
+  document.getElementById('lblInfoText').textContent = translation.lblInfoText;
+  document.getElementById('pnlPerfBadge').textContent = translation.pnlPerfBadge;
+  document.getElementById('pnlPerfTitle').textContent = translation.pnlPerfTitle;
+  document.getElementById('pnlPerfSub').textContent = translation.pnlPerfSub;
+  document.getElementById('lblGddr6').textContent = translation.lblGddr6;
+  document.getElementById('pnlTableBadge').textContent = translation.pnlTableBadge;
+  document.getElementById('pnlTableTitle').textContent = translation.pnlTableTitle;
+  document.getElementById('pnlTableSub').textContent = translation.pnlTableSub;
+  document.getElementById('thGen').textContent = translation.thGen;
+  document.getElementById('thBus').textContent = translation.thBus;
+  document.getElementById('thPinRate').textContent = translation.thPinRate;
+  document.getElementById('thMaxHeight').textContent = translation.thMaxHeight;
+  document.getElementById('thMaxBW').textContent = translation.thMaxBW;
+  
+  // Elements for Image Link & Deep Dive 1
+  document.getElementById('lblImgLink').textContent = translation.lblImgLink;
+  document.getElementById('pnlDDBadge').textContent = translation.pnlDDBadge;
+  document.getElementById('pnlDDTitle').textContent = translation.pnlDDTitle;
+  document.getElementById('pnlDDSub').textContent = translation.pnlDDSub;
+  document.getElementById('pnlDDContent').innerHTML = translation.ddBody;
+
+  // Elements for Deep Dive 2
+  document.getElementById('pnlDD2Badge').textContent = translation.pnlDDBadge;
+  document.getElementById('pnlDD2Title').textContent = translation.pnlDD2Title;
+  document.getElementById('pnlDD2Sub').textContent = translation.pnlDD2Sub;
+  document.getElementById('pnlDD2Content').innerHTML = translation.ddHbm4Body;
+  
+  updateSpecTable();
+  calcBandwidth();
+}
+
+function updateAvailableStacks() {
+  let maxAllowed = 16;
+  let minAllowed = 4;
+  
+  if (currentGen === 'HBM2') maxAllowed = 8;
+  else if (currentGen === 'HBM2E') maxAllowed = 8;
+  else if (currentGen === 'HBM3') { minAllowed = 8; maxAllowed = 12; }
+  else if (currentGen === 'HBM3E') { minAllowed = 8; maxAllowed = 16; }
+  else if (currentGen === 'HBM4') { minAllowed = 12; maxAllowed = 16; }
+
+  // 현재 선택된 스택이 허용된 최대치보다 크면 자동으로 조정
+  if (currentStack > maxAllowed) currentStack = maxAllowed;
+  if (currentStack < minAllowed) currentStack = minAllowed;
+
+  // 스택 버튼 상태 업데이트
+  document.querySelectorAll('#stackBtns .mbtn').forEach(btn => {
+    const stackVal = parseInt(btn.dataset.stack);
+    
+    // 지원하지 않는 스택 비활성화
+    if (stackVal > maxAllowed || stackVal < minAllowed) {
+      btn.disabled = true;
+      btn.classList.remove('on');
+    } else {
+      btn.disabled = false;
+    }
+    
+    // 현재 스택에 맞는 버튼만 활성화(on) 스타일 적용
+    if (stackVal === currentStack) {
+      btn.classList.add('on');
+    } else {
+      btn.classList.remove('on');
+    }
+  });
+}
+
+function updateSpecTable() {
+  const specs = TX[currentLang].specs;
+  specTableBody.innerHTML = '';
+  specs.forEach(spec => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${spec[0]}</td>
+      <td>${spec[1]}</td>
+      <td>${spec[2]}</td>
+      <td>${spec[3]}</td>
+      <td style="font-weight:700; color:var(--gr);">${spec[4]}</td>
+    `;
+    specTableBody.appendChild(tr);
+  });
+}
+
+function calcBandwidth() {
+  updateAvailableStacks(); // 대역폭 계산 전 사용 가능한 스택 업데이트
+  
+  const currentBusWidth = currentGen === 'HBM4' ? 2048 : 1024;
+  bandwidth = (currentBusWidth * dataRate) / 8;
+  
+  // Update state values in DOM
+  rateVal.textContent = dataRate.toFixed(1) + ' Gbps';
+  statBus.textContent = currentBusWidth;
+  statRate.textContent = dataRate.toFixed(1);
+  statStack.textContent = currentStack;
+  statBW.textContent = bandwidth.toFixed(1);
+  
+  // Set labels
+  hbmLabel.textContent = `${currentGen} (${currentStack}-Hi)`;
+  hbmBarVal.textContent = bandwidth.toFixed(1) + ' GB/s';
+  
+  // Update performance bar widths based on maximum capacity
+  const maxScalingFactor = 3500; // Baseline range up to ~3.5 TB/s to fit HBM4
+  const percent = Math.min(100, Math.max(5, (bandwidth / maxScalingFactor) * 100));
+  hbmBar.style.width = percent + '%';
+  
+  // Redo particle counts representing density
+  spawnParticles();
+}
+
+function setupEventListeners() {
+  // Setup Generation Buttons
+  document.querySelectorAll('#genBtns .mbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#genBtns .mbtn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      currentGen = btn.dataset.gen;
+      dataRate = parseFloat(btn.dataset.rate);
+      rateSlider.value = dataRate;
+      calcBandwidth();
+    });
+  });
+
+  // Setup Stack Buttons
+  document.querySelectorAll('#stackBtns .mbtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#stackBtns .mbtn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      currentStack = parseInt(btn.dataset.stack);
+      calcBandwidth();
+    });
+  });
+
+  // Slider change
+  rateSlider.addEventListener('input', (e) => {
+    dataRate = parseFloat(e.target.value);
+    
+    // 선택된 세대 유지
+    document.querySelectorAll('#genBtns .mbtn').forEach(b => {
+      if(b.dataset.gen === currentGen) {
+        b.classList.add('on');
+      } else {
+        b.classList.remove('on');
+      }
+    });
+    
+    calcBandwidth();
+  });
+
+  // Canvas interaction trigger
+  canvas.addEventListener('click', () => {
+    isAnimating = !isAnimating;
+    if (isAnimating) {
+      spawnParticles();
+    }
+  });
+}
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = 420 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '420px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+// Draw custom rounded rectangle with clean canvas pathways
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawArchitecture() {
+  const W = canvas.offsetWidth;
+  const H = 420;
+  
+  ctx.clearRect(0, 0, W, H);
+  
+  // Dynamic metrics alignment
+  const cx = W / 2;
+  const baseY = H - 55;
+  const trans = TX[currentLang];
+  
+  // Structural sizing limits
+  const subW = Math.min(W - 40, 720);
+  const intW = subW * 0.85;
+  const gpuW = intW * 0.42;
+  const hbmW = 165;
+  
+  const subX = cx - subW/2;
+  const intX = cx - intW/2;
+  const gpuX = intX + 25;
+  const hbmX = intX + intW - hbmW - 25;
+
+  // 1. Package Substrate
+  const subGrd = ctx.createLinearGradient(subX, baseY, subX, baseY + 24);
+  subGrd.addColorStop(0, '#064E3B'); // Dark Green substrate look
+  subGrd.addColorStop(1, '#022C22');
+  ctx.fillStyle = subGrd;
+  roundRect(subX, baseY, subW, 24, 6);
+  ctx.fill();
+  ctx.strokeStyle = '#34D399';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  
+  ctx.fillStyle = '#A7F3D0';
+  ctx.font = '600 11px "Google Sans"';
+  ctx.textAlign = 'center';
+  ctx.fillText(trans.lblSubstrate, cx, baseY + 16);
+
+  // 2. C4 Bumps (Substrate interconnect to interposer)
+  ctx.fillStyle = '#94A3B8';
+  const c4BumpsCount = 28;
+  for(let i = 0; i < c4BumpsCount; i++) {
+    const bx = intX + 20 + i * ((intW - 40) / (c4BumpsCount - 1));
+    ctx.beginPath();
+    ctx.arc(bx, baseY - 4, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 3. Silicon Interposer
+  const intY = baseY - 20;
+  const intGrd = ctx.createLinearGradient(intX, intY, intX, intY + 12);
+  intGrd.addColorStop(0, '#DBEAFE');
+  intGrd.addColorStop(1, '#93C5FD');
+  ctx.fillStyle = intGrd;
+  roundRect(intX, intY, intW, 12, 3);
+  ctx.fill();
+  ctx.strokeStyle = '#2563EB';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+  
+  ctx.fillStyle = '#1E3A8A';
+  ctx.font = '700 10px "Google Sans"';
+  ctx.textAlign = 'center';
+  ctx.fillText(trans.lblInterposer, cx, intY + 9);
+
+  // 4. Microbumps between interposer and top components
+  ctx.fillStyle = '#F59E0B'; // Solder gold finish
+  const microBumpY = intY - 3.5;
+  
+  // GPU bumps
+  const gpuBumpsCount = 22;
+  for(let i = 0; i < gpuBumpsCount; i++) {
+    const bx = gpuX + 10 + i * ((gpuW - 20) / (gpuBumpsCount - 1));
+    ctx.beginPath();
+    ctx.arc(bx, microBumpY, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // HBM bumps
+  const hbmBumpsCount = 16;
+  for(let i = 0; i < hbmBumpsCount; i++) {
+    const bx = hbmX + 10 + i * ((hbmW - 20) / (hbmBumpsCount - 1));
+    ctx.beginPath();
+    ctx.arc(bx, microBumpY, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 5. GPU Accelerator chip
+  const gpuH = 85;
+  const gpuY = intY - 7 - gpuH;
+  const gpuGrd = ctx.createLinearGradient(gpuX, gpuY, gpuX + gpuW, gpuY + gpuH);
+  gpuGrd.addColorStop(0, '#1E293B');
+  gpuGrd.addColorStop(1, '#334155');
+  ctx.fillStyle = gpuGrd;
+  roundRect(gpuX, gpuY, gpuW, gpuH, 5);
+  ctx.fill();
+  ctx.strokeStyle = '#10B981';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  ctx.fillStyle = '#34D399';
+  ctx.font = 'bold 15px "Google Sans"';
+  ctx.textAlign = 'center';
+  ctx.fillText(trans.lblGpu, gpuX + gpuW/2, gpuY + gpuH/2 + 5);
+
+  // 6. HBM Stacking Structure
+  // 6a. Base Logic Die
+  const hbmBaseH = 18;
+  const hbmBaseY = intY - 7 - hbmBaseH;
+  ctx.fillStyle = '#E9D5FF';
+  roundRect(hbmX, hbmBaseY, hbmW, hbmBaseH, 3);
+  ctx.fill();
+  ctx.strokeStyle = '#9333EA';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  
+  ctx.fillStyle = '#6B21A8';
+  ctx.font = '700 10px "Google Sans"';
+  ctx.textAlign = 'center';
+  ctx.fillText(trans.lblBaseDie, hbmX + hbmW/2, hbmBaseY + 12);
+
+  // 6b. Dynamic DRAM Stack Height calculations
+  const totalStackHeightSpace = 130;
+  const dieH = Math.min(15, totalStackHeightSpace / currentStack);
+  const gap = 3.5;
+  const tsvCols = 8;
+  const topY = hbmBaseY - (currentStack * (dieH + gap));
+
+  // Render vertical Silicon 관통 전극 (TSV)
+  ctx.strokeStyle = '#F59E0B'; // Gold metal
+  ctx.lineWidth = 1.5;
+  for(let col = 0; col < tsvCols; col++) {
+    const tx = hbmX + 22 + col * ((hbmW - 44) / (tsvCols - 1));
+    ctx.beginPath();
+    ctx.moveTo(tx, intY);
+    ctx.lineTo(tx, hbmBaseY);
+    ctx.stroke();
+    
+    // Dashed internal TSVs in silicon stacks
+    ctx.setLineDash([3, 2]);
+    ctx.beginPath();
+    ctx.moveTo(tx, hbmBaseY);
+    ctx.lineTo(tx, topY + gap);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Draw Silicon Interposer horizontal signaling tracks
+  ctx.strokeStyle = 'rgba(37, 99, 235, 0.4)';
+  ctx.lineWidth = 1.2;
+  for(let p = 0; p < 6; p++) {
+    const py = intY + 3 + p * 1.5;
+    ctx.beginPath();
+    ctx.moveTo(gpuX + gpuW - 15, py);
+    ctx.lineTo(hbmX + 15, py);
+    ctx.stroke();
+  }
+
+  // Draw Core DRAM Stack Dies
+  for(let i = 0; i < currentStack; i++) {
+    const dy = hbmBaseY - gap - (i + 1) * (dieH + gap) + gap;
+    
+    // Tiny microbumps interconnects between stacked dies
+    ctx.fillStyle = '#94A3B8';
+    for(let b = 0; b < 10; b++) {
+      ctx.beginPath();
+      ctx.arc(hbmX + 12 + b * ((hbmW - 24) / 9), dy + dieH + gap/2, 1.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    
+    // Core DRAM Body
+    const dGrd = ctx.createLinearGradient(hbmX, dy, hbmX, dy + dieH);
+    dGrd.addColorStop(0, '#F1F5F9');
+    dGrd.addColorStop(1, '#CBD5E0');
+    ctx.fillStyle = dGrd;
+    roundRect(hbmX, dy, hbmW, dieH, 2);
+    ctx.fill();
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    // Dynamic text fitting inside DRAM segments
+    if (dieH > 8) {
+      ctx.fillStyle = '#334155';
+      ctx.font = '600 8.5px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${trans.lblCoreDie} ${i+1}`, hbmX + hbmW/2, dy + dieH/2 + 3);
+    }
+  }
+
+  return {
+    gpuX, gpuW, gpuY, gpuH,
+    intY, hbmX, hbmW, hbmBaseY,
+    dieH, gap, tsvCols, topY
+  };
+}
+
+function spawnParticles() {
+  particles = [];
+  const count = Math.floor(dataRate * 6.5);
+  for(let i = 0; i < count; i++) {
+    particles.push({
+      progress: Math.random(),
+      speed: 0.004 + (dataRate * 0.0007) + (Math.random() * 0.0035),
+      direction: Math.random() > 0.4 ? 1 : -1, // More particles flowing to GPU
+      track: Math.floor(Math.random() * 6),
+      tsvCol: Math.floor(Math.random() * tsvColsCount()),
+      targetStack: Math.floor(Math.random() * currentStack)
+    });
+  }
+}
+
+function tsvColsCount() {
+  return 8;
+}
+
+function updateAndDrawParticles(metrics) {
+  if (!isAnimating) return;
+  
+  const { gpuX, gpuW, gpuY, gpuH, intY, hbmX, hbmW, hbmBaseY, dieH, gap } = metrics;
+  
+  particles.forEach(p => {
+    p.progress += p.speed;
+    if (p.progress > 1.0) {
+      p.progress = 0;
+      p.direction = Math.random() > 0.4 ? 1 : -1;
+      p.targetStack = Math.floor(Math.random() * currentStack);
+    }
+
+    // Path interpolation
+    let normP = p.direction === 1 ? p.progress : 1.0 - p.progress;
+    let x, y;
+    
+    const hStart = gpuX + gpuW - 20;
+    const hEnd = hbmX + 22 + p.tsvCol * ((hbmW - 44) / 7);
+    const trackY = intY + 3 + p.track * 1.5;
+    const targetDieY = hbmBaseY - gap - (p.targetStack + 1) * (dieH + gap) + gap + dieH/2;
+
+    if (normP < 0.25) {
+      // Step 1: Up/Down vertical line of GPU
+      const localP = normP / 0.25;
+      x = hStart;
+      y = (gpuY + gpuH * 0.6) + localP * (trackY - (gpuY + gpuH * 0.6));
+    } else if (normP < 0.7) {
+      // Step 2: Traverse along silicon interposer
+      const localP = (normP - 0.25) / 0.45;
+      x = hStart + localP * (hEnd - hStart);
+      y = trackY;
+    } else {
+      // Step 3: Vertical TSV channel routing
+      const localP = (normP - 0.7) / 0.3;
+      x = hEnd;
+      y = trackY - localP * (trackY - targetDieY);
+    }
+    
+    // Draw neon particle paths
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = p.direction === 1 ? '#10B981' : '#F59E0B';
+    ctx.fillStyle = p.direction === 1 ? '#10B981' : '#F59E0B';
+    
+    ctx.beginPath();
+    ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0; // Clear blur layer
+  });
+}
+
+function renderLoop() {
+  const metrics = drawArchitecture();
+  updateAndDrawParticles(metrics);
+  
+  if (!isAnimating) {
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#1F2937';
+    ctx.font = '700 14px "Google Sans"';
+    ctx.textAlign = 'center';
+    ctx.fillText(TX[currentLang].pausedText, canvas.offsetWidth / 2, 420 / 2);
+  }
+
+  animFrame = requestAnimationFrame(renderLoop);
+}
+
+// Fire-up
+init();
+
+</script>
+</body>
+</html>

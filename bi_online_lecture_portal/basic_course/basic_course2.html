@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+<script>
+  /* theme: dark (default) / light — remembered per browser */
+  (function(){ var t='dark'; try{ t = localStorage.getItem('benedu_basic_theme') || 'dark' }catch(e){}
+    document.documentElement.setAttribute('data-theme', t); })();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class Viewer | Benedu Insight</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --stage:#0b0b0a; --stage-3:#1f1e1c; --line-dark:#2c2b28; --on-dark-soft:#a7a49d;
+  --canvas:#fffaf0; --surface-card:#f5f0e0; --ink:#0a0a0a; --muted:#6a6a6a; --hairline:#e5e0d2;
+  --cta:#ff4d8b; --ring:#3ccf7d; --coral:#ff6b5a;
+  --font:'Google Sans','Gowun Batang',serif;
+  --bar:56px; --fg:#ffffff; --on-dark:#ffffff; --hover:#34322e;
+}
+[data-theme="light"]{--stage:#fffaf0; --stage-3:#f2ecdc; --line-dark:#e5e0d2; --on-dark-soft:#6a6a6a; --fg:#0a0a0a; --on-dark:#0a0a0a; --hover:#e6dfcb}
+[data-theme="light"] .gate{background:radial-gradient(circle at 70% 20%,rgba(184,164,237,.35),transparent 55%),var(--stage)}
+[data-theme="light"] .sel option{background:#fffaf0}
+[data-theme="light"] .sheet{border:1px solid var(--line-dark);box-shadow:0 30px 60px -30px rgba(60,40,10,.3)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--stage);color:var(--fg);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow:hidden}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit;text-decoration:none}
+
+/* top bar */
+.bar{position:fixed;inset:0 0 auto 0;height:var(--bar);display:flex;align-items:center;gap:14px;padding:0 14px 0 12px;
+  background:var(--stage);border-bottom:1px solid var(--line-dark);z-index:5;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.logo{display:flex;align-items:center;flex:0 0 auto}
+.logo img{height:30px;display:block;transition:filter .3s}
+/* theme toggle (moon shown in dark, sun in light) */
+.theme-btn{width:34px;height:34px;border-radius:50%;border:0;background:var(--stage-3);color:var(--on-dark);display:grid;place-items:center;transition:background .2s}
+.theme-btn:hover{background:var(--hover)}
+.theme-btn .ic-sun{display:none}
+[data-theme="light"] .theme-btn .ic-sun{display:block}
+[data-theme="light"] .theme-btn .ic-moon{display:none}
+/* logo: white mark + wordmark in dark mode, brand colors in light mode */
+[data-theme="dark"] .logo img{filter:brightness(0) invert(1)}
+
+.now{min-width:0;display:flex;align-items:baseline;gap:10px;overflow:hidden}
+.now .no{font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--on-dark-soft);flex:0 0 auto}
+.now .ti{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now .ko{font-size:14px;color:var(--on-dark-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tools{margin-left:auto;display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.ib{height:36px;min-width:36px;border:0;border-radius:10px;background:var(--stage-3);color:var(--fg);display:inline-flex;align-items:center;
+  justify-content:center;gap:6px;padding:0 10px;font-size:13px;font-weight:700;transition:background .2s,opacity .2s}
+.ib:hover{background:var(--hover)}
+.ib:disabled{opacity:.3;cursor:default}
+.sel{height:36px;border-radius:10px;border:0;background:var(--stage-3);color:var(--fg);font-family:var(--font);font-size:13px;font-weight:700;
+  padding:0 30px 0 12px;appearance:none;cursor:pointer;max-width:240px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center}
+.sel option{background:#1f1e1c}
+.ib.close{background:transparent}
+.ib.close:hover{background:var(--stage-3)}
+
+/* frame */
+.stage{position:fixed;inset:var(--bar) 0 0 0;background:#0A0A09}
+iframe{width:100%;height:100%;border:0;display:block;background:#0A0A09}
+/* header: auto-hide (default) or pinned. Hidden unless pinned (and not fullscreen), revealed, or gate shown */
+body:not(.pinned):not(.reveal):not(.locked) .bar,
+body.fs:not(.reveal):not(.locked) .bar{transform:translateY(-100%)}
+body:not(.pinned) .stage, body.fs .stage{inset:0}
+body:not(.pinned) .bar, body.fs .bar{box-shadow:0 12px 32px -12px rgba(0,0,0,.45)}
+.hotzone{position:fixed;inset:0 0 auto 0;height:14px;z-index:6;cursor:pointer}
+.hotzone i{position:absolute;left:50%;top:4px;width:46px;height:4px;margin-left:-23px;border-radius:2px;
+  background:rgba(255,255,255,.45);box-shadow:0 0 0 1px rgba(0,0,0,.25);opacity:.7;transition:opacity .3s,width .3s}
+.hotzone:hover i{opacity:1;width:64px;margin-left:-32px}
+body.pinned:not(.fs) .hotzone, body.reveal .hotzone, body.locked .hotzone{display:none}
+.ib.pin.on{background:var(--fg);color:var(--stage)}
+.loader{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;transition:opacity .4s}
+.loader i{width:38px;height:38px;border-radius:50%;border:3px solid var(--stage-3);border-top-color:var(--ring);animation:spin .8s linear infinite}
+.loaded .loader{opacity:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* gate */
+.gate{position:fixed;inset:var(--bar) 0 0 0;display:none;align-items:center;justify-content:center;padding:16px;
+  background:radial-gradient(circle at 70% 20%,rgba(184,164,237,.18),transparent 55%),var(--stage)}
+body.locked .gate{display:flex}
+body.locked .stage{display:none}
+.sheet{width:100%;max-width:440px;background:var(--canvas);color:var(--ink);border-radius:24px;padding:32px;
+  -webkit-user-select:text;user-select:text}
+.lockico{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:var(--ink);color:#fff}
+.sheet h1{font-size:26px;letter-spacing:-.5px;margin:20px 0 0}
+.sheet .which{margin:6px 0 0;color:var(--muted);font-size:15px}
+.code-input{width:100%;height:52px;margin-top:22px;border-radius:12px;border:1px solid var(--hairline);background:#fff;color:var(--ink);
+  font-family:var(--font);font-size:18px;letter-spacing:4px;padding:0 16px;outline:none}
+.code-input::placeholder{letter-spacing:1px;font-size:15px;color:#9a9a9a}
+.code-input:focus{border-color:var(--ink)}
+.code-input.err{border-color:var(--coral);animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.btn{width:100%;height:52px;margin-top:12px;border:0;border-radius:12px;background:var(--ink);color:#fff;font-weight:700;font-size:15px}
+.btn:hover{background:#2a2a2a}
+.msg{min-height:22px;margin-top:10px;text-align:center;font-size:14px;color:var(--coral)}
+.alt{margin-top:6px;text-align:center;font-size:14px;color:var(--muted)}
+.alt a{text-decoration:underline;color:var(--ink);cursor:pointer}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,24px);opacity:0;z-index:20;background:#fff;color:var(--ink);
+  padding:10px 18px;border-radius:999px;font-weight:700;font-size:13px;transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:760px){
+  .now .ko,.sel,.ib .lbl{display:none}
+  .logo img{height:24px}
+}
+@media print{html,body{display:none!important}}
+</style>
+</head>
+<body>
+
+<script>
+  /* 멤버십 설정 — basic_course.html 과 동일하게 유지하세요 */
+  const FREE_CLASSES = [3, 8];
+  const MEMBER_CODES = ['18790314', '18310613'];
+</script>
+
+<header class="bar">
+  <a class="logo" href="basic_course.html" target="_blank" rel="noopener" title="Basic Course"><img src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight"></a>
+  <div class="now"><span class="no" id="no"></span><span class="ti" id="ti"></span><span class="ko" id="ko"></span></div>
+  <div class="tools">
+    <button class="ib" id="prev" title="이전 강좌"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <select class="sel" id="sel" aria-label="Class"></select>
+    <button class="ib" id="next" title="다음 강좌"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="theme-btn" id="themeBtn" aria-label="Light / Dark mode" title="Light / Dark"><svg class="ic-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg><svg class="ic-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/></svg></button>
+    <button class="ib pin" id="pin" aria-pressed="false" title="헤더 고정 / 자동 숨김"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l-1 6 4 4H6l4-4z"/><path d="M12 13v8"/></svg><span class="lbl" id="pinLbl">Auto</span></button>
+    <button class="ib" id="fs" title="전체 화면 (F)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="lbl">Full</span></button>
+    <button class="ib close" id="close" title="닫기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+</header>
+
+<div class="hotzone" id="hot" title="메뉴 보기"><i></i></div>
+<main class="stage" id="stage">
+  <iframe id="frame" title="Class" allow="fullscreen"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
+          referrerpolicy="no-referrer"></iframe>
+  <div class="loader"><i></i></div>
+</main>
+
+<section class="gate">
+  <div class="sheet">
+    <div class="lockico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7.5a4 4 0 018 0V11"/></svg></div>
+    <h1>멤버십 전용 강좌</h1>
+    <p class="which" id="gWhich"></p>
+    <form id="gForm">
+      <input class="code-input" id="gCode" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="Membership code" aria-label="Membership code">
+      <button class="btn" type="submit">코드 확인하고 수강하기</button>
+      <div class="msg" id="gMsg" aria-live="polite"></div>
+    </form>
+    <p class="alt">코드가 없으신가요? <a data-go="3">무료 Class 03</a> · <a data-go="8">무료 Class 08</a></p>
+  </div>
+</section>
+<div class="toast" id="toast"></div>
+
+<script>
+const CLASSES = [
+  [1,'Why Semiconductors','왜 반도체인가'], [2,'What Is Plasma','플라즈마란 무엇인가'],
+  [3,'Atoms & Energy Levels','원자와 에너지 준위'], [4,'Bonding & Dissociation','결합과 해리'],
+  [5,'Electromagnetism','전기와 자기'], [6,'Making Plasma','플라즈마 만들기'],
+  [7,'RF Power Basics','RF 전력의 기초'], [8,'Waves & Reflection','파동과 반사'],
+  [9,'Impedance','임피던스'], [10,'Impedance Matching','임피던스 매칭'],
+  [11,'RF Generator & Sensing','RF Generator와 센서']
+];
+const pad = n => String(n).padStart(2,'0');
+const $ = id => document.getElementById(id);
+const KEY = 'benedu_basic_member';
+const isMember = () => { try{ return localStorage.getItem(KEY)==='1' }catch(e){ return false } };
+const canOpen = n => FREE_CLASSES.includes(n) || isMember();
+
+let cur = parseInt(new URLSearchParams(location.search).get('c'), 10);
+if (!(cur >= 1 && cur <= CLASSES.length)) cur = FREE_CLASSES[0];
+
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2000); }
+
+/* class selector */
+$('sel').innerHTML = CLASSES.map(([n,en])=>`<option value="${n}">${pad(n)} · ${en}${FREE_CLASSES.includes(n)?'  (Free)':''}</option>`).join('');
+
+function show(n, push){
+  cur = n;
+  const [, en, ko] = CLASSES[n-1];
+  $('no').textContent = `CLASS ${pad(n)}`; $('ti').textContent = en; $('ko').textContent = ko;
+  $('sel').value = n; $('prev').disabled = n<=1; $('next').disabled = n>=CLASSES.length;
+  document.title = `Class ${pad(n)} · ${en} | Benedu Insight`;
+  if (push) history.replaceState(null, '', `?c=${pad(n)}`);
+  if (!canOpen(n)){
+    document.body.classList.add('locked');
+    $('frame').removeAttribute('src');
+    $('gWhich').textContent = `Class ${pad(n)} · ${ko}`;
+    $('gCode').value=''; $('gMsg').textContent='';
+    setTimeout(()=>$('gCode').focus(), 50);
+    return;
+  }
+  document.body.classList.remove('locked');
+  $('stage').classList.remove('loaded');
+  $('frame').src = `basic_chapter_${pad(n)}.html`;
+  if (typeof reveal === 'function') reveal(2500);
+  clearTimeout(show._t); show._t = setTimeout(()=>$('stage').classList.add('loaded'), 4000);
+}
+
+$('prev').onclick = ()=> cur>1 && show(cur-1, true);
+$('next').onclick = ()=> cur<CLASSES.length && show(cur+1, true);
+$('sel').onchange = e => show(+e.target.value, true);
+$('close').onclick = ()=>{ window.close(); setTimeout(()=>{ location.href='basic_course.html'; }, 150); };
+document.addEventListener('click', e=>{ const a=e.target.closest('[data-go]'); if(a){ e.preventDefault(); show(+a.dataset.go, true); } });
+
+/* fullscreen: hide bar + request browser fullscreen */
+function toggleFS(){
+  if (!document.fullscreenElement){ document.documentElement.requestFullscreen?.().catch(()=>{}); document.body.classList.add('fs'); }
+  else { document.exitFullscreen?.(); }
+}
+document.addEventListener('fullscreenchange', ()=>{ if(!document.fullscreenElement) document.body.classList.remove('fs'); });
+$('fs').onclick = toggleFS;
+
+/* ---------- header: auto-hide (default) / pinned ---------- */
+const PIN_KEY = 'benedu_viewer_pin';
+let hideT = null;
+function reveal(ms){
+  clearTimeout(hideT); document.body.classList.add('reveal');
+  if (ms) hideT = setTimeout(hideBar, ms);
+}
+function hideBar(){
+  clearTimeout(hideT);
+  const bar = document.querySelector('.bar');
+  if (bar.matches(':hover') || bar.contains(document.activeElement) && document.activeElement.tagName==='SELECT') { hideT = setTimeout(hideBar, 800); return; }
+  document.body.classList.remove('reveal');
+}
+function setPin(on){
+  document.body.classList.toggle('pinned', on);
+  $('pin').classList.toggle('on', on); $('pin').setAttribute('aria-pressed', on);
+  $('pinLbl').textContent = on ? 'Pinned' : 'Auto';
+  $('pin').title = on ? '헤더 고정됨 — 누르면 자동 숨김' : '자동 숨김 — 누르면 헤더 고정';
+  try{ localStorage.setItem(PIN_KEY, on ? '1' : '0') }catch(e){}
+  if (!on) reveal(1600);
+}
+$('pin').onclick = ()=> setPin(!document.body.classList.contains('pinned'));
+$('hot').addEventListener('mouseenter', ()=>reveal());
+$('hot').addEventListener('click', ()=>reveal(3500));            // touch / click
+$('hot').addEventListener('touchstart', ()=>reveal(3500), {passive:true});
+const barEl = document.querySelector('.bar');
+barEl.addEventListener('mouseenter', ()=>clearTimeout(hideT));
+barEl.addEventListener('mouseleave', ()=>{ clearTimeout(hideT); hideT = setTimeout(hideBar, 700); });
+barEl.addEventListener('focusin', ()=>reveal());
+barEl.addEventListener('focusout', ()=>{ clearTimeout(hideT); hideT = setTimeout(hideBar, 1200); });
+let pinned = false; try{ pinned = localStorage.getItem(PIN_KEY)==='1' }catch(e){}
+setPin(pinned);
+
+/* ---------- theme ---------- */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  try{ localStorage.setItem('benedu_basic_theme', t) }catch(e){}
+}
+document.getElementById('themeBtn').addEventListener('click', ()=>{
+  setTheme(document.documentElement.getAttribute('data-theme')==='light' ? 'dark' : 'light');
+});
+addEventListener('storage', e=>{ if (e.key==='benedu_basic_theme' && e.newValue) document.documentElement.setAttribute('data-theme', e.newValue); });
+
+/* gate */
+$('gCode').addEventListener('input', e=>{ e.target.value=e.target.value.replace(/\D/g,''); e.target.classList.remove('err'); $('gMsg').textContent=''; });
+$('gForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const v = $('gCode').value.trim();
+  if (MEMBER_CODES.includes(v)){
+    try{ localStorage.setItem(KEY,'1') }catch(err){}
+    toast('🔓 전체 11개 강좌가 열렸습니다'); show(cur);
+  } else {
+    const i=$('gCode'); i.classList.remove('err'); void i.offsetWidth; i.classList.add('err');
+    $('gMsg').textContent = v ? '코드가 올바르지 않습니다. 다시 확인해 주세요.' : '멤버십 코드를 입력해 주세요.';
+  }
+});
+
+/* ---------- content protection (deterrent) ----------
+   right-click, save / view-source / print / devtools shortcuts, text selection & drag
+   are blocked here and inside the embedded chapter (when same-origin). */
+function blockKeys(e){
+  const k = (e.key||'').toLowerCase(), mod = e.ctrlKey || e.metaKey;
+  if (e.key==='F12' ||
+      (mod && ['s','u','p','o'].includes(k)) ||
+      (mod && e.shiftKey && ['i','j','c','k'].includes(k)) ||
+      (e.metaKey && e.altKey && ['i','j','c','u'].includes(k))){
+    e.preventDefault(); e.stopPropagation(); toast('이 강의 자료는 저장·복사할 수 없습니다'); return false;
+  }
+  if (!mod && !e.altKey && k==='f' && e.target===document.body){ toggleFS(); }
+  if (!mod && !e.altKey && k==='h' && e.target===document.body){ setPin(!document.body.classList.contains('pinned')); }
+}
+function guard(doc){
+  doc.addEventListener('contextmenu', e=>e.preventDefault(), true);
+  doc.addEventListener('keydown', blockKeys, true);
+  doc.addEventListener('dragstart', e=>e.preventDefault(), true);
+  doc.addEventListener('copy', e=>e.preventDefault(), true);
+  doc.addEventListener('selectstart', e=>{ if(!e.target.closest || !e.target.closest('input,textarea')) e.preventDefault(); }, true);
+}
+guard(document);
+$('frame').addEventListener('load', ()=>{
+  $('stage').classList.add('loaded');
+  const f = $('frame');
+  try{
+    const d = f.contentDocument;
+    if (d && d.documentElement){
+      guard(d);
+      const st = d.createElement('style');
+      st.textContent = 'html{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea{-webkit-user-select:text;user-select:text}@media print{html,body{display:none!important}}';
+      d.head && d.head.appendChild(st);
+      d.querySelectorAll('img,video').forEach(m=>m.setAttribute('draggable','false'));
+    }
+  }catch(err){ /* cross-origin (e.g. opened from file://) — outer guards still apply */ }
+  try{ f.contentWindow.focus(); }catch(err){}
+});
+
+/* keep keyboard focus on the deck after using the toolbar */
+document.querySelector('.bar').addEventListener('mouseup', ()=>setTimeout(()=>{ if(document.activeElement.tagName!=='SELECT') try{ $('frame').contentWindow.focus() }catch(e){} }, 0));
+
+show(cur);
+</script>
+</body>
+</html>
