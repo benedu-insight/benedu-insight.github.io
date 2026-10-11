@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Impedance Z Simulator — Benedu Insight</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+
+/* ── 전체: 16:9 한 화면에 꼭 맞게. overflow:hidden ── */
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Google Sans', sans-serif;
+  background: #F4F6FA;
+  color: #1A2035;
+}
+
+/* ── Root layout: 세로 flex, 전체 뷰포트 높이 ── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 8px 12px 6px;
+  gap: 6px;
+}
+
+/* ── Header bar (얇게) ── */
+.hdr {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0; height: 28px;
+}
+.hdr-badge {
+  background: linear-gradient(135deg,#0F8C50,#7030A0);
+  color:#fff; font-size:0.65rem; font-weight:700;
+  padding:2px 8px; border-radius:12px;
+  letter-spacing:0.05em; text-transform:uppercase;
+}
+.hdr-title { font-size:0.9rem; font-weight:700; color:#1A2035; }
+.hdr-sub   { font-size:0.68rem; color:#6B7A90; margin-left:auto; }
+
+/* ── Formula row (수평으로 압축) ── */
+.formula-row {
+  flex-shrink: 0;
+  background: #fff; border: 1.5px solid #E2E8F0;
+  border-radius: 12px; padding: 8px 20px;
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  box-shadow: 0 1px 6px rgba(0,0,0,.05);
+}
+.f-main { display:flex; align-items:baseline; gap:5px; }
+.f-z  { font-size:2.2rem; font-weight:700; color:#7030A0; font-family:'Google Sans',sans-serif; }
+.f-eq { font-size:1.8rem; color:#9AA5B8; }
+.f-r  { font-size:2.2rem; font-weight:700; font-family:'Google Sans',sans-serif; transition:color .3s,text-shadow .3s; }
+.f-pm { font-size:1.8rem; font-family:'Google Sans',sans-serif; transition:color .3s; }
+.f-x  { font-size:2.2rem; font-weight:700; font-family:'Google Sans',sans-serif; transition:color .3s,text-shadow .3s; }
+.f-j  { font-size:1.8rem; font-weight:700; color:#1A2035; }
+
+.f-labels { display:flex; gap:28px; align-items:center; }
+.f-lbl-item { text-align:center; }
+.f-lbl-sym  { font-size:1.1rem; font-weight:700; font-family:'Google Sans',sans-serif; transition:color .3s; }
+.f-lbl-txt  { font-size:0.6rem; color:#6B7A90; }
+
+.f-vals {
+  flex: 1; min-width: 0;
+  background:#F8FAFC; border:1px solid #E2E8F0;
+  border-radius:8px; padding:5px 14px;
+  font-family:'Google Sans',sans-serif;
+  font-size:0.82rem; font-weight:500;
+  display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+}
+
+/* ── Main content row: wave | load ── */
+.main-row {
+  flex: 1; min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 6px;
+}
+
+/* ── Wave panel ── */
+.wave-panel {
+  background:#fff; border:1.5px solid #E2E8F0;
+  border-radius:12px; padding:8px 12px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.panel-title {
+  font-size:0.62rem; font-weight:700; color:#6B7A90;
+  text-transform:uppercase; letter-spacing:0.07em;
+  margin-bottom:4px; flex-shrink:0;
+}
+#waveCanvas {
+  flex:1; width:100%; display:block;
+  border-radius:6px; background:#FAFBFF;
+  border:1px solid #EEF2F8; min-height:0;
+}
+
+/* ── Load panel ── */
+.load-panel {
+  background:#fff; border:1.5px solid #E2E8F0;
+  border-radius:12px; padding:8px 6px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+  display:flex; flex-direction:column; align-items:center;
+  overflow:hidden;
+}
+#loadCanvas { display:block; flex:1; min-height:0; }
+
+/* ── Button bar (아래 고정) ── */
+.btn-bar {
+  flex-shrink:0;
+  background:#fff; border:1.5px solid #E2E8F0;
+  border-radius:10px; padding:7px 14px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.btn-lbl {
+  font-size:0.62rem; font-weight:700; color:#6B7A90;
+  text-transform:uppercase; letter-spacing:0.06em;
+  white-space:nowrap;
+}
+.btn-group { display:flex; flex-wrap:wrap; gap:6px; }
+.load-btn {
+  padding:4px 11px; border-radius:7px; border:1.5px solid;
+  background:transparent; font-family:'Google Sans',sans-serif;
+  font-size:0.72rem; font-weight:600; cursor:pointer;
+  transition:all .15s; white-space:nowrap;
+}
+.load-btn:hover { opacity:.85; transform:translateY(-1px); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="hdr">
+    <span class="hdr-badge">🧱 Benedu Insight</span>
+    <span class="hdr-title">Impedance Z Simulator</span>
+    <span class="hdr-sub">V = 100 V reference · Select load type below</span>
+  </div>
+
+  <!-- Formula row -->
+  <div class="formula-row">
+    <div class="f-main">
+      <span class="f-z">Z</span>
+      <span class="f-eq">=</span>
+      <span id="fR" class="f-r">R</span>
+      <span id="fPm" class="f-pm">±</span>
+      <span id="fX" class="f-x">X</span>
+      <span class="f-j">j</span>
+    </div>
+    <div class="f-labels">
+      <div class="f-lbl-item">
+        <div class="f-lbl-sym" style="color:#7030A0">Z</div>
+        <div class="f-lbl-txt">Impedance [Ω]</div>
+      </div>
+      <div class="f-lbl-item">
+        <div class="f-lbl-sym" id="lR">R</div>
+        <div class="f-lbl-txt">Resistance [Ω]</div>
+      </div>
+      <div class="f-lbl-item">
+        <div class="f-lbl-sym" id="lX">X</div>
+        <div class="f-lbl-txt">Reactance [Ω]</div>
+      </div>
+    </div>
+    <div class="f-vals" id="fVals">—</div>
+  </div>
+
+  <!-- Main row -->
+  <div class="main-row">
+    <div class="wave-panel">
+      <div class="panel-title">V(t) &amp; i(t) — Waveforms</div>
+      <canvas id="waveCanvas" data-aspect="2.2"></canvas>
+    </div>
+    <div class="load-panel">
+      <div class="panel-title" style="font-size:0.58rem">Load Symbol</div>
+      <canvas id="loadCanvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Button bar -->
+  <div class="btn-bar">
+    <span class="btn-lbl">Select Load Type :</span>
+    <div class="btn-group" id="btnRow"></div>
+  </div>
+
+</div>
+
+<script>
+const GREEN = '#0F8C50', BLACK = '#1A2035', DIM = '#C8D0DC';
+const GS    = "'Google Sans',sans-serif";
+const MONO  = "'JetBrains Mono',monospace";
+const Vref  = 100;
+
+const LOADS = {
+  resistive:  { R:20,   X:0,     phase:0,   label:'Resistive',        col:'#1A6FB5', Rhl:'green', Xhl:'black',  Xsign:0,  fR:'R',  fX:'0',  pmT:'+' },
+  inductive:  { R:0,    X:70.7,  phase:90,  label:'Pure Inductive',   col:'#C05A00', Rhl:'black', Xhl:'green',  Xsign:1,  fR:'0',  fX:'X',  pmT:'+' },
+  capacitive: { R:0,    X:-70.7, phase:-90, label:'Pure Capacitive',  col:'#5A22A0', Rhl:'black', Xhl:'green',  Xsign:-1, fR:'0',  fX:'X',  pmT:'−' },
+  'rlc-ind':  { R:30,   X:40,    phase:53,  label:'RLC (Inductive)',  col:'#0A6E3A', Rhl:'green', Xhl:'green',  Xsign:1,  fR:'R',  fX:'X',  pmT:'+' },
+  'rlc-cap':  { R:30,   X:-40,   phase:-53, label:'RLC (Capacitive)', col:'#9B1C1C', Rhl:'green', Xhl:'green',  Xsign:-1, fR:'R',  fX:'X',  pmT:'−' },
+  matched:    { R:50,   X:0,     phase:0,   label:'★ 50 Ω Match',    col:'#7B5800', Rhl:'green', Xhl:'black',  Xsign:0,  fR:'50', fX:'0',  pmT:'+' },
+};
+
+let current = 'resistive';
+let wCtx, wW, wH, lCtx, lW, lH;
+
+/* Build buttons */
+const btnRow = document.getElementById('btnRow');
+Object.entries(LOADS).forEach(([id, lp]) => {
+  const btn = document.createElement('button');
+  btn.className = 'load-btn';
+  btn.textContent = lp.label;
+  btn.dataset.id  = id;
+  btn.style.borderColor = lp.col;
+  btn.style.color       = lp.col;
+  btn.addEventListener('click', () => setLoad(id));
+  btnRow.appendChild(btn);
+});
+
+function setLoad(id) {
+  current = id;
+  document.querySelectorAll('.load-btn').forEach(btn => {
+    const lp  = LOADS[btn.dataset.id];
+    const act = btn.dataset.id === id;
+    btn.style.background = act ? lp.col : 'transparent';
+    btn.style.color      = act ? '#fff' : lp.col;
+  });
+  updateFormula();
+  drawWave();
+  drawLoad();
+}
+
+function colOf(c) { return c==='green'?GREEN : c==='black'?BLACK : DIM; }
+
+function updateFormula() {
+  const lp = LOADS[current];
+  const Rcol = colOf(lp.Rhl), Xcol = colOf(lp.Xhl);
+  const fR = document.getElementById('fR');
+  const fX = document.getElementById('fX');
+  fR.textContent = lp.fR; fR.style.color = Rcol; fR.style.textShadow = lp.Rhl==='green'?`0 0 18px ${GREEN}55`:'none';
+  fX.textContent = lp.fX; fX.style.color = Xcol; fX.style.textShadow = lp.Xhl==='green'?`0 0 18px ${GREEN}55`:'none';
+  document.getElementById('lR').style.color = Rcol;
+  document.getElementById('lX').style.color = Xcol;
+  const fPm = document.getElementById('fPm');
+  fPm.textContent = lp.pmT;
+  fPm.style.color = lp.Xsign<0?'#5A22A0':lp.Xsign>0?'#C05A00':'#9AA5B8';
+
+  const Zmag  = Math.sqrt(lp.R*lp.R+lp.X*lp.X);
+  const Iamp  = Zmag>0 ? (Vref/Zmag).toFixed(3) : '∞';
+  const Xdisp = (lp.X>=0?'+':'')+lp.X;
+  const char  = lp.Xsign===0?'Purely Resistive':lp.Xsign>0?'Inductive (+jX)':'Capacitive (−jX)';
+  document.getElementById('fVals').innerHTML =
+    `<span style="color:${Rcol};font-weight:700">R=${lp.R}Ω</span><span style="color:#ccc">|</span>`+
+    `<span style="color:${Xcol};font-weight:700">X=${Xdisp}Ω</span><span style="color:#ccc">|</span>`+
+    `<span style="color:#0A4A7A;font-weight:700">|Z|=${Zmag.toFixed(1)}Ω</span><span style="color:#ccc">|</span>`+
+    `<span style="color:#5A22A0;font-weight:700">θ=${lp.phase}°</span><span style="color:#ccc">|</span>`+
+    `<span style="color:${lp.col};font-weight:700">${char}</span><span style="color:#ccc">|</span>`+
+    `<span style="color:#1A2035">V=${Vref}V → i=${Iamp}A</span>`;
+}
+
+/* ── Wave canvas: size from DOM ── */
+function resizeWave() {
+  const el  = document.getElementById('waveCanvas');
+  const dpr = window.devicePixelRatio||1;
+  const W   = el.offsetWidth, H = el.offsetHeight;
+  if (!W || !H) return;
+  el.width  = Math.round(W*dpr);
+  el.height = Math.round(H*dpr);
+  wCtx = el.getContext('2d'); wCtx.scale(dpr,dpr);
+  wW = W; wH = H;
+}
+
+function resizeLoad() {
+  const el  = document.getElementById('loadCanvas');
+  const dpr = window.devicePixelRatio||1;
+  const W   = el.offsetWidth, H = el.offsetHeight;
+  if (!W || !H) return;
+  el.width  = Math.round(W*dpr); el.height = Math.round(H*dpr);
+  lCtx = el.getContext('2d'); lCtx.scale(dpr,dpr);
+  lW = W; lH = H;
+}
+
+function drawWave() {
+  if (!wCtx||!wW||!wH) return;
+  const lp  = LOADS[current];
+  const phR = lp.phase*Math.PI/180;
+  const W=wW, H=wH;
+  const Zmag = Math.sqrt(lp.R*lp.R+lp.X*lp.X);
+  const Iratio = Zmag>0?Vref/Zmag:0;
+
+  wCtx.clearRect(0,0,W,H);
+  wCtx.fillStyle='#FAFBFF'; wCtx.fillRect(0,0,W,H);
+
+  const topM=38,botM=42,midM=22;
+  const panH=(H-topM-botM-midM)/2;
+  const p1Y=topM+panH*.5, p2Y=topM+panH+midM+panH*.5;
+  const ampV=panH*.40, ampI=ampV*Math.min(1,Iratio/3);
+  const freq=2.0, omega=Math.PI*2*freq;
+  const xL=32, xR=W-12, xSpan=xR-xL;
+
+  // Panels
+  wCtx.fillStyle='#F0F5FF'; wCtx.fillRect(xL,topM,xSpan,panH);
+  wCtx.fillStyle='#FFF3F0'; wCtx.fillRect(xL,topM+panH+midM,xSpan,panH);
+  // Grid
+  wCtx.strokeStyle='#E8ECF4'; wCtx.lineWidth=.7;
+  [.25,.5,.75].forEach(f=>{
+    wCtx.beginPath(); wCtx.moveTo(xL,topM+panH*f); wCtx.lineTo(xR,topM+panH*f); wCtx.stroke();
+    wCtx.beginPath(); wCtx.moveTo(xL,topM+panH+midM+panH*f); wCtx.lineTo(xR,topM+panH+midM+panH*f); wCtx.stroke();
+    const x=xL+xSpan*f; wCtx.beginPath(); wCtx.moveTo(x,topM); wCtx.lineTo(x,H-botM); wCtx.stroke();
+  });
+  // Zero axes
+  wCtx.strokeStyle='#9AA5B8'; wCtx.lineWidth=1.1;
+  wCtx.beginPath(); wCtx.moveTo(xL,p1Y); wCtx.lineTo(xR,p1Y); wCtx.stroke();
+  wCtx.beginPath(); wCtx.moveTo(xL,p2Y); wCtx.lineTo(xR,p2Y); wCtx.stroke();
+
+  // V(t)
+  wCtx.strokeStyle='#1A6FB5'; wCtx.lineWidth=2.4;
+  wCtx.beginPath();
+  for(let px=xL;px<=xR;px++){const xn=(px-xL)/xSpan; const vy=p1Y-ampV*Math.sin(omega*xn); px===xL?wCtx.moveTo(px,vy):wCtx.lineTo(px,vy);}
+  wCtx.stroke();
+  // i(t)
+  wCtx.strokeStyle='#C0392B'; wCtx.lineWidth=2.4;
+  wCtx.beginPath();
+  for(let px=xL;px<=xR;px++){const xn=(px-xL)/xSpan; const iy=p2Y-ampI*Math.sin(omega*xn-phR); px===xL?wCtx.moveTo(px,iy):wCtx.lineTo(px,iy);}
+  wCtx.stroke();
+
+  // Phase annotation
+  if(Math.abs(lp.phase)>1){
+    const vPkX=xL+xSpan*(.25/freq);
+    const iPkX=xL+xSpan*((Math.PI/2+phR)/(omega));
+    const inRng=x=>x>xL+8&&x<xR-8;
+    if(inRng(vPkX)&&inRng(iPkX)){
+      wCtx.strokeStyle='#D4700A'; wCtx.lineWidth=1.2; wCtx.setLineDash([4,3]);
+      wCtx.beginPath(); wCtx.moveTo(vPkX,topM+2); wCtx.lineTo(vPkX,H-botM-2); wCtx.stroke();
+      wCtx.beginPath(); wCtx.moveTo(iPkX,topM+2); wCtx.lineTo(iPkX,H-botM-2); wCtx.stroke();
+      wCtx.setLineDash([]);
+      const arrY=topM+panH+midM*.5;
+      wCtx.strokeStyle='#D4700A'; wCtx.lineWidth=1.8;
+      wCtx.beginPath(); wCtx.moveTo(vPkX,arrY); wCtx.lineTo(iPkX,arrY); wCtx.stroke();
+      const dir=iPkX>vPkX?1:-1;
+      wCtx.fillStyle='#D4700A';
+      wCtx.beginPath(); wCtx.moveTo(iPkX,arrY); wCtx.lineTo(iPkX-dir*8,arrY-4); wCtx.lineTo(iPkX-dir*8,arrY+4); wCtx.fill();
+      const mid=(vPkX+iPkX)/2;
+      wCtx.fillStyle='#5A2800'; wCtx.font=`bold 10px ${MONO}`; wCtx.textAlign='center';
+      wCtx.fillText(`Δφ = ${lp.phase}°`,mid,arrY-8);
+      wCtx.fillStyle='#8A4A00'; wCtx.font=`9px ${GS}`;
+      wCtx.fillText(lp.phase>0?'i lags V':'i leads V',mid,arrY+16);
+      wCtx.fillStyle='#1A6FB5'; wCtx.beginPath(); wCtx.arc(vPkX,p1Y-ampV,5,0,Math.PI*2); wCtx.fill();
+      wCtx.fillStyle='#C0392B'; wCtx.beginPath(); wCtx.arc(iPkX,p2Y-ampI,5,0,Math.PI*2); wCtx.fill();
+    }
+  } else {
+    const bw=220,bh=20,bx=W/2-bw/2,by=topM+panH+midM*.5-10;
+    wCtx.fillStyle='#E8FFF4'; wCtx.strokeStyle=GREEN; wCtx.lineWidth=1;
+    wCtx.beginPath(); if(wCtx.roundRect)wCtx.roundRect(bx,by,bw,bh,4); else wCtx.rect(bx,by,bw,bh);
+    wCtx.fill(); wCtx.stroke();
+    wCtx.fillStyle=GREEN; wCtx.font=`bold 10px ${GS}`; wCtx.textAlign='center';
+    wCtx.fillText('✔  V and i IN PHASE  (θ = 0°)',W/2,by+14);
+  }
+
+  // Labels
+  wCtx.textAlign='left';
+  wCtx.fillStyle='#1A6FB5'; wCtx.font=`bold 11px ${GS}`; wCtx.fillText('V(t)',xL+2,topM-7);
+  wCtx.fillStyle='#6B7A90'; wCtx.font=`8px ${GS}`; wCtx.fillText(`Voltage (${Vref}V)`,xL+2,topM-18);
+  wCtx.fillStyle='#C0392B'; wCtx.font=`bold 11px ${GS}`; wCtx.fillText('i(t)',xL+2,topM+panH+midM-7);
+  const Zmag2=Math.sqrt(lp.R*lp.R+lp.X*lp.X);
+  const Ishow=Zmag2>0?(Vref/Zmag2).toFixed(2)+'A':'∞A';
+  wCtx.fillStyle='#6B7A90'; wCtx.font=`8px ${GS}`; wCtx.fillText(`Current (${Ishow})`,xL+2,topM+panH+midM-18);
+  // Info bar
+  const iY=H-botM+3;
+  wCtx.fillStyle='#fff'; wCtx.strokeStyle='#E2E8F0'; wCtx.lineWidth=1;
+  wCtx.beginPath(); if(wCtx.roundRect)wCtx.roundRect(xL,iY,xSpan,botM-5,5); else wCtx.rect(xL,iY,xSpan,botM-5);
+  wCtx.fill(); wCtx.stroke();
+  wCtx.textAlign='left'; wCtx.fillStyle=lp.col; wCtx.font=`bold 9px ${GS}`;
+  wCtx.fillText(lp.label,xL+8,iY+12);
+  wCtx.fillStyle='#6B7A90'; wCtx.font=`8px ${GS}`;
+  wCtx.fillText(`R=${lp.R}Ω  X=${lp.X>=0?'+':''}${lp.X}Ω`,xL+8,iY+24);
+  wCtx.textAlign='right'; wCtx.fillStyle='#0A4A7A'; wCtx.font=`bold 9px ${MONO}`;
+  wCtx.fillText(`|Z|=${Zmag2.toFixed(1)}Ω`,xR-6,iY+12);
+  wCtx.fillStyle='#5A22A0'; wCtx.fillText(`θ=${lp.phase}°`,xR-6,iY+24);
+  wCtx.textAlign='left';
+}
+
+function drawLoad() {
+  if(!lCtx||!lW||!lH) return;
+  const W=lW, H=lH, cx=W/2;
+  const lp=LOADS[current], type=current, col=lp.col;
+  lCtx.clearRect(0,0,W,H);
+  lCtx.fillStyle='#FAFBFF'; lCtx.fillRect(0,0,W,H);
+
+  lCtx.fillStyle=col; lCtx.font=`bold 9px ${GS}`; lCtx.textAlign='center';
+  lCtx.fillText(lp.label,cx,14);
+  // Wire top
+  lCtx.strokeStyle='#1A6FB5'; lCtx.lineWidth=2;
+  lCtx.beginPath(); lCtx.moveTo(cx,18); lCtx.lineTo(cx,H*.18); lCtx.stroke();
+
+  const cTop=H*.18, cBot=H*.72;
+  const compH=cBot-cTop;
+
+  if(type==='resistive'||type==='matched'){
+    const rw=Math.min(40,W*.55), rh=compH*.85, rx=cx-rw/2, ry=cTop;
+    lCtx.fillStyle=col+'18'; lCtx.strokeStyle=col; lCtx.lineWidth=1.8;
+    lCtx.beginPath(); if(lCtx.roundRect)lCtx.roundRect(rx,ry,rw,rh,4); else lCtx.rect(rx,ry,rw,rh);
+    lCtx.fill(); lCtx.stroke();
+    lCtx.strokeStyle=col; lCtx.lineWidth=1.4;
+    lCtx.beginPath();
+    const steps=7,sh=rh-8,sv=sh/steps;
+    lCtx.moveTo(rx+3,ry+4);
+    for(let i=0;i<steps;i++) lCtx.lineTo(rx+(i%2===0?rw-3:3),ry+4+sv*(i+.5));
+    lCtx.lineTo(rx+3,ry+rh-4); lCtx.stroke();
+    lCtx.fillStyle=col; lCtx.font=`bold 11px ${MONO}`; lCtx.textAlign='center';
+    lCtx.fillText(type==='matched'?'50Ω':`${lp.R}Ω`,cx,cBot+14);
+    lCtx.strokeStyle='#1A6FB5'; lCtx.lineWidth=2;
+    lCtx.beginPath(); lCtx.moveTo(cx,ry+rh); lCtx.lineTo(cx,cBot); lCtx.stroke();
+
+  } else if(type==='inductive'){
+    const nL=4, lR=compH/(nL*2+.5)*.9;
+    lCtx.strokeStyle=col; lCtx.lineWidth=2.4;
+    lCtx.beginPath(); lCtx.moveTo(cx,cTop);
+    for(let i=0;i<nL;i++) lCtx.arc(cx,cTop+lR+i*lR*2,lR,-Math.PI/2,Math.PI/2,false);
+    lCtx.stroke();
+    lCtx.fillStyle=col; lCtx.font=`bold 11px ${MONO}`; lCtx.textAlign='center';
+    lCtx.fillText('L',cx,cTop+nL*lR*2+14);
+    lCtx.strokeStyle='#1A6FB5'; lCtx.lineWidth=2;
+    lCtx.beginPath(); lCtx.moveTo(cx,cTop+nL*lR*2); lCtx.lineTo(cx,cBot); lCtx.stroke();
+
+  } else if(type==='capacitive'){
+    const pW=Math.min(44,W*.6),pSep=10,pThk=4,pMid=(cTop+cBot)/2;
+    lCtx.fillStyle=col;
+    lCtx.fillRect(cx-pW/2,pMid-pSep/2-pThk,pW,pThk);
+    lCtx.fillRect(cx-pW/2,pMid+pSep/2,pW,pThk);
+    lCtx.strokeStyle='#1A6FB5'; lCtx.lineWidth=2;
+    lCtx.beginPath(); lCtx.moveTo(cx,cTop); lCtx.lineTo(cx,pMid-pSep/2-pThk); lCtx.stroke();
+    lCtx.beginPath(); lCtx.moveTo(cx,pMid+pSep/2+pThk); lCtx.lineTo(cx,cBot); lCtx.stroke();
+    lCtx.fillStyle=col; lCtx.font=`bold 11px ${MONO}`; lCtx.textAlign='center';
+    lCtx.fillText('C',cx,cBot+14);
+
+  } else {
+    const bH=compH/4,gap=bH*.2,sY=cTop;
+    [['R',LOADS.resistive.col],['L',LOADS.inductive.col],['C',LOADS.capacitive.col]].forEach(([s,sc],i)=>{
+      const by=sY+i*(bH+gap);
+      lCtx.fillStyle=sc+'22'; lCtx.strokeStyle=sc; lCtx.lineWidth=1.5;
+      lCtx.beginPath(); if(lCtx.roundRect)lCtx.roundRect(cx-22,by,44,bH,3); else lCtx.rect(cx-22,by,44,bH);
+      lCtx.fill(); lCtx.stroke();
+      lCtx.fillStyle=sc; lCtx.font=`bold 9px ${MONO}`; lCtx.textAlign='center';
+      lCtx.fillText(s,cx,by+bH*.68);
+    });
+    lCtx.fillStyle=col; lCtx.font=`bold 9px ${MONO}`; lCtx.textAlign='center';
+    lCtx.fillText('RLC',cx,cBot+14);
+    lCtx.strokeStyle='#1A6FB5'; lCtx.lineWidth=2;
+    const stackBot=sY+3*(bH+gap)-gap+bH;
+    lCtx.beginPath(); lCtx.moveTo(cx,stackBot); lCtx.lineTo(cx,cBot); lCtx.stroke();
+  }
+
+  // Wire bottom + ground
+  lCtx.strokeStyle='#1A6FB5'; lCtx.lineWidth=2;
+  lCtx.beginPath(); lCtx.moveTo(cx,cBot); lCtx.lineTo(cx,H-22); lCtx.stroke();
+  lCtx.strokeStyle='#6B7A90'; lCtx.lineWidth=1.8;
+  [[20,0],[13,6],[7,12]].forEach(([w,dy])=>{
+    lCtx.beginPath(); lCtx.moveTo(cx-w/2,H-22+dy); lCtx.lineTo(cx+w/2,H-22+dy); lCtx.stroke();
+  });
+}
+
+/* ── Init & resize ── */
+function init() {
+  resizeWave(); resizeLoad();
+  setLoad('resistive');
+}
+
+let rsz;
+window.addEventListener('resize',()=>{ clearTimeout(rsz); rsz=setTimeout(()=>{ resizeWave(); resizeLoad(); drawWave(); drawLoad(); },100); });
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
