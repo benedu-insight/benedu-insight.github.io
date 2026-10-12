@@ -1313,6 +1313,11 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
 /* ---- ch09 ---- */
 .zv-key{margin-top:auto;background:#0d1824;color:rgba(255,255,255,.8);border-radius:14px;padding:10px 14px;font-size:13.5px;line-height:1.45}
 .zv-key b{color:#ffd166}
+.zk-q{font-weight:800;color:#fff;margin-bottom:4px}
+.zk-i{padding-left:4px}
+.v-c{color:#2f7fd8;font-weight:700}.i-c{color:#e0474c;font-weight:700}
+.v-d{color:#6cb6ff;font-weight:800}.i-d{color:#ff7a7e;font-weight:800}
+.zv-em{font-style:normal;color:#e0474c;background:rgba(224,71,76,.12);padding:1px 5px;border-radius:5px;font-weight:800}
 .w8-lab .cx-row{padding:8px 0;font-size:13.5px}
 .w8-lab .cx-row b{font-size:14px}
 /* ---- ch10 ---- */
@@ -1324,8 +1329,29 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
 /* ---- ch11 ---- */
 .gb-list{left:760px}
 .rg-note{margin-top:auto;font-size:12.5px;color:var(--steel);line-height:1.4}
+#zvP .t-en,#zvP .t-ko{font-size:15px;font-weight:700;color:var(--ink)}
 
 </style>
+<script id="benedu-nav-bridge">
+/* Benedu viewer bridge — every chapter → chapter jump goes through basic_course2.html,
+   so members-only chapters always pass the membership gate. */
+(function(){
+  var framed = true; try { framed = window.top !== window.self; } catch (e) {}
+  var me = (location.pathname.match(/basic_chapter_(\d{2})\.html$/) || [])[1];
+  // opened directly (not inside the viewer) → reopen through the viewer
+  if (!framed && me) { location.replace('basic_course2.html?c=' + me + location.hash); return; }
+  window.__bnav = function (url) {
+    var t = String(url).match(/basic_chapter_(\d{2})\.html(#[\w-]*)?$/);
+    if (t && framed) { window.parent.postMessage({ type: 'benedu-nav', chapter: +t[1], hash: t[2] || '' }, '*'); return; }
+    location.href = url;
+  };
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || (a.target && a.target !== '_self')) return;
+    if (/^basic_chapter_\d{2}\.html(#[\w-]*)?$/.test(a.getAttribute('href'))) { e.preventDefault(); e.stopPropagation(); window.__bnav(a.getAttribute('href')); }
+  }, true);
+})();
+</script>
 </head>
 <body>
 <div class="stage"><div class="deck" id="deck" data-doc="BASIC · CHAPTER 11 — RF GENERATOR &amp; SENSING" data-prev="basic_chapter_10.html">
@@ -1549,10 +1575,10 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
   <a class="logo-link" href="https://benedu-insight.github.io/" target="_blank" rel="noopener" title="Benedu Insight"><img class="logo-tr" src="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_logo_EN_horizontal.png" alt=""></a>
 <div class="slide-note">
 <div class="t-en">
-<p>Chapters 7 to 11 followed RF power from the wall socket to the plasma. Chapter 7: RF power, 13.56 MHz, and how fields become voltage and current. Chapter 8: waves on a cable, reflection, Γ and VSWR, and why everything is built for 50 Ω. Chapter 9: impedance, the language for loads that burn and store energy, and the plasma as a moving R + jX.</p><p>Chapter 10: matching with parts that store, Load and Tune, the Smith chart and automatic matching. Chapter 11: the Generator that makes the power, the sensors that watch it, and the loops that keep it steady.</p><p>The intermediate modules go deeper into each topic: transmission lines and the standing wave, the full Smith chart, matching network design and RF sources.</p>
+<p>Chapters 7 to 11 followed RF power from the wall socket to the plasma. Chapter 7: RF power, 13.56 MHz, and how fields become voltage and current. Chapter 8: waves on a cable, reflection, Γ and VSWR, and why everything is built for 50 Ω. Chapter 9: impedance, the language for loads that consume and store energy, and the plasma as a moving R + jX.</p><p>Chapter 10: matching with parts that store, Load and Tune, the Smith chart and automatic matching. Chapter 11: the Generator that makes the power, the sensors that watch it, and the loops that keep it steady.</p><p>The intermediate modules go deeper into each topic: transmission lines and the standing wave, the full Smith chart, matching network design and RF sources.</p>
 </div>
 <div class="t-ko">
-<p>Chapter 07부터 11까지 RF 전력을 벽의 콘센트에서 플라즈마까지 따라갔습니다. 7장: RF 전력, 13.56 MHz, 장(場)이 전압과 전류가 되는 방법. 8장: 케이블 위의 파동, 반사, Γ와 VSWR, 모든 것이 50 Ω으로 만들어지는 이유. 9장: 에너지를 태우고 저장하는 부하를 말하는 언어인 임피던스, 그리고 움직이는 R + jX로서의 플라즈마.</p><p>10장: 저장하는 부품으로 하는 매칭, Load와 Tune, Smith Chart와 자동 매칭. 11장: 전력을 만드는 Generator, 그것을 지켜보는 센서, 그리고 전력을 안정되게 지키는 고리들.</p><p>중급 모듈에서는 각 주제를 더 깊이 다룹니다. 전송선로와 정재파, Smith Chart 전체, 매칭 네트워크 설계, RF 소스입니다.</p>
+<p>Chapter 07부터 11까지 RF 전력을 벽의 콘센트에서 플라즈마까지 따라갔습니다. 7장: RF 전력, 13.56 MHz, 장(場)이 전압과 전류가 되는 방법. 8장: 케이블 위의 파동, 반사, Γ와 VSWR, 모든 것이 50 Ω으로 만들어지는 이유. 9장: 에너지를 소비하고 저장하는 부하를 말하는 언어인 임피던스, 그리고 움직이는 R + jX로서의 플라즈마.</p><p>10장: 저장하는 부품으로 하는 매칭, Load와 Tune, Smith Chart와 자동 매칭. 11장: 전력을 만드는 Generator, 그것을 지켜보는 센서, 그리고 전력을 안정되게 지키는 고리들.</p><p>중급 모듈에서는 각 주제를 더 깊이 다룹니다. 전송선로와 정재파, Smith Chart 전체, 매칭 네트워크 설계, RF 소스입니다.</p>
 </div>
 </div>
 </section>
@@ -1686,8 +1712,8 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
     step = atEnd ? maxStep(slides[idx]) : 0;
     render();
   }
-  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } else if(deck.dataset.next){ location.href = deck.dataset.next; } }
-  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } else if(deck.dataset.prev){ location.href = deck.dataset.prev + '#end'; } }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } else if(deck.dataset.next){ window.__bnav(deck.dataset.next); } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } else if(deck.dataset.prev){ window.__bnav(deck.dataset.prev + '#end'); } }
 
   /* ---- notes ---- */
   var notes = document.getElementById('notes');
@@ -2706,12 +2732,12 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
     var BOX = {a: [50, 0], b: [20, 0], c: [50, 90], d: [50, -90]};
     function upd(){ var b = BOX[box], I = 100/b[0];
       $i('zvV').textContent = '100 V'; $i('zvI').textContent = I.toFixed(1) + ' A'; $i('zvZ').textContent = b[0] + ' Ω';
-      $i('zvP').innerHTML = b[1] === 0 ? dual('same time','같은 시각') : b[1] > 0 ? dual('¼ cycle late','¼ 주기 늦음') : dual('¼ cycle early','¼ 주기 이름');
+      $i('zvP').innerHTML = b[1] === 0 ? dual('in step','같은 박자') : b[1] > 0 ? dual('<span class="i-c">current</span> ¼ cycle behind','<span class="i-c">전류</span> ¼ 주기 늦음') : dual('<span class="i-c">current</span> ¼ cycle ahead','<span class="i-c">전류</span> ¼ 주기 앞섬');
       var el = $i('zvT'); el.className = 'mf-st ' + (b[1] === 0 ? 'ok' : 'lo');
       el.innerHTML = box === 'a' ? dual('● Box A: 2 A in step with the voltage. It behaves like a 50 Ω resistor.','● 상자 A: 전압과 같은 박자로 2 A. 50 Ω 저항처럼 행동합니다.')
         : box === 'b' ? dual('● Box B: more current (5 A), so a smaller |Z| = 20 Ω. Still in step.','● 상자 B: 전류가 더 많아(5 A) |Z| = 20 Ω으로 작습니다. 박자는 같습니다.')
-        : box === 'c' ? dual('● Box C: same size as A, but the current is late. Something inside stores energy, like a coil.','● 상자 C: 크기는 A와 같지만 전류가 늦습니다. 안에서 코일처럼 에너지를 저장합니다.')
-        : dual('● Box D: same size as A, but the current is early. It stores energy like a capacitor.','● 상자 D: 크기는 A와 같지만 전류가 이릅니다. 커패시터처럼 에너지를 저장합니다.'); }
+        : box === 'c' ? dual('● Box C: same size as A, but <em class="zv-em">the current lags</em>. Something inside stores energy, like a coil.','● 상자 C: 크기는 A와 같지만 <em class="zv-em">전류가 늦습니다</em>. 안에서 코일처럼 에너지를 저장합니다.')
+        : dual('● Box D: same size as A, but <em class="zv-em">the current leads</em>. It stores energy like a capacitor.','● 상자 D: 크기는 A와 같지만 <em class="zv-em">전류가 앞섭니다</em>. 커패시터처럼 에너지를 저장합니다.'); }
     chipSet([].slice.call(slide.querySelectorAll('[data-zv]')), function(b){ box = b.dataset.zv; upd(); }); upd();
     function draw(dt){
       t += dt; var ko = KOx(), b = BOX[box], ph = b[1]*Math.PI/180, Ia = (100/b[0])/5;
@@ -2738,7 +2764,7 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
       var per = 6.283*sp/w, base = X1 - ((w*t - Math.PI/2) % 6.283)*sp/w; while(base > X1 - 150) base -= per; while(base < X0 + 90) base += per;
       var xi = base + (ph/w)*sp; cx.setLineDash([3,3]); cx.lineWidth = 1; cx.strokeStyle = 'rgba(77,163,255,.6)'; cx.beginPath(); cx.moveTo(base, yc - a - 6); cx.lineTo(base, yc + a + 8); cx.stroke();
       cx.strokeStyle = 'rgba(255,90,95,.6)'; cx.beginPath(); cx.moveTo(xi, yc - a*Ia - 6); cx.lineTo(xi, yc + a + 8); cx.stroke(); cx.setLineDash([]);
-      if(Math.abs(xi - base) > 4){ arrow(cx, base, yc + a + 4, xi, yc + a + 4, YEL, 1.6, 7); txt(cx, b[1] > 0 ? (ko ? '전류가 ¼ 주기 늦음' : 'current ¼ cycle late') : (ko ? '전류가 ¼ 주기 이름' : 'current ¼ cycle early'), (base + xi)/2, yc + a + 18, '700 10px Inter,"Pretendard",sans-serif', YEL, 'center'); }
+      if(Math.abs(xi - base) > 4){ arrow(cx, base, yc + a + 4, xi, yc + a + 4, YEL, 1.6, 7); txt(cx, b[1] > 0 ? (ko ? '전류가 ¼ 주기 늦음' : 'current ¼ cycle behind') : (ko ? '전류가 ¼ 주기 앞섬' : 'current ¼ cycle ahead'), (base + xi)/2, yc + a + 18, '700 10px Inter,"Pretendard",sans-serif', YEL, 'center'); }
       else txt(cx, ko ? '전압과 전류가 같은 시각에 꼭대기' : 'V and I peak at the same time', base, yc + a + 18, '700 10px Inter,"Pretendard",sans-serif', '#8fe0b0', 'center');
       txt(cx, 'V 100 V', X0, 176, FM, '#6fb6ff', 'left'); txt(cx, 'I ' + (100/b[0]).toFixed(1) + ' A', X0 + 80, 176, FM, '#ff7a7e', 'left');
       arrow(cx, X1 - 60, 176, X1, 176, 'rgba(255,255,255,.5)', 1.2, 6); txt(cx, ko ? '시간 →' : 'time →', X1 - 66, 176, FT, 'rgba(255,255,255,.5)', 'right');
@@ -2746,14 +2772,14 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
     runOn(cv, draw);
   })();
 
-  /* ================= 3 · burn or store ================= */
+  /* ================= 3 · consume or store ================= */
   (function(){
     var cv = $i('bsCv'); if(!cv) return;
     var cx = cv.getContext('2d'), W = 560, H = 400, slide = cv.closest('.slide'), t = 0, kind = 'r', heat = 0, smoke = [];
     function upd(){ var el = $i('bsT'); el.className = 'mf-st ' + (kind === 'r' ? 'lo' : 'ok');
-      el.innerHTML = kind === 'r' ? dual('● Resistor: energy flows one way only and becomes heat.','● 저항: 에너지가 한쪽으로만 흐르고 열이 됩니다.')
-        : kind === 'l' ? dual('● Coil: energy fills the magnetic field, then flows back. Net: zero.','● 코일: 에너지가 자기장을 채웠다가 다시 돌아갑니다. 합계: 0.')
-        : dual('● Capacitor: energy fills the electric field, then flows back. Net: zero.','● 커패시터: 에너지가 전기장을 채웠다가 다시 돌아갑니다. 합계: 0.'); }
+      el.innerHTML = kind === 'r' ? dual('● Resistor: energy flows one way only and is consumed as heat.','● 저항: 에너지가 한쪽으로만 흐르고 열로 소비됩니다.')
+        : kind === 'l' ? dual('● Coil: energy fills the magnetic field, then flows back. Consumed: zero.','● 코일: 에너지가 자기장을 채웠다가 다시 돌아갑니다. 소비: 0.')
+        : dual('● Capacitor: energy fills the electric field, then flows back. Consumed: zero.','● 커패시터: 에너지가 전기장을 채웠다가 다시 돌아갑니다. 소비: 0.'); }
     chipSet([].slice.call(slide.querySelectorAll('[data-bs]')), function(b){ kind = b.dataset.bs; heat = 0; smoke = []; upd(); }); upd();
     function draw(dt){
       t += dt; var ko = KOx(), w = 1.5, ph = kind === 'r' ? 0 : kind === 'l' ? Math.PI/2 : -Math.PI/2;
@@ -2782,16 +2808,24 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
         var q = Math.round(Math.abs(va)*4); for(var s2=0;s2<q;s2++){ txt(cx, va > 0 ? '+' : '−', PX - 18 + s2*12, Y - 18, '800 11px Inter,sans-serif', va > 0 ? '#ff8fb6' : '#8fc4ee', 'center'); txt(cx, va > 0 ? '−' : '+', PX - 18 + s2*12, Y + 18, '800 11px Inter,sans-serif', va > 0 ? '#8fc4ee' : '#ff8fb6', 'center'); }
         txt(cx, ko ? '전기장 E' : 'electric field E', PX + 40, Y - 40, FB, BLU, 'left'); }
       // energy meter
-      var MX = 470, MY0 = 46, MH = 150; rrx(cx, MX, MY0, 30, MH, 8); cx.fillStyle = 'rgba(255,255,255,.06)'; cx.fill();
+      var MX = 470, MY0 = 46, MH = 128; rrx(cx, MX, MY0, 30, MH, 8); cx.fillStyle = 'rgba(255,255,255,.06)'; cx.fill();
       var lvl; if(kind === 'r'){ heat += mag*mag*dt*0.18; if(heat > 1) heat = 0; lvl = heat; } else lvl = kind === 'l' ? i*i : v*v;
       cx.save(); rrx(cx, MX, MY0, 30, MH, 8); cx.clip(); cx.fillStyle = kind === 'r' ? ORG : kind === 'l' ? RED : BLU; cx.fillRect(MX, MY0 + MH*(1 - lvl), 30, MH*lvl); cx.restore();
       txt(cx, kind === 'r' ? (ko ? '열 (누적)' : 'heat (total)') : (ko ? '저장된 에너지' : 'stored energy'), MX + 15, MY0 + MH + 14, '700 9.5px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.7)', 'center');
+      // voltage and current trace
+      var X0 = 40, X1 = W - 30, sp = 80, y1 = 258, a1 = 24;
+      txt(cx, ko ? '전압 V' : 'voltage V', X0, 216, FB, BLU, 'left'); txt(cx, ko ? '전류 I' : 'current I', X0 + 64, 216, FB, RED, 'left');
+      txt(cx, ko ? '시간 →' : 'time →', X1, 216, '600 9.5px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.5)', 'right');
+      cx.strokeStyle = 'rgba(255,255,255,.15)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(X0, y1); cx.lineTo(X1, y1); cx.stroke();
+      [[0, BLU, a1], [ph, RED, a1*0.8]].forEach(function(q){ cx.strokeStyle = q[1]; cx.lineWidth = 2; cx.beginPath(); for(var x = X0; x <= X1; x += 2){ var th = w*(t - (X1 - x)/sp), yy = y1 - Math.sin(th - q[0])*q[2]; x === X0 ? cx.moveTo(x, yy) : cx.lineTo(x, yy); } cx.stroke(); });
+      dot(cx, X1, y1 - v*a1, 3.5, BLU); dot(cx, X1, y1 - i*a1*0.8, 3.5, RED);
       // power trace
-      var X0 = 40, X1 = W - 30, yc = 318, a = 52, sp = 80;
-      txt(cx, ko ? '순간 전력 P = V × I' : 'instant power P = V × I', X0, 240, FB, YEL, 'left');
+      var yc = 344, a = 34;
+      txt(cx, ko ? '순간 전력 P = V × I' : 'instant power P = V × I', X0, 300, FB, YEL, 'left');
       for(var x = X0; x < X1; x += 2){ var th = w*(t - (X1 - x)/sp), pw = Math.sin(th)*Math.sin(th - ph); cx.fillStyle = pw >= 0 ? 'rgba(255,209,102,.55)' : 'rgba(170,140,255,.55)'; cx.fillRect(x, pw >= 0 ? yc - pw*a : yc, 2.4, Math.abs(pw)*a); }
       cx.strokeStyle = 'rgba(255,255,255,.2)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(X0, yc); cx.lineTo(X1, yc); cx.stroke();
-      dot(cx, X1, yc - p*a, 4, '#fff'); txt(cx, ko ? '지금' : 'now', X1, yc + 14 + (p < 0 ? -p*a : 0), '600 9px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.6)', 'center');
+      dot(cx, X1, yc - p*a, 4, '#fff'); cx.strokeStyle = 'rgba(255,255,255,.25)'; cx.setLineDash([3,3]); cx.beginPath(); cx.moveTo(X1, 226); cx.lineTo(X1, yc + 20); cx.stroke(); cx.setLineDash([]);
+      txt(cx, ko ? '지금' : 'now', X1, yc + 28, '600 9px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.6)', 'center');
       txt(cx, ko ? '노랑 = 부품으로 · 보라 = 전원으로 되돌아옴' : 'yellow = into the part · purple = back to the source', 18, H - 14, '500 10px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.5)', 'left');
     }
     runOn(cv, draw);
@@ -2914,7 +2948,7 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
       cx.fillStyle = 'rgba(255,90,95,.06)'; cx.fillRect(PX0, PY0, PX1 - PX0, py(0) - PY0); cx.fillStyle = 'rgba(77,163,255,.06)'; cx.fillRect(PX0, py(0), PX1 - PX0, PY1 - py(0));
       cx.lineWidth = 1; for(var r=0;r<=100;r+=25){ cx.strokeStyle = 'rgba(255,255,255,.08)'; cx.beginPath(); cx.moveTo(px(r), PY0); cx.lineTo(px(r), PY1); cx.stroke(); txt(cx, r + '', px(r), PY1 + 12, '600 9px "JetBrains Mono",monospace', 'rgba(255,255,255,.45)', 'center'); }
       for(var x=-120;x<=120;x+=40){ cx.strokeStyle = x === 0 ? 'rgba(255,255,255,.4)' : 'rgba(255,255,255,.08)'; cx.beginPath(); cx.moveTo(PX0, py(x)); cx.lineTo(PX1, py(x)); cx.stroke(); txt(cx, (x > 0 ? '+j' : x < 0 ? '−j' : '') + Math.abs(x), PX0 - 6, py(x), '600 9px "JetBrains Mono",monospace', 'rgba(255,255,255,.45)', 'right'); }
-      txt(cx, ko ? 'R (태움) →' : 'R (burns) →', PX1, py(0) - 10, '700 10px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.7)', 'right');
+      txt(cx, ko ? 'R (소비) →' : 'R (consumes) →', PX1, py(0) - 10, '700 10px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.7)', 'right');
       txt(cx, ko ? '+jX 유도성 (코일)' : '+jX inductive (coil)', PX0 + 8, PY0 + 12, FB, '#ff8a8e', 'left'); txt(cx, ko ? '−jX 용량성 (커패시터)' : '−jX capacitive (capacitor)', PX0 + 8, PY1 - 12, FB, '#7cbcff', 'left');
       // star
       var sx = px(50), sy = py(0); cx.fillStyle = YEL; cx.beginPath(); for(var k=0;k<10;k++){ var a = -Math.PI/2 + k*Math.PI/5, rr = k % 2 ? 4 : 10; cx.lineTo(sx + Math.cos(a)*rr, sy + Math.sin(a)*rr); } cx.closePath(); cx.fill();
@@ -2932,7 +2966,7 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
       function th(xx){ return 1.5*(t - (IX1 - xx)/24); }
       cx.lineWidth = 2; cx.strokeStyle = BLU; cx.beginPath(); for(var a1 = IX0; a1 <= IX1; a1 += 2){ var y1 = IY - 34*Math.sin(th(a1)); a1 === IX0 ? cx.moveTo(a1, y1) : cx.lineTo(a1, y1); } cx.stroke();
       cx.strokeStyle = RED; cx.beginPath(); for(var a2 = IX0; a2 <= IX1; a2 += 2){ var y2 = IY - 26*Math.sin(th(a2) - ph); a2 === IX0 ? cx.moveTo(a2, y2) : cx.lineTo(a2, y2); } cx.stroke();
-      var tx = Math.abs(ph) < 0.08 ? (ko ? '같은 박자 (저항)' : 'in step (resistor)') : ph > 0 ? (ko ? '전류가 늦음 (유도성)' : 'current late (inductive)') : (ko ? '전류가 이름 (용량성)' : 'current early (capacitive)');
+      var tx = Math.abs(ph) < 0.08 ? (ko ? '같은 박자 (저항)' : 'in step (resistor)') : ph > 0 ? (ko ? '전류가 늦음 (유도성)' : 'current late (inductive)') : (ko ? '전류가 앞섬 (용량성)' : 'current early (capacitive)');
       txt(cx, tx, (IX0 + IX1)/2, 180, '700 10px Inter,"Pretendard",sans-serif', Math.abs(ph) < 0.08 ? '#8fe0b0' : ph > 0 ? '#ff8a8e' : '#7cbcff', 'center');
       txt(cx, ko ? 'V = 파랑 · I = 빨강' : 'V = blue · I = red', (IX0 + IX1)/2, 198, '500 9.5px Inter,"Pretendard",sans-serif', 'rgba(255,255,255,.5)', 'center');
       // legend
@@ -3103,7 +3137,7 @@ html.lang-ko .gp-k{letter-spacing:.02em;font-size:12px}
     runOn(cv, draw);
   })();
 
-  /* ================= 3 · store, don't burn ================= */
+  /* ================= 3 · store, don't consume ================= */
   (function(){
     var cv = $i('sbCv2'); if(!cv) return;
     var cx = cv.getContext('2d'), W = 560, H = 400, slide = cv.closest('.slide'), t = 0, mode = 'r', pk = [], smoke = [];
