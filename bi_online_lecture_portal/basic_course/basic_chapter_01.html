@@ -604,6 +604,26 @@ html.lang-ko .vidbtn{font-weight:700;font-size:13.5px}
 .logo-link img{cursor:pointer}
 
 </style>
+<script id="benedu-nav-bridge">
+/* Benedu viewer bridge — every chapter → chapter jump goes through basic_course2.html,
+   so members-only chapters always pass the membership gate. */
+(function(){
+  var framed = true; try { framed = window.top !== window.self; } catch (e) {}
+  var me = (location.pathname.match(/basic_chapter_(\d{2})\.html$/) || [])[1];
+  // opened directly (not inside the viewer) → reopen through the viewer
+  if (!framed && me) { location.replace('basic_course2.html?c=' + me + location.hash); return; }
+  window.__bnav = function (url) {
+    var t = String(url).match(/basic_chapter_(\d{2})\.html(#[\w-]*)?$/);
+    if (t && framed) { window.parent.postMessage({ type: 'benedu-nav', chapter: +t[1], hash: t[2] || '' }, '*'); return; }
+    location.href = url;
+  };
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || (a.target && a.target !== '_self')) return;
+    if (/^basic_chapter_\d{2}\.html(#[\w-]*)?$/.test(a.getAttribute('href'))) { e.preventDefault(); e.stopPropagation(); window.__bnav(a.getAttribute('href')); }
+  }, true);
+})();
+</script>
 </head>
 <body>
 <div class="stage"><div class="deck" id="deck" data-doc="BASIC · CHAPTER 01 — WHY SEMICONDUCTORS" data-next="basic_chapter_02.html">
@@ -1044,8 +1064,8 @@ html.lang-ko .vidbtn{font-weight:700;font-size:13.5px}
     step = atEnd ? maxStep(slides[idx]) : 0;
     render();
   }
-  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } else if(deck.dataset.next){ location.href = deck.dataset.next; } }
-  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } else if(deck.dataset.prev){ location.href = deck.dataset.prev + '#end'; } }
+  function next(){ if(step < maxStep(slides[idx])){ step++; applyStep(slides[idx], step); } else if(idx < total-1){ go(idx+1); } else if(deck.dataset.next){ window.__bnav(deck.dataset.next); } }
+  function prev(){ if(step > 0){ step--; applyStep(slides[idx], step); } else if(idx > 0){ go(idx-1, true); } else if(deck.dataset.prev){ window.__bnav(deck.dataset.prev + '#end'); } }
 
   /* ---- notes ---- */
   var notes = document.getElementById('notes');
