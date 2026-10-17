@@ -1329,6 +1329,123 @@ header p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .detail-name { font-size: 1.4rem; }
 }
 </style>
+<!-- AF-KIT:CSS (animated figures ported from basic_course ch02–05) -->
+<style id="af-kit-css">
+/* ============ Benedu animated-figure kit (Basic Course look) ============ */
+.af{--af-ink:#0a0a0a;--af-steel:#5f5f5a;--af-soft:#8a8a82;--af-hair:#e4dfd1;--af-cream:#fffaf0;--af-pink:#ff4d8b;
+  font-family:'Google Sans','Gowun Batang',serif;color:var(--af-ink);background:#fff;border:1px solid #e8e5de;
+  border-radius:18px;padding:16px;margin:0 0 1.25rem;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+  gap:18px;align-items:start;max-width:100%;min-width:0;box-sizing:border-box;text-align:left}
+.af *{box-sizing:border-box}
+.af.af-1col{grid-template-columns:minmax(0,1fr)}
+@media (max-width:1100px){ .af{grid-template-columns:minmax(0,1fr);padding:12px;gap:14px} }
+.af-stage{position:relative;min-width:0;border-radius:18px;overflow:hidden;
+  background:radial-gradient(120% 95% at 32% 48%,#15283b 0%,#0c1520 55%,#070b11 100%);
+  box-shadow:0 18px 36px -22px rgba(7,11,17,.6),inset 0 0 0 1px rgba(255,255,255,.06)}
+.af-stage.light{background:#fffdf7;box-shadow:inset 0 0 0 1px var(--af-hair)}
+.af-stage canvas{display:block;width:100%;height:auto}
+.af-tag{position:absolute;left:14px;top:12px;font:600 10px/1.3 'JetBrains Mono',monospace;letter-spacing:.14em;color:rgba(220,236,255,.6);pointer-events:none}
+.af-tag.r{left:auto;right:14px}
+.af-stage.light .af-tag{color:var(--af-soft)}
+.af-ov{position:absolute;left:12px;bottom:12px;display:flex;gap:8px;flex-wrap:wrap}
+.af-ov .af-chip{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);color:rgba(230,242,255,.9)}
+.af-ov .af-chip:hover{background:rgba(255,255,255,.18)}
+.af-panel{min-width:0;display:flex;flex-direction:column;gap:10px}
+.af .k{font-size:13px;color:var(--af-steel);line-height:1.4}
+.af .v{font-family:'JetBrains Mono','Gowun Batang',monospace;font-weight:700;font-size:14px;color:var(--af-ink);white-space:nowrap}
+.af-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.af-chips{display:flex;flex-wrap:wrap;gap:6px}
+.af-chip{font:500 12.5px/1.2 'Google Sans','Gowun Batang',serif;color:var(--af-ink);padding:6px 13px;border:1px solid var(--af-hair);
+  background:#fff;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s}
+.af-chip:hover{border-color:var(--af-soft)}
+.af-chip.on{background:var(--af-ink);border-color:var(--af-ink);color:#fff}
+.af-chip:disabled{opacity:.4;cursor:default}
+.af input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--af-hair);outline:none;margin:6px 0}
+.af input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--af-ink);border:4px solid var(--af-cream);box-shadow:0 0 0 1px var(--af-ink);cursor:pointer}
+.af input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--af-ink);border:4px solid var(--af-cream);box-shadow:0 0 0 1px var(--af-ink);cursor:pointer}
+.af-fire{flex:1;min-height:44px;border:0;border-radius:999px;background:var(--af-ink);color:#fff;font:600 14px 'Google Sans','Gowun Batang',serif;
+  display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:0 16px;transition:transform .12s,opacity .2s}
+.af-fire i{width:12px;height:12px;border-radius:50%;flex:0 0 12px;background:var(--pc,#8fe9ff);box-shadow:0 0 10px 3px var(--pc,#8fe9ff)}
+.af-fire:active{transform:scale(.97)} .af-fire:disabled{opacity:.38;cursor:default}
+.af-act{display:flex;gap:8px;flex-wrap:wrap}
+.af-act .af-chip{min-height:44px;padding:0 18px}
+.af-ro{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px}
+.af-ro>div{border-top:1px solid var(--af-hair);padding-top:6px;min-width:0}
+.af-ro .k{font:500 10px/1.3 'JetBrains Mono','Gowun Batang',monospace;letter-spacing:.08em;color:var(--af-soft)}
+.af-ro .v{font-size:15px;margin-top:3px;overflow:hidden;text-overflow:ellipsis}
+.af-ro .w{grid-column:1/-1}
+.af-ro .w .v{font-family:'Google Sans','Gowun Batang',serif;font-size:15px;white-space:normal}
+.af-mono{font-family:'JetBrains Mono','Gowun Batang',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--af-soft)}
+.af-ticks{display:flex;justify-content:space-between;font:500 10px 'JetBrains Mono',monospace;letter-spacing:.08em;color:var(--af-soft)}
+.af-big{font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
+.af-sd{font-size:14px;color:var(--af-steel);line-height:1.55}
+.af-sd b{color:var(--af-ink)}
+.af-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--af-steel)}
+.af-legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.af-steps{display:flex;flex-direction:column}
+.af-step{display:flex;gap:12px;padding:10px 6px;border-top:1px solid var(--af-hair);cursor:pointer;border-radius:10px;transition:background .15s,opacity .2s;opacity:.55;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;width:100%}
+.af-step:hover{background:rgba(10,10,10,.035)}
+.af-step.on{opacity:1}
+.af-step.cur{background:none}
+.af-step .no{flex:0 0 28px;height:28px;border-radius:50%;background:var(--af-ink);color:#fff;font:700 12px/28px 'JetBrains Mono',monospace;text-align:center}
+.af-step .no{background:#efece5;color:var(--af-steel)} .af-step.on .no{background:#e3dfd5;color:var(--af-ink)} .af-step.cur .no{background:var(--af-ink);color:#fff}
+.af-step .tt{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.af-step .dd{font-size:13px;color:var(--af-steel);margin-top:2px;line-height:1.45}
+.af-why{font-size:14px;line-height:1.55;color:var(--af-steel);border-top:1px solid #e8e5de;padding:12px 2px 0}
+.af-why b{color:var(--af-ink);font-weight:700}
+.af-cap{grid-column:1/-1;font:500 11px/1.5 'JetBrains Mono','Gowun Batang',monospace;color:var(--af-soft);letter-spacing:.02em}
+.af-eqn{font-family:'Google Sans','Gowun Batang',serif;font-weight:700;font-size:22px;display:inline-flex;align-items:center;gap:.2em;white-space:nowrap}
+.af-frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em;font-size:.8em}
+.af-frac .fn{padding:0 .12em .04em;border-bottom:.06em solid currentColor}
+.af-frac .fd{padding:.04em .12em 0}
+.af-rows>div{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--af-hair);padding:7px 0;font-size:13px;color:var(--af-steel)}
+.af-rows b{font-family:'JetBrains Mono',monospace;color:var(--af-ink);white-space:nowrap}
+.af-bar{height:10px;border-radius:6px;background:var(--af-hair);overflow:hidden;margin-top:6px}
+.af-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#b8a4ed,#7a5fd1);border-radius:6px;transition:width .08s}
+.af-link{display:inline-flex;align-items:center;gap:6px;font:600 12.5px 'Google Sans','Gowun Batang',serif;color:var(--af-ink);text-decoration:none;border:1px solid var(--af-hair);background:#fff;border-radius:999px;padding:7px 14px;align-self:flex-start}
+.af-link:hover{border-color:var(--af-soft)}
+@media (max-width:520px){ .af-ro{grid-template-columns:repeat(2,minmax(0,1fr))} .af-big{font-size:28px} }
+.af-stage.sq{max-width:440px;width:100%;justify-self:center}
+@media (max-width:1100px){ .af > .af-stage{justify-self:center;width:100%;max-width:660px} .af > .af-stage.sq{max-width:420px} }
+/* layout guard for existing content: wide display equations / tables scroll inside their own box
+   instead of pushing the reading panel sideways (phone widths) */
+#detail mjx-container[display="true"]{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden}
+#detail .eq-block{max-width:100%;overflow-x:auto}
+@media (max-width:860px){ #detail table{display:block;max-width:100%;overflow-x:auto} }
+@media (max-width:640px){
+  .af-ov{position:static;padding:8px 10px 10px}
+  /* existing headers: let the title block shrink instead of widening the page */
+  header > div{min-width:0}
+  header p{overflow:hidden;text-overflow:ellipsis}
+}
+@media (prefers-reduced-motion:reduce){ .afm-c,.afm-tl .tdot,.afm-call,.afm-tl .tline{animation:none!important;opacity:1!important;transform:none!important} }
+
+/* ===== Neutral callouts: no tinted fills or colour-stripe borders on boxes (user preference, 2026-10-17).
+   Overrides the lectures' own styles (incl. inline border-top/left colours) — white surface, hairline border. ===== */
+:root{--nb-line:#e8e5de;--nb-ink:#1f1f1f;--nb-mute:#5f5f5a;--nb-head:#f6f5f2}
+/* self-study quiz box (all lectures) */
+details.classroom-box{background:#fff!important;border:1px solid var(--nb-line)!important;box-shadow:none!important}
+details.classroom-box summary,details.classroom-box .classroom-title{color:var(--nb-ink)!important}
+details.classroom-box .classroom-body{background:transparent!important;border-color:var(--nb-line)!important}
+/* lecture 12: cards with colour stripes, highlight boxes, selected Lewis cell */
+#detail .ch-card{background:#fff!important;border:1px solid var(--nb-line)!important}
+#detail .ch-highlight,#detail .ch-highlight.purple,#detail .ch-highlight.amber,#detail .ch-highlight.red,#detail .highlight-box{
+  background:#fff!important;border:1px solid var(--nb-line)!important;color:var(--nb-ink)!important}
+#detail .lewis-cell.lewis-active{background:#fff!important;border-color:var(--nb-ink)!important;box-shadow:0 0 0 1px var(--nb-ink)!important}
+#detail a[style*="linear-gradient"]{background:#fff!important;border:1px solid var(--nb-line)!important;color:var(--nb-ink)!important}
+/* lecture 13: deep-dive highlight, PhET card, RF popup highlight */
+#detail .dl-highlight,.rfpop-highlight{background:#fff!important;border:1px solid var(--nb-line)!important}
+#detail .phet-card{background:#fff!important;border:1px solid var(--nb-line)!important}
+/* table headers (tinted per column in several lectures) */
+#detail th,#rfPopupBox th{background:var(--nb-head)!important;color:var(--nb-ink)!important}
+#rfPopupClose{background:#fff!important;border:1px solid var(--nb-line)!important;color:var(--nb-ink)!important}
+/* lecture 14: LAB card header, overview tags, green chip list, coloured callout variants */
+#detail .d-header{background:#fff!important;border-bottom:1px solid var(--nb-line)!important}
+#detail .overview-card-tag{background:#fff!important;color:var(--nb-mute)!important;border:1px solid var(--nb-line)!important}
+#detail span[style*="background:var(--green-soft)"]{background:#fff!important;color:var(--nb-mute)!important;border:1px solid var(--nb-line)!important}
+#detail .callout,#detail .callout.green,#detail .callout.purple,#detail .callout.blue{background:#fff!important;border:1px solid var(--nb-line)!important}
+
+</style>
 </head>
 <body>
 
@@ -1546,6 +1663,7 @@ const SLIDES_KO = [
   // ── MODULE 2-2: 여기/탈여기 ─────────────────
   {
     id: 'ch2-2', chapter: 'MODULE 2-2', era: 'electron',
+    afFig: 'ex', afTitle: '여기 & 탈여기 — 에너지를 받아 오르고, 내려오며 빛을 냅니다',
     name: 'Excitation & De-excitation',
     nameKr: '여기 & 탈여기 — 빛의 탄생',
     period: '전자 에너지 전이 및 광자 방출/흡수',
@@ -1576,6 +1694,7 @@ const SLIDES_KO = [
   // ── MODULE 2-3: 이온화 / 재결합 ────────────
   {
     id: 'ch2-3', chapter: 'MODULE 2-3', era: 'electron',
+    afFigEq: 'ir', afTitleEq: '이온화 & 재결합 — 전자를 떼어내고, 다시 붙잡는 순간',
     name: 'Ionization & Recombination',
     nameKr: '이온화 & 재결합 — 플라즈마 생성의 핵심',
     period: '이온화에너지, 전자 충돌 이온화',
@@ -1805,6 +1924,7 @@ const SLIDES_EN = [
   },
   {
     id: 'ch2-2', chapter: 'MODULE 2-2', era: 'electron',
+    afFig: 'ex', afTitle: 'Excitation & De-excitation — absorb energy and rise, fall back and glow',
     name: 'Excitation & De-excitation',
     nameKr: 'Excitation & De-excitation — The Birth of Light',
     period: 'Electron energy transitions and photon emission/absorption',
@@ -1833,6 +1953,7 @@ const SLIDES_EN = [
   },
   {
     id: 'ch2-3', chapter: 'MODULE 2-3', era: 'electron',
+    afFigEq: 'ir', afTitleEq: 'Ionization & Recombination — knock it out, catch it back',
     name: 'Ionization & Recombination',
     nameKr: 'Ionization & Recombination — Core of Plasma Generation',
     period: 'Ionization energy, electron impact ionization',
@@ -2106,7 +2227,12 @@ function renderDetail(slide) {
 
   // ── Media (image or SVG) ──
   let mediaHtml = '';
-  if (slide.imageUrl) {
+  if (slide.afFig) {
+    mediaHtml = `
+      <div class="section-title">${slide.afTitle || T.sectionMedia}</div>
+      <div class="af" data-af="${slide.afFig}"></div>
+    `;
+  } else if (slide.imageUrl) {
     const isWide = true;
     mediaHtml = `
       <div class="section-title">${slide.imageTitle || T.sectionMedia}</div>
@@ -2134,7 +2260,12 @@ function renderDetail(slide) {
 
   // ── Equation image (imageUrl_eq) ──
   let eqImgHtml = '';
-  if (slide.imageUrl_eq) {
+  if (slide.afFigEq) {
+    eqImgHtml = `
+      <div class="section-title">${slide.afTitleEq}</div>
+      <div class="af" data-af="${slide.afFigEq}"></div>
+    `;
+  } else if (slide.imageUrl_eq) {
     eqImgHtml = `
       <div class="section-title">${slide.imageTitle_eq || 'Equation Reference'}</div>
       <div class="model-showcase" style="cursor:pointer;padding:0.75rem;"
@@ -2275,22 +2406,8 @@ function renderDetail(slide) {
   let excitationSim = '';
   if (slide.showExcitationSim) {
     excitationSim = `
-      <div class="section-title">Interactive Simulator — Excitation & De-excitation</div>
-      <div class="sim-card" style="background:var(--bg2);padding:0;overflow:hidden;">
-        <div class="sim-card-header" style="padding:0.75rem 1rem 0;">
-          <span class="sim-badge">INTERACTIVE</span>
-          <span class="sim-title">Hydrogen Atom — Electron Transition Explorer</span>
-        </div>
-        <iframe
-          src="sims/excitation_sim.html"
-          id="excitationSimIframe"
-          width="100%"
-          height="360"
-          style="border:none;display:block;border-radius:0 0 12px 12px;"
-          loading="lazy"
-          title="Excitation & De-excitation Simulator">
-        </iframe>
-      </div>
+      <div class="section-title">${lang==='en' ? 'Interactive Simulator — Hydrogen energy levels & emitted light' : '인터랙티브 시뮬레이터 — 수소 원자의 에너지 준위와 방출되는 빛'}</div>
+      <div class="af" data-af="hl"></div>
     `;
   }
 
@@ -2317,28 +2434,7 @@ function renderDetail(slide) {
     const isEn = lang === 'en';
     statesHtml = `
       <div class="section-title">${T.sectionStates}</div>
-      <div class="states-grid">
-        <div class="state-card" style="background:linear-gradient(135deg,#E8EAF6,#C5CAE9);border-color:#9FA8DA;">
-          <div class="state-emoji">🧊</div>
-          <div class="state-name" style="color:#1A237E;">${isEn ? 'Solid' : '고체 (Solid)'}</div>
-          <div class="state-desc">${isEn ? 'Regular crystal structure<br>Only atomic vibration<br>Strong intermolecular forces' : '규칙적 결정 구조<br>원자 진동만 허용<br>강한 분자간 힘'}</div>
-        </div>
-        <div class="state-card" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:#90CAF9;">
-          <div class="state-emoji">💧</div>
-          <div class="state-name" style="color:#0D47A1;">${isEn ? 'Liquid' : '액체 (Liquid)'}</div>
-          <div class="state-desc">${isEn ? 'Mobile molecules<br>Fluid, flows freely<br>Fixed volume' : '이동 가능한 분자<br>유동성 있음<br>일정 부피 유지'}</div>
-        </div>
-        <div class="state-card" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:#A5D6A7;">
-          <div class="state-emoji">💨</div>
-          <div class="state-name" style="color:#1B5E20;">${isEn ? 'Gas' : '기체 (Gas)'}</div>
-          <div class="state-desc">${isEn ? 'Freely moving molecules<br>No fixed shape or volume<br>Neutral particles' : '자유 운동 분자<br>부피·형태 없음<br>중성 입자 상태'}</div>
-        </div>
-        <div class="state-card" style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-color:#FFCC80;box-shadow:0 0 12px rgba(232,123,30,0.25);">
-          <div class="state-emoji">🔥</div>
-          <div class="state-name" style="color:#E65100;">${isEn ? 'Plasma' : '플라즈마 (Plasma)'}</div>
-          <div class="state-desc">${isEn ? '<b>4th State of Matter</b><br>Ions + free electrons<br>Electrical behavior, light emission<br>99% of the universe' : '<b>제4의 상태</b><br>이온 + 자유전자<br>전기적 거동, 발광<br>우주의 99%'}</div>
-        </div>
-      </div>
+      <div class="af" data-af="states"></div>
     `;
   }
 
@@ -3209,5 +3305,490 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
+<!-- AF-KIT:JS -->
+<script id="af-kit-js">
+/* ============ Benedu animated-figure kit (ported from Basic Course ch02–05) ============
+   A figure is <div class="af" data-af="NAME"></div>. AF.B[NAME](box) fills the box and
+   returns {draw(dt)}; one shared rAF loop draws figures that are on screen and drops
+   figures whose box has left the DOM (the lecture re-renders the panel on every
+   chapter / language change, so figures are rebuilt in the new language).            */
+(function(){
+  'use strict';
+  var AF = window.AF = {B:{}, figs:[]};
+  AF.ko = function(){ try { return lang === 'ko'; } catch(e){ return document.documentElement.lang === 'ko'; } };
+  AF.L = function(en, ko){ return AF.ko() ? ko : en; };
+  AF.cv = function(w, h, cls){
+    var c = document.createElement('canvas'); c.width = w*2; c.height = h*2;
+    if(cls) c.className = cls; c.style.aspectRatio = w + ' / ' + h; return c;
+  };
+  AF.chips = function(btns, fn){
+    btns.forEach(function(b){ b.addEventListener('click', function(ev){ ev.stopPropagation();
+      btns.forEach(function(x){ x.classList.toggle('on', x === b); }); fn(b); }); });
+  };
+  AF.q = function(box, sel){ return box.querySelector(sel); };
+  AF.qa = function(box, sel){ return [].slice.call(box.querySelectorAll(sel)); };
+  function vis(el){ var r = el.getBoundingClientRect(); return r.width > 0 && r.bottom > -40 && r.top < innerHeight + 40; }
+  var last = performance.now();
+  function loop(now){
+    var dt = Math.min((now - last)/1000, 0.05); last = now;
+    for(var i = AF.figs.length - 1; i >= 0; i--){
+      var f = AF.figs[i];
+      if(!f.el.isConnected){ AF.figs.splice(i, 1); continue; }
+      if(vis(f.el)){ try { f.draw(dt); } catch(err){ console.error('[AF]', err); AF.figs.splice(i, 1); } }
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+  AF.mount = function(root){
+    [].forEach.call((root || document).querySelectorAll('[data-af]'), function(box){
+      if(box._af) return; box._af = 1;
+      var b = AF.B[box.dataset.af]; if(!b) return;
+      var r = b(box); if(r && r.draw) AF.figs.push({el: box, draw: r.draw});
+    });
+  };
+  var pending = false;
+  var mo = new MutationObserver(function(){
+    if(pending) return; pending = true;
+    Promise.resolve().then(function(){ pending = false; AF.mount(document); });
+  });
+  function start(){ mo.observe(document.body, {childList: true, subtree: true}); AF.mount(document); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+
+/* ============ ATOM STAGE (Basic Course ch03): Bohr atom + energy ladder ============ */
+(function(){
+  var L = AF.L, GS = '"Google Sans","Gowun Batang",sans-serif';
+  function wlCol(nm){
+    if(nm < 380) return 'rgb(185,162,255)';
+    if(nm > 750) return 'rgb(255,127,102)';
+    var r=0,g=0,b=0;
+    if(nm<440){ r=-(nm-440)/60; b=1; } else if(nm<490){ g=(nm-440)/50; b=1; } else if(nm<510){ g=1; b=-(nm-510)/20; }
+    else if(nm<580){ r=(nm-510)/70; g=1; } else if(nm<645){ r=1; g=-(nm-645)/65; } else { r=1; }
+    var f = nm>700 ? .35+.65*(750-nm)/50 : nm<420 ? .35+.65*(nm-380)/40 : 1;
+    function h(v){ return Math.round(255*Math.pow(Math.max(0,v*f),.8)); }
+    return 'rgb('+h(r)+','+Math.max(h(g),40)+','+Math.max(h(b),40)+')';
+  }
+  function H_E(n){ return n===0 ? 0 : -13.6/(n*n); }
+  function H_dE(a,b){ return Math.abs(H_E(a)-H_E(b)); }
+  function H_lam(a,b){ return 1239.84/H_dE(a,b); }
+  var H_NM = {'3-2':'Hα','4-2':'Hβ','5-2':'Hγ','6-2':'Hδ'};
+  AF.wlCol = wlCol;
+
+  function AtomStage(cv, P){
+    var c = cv.getContext('2d'); c.scale(2,2);
+    var W = cv.width/2, Hh = cv.height/2, PI = Math.PI;
+    var S = {cur:1, ang:-.7, rad:0, ladY:0, alpha:1, busy:false, anim:null, photons:[], flashes:[], proj:null, arrow:null, timers:[], t:0};
+    function rN(n){ return n===0 ? P.R*2.2 : P.R*(.14+.86*(n*n-1)/(P.N*P.N-1)); }
+    function Y(e){ return P.ly0 + Math.sqrt(-e/13.6)*(P.ly1-P.ly0); }
+    function ease(x){ x = Math.max(0,Math.min(1,x)); return x<.5 ? 4*x*x*x : 1-Math.pow(-2*x+2,3)/2; }
+    function wrap(x){ while(x>PI) x-=2*PI; while(x<=-PI) x+=2*PI; return x; }
+    function period(Lm){ var k = Math.log(Math.max(90,Math.min(1900,Lm))/90)/Math.log(1900/90); return 6+20*k; }
+    function rgba(col,a){ return col.replace('rgb(','rgba(').replace(')',','+a+')'); }
+    var dust = []; for(var i=0;i<70;i++) dust.push([Math.random()*W, Math.random()*Hh, Math.random()*1.1+.3, Math.random()]);
+
+    function set(n){
+      S.timers=[]; S.anim=null; S.fp=null; S.photons=[]; S.flashes=[]; S.proj=null; S.arrow=null; S.busy=false; S.fade=0;
+      S.cur=n; S.rad=rN(n); S.ladY=Y(H_E(n)); S.alpha=1;
+    }
+    function after(sec, fn){ S.timers.push({t:sec, fn:fn}); }
+
+    function go(to, mode, cb, keep){
+      if(S.busy || to===S.cur) return false;
+      var from = S.cur, up = to===0 || to>from, Lm = H_lam(from,to), col = wlCol(Lm), d = H_dE(from,to);
+      var r0 = S.rad, r1 = rN(to), y0 = S.ladY, y1 = to===0 ? P.ly0-30 : Y(H_E(to));
+      var a0 = S.ang, da = wrap(PI - S.ang);
+      S.busy = true; S.arrow = {y0:y0, y1:y1, p:0, col:col, d:d, L:Lm, up:up, coll:mode==='collision'};
+      var t = 0, hit = false;
+      if(up){
+        var TA = .95, TR = to===0 ? 1.3 : .85;
+        var hx = P.ax - r0, hy = P.ay;
+        if(mode==='collision') S.proj = {x0:-24, y0:P.ay-100, x1:hx-4, y1:hy-2, tr:[], x:-24, y:P.ay-100, free:false};
+        else S.photons.push({x0:-90, y0:hy, x1:hx-6, y1:hy, dur:TA, t:0, L:Lm, col:col, inb:true});
+        S.anim = function(dt){
+          t += dt;
+          if(t < TA){ S.ang = a0 + da*ease(t/TA);
+            if(S.proj){ var k0 = t/TA; S.proj.x = S.proj.x0+(S.proj.x1-S.proj.x0)*k0; S.proj.y = S.proj.y0+(S.proj.y1-S.proj.y0)*k0; }
+            return; }
+          if(!hit){ hit = true; S.ang = a0+da;
+            S.flashes.push({x:P.ax+r0*Math.cos(S.ang), y:P.ay+r0*Math.sin(S.ang), t:0, col:mode==='collision' ? 'rgb(191,243,255)' : col, big:1});
+            if(S.proj){ var dx = S.proj.x1-S.proj.x0, dy = S.proj.y1-S.proj.y0, m = Math.hypot(dx,dy), sp = .5*m/TA, th = Math.atan2(dy,dx)+.62;
+              S.proj.free = true; S.proj.vx = Math.cos(th)*sp; S.proj.vy = Math.sin(th)*sp; }
+          }
+          var k = ease((t-TA)/TR);
+          S.rad = r0+(r1-r0)*k; S.ladY = y0+(y1-y0)*k; S.arrow.p = k;
+          if(to===0 && !keep) S.alpha = 1-Math.max(0,(k-.35)/.65);
+          if(t >= TA+TR){
+            S.anim = null; S.cur = to;
+            if(to===0 && keep){ S.busy = false; cb && cb(); }
+            else if(to===0){ after(1.5, function(){ S.cur = from; S.rad = rN(from); S.ladY = Y(H_E(from)); S.arrow = null; S.alpha = 0; S.fade = 1; S.busy = false; cb && cb(); }); }
+            else { S.busy = false; cb && cb(); }
+          }
+        };
+      } else {
+        var TD = .8;
+        S.anim = function(dt){
+          t += dt;
+          var k = ease(t/TD);
+          S.ang = a0 + da*k; S.rad = r0+(r1-r0)*k; S.ladY = y0+(y1-y0)*k; S.arrow.p = k;
+          if(t >= TD && !hit){ hit = true; S.cur = to;
+            var ex = P.ax + r1*Math.cos(S.ang), ey = P.ay + r1*Math.sin(S.ang);
+            S.flashes.push({x:ex, y:ey, t:0, col:col, big:1.25});
+            S.photons.push({x0:ex-8, y0:ey, x1:-130, y1:ey, dur:(ex+122)/360, t:0, L:Lm, col:col});
+          }
+          if(t >= TD+.55){ S.anim = null; S.busy = false; cb && cb(); }
+        };
+      }
+      return true;
+    }
+
+    function packet(ph){
+      var k = ph.t/ph.dur, x = ph.x0+(ph.x1-ph.x0)*k, y = ph.y0+(ph.y1-ph.y0)*k;
+      var th = Math.atan2(ph.y1-ph.y0, ph.x1-ph.x0), cs = Math.cos(th), sn = Math.sin(th), per = period(ph.L);
+      var fade = Math.min(1, ph.t/.15); if(ph.inb) fade *= Math.min(1, (1-k)/.1);
+      c.save(); c.globalCompositeOperation = 'lighter';
+      for(var pass=0; pass<2; pass++){
+        c.beginPath();
+        for(var s=-58; s<=58; s+=1.2){
+          var env = Math.exp(-(s*s)/(24*24)), off = 9*env*Math.sin(2*PI*s/per - S.t*9);
+          var px = x + s*cs - off*sn, py = y + s*sn + off*cs;
+          if(s===-58) c.moveTo(px,py); else c.lineTo(px,py);
+        }
+        c.strokeStyle = ph.col; c.lineCap = 'round';
+        if(pass===0){ c.lineWidth = 9; c.globalAlpha = .16*fade; } else { c.lineWidth = 2.4; c.shadowColor = ph.col; c.shadowBlur = 14; c.globalAlpha = fade; }
+        c.stroke();
+      }
+      c.shadowBlur = 0; c.globalCompositeOperation = 'source-over'; c.globalAlpha = fade;
+      c.fillStyle = ph.col; c.font = '700 11px JetBrains Mono, monospace'; c.textAlign = 'center';
+      c.fillText(Math.round(ph.L)+' nm'+(ph.L<380 ? ' · UV' : ph.L>750 ? ' · IR' : ''), Math.max(40,x), y-20);
+      c.restore();
+    }
+    function glow(x,y,r,col,a){
+      var g = c.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0, rgba(col,a)); g.addColorStop(1, rgba(col,0));
+      c.fillStyle = g; c.beginPath(); c.arc(x,y,r,0,2*PI); c.fill();
+    }
+
+    function draw(dt){
+      S.t += dt;
+      var tms = S.timers; S.timers = [];
+      tms.forEach(function(tm){ tm.t -= dt; if(tm.t<=0) tm.fn(); else S.timers.push(tm); });
+      if(S.anim) S.anim(dt);
+      else if(S.cur!==0) S.ang += 1.5*Math.pow(rN(1)/S.rad, .85)*dt;
+      if(S.fade){ S.alpha = Math.min(1, S.alpha + dt*2); if(S.alpha>=1) S.fade = 0; }
+
+      c.clearRect(0,0,W,Hh);
+      dust.forEach(function(p){ c.fillStyle = 'rgba(200,225,255,'+(.08+.06*Math.sin(S.t*.7+p[3]*6))+')'; c.fillRect(p[0],p[1],p[2],p[2]); });
+      for(var n=1;n<=P.N;n++){
+        var r = rN(n), on = (n===S.cur && !S.busy);
+        c.beginPath(); c.arc(P.ax,P.ay,r,0,2*PI);
+        c.setLineDash(on ? [] : [2,5]); c.lineWidth = on ? 1.5 : 1;
+        c.strokeStyle = on ? 'rgba(143,233,255,.6)' : 'rgba(170,205,255,.2)'; c.stroke(); c.setLineDash([]);
+        c.fillStyle = on ? 'rgba(143,233,255,.95)' : 'rgba(220,235,255,.4)'; c.font = (on?'700 ':'500 ')+'10px JetBrains Mono, monospace'; c.textAlign = 'center';
+        c.fillText(String(n), P.ax + r*Math.cos(-PI/4)+7, P.ay + r*Math.sin(-PI/4)-5);
+      }
+      c.save(); c.globalCompositeOperation = 'lighter'; glow(P.ax,P.ay,30,'rgb(255,170,90)',.42); c.restore();
+      c.beginPath(); c.arc(P.ax,P.ay,8.5,0,2*PI); c.fillStyle = '#ffb067'; c.fill();
+      c.beginPath(); c.arc(P.ax-2.5,P.ay-2.5,2.6,0,2*PI); c.fillStyle = 'rgba(255,255,255,.75)'; c.fill();
+      c.fillStyle = 'rgba(255,200,150,.8)'; c.font = '700 10px JetBrains Mono, monospace'; c.textAlign = 'left'; c.fillText(S.cur===0 && !S.anim ? 'H⁺ ion' : 'p⁺', P.ax+12, P.ay-12);
+
+      S.flashes = S.flashes.filter(function(f){ f.t += dt; var k = f.t/.6; if(k>=1) return false;
+        c.save(); c.globalCompositeOperation = 'lighter'; glow(f.x,f.y,(8+46*k)*f.big,f.col,.85*(1-k));
+        c.beginPath(); c.arc(f.x,f.y,(6+60*k)*f.big,0,2*PI); c.strokeStyle = f.col; c.globalAlpha = .6*(1-k); c.lineWidth = 1.5; c.stroke(); c.restore(); return true; });
+
+      var ex = P.ax + S.rad*Math.cos(S.ang), ey = P.ay + S.rad*Math.sin(S.ang);
+      if(S.fp){ ex = S.fp.x; ey = S.fp.y; S.fp.tr.unshift([ex,ey]); if(S.fp.tr.length>20) S.fp.tr.pop();
+        c.save(); c.globalCompositeOperation = 'lighter';
+        for(var q=1;q<S.fp.tr.length;q++){ c.beginPath(); c.moveTo(S.fp.tr[q-1][0],S.fp.tr[q-1][1]); c.lineTo(S.fp.tr[q][0],S.fp.tr[q][1]); c.strokeStyle = 'rgba(143,233,255,'+(.5*(1-q/S.fp.tr.length))+')'; c.lineWidth = 4*(1-q/S.fp.tr.length)+.5; c.stroke(); }
+        c.restore(); }
+      var hide = (S.cur===0 && !S.anim && !S.fp);
+      if(S.alpha > 0 && !hide){
+        c.save(); c.globalAlpha = S.alpha;
+        if(!S.anim && !S.fp){
+          for(var i=1;i<=14;i++){ var aa = S.ang - i*.045; c.beginPath(); c.arc(P.ax + S.rad*Math.cos(aa), P.ay + S.rad*Math.sin(aa), 3.6*(1-i/16), 0, 2*PI); c.fillStyle = 'rgba(143,233,255,'+(.3*(1-i/14))+')'; c.fill(); }
+        }
+        if(P.halo && S.cur>1 && !S.busy){ var pul = .5+.5*Math.sin(S.t*7);
+          c.beginPath(); c.arc(ex,ey,12+5*pul,0,2*PI); c.strokeStyle = 'rgba(255,190,110,'+(.35+.4*pul)+')'; c.lineWidth = 1.6; c.stroke(); }
+        c.globalCompositeOperation = 'lighter'; glow(ex,ey,20,'rgb(143,233,255)',.55); c.globalCompositeOperation = 'source-over';
+        c.beginPath(); c.arc(ex,ey,6,0,2*PI); c.fillStyle = '#e9fbff'; c.fill();
+        c.fillStyle = 'rgba(200,240,255,.85)'; c.font = '700 10px JetBrains Mono, monospace'; c.textAlign = 'center'; c.fillText('e⁻', ex, ey+19);
+        c.restore();
+      }
+      if(S.proj){ var pj = S.proj;
+        if(pj.free){ pj.x += pj.vx*dt; pj.y += pj.vy*dt; if(pj.x>W+30 || pj.y>Hh+30) S.proj = null; }
+        if(S.proj){ pj.tr.unshift([pj.x,pj.y]); if(pj.tr.length>22) pj.tr.pop();
+          c.save(); c.globalCompositeOperation = 'lighter';
+          for(var j=1;j<pj.tr.length;j++){ c.beginPath(); c.moveTo(pj.tr[j-1][0],pj.tr[j-1][1]); c.lineTo(pj.tr[j][0],pj.tr[j][1]); c.strokeStyle = 'rgba(127,233,255,'+(.55*(1-j/pj.tr.length))+')'; c.lineWidth = 4*(1-j/pj.tr.length)+.5; c.stroke(); }
+          glow(pj.x,pj.y,16,'rgb(127,233,255)',.6); c.restore();
+          c.beginPath(); c.arc(pj.x,pj.y,4.5,0,2*PI); c.fillStyle = '#e9fbff'; c.fill();
+          c.fillStyle = 'rgba(200,240,255,.85)'; c.font = '700 10px '+GS; c.textAlign = 'left'; c.fillText(pj.free ? L('e⁻ slower','e⁻ 느려짐') : L('e⁻ fast','빠른 e⁻'), pj.x+10, pj.y-8);
+        }
+      }
+      S.photons = S.photons.filter(function(ph){ ph.t += dt; if(ph.t>=ph.dur) return false; packet(ph); return true; });
+
+      var lx0 = P.lx0, lx1 = P.lx1;
+      c.setLineDash([3,5]); c.strokeStyle = 'rgba(220,235,255,.3)'; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(lx0,P.ly0); c.lineTo(lx1,P.ly0); c.stroke(); c.setLineDash([]);
+      c.font = '700 13px '+GS; c.textAlign = 'right'; c.fillStyle = 'rgba(220,235,255,.55)'; c.fillText('∞', lx0-8, P.ly0+4);
+      c.font = '10.5px JetBrains Mono, monospace'; c.textAlign = 'left'; c.fillText('0 eV', lx1+8, P.ly0+4);
+      for(var m=1;m<=P.N;m++){
+        var y = Y(H_E(m)), on2 = (m===S.cur && !S.busy), ty = y+4 + (P.N>=6 ? (m===6 ? -3 : m===5 ? 3 : 0) : 0);
+        c.beginPath(); c.moveTo(lx0,y); c.lineTo(lx1,y); c.lineWidth = on2 ? 3 : 2;
+        c.strokeStyle = on2 ? 'rgba(143,233,255,.95)' : 'rgba(220,235,255,.42)'; c.stroke();
+        c.font = (on2?'700 ':'500 ')+'11.5px '+GS; c.textAlign = 'right'; c.fillStyle = on2 ? '#bff3ff' : 'rgba(220,235,255,.6)'; c.fillText('n='+m, lx0-8, ty);
+        c.font = '10.5px JetBrains Mono, monospace'; c.textAlign = 'left'; c.fillStyle = 'rgba(220,235,255,.45)'; c.fillText(H_E(m).toFixed(2), lx1+8, ty);
+      }
+      if(S.arrow){ var A = S.arrow, ax = lx0+14, ya = A.y0, yb = A.y0+(A.y1-A.y0)*A.p, al = S.busy ? 1 : .6;
+        c.save(); c.globalAlpha = al; c.strokeStyle = A.col; c.fillStyle = A.col; c.lineWidth = 2.4; c.shadowColor = A.col; c.shadowBlur = 8;
+        c.beginPath(); c.moveTo(ax,ya); c.lineTo(ax,yb); c.stroke();
+        if(A.p > .9){ var dir = A.up ? -1 : 1; c.beginPath(); c.moveTo(ax,yb+dir*2); c.lineTo(ax-5,yb-dir*8); c.lineTo(ax+5,yb-dir*8); c.closePath(); c.fill(); }
+        c.shadowBlur = 0; c.font = '700 10.5px JetBrains Mono, monospace'; c.textAlign = 'left';
+        var my = (A.y0 + Math.max(A.y1, P.ly0))/2;
+        if(A.p > .05){ c.fillText(A.d.toFixed(2)+' eV', ax+8, my-3); if(!A.coll) c.fillText(Math.round(A.L)+' nm', ax+8, my+11); }
+        c.restore();
+      }
+      var dx = lx1-12;
+      if(S.alpha > 0){ c.save(); c.globalAlpha = S.alpha; c.globalCompositeOperation = 'lighter'; glow(dx,S.ladY-7,15,'rgb(143,233,255)',.55); c.restore();
+        c.save(); c.globalAlpha = S.alpha; c.beginPath(); c.arc(dx,S.ladY-7,5.5,0,2*PI); c.fillStyle = '#e9fbff'; c.fill(); c.restore(); }
+      if(S.cur===0 && !S.anim){ c.fillStyle = 'rgba(200,240,255,.85)'; c.font = '700 10.5px '+GS; c.textAlign = 'right'; c.fillText(L('free e⁻','자유 e⁻'), dx-14, S.ladY-4); }
+      if(P.halo && S.cur>1 && !S.busy){ c.fillStyle = 'rgba(255,190,110,.95)'; c.font = '700 10.5px JetBrains Mono, monospace'; c.textAlign = 'right'; c.fillText('≈ 10 ns', dx-12, S.ladY-16); }
+    }
+    function capture(n, cb, ke){
+      if(S.busy || S.cur!==0) return false;
+      ke = ke || 1.0;
+      var Eph = -H_E(n) + ke, Lm = 1239.84/Eph, col = wlCol(Lm);
+      var x0 = -20, y0 = P.ay-90, x1 = P.ax-rN(n), y1 = P.ay, cxp = (x0+x1)/2 - 10, cyp = P.ay-170;
+      var la = P.ly0-30, lb = Y(H_E(n)), t = 0, T = 1.2, hit = false;
+      S.busy = true; S.alpha = 1; S.fp = {x:x0, y:y0, tr:[]}; S.ladY = la;
+      S.arrow = {y0:la, y1:lb, p:0, col:col, d:Eph, L:Lm, up:false};
+      S.anim = function(dt){
+        t += dt;
+        if(t < T){ var u = 1-Math.pow(1-t/T, 2.2), v = 1-u;
+          S.fp.x = v*v*x0 + 2*v*u*cxp + u*u*x1; S.fp.y = v*v*y0 + 2*v*u*cyp + u*u*y1; return; }
+        if(!hit){ hit = true; S.fp = null; S.cur = n; S.ang = PI; S.rad = rN(n);
+          S.flashes.push({x:x1, y:y1, t:0, col:col, big:1.3});
+          S.photons.push({x0:x1-8, y0:y1, x1:-130, y1:y1, dur:(x1+122)/360, t:0, L:Lm, col:col}); }
+        var k = ease((t-T)/.55); S.ladY = la+(lb-la)*k; S.arrow.p = k;
+        if(t >= T+.65){ S.anim = null; S.busy = false; cb && cb(); }
+      };
+      return true;
+    }
+    function free(){ set(1); S.cur = 0; S.rad = rN(0); S.ladY = P.ly0-30; }
+    set(1);
+    return {draw:draw, go:go, set:set, after:after, capture:capture, free:free, s:S};
+  }
+
+  /* ---- LAB: hydrogen energy levels + emitted spectrum ---- */
+  AF.B.hl = function(box){
+    box.innerHTML =
+      '<div class="af-stage"><div class="af-tag">'+L('HYDROGEN ATOM · BOHR MODEL','수소 원자 · 보어 모형')+'</div><div class="af-tag r">'+L('ENERGY','에너지')+'</div></div>'+
+      '<div class="af-panel">'+
+        '<div class="k">'+L('The electron is on n =','전자의 현재 준위 n =')+'</div>'+
+        '<div class="af-chips" data-g="from">'+[1,2,3,4,5,6].map(function(n){ return '<button type="button" class="af-chip'+(n===1?' on':'')+'" data-from="'+n+'">'+n+'</button>'; }).join('')+'</div>'+
+        '<div class="k">'+L('Move it to n =','이동할 준위 n =')+'</div>'+
+        '<div class="af-chips" data-g="to">'+[1,2,3,4,5,6,0].map(function(n){ return '<button type="button" class="af-chip'+(n===3?' on':'')+'" data-to="'+n+'">'+(n||'∞')+'</button>'; }).join('')+'</div>'+
+        '<div class="af-act"><button class="af-fire" type="button"><i></i><span class="hlFireT"></span></button><button class="af-chip hlAuto" type="button">'+L('Auto ▶','자동 ▶')+'</button></div>'+
+        '<div class="af-ro"><div><div class="k">ΔE</div><div class="v hlE">—</div></div><div><div class="k">'+L('WAVELENGTH λ','파장 λ')+'</div><div class="v hlL">—</div></div><div><div class="k">'+L('FREQUENCY f','주파수 f')+'</div><div class="v hlF">—</div></div><div class="w"><div class="k">'+L('LIGHT TYPE','빛의 종류')+'</div><div class="v hlS">—</div></div></div>'+
+        '<div><div class="af-row" style="margin-bottom:6px"><span class="af-mono">'+L('EMITTED LIGHT (VISIBLE)','방출된 빛 (가시광선)')+'</span><span class="af-mono hlUvIr" style="flex:1;text-align:right"></span><button class="af-chip hlClr" type="button" style="padding:3px 11px;font-size:11.5px">'+L('Clear','지우기')+'</button></div>'+
+        '<div class="hlSpecW"></div><div class="af-ticks"><span>380 nm</span><span>750 nm</span></div></div>'+
+      '</div>';
+    var cv = AF.cv(600, 444); box.querySelector('.af-stage').appendChild(cv);
+    var sp = AF.cv(460, 48); sp.style.width = '100%'; sp.style.borderRadius = '10px'; box.querySelector('.hlSpecW').appendChild(sp);
+    var sc = sp.getContext('2d'); sc.scale(2,2);
+    var A = AtomStage(cv, {ax:204, ay:238, R:176, N:6, lx0:440, lx1:526, ly0:62, ly1:404});
+    var to = 3, auto = false, ai = 0, wait = 0, lines = [], uv = 0, ir = 0;
+    var SEQ = [3,2,1,4,2,1,5,2,1,6,2,1];
+    var frB = AF.qa(box,'[data-from]'), toB = AF.qa(box,'[data-to]'), fire = AF.q(box,'.af-fire'), autoB = AF.q(box,'.hlAuto');
+    function $(c){ return box.querySelector('.'+c); }
+    function mark(){ frB.forEach(function(b){ b.classList.toggle('on', +b.dataset.from===A.s.cur); }); toB.forEach(function(b){ b.classList.toggle('on', +b.dataset.to===to); }); }
+    function info(){
+      var cur = A.s.cur;
+      if(to===cur){ fire.disabled = true; $('hlFireT').textContent = L('Pick another level','다른 준위를 고르세요'); fire.style.setProperty('--pc','#8a8f98');
+        ['hlE','hlL','hlF','hlS'].forEach(function(i){ $(i).textContent = '—'; }); $('hlS').style.color = ''; return; }
+      var up = to===0 || to>cur, d = H_dE(cur,to), Lm = 1239.84/d, f = d*241.799, low = Math.min(cur, to===0?99:to);
+      fire.disabled = false; fire.style.setProperty('--pc', wlCol(Lm));
+      $('hlFireT').textContent = to===0 ? L('▲ Ionize: absorb '+d.toFixed(2)+' eV','▲ 이온화: '+d.toFixed(2)+' eV 흡수')
+                         : up ? L('▲ Absorb a photon','▲ 광자 흡수') : L('▼ Emit a photon','▼ 광자 방출');
+      $('hlE').textContent = d.toFixed(2)+' eV';
+      $('hlL').textContent = Math.round(Lm)+' nm';
+      $('hlF').textContent = f>=1000 ? (f/1000).toFixed(2)+' PHz' : Math.round(f)+' THz';
+      var nm = (!up && H_NM[cur+'-'+to]) ? ' · '+H_NM[cur+'-'+to] : '';
+      $('hlS').textContent = (low===1 ? L('Ultraviolet (Lyman)','자외선 (라이먼)') : low===2 ? L('Visible (Balmer)','가시광선 (발머)') : low===3 ? L('Infrared (Paschen)','적외선 (파셴)') : L('Infrared','적외선')) + nm;
+      $('hlS').style.color = Lm<380 ? '#7a5fd1' : Lm>750 ? '#c4553b' : '';
+    }
+    function spec(){
+      var w = 460, h = 48;
+      sc.clearRect(0,0,w,h);
+      sc.save(); sc.beginPath(); if(sc.roundRect) sc.roundRect(0,0,w,h,10); else sc.rect(0,0,w,h); sc.clip();
+      sc.fillStyle = '#0b131d'; sc.fillRect(0,0,w,h);
+      for(var x=0;x<w;x++){ sc.fillStyle = wlCol(380+370*x/w); sc.globalAlpha = .13; sc.fillRect(x,0,1,h); } sc.globalAlpha = 1;
+      lines.forEach(function(Lx){ var x = (Lx.L-380)/370*w, col = wlCol(Lx.L);
+        sc.save(); sc.globalCompositeOperation = 'lighter'; var g = sc.createLinearGradient(x-10,0,x+10,0);
+        g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.5,col); g.addColorStop(1,'rgba(0,0,0,0)'); sc.globalAlpha = .6; sc.fillStyle = g; sc.fillRect(x-10,0,20,h); sc.restore();
+        sc.fillStyle = col; sc.fillRect(x-1,0,2,h);
+        if(Lx.nm){ sc.fillStyle = 'rgba(255,255,255,.88)'; sc.font = '700 10px JetBrains Mono, monospace'; var rt = x>w-34; sc.textAlign = rt ? 'right' : 'left'; sc.fillText(Lx.nm, x + (rt ? -5 : 5), 14); }
+      });
+      sc.restore();
+      $('hlUvIr').textContent = (uv||ir) ? ('+ UV ×'+uv+' · IR ×'+ir) : '';
+    }
+    function done(from, t2){
+      return function(){
+        if(t2 < from && t2 !== 0){ var Lm = H_lam(from,t2);
+          if(Lm<380) uv++; else if(Lm>750) ir++; else if(!lines.some(function(x){ return Math.abs(x.L-Lm)<.5; })) lines.push({L:Lm, nm:H_NM[from+'-'+t2]||''});
+          spec(); }
+        mark(); info();
+      };
+    }
+    function fireIt(t2){ var from = A.s.cur; if(A.go(t2,'photon',done(from,t2))) fire.disabled = true; }
+    function stopAuto(){ auto = false; autoB.classList.remove('on'); }
+    frB.forEach(function(b){ b.addEventListener('click', function(){ stopAuto(); A.set(+b.dataset.from); mark(); info(); }); });
+    toB.forEach(function(b){ b.addEventListener('click', function(){ stopAuto(); to = +b.dataset.to; mark(); info(); }); });
+    fire.addEventListener('click', function(){ stopAuto(); if(!A.s.busy) fireIt(to); });
+    autoB.addEventListener('click', function(){ auto = !auto; autoB.classList.toggle('on', auto); wait = 0; });
+    $('hlClr').addEventListener('click', function(){ lines = []; uv = ir = 0; spec(); });
+    mark(); info(); spec();
+    return {draw:function(dt){
+      if(auto && !A.s.busy){ wait -= dt;
+        if(wait <= 0){ var nx = SEQ[ai % SEQ.length]; ai++;
+          if(nx !== A.s.cur){ to = nx; mark(); info(); fireIt(nx); }
+          wait = .9; }
+      }
+      A.draw(dt);
+    }};
+  };
+
+  /* ---- step-driven stories (excitation / ionization–recombination) ---- */
+  function storyFig(box, opt){
+    box.innerHTML =
+      '<div class="af-stage"><div class="af-tag">'+opt.tag+'</div><div class="af-ov"><button class="af-chip afPrev" type="button">◀</button><button class="af-chip afNext" type="button">'+L('Next step ▶','다음 단계 ▶')+'</button><button class="af-chip afPlay" type="button">'+L('↻ Play all','↻ 전체 재생')+'</button></div></div>'+
+      '<div class="af-panel"><div class="af-steps">'+opt.steps.map(function(s,i){
+        return '<button type="button" class="af-step" data-i="'+i+'"><span class="no">'+(i+1)+'</span><span><span class="tt" style="display:block">'+s[0]+'</span><span class="dd" style="display:block">'+s[1]+'</span></span></button>'; }).join('')+
+      '</div>'+(opt.why ? '<div class="af-why">'+opt.why+'</div>' : '')+'</div>';
+    var cv = AF.cv(560, 430); box.querySelector('.af-stage').insertBefore(cv, box.querySelector('.af-ov'));
+    var A = AtomStage(cv, opt.P), step = 0, n = opt.steps.length, st = AF.qa(box,'.af-step');
+    function mark(){ st.forEach(function(b,i){ b.classList.toggle('on', i<=step); b.classList.toggle('cur', i===step); }); }
+    function goTo(s){
+      s = Math.max(0, Math.min(n-1, s));
+      if(s === step+1) opt.fwd(A, s); else opt.stat(A, s);
+      step = s; mark();
+    }
+    AF.q(box,'.afNext').addEventListener('click', function(){ goTo(step >= n-1 ? 0 : step+1); });
+    AF.q(box,'.afPrev').addEventListener('click', function(){ goTo(step-1); });
+    st.forEach(function(b){ b.addEventListener('click', function(){ goTo(+b.dataset.i); }); });
+    AF.q(box,'.afPlay').addEventListener('click', function(){ step = n-1; mark(); opt.replay(A); });
+    opt.stat(A, 0); mark();
+    return {draw:function(dt){ A.draw(dt); }};
+  }
+  AF.B.ex = function(box){
+    return storyFig(box, {
+      tag: L('HYDROGEN ATOM','수소 원자'),
+      P: {ax:190, ay:226, R:150, N:4, lx0:400, lx1:478, ly0:72, ly1:396, halo:true},
+      steps: [[L('Ground state','바닥 상태'), L('The electron sits on the lowest level.','전자가 가장 낮은 준위에 있습니다.')],
+              [L('Absorbs energy','에너지 흡수'), L('A fast electron collides, or a photon hits, with exactly ΔE.','빠른 전자가 충돌하거나 광자가 와서 정확히 ΔE를 줍니다.')],
+              [L('Excited state','들뜬 상태'), L('Higher level. Unstable: it lasts only about 10⁻⁸ s.','더 높은 준위. 불안정해서 약 10⁻⁸ 초밖에 머물지 못합니다.')],
+              [L('Falls back, emits light','내려오며 빛 방출'), L('It drops down and releases a photon. This is the glow.','아래로 떨어지며 광자를 내보냅니다. 이것이 플라즈마의 빛입니다.')]],
+      stat: function(A, s){ A.set(s===1 || s===2 ? 3 : 1); },
+      fwd: function(A, s){ if(s===1){ A.set(1); A.go(3,'collision'); } else if(s===3) fall(A); else if(s===2){ if(A.s.cur!==3 && !A.s.busy) A.set(3); } },
+      replay: function(A){ A.set(1); A.after(.4, function(){ A.go(3,'collision',function(){ A.after(1.3, function(){ fall(A); }); }); }); }
+    });
+    function fall(A){ if(A.s.cur!==3 || A.s.busy) A.set(3); A.go(2,'photon',function(){ A.after(.35, function(){ A.go(1,'photon'); }); }); }
+  };
+  AF.B.ir = function(box){
+    function ionize(A, cb){ if(A.s.cur!==1 || A.s.busy) A.set(1); A.go(0,'collision',cb,true); }
+    function catchIt(A, cb){ if(A.s.cur!==0 || A.s.busy) A.free(); A.capture(3,cb); }
+    function fall(A){ if(A.s.cur!==3 || A.s.busy) A.set(3); A.go(2,'photon',function(){ A.after(.35, function(){ A.go(1,'photon'); }); }); }
+    return storyFig(box, {
+      tag: L('HYDROGEN ATOM','수소 원자'),
+      P: {ax:190, ay:236, R:150, N:4, lx0:400, lx1:478, ly0:92, ly1:400},
+      steps: [[L('Neutral atom','중성 원자'), L('The electron is bound on n = 1.','전자가 n = 1에 묶여 있습니다.')],
+              [L('Ionization','이온화'), L('A fast electron brings at least 13.6 eV and knocks it out: one ion, two free electrons.','빠른 전자가 13.6 eV 이상을 가져와 전자를 떼어냅니다. 이온 하나와 자유 전자 두 개가 남습니다.')],
+              [L('Recombination','재결합'), L('The ion catches a slow free electron. The extra energy leaves as one photon.','이온이 느린 자유 전자를 붙잡습니다. 남는 에너지는 광자 하나로 나갑니다.')],
+              [L('Cascade, glow','계단식으로 내려오며 빛'), L('Caught on a high level, the electron steps down and emits light at each step.','높은 준위에 붙잡힌 전자는 한 계단씩 내려오며 그때마다 빛을 냅니다.')]],
+      why: L('In a steady plasma, ionization and recombination <b>balance</b>: A + e⁻ → A⁺ + 2e⁻ and A⁺ + e⁻ → A + hν.','안정된 플라즈마에서는 이온화와 재결합이 <b>균형</b>을 이룹니다: A + e⁻ → A⁺ + 2e⁻ , A⁺ + e⁻ → A + hν.'),
+      stat: function(A, s){ if(s===1) A.free(); else if(s===2) A.set(3); else A.set(1); },
+      fwd: function(A, s){ if(s===1) ionize(A); else if(s===2) catchIt(A); else if(s===3) fall(A); },
+      replay: function(A){ A.set(1); A.after(.4, function(){ ionize(A, function(){ A.after(1.0, function(){ catchIt(A, function(){ A.after(.9, function(){ fall(A); }); }); }); }); }); }
+    });
+  };
+})();
+
+/* ============ Basic Course ch02: states of matter (particles in a box) ============ */
+(function(){
+  var L = AF.L;
+  AF.B.states = function(box){
+    var NAMES = [['Solid','고체','#0a0a0a','Atoms are locked in place and only vibrate.','원자들이 제자리에 묶여 진동만 합니다.'],
+                 ['Liquid','액체','#2f7d6d','Atoms slide past each other but stay close together.','원자들이 서로 미끄러지며 움직이지만 가까이 붙어 있습니다.'],
+                 ['Gas','기체','#c99a1b','Atoms fly freely and fill the whole container.','원자들이 자유롭게 날아다니며 용기 전체를 채웁니다.'],
+                 ['Plasma','플라즈마','#ff4d8b','Collisions knock electrons off atoms: ions and free electrons appear. The 4th state of matter, about 99% of the visible universe.','충돌로 원자에서 전자가 떨어져 나가 이온과 자유 전자가 생깁니다. 물질의 제4상태이며, 보이는 우주의 약 99%가 이 상태입니다.']];
+    var E0 = [10,37,62,92];
+    box.innerHTML =
+      '<div class="af-stage light"><div class="af-tag">'+L('PARTICLES IN A BOX','상자 속 입자')+'</div></div>'+
+      '<div class="af-panel">'+
+        '<div><div class="af-row"><span class="k">'+L('Energy added (relative)','더해 준 에너지 (상대적)')+'</span></div>'+
+        '<input type="range" class="stSl" min="0" max="100" step="1" value="10"><div class="af-ticks"><span>LOW</span><span>HIGH</span></div></div>'+
+        '<div class="af-chips">'+NAMES.map(function(n,i){ return '<button type="button" class="af-chip'+(i===0?' on':'')+'" data-e="'+E0[i]+'">'+L(n[0],n[1])+'</button>'; }).join('')+'</div>'+
+        '<div class="af-big stName">—</div><div class="af-sd stDesc" style="min-height:66px"></div>'+
+        '<div class="af-legend"><span><i style="background:#b8a4ed;border:1px solid #0a0a0a"></i>'+L('atom','원자')+'</span><span><i style="background:#ff4d8b"></i>'+L('ion (+)','이온 (+)')+'</span><span><i style="background:#1a3a3a"></i>'+L('electron (−)','전자 (−)')+'</span></div>'+
+      '</div>';
+    var cv = AF.cv(560, 380); box.querySelector('.af-stage').appendChild(cv);
+    var cx = cv.getContext('2d'); cx.scale(2,2);
+    var W = 560, H = 380, M = 14, N = 40, P = [], e = 10, t = 0;
+    for(var i=0;i<N;i++){
+      var col = i%8, row = (i/8)|0, hx = 105 + col*50, hy = H - M - 26 - row*46;
+      var a = Math.random()*6.283;
+      P.push({x:hx,y:hy,hx:hx,hy:hy,vx:Math.cos(a)*40,vy:Math.sin(a)*40,ph:Math.random()*6.283,ion:false,el:null});
+    }
+    var sl = AF.q(box,'.stSl'), chips = AF.qa(box,'[data-e]');
+    function state(){ return e<25 ? 0 : e<50 ? 1 : e<75 ? 2 : 3; }
+    function upd(){
+      var s = state(), n = NAMES[s];
+      var nm = AF.q(box,'.stName'); nm.textContent = L(n[0], n[1]); nm.style.color = n[2];
+      AF.q(box,'.stDesc').textContent = L(n[3], n[4]);
+      chips.forEach(function(b,i){ b.classList.toggle('on', i===s); });
+    }
+    sl.addEventListener('input', function(){ e = +sl.value; upd(); });
+    AF.chips(chips, function(b){ e = +b.dataset.e; sl.value = e; upd(); });
+    function draw(dt){
+      t += dt;
+      var s = state(), speed = [0, 45+(e-25)*3, 100+(e-50)*4, 200+(e-75)*4][s];
+      var f = s===3 ? (e-75)/25 : 0, nIon = Math.round(f*N*0.7);
+      cx.clearRect(0,0,W,H);
+      cx.fillStyle = '#fffdf7'; cx.fillRect(0,0,W,H);
+      cx.lineWidth = 3; cx.strokeStyle = s===3 ? '#ff4d8b' : '#e8e2d0';
+      cx.strokeRect(M/2, M/2, W-M, H-M);
+      if(s===3){ var g = cx.createRadialGradient(W/2,H/2,20,W/2,H/2,W/2); g.addColorStop(0,'rgba(255,77,139,'+(0.10+0.12*f)+')'); g.addColorStop(1,'rgba(184,164,237,0)'); cx.fillStyle = g; cx.fillRect(0,0,W,H); }
+      var lo = s===1 ? H*0.40 : M, jit = 1 + e*0.10;
+      P.forEach(function(p,i){
+        if(s===0){
+          var k = Math.min(1, dt*10);
+          p.x += (p.hx + Math.cos(t*9+p.ph)*jit - p.x)*k; p.y += (p.hy + Math.sin(t*8+p.ph)*jit - p.y)*k;
+        } else {
+          var m = Math.hypot(p.vx,p.vy) || 1, kk = Math.min(1, dt*3);
+          p.vx *= 1 + (speed/m - 1)*kk; p.vy *= 1 + (speed/m - 1)*kk;
+          p.vx += (Math.random()-.5)*400*dt; p.vy += (Math.random()-.5)*400*dt;
+          p.x += p.vx*dt; p.y += p.vy*dt;
+          if(p.x < M+9){ p.x = M+9; p.vx = Math.abs(p.vx); } if(p.x > W-M-9){ p.x = W-M-9; p.vx = -Math.abs(p.vx); }
+          if(p.y < lo+9){ if(p.y < lo-30){ p.vy += 600*dt; } else { p.y = lo+9; p.vy = Math.abs(p.vy); } }
+          if(p.y > H-M-9){ p.y = H-M-9; p.vy = -Math.abs(p.vy); }
+        }
+        p.ion = s===3 && ((i*13)%N) < nIon;
+        if(p.ion && !p.el){ var a = Math.random()*6.283, sp = speed*2.2; p.el = {x:p.x,y:p.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp}; }
+        if(!p.ion) p.el = null;
+        if(p.el){ var q = p.el; q.x += q.vx*dt; q.y += q.vy*dt;
+          if(q.x<M+4){ q.x=M+4; q.vx=Math.abs(q.vx);} if(q.x>W-M-4){ q.x=W-M-4; q.vx=-Math.abs(q.vx);} if(q.y<M+4){ q.y=M+4; q.vy=Math.abs(q.vy);} if(q.y>H-M-4){ q.y=H-M-4; q.vy=-Math.abs(q.vy);} }
+      });
+      P.forEach(function(p){
+        cx.beginPath(); cx.arc(p.x,p.y,9,0,6.283);
+        cx.fillStyle = p.ion ? '#ff4d8b' : '#b8a4ed'; cx.fill();
+        cx.lineWidth = 1.2; cx.strokeStyle = p.ion ? '#ff4d8b' : '#0a0a0a'; cx.stroke();
+        if(p.ion){ cx.strokeStyle = '#fff'; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(p.x-4,p.y); cx.lineTo(p.x+4,p.y); cx.moveTo(p.x,p.y-4); cx.lineTo(p.x,p.y+4); cx.stroke(); }
+      });
+      P.forEach(function(p){ if(p.el){ cx.beginPath(); cx.arc(p.el.x,p.el.y,3.6,0,6.283); cx.fillStyle = '#1a3a3a'; cx.fill(); } });
+    }
+    upd();
+    return {draw:draw};
+  };
+})();
+
+</script>
 </body>
 </html>
