@@ -50,7 +50,7 @@
       font-family: var(--font-main) !important;
     }
 
-    code, pre, .module-num, .card-badge, .secure-badge, .btn-text-lang, .notebook-title, .notebook-status, .sidebar-label {
+    code, pre, .module-num, .card-badge, .secure-badge, .btn-text-lang, .sidebar-label {
       font-family: var(--font-mono) !important;
     }
 
@@ -499,7 +499,7 @@
     /* Active Lecture Styling */
     .lecture-item-btn {
       width: 100%; background: transparent; border: 1px solid transparent; border-radius: 8px;
-      padding: 10px 12px; color: var(--color-text-muted); cursor: pointer;
+      padding: 10px 22px 10px 12px; color: var(--color-text-muted); cursor: pointer;
       display: flex; align-items: center; gap: 10px; text-align: left;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
     }
@@ -532,33 +532,6 @@
     }
 
     .lecture-title { font-size: 0.85rem; flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: font-weight 0.25s ease; }
-
-    .checkbox-container {
-      width: 18px; height: 18px; border: 1.5px solid rgba(0, 0, 0, 0.2);
-      border-radius: 5px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: var(--transition-smooth); flex-shrink: 0; margin-right: 12px;
-    }
-
-    .checkbox-container:hover { border-color: rgba(0, 0, 0, 0.4); }
-    .checkbox-container.checked { background-color: var(--color-class1); border-color: var(--color-class1); }
-    .class2-active .checkbox-container.checked { background-color: var(--color-class2); border-color: var(--color-class2); }
-
-    .checkbox-container svg { width: 12px; height: 12px; fill: none; stroke: white; stroke-width: 3px; stroke-linecap: round; stroke-linejoin: round; display: none; }
-    .checkbox-container.checked svg { display: block; animation: checkmark 0.2s ease-in-out forwards; }
-    @keyframes checkmark { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-    /* Notebook Drawer */
-    .notebook-container { border-top: 1px solid var(--color-border); padding: 1.25rem; background: rgba(0, 0, 0, 0.01); }
-    .notebook-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    .notebook-title { font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 1px; }
-    .notebook-status { font-size: 0.65rem; color: var(--color-class1); opacity: 0; transition: opacity 0.3s ease; }
-    .notebook-status.saved { opacity: 1; }
-    .notebook-textarea {
-      width: 100%; height: 90px; background: #FFFFFF; border: 1px solid var(--color-border);
-      border-radius: 6px; color: var(--color-text-primary); font-size: 0.8rem; padding: 8px;
-      resize: none; outline: none; transition: var(--transition-smooth);
-    }
-    .notebook-textarea:focus { border-color: rgba(0, 0, 0, 0.2); }
 
     .sidebar-footer { padding: 1rem; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .btn-secondary {
@@ -643,7 +616,7 @@
     body[data-lang="ko"] * { font-family: 'Google Sans', 'Gowun Batang', 'Georgia', serif !important; }
     body[data-lang="ko"] code, body[data-lang="ko"] pre, body[data-lang="ko"] .module-num, 
     body[data-lang="ko"] .card-badge, body[data-lang="ko"] .secure-badge, body[data-lang="ko"] .btn-text-lang, 
-    body[data-lang="ko"] .notebook-title, body[data-lang="ko"] .notebook-status, body[data-lang="ko"] .sidebar-label {
+    body[data-lang="ko"] .sidebar-label {
       font-family: var(--font-mono) !important;
     }
   </style>
@@ -1085,18 +1058,6 @@
         </ul>
       </div>
 
-      <div class="notebook-container">
-        <div class="notebook-header">
-          <span class="notebook-title" id="lbl-notebook">Lecture Notebook</span>
-          <span class="notebook-status" id="notebook-status-badge">Saved</span>
-        </div>
-        <textarea 
-          class="notebook-textarea" 
-          id="student-notepad" 
-          placeholder="Take your active study notes for this module here..."
-          oninput="saveLectureNotes()"></textarea>
-      </div>
-
       <div class="sidebar-footer">
         <button class="btn-secondary" onclick="exitToPortal()">
           <svg style="width: 15px; height: 15px;" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -1170,12 +1131,10 @@
         secureBadge: "SECURE SANDBOX ACTIVE",
         loadingText: "SECURELY DEPLOYING LESSON...",
         lblSyllabus: "Course Modules",
-        lblNotebook: "Lesson Notes",
         lblPortal: "Main Portal",
         errTitle: "Lecture Slide File Pending",
         errDesc: "The platform cannot locate the specified local HTML file at the current folder location. Make sure the following file is saved together with this index portal:",
         errDismiss: "Dismiss and view Frame container",
-        notePlaceholder: "Write and save your key takeaways or study notes for this module...",
         philBadge: "Instructor's Note",
         philTitle: "Your Learning Journey is Like a Rose Vine",
         philDesc1: "It is impossible to absorb such a vast and complex amount of engineering theory in just 16 short hours. Please don't rush to memorize everything at once.",
@@ -1215,12 +1174,10 @@
         secureBadge: "보안 샌드박스 프레임 작동 중",
         loadingText: "보안 강의 페이지를 생성 중입니다...",
         lblSyllabus: "강의 커리큘럼 리스트",
-        lblNotebook: "실시간 학습 오토노트",
         lblPortal: "플랫폼 메인 입구",
         errTitle: "교육 강의 파일 감지 불가",
         errDesc: "상대경로 내에 지정된 강의 교안 HTML 파일이 발견되지 않았습니다. 포탈 파일과 동일한 디렉토리(폴더)에 아래의 파일을 위치해 주시기 바랍니다:",
         errDismiss: "경고창 닫고 프레임 유지",
-        notePlaceholder: "본 강의 모듈에 대한 나만의 중요 요약 정리 또는 실시간 핵심 노트를 기록하세요...",
         philBadge: "강사의 당부",
         philTitle: "배움의 여정은 넝쿨장미를 가꾸는 것과 같습니다",
         philDesc1: "이 어렵고 방대한 주제를 16시간 남짓한 단기간 내에 모두 알려고 욕심내지 마세요.",
@@ -1297,7 +1254,6 @@
       
       applyTranslations();
       iframe.addEventListener('load', () => spinner.classList.remove('active'));
-      document.getElementById('student-notepad').placeholder = TRANSLATIONS[currentLang].notePlaceholder;
 
       if (portalSplash) {
         const pnav = document.getElementById('pnav');
@@ -1331,10 +1287,8 @@
       if (sideLangBtn) sideLangBtn.innerText = currentLang === 'en' ? 'KO' : 'EN';
       
       document.getElementById('lbl-syllabus').innerText = T.lblSyllabus;
-      document.getElementById('lbl-notebook').innerText = T.lblNotebook;
       document.getElementById('lbl-btn-portal').innerText = T.lblPortal;
       document.getElementById('lbl-loading').innerText = T.loadingText;
-      document.getElementById('student-notepad').placeholder = T.notePlaceholder;
 
       document.getElementById('lbl-secure').innerHTML = `<svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:currentColor;margin-right:4px;"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm-2 5c0-1.1.9-2 2-2s2 .9 2 2v3h-4V7zm2 8c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/></svg>${T.secureBadge}`;
       document.getElementById('err-title').innerText = T.errTitle;
@@ -1407,7 +1361,6 @@
       
       let moduleCounter = 0;
       config.lectures.forEach((lecture, index) => {
-        const isCompleted = getLectureCompletionStatus(lecture.id);
         const activeClass = (index === currentLectureIndex) ? 'active' : '';
         let badgeLabel = lecture.isRef ? "REF" : `M${++moduleCounter}`;
         
@@ -1419,10 +1372,6 @@
               ${currentLang === 'en' ? lecture.titleEn : lecture.titleKo}
             </span>
             ${lecture.members ? '<span class="member-chip" title="Members only">MEMBER</span>' : ''}
-            <div class="checkbox-container ${isCompleted ? 'checked' : ''}" 
-                 onclick="toggleLectureProgress(event, '${lecture.id}', this)" title="Mark as Completed">
-              <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-            </div>
           </div>
         `;
         listContainer.appendChild(itemLi);
@@ -1442,7 +1391,6 @@
       spinner.classList.add('active');
       
       iframe.src = lecture.members ? `./${lecture.file}?lang=${currentLang}` : `./${lecture.file}`;
-      loadLectureNotes();
       checkLocalFileAvailability(lecture.file);
     }
 
@@ -1465,32 +1413,6 @@
       } else {
         document.exitFullscreen();
       }
-    }
-
-    function getLectureCompletionStatus(lectureId) {
-      const list = JSON.parse(localStorage.getItem('benedu_completed_lectures') || '{}');
-      return !!list[lectureId];
-    }
-
-    function toggleLectureProgress(event, lectureId, element) {
-      event.stopPropagation();
-      const list = JSON.parse(localStorage.getItem('benedu_completed_lectures') || '{}');
-      list[lectureId] = !list[lectureId];
-      localStorage.setItem('benedu_completed_lectures', JSON.stringify(list));
-      element.classList.toggle('checked', list[lectureId]);
-    }
-
-    function saveLectureNotes() {
-      if (!currentClassId) return;
-      localStorage.setItem(`benedu_notes_${CLASS_DATA[currentClassId].lectures[currentLectureIndex].id}`, document.getElementById('student-notepad').value);
-      const badge = document.getElementById('notebook-status-badge');
-      badge.classList.add('saved');
-      setTimeout(() => badge.classList.remove('saved'), 1000);
-    }
-
-    function loadLectureNotes() {
-      if (!currentClassId) return;
-      document.getElementById('student-notepad').value = localStorage.getItem(`benedu_notes_${CLASS_DATA[currentClassId].lectures[currentLectureIndex].id}`) || '';
     }
 
     function checkLocalFileAvailability(fileName) {
