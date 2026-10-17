@@ -148,6 +148,43 @@
             pointer-events: none;
         }
 
+        /* 좌/우 사이드바 폴딩(접기) · 언폴딩(펼치기) 트랜지션 */
+        #leftSidebar,
+        #detailPanel {
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding-left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        padding-right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.35s ease;
+            overflow-x: hidden;
+        }
+        #leftSidebar.sidebar-collapsed {
+            width: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            border-right-color: transparent !important;
+        }
+        #detailPanel.sidebar-collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            border-left-color: transparent !important;
+        }
+        #leftSidebar > *,
+        #detailPanel > * {
+            transition: opacity 0.2s ease;
+        }
+        #leftSidebar.sidebar-collapsed > *,
+        #detailPanel.sidebar-collapsed > * {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 사이드바 폴딩 토글 핸들(탭) 버튼 - 사이드바 너비 변화와 함께 이동 */
+        .sidebar-toggle-handle {
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        background-color 0.15s ease, color 0.15s ease;
+        }
+
         /* 드래그 기동성 피드백 커서 지정 */
         #container-3d {
             cursor: grab;
@@ -198,7 +235,7 @@
     <!-- MAIN INTERACTIVE WORKSPACE -->
     <main class="relative flex-1 w-full flex overflow-hidden z-10 bg-[#f8f9fa]">
         <!-- Sidebar: Filter Categories (구글 공식 주기율표 분류 체계 반영) -->
-        <aside class="hidden lg:flex flex-col w-72 border-r border-neutral-200 bg-white p-5 space-y-4 overflow-y-auto">
+        <aside id="leftSidebar" class="hidden lg:flex flex-col w-72 border-r border-neutral-200 bg-white p-5 space-y-4 overflow-y-auto">
             
             <!-- 테이블 뷰 레이아웃 선택기 (Standard VS Lewis) -->
             <div class="flex flex-col space-y-2 p-3 bg-neutral-50 rounded-xl border border-neutral-200 shadow-sm">
@@ -394,6 +431,20 @@
                 </button>
             </div>
         </div>
+
+        <!-- 좌측 사이드바(원소 계열 필터) 폴딩/언폴딩 토글 핸들 -->
+        <button id="leftSidebarToggle" type="button"
+                class="sidebar-toggle-handle hidden lg:flex absolute top-1/2 -translate-y-1/2 z-30 w-6 h-16 items-center justify-center bg-white border border-neutral-200 rounded-r-xl shadow-md text-neutral-400 hover:text-brandPurple hover:bg-neutral-50"
+                style="left: 288px;" title="Toggle categories panel">
+            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+        </button>
+
+        <!-- 우측 상세정보 패널 폴딩/언폴딩 토글 핸들 -->
+        <button id="rightSidebarToggle" type="button"
+                class="sidebar-toggle-handle hidden lg:flex absolute top-1/2 -translate-y-1/2 z-30 w-6 h-16 items-center justify-center bg-white border border-neutral-200 rounded-l-xl shadow-md text-neutral-400 hover:text-brandPurple hover:bg-neutral-50"
+                style="right: 460px;" title="Toggle element detail panel">
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        </button>
     </main>
 
     <!-- FOOTER -->
@@ -1645,11 +1696,24 @@
             const container = document.getElementById('container-3d');
             const w = container.clientWidth;
             const h = container.clientHeight;
-            
-            // 주기율표 렌더링에 적합한 가상 해상도 바운더리
-            const requiredWidth = 2600; 
-            const requiredHeight = 1600;
-            
+
+            // 주기율표 카드의 실제 배치 범위를 동적으로 계산하여 최초 로딩 시 불필요한 여백을 최소화
+            const cardSize = 100;
+            const padding = 40; // 테두리 여유 공간
+            let requiredWidth = 2600;
+            let requiredHeight = 1600;
+            if (targets.table && targets.table.length) {
+                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+                targets.table.forEach(t => {
+                    minX = Math.min(minX, t.position.x);
+                    maxX = Math.max(maxX, t.position.x);
+                    minY = Math.min(minY, t.position.y);
+                    maxY = Math.max(maxY, t.position.y);
+                });
+                requiredWidth = (maxX - minX + cardSize) + padding * 2;
+                requiredHeight = (maxY - minY + cardSize) + padding * 2;
+            }
+
             const fovRad = (camera.fov * Math.PI) / 180;
             const tanHalfFov = Math.tan(fovRad / 2);
             const aspect = w / h;
@@ -1753,6 +1817,10 @@
             document.getElementById('btn-model-orbital').addEventListener('click', () => selectModelMode('orbital'));
             document.getElementById('btn-model-lewis').addEventListener('click', () => selectModelMode('lewis'));
 
+            document.getElementById('leftSidebarToggle').addEventListener('click', toggleLeftSidebar);
+            document.getElementById('rightSidebarToggle').addEventListener('click', toggleRightSidebar);
+            positionToggleHandles();
+
             window.addEventListener('resize', onWindowResize);
         }
 
@@ -1844,12 +1912,71 @@
             });
         }
 
+        // --- 좌/우 사이드바 폴딩(접기) / 언폴딩(펼치기) 컨트롤러 ---
+        let leftSidebarCollapsed = false;
+        let rightSidebarCollapsed = false;
+        const SIDEBAR_FOLD_DURATION = 350; // CSS 트랜지션 시간(ms)과 동기화
+
+        // 사이드바 너비 변화에 맞춰 토글 핸들 버튼 위치를 실시간으로 재정렬
+        function positionToggleHandles() {
+            const leftSidebar = document.getElementById('leftSidebar');
+            const detailPanel = document.getElementById('detailPanel');
+            const leftHandle = document.getElementById('leftSidebarToggle');
+            const rightHandle = document.getElementById('rightSidebarToggle');
+            if (leftSidebar && leftHandle) {
+                leftHandle.style.left = leftSidebar.offsetWidth + 'px';
+            }
+            if (detailPanel && rightHandle) {
+                rightHandle.style.right = detailPanel.offsetWidth + 'px';
+            }
+        }
+
+        // 사이드바가 접히고 펼쳐지는 0.35초 동안 3D 캔버스/카메라와 핸들 위치를 매 프레임 재조정
+        function syncCanvasDuringFold() {
+            const startTime = performance.now();
+            function step(now) {
+                onWindowResize();
+                positionToggleHandles();
+                if (now - startTime < SIDEBAR_FOLD_DURATION) {
+                    requestAnimationFrame(step);
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        function toggleLeftSidebar() {
+            leftSidebarCollapsed = !leftSidebarCollapsed;
+            const leftSidebar = document.getElementById('leftSidebar');
+            const leftHandle = document.getElementById('leftSidebarToggle');
+            leftSidebar.classList.toggle('sidebar-collapsed', leftSidebarCollapsed);
+            leftHandle.querySelector('i').className = leftSidebarCollapsed
+                ? 'fa-solid fa-chevron-right text-[10px]'
+                : 'fa-solid fa-chevron-left text-[10px]';
+            leftHandle.title = leftSidebarCollapsed ? 'Expand categories panel' : 'Collapse categories panel';
+            playBeep(leftSidebarCollapsed ? 420 : 520, 'sine', 0.06, 0.025);
+            syncCanvasDuringFold();
+        }
+
+        function toggleRightSidebar() {
+            rightSidebarCollapsed = !rightSidebarCollapsed;
+            const detailPanel = document.getElementById('detailPanel');
+            const rightHandle = document.getElementById('rightSidebarToggle');
+            detailPanel.classList.toggle('sidebar-collapsed', rightSidebarCollapsed);
+            rightHandle.querySelector('i').className = rightSidebarCollapsed
+                ? 'fa-solid fa-chevron-left text-[10px]'
+                : 'fa-solid fa-chevron-right text-[10px]';
+            rightHandle.title = rightSidebarCollapsed ? 'Expand element detail panel' : 'Collapse element detail panel';
+            playBeep(rightSidebarCollapsed ? 420 : 520, 'sine', 0.06, 0.025);
+            syncCanvasDuringFold();
+        }
+
         function onWindowResize() {
             const container = document.getElementById('container-3d');
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
             adjustCameraZ(); // 창 크기가 변할 때 주기율표가 잘리지 않도록 정밀 자동 비율 조절
+            positionToggleHandles();
             render();
         }
 
