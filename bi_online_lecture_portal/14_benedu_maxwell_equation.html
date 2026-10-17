@@ -856,6 +856,152 @@ header p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   body { height: auto; min-height: 100vh; }
 }
 </style>
+<!-- AF-KIT:CSS (animated figures ported from basic_course ch02–05) -->
+<style id="af-kit-css">
+/* ============ Benedu animated-figure kit (Basic Course look) ============ */
+.af{--af-ink:#0a0a0a;--af-steel:#5f5f5a;--af-soft:#8a8a82;--af-hair:#e4dfd1;--af-cream:#fffaf0;--af-pink:#ff4d8b;
+  font-family:'Google Sans','Gowun Batang',serif;color:var(--af-ink);background:#fff;border:1px solid #e8e5de;
+  border-radius:18px;padding:16px;margin:0 0 1.25rem;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+  gap:18px;align-items:start;max-width:100%;min-width:0;box-sizing:border-box;text-align:left}
+.af *{box-sizing:border-box}
+.af.af-1col{grid-template-columns:minmax(0,1fr)}
+@media (max-width:1100px){ .af{grid-template-columns:minmax(0,1fr);padding:12px;gap:14px} }
+.af-stage{position:relative;min-width:0;border-radius:18px;overflow:hidden;
+  background:radial-gradient(120% 95% at 32% 48%,#15283b 0%,#0c1520 55%,#070b11 100%);
+  box-shadow:0 18px 36px -22px rgba(7,11,17,.6),inset 0 0 0 1px rgba(255,255,255,.06)}
+.af-stage.light{background:#fffdf7;box-shadow:inset 0 0 0 1px var(--af-hair)}
+.af-stage canvas{display:block;width:100%;height:auto}
+.af-tag{position:absolute;left:14px;top:12px;font:600 10px/1.3 'JetBrains Mono',monospace;letter-spacing:.14em;color:rgba(220,236,255,.6);pointer-events:none}
+.af-tag.r{left:auto;right:14px}
+.af-stage.light .af-tag{color:var(--af-soft)}
+.af-ov{position:absolute;left:12px;bottom:12px;display:flex;gap:8px;flex-wrap:wrap}
+.af-ov .af-chip{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);color:rgba(230,242,255,.9)}
+.af-ov .af-chip:hover{background:rgba(255,255,255,.18)}
+.af-panel{min-width:0;display:flex;flex-direction:column;gap:10px}
+.af .k{font-size:13px;color:var(--af-steel);line-height:1.4}
+.af .v{font-family:'JetBrains Mono','Gowun Batang',monospace;font-weight:700;font-size:14px;color:var(--af-ink);white-space:nowrap}
+.af-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.af-chips{display:flex;flex-wrap:wrap;gap:6px}
+.af-chip{font:500 12.5px/1.2 'Google Sans','Gowun Batang',serif;color:var(--af-ink);padding:6px 13px;border:1px solid var(--af-hair);
+  background:#fff;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s}
+.af-chip:hover{border-color:var(--af-soft)}
+.af-chip.on{background:var(--af-ink);border-color:var(--af-ink);color:#fff}
+.af-chip:disabled{opacity:.4;cursor:default}
+.af input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:var(--af-hair);outline:none;margin:6px 0}
+.af input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--af-ink);border:4px solid var(--af-cream);box-shadow:0 0 0 1px var(--af-ink);cursor:pointer}
+.af input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--af-ink);border:4px solid var(--af-cream);box-shadow:0 0 0 1px var(--af-ink);cursor:pointer}
+.af-fire{flex:1;min-height:44px;border:0;border-radius:999px;background:var(--af-ink);color:#fff;font:600 14px 'Google Sans','Gowun Batang',serif;
+  display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:0 16px;transition:transform .12s,opacity .2s}
+.af-fire i{width:12px;height:12px;border-radius:50%;flex:0 0 12px;background:var(--pc,#8fe9ff);box-shadow:0 0 10px 3px var(--pc,#8fe9ff)}
+.af-fire:active{transform:scale(.97)} .af-fire:disabled{opacity:.38;cursor:default}
+.af-act{display:flex;gap:8px;flex-wrap:wrap}
+.af-act .af-chip{min-height:44px;padding:0 18px}
+.af-ro{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px}
+.af-ro>div{border-top:1px solid var(--af-hair);padding-top:6px;min-width:0}
+.af-ro .k{font:500 10px/1.3 'JetBrains Mono','Gowun Batang',monospace;letter-spacing:.08em;color:var(--af-soft)}
+.af-ro .v{font-size:15px;margin-top:3px;overflow:hidden;text-overflow:ellipsis}
+.af-ro .w{grid-column:1/-1}
+.af-ro .w .v{font-family:'Google Sans','Gowun Batang',serif;font-size:15px;white-space:normal}
+.af-mono{font-family:'JetBrains Mono','Gowun Batang',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--af-soft)}
+.af-ticks{display:flex;justify-content:space-between;font:500 10px 'JetBrains Mono',monospace;letter-spacing:.08em;color:var(--af-soft)}
+.af-big{font-size:34px;font-weight:600;letter-spacing:-.03em;line-height:1.05}
+.af-sd{font-size:14px;color:var(--af-steel);line-height:1.55}
+.af-sd b{color:var(--af-ink)}
+.af-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--af-steel)}
+.af-legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.af-steps{display:flex;flex-direction:column}
+.af-step{display:flex;gap:12px;padding:10px 6px;border-top:1px solid var(--af-hair);cursor:pointer;border-radius:10px;transition:background .15s,opacity .2s;opacity:.55;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;color:inherit;width:100%}
+.af-step:hover{background:rgba(10,10,10,.035)}
+.af-step.on{opacity:1}
+.af-step.cur{background:none}
+.af-step .no{flex:0 0 28px;height:28px;border-radius:50%;background:var(--af-ink);color:#fff;font:700 12px/28px 'JetBrains Mono',monospace;text-align:center}
+.af-step .no{background:#efece5;color:var(--af-steel)} .af-step.on .no{background:#e3dfd5;color:var(--af-ink)} .af-step.cur .no{background:var(--af-ink);color:#fff}
+.af-step .tt{font-size:15px;font-weight:600;letter-spacing:-.01em}
+.af-step .dd{font-size:13px;color:var(--af-steel);margin-top:2px;line-height:1.45}
+.af-why{font-size:14px;line-height:1.55;color:var(--af-steel);border-top:1px solid #e8e5de;padding:12px 2px 0}
+.af-why b{color:var(--af-ink);font-weight:700}
+.af-cap{grid-column:1/-1;font:500 11px/1.5 'JetBrains Mono','Gowun Batang',monospace;color:var(--af-soft);letter-spacing:.02em}
+.af-eqn{font-family:'Google Sans','Gowun Batang',serif;font-weight:700;font-size:22px;display:inline-flex;align-items:center;gap:.2em;white-space:nowrap}
+.af-frac{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1;margin:0 .06em;font-size:.8em}
+.af-frac .fn{padding:0 .12em .04em;border-bottom:.06em solid currentColor}
+.af-frac .fd{padding:.04em .12em 0}
+.af-rows>div{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--af-hair);padding:7px 0;font-size:13px;color:var(--af-steel)}
+.af-rows b{font-family:'JetBrains Mono',monospace;color:var(--af-ink);white-space:nowrap}
+.af-bar{height:10px;border-radius:6px;background:var(--af-hair);overflow:hidden;margin-top:6px}
+.af-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#b8a4ed,#7a5fd1);border-radius:6px;transition:width .08s}
+.af-link{display:inline-flex;align-items:center;gap:6px;font:600 12.5px 'Google Sans','Gowun Batang',serif;color:var(--af-ink);text-decoration:none;border:1px solid var(--af-hair);background:#fff;border-radius:999px;padding:7px 14px;align-self:flex-start}
+.af-link:hover{border-color:var(--af-soft)}
+@media (max-width:520px){ .af-ro{grid-template-columns:repeat(2,minmax(0,1fr))} .af-big{font-size:28px} }
+.af-stage.sq{max-width:440px;width:100%;justify-self:center}
+@media (max-width:1100px){ .af > .af-stage{justify-self:center;width:100%;max-width:660px} .af > .af-stage.sq{max-width:420px} }
+/* layout guard for existing content: wide display equations / tables scroll inside their own box
+   instead of pushing the reading panel sideways (phone widths) */
+#detail mjx-container[display="true"]{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden}
+#detail .eq-block{max-width:100%;overflow-x:auto}
+@media (max-width:860px){ #detail table{display:block;max-width:100%;overflow-x:auto} }
+@media (max-width:640px){
+  .af-ov{position:static;padding:8px 10px 10px}
+  /* existing headers: let the title block shrink instead of widening the page */
+  header > div{min-width:0}
+  header p{overflow:hidden;text-overflow:ellipsis}
+}
+@media (prefers-reduced-motion:reduce){ .afm-c,.afm-tl .tdot,.afm-call,.afm-tl .tline{animation:none!important;opacity:1!important;transform:none!important} }
+
+/* ---- ch05 electromagnetism figures ---- */
+.afx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.afx-cd{border:1px solid #e8e5de;border-radius:14px;background:#fff;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.afx-k{font:700 11px 'JetBrains Mono',monospace;letter-spacing:.12em;color:var(--af-steel);display:flex;align-items:center;gap:8px}
+.afx-k::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c,#0a0a0a);flex:0 0 7px}
+.afx-k span{color:var(--af-soft);font-weight:600;margin-left:6px}
+.afx-eq{font-family:'Google Sans','Gowun Batang',serif;font-weight:700;font-size:19px;margin:4px 0 2px;white-space:nowrap;overflow-x:auto}
+.afx-l p{font-size:13.5px;color:var(--af-steel);margin:0;line-height:1.45}
+.afx-cv canvas{display:block;width:100%;height:auto;border-radius:12px}
+.af-eqn.afx-eq1{font-size:21px;white-space:normal}
+.afw-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.afw-bar{position:relative;height:30px;border-radius:10px;overflow:visible;margin:4px 6px 0}
+.afw-bar i{position:absolute;top:0;bottom:0;opacity:.85}
+.afw-bar i:first-child{border-radius:10px 0 0 10px} .afw-bar i:nth-child(6){border-radius:0 10px 10px 0}
+.afw-bar s{position:absolute;top:-6px;width:4px;height:42px;background:#0a0a0a;border-radius:2px;transform:translateX(-2px);text-decoration:none}
+.afw-lab{position:relative;height:16px;margin:0 6px}
+.afw-lab span{position:absolute;top:0;transform:translateX(-50%);font:700 10px 'JetBrains Mono','Gowun Batang',monospace;letter-spacing:.04em;color:var(--af-steel);white-space:nowrap}
+.afh-ctl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) 120px;gap:14px;align-items:end}
+@media (max-width:760px){
+  .afx-grid,.afw-grid{grid-template-columns:minmax(0,1fr)}
+  .afh-ctl{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .afh-ctl .af-fire{grid-column:1/-1}
+  .afw-lab span{font-size:8px;letter-spacing:0}
+  .afw-lab span:nth-child(4){top:12px}
+  .afw-lab{height:26px}
+}
+.af-ro.afh-ro{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:760px){ .af-ro.afh-ro{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+/* ===== Neutral callouts: no tinted fills or colour-stripe borders on boxes (user preference, 2026-10-17).
+   Overrides the lectures' own styles (incl. inline border-top/left colours) — white surface, hairline border. ===== */
+:root{--nb-line:#e8e5de;--nb-ink:#1f1f1f;--nb-mute:#5f5f5a;--nb-head:#f6f5f2}
+/* self-study quiz box (all lectures) */
+details.classroom-box{background:#fff!important;border:1px solid var(--nb-line)!important;box-shadow:none!important}
+details.classroom-box summary,details.classroom-box .classroom-title{color:var(--nb-ink)!important}
+details.classroom-box .classroom-body{background:transparent!important;border-color:var(--nb-line)!important}
+/* lecture 12: cards with colour stripes, highlight boxes, selected Lewis cell */
+#detail .ch-card{background:#fff!important;border:1px solid var(--nb-line)!important}
+#detail .ch-highlight,#detail .ch-highlight.purple,#detail .ch-highlight.amber,#detail .ch-highlight.red,#detail .highlight-box{
+  background:#fff!important;border:1px solid var(--nb-line)!important;color:var(--nb-ink)!important}
+#detail .lewis-cell.lewis-active{background:#fff!important;border-color:var(--nb-ink)!important;box-shadow:0 0 0 1px var(--nb-ink)!important}
+#detail a[style*="linear-gradient"]{background:#fff!important;border:1px solid var(--nb-line)!important;color:var(--nb-ink)!important}
+/* lecture 13: deep-dive highlight, PhET card, RF popup highlight */
+#detail .dl-highlight,.rfpop-highlight{background:#fff!important;border:1px solid var(--nb-line)!important}
+#detail .phet-card{background:#fff!important;border:1px solid var(--nb-line)!important}
+/* table headers (tinted per column in several lectures) */
+#detail th,#rfPopupBox th{background:var(--nb-head)!important;color:var(--nb-ink)!important}
+#rfPopupClose{background:#fff!important;border:1px solid var(--nb-line)!important;color:var(--nb-ink)!important}
+/* lecture 14: LAB card header, overview tags, green chip list, coloured callout variants */
+#detail .d-header{background:#fff!important;border-bottom:1px solid var(--nb-line)!important}
+#detail .overview-card-tag{background:#fff!important;color:var(--nb-mute)!important;border:1px solid var(--nb-line)!important}
+#detail span[style*="background:var(--green-soft)"]{background:#fff!important;color:var(--nb-mute)!important;border:1px solid var(--nb-line)!important}
+#detail .callout,#detail .callout.green,#detail .callout.purple,#detail .callout.blue{background:#fff!important;border:1px solid var(--nb-line)!important}
+
+</style>
 </head>
 <body>
 
@@ -1000,7 +1146,7 @@ const UI = {
       sectionTitle: '패러데이 전자기 유도 &amp; ICP 플라즈마 방전 인터랙티브 시뮬레이션',
       tabLab: '시뮬레이션',
       tabIcp: 'ICP 반도체 장비 유도성 결합 방전',
-      labHint: '💡 위 프레임 내부의 PhET 대화형 가동 시뮬레이터를 활용해 다양한 코일 루프 및 유도선속 성질을 직접 탐구해보세요!',
+      labHint: '💡 자석을 좌우로 끌거나 ‘자동 왕복’을 켜고, 코일을 지나는 자기선속 Φ와 유도 전압 ε의 관계(ε = −N dΦ/dt)를 확인해 보세요.',
       freqLabel: 'RF 안테나 주파수 (RF Freq):',
       freqNote: '(교류 자속 변화율 $d\\Phi_B/dt$ 및 소용돌이 유도전계 제어)',
       sourcePrefix: '출처: ',
@@ -1010,7 +1156,7 @@ const UI = {
       sectionTitle: '암페어-맥스웰 법칙 &amp; ICP 변위 전류 인터랙티브 시뮬레이션',
       tabLab: '시뮬레이션',
       tabTransition: 'ICP 챔버 E-to-H 모드 양자 전이',
-      labHint: '💡 위 프레임 내부의 PhET 대화형 가동 시뮬레이터를 활용해 변위 전류에 의한 자기 유도 조건들을 탐구해보세요!',
+      labHint: '💡 전류의 크기·방향과 DC/AC를 바꾸고, 탐침을 끌어 거리 r에 따라 자기장 B = μ₀I/2πr이 어떻게 줄어드는지 확인해 보세요.',
       powerLabel: 'RF 인가 전력 (RF Power):',
       sourcePrefix: '출처: ',
       initialPhase: 'ICP RF 전류 사이클 진폭 (AC Phase) = 0.00',
@@ -1104,7 +1250,7 @@ const UI = {
       sectionTitle: 'Faraday\'s Law of Induction &amp; ICP Plasma Discharge Interactive Simulation',
       tabLab: 'Simulation',
       tabIcp: 'ICP Inductive Coupling Discharge',
-      labHint: '💡 Use the interactive PhET simulator above to explore coil loops and induced flux properties directly!',
+      labHint: '💡 Drag the magnet (or turn on Auto motion) and watch the induced voltage follow the slope of the flux: ε = −N dΦ/dt.',
       freqLabel: 'RF Antenna Frequency:',
       freqNote: '(Controls the rate of flux change $d\\Phi_B/dt$ and the swirling induced field)',
       sourcePrefix: 'Source: ',
@@ -1114,7 +1260,7 @@ const UI = {
       sectionTitle: 'Ampere-Maxwell Law &amp; ICP Displacement Current Interactive Simulation',
       tabLab: 'Simulation',
       tabTransition: 'ICP Chamber E-to-H Mode Transition',
-      labHint: '💡 Use the interactive PhET simulator above to explore the magnetic induction conditions created by displacement current!',
+      labHint: '💡 Change the current (DC/AC) and drag the probe to see B = μ₀I / 2πr fall off with distance.',
       powerLabel: 'Applied RF Power:',
       sourcePrefix: 'Source: ',
       initialPhase: 'ICP RF Current Cycle Amplitude (AC Phase) = 0.00',
@@ -1317,6 +1463,7 @@ const SLIDES_KO = [
   },
   {
     id: 'ch5',
+    afFig: 'emwave', afTitle: '빛은 전자기파 — E ⟂ B ⟂ 진행 방향으로 나아가는 파동 (주파수를 바꿔 보세요)',
     chapter: 'Chapter 5',
     name: 'EM Wave Propagation & Plasma Cutoff',
     nameKr: '전자기 파동방정식과 플라즈마 내 차단 진동수 물리',
@@ -1351,6 +1498,7 @@ const SLIDES_KO = [
   },
   {
     id: 'ch6',
+    afFig: 'mx4', afTitle: '전기와 자기의 통합 — 네 개의 맥스웰 방정식이 하나의 이론으로',
     chapter: 'Chapter 6',
     name: 'James Clerk Maxwell & Unified Field Theory',
     nameKr: '제임스 클러크 맥스웰과 통일장 이론',
@@ -1384,6 +1532,7 @@ const SLIDES_KO = [
   },
   {
     id: 'ch6_ref',
+    afFig: 'hertz', afTitle: '헤르츠의 실험 (1887) — 보이지 않는 파동을 붙잡다 (시뮬레이션)',
     chapter: '참고',
     name: 'The Great Unification & Hertz\'s Experimental Proof',
     nameKr: '참고: 전자기 유일론의 수립과 헤르츠의 위대한 증명',
@@ -1602,6 +1751,7 @@ const SLIDES_EN = [
   },
   {
     id: 'ch5',
+    afFig: 'emwave', afTitle: 'Light is an electromagnetic wave — E ⟂ B ⟂ direction of travel (try other frequencies)',
     chapter: 'Chapter 5',
     name: 'EM Wave Propagation & Plasma Cutoff',
     nameKr: 'The Electromagnetic Wave Equation and Cutoff Frequency Physics in Plasma',
@@ -1636,6 +1786,7 @@ const SLIDES_EN = [
   },
   {
     id: 'ch6',
+    afFig: 'mx4', afTitle: 'The unification of electricity and magnetism — four Maxwell equations, one theory',
     chapter: 'Chapter 6',
     name: 'James Clerk Maxwell & Unified Field Theory',
     nameKr: 'James Clerk Maxwell and Unified Field Theory',
@@ -1669,6 +1820,7 @@ const SLIDES_EN = [
   },
   {
     id: 'ch6_ref',
+    afFig: 'hertz', afTitle: 'Hertz\'s experiment (1887) — catching an invisible wave (simulation)',
     chapter: 'Reference',
     name: 'The Great Unification & Hertz\'s Experimental Proof',
     nameKr: 'Reference: The Great Unification & Hertz\'s Experimental Proof of Electromagnetism',
@@ -1993,10 +2145,11 @@ function renderDetail(slide) {
           <button class="sim-tab-btn" id="gauss-tab-ccp" onclick="setGaussTab('ccp')">${T.gauss.tabCcp}</button>
         </div>
         <div class="model-svg-wrapper" id="gauss-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:10px; width:100% !important; height: auto !important; min-height: 360px;">
-          <canvas id="gauss-sim-canvas" width="600" height="340" style="max-width:100%; height:auto;"></canvas>
+          <div id="gauss-af" class="af" data-af="mxg" data-k="gE" style="margin:0;width:100%"></div>
+          <canvas id="gauss-sim-canvas" width="600" height="340" style="max-width:100%; height:auto; display:none;"></canvas>
         </div>
         <div class="sim-container">
-          <div class="sim-controls" id="gauss-controls-classic">
+          <div class="sim-controls" id="gauss-controls-classic" style="display:none">
             <span class="sim-slider-label">${T.gauss.chargeLabel}</span>
             <input type="range" id="gauss-charge-slider" min="-10" max="10" value="6" step="1" oninput="updateGaussSimulation()">
             <span id="gauss-charge-val" style="font-family: var(--mono); font-weight:bold; color:var(--blue-dark)">+6 nC</span>
@@ -2012,7 +2165,7 @@ function renderDetail(slide) {
             <span id="ccp-voltage-val" style="font-family: var(--mono); font-weight:bold; color:#E53E3E">250 V</span>
             <div style="font-size:0.75rem; color:var(--text-sub); margin-left:10px;">${T.gauss.ccpNote}</div>
           </div>
-          <div id="gauss-formula-dynamic" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
+          <div id="gauss-formula-dynamic" style="display:none; font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
             ${T.gauss.formulaPrefix}$$\Phi = \oint_S \mathbf{E} \cdot d\\mathbf{A} = +6.0 \times 10^2 \text{ N}\cdot\text{m}^2/\text{C}$$
           </div>
         </div>
@@ -2055,10 +2208,11 @@ function renderDetail(slide) {
           <button class="sim-tab-btn" id="mag-tab-confinement" onclick="setMagTab('confinement')">${T.mag.tabConfinement}</button>
         </div>
         <div class="model-svg-wrapper" id="mag-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:10px; width:100% !important; height: auto !important; min-height: 360px;">
-          <canvas id="mag-sim-canvas" width="600" height="340" style="max-width:100%; height:auto;"></canvas>
+          <div id="mag-af" class="af" data-af="mxg" data-k="gB" style="margin:0;width:100%"></div>
+          <canvas id="mag-sim-canvas" width="600" height="340" style="max-width:100%; height:auto; display:none;"></canvas>
         </div>
         <div class="sim-container">
-          <div class="sim-controls" id="mag-controls-classic">
+          <div class="sim-controls" id="mag-controls-classic" style="display:none">
             <span class="sim-slider-label">${T.mag.angleLabel}</span>
             <input type="range" id="mag-angle-slider" min="0" max="360" value="45" step="5" oninput="updateMagSimulation()">
             <span id="mag-angle-val" style="font-family: var(--mono); font-weight:bold; color:var(--blue-dark)">45°</span>
@@ -2072,7 +2226,7 @@ function renderDetail(slide) {
             <input type="range" id="mag-conf-slider" min="1" max="5" value="3" step="1" oninput="updateMagSimulation()">
             <span id="mag-conf-val" style="font-family: var(--mono); font-weight:bold; color:#E53E3E">Level 3</span>
           </div>
-          <div id="mag-formula-dynamic" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
+          <div id="mag-formula-dynamic" style="display:none; font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
             ${T.mag.formulaPrefix}$$\Phi_B = \oint_S \mathbf{B} \cdot d\mathbf{A} = 0 \text{ Wb}$$
           </div>
         </div>
@@ -2087,9 +2241,9 @@ function renderDetail(slide) {
           <button class="sim-tab-btn active" id="faraday-tab-lab" onclick="setFaradayTab('lab')">${T.faraday.tabLab}</button>
           <button class="sim-tab-btn" id="faraday-tab-icp" onclick="setFaradayTab('icp')">${T.faraday.tabIcp}</button>
         </div>
-        <div class="model-svg-wrapper" id="faraday-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:0; width:100% !important; height:480px !important; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+        <div class="model-svg-wrapper" id="faraday-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:0; width:100% !important; height:auto !important; min-height:360px; display:flex; flex-direction:column; position:relative; overflow:hidden;">
           <!-- Real PhET Electromagnetic Lab Embedded Iframe -->
-          <iframe id="faraday-phet-iframe" src="https://phet.colorado.edu/sims/html/faradays-electromagnetic-lab/latest/faradays-electromagnetic-lab_all.html" style="width:100%; height:100%; border:none; display:block;" allowfullscreen></iframe>
+          <div id="faraday-phet-iframe" class="af" data-af="faraday" style="margin:0;width:100%;border:0"></div>
           <canvas id="faraday-sim-canvas" width="600" height="340" style="max-width:100%; height:auto; cursor:grab; display:none; margin:auto;"></canvas>
         </div>
         <div class="sim-container">
@@ -2103,7 +2257,7 @@ function renderDetail(slide) {
             <div style="font-size:0.72rem; color:var(--text-sub); margin-left:10px;">${T.faraday.freqNote}</div>
           </div>
           <div id="faraday-voltage-indicator" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
-            ${T.faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
+            ${lang==='ko' ? '애니메이션: Benedu Insight Basic Course 05장 · 원본 PhET 시뮬레이터는 실험실 안의 버튼으로 새 탭에서 열 수 있습니다' : 'Animation: Benedu Insight Basic Course, Ch. 05 · the original PhET simulator opens in a new tab from the button in the lab'}
           </div>
         </div>
       </div>
@@ -2117,9 +2271,9 @@ function renderDetail(slide) {
           <button class="sim-tab-btn active" id="ampere-tab-lab" onclick="setAmpereTab('lab')">${T.ampere.tabLab}</button>
           <button class="sim-tab-btn" id="ampere-tab-transition" onclick="setAmpereTab('transition')">${T.ampere.tabTransition}</button>
         </div>
-        <div class="model-svg-wrapper" id="ampere-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:0; width:100% !important; height: 480px; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+        <div class="model-svg-wrapper" id="ampere-sim-panel" style="background:#FFF; border:1px solid #E5E7EB; border-radius:8px; padding:0; width:100% !important; height:auto; min-height:360px; display:flex; flex-direction:column; position:relative; overflow:hidden;">
           <!-- Real PhET Electromagnetic Lab Embedded Iframe for ch4 -->
-          <iframe id="ampere-phet-iframe" src="https://phet.colorado.edu/sims/html/faradays-electromagnetic-lab/latest/faradays-electromagnetic-lab_all.html" style="width:100%; height:100%; border:none; display:block;" allowfullscreen></iframe>
+          <div id="ampere-phet-iframe" class="af" data-af="ampere" style="margin:0;width:100%;border:0"></div>
           <canvas id="ampere-sim-canvas" width="600" height="340" style="max-width:100%; height:auto; display:none; margin:auto;"></canvas>
         </div>
         <div class="sim-container">
@@ -2133,10 +2287,15 @@ function renderDetail(slide) {
             <span id="icp-mode-badge" style="background:#F0FAFF; color:#0891B2; font-weight:bold; padding:3px 10px; border-radius:12px; margin-left:auto; font-size:0.75rem;">${T.ampere.modeEmode}</span>
           </div>
           <div id="ampere-caption-indicator" style="font-family: var(--mono); font-size:0.8rem; font-weight:bold; text-align:center; color:var(--purple); padding-top:5px;">
-            ${T.ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color:var(--purple); text-decoration:underline;">PhET Interactive Simulations</a>, University of Colorado Boulder
+            ${lang==='ko' ? '애니메이션: Benedu Insight Basic Course 05장 · 원본 PhET 시뮬레이터는 실험실 안의 버튼으로 새 탭에서 열 수 있습니다' : 'Animation: Benedu Insight Basic Course, Ch. 05 · the original PhET simulator opens in a new tab from the button in the lab'}
           </div>
         </div>
       </div>
+    `;
+  } else if (slide.afFig) {
+    mediaShowcaseHtml = `
+      <div class="section-title">${slide.afTitle}</div>
+      <div class="af" data-af="${slide.afFig}"></div>
     `;
   } else if (slide.imageUrl) {
     const isWideInfographic = slide.imageUrl.includes('hertz_experiment.png');
@@ -2240,6 +2399,10 @@ function setGaussTab(tab) {
   document.getElementById('gauss-tab-ccp').classList.toggle('active', tab === 'ccp');
   document.getElementById('gauss-controls-classic').style.display = tab === 'classic' ? 'flex' : 'none';
   document.getElementById('gauss-controls-ccp').style.display = tab === 'ccp' ? 'flex' : 'none';
+  // classic tab now shows the Basic Course animation; the old canvas/controls serve the plasma tab only
+  document.getElementById('gauss-controls-classic').style.display = 'none';
+  { const a = document.getElementById('gauss-af'), c = document.getElementById('gauss-sim-canvas'), f = document.getElementById('gauss-formula-dynamic');
+    if (a) a.style.display = tab === 'classic' ? '' : 'none'; if (c) c.style.display = tab === 'classic' ? 'none' : ''; if (f) f.style.display = tab === 'classic' ? 'none' : ''; }
   updateGaussSimulation();
 }
 
@@ -2247,7 +2410,7 @@ function initGaussSimulation() {
   gaussCanvas = document.getElementById('gauss-sim-canvas');
   if (!gaussCanvas) return;
   gaussCtx = gaussCanvas.getContext('2d');
-  updateGaussSimulation();
+  setGaussTab(gaussTab);
 }
 
 function updateGaussSimulation() {
@@ -2543,6 +2706,10 @@ function setMagTab(tab) {
   document.getElementById('mag-tab-confinement').classList.toggle('active', tab === 'confinement');
   document.getElementById('mag-controls-classic').style.display = tab === 'classic' ? 'flex' : 'none';
   document.getElementById('mag-controls-confinement').style.display = tab === 'confinement' ? 'flex' : 'none';
+  // classic tab now shows the Basic Course animation; the old canvas/controls serve the plasma tab only
+  document.getElementById('mag-controls-classic').style.display = 'none';
+  { const a = document.getElementById('mag-af'), c = document.getElementById('mag-sim-canvas'), f = document.getElementById('mag-formula-dynamic');
+    if (a) a.style.display = tab === 'classic' ? '' : 'none'; if (c) c.style.display = tab === 'classic' ? 'none' : ''; if (f) f.style.display = tab === 'classic' ? 'none' : ''; }
   updateMagSimulation();
 }
 
@@ -2550,7 +2717,7 @@ function initMagSimulation() {
   magCanvas = document.getElementById('mag-sim-canvas');
   if (!magCanvas) return;
   magCtx = magCanvas.getContext('2d');
-  updateMagSimulation();
+  setMagTab(magTab);
 }
 
 function updateMagSimulation() {
@@ -2831,10 +2998,10 @@ function setFaradayTab(tab) {
   if (tab === 'lab') {
     if (controlsLab) controlsLab.style.display = 'flex';
     if (controlsIcp) controlsIcp.style.display = 'none';
-    if (iframeEl) iframeEl.style.display = 'block';
+    if (iframeEl) iframeEl.style.display = '';
     if (canvasEl) canvasEl.style.display = 'none';
     if (indicatorEl) {
-      indicatorEl.innerHTML = `${UI[lang].faraday.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
+      indicatorEl.innerHTML = `${lang==='ko' ? '애니메이션: Benedu Insight Basic Course 05장 · 원본 PhET 시뮬레이터는 실험실 안의 버튼으로 새 탭에서 열 수 있습니다' : 'Animation: Benedu Insight Basic Course, Ch. 05 · the original PhET simulator opens in a new tab from the button in the lab'}`;
     }
   } else {
     if (controlsLab) controlsLab.style.display = 'none';
@@ -2987,10 +3154,10 @@ function setAmpereTab(tab) {
   if (tab === 'lab') {
     if (controlsLab) controlsLab.style.display = 'flex';
     if (controlsTrans) controlsTrans.style.display = 'none';
-    if (iframeEl) iframeEl.style.display = 'block';
+    if (iframeEl) iframeEl.style.display = '';
     if (canvasEl) canvasEl.style.display = 'none';
     if (captionEl) {
-      captionEl.innerHTML = `${UI[lang].ampere.sourcePrefix}<a href="https://phet.colorado.edu" target="_blank" style="color: var(--purple); text-decoration: underline;">PhET Interactive Simulations</a>, University of Colorado Boulder`;
+      captionEl.innerHTML = `${lang==='ko' ? '애니메이션: Benedu Insight Basic Course 05장 · 원본 PhET 시뮬레이터는 실험실 안의 버튼으로 새 탭에서 열 수 있습니다' : 'Animation: Benedu Insight Basic Course, Ch. 05 · the original PhET simulator opens in a new tab from the button in the lab'}`;
     }
   } else {
     if (controlsLab) controlsLab.style.display = 'none';
@@ -3202,6 +3369,517 @@ document.querySelectorAll('.era-btn').forEach(btn => {
 document.body.setAttribute('data-lang', 'ko'); // 초기 언어 설정 (KO)
 buildSidebar('all');
 setTimeout(() => selectSlide('ch0'), 150);
+</script>
+<!-- AF-KIT:JS -->
+<script id="af-kit-js">
+/* ============ Benedu animated-figure kit (ported from Basic Course ch02–05) ============
+   A figure is <div class="af" data-af="NAME"></div>. AF.B[NAME](box) fills the box and
+   returns {draw(dt)}; one shared rAF loop draws figures that are on screen and drops
+   figures whose box has left the DOM (the lecture re-renders the panel on every
+   chapter / language change, so figures are rebuilt in the new language).            */
+(function(){
+  'use strict';
+  var AF = window.AF = {B:{}, figs:[]};
+  AF.ko = function(){ try { return lang === 'ko'; } catch(e){ return document.documentElement.lang === 'ko'; } };
+  AF.L = function(en, ko){ return AF.ko() ? ko : en; };
+  AF.cv = function(w, h, cls){
+    var c = document.createElement('canvas'); c.width = w*2; c.height = h*2;
+    if(cls) c.className = cls; c.style.aspectRatio = w + ' / ' + h; return c;
+  };
+  AF.chips = function(btns, fn){
+    btns.forEach(function(b){ b.addEventListener('click', function(ev){ ev.stopPropagation();
+      btns.forEach(function(x){ x.classList.toggle('on', x === b); }); fn(b); }); });
+  };
+  AF.q = function(box, sel){ return box.querySelector(sel); };
+  AF.qa = function(box, sel){ return [].slice.call(box.querySelectorAll(sel)); };
+  function vis(el){ var r = el.getBoundingClientRect(); return r.width > 0 && r.bottom > -40 && r.top < innerHeight + 40; }
+  var last = performance.now();
+  function loop(now){
+    var dt = Math.min((now - last)/1000, 0.05); last = now;
+    for(var i = AF.figs.length - 1; i >= 0; i--){
+      var f = AF.figs[i];
+      if(!f.el.isConnected){ AF.figs.splice(i, 1); continue; }
+      if(vis(f.el)){ try { f.draw(dt); } catch(err){ console.error('[AF]', err); AF.figs.splice(i, 1); } }
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+  AF.mount = function(root){
+    [].forEach.call((root || document).querySelectorAll('[data-af]'), function(box){
+      if(box._af) return; box._af = 1;
+      var b = AF.B[box.dataset.af]; if(!b) return;
+      var r = b(box); if(r && r.draw) AF.figs.push({el: box, draw: r.draw});
+    });
+  };
+  var pending = false;
+  var mo = new MutationObserver(function(){
+    if(pending) return; pending = true;
+    Promise.resolve().then(function(){ pending = false; AF.mount(document); });
+  });
+  function start(){ mo.observe(document.body, {childList: true, subtree: true}); AF.mount(document); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+
+/* ============ Basic Course ch05: Maxwell cards, EM wave, Hertz, Faraday & Ampère labs ============ */
+(function(){
+  var L = AF.L, KO = AF.ko, GS = '"Google Sans","Gowun Batang",sans-serif';
+
+  /* ---------------- Maxwell mini-stages (gE, gB, fa, am) ---------------- */
+  function rr(c,x,y,w,h,k){ c.beginPath(); c.moveTo(x+k,y); c.arcTo(x+w,y,x+w,y+h,k); c.arcTo(x+w,y+h,x,y+h,k); c.arcTo(x,y+h,x,y,k); c.arcTo(x,y,x+w,y,k); c.closePath(); }
+  function arrow(c, x, y, ux, uy, Ln, col, w, h){
+    var ex = x + ux*Ln, ey = y + uy*Ln; c.strokeStyle = col; c.fillStyle = col; c.lineWidth = w; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x, y); c.lineTo(ex - ux*h*.8, ey - uy*h*.8); c.stroke();
+    c.beginPath(); c.moveTo(ex, ey); c.lineTo(ex - ux*h - uy*h*.55, ey - uy*h + ux*h*.55); c.lineTo(ex - ux*h + uy*h*.55, ey - uy*h - ux*h*.55); c.closePath(); c.fill();
+  }
+  function head(c, x, y, ux, uy, h, col){ c.fillStyle = col; c.beginPath(); c.moveTo(x + ux*h*.6, y + uy*h*.6); c.lineTo(x - ux*h*.6 - uy*h*.5, y - uy*h*.6 + ux*h*.5); c.lineTo(x - ux*h*.6 + uy*h*.5, y - uy*h*.6 - ux*h*.5); c.closePath(); c.fill(); }
+  function label(c, s, x, y, col, sz, al){ c.fillStyle = col; c.font = '700 ' + sz + 'px ' + GS; c.textAlign = al || 'center'; c.textBaseline = 'middle'; c.fillText(s, x, y); }
+  function ball(c, x, y, r, pos){
+    var col = pos ? '255,79,139' : '120,200,255', g = c.createRadialGradient(x, y, 0, x, y, r*2.6);
+    g.addColorStop(0, 'rgba(' + col + ',.5)'); g.addColorStop(1, 'rgba(' + col + ',0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r*2.6, 0, 6.283); c.fill();
+    var b = c.createRadialGradient(x - r*.3, y - r*.35, 1, x, y, r); if(pos){ b.addColorStop(0, '#ffa3c4'); b.addColorStop(1, '#e8336f'); } else { b.addColorStop(0, '#9ad8ff'); b.addColorStop(1, '#2a6fa8'); }
+    c.fillStyle = b; c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill(); label(c, pos ? '+' : '−', x, y + .5, '#fff', Math.round(r*1.2));
+  }
+  var Y = '#ffd166';
+  var DRAW = {
+    gE: function(c, W, H, t, f, s, q){
+      var X = W/2, Yc = H/2, m = Math.min(W, H), R = m*0.075, k, a;
+      if(q){
+        c.setLineDash([5*s, 6*s]); c.lineDashOffset = -q*t*22*s; c.lineWidth = 1.2*s;
+        for(k=0;k<16;k++){ a = k/16*6.2832; c.strokeStyle = q > 0 ? 'rgba(255,170,200,.42)' : 'rgba(150,210,255,.45)'; c.beginPath(); c.moveTo(X + Math.cos(a)*R*1.4, Yc + Math.sin(a)*R*1.4); c.lineTo(X + Math.cos(a)*W, Yc + Math.sin(a)*W); c.stroke(); }
+      } else {
+        c.setLineDash([5*s, 6*s]); c.lineDashOffset = -t*22*s; c.lineWidth = 1.2*s; c.strokeStyle = 'rgba(200,210,230,.38)';
+        for(k=-4;k<=4;k++){ var yy = Yc + k*H*0.11; c.beginPath(); c.moveTo(0, yy); c.lineTo(W, yy); c.stroke(); }
+      }
+      c.setLineDash([]);
+      var lab;
+      if(f === 'i'){ var r = m*0.34; c.strokeStyle = 'rgba(255,209,102,.8)'; c.lineWidth = 1.6*s; c.setLineDash([4*s, 4*s]); c.beginPath(); c.arc(X, Yc, r, 0, 6.283); c.stroke(); c.setLineDash([]);
+        if(q){ for(var p2=0;p2<8;p2++){ var a2 = p2/8*6.2832 + 0.2; if(q > 0) arrow(c, X + Math.cos(a2)*(r - 7*s), Yc + Math.sin(a2)*(r - 7*s), Math.cos(a2), Math.sin(a2), 16*s, Y, 2*s, 6*s);
+            else arrow(c, X + Math.cos(a2)*(r + 9*s), Yc + Math.sin(a2)*(r + 9*s), -Math.cos(a2), -Math.sin(a2), 16*s, Y, 2*s, 6*s); } }
+        else { [-1, 0, 1].forEach(function(o){ var yy = Yc + o*r*0.5, xx = Math.sqrt(r*r - Math.pow(o*r*0.5, 2));
+            arrow(c, X - xx - 14*s, yy, 1, 0, 16*s, Y, 2*s, 6*s); arrow(c, X + xx - 4*s, yy, 1, 0, 16*s, Y, 2*s, 6*s); }); }
+        lab = q > 0 ? '∮E·dA = Q/ε₀ > 0' : q < 0 ? '∮E·dA = Q/ε₀ < 0' : L('in = out → ∮E·dA = 0', '들어온 만큼 나감 → ∮E·dA = 0');
+        label(c, lab, X, Yc + r + 13*s > H - 8*s ? H - 10*s : Yc + r + 13*s, Y, 11*s);
+      } else { var h = R*2.4; c.strokeStyle = 'rgba(255,209,102,.85)'; c.lineWidth = 1.4*s; c.setLineDash([3*s, 3*s]); c.strokeRect(X - h, Yc - h, 2*h, 2*h); c.setLineDash([]);
+        if(q > 0) [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){ arrow(c, X + d[0]*h, Yc + d[1]*h, d[0], d[1], 13*s, Y, 2*s, 6*s); });
+        else if(q < 0) [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){ arrow(c, X + d[0]*(h + 14*s), Yc + d[1]*(h + 14*s), -d[0], -d[1], 13*s, Y, 2*s, 6*s); });
+        else { arrow(c, X - h - 15*s, Yc, 1, 0, 13*s, Y, 2*s, 6*s); arrow(c, X + h + 1*s, Yc, 1, 0, 13*s, Y, 2*s, 6*s); }
+        lab = q > 0 ? '∇·E > 0' : q < 0 ? '∇·E < 0' : '∇·E = 0';
+        label(c, lab, X + h + 22*s, Yc - h - 8*s, Y, 11*s, 'left'); }
+      if(q) ball(c, X, Yc, R, q > 0);
+      else { var g0 = c.createRadialGradient(X - R*.3, Yc - R*.35, 1, X, Yc, R); g0.addColorStop(0, '#c9ced3'); g0.addColorStop(1, '#6b7680');
+        c.fillStyle = g0; c.beginPath(); c.arc(X, Yc, R, 0, 6.283); c.fill(); label(c, '0', X, Yc + .5, '#fff', Math.round(R*1.1)); }
+    },
+    gB: function(c, W, H, t, f, s){
+      var X = W/2, Yc = H/2, Lm = W*0.34, mh = H*0.12, xN = X + Lm/2, xS = X - Lm/2;
+      c.lineWidth = 1.2*s; c.setLineDash([5*s, 6*s]); c.lineDashOffset = -t*22*s;
+      for(var k=1;k<=4;k++){ var a = W*0.06 + k*W*0.05, b = H*0.08 + k*H*0.085;
+        [-1, 1].forEach(function(sg){ c.strokeStyle = 'rgba(190,170,255,' + (0.55 - k*0.08).toFixed(2) + ')'; c.beginPath(); c.moveTo(xN, Yc + sg*mh*0.25); c.bezierCurveTo(xN + a, Yc + sg*b, xS - a, Yc + sg*b, xS, Yc + sg*mh*0.25); c.stroke(); }); }
+      c.setLineDash([]);
+      var gS = c.createLinearGradient(0, Yc - mh/2, 0, Yc + mh/2); gS.addColorStop(0, '#8fc4ee'); gS.addColorStop(1, '#2a5f8f');
+      var gN = c.createLinearGradient(0, Yc - mh/2, 0, Yc + mh/2); gN.addColorStop(0, '#ff8fb6'); gN.addColorStop(1, '#d92e68');
+      c.fillStyle = gS; rr(c, xS, Yc - mh/2, Lm/2, mh, 4*s); c.fill(); c.fillStyle = gN; rr(c, X, Yc - mh/2, Lm/2, mh, 4*s); c.fill();
+      label(c, 'S', X - Lm/4, Yc + .5, '#fff', 12*s); label(c, 'N', X + Lm/4, Yc + .5, '#fff', 12*s);
+      var ph = (t*0.6) % 1; for(var q=0;q<3;q++){ var px = xS + ((q/3 + ph) % 1)*Lm; head(c, px, Yc - mh*0.75, 1, 0, 7*s, 'rgba(190,170,255,.8)'); }
+      if(f === 'i'){ var r = H*0.2; c.strokeStyle = 'rgba(255,209,102,.85)'; c.lineWidth = 1.6*s; c.setLineDash([4*s, 4*s]); c.beginPath(); c.arc(xN, Yc, r, 0, 6.283); c.stroke(); c.setLineDash([]);
+        arrow(c, xN + r - 8*s, Yc - r*0.45, 1, -0.4, 14*s, Y, 2*s, 6*s); arrow(c, xN + r - 8*s, Yc + r*0.45, 1, 0.4, 14*s, Y, 2*s, 6*s); arrow(c, xN - r - 12*s, Yc - mh*0.9, 1, 0, 14*s, Y, 2*s, 6*s);
+        label(c, L('out = in → ∮B·dA = 0', '나간 만큼 들어옴 → ∮B·dA = 0'), X, H - 12*s, Y, 10.5*s);
+      } else { var bx = X, by = Yc - H*0.32, h = 10*s; c.strokeStyle = 'rgba(255,209,102,.85)'; c.lineWidth = 1.4*s; c.setLineDash([3*s, 3*s]); c.strokeRect(bx - h, by - h, 2*h, 2*h); c.setLineDash([]);
+        arrow(c, bx + 18*s - 30*s, by, 1, 0, 10*s, Y, 2*s, 5*s); arrow(c, bx + h + 2*s, by, 1, 0, 12*s, Y, 2*s, 5*s);
+        label(c, L('in = out → ∇·B = 0', '들어온 만큼 나감 → ∇·B = 0'), X, H - 12*s, Y, 10.5*s); }
+    },
+    fa: function(c, W, H, t, f, s){
+      var X = W/2, Yc = H/2, m = Math.min(W, H), Rb = m*0.24, w = 1.6, B = Math.sin(t*w), dB = Math.cos(t*w);
+      c.fillStyle = 'rgba(190,170,255,.08)'; c.beginPath(); c.arc(X, Yc, Rb, 0, 6.283); c.fill();
+      var sz = 2 + 4*Math.abs(B); c.strokeStyle = 'rgba(190,170,255,' + (0.25 + 0.65*Math.abs(B)).toFixed(2) + ')'; c.fillStyle = c.strokeStyle; c.lineWidth = 1.5*s;
+      for(var gx = -2; gx <= 2; gx++) for(var gy = -2; gy <= 2; gy++){ var px = X + gx*Rb*0.38, py = Yc + gy*Rb*0.38; if(Math.hypot(px - X, py - Yc) > Rb*0.92) continue;
+        if(B >= 0){ c.beginPath(); c.moveTo(px - sz*s, py - sz*s); c.lineTo(px + sz*s, py + sz*s); c.moveTo(px + sz*s, py - sz*s); c.lineTo(px - sz*s, py + sz*s); c.stroke(); }
+        else { c.beginPath(); c.arc(px, py, sz*0.6*s, 0, 6.283); c.fill(); } }
+      var dir = dB > 0 ? -1 : 1, inten = Math.abs(dB);
+      [m*0.33, m*0.43].forEach(function(r, i){ c.strokeStyle = 'rgba(255,209,102,' + (0.2 + 0.6*inten).toFixed(2) + ')'; c.lineWidth = (2 - i*0.5)*s;
+        var hi = f === 'i' && i === 0; if(hi){ c.setLineDash([4*s, 4*s]); } c.beginPath(); c.arc(X, Yc, r, 0, 6.283); c.stroke(); c.setLineDash([]);
+        for(var q=0;q<6;q++){ var a = q/6*6.2832 + t*0.9*dir*inten; head(c, X + Math.cos(a)*r, Yc + Math.sin(a)*r, -Math.sin(a)*dir, Math.cos(a)*dir, 8*s, 'rgba(255,209,102,' + (0.3 + 0.7*inten).toFixed(2) + ')'); } });
+      label(c, (B >= 0 ? L('B into page ', 'B 화면 안쪽 ') : L('B out of page ', 'B 화면 바깥 ')) + (Math.abs(B) > 0.05 ? (B*dB > 0 ? '↑' : '↓') : ''), 10*s, 12*s, 'rgba(210,195,255,.9)', 10.5*s, 'left');
+      if(f === 'i') label(c, '∮E·dl = −dΦB/dt', X, H - 11*s, Y, 11*s);
+      else { var r2 = 9*s; c.strokeStyle = Y; c.lineWidth = 1.6*s; c.beginPath(); c.arc(X, Yc, r2, 0, 5.2); c.stroke(); head(c, X + Math.cos(5.2)*r2, Yc + Math.sin(5.2)*r2, -Math.sin(5.2)*dir, Math.cos(5.2)*dir, 6*s, Y);
+        label(c, '∇×E = −∂B/∂t', X, H - 11*s, Y, 11*s); }
+    },
+    am: function(c, W, H, t, f, s){
+      var Yc = H/2 + 4*s, gap = W*0.07, X = W/2, ph = Math.sin(t*1.4), q = -Math.cos(t*1.4);
+      c.strokeStyle = '#b8692e'; c.lineWidth = 4*s; c.beginPath(); c.moveTo(6*s, Yc); c.lineTo(X - gap, Yc); c.moveTo(X + gap, Yc); c.lineTo(W - 6*s, Yc); c.stroke();
+      var ph_ = H*0.22; c.fillStyle = '#9aa6b4'; c.fillRect(X - gap - 3*s, Yc - ph_, 4*s, 2*ph_); c.fillRect(X + gap - 1*s, Yc - ph_, 4*s, 2*ph_);
+      label(c, q > 0 ? '+' : '−', X - gap - 10*s, Yc - ph_ + 6*s, q > 0 ? '#ff8fb6' : '#8fc4ee', 11*s); label(c, q > 0 ? '−' : '+', X + gap + 10*s, Yc - ph_ + 6*s, q > 0 ? '#8fc4ee' : '#ff8fb6', 11*s);
+      for(var k=0;k<3;k++){ var yy = Yc - ph_*0.6 + k*ph_*0.6; if(Math.abs(q) > 0.08) arrow(c, X - (q > 0 ? gap - 4*s : -gap + 4*s), yy, q > 0 ? 1 : -1, 0, (2*gap - 10*s)*Math.abs(q), 'rgba(255,170,200,.85)', 1.6*s, 5*s); }
+      c.fillStyle = Y; for(var d=0; d<10; d++){ var u = ((d/10 + t*0.25*ph) % 1 + 1) % 1, xx = 6*s + u*(W - 12*s); if(Math.abs(xx - X) < gap + 2*s) continue; c.beginPath(); c.arc(xx, Yc, 2.2*s, 0, 6.283); c.fill(); }
+      var dir = ph >= 0 ? 1 : -1, inten = Math.abs(ph);
+      [[W*0.18, false], [X, true], [W*0.82, false]].forEach(function(o){ var rx = 9*s, ry = H*0.3, xx = o[0];
+        c.strokeStyle = o[1] ? 'rgba(190,170,255,' + (0.3 + 0.6*inten).toFixed(2) + ')' : 'rgba(150,210,255,' + (0.3 + 0.6*inten).toFixed(2) + ')'; c.lineWidth = 1.8*s;
+        if(o[1]) c.setLineDash([4*s, 3*s]); c.beginPath(); c.ellipse(xx, Yc, rx + (o[1] ? gap : 0), ry, 0, 0, 6.283); c.stroke(); c.setLineDash([]);
+        head(c, xx, Yc - ry, dir, 0, 8*s, c.strokeStyle); head(c, xx, Yc + ry, -dir, 0, 8*s, c.strokeStyle); });
+      if(f === 'i'){ label(c, 'I', W*0.18, Yc - 12*s, Y, 11*s); label(c, 'dΦE/dt', X, Yc + H*0.3 + 12*s > H - 6*s ? H - 10*s : Yc + H*0.3 + 12*s, 'rgba(210,195,255,.95)', 10.5*s); label(c, '∮B·dl', W*0.82, Yc - H*0.3 - 10*s < 8*s ? 10*s : Yc - H*0.3 - 10*s, Y, 10.5*s); }
+      else { label(c, 'J', W*0.18, Yc - 12*s, Y, 11*s); label(c, 'ε₀∂E/∂t', X, Yc + H*0.3 + 12*s > H - 6*s ? H - 10*s : Yc + H*0.3 + 12*s, 'rgba(210,195,255,.95)', 10.5*s); }
+    }
+  };
+  function paint(cv, key, t, form, s, q){
+    var c = cv.getContext('2d'), W = cv.width/2, H = cv.height/2;
+    c.setTransform(2, 0, 0, 2, 0, 0); c.clearRect(0, 0, W, H);
+    var bg = c.createRadialGradient(W*.5, H*.45, 10, W*.5, H*.5, W*.75); bg.addColorStop(0, '#15283b'); bg.addColorStop(.6, '#0c1520'); bg.addColorStop(1, '#070b11');
+    rr(c, 0, 0, W, H, 12*s); c.fillStyle = bg; c.fill(); c.save(); rr(c, 0, 0, W, H, 12*s); c.clip();
+    DRAW[key](c, W, H, t, form, s, q); c.restore();
+  }
+  var MX = {
+    gE: ['#7a5fd1','1 · GAUSS','∇·E = ρ / ε₀','∮E·dA = Q<sub>in</sub>/ε₀','Charges make electric fields.','전하가 전기장을 만듭니다.','→ CCP'],
+    gB: ['#2f7d6d','2 · GAUSS (B)','∇·B = 0','∮B·dA = 0','Magnetic field lines are closed loops.','자기력선은 끝없는 고리입니다.',''],
+    fa: ['#e07a45','3 · FARADAY','∇×E = −∂B/∂t','∮E·dl = −dΦ<sub>B</sub>/dt','A changing B makes a circulating E.','변하는 자기장이 소용돌이 전기장을 만듭니다.','→ ICP'],
+    am: ['#c99a1b','4 · AMPÈRE–MAXWELL','∇×B = μ₀J + μ₀ε₀∂E/∂t','∮B·dl = μ₀I + μ₀ε₀dΦ<sub>E</sub>/dt','Currents and changing E make a circulating B.','전류와 변하는 전기장이 소용돌이 자기장을 만듭니다.','→ LIGHT']
+  };
+  function formChips(){ return '<div class="af-row" style="justify-content:flex-start;gap:10px"><span class="k">'+L('Form','표현')+'</span><div class="af-chips"><button type="button" class="af-chip on" data-mxf="d">'+L('Differential ∇','미분형 ∇')+'</button><button type="button" class="af-chip" data-mxf="i">'+L('Integral ∮','적분형 ∮')+'</button></div></div>'; }
+
+  /* four cards: Maxwell's synthesis */
+  AF.B.mx4 = function(box){
+    box.classList.add('af-1col');
+    box.innerHTML = formChips() + '<div class="afx-grid">' + ['gE','gB','fa','am'].map(function(k){ var m = MX[k];
+      return '<div class="afx-cd" style="--c:'+m[0]+'"><div class="afx-l"><div class="afx-k">'+m[1]+(m[6] ? ' <span>'+m[6]+'</span>' : '')+'</div><div class="afx-eq" data-d="'+m[2].replace(/"/g,'&quot;')+'" data-i="'+m[3].replace(/"/g,'&quot;')+'">'+m[2]+'</div><p>'+L(m[4],m[5])+'</p></div><div class="afx-cv" data-k="'+k+'"></div></div>'; }).join('') + '</div>' +
+      '<div class="af-sd">'+L('Four equations, one theory: they predict waves of E and B that travel at c = 1/√(μ₀ε₀) ≈ 3×10⁸ m/s. Light is one of them.','네 방정식이 하나의 이론을 이룹니다. 이 식들은 E와 B가 서로를 만들며 c = 1/√(μ₀ε₀) ≈ 3×10⁸ m/s로 나아가는 파동을 예언하고, 빛이 바로 그 파동입니다.')+'</div>';
+    var form = 'd', T0 = performance.now(), cvs = [];
+    AF.qa(box,'.afx-cv').forEach(function(w){ var cv = AF.cv(440, 300); w.appendChild(cv); cvs.push([cv, w.dataset.k]); });
+    AF.chips(AF.qa(box,'[data-mxf]'), function(b){ form = b.dataset.mxf; AF.qa(box,'.afx-eq').forEach(function(e){ e.innerHTML = e.dataset[form]; }); });
+    return {draw:function(){ var t = (performance.now() - T0)/1000; cvs.forEach(function(p){ paint(p[0], p[1], t, form, 1, 1); }); }};
+  };
+  /* one big card (Gauss E with + / 0 / − source, or Gauss B) */
+  AF.B.mxg = function(box){
+    var k = box.dataset.k || 'gE', m = MX[k], q = 1, form = 'd', T0 = performance.now();
+    var txt = k === 'gE'
+      ? [L('Put a charge inside a closed surface. Field lines start on + and end on −: the net flux out of the surface counts the charge inside.','닫힌 곡면 안에 전하를 넣어 보세요. 전기력선은 +에서 나와 −로 들어갑니다. 곡면을 빠져나가는 알짜 선속이 안의 전하량을 셉니다.'),
+         L('No charge inside: whatever goes in comes out, so the net flux is 0.','안에 전하가 없으면 들어온 만큼 나가므로 알짜 선속은 0입니다.')]
+      : [L('Every field line that leaves the N pole comes back into the S pole. There is no magnetic "charge", so the flux through any closed surface is always 0.','N극에서 나간 자기력선은 모두 S극으로 돌아옵니다. 자기 "전하"(홀극)가 없으므로 어떤 닫힌 곡면을 지나는 자기 선속도 항상 0입니다.')];
+    box.innerHTML = '<div class="af-stage"></div><div class="af-panel">'+
+      '<div class="afx-k" style="color:'+m[0]+'">'+m[1]+'</div><div class="af-eqn afx-eq1">'+m[2]+'</div>'+ formChips() +
+      (k === 'gE' ? '<div class="af-row" style="justify-content:flex-start;gap:10px"><span class="k">'+L('Charge inside','안의 전하')+'</span><div class="af-chips"><button type="button" class="af-chip on" data-gq="1">+Q</button><button type="button" class="af-chip" data-gq="0">0</button><button type="button" class="af-chip" data-gq="-1">−Q</button></div></div>' : '') +
+      '<div class="af-sd afx-t"></div><div class="af-mono">'+L('Yellow dashed = Gaussian surface · arrows = flux through it','노란 점선 = 가우스 곡면 · 화살표 = 곡면을 지나는 선속')+'</div></div>';
+    var cv = AF.cv(560, 380); box.querySelector('.af-stage').appendChild(cv);
+    function upd(){ AF.q(box,'.afx-eq1').innerHTML = form === 'd' ? m[2] : m[3]; AF.q(box,'.afx-t').textContent = k === 'gE' ? (q ? txt[0] : txt[1]) : txt[0]; }
+    AF.chips(AF.qa(box,'[data-mxf]'), function(b){ form = b.dataset.mxf; upd(); });
+    AF.chips(AF.qa(box,'[data-gq]'), function(b){ q = +b.dataset.gq; upd(); });
+    upd();
+    return {draw:function(){ paint(cv, k, (performance.now() - T0)/1000, form, 1.25, q); }};
+  };
+
+  /* ---------------- Light is an EM wave: animated E ⟂ B ⟂ c + spectrum lab ---------------- */
+  AF.B.emwave = function(box){
+    var BANDS = [[4,8.5,'Radio','라디오파'],[8.5,11.5,'Microwave','마이크로파'],[11.5,14.6,'Infrared','적외선'],[14.6,14.88,'Visible light','가시광선'],[14.88,16.5,'Ultraviolet','자외선'],[16.5,18,'X-ray','X선']];
+    var BAR = [['#b8a4ed',0,32.14,'RADIO','라디오파'],['#ffb084',32.14,21.43,'MICROWAVE','마이크로파'],['#ff6b5a',53.57,22.14,'INFRARED','적외선'],['#a4d4c5',75.71,2.0,'VISIBLE','가시광선'],['#e8b94a',77.71,11.57,'UV','자외선'],['#1a3a3a',89.29,10.71,'X-RAY','X선']];
+    box.classList.add('af-1col');
+    box.innerHTML = '<div class="af-stage"></div>'+
+      '<div class="afw-grid"><div class="af-panel">'+
+        '<div class="af-chips">'+[['7.132','13.56 MHz'],['9.389','2.45 GHz'],['14.74',L('Green','초록 빛')],['15.191','ArF'],['16.346','EUV']].map(function(c,i){ return '<button type="button" class="af-chip'+(i?'':' on')+'" data-fr="'+c[0]+'">'+c[1]+'</button>'; }).join('')+'</div>'+
+        '<div><div class="af-row"><span class="k">'+L('Frequency f','주파수 f')+'</span><span class="v lgF">—</span></div><input type="range" class="lgSl" min="4" max="18" step="0.001" value="7.132"></div>'+
+        '<div class="af-big lgB">—</div></div>'+
+      '<div class="af-panel"><div class="af-rows"><div><span>'+L('Wavelength λ','파장 λ')+'</span><b class="lgL">—</b></div><div><span>'+L('Photon energy','광자 에너지')+'</span><b class="lgE">—</b></div></div>'+
+        '<div class="af-row" style="justify-content:flex-start;gap:16px;flex-wrap:wrap"><span class="af-eqn">c = f λ</span><span class="af-eqn" style="font-size:18px">E(eV) ≈ <span class="af-frac"><span class="fn">1240</span><span class="fd">λ(nm)</span></span></span></div>'+
+        '<div class="af-mono lgC">—</div></div></div>'+
+      '<div class="afw-bar">'+BAR.map(function(b){ return '<i style="left:'+b[1]+'%;width:'+b[2]+'%;background:'+b[0]+'"></i>'; }).join('')+'<s class="lgM"></s></div>'+
+      '<div class="afw-lab">'+BAR.map(function(b){ return '<span style="left:'+(b[1]+b[2]/2)+'%">'+L(b[3],b[4])+'</span>'; }).join('')+'</div>';
+    var cv = AF.cv(470, 136); box.querySelector('.af-stage').appendChild(cv);
+    var cx = cv.getContext('2d'), W = 470, H = 136, sl = AF.q(box,'.lgSl'), ph = 0;
+    function $(c){ return box.querySelector('.'+c); }
+    function sup(n){ return String(n).replace('-','⁻').replace(/[0-9]/g,function(d){ return '⁰¹²³⁴⁵⁶⁷⁸⁹'[+d]; }); }
+    function fmtF(f){ if(f>=1e15) return (f/1e15).toPrecision(3)+' PHz'; if(f>=1e12) return (f/1e12).toPrecision(3)+' THz'; if(f>=1e9) return (f/1e9).toPrecision(3)+' GHz'; if(f>=1e6) return (f/1e6).toPrecision(4)+' MHz'; return (f/1e3).toPrecision(3)+' kHz'; }
+    function fmtL(l){ if(l>=1) return l.toPrecision(3)+' m'; if(l>=1e-3) return (l*1e3).toPrecision(3)+' mm'; if(l>=1e-6) return (l*1e6).toPrecision(3)+' µm'; if(l>=1e-9) return (l*1e9).toPrecision(3)+' nm'; return (l*1e12).toPrecision(3)+' pm'; }
+    function fmtE(e){ if(e<1e-3){ var p = e.toExponential(1).split('e'); return p[0]+'×10'+sup(parseInt(p[1],10))+' eV'; } if(e<1e3) return e.toPrecision(3)+' eV'; return (e/1e3).toPrecision(3)+' keV'; }
+    function upd(){
+      var lg = +sl.value, f = Math.pow(10,lg), lam = 2.998e8/f, E = 4.136e-15*f;
+      $('lgF').textContent = fmtF(f); $('lgL').textContent = fmtL(lam); $('lgE').textContent = fmtE(E);
+      var nm = lam*1e9, nmS = nm >= 1e5 ? (function(v){ var p = v.toExponential(2).split('e'); return p[0]+'×10'+sup(parseInt(p[1],10)); })(nm) : nm.toPrecision(3);
+      $('lgC').textContent = '1240 / ' + nmS + ' nm = ' + fmtE(E);
+      var b = BANDS.filter(function(x){ return lg>=x[0] && lg<x[1]; })[0] || BANDS[5];
+      $('lgB').textContent = L(b[2], b[3]);
+      $('lgM').style.left = ((lg-4)/14*100) + '%';
+      AF.qa(box,'[data-fr]').forEach(function(c){ c.classList.toggle('on', Math.abs(+c.dataset.fr - lg) < 0.003); });
+    }
+    sl.addEventListener('input', upd);
+    AF.qa(box,'[data-fr]').forEach(function(c){ c.addEventListener('click', function(){ sl.value = c.dataset.fr; upd(); }); });
+    upd();
+    function bandCol(lg){
+      if(lg >= 14.6 && lg < 14.88){ var f = (lg - 14.6)/0.28, hue = 0 + f*270; return 'hsl(' + hue.toFixed(0) + ',95%,62%)'; }
+      return lg < 8.5 ? '#c4b2ff' : lg < 11.5 ? '#ffb084' : lg < 14.6 ? '#ff7a66' : lg < 16.5 ? '#c79bff' : '#9fe0ff';
+    }
+    return {draw:function(dt){
+      var lg = +sl.value, lam = 300*Math.pow(0.86, lg - 4), k = 6.2832/lam; ph += dt*95*k;
+      cx.setTransform(2,0,0,2,0,0); cx.clearRect(0,0,W,H);
+      var bg = cx.createRadialGradient(W*.45, H*.5, 10, W*.5, H*.5, W*.7); bg.addColorStop(0,'#15283b'); bg.addColorStop(.6,'#0c1520'); bg.addColorStop(1,'#070b11');
+      cx.fillStyle = bg; cx.fillRect(0,0,W,H);
+      var x0 = 26, x1 = W - 40, y0 = H*0.56, A = H*0.32, zx = -0.55, zy = 0.42, Bc = 'rgba(110,190,255,', Ec = bandCol(lg);
+      cx.strokeStyle = 'rgba(255,255,255,.35)'; cx.lineWidth = 1.2; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x1 + 10, y0); cx.stroke();
+      cx.fillStyle = 'rgba(255,255,255,.7)'; cx.beginPath(); cx.moveTo(x1 + 20, y0); cx.lineTo(x1 + 8, y0 - 5); cx.lineTo(x1 + 8, y0 + 5); cx.closePath(); cx.fill();
+      cx.font = '700 12px '+GS; cx.textAlign = 'left'; cx.textBaseline = 'middle'; cx.fillText('c', x1 + 24, y0);
+      var x, v, i, st = Math.max(6, lam/10);
+      for(x = x0; x <= x1; x += st){ v = Math.sin(k*x - ph); var bx = x + zx*v*A*0.75, by = y0 + zy*v*A*0.75;
+        cx.strokeStyle = Bc + (0.16 + 0.22*Math.abs(v)).toFixed(2) + ')'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(x, y0); cx.lineTo(bx, by); cx.stroke(); }
+      cx.strokeStyle = Bc + '.95)'; cx.lineWidth = 2.4; cx.beginPath();
+      for(x = x0, i = 0; x <= x1; x += 2, i++){ v = Math.sin(k*x - ph); var px = x + zx*v*A*0.75, py = y0 + zy*v*A*0.75; i ? cx.lineTo(px, py) : cx.moveTo(px, py); } cx.stroke();
+      for(x = x0; x <= x1; x += st){ v = Math.sin(k*x - ph); cx.strokeStyle = 'rgba(255,255,255,' + (0.08 + 0.14*Math.abs(v)).toFixed(2) + ')'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(x, y0); cx.lineTo(x, y0 - v*A); cx.stroke(); }
+      cx.save(); cx.shadowColor = Ec; cx.shadowBlur = 12; cx.strokeStyle = Ec; cx.lineWidth = 2.8; cx.beginPath();
+      for(x = x0, i = 0; x <= x1; x += 2, i++){ v = Math.sin(k*x - ph); i ? cx.lineTo(x, y0 - v*A) : cx.moveTo(x, y0 - v*A); } cx.stroke(); cx.restore();
+      cx.font = '700 13px '+GS; cx.fillStyle = Ec; cx.fillText('E', x0 + 2, y0 - A - 4);
+      cx.fillStyle = Bc + '1)'; cx.fillText('B', x0 + zx*A*0.75 + 8, y0 + zy*A*0.75 + 10);
+      var lx = Math.max(x0 + 40, Math.min(x1 - lam - 10, W*0.55));
+      if(lam < x1 - x0 - 50){ cx.strokeStyle = 'rgba(255,255,255,.55)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(lx, 14); cx.lineTo(lx + lam, 14); cx.moveTo(lx, 10); cx.lineTo(lx, 18); cx.moveTo(lx + lam, 10); cx.lineTo(lx + lam, 18); cx.stroke();
+        cx.fillStyle = 'rgba(255,255,255,.8)'; cx.font = '600 11px "JetBrains Mono",monospace'; cx.textAlign = 'center'; cx.fillText('λ', lx + lam/2, 24); }
+      cx.textAlign = 'right'; cx.font = '600 10.5px '+GS; cx.fillStyle = 'rgba(255,255,255,.5)';
+      cx.fillText(L('E ⟂ B ⟂ travel', 'E ⟂ B ⟂ 진행 방향'), W - 10, H - 10);
+    }};
+  };
+
+  /* ---------------- Hertz's experiment, 1887 ---------------- */
+  AF.B.hertz = function(box){
+    box.classList.add('af-1col');
+    function sld(cls, en, ko, min, max, st, val, vcls){ return '<div><div class="af-row"><span class="k">'+L(en,ko)+'</span><span class="v '+vcls+'">—</span></div><input type="range" class="'+cls+'" min="'+min+'" max="'+max+'" step="'+st+'" value="'+val+'"></div>'; }
+    box.innerHTML = '<div class="af-stage"></div>'+
+      '<div class="afh-ctl">'+sld('hz-v','Coil voltage','유도 코일 전압',4,30,1,20,'hz-vv')+sld('hz-g','Spark gap','불꽃 간격',1,10,.5,4,'hz-gv')+sld('hz-d','Receiver distance','수신기 거리',1,6,.1,3,'hz-dv')+sld('hz-a','Receiver angle','수신 고리 각도',0,90,1,0,'hz-av')+
+      '<button class="af-fire hz-go" type="button">'+L('■ Stop','■ 정지')+'</button></div>'+
+      '<div class="af-ro afh-ro"><div><div class="k">'+L('TRANSMITTER SPARK','송신 불꽃')+'</div><div class="v hz-r1">—</div></div><div><div class="k">'+L('RECEIVER SPARK','수신 불꽃')+'</div><div class="v hz-r2">—</div></div><div><div class="k">'+L('TRAVEL TIME d / c','도달 시간 d / c')+'</div><div class="v hz-r3">—</div></div><div><div class="k">'+L('HERTZ\'S WAVE','헤르츠의 파동')+'</div><div class="v">≈ 50–500 MHz</div></div></div>'+
+      '<div class="af-sd">'+L('<b>What Hertz showed.</b> Reflecting the wave from a metal wall he measured λ; from the circuit he knew f. f × λ came out near 3×10⁸ m/s — Maxwell was right, and radio was born. Our 13.56 MHz is 13.56 million hertz.','<b>헤르츠가 보인 것.</b> 금속 벽에 반사시켜 파장 λ를 재고, 회로에서 주파수 f를 알아냈더니 f × λ가 약 3×10⁸ m/s였습니다. 맥스웰의 예언이 맞았고 무선 통신이 시작되었습니다. 우리의 13.56 MHz는 1초에 1,356만 헤르츠입니다.')+'</div>';
+    var cv = AF.cv(820, 380); box.querySelector('.af-stage').appendChild(cv);
+    function q(c){ return box.querySelector(c); }
+    var S = {cv: cv, cx: cv.getContext('2d'), run: true, t: 0, next: 0.4, waves: [], sparkT: -9, rxT: -9, rxA: 0, hits: 0};
+    function read(){
+      S.V = +q('.hz-v').value; S.g = +q('.hz-g').value; S.d = +q('.hz-d').value; S.a = +q('.hz-a').value;
+      q('.hz-vv').textContent = S.V + ' kV'; q('.hz-gv').textContent = S.g + ' mm'; q('.hz-dv').textContent = S.d.toFixed(1) + ' m'; q('.hz-av').textContent = S.a + '°';
+      q('.hz-r3').textContent = (S.d/3e8*1e9).toFixed(1) + ' ns';
+    }
+    ['.hz-v','.hz-g','.hz-d','.hz-a'].forEach(function(c){ q(c).addEventListener('input', read); });
+    q('.hz-go').addEventListener('click', function(){ S.run = !S.run; this.textContent = S.run ? L('■ Stop','■ 정지') : L('▶ Start','▶ 시작'); });
+    read();
+    function bolt(c, x, y0, y1, col, w){ c.strokeStyle = col; c.lineWidth = w; c.beginPath(); c.moveTo(x, y0); for(var i=1;i<5;i++){ c.lineTo(x + (Math.random()-.5)*8, y0 + (y1-y0)*i/5); } c.lineTo(x, y1); c.stroke(); }
+    return {draw:function(dt){
+      var c = S.cx, W = 820, H = 380, t = (S.t += dt);
+      c.setTransform(2,0,0,2,0,0); c.clearRect(0,0,W,H);
+      var bg = c.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#101c2b'); bg.addColorStop(1,'#060a10'); c.fillStyle = bg; c.fillRect(0,0,W,H);
+      c.save();
+      var TX = 175, TY = H*0.47, PX = 70, RX = TX + S.d*PX, RY = TY, Rr = 46, gapOK = S.V >= 3*S.g;
+      c.fillStyle = 'rgba(255,255,255,.04)'; c.fillRect(0, H*0.83, W, H*0.17);
+      c.strokeStyle = 'rgba(255,255,255,.25)'; c.lineWidth = 1; c.beginPath(); c.moveTo(TX, H*0.9); c.lineTo(RX, H*0.9); c.moveTo(TX, H*0.9-5); c.lineTo(TX, H*0.9+5); c.moveTo(RX, H*0.9-5); c.lineTo(RX, H*0.9+5); c.stroke();
+      c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '600 11px "JetBrains Mono",monospace'; c.textAlign = 'center'; c.textBaseline = 'top'; c.fillText('d = ' + S.d.toFixed(1) + ' m', (TX + RX)/2, H*0.9 + 6);
+      if(S.run && gapOK && t > S.next){ S.sparkT = t; S.waves.push({t0: t}); S.next = t + 1.1 - (S.V - 3*S.g)/60 + Math.random()*0.3; }
+      var v = 150, lamP = 46;
+      S.waves = S.waves.filter(function(w){ return (t - w.t0)*v < W + 200; });
+      S.waves.forEach(function(w){ var R0 = (t - w.t0)*v;
+        for(var n=0;n<4;n++){ var R = R0 - n*lamP; if(R < 8) continue; var amp = Math.exp(-n*0.55)*Math.min(1, 140/R + 0.25);
+          for(var a = -Math.PI; a < Math.PI; a += 0.06){ var s2 = Math.pow(Math.sin(a + Math.PI/2), 2); if(s2 < 0.02) continue;
+            c.strokeStyle = 'rgba(255,190,90,' + (amp*s2*0.55).toFixed(3) + ')'; c.lineWidth = 2.2; c.beginPath(); c.arc(TX, TY, R, a, a + 0.065); c.stroke(); }
+          if(n === 0 && R < W){ var ex = TX + R; c.strokeStyle = 'rgba(255,209,102,' + (amp*0.9).toFixed(2) + ')'; c.lineWidth = 2; c.beginPath(); c.moveTo(ex, TY - 16); c.lineTo(ex, TY + 16); c.stroke();
+            c.fillStyle = c.strokeStyle; c.beginPath(); c.moveTo(ex, TY - 22); c.lineTo(ex - 5, TY - 14); c.lineTo(ex + 5, TY - 14); c.closePath(); c.fill(); }
+        }
+        if(!w.hit && R0 >= RX - TX){ w.hit = true; var k = Math.abs(Math.cos(S.a*Math.PI/180)) * (2.6/S.d) * (S.V/20); S.rxA = k; if(k > 0.55){ S.rxT = t; S.hits++; } else S.rxT = -9; S.lastK = k; }
+      });
+      c.fillStyle = '#3a2a1e'; rr(c, 30, H*0.66, 90, 46, 6); c.fill();
+      c.strokeStyle = '#d9954a'; c.lineWidth = 2.2; for(var i=0;i<12;i++){ c.beginPath(); c.ellipse(42 + i*6.2, H*0.66 + 23, 3, 18, 0, 0, 6.283); c.stroke(); }
+      c.fillStyle = 'rgba(255,255,255,.55)'; c.font = '600 10px '+GS; c.textAlign = 'center'; c.textBaseline = 'top'; c.fillText(L('induction coil','유도 코일'), 75, H*0.66 + 50);
+      c.strokeStyle = '#8a6a4a'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(118, H*0.68); c.quadraticCurveTo(140, H*0.6, TX - 8, TY + 10); c.moveTo(118, H*0.74); c.quadraticCurveTo(150, H*0.72, TX - 8, TY + 40); c.stroke();
+      var gp = 4 + S.g*0.9;
+      c.strokeStyle = '#c98b4a'; c.lineWidth = 5; c.beginPath(); c.moveTo(TX, TY - gp); c.lineTo(TX, TY - 120); c.moveTo(TX, TY + gp); c.lineTo(TX, TY + 120); c.stroke();
+      [-1, 1].forEach(function(sg){ var g = c.createRadialGradient(TX - 6, TY + sg*128 - 8, 3, TX, TY + sg*128, 22); g.addColorStop(0,'#f2c08f'); g.addColorStop(1,'#7a4a1e'); c.fillStyle = g; c.beginPath(); c.arc(TX, TY + sg*128, 20, 0, 6.283); c.fill();
+        c.fillStyle = '#e8b27a'; c.beginPath(); c.arc(TX, TY + sg*gp, 4, 0, 6.283); c.fill(); });
+      var ts = t - S.sparkT;
+      if(ts < 0.18){ var gl = c.createRadialGradient(TX, TY, 0, TX, TY, 60); gl.addColorStop(0, 'rgba(190,220,255,' + (0.8*(1 - ts/0.18)).toFixed(2) + ')'); gl.addColorStop(1,'rgba(190,220,255,0)'); c.fillStyle = gl; c.beginPath(); c.arc(TX, TY, 60, 0, 6.283); c.fill();
+        bolt(c, TX, TY - gp, TY + gp, '#eaf4ff', 2.2); }
+      c.fillStyle = 'rgba(255,255,255,.6)'; c.font = '600 10.5px '+GS; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(L('transmitter (dipole)','송신기 (쌍극자)'), TX + 28, TY - 128);
+      var rx = Rr*Math.max(0.06, Math.abs(Math.cos(S.a*Math.PI/180)));
+      c.strokeStyle = '#b8c4d0'; c.lineWidth = 3.5; c.beginPath(); c.ellipse(RX, RY, rx, Rr, 0, -Math.PI/2 + 0.12, 1.5*Math.PI - 0.12); c.stroke();
+      c.fillStyle = '#dfe7ef'; c.beginPath(); c.arc(RX + rx*Math.cos(-Math.PI/2 + 0.12), RY + Rr*Math.sin(-Math.PI/2 + 0.12), 3.5, 0, 6.283); c.fill(); c.beginPath(); c.arc(RX + rx*Math.cos(1.5*Math.PI - 0.12), RY + Rr*Math.sin(1.5*Math.PI - 0.12), 3.5, 0, 6.283); c.fill();
+      c.strokeStyle = '#555f6a'; c.lineWidth = 3; c.beginPath(); c.moveTo(RX, RY + Rr); c.lineTo(RX, H*0.83); c.stroke();
+      var tr = t - S.rxT;
+      if(tr < 0.22){ var g2 = c.createRadialGradient(RX, RY - Rr, 0, RX, RY - Rr, 30); g2.addColorStop(0, 'rgba(190,220,255,' + (0.9*(1 - tr/0.22)).toFixed(2) + ')'); g2.addColorStop(1, 'rgba(190,220,255,0)'); c.fillStyle = g2; c.beginPath(); c.arc(RX, RY - Rr, 30, 0, 6.283); c.fill();
+        c.strokeStyle = '#eaf4ff'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(RX - 4, RY - Rr - 1); c.lineTo(RX, RY - Rr + 2); c.lineTo(RX + 4, RY - Rr - 1); c.stroke(); }
+      c.fillStyle = 'rgba(255,255,255,.6)'; c.textBaseline = 'bottom'; c.textAlign = 'center'; c.fillText(L('receiver ring','수신 고리'), RX, RY - Rr - 14);
+      c.restore();
+      c.fillStyle = 'rgba(255,255,255,.5)'; c.font = '500 11px '+GS; c.textAlign = 'left'; c.textBaseline = 'top';
+      c.fillText(L('orange arcs = wave fronts (strongest sideways) · yellow = E · slowed ~10⁹×','주황 호 = 파면 (옆으로 가장 셈) · 노랑 = E · 약 10⁹배 느리게'), 14, 12);
+      q('.hz-r1').textContent = !gapOK ? L('none: voltage too low','없음: 전압 부족') : S.run ? L('sparking ✓','불꽃 발생 ✓') : L('stopped','정지');
+      var rxt = S.lastK === undefined ? '—' : (S.lastK > 0.55 ? L('spark ✓ (' + S.hits + ')','불꽃 ✓ (' + S.hits + '회)') : L('too weak','너무 약함'));
+      if(!gapOK) rxt = L('no wave','파동 없음');
+      q('.hz-r2').textContent = rxt;
+    }};
+  };
+
+  /* ---------------- Faraday lab: drag the magnet, Φ & ε graph, Lenz ---------------- */
+  AF.B.faraday = function(box){
+    box.innerHTML = '<div class="af-stage"></div><div class="af-panel">'+
+      '<div><div class="af-row"><span class="k">'+L('Coil turns N','코일 감은 수 N')+'</span><span class="v faNv">10</span></div><input type="range" class="faN" min="1" max="20" step="1" value="10"></div>'+
+      '<div class="af-row" style="justify-content:flex-start;gap:10px"><button class="af-chip faAuto" type="button"></button><span class="k">'+L('Speed','속도')+'</span><input type="range" class="faSp" min="0.3" max="2.5" step="0.1" value="1" style="flex:1"></div>'+
+      '<div><span class="k">'+L('Flux through the coil Φ','코일을 지나는 자기선속 Φ')+'</span><div class="af-bar"><i class="faPhi"></i></div></div>'+
+      '<div class="af-row"><span class="k">'+L('Induced voltage ε','유도 전압 ε')+'</span><span class="af-big faV" style="font-size:28px">0.0 mV</span></div>'+
+      '<div class="af-sd faT" style="min-height:66px"></div>'+
+      '<div class="af-row" style="flex-wrap:wrap"><span class="af-eqn">ε = −N <span class="af-frac"><span class="fn">dΦ</span><span class="fd">dt</span></span></span>'+
+      '<a class="af-link" href="https://phet.colorado.edu/sims/html/faradays-electromagnetic-lab/latest/faradays-electromagnetic-lab_all.html" target="_blank" rel="noopener">'+L('▶ PhET simulator ↗','▶ PhET 시뮬레이터 ↗')+'</a></div></div>';
+    var cv = AF.cv(560, 380); cv.style.touchAction = 'pan-y'; box.querySelector('.af-stage').appendChild(cv);
+    var cx = cv.getContext('2d'); cx.scale(2,2);
+    var W = 560, H = 380, YM = 118, XC = 392, MW = 92, MH = 30;
+    var xm = 150, N = 10, auto = false, sp = 1, t = 0, ta = 0, drag = false, dx0 = 0;
+    var MPX = 0.0003, PHI0 = 2e-5, A = 0.021;
+    var eps = 0, hist = [], dots = 0, prevPhi = null;
+    function $(c){ return box.querySelector('.'+c); }
+    var sN = $('faN'), sS = $('faSp'), bA = $('faAuto');
+    sN.addEventListener('input', function(){ N = +sN.value; $('faNv').textContent = N; });
+    sS.addEventListener('input', function(){ sp = +sS.value; });
+    bA.addEventListener('click', function(){ auto = !auto; ta = Math.asin(Math.max(-1, Math.min(1, (xm - 225)/150))); btn(); });
+    function btn(){ bA.classList.toggle('on', auto); bA.textContent = auto ? L('■ Stop','■ 멈춤') : L('▶ Auto motion','▶ 자동 왕복'); }
+    function pt(e){ var r = cv.getBoundingClientRect(); return [(e.clientX - r.left)*W/r.width, (e.clientY - r.top)*H/r.height]; }
+    cv.addEventListener('pointerdown', function(e){ var p = pt(e); if(Math.abs(p[0]-xm) < MW/2+10 && Math.abs(p[1]-YM) < MH){ drag = true; auto = false; btn(); dx0 = p[0]-xm; cv.setPointerCapture(e.pointerId); } });
+    cv.addEventListener('pointermove', function(e){ if(drag){ var p = pt(e); xm = Math.max(60, Math.min(XC+10, p[0]-dx0)); } });
+    cv.addEventListener('pointerup', function(){ drag = false; });
+    cv.addEventListener('pointercancel', function(){ drag = false; });
+    function phi(x){ var u = (XC - x) * MPX / A; return PHI0 / Math.pow(1 + u*u, 1.5); }
+    function coilHalf(front){
+      for(var i=0;i<9;i++){ var x = XC - 40 + i*10;
+        cx.beginPath(); cx.ellipse(x, YM, 14, 52, 0, front ? -Math.PI/2 : Math.PI/2, front ? Math.PI/2 : Math.PI*1.5);
+        var g = cx.createLinearGradient(x-14, 0, x+14, 0); g.addColorStop(0, front ? '#e8a46a' : '#6b4424'); g.addColorStop(1, front ? '#b8692e' : '#4a2e17');
+        cx.strokeStyle = g; cx.lineWidth = front ? 4.5 : 3.5; cx.stroke(); }
+    }
+    btn();
+    return {draw:function(dt){
+      t += dt;
+      if(auto){ ta += dt*sp*1.6; xm = 225 + 150*Math.sin(ta); }
+      var Phi = phi(xm), dPhi = prevPhi === null ? 0 : (Phi - prevPhi)/Math.max(dt, 1e-3); prevPhi = Phi;
+      var eRaw = -N*dPhi; eps += (eRaw - eps)*Math.min(1, dt*12);
+      var emV = eps*1000, eMax = N*PHI0*0.86/A*(240*MPX)*1000;
+      hist.push([Phi/PHI0, Math.max(-1.2, Math.min(1.2, emV/eMax))]); if(hist.length > 330) hist.shift();
+      $('faPhi').style.width = (Phi/PHI0*100).toFixed(1) + '%';
+      $('faV').textContent = (Math.abs(emV) < 0.05 ? '0.0' : emV.toFixed(1)) + ' mV';
+      var mov = Math.abs(dPhi) > PHI0*0.02;
+      $('faT').textContent = !mov ? L('Magnet still → flux not changing → no voltage.','자석이 멈춤 → 선속 변화 없음 → 전압 없음.')
+        : dPhi > 0 ? L('Approaching → flux rising → voltage appears. The coil makes an N pole facing the magnet to push it back (Lenz).','다가감 → 선속 증가 → 전압 발생. 코일은 자석 쪽에 N극을 만들어 밀어냅니다 (렌츠 법칙).')
+        : L('Leaving → flux falling → the voltage reverses. The coil makes an S pole to pull it back (Lenz).','멀어짐 → 선속 감소 → 전압 부호 반대. 코일은 S극을 만들어 끌어당깁니다 (렌츠 법칙).');
+      var bg = cx.createRadialGradient(W*.5,H*.4,20,W*.5,H*.5,W*.75);
+      bg.addColorStop(0,'#15283b'); bg.addColorStop(.6,'#0c1520'); bg.addColorStop(1,'#070b11');
+      cx.clearRect(0,0,W,H); cx.fillStyle = bg; cx.fillRect(0,0,W,H);
+      var mc = xm;
+      cx.setLineDash([5,6]); cx.lineDashOffset = -t*18; cx.lineWidth = 1.1;
+      for(var k=1;k<=4;k++){ cx.strokeStyle = 'rgba(190,170,255,'+(0.34 - k*0.05).toFixed(2)+')';
+        cx.beginPath(); cx.ellipse(mc, YM, MW/2 + k*30, 10 + k*19, 0, 0, 6.283); cx.stroke(); }
+      cx.setLineDash([]);
+      coilHalf(false);
+      var gN = cx.createLinearGradient(0, YM-MH/2, 0, YM+MH/2); gN.addColorStop(0,'#ff8fb6'); gN.addColorStop(1,'#d92e68');
+      var gS = cx.createLinearGradient(0, YM-MH/2, 0, YM+MH/2); gS.addColorStop(0,'#8fc4ee'); gS.addColorStop(1,'#2a5f8f');
+      cx.fillStyle = gS; rr(cx, xm - MW/2, YM - MH/2, MW/2, MH, 5); cx.fill();
+      cx.fillStyle = gN; rr(cx, xm, YM - MH/2, MW/2, MH, 5); cx.fill();
+      cx.fillStyle = '#fff'; cx.font = '700 16px '+GS; cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      cx.fillText('S', xm - MW/4, YM+1); cx.fillText('N', xm + MW/4, YM+1);
+      if(!drag && !auto){ cx.fillStyle = 'rgba(255,255,255,.55)'; cx.font = '500 11px '+GS; cx.fillText(L('↔ drag me','↔ 끌어서 움직이기'), xm, YM - MH/2 - 12); }
+      coilHalf(true);
+      if(mov){ var pol = dPhi > 0 ? 'N' : 'S', pc = dPhi > 0 ? '#ff8fb6' : '#8fc4ee';
+        cx.fillStyle = pc; cx.font = '700 15px '+GS; cx.fillText(pol, XC - 62, YM - 62);
+        cx.font = '600 10px '+GS; cx.fillStyle = 'rgba(255,255,255,.6)'; cx.fillText(L('induced','유도 극'), XC - 62, YM - 46); }
+      var mX = 500, mY = 232, L1 = XC - 40, L2 = XC + 40;
+      cx.strokeStyle = '#b8692e'; cx.lineWidth = 2.5;
+      cx.beginPath(); cx.moveTo(L1, YM + 50); cx.lineTo(L1, mY + 34); cx.lineTo(mX - 20, mY + 34); cx.lineTo(mX - 20, mY + 6); cx.stroke();
+      cx.beginPath(); cx.moveTo(L2, YM + 50); cx.lineTo(L2, mY - 4); cx.lineTo(mX - 44, mY - 4); cx.stroke();
+      dots += emV/eMax*dt*90;
+      cx.fillStyle = '#ffd166';
+      if(Math.abs(emV/eMax) > 0.02) for(var d=0; d<6; d++){ var s = ((d*22 + dots) % 132 + 132) % 132;
+        var px, py; if(s < 60){ px = L1; py = YM + 50 + s; } else { px = L1 + (s-60)*1.0; py = mY + 34; }
+        if(py <= mY + 34 && px <= mX - 20){ cx.beginPath(); cx.arc(px, py, 2.4, 0, 6.283); cx.fill(); } }
+      cx.fillStyle = '#e9edf2'; cx.beginPath(); cx.arc(mX, mY, 44, Math.PI, 0); cx.closePath(); cx.fill();
+      cx.strokeStyle = '#7a8796'; cx.lineWidth = 1;
+      for(var k2=-4;k2<=4;k2++){ var aa = -Math.PI/2 + k2*0.28; cx.beginPath(); cx.moveTo(mX + Math.cos(aa)*36, mY + Math.sin(aa)*36); cx.lineTo(mX + Math.cos(aa)*42, mY + Math.sin(aa)*42); cx.stroke(); }
+      var nd = Math.max(-1.15, Math.min(1.15, emV/eMax*1.1)), an = -Math.PI/2 + nd;
+      cx.strokeStyle = '#e8336f'; cx.lineWidth = 3; cx.beginPath(); cx.moveTo(mX, mY); cx.lineTo(mX + Math.cos(an)*38, mY + Math.sin(an)*38); cx.stroke();
+      cx.fillStyle = '#0a0a0a'; cx.beginPath(); cx.arc(mX, mY, 4, 0, 6.283); cx.fill();
+      cx.fillStyle = '#334'; cx.font = '700 11px "JetBrains Mono",monospace'; cx.fillText('mV', mX, mY - 14);
+      var gx0 = 22, gx1 = W - 22, gy0 = 286, gh = 70, gm = gy0 + gh/2;
+      cx.fillStyle = 'rgba(255,255,255,.04)'; rr(cx, gx0 - 6, gy0 - 8, gx1 - gx0 + 12, gh + 16, 10); cx.fill();
+      cx.strokeStyle = 'rgba(255,255,255,.15)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(gx0, gm); cx.lineTo(gx1, gm); cx.stroke();
+      function trace(idx, col, base, sc){ cx.strokeStyle = col; cx.lineWidth = 2; cx.beginPath();
+        hist.forEach(function(h, i){ var x = gx1 - (hist.length - 1 - i)*(gx1 - gx0)/330, y = base - h[idx]*sc; i ? cx.lineTo(x, y) : cx.moveTo(x, y); }); cx.stroke(); }
+      trace(0, '#b9a6ff', gy0 + gh, gh*0.9);
+      trace(1, '#ffd166', gm, gh*0.42);
+      cx.font = '700 11.5px '+GS; cx.textAlign = 'left'; cx.textBaseline = 'top';
+      cx.fillStyle = '#b9a6ff'; cx.fillText(L('Φ flux','Φ 자기선속'), gx0, gy0 - 4);
+      cx.fillStyle = '#ffd166'; cx.fillText(L('ε voltage (= slope of Φ)','ε 유도 전압 (= Φ 기울기)'), gx0 + 82, gy0 - 4);
+    }};
+  };
+
+  /* ---------------- Ampère lab: wire, field circles, compasses, probe, DC/AC ---------------- */
+  AF.B.ampere = function(box){
+    box.innerHTML = '<div class="af-stage"></div><div class="af-panel">'+
+      '<div class="af-row" style="justify-content:flex-start;gap:10px"><span class="k">'+L('Current type','전류 종류')+'</span><div class="af-chips"><button type="button" class="af-chip on" data-am="dc">'+L('DC','직류 DC')+'</button><button type="button" class="af-chip" data-am="ac">'+L('AC (RF)','교류 AC (RF)')+'</button></div></div>'+
+      '<div><div class="af-row"><span class="k">'+L('Current I','전류 I')+'</span><span class="v amIv">10 A</span></div><input type="range" class="amI" min="-20" max="20" step="1" value="10"></div>'+
+      '<div class="af-rows"><div><span>'+L('Distance r (drag the probe)','거리 r (탐침을 끌어 보세요)')+'</span><b class="amR">—</b></div><div><span>'+L('Magnetic field B = μ₀I / 2πr','자기장 B = μ₀I / 2πr')+'</span><b class="amB">—</b></div></div>'+
+      '<div class="af-mono amC" style="min-height:14px"></div><div class="af-sd amT" style="min-height:66px"></div>'+
+      '<div class="af-row" style="flex-wrap:wrap"><span class="af-eqn">∮ B·dl = μ₀ I</span>'+
+      '<a class="af-link" href="https://phet.colorado.edu/sims/html/magnets-and-electromagnets/latest/magnets-and-electromagnets_all.html" target="_blank" rel="noopener">'+L('▶ PhET simulator ↗','▶ PhET 시뮬레이터 ↗')+'</a></div></div>';
+    var cv = AF.cv(560, 380); cv.style.touchAction = 'none'; box.querySelector('.af-stage').appendChild(cv);
+    var cx = cv.getContext('2d'); cx.scale(2,2);
+    var W = 560, H = 380, X = W/2, Yc = H/2 + 4, PXCM = 40;
+    var I0 = 10, ac = false, t = 0, ph = 0, px = X + 80, py = Yc - 20, drag = false, flow = 0;
+    function $(c){ return box.querySelector('.'+c); }
+    var sI = $('amI');
+    sI.addEventListener('input', function(){ I0 = +sI.value; $('amIv').textContent = (ac ? '±' + Math.abs(I0) : I0) + ' A'; });
+    AF.chips(AF.qa(box,'[data-am]'), function(b){ ac = b.dataset.am === 'ac'; ph = 0; $('amIv').textContent = (ac ? '±' + Math.abs(I0) : I0) + ' A'; });
+    function pt(e){ var r = cv.getBoundingClientRect(); return [(e.clientX - r.left)*W/r.width, (e.clientY - r.top)*H/r.height]; }
+    cv.addEventListener('pointerdown', function(e){ var p = pt(e); if(Math.hypot(p[0]-px, p[1]-py) < 26){ drag = true; cv.setPointerCapture(e.pointerId); } });
+    cv.addEventListener('pointermove', function(e){ if(!drag) return; var p = pt(e), dx = p[0]-X, dy = p[1]-Yc, d = Math.hypot(dx, dy);
+      if(d < 34){ dx = dx/(d||1)*34; dy = dy/(d||1)*34; } px = Math.max(16, Math.min(W-16, X+dx)); py = Math.max(16, Math.min(H-16, Yc+dy)); });
+    cv.addEventListener('pointerup', function(){ drag = false; });
+    cv.addEventListener('pointercancel', function(){ drag = false; });
+    function fmtB(b){ var a = Math.abs(b); return a >= 1000 ? (a/1000).toFixed(2) + ' mT' : a.toFixed(a < 10 ? 1 : 0) + ' µT'; }
+    return {draw:function(dt){
+      t += dt; if(ac) ph += dt*2.2;
+      var I = ac ? I0*Math.sin(ph) : I0, sg = I > 0 ? 1 : I < 0 ? -1 : 0, mag = Math.abs(I)/20;
+      var rcm = Math.hypot(px-X, py-Yc)/PXCM, B = 2e-7*I/(rcm/100)*1e6;
+      $('amR').textContent = rcm.toFixed(1) + ' cm';
+      $('amB').textContent = I ? fmtB(B) : '0 µT';
+      $('amC').textContent = I ? L('≈ ' + (Math.abs(B)/50).toFixed(1) + '× the Earth’s field (≈ 50 µT)', '≈ 지구 자기장(약 50 µT)의 ' + (Math.abs(B)/50).toFixed(1) + '배') : '';
+      $('amT').textContent = ac ? L('AC: the current keeps reversing, so B reverses too. In an ICP antenna: 13.56 million times a second.','교류: 전류가 계속 뒤집히므로 B도 뒤집힙니다. ICP 안테나에서는 1초에 1,356만 번.')
+        : !I ? L('No current, no magnetic field.','전류가 없으면 자기장도 없습니다.')
+        : I > 0 ? L('Current out of the page (⊙): B circles counter-clockwise (right-hand rule).','전류가 화면 밖으로(⊙): B는 반시계 방향으로 돕니다 (오른손 법칙).')
+        : L('Current into the page (⊗): B circles clockwise.','전류가 화면 안으로(⊗): B는 시계 방향으로 돕니다.');
+      var bg = cx.createRadialGradient(X, Yc, 10, X, Yc, W*.7);
+      bg.addColorStop(0,'#15283b'); bg.addColorStop(.6,'#0c1520'); bg.addColorStop(1,'#070b11');
+      cx.clearRect(0,0,W,H); cx.fillStyle = bg; cx.fillRect(0,0,W,H);
+      flow += sg*dt*28*(0.3 + mag);
+      var radii = [36, 58, 88, 128, 180, 250];
+      cx.setLineDash([7,8]); cx.lineDashOffset = flow;
+      radii.forEach(function(r, i){ cx.strokeStyle = 'rgba(190,170,255,' + ((0.12 + 0.5*mag) * (1 - i*0.11)).toFixed(3) + ')'; cx.lineWidth = 1.4;
+        cx.beginPath(); cx.arc(X, Yc, r, 0, sg > 0 ? -6.2832 : 6.2832, sg > 0); cx.stroke(); });
+      cx.setLineDash([]);
+      for(var gx = 40; gx < W-20; gx += 56) for(var gy = 36; gy < H-20; gy += 56){
+        var dx = gx - X, dy = gy - Yc, d = Math.hypot(dx, dy); if(d < 50) continue;
+        var tx = -dy/d, ty = dx/d;
+        var ux = sg >= 0 ? -tx : tx, uy = sg >= 0 ? -ty : ty;
+        if(!sg){ ux = 0; uy = -1; }
+        var s2 = 9, a2 = 0.35 + 0.65*Math.min(1, mag*60/d*2);
+        cx.globalAlpha = sg ? a2 : 0.35;
+        cx.fillStyle = 'rgba(255,255,255,.07)'; cx.beginPath(); cx.arc(gx, gy, 13, 0, 6.283); cx.fill();
+        cx.fillStyle = '#ff5a7a'; cx.beginPath(); cx.moveTo(gx + ux*s2, gy + uy*s2); cx.lineTo(gx - uy*3, gy + ux*3); cx.lineTo(gx + uy*3, gy - ux*3); cx.closePath(); cx.fill();
+        cx.fillStyle = '#e6ecf2'; cx.beginPath(); cx.moveTo(gx - ux*s2, gy - uy*s2); cx.lineTo(gx - uy*3, gy + ux*3); cx.lineTo(gx + uy*3, gy - ux*3); cx.closePath(); cx.fill();
+        cx.globalAlpha = 1;
+      }
+      var rp = Math.hypot(px - X, py - Yc);
+      cx.strokeStyle = 'rgba(255,209,102,.55)'; cx.lineWidth = 1.5; cx.setLineDash([3,5]); cx.beginPath(); cx.arc(X, Yc, rp, 0, 6.283); cx.stroke(); cx.setLineDash([]);
+      var gl = cx.createRadialGradient(X, Yc, 0, X, Yc, 40); gl.addColorStop(0, 'rgba(255,170,90,' + (0.2 + 0.5*mag).toFixed(2) + ')'); gl.addColorStop(1, 'rgba(255,170,90,0)');
+      cx.fillStyle = gl; cx.beginPath(); cx.arc(X, Yc, 40, 0, 6.283); cx.fill();
+      var gw = cx.createRadialGradient(X-5, Yc-6, 2, X, Yc, 18); gw.addColorStop(0, '#f2c08f'); gw.addColorStop(1, '#b8692e');
+      cx.fillStyle = gw; cx.beginPath(); cx.arc(X, Yc, 18, 0, 6.283); cx.fill();
+      cx.strokeStyle = '#2a1608'; cx.fillStyle = '#2a1608'; cx.lineWidth = 3;
+      if(sg > 0){ cx.beginPath(); cx.arc(X, Yc, 4.5, 0, 6.283); cx.fill(); }
+      else if(sg < 0){ cx.beginPath(); cx.moveTo(X-7, Yc-7); cx.lineTo(X+7, Yc+7); cx.moveTo(X+7, Yc-7); cx.lineTo(X-7, Yc+7); cx.stroke(); }
+      cx.fillStyle = 'rgba(255,255,255,.75)'; cx.font = '600 11.5px "JetBrains Mono",monospace'; cx.textAlign = 'center'; cx.textBaseline = 'top';
+      cx.fillText('I = ' + I.toFixed(ac ? 1 : 0) + ' A', X, Yc + 24);
+      var dx2 = px - X, dy2 = py - Yc, d2 = Math.hypot(dx2, dy2), bx = (sg >= 0 ? 1 : -1)*dy2/d2, by = (sg >= 0 ? -1 : 1)*dx2/d2;
+      if(sg){ var LB = Math.min(90, 10 + 2600*Math.abs(I)/20/d2); arrow(cx, px, py, bx, by, LB, '#ffd166', 3.5, 11);
+        cx.fillStyle = '#ffd166'; cx.font = '700 14px '+GS; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('B', px + bx*(LB + 12), py + by*(LB + 12)); }
+      cx.strokeStyle = 'rgba(255,255,255,.4)'; cx.lineWidth = 1; cx.setLineDash([3,4]); cx.beginPath(); cx.moveTo(X, Yc); cx.lineTo(px, py); cx.stroke(); cx.setLineDash([]);
+      cx.beginPath(); cx.arc(px, py, 9, 0, 6.283); cx.fillStyle = '#fff'; cx.fill(); cx.lineWidth = 2; cx.strokeStyle = drag ? '#ffd166' : '#7a5fd1'; cx.stroke();
+      if(!drag){ cx.beginPath(); cx.arc(px, py, 14 + 3*Math.sin(t*4), 0, 6.283); cx.strokeStyle = 'rgba(255,255,255,.25)'; cx.lineWidth = 1.5; cx.stroke(); }
+      cx.fillStyle = 'rgba(255,255,255,.55)'; cx.font = '500 12px '+GS; cx.textAlign = 'left'; cx.textBaseline = 'top';
+      cx.fillText(L('⊙ current out of page · ⊗ into page · red compass tip = N','⊙ 전류가 화면 밖으로 · ⊗ 화면 안으로 · 나침반 빨강 = N극'), 16, 14);
+      cx.textAlign = 'right'; cx.textBaseline = 'bottom';
+      cx.fillText(L('Yellow dashed = Ampère loop (∮B·dl = μ₀I)','노란 점선 = 암페어 경로 (∮B·dl = μ₀I)'), W-16, H-12);
+    }};
+  };
+})();
+
 </script>
 </body>
 </html>
