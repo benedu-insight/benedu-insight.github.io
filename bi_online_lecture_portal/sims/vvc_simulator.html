@@ -262,6 +262,172 @@
             font-weight: 600;
         }
 
+        /* 2D / 3D View Toggle */
+        .view-toolbar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .view-toolbar > * { pointer-events: auto; }
+
+        .seg {
+            display: inline-flex;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 3px;
+        }
+
+        .seg button {
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: transparent;
+            border: 0;
+            border-radius: 999px;
+            padding: 6px 16px;
+            cursor: pointer;
+            transition: background-color 0.15s, color 0.15s;
+        }
+
+        .seg button.active {
+            background: var(--brand-green);
+            color: #fff;
+        }
+
+        .opts3d {
+            display: none;
+            gap: 6px;
+        }
+
+        .mode-3d .opts3d { display: inline-flex; }
+
+        .chip-btn {
+            font: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+
+        .chip-btn[aria-pressed="true"] {
+            color: var(--brand-purple);
+            border-color: var(--brand-purple);
+        }
+
+        .view-pane { width: 100%; }
+
+        #view3d {
+            display: none;
+            position: relative;
+            height: 650px;
+            overflow: hidden;
+            cursor: grab;
+            touch-action: none;
+        }
+
+        #view3d:active { cursor: grabbing; }
+        #view3d canvas { display: block; }
+
+        .mode-3d #view2d { display: none; }
+        .mode-3d #view3d { display: block; }
+
+        .hint3d {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 8px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .fallback3d {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 30px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .labels3d {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .labels3d.hidden { display: none; }
+
+        .lbl3d {
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            will-change: transform;
+        }
+
+        .lbl3d.left { flex-direction: row-reverse; }
+
+        .lbl3d .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #546e7a;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .lbl3d .lead {
+            width: 22px;
+            height: 1px;
+            background: #90a4ae;
+            flex-shrink: 0;
+        }
+
+        .lbl3d .txt {
+            font-size: 11.5px;
+            line-height: 1.25;
+            color: #37474f;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 3px 7px;
+        }
+
+        .lbl3d .txt b { font-weight: 600; color: var(--text-main); }
+
+        .labels3d.compact .lead { width: 10px; }
+        .labels3d.compact .txt { font-size: 10.5px; white-space: normal; max-width: 78px; padding: 2px 5px; }
+        .labels3d.compact .txt br { display: none; }
+
+        @media (max-width: 820px) {
+            body { padding: 16px; }
+            .container { flex-direction: column; }
+            .control-panel { border-right: 0; border-bottom: 1px solid var(--border-color); padding: 20px; }
+            .visualization { padding: 16px 8px; }
+        }
+
         /* SVG Styles */
         svg text {
             font-family: 'Google Sans', 'Product Sans', 'Poppins', 'Gowun Batang', sans-serif;
@@ -450,7 +616,27 @@
 
         </div>
 
-        <div class="visualization">
+        <div class="visualization" id="vizPanel">
+            <div class="view-toolbar">
+                <div class="seg" role="group" aria-label="View mode">
+                    <button type="button" id="btn2d" class="active" aria-pressed="true">2D</button>
+                    <button type="button" id="btn3d" aria-pressed="false">3D</button>
+                </div>
+                <div class="opts3d">
+                    <button type="button" class="chip-btn" id="btnCut" aria-pressed="true">Cutaway</button>
+                    <button type="button" class="chip-btn" id="btnLabels" aria-pressed="true">Labels</button>
+                    <button type="button" class="chip-btn" id="btnReset">Reset</button>
+                </div>
+            </div>
+
+            <!-- 3D View (Three.js, built on first open) -->
+            <div class="view-pane" id="view3d">
+                <div class="labels3d" id="labels3d"></div>
+                <div class="hint3d">Drag to rotate · Scroll to zoom · Right-drag to pan</div>
+            </div>
+
+            <!-- 2D View -->
+            <div class="view-pane" id="view2d">
             <!-- Expanded viewBox upwards to -150 and total height to 700 to fit motor and coupler -->
             <svg viewBox="0 -150 400 700" width="100%" height="650px" id="vvcSvg">
                 
@@ -554,6 +740,7 @@
                 <text x="20" y="350" font-size="12">Ceramic insulator</text>
                 <line x1="115" y1="345" x2="80" y2="345" stroke="#999" stroke-width="1" stroke-dasharray="2,2"/>
             </svg>
+            </div>
         </div>
     </div>
 
@@ -603,6 +790,9 @@
         </details>
     </div>
 
+    <!-- Three.js (3D view) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script>
         const slider = document.getElementById('capSlider');
         const valCap = document.getElementById('valCap');
@@ -662,6 +852,9 @@
             rotatingShaft.setAttribute('transform', `translate(200, -2.5) rotate(${angle})`);
 
             drawBellows(currentYOffset);
+
+            // 6. Sync 3D model (if it has been built)
+            sim3d.update(currentYOffset, turns);
         }
 
         function drawBellows(yOffset) {
@@ -686,11 +879,345 @@
             bellowsPath.setAttribute('d', d);
         }
 
+        // ================================================================
+        // 3D View
+        // Model is built in the same pixel units as the 2D SVG:
+        //   radius r = |x - 200|,  height Y = 450 - y  (top of bottom plate = 0)
+        // so the 2D and 3D views share one geometry and one Y offset.
+        // ================================================================
+        const sim3d = (function () {
+            const host = document.getElementById('view3d');
+            const labelLayer = document.getElementById('labels3d');
+            const TAU = Math.PI * 2;
+            // Cutaway removes the quarter facing the default camera (phi 0..90deg)
+            const CUT_START = Math.PI / 2, CUT_LEN = Math.PI * 1.5;
+
+            let ready = false, running = false;
+            let renderer, scene, camera, controls;
+            let modelRoot, movable, coupler, bellowsMesh;
+            let cutaway = true;
+            let lastOffset = 0, lastTurns = 0;
+            const labels = [];
+            const M = {};
+
+            function makeMaterials() {
+                const ds = THREE.DoubleSide;
+                M.copper   = new THREE.MeshStandardMaterial({ color: 0xd97736, metalness: 0.35, roughness: 0.38, side: ds });
+                M.metal    = new THREE.MeshStandardMaterial({ color: 0xc9ced3, metalness: 0.4,  roughness: 0.45, side: ds });
+                M.housing  = new THREE.MeshStandardMaterial({ color: 0xc9ced3, metalness: 0.4,  roughness: 0.45, side: ds,
+                                                              transparent: true, opacity: 0.55, depthWrite: false });
+                M.ceramic  = new THREE.MeshStandardMaterial({ color: 0xe0f2f1, metalness: 0.0,  roughness: 0.7,  side: ds,
+                                                              transparent: true, opacity: 0.6, depthWrite: false });
+                M.bellows  = new THREE.MeshStandardMaterial({ color: 0x90a4ae, metalness: 0.5,  roughness: 0.35, side: ds });
+                M.coupler  = new THREE.MeshStandardMaterial({ color: 0xbbdefb, metalness: 0.0,  roughness: 0.5,  side: ds });
+                M.couplerK = new THREE.MeshStandardMaterial({ color: 0x1565c0, metalness: 0.1,  roughness: 0.5 });
+                M.tube     = new THREE.MeshStandardMaterial({ color: 0xb0c4d0, metalness: 0.0,  roughness: 0.3,  side: ds,
+                                                              transparent: true, opacity: 0.18, depthWrite: false });
+                M.motor    = new THREE.MeshStandardMaterial({ color: 0xeceff1, metalness: 0.2,  roughness: 0.6 });
+                M.motorD   = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.3,  roughness: 0.5 });
+                M.encoder  = new THREE.MeshStandardMaterial({ color: 0x546e7a, metalness: 0.3,  roughness: 0.5 });
+                M.dash     = new THREE.LineDashedMaterial({ color: 0x90a4ae, dashSize: 8, gapSize: 6 });
+            }
+
+            // Revolve a closed (r, Y) polygon around the Y axis.
+            // Corners are duplicated so each edge gets its own normals (crisp rims).
+            // When cut, the two exposed section faces are capped with the profile shape.
+            function revolve(pts, mat, opt) {
+                opt = opt || {};
+                const cut = opt.cut !== undefined ? opt.cut : cutaway;
+                const seg = opt.seg || 96;
+                const lp = [];
+                for (let i = 0; i < pts.length; i++) {
+                    const a = pts[i], b = pts[(i + 1) % pts.length];
+                    lp.push(new THREE.Vector2(a[0], a[1]), new THREE.Vector2(b[0], b[1]));
+                }
+                const g = new THREE.Group();
+                const geo = cut ? new THREE.LatheGeometry(lp, seg, CUT_START, CUT_LEN)
+                                : new THREE.LatheGeometry(lp, seg);
+                g.add(new THREE.Mesh(geo, mat));
+                if (cut) {
+                    const shapeGeo = new THREE.ShapeGeometry(new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], p[1]))));
+                    [CUT_START, CUT_START + CUT_LEN].forEach(phi => {
+                        const cap = new THREE.Mesh(shapeGeo, mat);
+                        cap.rotation.y = phi - Math.PI / 2; // maps +X onto the lathe's radial direction at phi
+                        g.add(cap);
+                    });
+                }
+                return g;
+            }
+
+            const rect = (r0, r1, y0, y1) => [[r0, y0], [r1, y0], [r1, y1], [r0, y1]];
+            const shell = (r, t, y0, y1) => rect(r - t / 2, r + t / 2, y0, y1);
+
+            function bellowsGeometry(yOffset) {
+                // Mirrors drawBellows(): top at Y=350, bottom on the movable plate
+                const topY = 350, botY = 250 - yOffset, folds = 12;
+                const pts = [new THREE.Vector2(10, topY), new THREE.Vector2(25, topY - 5)];
+                const h = (topY - botY - 10) / folds;
+                for (let i = 0; i <= folds; i++) {
+                    pts.push(new THREE.Vector2(i % 2 === 0 ? 25 : 16, topY - 5 - i * h));
+                }
+                pts.push(new THREE.Vector2(10, botY));
+                return cutaway ? new THREE.LatheGeometry(pts, 64, CUT_START, CUT_LEN)
+                               : new THREE.LatheGeometry(pts, 64);
+            }
+
+            function dashedRing(r, y) {
+                const pts = [];
+                for (let i = 0; i <= 96; i++) {
+                    const a = (i / 96) * TAU;
+                    pts.push(new THREE.Vector3(Math.sin(a) * r, y, Math.cos(a) * r));
+                }
+                const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), M.dash);
+                line.computeLineDistances();
+                return line;
+            }
+
+            function buildModel() {
+                if (modelRoot) {
+                    scene.remove(modelRoot);
+                    modelRoot.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+                }
+                modelRoot = new THREE.Group();
+
+                // --- Fixed parts ---
+                // Bottom connection flange (grey) with recessed copper base plate
+                modelRoot.add(revolve([[0, -40], [140, -40], [140, 0], [110, 0], [110, -20], [0, -20]], M.metal));
+                modelRoot.add(revolve(rect(0, 20, -60, -40), M.metal));                  // bottom terminal stud
+                modelRoot.add(revolve(rect(0, 110, -20, 0), M.copper));                  // copper base plate
+
+                // Fixed concentric cylinder electrodes (Y 0..130)
+                [16, 40, 64, 88].forEach(r => modelRoot.add(revolve(shell(r, 4, 0, 130), M.copper)));
+
+                // Ceramic insulator envelope
+                const ceramic = revolve(rect(110, 130, 0, 250), M.ceramic);
+                ceramic.renderOrder = 2;
+                modelRoot.add(ceramic);
+
+                // Upper connection housing (flange + wall + top + neck), semi-transparent like the 2D view
+                const housing = revolve([
+                    [110, 250], [140, 250], [140, 258], [114, 258], [114, 354], [34, 354],
+                    [34, 404], [12, 404], [12, 400], [30, 400], [30, 350], [110, 350]
+                ], M.housing);
+                housing.renderOrder = 3;
+                modelRoot.add(housing);
+
+                // --- Movable assembly (translates down by yOffset) ---
+                movable = new THREE.Group();
+                movable.add(revolve(rect(0, 10, 235, 550), M.copper));                   // spindle
+                movable.add(revolve(rect(0, 110, 235, 250), M.copper));                  // movable plate
+                [28, 52, 76, 100].forEach(r => movable.add(revolve(shell(r, 4, 105, 235), M.copper)));
+                modelRoot.add(movable);
+
+                // Flexible bellows (rebuilt on every update)
+                bellowsMesh = new THREE.Mesh(bellowsGeometry(lastOffset), M.bellows);
+                modelRoot.add(bellowsMesh);
+
+                // --- Drive system (never cut) ---
+                const tube = revolve(rect(49, 51, 415, 490), M.tube, { cut: false });
+                tube.renderOrder = 4;
+                modelRoot.add(tube);
+                modelRoot.add(dashedRing(51, 415), dashedRing(51, 490));
+
+                // Insulation coupler: rotates with the motor; keys make the rotation visible
+                coupler = new THREE.Group();
+                coupler.add(revolve(rect(0, 25, 425, 480), M.coupler, { cut: false }));
+                for (let k = 0; k < 4; k++) {
+                    const key = new THREE.Mesh(new THREE.BoxGeometry(6, 51, 4), M.couplerK);
+                    const a = k * Math.PI / 2;
+                    key.position.set(Math.sin(a) * 25.5, 452.5, Math.cos(a) * 25.5);
+                    key.rotation.y = a;
+                    coupler.add(key);
+                }
+                const shaft = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 25, 32), M.motorD);
+                shaft.position.y = 492.5;
+                coupler.add(shaft);
+                modelRoot.add(coupler);
+
+                // Stepping motor body + mounting flange + rear encoder
+                const flange = new THREE.Mesh(new THREE.BoxGeometry(104, 6, 104), M.motorD);
+                flange.position.y = 508;
+                const body = new THREE.Mesh(new THREE.BoxGeometry(100, 69, 100), M.motor);
+                body.position.y = 545.5;
+                const band = new THREE.Mesh(new THREE.BoxGeometry(102, 4, 102), M.motorD);
+                band.position.y = 545;
+                const enc = new THREE.Mesh(new THREE.CylinderGeometry(30, 30, 24, 48), M.encoder);
+                enc.position.y = 592;
+                modelRoot.add(flange, body, band, enc);
+
+                scene.add(modelRoot);
+                applyState();
+            }
+
+            function makeLabel(html, side, pos, parent) {
+                const el = document.createElement('div');
+                el.className = 'lbl3d ' + side;
+                el.innerHTML = '<span class="dot"></span><span class="lead"></span><span class="txt">' + html + '</span>';
+                labelLayer.appendChild(el);
+                labels.push({ el, side, local: new THREE.Vector3(pos[0], pos[1], pos[2]), parent: parent || null });
+            }
+
+            function buildLabels() {
+                makeLabel('<b>Stepping motor</b> <br>with an encoder', 'right', [50, 560, 0]);
+                makeLabel('<b>10kVp DC/AC</b> <br>Insulation coupler', 'right', [25, 440, 0]);
+                makeLabel('Insulation tube', 'left', [-51, 480, 0]);
+                makeLabel('Upper connection', 'left', [-114, 320, 0]);
+                makeLabel('Flexible bellows', 'right', [25, 330, 0]);
+                makeLabel('Ceramic insulator', 'left', [-130, 140, 0]);
+                makeLabel('Movable electrodes', 'right', [100, 170, 0], 'movable');
+                makeLabel('Fixed electrodes', 'right', [88, 40, 0]);
+                makeLabel('Bottom connection', 'left', [-140, -20, 0]);
+            }
+
+            const tmp = new THREE.Vector3();
+            function placeLabels() {
+                const w = host.clientWidth, h = host.clientHeight;
+                labels.forEach(L => {
+                    tmp.copy(L.local);
+                    if (L.parent === 'movable') tmp.y -= lastOffset;
+                    tmp.project(camera);
+                    const x = (tmp.x * 0.5 + 0.5) * w, y = (-tmp.y * 0.5 + 0.5) * h;
+                    // Keep the chip inside the panel (narrow panels use compact, wrapped labels)
+                    const lw = L.el.offsetWidth;
+                    const left = L.side === 'left'
+                        ? Math.min(Math.max(x - lw, 4), w - lw - 4)
+                        : Math.max(Math.min(x, w - lw - 4), 4);
+                    L.el.style.transform = `translate(${left}px, ${y}px) translate(0, -50%)`;
+                    L.el.style.visibility = tmp.z < 1 ? 'visible' : 'hidden';
+                });
+            }
+
+            function applyState() {
+                if (!ready) return;
+                movable.position.y = -lastOffset;
+                coupler.rotation.y = -lastTurns * TAU;
+                bellowsMesh.geometry.dispose();
+                bellowsMesh.geometry = bellowsGeometry(lastOffset);
+            }
+
+            function resize() {
+                const w = host.clientWidth, h = host.clientHeight;
+                if (!w || !h) return;
+                labelLayer.classList.toggle('compact', w < 560);
+                renderer.setSize(w, h, false);
+                renderer.domElement.style.width = w + 'px';
+                renderer.domElement.style.height = h + 'px';
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+            }
+
+            function resetView() {
+                // Fit ~720 tall x ~560 wide (model + labels) into the current panel aspect
+                const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+                const dist = Math.max(385 / t, 240 / (t * camera.aspect)) * 1.05;
+                const dir = new THREE.Vector3(640, 290, 910).normalize();
+                controls.target.set(0, 278, 0);
+                camera.position.copy(controls.target).addScaledVector(dir, dist);
+                controls.update();
+            }
+
+            function loop() {
+                if (!running) return;
+                controls.update();
+                renderer.render(scene, camera);
+                placeLabels();
+                requestAnimationFrame(loop);
+            }
+
+            function init() {
+                if (ready) return true;
+                if (typeof THREE === 'undefined' || typeof THREE.OrbitControls === 'undefined') {
+                    const msg = document.createElement('div');
+                    msg.className = 'fallback3d';
+                    msg.textContent = '3D view could not load (Three.js unavailable — check your internet connection). The 2D view still works.';
+                    host.appendChild(msg);
+                    return false;
+                }
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                host.insertBefore(renderer.domElement, host.firstChild);
+
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(35, 1, 10, 10000);
+
+                scene.add(new THREE.HemisphereLight(0xffffff, 0xb0b8c0, 0.85));
+                const key = new THREE.DirectionalLight(0xffffff, 0.85);
+                key.position.set(500, 900, 700);
+                const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+                fill.position.set(-700, 300, -400);
+                scene.add(key, fill);
+
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.08;
+                controls.minDistance = 350;
+                controls.maxDistance = 3200;
+
+                makeMaterials();
+                ready = true;
+                buildModel();
+                buildLabels();
+                resize();
+                resetView();
+                if (window.ResizeObserver) new ResizeObserver(resize).observe(host);
+                window.addEventListener('resize', resize);
+                return true;
+            }
+
+            return {
+                show() {
+                    if (!init()) return;
+                    resize();
+                    if (!running) { running = true; requestAnimationFrame(loop); }
+                },
+                hide() { running = false; },
+                update(yOffset, turns) { lastOffset = yOffset; lastTurns = turns; applyState(); },
+                setCutaway(on) { cutaway = on; if (ready) buildModel(); },
+                setLabels(on) { labelLayer.classList.toggle('hidden', !on); },
+                reset() { if (ready) resetView(); }
+            };
+        })();
+
+        // ---- 2D / 3D mode switching ----
+        const vizPanel = document.getElementById('vizPanel');
+        const btn2d = document.getElementById('btn2d');
+        const btn3d = document.getElementById('btn3d');
+        const btnCut = document.getElementById('btnCut');
+        const btnLabels = document.getElementById('btnLabels');
+
+        function setMode(mode) {
+            const is3d = mode === '3d';
+            vizPanel.classList.toggle('mode-3d', is3d);
+            btn2d.classList.toggle('active', !is3d);
+            btn3d.classList.toggle('active', is3d);
+            btn2d.setAttribute('aria-pressed', String(!is3d));
+            btn3d.setAttribute('aria-pressed', String(is3d));
+            if (is3d) sim3d.show(); else sim3d.hide();
+            try { localStorage.setItem('vvc-view-mode', mode); } catch (e) {}
+        }
+
+        function toggleChip(btn, fn) {
+            btn.addEventListener('click', () => {
+                const on = btn.getAttribute('aria-pressed') !== 'true';
+                btn.setAttribute('aria-pressed', String(on));
+                fn(on);
+            });
+        }
+
+        btn2d.addEventListener('click', () => setMode('2d'));
+        btn3d.addEventListener('click', () => setMode('3d'));
+        toggleChip(btnCut, on => sim3d.setCutaway(on));
+        toggleChip(btnLabels, on => sim3d.setLabels(on));
+        document.getElementById('btnReset').addEventListener('click', () => sim3d.reset());
+
         // Event Listener
         slider.addEventListener('input', updateSimulation);
 
         // Init
         updateSimulation();
+        let savedMode = '2d';
+        try { savedMode = localStorage.getItem('vvc-view-mode') || '2d'; } catch (e) {}
+        setMode(savedMode);
     </script>
 </body>
 </html>
