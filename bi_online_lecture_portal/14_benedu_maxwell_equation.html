@@ -6,7 +6,7 @@
 <title>Maxwell's Equations — Benedu Insight</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Gowun+Batang:wght@400;700&family=JetBrains+Mono:wght@400;500;600;700&display=block" rel="stylesheet">
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
 
 <!-- MathJax Formula Engine with Safe Loading Config -->
@@ -58,9 +58,9 @@
   --shadow:      0 2px 12px rgba(0,0,0,0.08);
   --shadow-md:   0 4px 16px rgba(0,0,0,0.12);
   --radius:      12px;
-  --font:        'Google Sans', 'Noto Sans KR', sans-serif;
-  --mono:        'JetBrains Mono', monospace;
-  --batang:      'Gowun Batang', serif;
+  --font:        'Google Sans', 'Gowun Batang', serif;
+  --mono:        'JetBrains Mono', 'Gowun Batang', monospace;
+  --batang:      'Google Sans', 'Gowun Batang', serif;
   --scale:       1.0;
 }
 
@@ -830,6 +830,32 @@ details.classroom-box summary {
 }
 </style>
 
+<style id="benedu-unified">
+/* ═══════════════════════════════════════════════
+   BENEDU UNIFIED — TYPOGRAPHY
+   영어·숫자 → Google Sans / 한글 → Gowun Batang (글리프 단위 폴백)
+   Google Sans 에 한글 글리프가 없으므로 한글만 Gowun Batang 으로 넘어감
+═══════════════════════════════════════════════ */
+:root {
+  --font-ui:   'Google Sans', 'Gowun Batang', serif;
+  --font-code: 'JetBrains Mono', 'Gowun Batang', monospace;
+  --font:   var(--font-ui);
+  --batang: var(--font-ui);
+  --mono:   var(--font-code);
+}
+body, button, input, select, textarea { font-family: var(--font-ui); }
+
+/* ── 헤더 높이와 무관하게 본문이 남은 화면을 정확히 채움 (page 스크롤 없음) ── */
+body { height: 100vh; min-height: 0; }
+header { flex-shrink: 0; }
+.header-title-block { min-width: 0; }
+header p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.layout { flex: 1 1 auto; min-height: 0; height: auto; grid-template-rows: minmax(0, 1fr); }
+
+@media (max-width: 860px) {
+  body { height: auto; min-height: 100vh; }
+}
+</style>
 </head>
 <body>
 
@@ -1836,7 +1862,7 @@ function renderDetail(slide) {
     centerContentHtml = `
       <div class="section-title">${T.sectionOverview}</div>
       <div class="overview-container">
-        <h2 style="font-family: 'Montserrat', sans-serif; font-size: 2.1rem; font-weight: 800; color: #1E1E1E; margin-bottom: 2rem; letter-spacing: 0.05em;">${T.overviewTitle}</h2>
+        <h2 style="font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 2.1rem; font-weight: 800; color: #1E1E1E; margin-bottom: 2rem; letter-spacing: 0.05em;">${T.overviewTitle}</h2>
         <div class="overview-grid">
           <!-- Gauss Elec -->
           <div class="overview-card" onclick="selectSlide('ch1')">
@@ -1855,7 +1881,7 @@ function renderDetail(slide) {
               </svg>
             </div>
             <div>
-              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussE.name}</div>
+              <div style="font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussE.name}</div>
               <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussE.sub}</div>
             </div>
             <div class="overview-card-tag">$$\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}$$</div>
@@ -1871,7 +1897,7 @@ function renderDetail(slide) {
               </svg>
             </div>
             <div>
-              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussB.name}</div>
+              <div style="font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.gaussB.name}</div>
               <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.gaussB.sub}</div>
             </div>
             <div class="overview-card-tag">$$\\nabla \\cdot \\mathbf{B} = 0$$</div>
@@ -1889,7 +1915,7 @@ function renderDetail(slide) {
               </svg>
             </div>
             <div>
-              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.faraday.name}</div>
+              <div style="font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.faraday.name}</div>
               <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.faraday.sub}</div>
             </div>
             <div class="overview-card-tag">$$\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$$</div>
@@ -1906,7 +1932,7 @@ function renderDetail(slide) {
               </svg>
             </div>
             <div>
-              <div style="font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.ampere.name}</div>
+              <div style="font-family: 'Google Sans', 'Gowun Batang', serif; font-size: 0.95rem; font-weight: 800; color: #222; margin-top: 0.5rem;">${T.overviewCards.ampere.name}</div>
               <div style="font-family: var(--batang); font-size: 0.65rem; color: #555; font-weight: 700;">${T.overviewCards.ampere.sub}</div>
             </div>
             <div class="overview-card-tag" style="font-size:0.43rem">$$\\nabla \\times \\mathbf{B} = \\mu_0(\\mathbf{J} + \\varepsilon_0 \\partial\\mathbf{E}/\\partial t)$$</div>
@@ -2130,7 +2156,7 @@ function renderDetail(slide) {
       <div class="model-showcase">
         <div class="model-img-wrapper">
           <img src="${slide.imageUrl}" alt="${slide.imageTitle || T.sectionRef}" style="${imgStyle}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/2d2d2d?text=Image+Load+Failed';">
-          <div class="model-img-source" style="margin-top:0.5rem; font-family:'JetBrains Mono'; font-size:0.65rem; color:var(--text3); text-align:center;">${T.sourceLabel}${slide.imageSource || ''}</div>
+          <div class="model-img-source" style="margin-top:0.5rem; font-family:'JetBrains Mono', 'Gowun Batang', monospace; font-size:0.65rem; color:var(--text3); text-align:center;">${T.sourceLabel}${slide.imageSource || ''}</div>
         </div>
       </div>
     `;
@@ -2264,7 +2290,7 @@ function updateGaussSimulation() {
     ctx.strokeStyle = '#2D2D2D';
     ctx.lineWidth = 2;
     ctx.strokeRect(cx - 70, 15, 140, 30);
-    ctx.font = 'bold 15px Montserrat, sans-serif';
+    ctx.font = 'bold 15px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillStyle = '#2D2D2D';
     ctx.textAlign = 'center';
     ctx.fillText("Gauss's Law", cx, 35);
@@ -2283,7 +2309,7 @@ function updateGaussSimulation() {
     ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
     ctx.fillStyle = qVal >= 0 ? '#E53E3E' : '#2B6CB0';
     ctx.fill();
-    ctx.font = 'bold 12px Montserrat';
+    ctx.font = 'bold 12px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillStyle = '#FFF';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -2291,7 +2317,7 @@ function updateGaussSimulation() {
     ctx.textBaseline = 'alphabetic';
 
     // Label: "Charge" & "Gaussian surface"
-    ctx.font = '12px Gowun Batang, serif';
+    ctx.font = '12px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillStyle = '#2D2D2D';
     ctx.fillText("Charge", cx - 40, cy - 15);
     ctx.fillText("Gaussian", cx - 45, cy + 45);
@@ -2331,7 +2357,7 @@ function updateGaussSimulation() {
         ctx.closePath();
         ctx.fill();
       }
-      ctx.font = '11px JetBrains Mono';
+      ctx.font = '11px ""JetBrains Mono","Gowun Batang",monospace",""Google Sans","Gowun Batang",serif",monospace';
       ctx.fillStyle = qVal >= 0 ? '#E53E3E' : '#2B6CB0';
       ctx.fillText("Electric field lines", cx + 60, cy - 100);
     }
@@ -2348,7 +2374,7 @@ function updateGaussSimulation() {
     ctx.lineWidth = 4;
     ctx.stroke();
     // Fill surface representation
-    ctx.font = '11px JetBrains Mono, monospace';
+    ctx.font = '11px ""JetBrains Mono","Gowun Batang",monospace",""Google Sans","Gowun Batang",serif",monospace';
     ctx.fillStyle = '#2D3748';
     ctx.fillText("ds", px - 15, py + 12);
 
@@ -2401,12 +2427,12 @@ function updateGaussSimulation() {
     const rx = cx + 200;
     ctx.textAlign = 'left';
     ctx.fillStyle = '#2D2D2D';
-    ctx.font = 'bold 16px Montserrat, sans-serif';
+    ctx.font = 'bold 16px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillText("Φ ∝ Q_enc", rx, 90);
-    ctx.font = 'bold 18px Montserrat, sans-serif';
+    ctx.font = 'bold 18px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillText("Φ = ∮ E · ds = Q_enc / ε_0", rx, 130);
 
-    ctx.font = '12px Gowun Batang, sans-serif';
+    ctx.font = '12px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillText("Φ  : Electric flux", rx, 175);
     ctx.fillText("E  : Electric field", rx, 200);
     ctx.fillText("ds : Infinitesimal surface area", rx, 225);
@@ -2426,7 +2452,7 @@ function updateGaussSimulation() {
     ctx.fillStyle = '#718096';
     ctx.fillRect(80, 55, 440, 15);
     ctx.fillStyle = '#E53E3E';
-    ctx.font = 'bold 10px JetBrains Mono';
+    ctx.font = 'bold 10px ""JetBrains Mono","Gowun Batang",monospace",""Google Sans","Gowun Batang",serif",monospace';
     ctx.textAlign = 'center';
     ctx.fillText("RF ELECTRODE (TOP PLATE)", 300, 50);
 
@@ -2437,7 +2463,7 @@ function updateGaussSimulation() {
     ctx.fillStyle = '#1A365D';
     ctx.fillRect(120, 244, 360, 6);
     ctx.fillStyle = '#319795';
-    ctx.font = 'bold 10px Montserrat';
+    ctx.font = 'bold 10px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillText("WAFER SUBSTRATE", 300, 240);
 
     // Draw plasma bulk (glow) in center
@@ -2455,7 +2481,7 @@ function updateGaussSimulation() {
 
     ctx.fillStyle = plasmaGrad;
     ctx.fillRect(80, plasmaTop, 440, plasmaBottom - plasmaTop);
-    ctx.font = 'bold 13px Montserrat';
+    ctx.font = 'bold 13px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillStyle = '#E2E8F0';
     ctx.fillText("PLASMA BULK (HIGH DENSITY)", 300, (plasmaTop + plasmaBottom) / 2);
 
@@ -2465,7 +2491,7 @@ function updateGaussSimulation() {
     ctx.fillRect(80, plasmaBottom, 440, sheathH); // bottom sheath
 
     ctx.fillStyle = '#A0AEC0';
-    ctx.font = 'italic 10px Gowun Batang';
+    ctx.font = 'italic 10px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillText(`Top Sheath (${Math.round(sheathH)}nm)`, 300, 70 + sheathH/2 + 3);
     ctx.fillText(`Bottom Space-Charge Sheath (${Math.round(sheathH)}nm)`, 300, plasmaBottom + sheathH/2 + 3);
 
@@ -2496,14 +2522,14 @@ function updateGaussSimulation() {
       ctx.arc(ionX, ionY, 5, 0, 2 * Math.PI);
       ctx.fill();
       ctx.fillStyle = '#1A202C';
-      ctx.font = 'bold 8px Montserrat';
+      ctx.font = 'bold 8px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
       ctx.fillText("+", ionX, ionY + 3);
       ctx.fillStyle = '#90CDF4';
-      ctx.font = 'bold 9px JetBrains Mono';
+      ctx.font = 'bold 9px ""JetBrains Mono","Gowun Batang",monospace",""Google Sans","Gowun Batang",serif",monospace';
       ctx.fillText("Ar+", ionX + 12, ionY + 3);
     }
     ctx.fillStyle = '#E53E3E';
-    ctx.font = lang === 'en' ? '11px Google Sans, sans-serif' : '11px Gowun Batang';
+    ctx.font = lang === 'en' ? '11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif' : '11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillText(UI[lang].gauss.ccpCanvasText, 300, 290);
   }
 }
@@ -2610,7 +2636,7 @@ function updateMagSimulation() {
     ctx.stroke();
 
     // S surface tag
-    ctx.font = 'bold 15px Montserrat';
+    ctx.font = 'bold 15px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillStyle = '#0F8C50';
     ctx.fillText("S", cx + 80, cy + 40);
 
@@ -2630,7 +2656,7 @@ function updateMagSimulation() {
     ctx.fill();
     ctx.stroke();
 
-    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.font = 'bold 11px ""JetBrains Mono","Gowun Batang",monospace",""Google Sans","Gowun Batang",serif",monospace';
     ctx.fillStyle = '#2D2D2D';
     ctx.fillText("ΔS", px - 8, py + 16);
 
@@ -2674,19 +2700,19 @@ function updateMagSimulation() {
     const rx = cx + 200;
     ctx.textAlign = 'left';
     ctx.fillStyle = '#2D2D2D';
-    ctx.font = 'bold 15px Montserrat, sans-serif';
+    ctx.font = 'bold 15px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillText("Φ_B = ∮ B · dS = 0", rx, 90);
-    ctx.font = 'bold 11px JetBrains Mono';
+    ctx.font = 'bold 11px ""JetBrains Mono","Gowun Batang",monospace",""Google Sans","Gowun Batang",serif",monospace';
     ctx.fillStyle = '#4A5568';
     ctx.fillText("No Magnetic Monopoles Found", rx, 115);
 
-    ctx.font = lang === 'en' ? '12px Google Sans, sans-serif' : '12px Gowun Batang, sans-serif';
+    ctx.font = lang === 'en' ? '12px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif' : '12px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillStyle = '#2D2D2D';
     ctx.fillText("Φ_B : Magnetic flux (Wb)", rx, 160);
     ctx.fillText("B   : Magnetic field (Tesla)", rx, 185);
     ctx.fillText("dS  : Area vector patch (normal n̂)", rx, 210);
     ctx.fillText("θ   : Angle between B and n̂", rx, 235);
-    ctx.font = lang === 'en' ? 'bold 11px Google Sans, sans-serif' : 'bold 11px Gowun Batang';
+    ctx.font = lang === 'en' ? 'bold 11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif' : 'bold 11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.fillStyle = '#0F8C50';
     ctx.fillText(UI[lang].mag.fluxNote, rx, 270);
   } else {
@@ -2702,7 +2728,7 @@ function updateMagSimulation() {
     ctx.fillStyle = '#E53E3E'; // N-magnet
     ctx.fillRect(270, 250, 60, 10);
     ctx.fillStyle = '#FFF';
-    ctx.font = 'bold 9px Montserrat';
+    ctx.font = 'bold 9px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.textAlign = 'center';
     ctx.fillText("N", 300, 258);
 
@@ -2773,7 +2799,7 @@ function updateMagSimulation() {
     }
 
     ctx.fillStyle = '#FFF';
-    ctx.font = lang === 'en' ? 'bold 11px Google Sans, sans-serif' : 'bold 11px Gowun Batang';
+    ctx.font = lang === 'en' ? 'bold 11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif' : 'bold 11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
     ctx.textAlign = 'center';
     ctx.fillText(UI[lang].mag.confCanvasText, 300, 285);
   }
@@ -2870,7 +2896,7 @@ function updateFaradaySimulation() {
   ctx.fillStyle = '#E2E8F0';
   ctx.fillRect(100, 60, 400, 10);
   ctx.fillStyle = '#A0AEC0';
-  ctx.font = 'bold 9px Montserrat';
+  ctx.font = 'bold 9px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
   ctx.textAlign = 'center';
   ctx.fillText("DILECTRIC QUARTZ WINDOW", 300, 55);
 
@@ -2883,7 +2909,7 @@ function updateFaradaySimulation() {
   ctx.fill();
 
   ctx.fillStyle = '#FFF';
-  ctx.font = 'bold 9px Montserrat';
+  ctx.font = 'bold 9px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
   const signA = currentPhase >= 0 ? '+' : '-';
   const signB = currentPhase >= 0 ? '-' : '+';
   ctx.fillText(signA, 160, 53);
@@ -2929,7 +2955,7 @@ function updateFaradaySimulation() {
   ctx.arc(arrowPhaseX, arrowPhaseY, 6, 0, 2*Math.PI);
   ctx.fill();
 
-  ctx.font = lang === 'en' ? 'bold 11px Google Sans, sans-serif' : 'bold 11px Gowun Batang';
+  ctx.font = lang === 'en' ? 'bold 11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif' : 'bold 11px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
   ctx.fillStyle = '#FFF';
   ctx.fillText(UI[lang].faraday.eIndCanvasText, 300, 135);
 
@@ -2937,7 +2963,7 @@ function updateFaradaySimulation() {
   ctx.fillRect(140, 250, 320, 20);
   ctx.fillStyle = '#1A365D';
   ctx.fillRect(170, 244, 260, 6);
-  ctx.font = 'bold 9px Montserrat';
+  ctx.font = 'bold 9px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
   ctx.fillStyle = '#E2E8F0';
   ctx.fillText("HIGH DENSITY ICP PLASMA WAFER", 300, 262);
 }
@@ -3047,7 +3073,7 @@ function updateAmpereSimulation() {
         ctx.stroke();
       }
       ctx.fillStyle = '#90CDF4';
-      ctx.font = 'bold 8px Montserrat';
+      ctx.font = 'bold 8px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
       ctx.fillText("Capacitive E-Field (Dim Glow)", 180, 80);
     } else {
       // Inductive H-mode magnetic loop and toroidal currents
@@ -3055,7 +3081,7 @@ function updateAmpereSimulation() {
       ctx.lineWidth = 1.5;
       ctx.strokeRect(100, 50, 160, 110);
       ctx.fillStyle = '#48BB78';
-      ctx.font = 'bold 8px Montserrat';
+      ctx.font = 'bold 8px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
       ctx.fillText("Induced Magnetic Loops (H-field)", 180, 65);
 
       // Sizzling bright center
@@ -3068,7 +3094,7 @@ function updateAmpereSimulation() {
   }
 
   ctx.fillStyle = '#FFF';
-  ctx.font = lang === 'en' ? 'bold 10px Google Sans, sans-serif' : 'bold 10px Gowun Batang';
+  ctx.font = lang === 'en' ? 'bold 10px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif' : 'bold 10px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
   ctx.textAlign = 'center';
   ctx.fillText(UI[lang].ampere.icpStatusCanvasText, 180, 250);
 
@@ -3129,7 +3155,7 @@ function updateAmpereSimulation() {
   ctx.stroke();
 
   ctx.fillStyle = '#2D2D2D';
-  ctx.font = 'bold 8px Montserrat';
+  ctx.font = 'bold 8px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
   ctx.fillText("RF Power (W)", px + pw - 20, py + ph + 12);
   
   ctx.save();
@@ -3138,7 +3164,7 @@ function updateAmpereSimulation() {
   ctx.fillText("Plasma Density (n_e)", 0, 0);
   ctx.restore();
 
-  ctx.font = lang === 'en' ? 'bold 9px Google Sans, sans-serif' : 'bold 9px Gowun Batang';
+  ctx.font = lang === 'en' ? 'bold 9px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif' : 'bold 9px ""Google Sans","Gowun Batang",serif",""Google Sans","Gowun Batang",serif",serif';
   ctx.fillText(UI[lang].ampere.hysteresisCurveText, px + pw/2, py - 10);
 }
 
