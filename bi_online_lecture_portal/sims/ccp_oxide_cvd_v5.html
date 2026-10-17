@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCP PE-CVD v5 — Interactive Lesson · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8FAFB; --card:#FFFFFF; --border:#E2E8F0; --line:#EEF2F6;
+  --text:#1A202C; --ink2:#334155; --muted:#64748B; --label:#94A3B8;
+  --green:#0F8C50; --green-lt:#E6F4ED; --green-dk:#0A6B3C;
+  --purple:#7030A0; --purple-lt:#F0E8F8; --purple-mid:#9B59D0; --purple-dk:#521A78;
+  --coral:#E8553B; --coral-lt:#FDEEEA; --coral-dk:#8A2E1C;
+  --amber:#B7791F; --amber-lt:#FEF6E4; --amber-dk:#7A4E0B;
+  --shadow:0 2px 12px rgba(15,23,42,.06);
+  --hdr:56px; --side:440px;
+  --sans:'Google Sans',system-ui,sans-serif;
+  --mono:var(--sans);
+  --serif:var(--sans);
+  --code:'JetBrains Mono','Noto Sans KR',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html[lang=ko]{--sans:'Google Sans','Noto Sans KR',system-ui,sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font-family:inherit}
+
+/* ── Header ── */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr);z-index:50;display:flex;align-items:center;gap:14px;
+  padding:0 20px;background:var(--card);border-bottom:1px solid var(--border)}
+.hdr-logo{height:32px;display:block}
+.hdr-div{width:1px;height:26px;background:var(--border)}
+.hdr-title{font-size:15px;font-weight:700;color:var(--purple);line-height:1.2;white-space:nowrap}
+.hdr-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-top:2px;white-space:nowrap}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:2px}
+.lang-btn{font-family:'Google Sans','Noto Sans KR',sans-serif;white-space:nowrap;font-size:12px;font-weight:600;padding:3px 12px;border-radius:16px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .18s}
+.lang-btn.active{background:var(--purple);color:#fff}
+
+/* ── App grid ── */
+.app{position:fixed;top:var(--hdr);left:0;right:0;bottom:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
+.stage{display:flex;flex-direction:column;gap:8px;padding:10px 10px 10px 12px;min-width:0;min-height:0}
+
+/* recipe bar */
+.recipe{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;flex-shrink:0;padding:0 2px}
+.recipe-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-right:6px;white-space:nowrap}
+.rp{font-size:11px;font-weight:600;color:var(--label);padding:4px 9px;border-radius:999px;border:1px solid var(--border);background:var(--card);white-space:nowrap;transition:all .2s}
+.rp.on{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(112,48,160,.25)}
+.rp.done{color:var(--muted)}
+.rp-sep{color:var(--border);font-size:10px}
+
+/* canvas card */
+.canvas-card{flex:1;min-height:0;position:relative;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.cv-wrap{flex:1;min-height:0;position:relative}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sbar{display:flex;align-items:center;gap:6px;padding:6px 10px;border-top:1px solid var(--line);min-height:36px;flex-wrap:wrap;flex-shrink:0}
+.rd{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;color:var(--ink2);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.rd b{font-weight:500;color:var(--label);margin-right:4px}
+.rd.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.rd.slow{color:var(--muted);background:transparent;border-style:dashed}
+.sbar-sp{flex:1}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2);white-space:nowrap}
+.lg i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.lg i.ion{box-shadow:0 0 0 2px rgba(232,85,59,.25)}
+.lg i.pw{border-radius:2px;background:#CBD5E1;border:1px solid #94A3B8}
+.lbl-btn{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:6px;padding:2px 8px;cursor:pointer}
+.lbl-btn.on{background:var(--purple-lt);color:var(--purple);border-color:#d9c6ec}
+.msg{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--green-lt);color:var(--green-dk);white-space:nowrap}
+.msg.warn{background:var(--coral-lt);color:var(--coral-dk)}
+.msg.info{background:var(--purple-lt);color:var(--purple-dk)}
+.msg:empty{display:none}
+sub,sup{font-size:.72em;line-height:0}
+
+#tooltip{position:absolute;pointer-events:none;z-index:20;max-width:300px;background:rgba(17,24,39,.96);color:#fff;
+  padding:10px 13px;border-radius:10px;font-size:12.5px;line-height:1.55;opacity:0;transition:opacity .12s;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);transform:translate(-50%,calc(-100% - 14px))}
+#tooltip.show{opacity:1}
+#tooltip b{display:block;color:#d8b9f3;margin-bottom:2px;font-size:12.5px}
+
+/* takeaway overlay */
+.stage-html{position:absolute;inset:0;overflow:auto;background:var(--card);display:none;padding:22px 24px 28px}
+.stage-html.show{display:block}
+
+/* instrument panel */
+.inst{flex-shrink:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,1fr);gap:8px;height:216px}
+.inst.tall{height:286px}
+.inst.one{grid-template-columns:1fr;height:auto}
+.icard{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:9px 12px;min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.ihead{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ihead h3{font-size:12px;font-weight:600;color:var(--ink2)}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-lt);color:var(--green);font-size:9.5px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.chart{flex:1;min-height:0;width:100%;display:block}
+.crow{flex:1;min-height:0;display:flex;gap:8px}
+.crow .chart{flex:1;min-width:0;height:100%}
+.ctls{display:flex;flex-direction:column;gap:6px;overflow:auto;min-height:0;padding-right:2px}
+.ctls.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;row-gap:8px;align-content:start}
+.ctls.g2 .seg-row{grid-column:1/-1}
+.ctl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px;line-height:1.25}
+.ctl-h label{font-size:11.5px;color:var(--muted);font-weight:500}
+.ctl-h output{font-family:var(--mono);font-size:11.5px;color:var(--purple);font-weight:600;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--purple-mid));outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:2.5px solid var(--purple);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--purple)}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px;flex-wrap:wrap}
+.seg button{border:none;background:transparent;padding:4px 10px;font-size:11.5px;font-weight:600;color:var(--muted);border-radius:6px;cursor:pointer}
+.seg button.on{background:var(--purple);color:#fff}
+.seg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.seg-row .k{font-size:11.5px;color:var(--muted);min-width:64px}
+.btn{font-size:11.5px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:8px;padding:5px 12px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.btn.pri{background:var(--purple);border-color:var(--purple);color:#fff}
+.btn.pri:hover{background:var(--purple-dk)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.stats.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;min-width:0}
+.stat-k{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--purple);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v small{font-size:10px;color:var(--muted);font-weight:500}
+.stat.pass{background:var(--green-lt);border-color:#cde9da}.stat.pass .stat-v{color:var(--green-dk)}
+.stat.fail{background:var(--coral-lt);border-color:#f6d3ca}.stat.fail .stat-v{color:var(--coral-dk)}
+.ticker{font-family:var(--sans);font-size:11.5px;line-height:1.7;color:var(--ink2);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 9px;min-height:68px}
+.ticker div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticker div em{font-style:normal;color:var(--label)}
+.phase-chips{display:flex;flex-wrap:wrap;gap:4px}
+.pc{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;padding:3px 9px;cursor:pointer}
+.pc.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+.pc.done{color:var(--green-dk);border-color:#cde9da;background:var(--green-lt)}
+.note{font-size:10.5px;color:var(--label);line-height:1.45}
+
+/* ── Side panel ── */
+.side{background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+.side-scroll{flex:1;overflow-y:auto;padding:18px 22px 16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.chap{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:var(--green-lt);padding:2px 8px;border-radius:4px}
+.scount{font-family:var(--mono);font-size:10px;color:var(--label);letter-spacing:.08em}
+.s-title{font-size:20px;font-weight:700;line-height:1.28;color:var(--text);margin-bottom:8px;letter-spacing:-.005em}
+.s-lead{font-family:var(--sans);font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:10px}
+.s-body{font-size:13px;line-height:1.72;color:#3b4456}
+.s-body ul{padding-left:1.05rem;margin:4px 0}
+.s-body li{margin-bottom:4px}
+.s-body li::marker{color:var(--purple-mid)}
+.s-body b{color:var(--text);font-weight:600}
+code,.s-body code{font-family:var(--mono);font-size:11.5px;background:var(--purple-lt);color:var(--purple-dk);padding:1px 5px;border-radius:4px;white-space:nowrap}
+.parts{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.part{font-size:11.5px;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:999px;padding:3px 10px;cursor:pointer;transition:all .14s}
+.part:hover,.part.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.co{display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-top:10px;font-size:12.5px;line-height:1.62}
+.co svg{flex:none;width:18px;height:18px;margin-top:2px}
+.co .tag{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:2px;opacity:.85}
+.co.try{background:var(--purple-lt);color:var(--purple-dk)}
+.co.myth{background:var(--coral-lt);color:var(--coral-dk)}
+.co.key{background:var(--green-lt);color:var(--green-dk)}
+.co.warn{background:var(--amber-lt);color:var(--amber-dk)}
+.dd{margin-top:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card)}
+.dd summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--text);user-select:none}
+.dd summary::-webkit-details-marker{display:none}
+.dd summary .db{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--purple);color:#fff;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.dd summary .dt{flex:1}
+.dd summary .chev{color:var(--label);font-size:10px;transition:transform .2s}
+.dd[open] summary{background:var(--purple-lt);border-bottom:1px solid var(--border)}
+.dd[open] summary .chev{transform:rotate(180deg)}
+.dd-in{padding:12px 14px;font-size:12.5px;line-height:1.75;color:#3b4456;background:var(--bg)}
+.dd-in p+p,.dd-in p+ul,.dd-in ul+p{margin-top:8px}
+.dd-in ul{padding-left:1.05rem}
+.dd-in b{color:var(--text)}
+.eq{font-family:var(--code);font-size:11.5px;line-height:1.7;background:#1F2433;color:#FFD580;border-radius:8px;padding:9px 12px;margin:8px 0;white-space:pre;overflow-x:auto}
+.dd-hl{border-left:3px solid var(--purple);background:var(--purple-lt);color:var(--purple-dk);border-radius:0 8px 8px 0;padding:8px 11px;margin-top:8px;font-size:12px;line-height:1.65}
+.side-foot{flex-shrink:0;border-top:1px solid var(--border);padding:10px 18px 12px;background:var(--card)}
+.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:9px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--purple));transition:width .3s}
+.pills{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:9px}
+.pill{width:28px;height:26px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s}
+.pill:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.pill.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.pill-gap{width:6px}
+.nav{display:flex;gap:8px}
+.nav button{flex:1;padding:9px;font-size:13px;font-weight:700;border:none;border-radius:9px;background:var(--text);color:#fff;cursor:pointer;transition:background .15s}
+.nav button:hover:not(:disabled){background:var(--purple)}
+.nav button:disabled{background:var(--line);color:var(--label);cursor:not-allowed}
+.kbd{font-family:var(--mono);font-size:9.5px;color:var(--label);text-align:center;margin-top:6px;letter-spacing:.06em}
+
+/* takeaway */
+.tk-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:16px}
+.tk-hero h2{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.tk-hero p{font-family:var(--serif);font-size:14px;color:var(--muted);margin-top:4px}
+.tk-btns{display:flex;gap:8px;flex-wrap:wrap}
+.tk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.tk-sec{border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:var(--card)}
+.tk-sec h4{font-size:11px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.pr-list{display:grid;gap:8px}
+.pr{display:flex;gap:10px;align-items:flex-start}
+.pr .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.pr b{display:block;font-size:13px}
+.pr span{font-size:12px;color:var(--muted);line-height:1.5}
+.tk-table{width:100%;border-collapse:collapse;font-size:12px}
+.tk-table th{background:var(--purple);color:#fff;font-weight:600;padding:6px 8px;text-align:left}
+.tk-table th:first-child{border-radius:6px 0 0 0}.tk-table th:last-child{border-radius:0 6px 0 0}
+.tk-table td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.tk-table td:nth-child(2){color:var(--purple-dk);font-family:var(--mono);font-size:11.5px}
+.tk-table td:nth-child(3){color:var(--muted);font-family:var(--mono);font-size:11.5px}
+.tk-table tr:nth-child(even) td{background:#FBF8FD}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.kv span:last-child{font-family:var(--mono);color:var(--text);font-weight:600;font-size:12px;text-align:right}
+.myths{display:grid;gap:7px}
+.myth-row{display:grid;grid-template-columns:1fr 18px 1.3fr;gap:6px;align-items:start;font-size:12px;line-height:1.5}
+.myth-row .x{color:var(--coral-dk);text-decoration:line-through;text-decoration-color:rgba(232,85,59,.5)}
+.myth-row .a{color:var(--label);text-align:center}
+.myth-row .o{color:var(--green-dk)}
+.lim-row{display:grid;grid-template-columns:1fr 18px 1fr;gap:6px;font-size:12px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.lim-row .a{color:var(--label);text-align:center}
+.lim-row span:last-child{color:var(--purple-dk);font-weight:600}
+.tk-note{font-size:11px;color:var(--label);margin-top:8px}
+
+/* popup */
+.pop{display:none;position:fixed;inset:0;z-index:300;background:rgba(15,18,30,.78);align-items:center;justify-content:center;padding:28px}
+.pop.show{display:flex}
+.pop-box{position:relative;background:#fff;border-radius:14px;padding:14px;max-width:min(94vw,1100px);max-height:92vh;display:flex;flex-direction:column;gap:8px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.pop-box img{max-width:100%;max-height:calc(92vh - 80px);object-fit:contain;border-radius:8px;display:block}
+.pop-cap{font-size:12.5px;color:var(--muted);text-align:center;line-height:1.5}
+.pop-x{position:absolute;top:-13px;right:-13px;width:32px;height:32px;border-radius:50%;border:none;background:var(--text);color:#fff;font-size:15px;cursor:pointer}
+.pop-x:hover{background:var(--purple)}
+
+/* responsive */
+@media (max-width:1200px){:root{--side:380px}.inst{grid-template-columns:minmax(0,1.2fr) minmax(230px,1fr)}}
+@media (max-width:940px){
+  html,body{overflow:auto;height:auto}
+  .hdr{position:sticky}
+  .hdr-sub{display:none}
+  .hdr{padding:0 12px;gap:10px}
+  .hdr-div{display:none}
+  .hdr-logo{height:26px}
+  .hdr-title{white-space:normal;font-size:12.5px}
+  .lang-btn{padding:3px 9px}
+  .app{position:static;display:block}
+  .stage{padding:10px 16px}
+  .canvas-card{flex:none;height:min(78vw,560px);min-height:300px}
+  .inst,.inst.tall{grid-template-columns:1fr;height:auto}
+  .inst .icard{min-height:200px}
+  .inst .chart{flex:none;height:190px}
+  .inst .crow{flex:none;height:190px}
+  .inst .crow .chart{height:100%;flex:1 1 0;width:auto;min-width:0}
+  .side{border-left:none;border-top:1px solid var(--border)}
+  .side-scroll{overflow:visible;padding:16px}
+  .side-foot{position:sticky;bottom:0}
+  .tk-grid{grid-template-columns:1fr}
+  .recipe{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display:inline-flex">
+    <img class="hdr-logo" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  </a>
+  <div class="hdr-div"></div>
+  <div>
+    <div class="hdr-title" id="hTitle"></div>
+    <div class="hdr-sub" id="hSub"></div>
+  </div>
+  <div class="hdr-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN">EN</button>
+      <button class="lang-btn" id="btnKO">한국어</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <section class="stage">
+    <div class="recipe" id="recipe"></div>
+    <div class="canvas-card" id="card">
+      <div class="cv-wrap" id="cvWrap">
+        <canvas id="cv"></canvas>
+        <div id="tooltip"></div>
+      </div>
+      <div class="sbar">
+        <div id="readouts" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <span class="msg" id="msg"></span>
+        <span class="sbar-sp"></span>
+        <div class="legend" id="legend"></div>
+        <button class="lbl-btn" id="lblBtn"></button>
+      </div>
+      <div class="stage-html" id="stageHtml"></div>
+    </div>
+    <div class="inst" id="inst"></div>
+  </section>
+
+  <aside class="side">
+    <div class="side-scroll" id="sideScroll">
+      <div class="eyebrow"><span class="chap" id="chap"></span><span class="scount" id="scount"></span></div>
+      <h1 class="s-title" id="sTitle"></h1>
+      <p class="s-lead" id="sLead"></p>
+      <div class="s-body" id="sBody"></div>
+      <div id="sCo"></div>
+      <div id="sDd"></div>
+    </div>
+    <div class="side-foot">
+      <div class="prog"><i id="prog"></i></div>
+      <div class="pills" id="pills"></div>
+      <div class="nav"><button id="prevBtn"></button><button id="nextBtn"></button></div>
+      <div class="kbd" id="kbd"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="pop" id="pop">
+  <div class="pop-box">
+    <button class="pop-x" id="popX" aria-label="Close">✕</button>
+    <img id="popImg" src="" alt="">
+    <div class="pop-cap" id="popCap"></div>
+  </div>
+</div>
+
+<script>
+/* ==================================================================
+   CCP PE-CVD — Interactive Lesson v5 · Benedu Insight
+   SiH4 + N2O → SiO2 · 11 steps · EN / KO
+   Content (all text) lives in T; the engine follows in the next block.
+   ================================================================== */
+const T = {
+en:{
+  title:'CCP PE-CVD — SiO₂ from SiH₄ + N₂O',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ Prev', next:'Next ▶', kbd:'← → keys to navigate', of:'of',
+  labels:'Labels', explore:'Explore parts',
+  chapters:['Hardware & Setup','Plasma Physics','Deposition Process','Summary'],
+  recipeK:'Recipe',
+  recipe:['Load','Pump','Heat & Stabilize','Strike','Deposit','RF off & Purge','Unload','Clean & Season'],
+  rd:{p:'P',T:'Heater',hf:'HF',lf:'LF',gas:'Gas',off:'OFF',slow:'RF slowed ≈ 2.7×10⁷×'},
+  tags:{try:'Try it',myth:'Common misconception',key:'Key point',warn:'Note'},
+  dd:'Deep dive',
+  parts:{
+    nf3:['NF₃ — clean gas','Feeds the remote plasma source between wafers. Its F radicals etch the oxide that builds up on chamber surfaces.'],
+    sih4:['SiH₄ — silicon precursor','Silane. Pyrophoric (ignites in air), so it is supplied from a ventilated gas cabinet with purge and leak detection. The plasma splits it into SiH₃·, SiH₂ and H·.'],
+    n2o:['N₂O — oxidant','Nitrous oxide. Inert toward SiH₄ until plasma electrons split it into O· and N₂. Used in large excess (20–100× SiH₄).'],
+    mfc:['Mass flow controllers','Meter each gas in sccm. The N₂O/SiH₄ ratio sets stoichiometry, refractive index, stress and hydrogen content.'],
+    rps:['Remote plasma source (RPS)','Makes F radicals from NF₃ outside the chamber, so cleaning happens without ion bombardment of chamber parts.'],
+    shead:['Showerhead — RF electrode','Gas box, plenum and perforated faceplate in one. Powered at 13.56 MHz through the match; spreads gas evenly over the wafer.'],
+    iso:['Ceramic isolator','Electrically separates the RF-hot showerhead from the grounded chamber body.'],
+    gap:['Process gap (~10 mm)','Where the plasma forms: a bulk plasma between two thin sheaths. At ~2.5 Torr the gas mean free path is only ~20–50 µm.'],
+    wafer:['Si wafer (300 mm)','Sits on the grounded pedestal. Receives radicals (film growth) and low-energy ions (densification).'],
+    ped:['Heater pedestal — ground electrode','Ceramic (e.g. AlN) heater at 300–400 °C, grounded. Moves up and down to set the gap; lift pins raise the wafer for transfer.'],
+    wall:['Chamber wall (grounded)','Aluminum body at ground. With the pedestal it forms the larger grounded area, so the showerhead self-biases negative. It gets coated during deposition.'],
+    cm:['Capacitance manometer','Measures absolute pressure regardless of gas type. Its reading drives the throttle-valve control loop.'],
+    hf:['HF generator · 13.56 MHz','Main power (≈ 0.2–1 kW for 300 mm). Sets plasma density and radical production.'],
+    lf:['LF generator · ~400 kHz (option)','Ions can follow this low frequency, so LF power raises ion energy at the wafer. Used to tune film density and compressive stress.'],
+    match:['Matching network','Transforms the plasma load to 50 Ω so power is not reflected. Its series capacitor blocks DC, allowing a self-bias on the showerhead.'],
+    tv:['Throttle valve','Butterfly valve that changes pumping speed to hold the pressure setpoint while gas flows.'],
+    pump:['Vacuum pump','Dry pump that removes process gas and byproducts (N₂, H₂, H₂O, and SiF₄ during cleans).'],
+    slit:['Slit valve','Door through which the robot moves the wafer in and out.'],
+  },
+  sp:{SiH4:'SiH₄',N2O:'N₂O',O2:'O₂',SiH3:'SiH₃·',O:'O·',H:'H·',N2:'N₂',F:'F·',SiF4:'SiF₄',N2Op:'N₂O⁺',SiH3p:'SiH₃⁺',Om:'O⁻',e:'e⁻',fast:'fast neutral',powder:'SiO₂ powder'},
+  I:{
+    hw:{title:'Typical hardware numbers',stats:[['Electrode gap','5–15 mm'],['Wafer','300 mm'],['Heater','300–400 °C'],['Pressure','1–5 Torr'],['HF','13.56 MHz · 0.2–1 kW'],['LF (option)','~400 kHz']]},
+    s1:{chart:'Chamber pressure (capacitance manometer)',set:'setpoint',oxid:'Oxidant',restart:'Restart',flows:'Flows',heater:'Heater',defects:'Wafer defects',ratio:'SiH₄ : oxidant',stable:'Gas phase stable — no plasma, no reaction',react:'SiH₄ + O₂ reacting in the gas phase → particles'},
+    s2:{chart:'Paschen curve (DC, N₂ proxy)',growth:'nₑ (cm⁻³, log)',p:'Pressure',d:'Gap',strike:'Strike',reset:'Reset',pd:'p·d',vb:'Breakdown V_b',vmax:'500 V available',sustain:'self-sustained',ready:'Ready — press Strike',aval:'Avalanche in progress…',lit:'Plasma ignited · sheaths formed',fail:'No breakdown — V_b exceeds 500 V',seed:'seed e⁻',status:'Status'},
+    s3:{chart:'Potential across the gap  V(x, t)',now:'instantaneous',avg:'time-average',v0:'RF amplitude V_rf',ratio:'Area ratio A_gnd / A_pwr',pause:'Pause',play:'Play',vT:'V̄ showerhead sheath',vB:'V̄ wafer sheath',vdc:'Self-bias V_dc',sT:'s̄ showerhead sheath',sB:'s̄ wafer sheath',frac:'Sheaths / gap',x0:'showerhead',x1:'wafer'},
+    s4:{chart:'Gap voltage / applied voltage',src:'Source',surf:'Surface',metal:'Bare metal',coated:'SiO₂-coated',reset:'Reset',gap:'Gap voltage',rfOk:'Sustained — charge neutralized every half-cycle',dcOk:'Sustained — γ-electrons from the metal cathode',dcCharging:'Insulator charging up…',dcDead:'Extinguished — surface charge cancels the voltage',cath:'Cathode (−)',anode:'Anode (GND)'},
+    s5:{chart:'Ion energy distribution at the wafer (IEDF)',p:'Pressure',vb:'Wafer sheath V̄',lf:'LF power',lam:'λ ion',s:'Sheath s',n:'s / λ',mean:'⟨E⟩',hi:'> 50 eV',dens:'densification',dmg:'damage ≳ 50 eV (approx.)',zoom:'ZOOM · wafer-side sheath',edge:'sheath edge',wafer:'wafer surface',cx:'charge exchange',fast:'fast neutral'},
+    s6:{chart:'Optical emission spectrum (OES)',R:'N₂O / SiH₄',P:'HF power',ratio:'O 777 / SiH 414',tick:'Recent electron-impact events',film:'Film tendency',stoich:'≈ stoichiometric',sirich:'Si-rich (RI ↑)',rx:{d1:'dissociation',d2:'dissociation',att:'attachment',ion:'ionization',ion2:'ionization'}},
+    s7:{chart:'Radical concentration across the gap',wafer:'Wafer top view',time:'Time',thick:'Thickness',rate:'Rate',reset:'Reset film',flux:'flux to wafer  J = −D·dn/dx',note:'Thickness clock runs at an illustrative ~300 nm/min.'},
+    s8:{knobs:'Recipe knobs',reset:'Baseline',P:'HF power',pr:'Pressure',T:'Temperature',R:'N₂O / SiH₄',g:'Gap',LF:'LF power',out:'Film properties (teaching model)',dr:'Dep. rate',ri:'RI @633 nm',st:'Stress',u:'Uniformity 1σ',wer:'WER / ThOx',h:'H content',pa:'Particle risk',spec:'Spec',low:'Low',med:'Medium',high:'High',pass:'PASS',fail:'FAIL',map:'Thickness map'},
+    s9:{phases:['RF off','Purge & pump','Wafer out','NF₃ clean','Season','Next wafer'],season:'Seasoning',on:'On',off:'Off',chart:'Wall coating & wafer-to-wafer thickness',coat:'wall coating',dev:'thickness deviation (%)',wafer:'wafer #',clean:'clean',msg:['Plasma gone in microseconds','Process gas pumped out','Wafer leaves through the slit valve','F radicals etch the wall oxide → SiF₄','Thin oxide re-coats the chamber','Ready for the next wafer'],endpoint:'Clean endpoint — oxide removed',skip:'Seasoning skipped'},
+  },
+  steps:[
+  { ch:0, title:'Inside a PECVD Chamber',
+    lead:'A single-wafer, parallel-plate CCP chamber that deposits SiO₂ from SiH₄ + N₂O. Before anything glows, know where each part sits — and <b>which electrode is powered</b>.',
+    body:`<ul>
+<li><b>Showerhead</b> — the RF-powered top electrode. Gas fills a plenum and exits through hundreds of small holes.</li>
+<li><b>Heater pedestal</b> — the grounded bottom electrode; holds the wafer at 300–400 °C.</li>
+<li><b>Chamber wall</b> — also grounded, so the grounded area is larger than the powered area.</li>
+<li><b>Ceramic isolator</b> — separates the RF-hot showerhead from the grounded body.</li>
+<li><b>RF generator → matching network</b> — 13.56 MHz HF; many tools add a ~400 kHz LF source.</li>
+<li><b>Throttle valve + pump</b> — hold 1–5 Torr while gas flows continuously.</li>
+<li><b>RPS</b> — remote plasma source for NF₃ chamber cleaning.</li></ul>`,
+    co:[['try','Hover over the drawing — or tap a part below — to see what it does.'],
+        ['key','Gap ≈ 10 mm, pressure ≈ 2.5 Torr. A molecule travels only ~20–50 µm between collisions — hundreds of collisions across the gap. This one number explains much of what follows.']],
+    dd:[{t:'Why a showerhead — and why are its holes so small?', b:`<p><b>Uniform gas supply.</b> Each hole is a small flow restriction. The plenum behind the faceplate equalizes pressure, so every hole delivers nearly the same flow and gas arrives evenly across the 300 mm wafer.</p>
+<p><b>No plasma inside the holes.</b> If a hole is wider than roughly the sheath thickness, plasma can ignite inside it as a <i>hollow-cathode discharge</i> — a local hot spot that erodes the faceplate and sheds particles. Hole diameters are therefore kept around a millimetre or below.</p>
+<p><b>Spacing is a knob.</b> The showerhead-to-wafer gap (typically ~5–15 mm) changes the electric field, the gas residence time and radial uniformity. It is set by moving the pedestal — part of the recipe.</p>
+<div class="dd-hl">The showerhead is three things at once: gas distributor, RF electrode, and a surface that also gets coated — which is why it returns in Step 10.</div>`}] },
+
+  { ch:0, title:'Recipe Start — Pump, Heat, Stabilize',
+    lead:'Before RF turns on, the tool brings the wafer to temperature and establishes a stable gas mixture and pressure. No plasma yet — and with N₂O, <b>no chemistry yet</b>.',
+    body:`<ul>
+<li>Wafer on the heater pedestal → temperature settles (here 350 °C)</li>
+<li>MFCs set the flows: SiH₄ ≈ 150 sccm, N₂O <b>20–100× larger</b> (here 40 : 1)</li>
+<li>The throttle valve closes until the capacitance manometer reads the setpoint (here 2.5 Torr)</li>
+<li>Gas flows radially outward over the wafer, around the pedestal and down to the pump</li></ul>`,
+    co:[['try','Switch the oxidant to O₂ — no plasma, no RF — and watch what happens.'],
+        ['myth','“N₂O is used because it is safer.” The real reason: SiH₄ + O₂ reacts spontaneously in the gas phase and forms SiO₂ powder before reaching the wafer. N₂O stays inert with SiH₄ until plasma electrons break it — so chemistry happens only where and when the plasma is.'],
+        ['warn','Display: SiH₄ is drawn at 1 : 10 so it stays visible; the real ratio here is ≈ 1 : 40.']],
+    dd:[{t:'Choosing the oxygen source: N₂O, O₂ or TEOS', b:`<p><b>SiH₄ + O₂</b> reacts without plasma. That is used on purpose in thermal LTO (~400 °C), but in a Torr-range PECVD gap it nucleates particles in the gas phase.</p>
+<p><b>SiH₄ + N₂O</b> needs electron impact to release O. The cost: a little nitrogen and hydrogen end up in the film (Si–N, N–H, Si–H). A large N₂O excess pushes the film toward stoichiometric SiO₂ (refractive index ≈ 1.46).</p>
+<p><b>Too little N₂O</b> gives a silicon-rich oxide: the refractive index rises above 1.46 and Si–H bonds increase. The N₂O/SiH₄ ratio is one of the first numbers checked when RI drifts.</p>
+<p><b>TEOS + O₂</b> is the other workhorse PECVD oxide. Its surface chemistry gives better step coverage, at the price of carbon and moisture management — a lesson of its own.</p>`}] },
+
+  { ch:1, title:'Ignition — Seed Electrons to Avalanche',
+    lead:'An electric field cannot ionize a neutral molecule directly — there is no charge to push. The field gives energy to the few free electrons already present, and <b>they</b> do the rest.',
+    body:`<ul>
+<li><b>Seed electrons</b> are always present: cosmic rays, natural radioactivity, leftover charge</li>
+<li>The field accelerates them (a = qE/m); above ~13 eV they ionize N₂O: <code>e⁻ + N₂O → N₂O⁺ + 2e⁻</code></li>
+<li>Each ionization adds an electron → <b>avalanche</b>: exponential growth, over in microseconds</li>
+<li>Whether it lights depends on <b>pressure × gap (pd)</b> — Paschen's law</li></ul>`,
+    co:[['try','Set pressure and gap, then press <b>Strike</b>. Can you find a pd where the plasma will not light with the 500 V available?'],
+        ['key','Recipe conditions (2.5 Torr × 1 cm) sit on the gentle right side of the Paschen minimum — that is why PECVD strikes reliably.']],
+    dd:[{t:"Townsend's criterion & Paschen's law", b:`<p>Electrons multiply with the first Townsend coefficient α = A·p·exp(−B·p/E). Breakdown occurs when each electron leaving the gap leaves enough ions behind to release, on average, one new electron from the cathode (secondary emission γ):</p>
+<div class="eq">γ·(e^(αd) − 1) = 1
+⟹  V_b = B·pd / [ ln(A·pd) − ln(ln(1 + 1/γ)) ]</div>
+<p><b>Left of the minimum</b> (low pd): too few collisions — electrons reach the electrode before they can ionize. <b>Right of the minimum</b> (high pd): too many collisions — electrons lose energy before reaching the ionization threshold.</p>
+<p>The chart uses DC coefficients for N₂ (A = 12 cm⁻¹Torr⁻¹, B = 342 V·cm⁻¹Torr⁻¹, γ = 0.05) as a proxy. In RF, electrons oscillate inside the gap instead of being swept out, so RF breakdown is usually lower and less dependent on γ — but the trend with pd is the same.</p>
+<div class="dd-hl">The field pumps energy into <b>electrons</b>; electrons hand it to molecules by collision. That is why T<sub>e</sub> (a few eV ≈ tens of thousands of K) is far above the gas temperature (~400–600 K).</div>`}] },
+
+  { ch:1, title:"Sustaining the Plasma — Electrons Follow, Ions Don't",
+    lead:'At 13.56 MHz the light electrons respond within each cycle; the heavy ions feel only the time-averaged field. The result: <b>two sheaths that breathe in and out, opposite in phase</b>.',
+    body:`<ul>
+<li><b>Bulk plasma</b> — quasi-neutral, nearly field-free, glowing</li>
+<li><b>Sheaths</b> — thin (~0.5–1.5 mm) electron-depleted layers that carry almost all the voltage; the bulk fills most of the gap</li>
+<li>Each cycle one sheath collapses (a burst of electrons reaches that electrode) while the other expands: the <b>electron cloud sloshes</b></li>
+<li><b>Ions</b> are pulled <b>outward to both electrodes</b> by the time-averaged sheath field — they never reverse with the RF</li>
+<li>The plasma potential is always the most positive point in the chamber</li></ul>`,
+    co:[['try','Increase A<sub>gnd</sub>/A<sub>pwr</sub>. The showerhead develops a negative DC self-bias and the wafer-side sheath voltage drops.'],
+        ['myth','“Ions swing back and forth with the RF polarity.” The ion plasma frequency here is only ~1–5 MHz — below 13.56 MHz — so ions see just the average field.'],
+        ['key','The glow is brightest at whichever sheath edge is <b>expanding</b>: electrons are heated there by the moving sheath (stochastic heating). Watch the bands.']],
+    dd:[{t:'How much faster are electrons — and can ions follow the RF?', b:`<p>An O⁺ ion is ~2.9×10⁴ times heavier than an electron; N₂O⁺ ~8.1×10⁴. In the same field a = qE/m, so electrons respond essentially instantly.</p>
+<p>The cleaner test is each species' natural response frequency, the plasma frequency f = (1/2π)·√(n e² / ε₀ m):</p>
+<div class="eq">n = 10¹⁰ cm⁻³ :
+  f_pe          ≈ 0.9 GHz  ≫ 13.56 MHz  → electrons follow
+  f_pi (N₂O⁺)  ≈ 3 MHz    < 13.56 MHz  → ions see the average</div>
+<p>Ions also need many RF cycles to cross a ~1 mm collisional sheath, so their energy is set by the <b>time-averaged</b> sheath voltage. An LF source (~400 kHz) is slower than f_pi — ions <i>can</i> follow it, which is exactly why LF raises ion energy (Step 6).</p>`},
+        {t:'Self-bias: why the wafer sits on the grounded side', b:`<p>The match has a series (blocking) capacitor, so the powered electrode can float to a DC offset. The two time-averaged sheath voltages divide roughly as the inverse area ratio to a power:</p>
+<div class="eq">V̄_pwr / V̄_gnd ≈ (A_gnd / A_pwr)^q     q ≈ 1–2.5  (this sim: 1.5)
+V_dc (self-bias) = V̄_gnd − V̄_pwr</div>
+<p>In a real PECVD chamber the grounded area (pedestal + walls) exceeds the showerhead area, so the showerhead self-biases negative and carries the larger sheath. The wafer, on the grounded pedestal, sees the <b>smaller</b> sheath — tens of volts.</p>
+<p><b>Not the same as floating potential.</b> An isolated surface charges until electron and ion fluxes balance — a few T<sub>e</sub> below the plasma potential. Self-bias is a DC offset of the RF-powered electrode, created by asymmetry and the blocking capacitor. A perfectly symmetric reactor has ~zero self-bias, yet each sheath still averages about half the RF amplitude.</p>`},
+        {t:'How thick is the sheath — and why not thicker?', b:`<p>The sheath scale is set by the Debye length λ_D = 7430·√(Tₑ/nₑ) m (Tₑ in eV, nₑ in m⁻³). With Tₑ ≈ 3 eV and nₑ ≈ 10¹⁰ cm⁻³, λ_D ≈ 0.13 mm. A sheath that holds V volts is many Debye lengths thick (Child law):</p>
+<div class="eq">collisionless:  s ≈ 0.47·λ_D·(2V/Tₑ)^(3/4)
+   V = 50 V → 0.85 mm      V = 150 V → 1.9 mm
+collisional (2.5 Torr, λ_i ≈ 60 µm) → thinner:
+   V = 50 V → ≈ 0.7 mm     V = 150 V → ≈ 1.3 mm</div>
+<p>So in a 10 mm PECVD gap the two sheaths take only ~15–25 %; most of the gap is glowing bulk. Dark spaces several millimetres thick appear only at low density (≲ 10⁹ cm⁻³) or low pressure.</p>
+<p><b>More power does not mean a thicker sheath.</b> In collisional scaling s ∝ V^0.6 · nₑ^−0.4 · p^−0.2. Raising RF power raises nₑ roughly in step with V_rf, so the two effects nearly cancel: the plasma gets denser while the sheath barely changes.</p>
+<div class="dd-hl">This simulation uses s ≈ (0.15 + 0.043·V^0.6) mm × (V_rf / 220 V)^−0.4 × (p / 2.5 Torr)^−0.2. The same model drives the canvas, the V(x, t) chart and the IEDF in Step 6.</div>`}] },
+
+  { ch:1, title:'Why RF — Not DC?',
+    lead:'A DC glow discharge runs fine between metal electrodes — that is how DC sputtering works. It fails here because <b>PECVD coats every surface with an insulator</b>.',
+    body:`<ul>
+<li><b>DC + bare metal</b> — ions striking the cathode release secondary electrons (γ); current closes through the metal → steady glow</li>
+<li><b>DC + SiO₂-coated</b> — charge piles up on the insulating surfaces (+ on the cathode side, − on the anode side) and cancels the applied voltage within ~0.1 ms → the plasma dies</li>
+<li><b>RF</b> — polarity reverses every 37 ns. Ion charge collected in one half-cycle is neutralized by the electron burst of the next; current crosses the film as <b>displacement current</b></li></ul>`,
+    co:[['try','Try all four combinations: source (RF / DC) × electrode surface (metal / coated).'],
+        ['key','In PECVD the showerhead, walls and wafer are all being coated with dielectric. Capacitive (RF) coupling is not optional — it is the only way current gets through.']],
+    dd:[{t:'Displacement current — and why 13.56 MHz?', b:`<p>A dielectric film is a capacitor: it passes current only while the voltage across it changes, I = C·dV/dt. Under DC, dV/dt → 0 once charged. How fast?</p>
+<div class="eq">100 nm SiO₂ :  C/A = ε₀·3.9 / 100 nm ≈ 3.5×10⁻⁴ F/m²
+J_ion ≈ 1 A/m² (0.1 mA/cm²)  →  dV/dt ≈ 3 V/µs
+→ a few hundred volts cancelled in ~0.1 ms</div>
+<p>At 13.56 MHz a half-cycle lasts only 37 ns, so the surface voltage moves by ~0.1 V before the polarity flips — negligible. That is capacitive coupling.</p>
+<p><b>Why 13.56 MHz?</b> It is an ISM frequency reserved for industrial use (with harmonics 27.12 and 40.68 MHz), so it can leak without disturbing communications. Higher frequencies (VHF) give more density at the same voltage; low frequencies (~400 kHz, below f_pi) let ions follow the field and raise ion energy — the basis of dual-frequency PECVD for stress control.</p>`}] },
+
+  { ch:1, title:'Ion Bombardment at the Wafer',
+    lead:'Ions cross the wafer-side sheath and strike the growing film. At PECVD pressures their energy is set less by the sheath voltage than by <b>how many collisions they suffer on the way</b>.',
+    body:`<ul>
+<li>Upper limit: E ≤ e·V̄<sub>sheath</sub> — tens of volts at the grounded wafer</li>
+<li>At 1–5 Torr the ion mean free path (~30–150 µm) is far shorter than the sheath (~0.5–1 mm): the sheath is <b>collisional</b></li>
+<li>Charge-exchange collisions leave a slow ion and a fast neutral → a broad IEDF piled up at low energy</li>
+<li>A few to ~20 eV aids surface mobility → denser film, less H. LF power raises the energy → more compressive stress</li></ul>`,
+    co:[['try','Lower the pressure or add LF power and watch the IEDF move to higher energy.'],
+        ['myth','“Ion bombardment always damages the film.” At PECVD pressures most ions arrive with only a few eV. Sputtering and bond damage need roughly ≳ 50 eV — reached only with strong LF bias or at low pressure.']],
+    dd:[{t:'The collisional sheath in numbers', b:`<div class="eq">n_g  = p / k_B·T        (2.5 Torr, 450 K → 5.4×10²² m⁻³)
+λ_i  = 1 / (n_g·σ_cx)   (σ_cx ≈ 3×10⁻¹⁹ m² → λ_i ≈ 60 µm)
+s ≈ 0.6–1 mm  →  s/λ_i ≈ 10–15 collisions</div>
+<p>In a collisional sheath the potential grows roughly as Φ ∝ z^(5/3). An ion gains energy only after its <b>last</b> collision, so E = V̄·[1 − (z_c/s)^(5/3)], where z_c is that last collision point — usually close to the wafer. The IEDF therefore peaks near zero with a tail reaching e·V̄.</p>
+<p>Compare dry etch at a few mTorr: λ_i ≫ s, so ions cross collision-free and arrive with nearly the full e·V̄ — often hundreds of eV. Same physics, different regime.</p>
+<div class="dd-hl">Simplifications: every collision is treated as full charge exchange, sheath width uses the collisional Child-law scaling of Step 4, and the HF modulation is averaged out (ion transit ≫ 74 ns). Thresholds on the chart are order-of-magnitude guides; they depend on ion species, angle and film.</div>`}] },
+
+  { ch:1, title:'Plasma Chemistry & Glow',
+    lead:'Electrons with a few eV drive the chemistry: they break N₂O and SiH₄ into reactive radicals and excite atoms that emit light. <b>The glow is a spectrum you can read.</b>',
+    body:`<ul>
+<li><code>e⁻ + SiH₄ → SiH₃· + H· + e⁻</code> — dissociation (≈ 8 eV)</li>
+<li><code>e⁻ + N₂O → N₂ + O· + e⁻</code> — dissociation</li>
+<li><code>e⁻ + N₂O → N₂ + O⁻</code> — dissociative attachment (≈ 2 eV): N₂O is <b>electronegative</b></li>
+<li><code>e⁻ + N₂O → N₂O⁺ + 2e⁻</code> — ionization (≈ 12.9 eV)</li>
+<li>Excitation → emission: O 777 nm, SiH 414 nm, H<sub>α</sub> 656 nm, N₂ 337 nm</li>
+<li>The ionization degree is only ~10⁻⁷–10⁻⁶: radicals vastly outnumber ions</li></ul>`,
+    co:[['try','Change N₂O/SiH₄ and RF power — the optical emission spectrum (OES) shifts. Fabs watch these lines to monitor stability and to find the endpoint of chamber cleans.'],
+        ['myth','“The glow comes from ions recombining with electrons.” At these pressures electron–ion recombination in the gas is negligible; charged particles are lost at the walls. The light is electron-impact excitation followed by de-excitation.']],
+    dd:[{t:'N₂O is electronegative — what changes?', b:`<p>Dissociative attachment (e⁻ + N₂O → N₂ + O⁻) has a large cross-section near 2 eV, so part of the electrons is converted into negative ions.</p>
+<ul><li><b>O⁻ is trapped</b> in the bulk: the sheaths repel negative charge, so it cannot reach the walls. It is lost by detachment or by ion–ion recombination with positive ions — the one volume recombination that does matter.</li>
+<li><b>Fewer free electrons</b>: to keep ionization going, the remaining electrons run slightly hotter.</li>
+<li><b>Reading OES</b>: line intensity ∝ (density of the emitter) × (electron excitation rate). Ratios such as O 777 / SiH 414 track trends; adding a known inert tracer (actinometry) makes them semi-quantitative.</li></ul>`}] },
+
+  { ch:2, title:'Deposition — Radicals Build the Film',
+    lead:'Neutral radicals, not ions, carry most of the film. They random-walk through the gas and react on whatever surface they reach — <b>the wafer included</b>.',
+    body:`<ul>
+<li>SiH₃· and O· are created in the bulk by electron impact</li>
+<li>No field pushes them: they <b>diffuse</b>. Surfaces consume them, so concentration falls toward each electrode (see profile)</li>
+<li>At the surface a <b>reaction probability</b> decides whether a radical bonds or bounces</li>
+<li>Growth is <b>continuous</b>: thickness = rate × time (silane oxide: typically a few hundred nm/min)</li>
+<li>Byproducts (N₂, H₂, H₂O) leave through the pump — and the showerhead gets coated too</li>
+<li>Idealized net reaction: <code>SiH₄ + 2N₂O → SiO₂ + 2N₂ + 2H₂</code></li></ul>`,
+    co:[['try','Watch the radical profile: highest mid-gap, falling toward both electrodes. That gradient is what delivers radicals to the wafer.'],
+        ['myth','“PECVD grows the film one monolayer at a time.” That is ALD (self-limiting, cycled). PECVD is continuous: radicals arrive and react everywhere at once.'],
+        ['key','Wafer color = oxide thickness (thin-film interference). Engineers read it at a glance: ~100 nm violet, ~150 nm light blue, ~200 nm gold.']],
+    dd:[{t:'How radicals reach the wafer — and what sets film quality', b:`<div class="eq">Fick's law :  J = −D · dn/dx        D ∝ 1/p</div>
+<p><b>Diffusion dominates.</b> Higher pressure shortens the mean free path and slows diffusion; radicals then spend longer in the gas, which favors gas-phase reactions (and particles).</p>
+<p><b>Convective flow is secondary.</b> Gas moves radially outward over the wafer to the pump; it shapes the edge profile more than it delivers radicals.</p>
+<p><b>Reaction probability shapes conformality.</b> SiH₃ reacts with a relatively low probability, so it can bounce and reach sidewalls — moderate step coverage. Highly reactive fragments (SiH₂, SiH, O) stick almost on contact and deposit near the top of features.</p>
+<p><b>Temperature sets hydrogen content.</b> At lower temperature Si–OH and Si–H survive in the film → lower density and a faster wet-etch rate. Within the thermal budget (BEOL ≤ ~400 °C), hotter is better.</p>
+<div class="dd-hl">Here the radicals do a genuine random walk with absorbing surfaces — the gradient in the chart emerges by itself; nothing pushes them downward.</div>`}] },
+
+  { ch:2, title:'The Process Window',
+    lead:'Every knob moves several film properties at once. Find a recipe that meets the spec — and <b>feel the trade-offs</b>.',
+    body:`<ul>
+<li><b>HF power</b> → more dissociation → higher rate; too much → particles, non-uniformity</li>
+<li><b>Pressure</b> → residence time, diffusion, ion energy (higher p = gentler bombardment)</li>
+<li><b>Temperature</b> → hydrogen out-diffusion: hotter = denser, lower wet-etch rate</li>
+<li><b>N₂O / SiH₄</b> → stoichiometry: low ratio = Si-rich, RI ↑</li>
+<li><b>Gap</b> → field distribution and uniformity</li>
+<li><b>LF power</b> → ion energy → compressive stress, density</li></ul>`,
+    co:[['try','Target: RI 1.46 ± 0.01 · stress −100 to −250 MPa · uniformity &lt; 2 % (1σ) · WER &lt; 2.5× thermal oxide.'],
+        ['warn','Teaching model: the trends follow typical silane-oxide PECVD behavior, but the numbers are illustrative — not calibrated to any specific tool.']],
+    dd:[{t:'Why the knobs are coupled', b:`<p><b>One HF power does two jobs.</b> It sets both radical production (rate) and sheath voltage (ion energy). Dual-frequency tools split them: HF for density, LF for ion energy.</p>
+<p><b>Pressure trades rate against uniformity and particles.</b> Higher pressure raises residence time and gas-phase reactions; lower pressure raises ion energy.</p>
+<p><b>Temperature is capped by the thermal budget.</b> Over finished metal (BEOL) ~400 °C is the ceiling, so film quality must then come from ion bombardment (LF) and chemistry.</p>
+<div class="dd-hl">That is why recipes are developed with a DOE (design of experiments): a change aimed at one property almost always moves two others.</div>`}] },
+
+  { ch:2, title:'End of Recipe — Purge, Clean & Season',
+    lead:'When RF turns off, the plasma vanishes within microseconds. What remains is a chamber coated with oxide, which must be cleaned and re-conditioned so the <b>next</b> wafer gets the same film.',
+    body:`<ul>
+<li>RF off → purge and pump out the process gas → wafer leaves through the slit valve</li>
+<li>Every wafer also coats the showerhead and walls; thick deposits crack and flake → particles</li>
+<li><b>NF₃ remote-plasma clean</b>: F radicals from the RPS etch the oxide — <code>SiO₂ + 4F → SiF₄↑ + O₂</code></li>
+<li><b>Seasoning</b>: a thin, controlled oxide re-coats the chamber so the next wafer sees the same surfaces</li></ul>`,
+    co:[['try','Turn seasoning off and watch the first wafer after each clean drift away from the others.']],
+    dd:[{t:'Why chamber surfaces matter — the first-wafer effect', b:`<p>The walls are part of the process. Their condition changes:</p>
+<ul><li><b>Radical loss</b> — how readily O· and SiH₃· recombine on the wall, and so how many reach the wafer</li>
+<li><b>RF return path & sheath capacitance</b> — a dielectric layer of changing thickness shifts the voltage split and the self-bias</li>
+<li><b>Residual fluorine</b> after a clean — it can consume radicals or end up in the next film</li></ul>
+<p>A freshly cleaned chamber therefore deposits differently from a “used” one: the <b>first-wafer effect</b>. Seasoning puts the surfaces into a known, reproducible state.</p>
+<p><b>Why a remote plasma?</b> Making F in a separate source avoids ion bombardment of the showerhead and heater, which would erode them and create particles. Ceramic heaters (e.g. AlN) and coated or anodized parts resist fluorine; uniform surfaces also avoid local field spikes that trigger micro-arcing.</p>`}] },
+
+  { ch:3, title:'Key Takeaways', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'CCP PE-CVD on one page', p:'The physics, the numbers — and the misconceptions corrected along the way.',
+    btn1:'PE-ALD vs PE-CVD — what differs?', btn2:'Where each SiO₂ is used',
+    cap1:'PE-ALD uses the same plasma chamber hardware, but a cyclic, self-limiting sequence instead of continuous deposition.',
+    cap2:'PE-CVD: thick, fast oxides (ILD, PMD, passivation). PE-ALD: thin, conformal oxides (gate, spacer, liner).',
+    sPr:'Design principles', sTab:'CCP PECVD vs ICP / HDP-CVD', sWin:'Typical process window · silane oxide, 300 mm', sMyth:'Misconceptions corrected', sLim:'Limitations → what solves them',
+    pr:[['Wafer on the grounded electrode','Area asymmetry puts the large sheath on the showerhead; the wafer sees only tens of volts.'],
+        ['RF, because everything gets coated','Displacement current crosses dielectric films. Electrons follow 13.56 MHz; ions see the average.'],
+        ['Torr-range, collisional sheath','λ ≈ 30–150 µm ≪ sheath → a soft, broad IEDF and a radical-driven process.'],
+        ['Excess N₂O (≥ 20 : 1)','Stoichiometric SiO₂ (RI ≈ 1.46), and no gas-phase powder as with O₂.'],
+        ['Temperature + LF set film quality','Less hydrogen, higher density, controlled compressive stress.'],
+        ['Clean and season every cycle','Reproducible chamber surfaces → no first-wafer effect.']],
+    th:['Parameter','CCP PECVD','ICP / HDP-CVD'],
+    rows:[['Pressure','1 – 5 Torr','1 – 20 mTorr'],
+          ['Electron density nₑ','10⁹ – 10¹⁰ cm⁻³','10¹¹ – 10¹² cm⁻³'],
+          ['Ionization degree','~10⁻⁸ – 10⁻⁶','~10⁻⁴ – 10⁻²'],
+          ['Electron temperature Tₑ','≈ 2 – 5 eV','≈ 2 – 5 eV'],
+          ['Ion mean free path','~30 – 150 µm','~mm – cm'],
+          ['Sheath','collisional','nearly collisionless'],
+          ['Ion energy at wafer','few – ~50 eV (LF ↑)','~10 – 30 eV; bias → 100s'],
+          ['Coupling','capacitive (E)','inductive (H)']],
+    win:[['Temperature','300 – 400 °C'],['Pressure','2 – 3 Torr'],['HF power','200 – 1000 W'],['N₂O : SiH₄','20 – 100 : 1'],['Deposition rate','~100s nm/min'],['Refractive index','1.46 ± 0.01'],['Stress','−50 to −300 MPa'],['Uniformity','< 2 – 3 % (1σ)']],
+    winNote:'Typical / illustrative ranges — always check against your tool and recipe.',
+    myths:[['Ions swing with the RF','They see only the time-averaged field (f_pi < 13.56 MHz)'],
+           ['DC cannot sustain a plasma','DC works on metal; it fails because PECVD coats surfaces with insulator'],
+           ['The glow is recombination','It is electron-impact excitation; charges are lost at the walls'],
+           ['Ion bombardment means damage','At Torr pressures most ions arrive with a few eV'],
+           ['PECVD grows monolayer by monolayer','That is ALD; PECVD grows continuously'],
+           ['N₂O is just “safer” than O₂','O₂ reacts with SiH₄ in the gas phase and makes particles']],
+    lim:[['Ion flux & energy tied to one HF power','Dual frequency (HF + LF)'],
+         ['Lower density than ICP','HDP-CVD for gap-fill'],
+         ['Limited conformality at high aspect ratio','PE-ALD'],
+         ['Hydrogen in the film at low T','Higher T, LF bombardment, anneal'],
+         ['Gas-phase particles at high power / pressure','Window tuning, excess N₂O'],
+         ['Deposits on chamber walls','RPS clean + seasoning']],
+  },
+},
+
+ko:{
+  title:'CCP PE-CVD — SiH₄ + N₂O로 SiO₂ 증착',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ 이전', next:'다음 ▶', kbd:'← → 키로 이동', of:'/',
+  labels:'라벨', explore:'부품 살펴보기',
+  chapters:['장비 & 준비','Plasma 물리','증착 공정','정리'],
+  recipeK:'Recipe',
+  recipe:['Load','Pump','Heat & Stabilize','Strike','Deposit','RF off & Purge','Unload','Clean & Season'],
+  rd:{p:'P',T:'Heater',hf:'HF',lf:'LF',gas:'Gas',off:'OFF',slow:'RF 속도 ≈ 2.7×10⁷배 느리게'},
+  tags:{try:'직접 해보기',myth:'흔한 오해',key:'핵심',warn:'참고'},
+  dd:'심화학습',
+  parts:{
+    nf3:['NF₃ — Clean 가스','웨이퍼 사이사이 원격 Plasma 소스(RPS)로 공급됩니다. 생성된 F Radical이 Chamber 표면에 쌓인 산화막을 식각합니다.'],
+    sih4:['SiH₄ — 실리콘 전구체','Silane. 공기 중에서 자연 발화(pyrophoric)하므로 배기·Purge·누설감지가 갖춰진 Gas Cabinet에서 공급합니다. Plasma에서 SiH₃·, SiH₂, H·로 분해됩니다.'],
+    n2o:['N₂O — 산화제','아산화질소. Plasma 전자가 O·와 N₂로 분해하기 전까지는 SiH₄와 반응하지 않습니다. SiH₄의 20–100배로 과량 공급합니다.'],
+    mfc:['Mass Flow Controller','각 가스 유량(sccm)을 정밀 제어합니다. N₂O/SiH₄ 비율이 화학량론, 굴절률, 응력, 수소 함량을 결정합니다.'],
+    rps:['Remote Plasma Source (RPS)','Chamber 밖에서 NF₃로 F Radical을 만듭니다. 그래서 Chamber 부품에 이온 충격 없이 Clean이 가능합니다.'],
+    shead:['Showerhead — RF 전극','Gas Box, Plenum, 다공 Faceplate가 하나로 된 부품. Match를 거쳐 13.56 MHz가 인가되고, 가스를 웨이퍼 위에 고르게 분배합니다.'],
+    iso:['Ceramic Isolator','RF가 걸린 Showerhead와 접지된 Chamber 본체를 전기적으로 분리합니다.'],
+    gap:['공정 Gap (~10 mm)','Plasma가 형성되는 공간: 얇은 두 Sheath 사이의 Bulk Plasma. ~2.5 Torr에서 가스 평균 자유 행정은 ~20–50 µm에 불과합니다.'],
+    wafer:['Si 웨이퍼 (300 mm)','접지된 Pedestal 위에 놓입니다. Radical(막 성장)과 저에너지 이온(치밀화)을 받습니다.'],
+    ped:['Heater Pedestal — 접지 전극','세라믹(예: AlN) Heater, 300–400 °C, 접지. 상하로 움직여 Gap을 설정하고, Lift Pin이 웨이퍼를 들어 이송합니다.'],
+    wall:['Chamber Wall (접지)','접지된 알루미늄 본체. Pedestal과 함께 더 큰 접지 면적을 이뤄 Showerhead에 음(−)의 Self-Bias가 생깁니다. 증착 중 함께 코팅됩니다.'],
+    cm:['Capacitance Manometer','가스 종류와 무관하게 절대 압력을 측정합니다. 이 값으로 Throttle Valve 제어 루프가 동작합니다.'],
+    hf:['HF Generator · 13.56 MHz','주 전원(300 mm 기준 ≈ 0.2–1 kW). Plasma 밀도와 Radical 생성량을 결정합니다.'],
+    lf:['LF Generator · ~400 kHz (옵션)','이온은 이 낮은 주파수를 따라갈 수 있어, LF 파워가 웨이퍼 이온 에너지를 높입니다. 막 밀도와 압축 응력 조절에 사용합니다.'],
+    match:['Matching Network','Plasma 부하를 50 Ω으로 변환해 반사 전력을 없앱니다. 직렬 Capacitor가 DC를 차단해 Showerhead에 Self-Bias가 생길 수 있게 합니다.'],
+    tv:['Throttle Valve','Butterfly 밸브. 배기 속도를 조절해 가스가 흐르는 동안 설정 압력을 유지합니다.'],
+    pump:['Vacuum Pump','공정 가스와 부산물(N₂, H₂, H₂O, Clean 시 SiF₄)을 배기하는 Dry Pump.'],
+    slit:['Slit Valve','로봇이 웨이퍼를 넣고 빼는 출입구.'],
+  },
+  sp:{SiH4:'SiH₄',N2O:'N₂O',O2:'O₂',SiH3:'SiH₃·',O:'O·',H:'H·',N2:'N₂',F:'F·',SiF4:'SiF₄',N2Op:'N₂O⁺',SiH3p:'SiH₃⁺',Om:'O⁻',e:'e⁻',fast:'고속 중성입자',powder:'SiO₂ 분말'},
+  I:{
+    hw:{title:'대표적인 장비 수치',stats:[['전극 Gap','5–15 mm'],['웨이퍼','300 mm'],['Heater','300–400 °C'],['압력','1–5 Torr'],['HF','13.56 MHz · 0.2–1 kW'],['LF (옵션)','~400 kHz']]},
+    s1:{chart:'Chamber 압력 (Capacitance Manometer)',set:'설정값',oxid:'산화제',restart:'다시 시작',flows:'유량',heater:'Heater',defects:'웨이퍼 결함',ratio:'SiH₄ : 산화제',stable:'기상 안정 — Plasma 없음, 반응 없음',react:'SiH₄ + O₂ 기상 반응 → 파티클 발생'},
+    s2:{chart:'Paschen 곡선 (DC, N₂ 근사)',growth:'nₑ (cm⁻³, log)',p:'압력',d:'Gap',strike:'Strike',reset:'Reset',pd:'p·d',vb:'방전 개시 V_b',vmax:'가용 500 V',sustain:'자기유지',ready:'준비 완료 — Strike를 누르세요',aval:'Avalanche 진행 중…',lit:'Plasma 점화 · Sheath 형성',fail:'방전 실패 — V_b가 500 V 초과',seed:'seed e⁻',status:'상태'},
+    s3:{chart:'Gap 전위 분포  V(x, t)',now:'순간값',avg:'시간 평균',v0:'RF 진폭 V_rf',ratio:'면적비 A_gnd / A_pwr',pause:'일시정지',play:'재생',vT:'V̄ Showerhead Sheath',vB:'V̄ 웨이퍼 Sheath',vdc:'Self-Bias V_dc',sT:'s̄ Showerhead Sheath',sB:'s̄ 웨이퍼 Sheath',frac:'Sheath / Gap',x0:'Showerhead',x1:'웨이퍼'},
+    s4:{chart:'Gap 전압 / 인가 전압',src:'전원',surf:'전극 표면',metal:'금속 노출',coated:'SiO₂ 코팅',reset:'Reset',gap:'Gap 전압',rfOk:'유지 — 반주기마다 표면 전하 중화',dcOk:'유지 — 금속 Cathode의 γ 2차 전자',dcCharging:'절연막 Charging 중…',dcDead:'소멸 — 표면 전하가 인가 전압을 상쇄',cath:'Cathode (−)',anode:'Anode (GND)'},
+    s5:{chart:'웨이퍼 도달 이온 에너지 분포 (IEDF)',p:'압력',vb:'웨이퍼 Sheath V̄',lf:'LF 파워',lam:'λ 이온',s:'Sheath s',n:'s / λ',mean:'⟨E⟩',hi:'> 50 eV',dens:'치밀화',dmg:'손상 ≳ 50 eV (근사)',zoom:'ZOOM · 웨이퍼 쪽 Sheath',edge:'Sheath 경계',wafer:'웨이퍼 표면',cx:'전하교환',fast:'고속 중성입자'},
+    s6:{chart:'광방출 스펙트럼 (OES)',R:'N₂O / SiH₄',P:'HF 파워',ratio:'O 777 / SiH 414',tick:'최근 전자 충돌 반응',film:'막 경향',stoich:'≈ 화학량론적',sirich:'Si-rich (RI ↑)',rx:{d1:'해리',d2:'해리',att:'부착',ion:'이온화',ion2:'이온화'}},
+    s7:{chart:'Gap 내 Radical 농도 분포',wafer:'웨이퍼 윗면',time:'시간',thick:'두께',rate:'증착 속도',reset:'막 초기화',flux:'웨이퍼로의 Flux  J = −D·dn/dx',note:'두께 시계는 예시값 ~300 nm/min으로 진행됩니다.'},
+    s8:{knobs:'Recipe 조절값',reset:'Baseline',P:'HF 파워',pr:'압력',T:'온도',R:'N₂O / SiH₄',g:'Gap',LF:'LF 파워',out:'막 특성 (교육용 모델)',dr:'증착 속도',ri:'RI @633 nm',st:'응력',u:'균일도 1σ',wer:'WER / ThOx',h:'H 함량',pa:'파티클 위험',spec:'Spec',low:'낮음',med:'보통',high:'높음',pass:'PASS',fail:'FAIL',map:'두께 Map'},
+    s9:{phases:['RF off','Purge & Pump','웨이퍼 반출','NF₃ Clean','Seasoning','다음 웨이퍼'],season:'Seasoning',on:'On',off:'Off',chart:'벽면 코팅량 & 웨이퍼별 두께 편차',coat:'벽면 코팅',dev:'두께 편차 (%)',wafer:'웨이퍼 #',clean:'Clean',msg:['Plasma는 수 µs 안에 사라짐','공정 가스 배기','Slit Valve로 웨이퍼 반출','F Radical이 벽면 산화막 식각 → SiF₄','얇은 산화막으로 Chamber 재코팅','다음 웨이퍼 준비 완료'],endpoint:'Clean Endpoint — 산화막 제거 완료',skip:'Seasoning 생략'},
+  },
+  steps:[
+  { ch:0, title:'PECVD Chamber 들여다보기',
+    lead:'SiH₄ + N₂O로 SiO₂를 증착하는 매엽식 평행판 CCP Chamber입니다. Plasma를 켜기 전에 각 부품의 위치와 <b>어느 전극에 RF가 걸리는지</b>부터 확인합니다.',
+    body:`<ul>
+<li><b>Showerhead</b> — RF가 인가되는 상부 전극. 가스는 Plenum을 채운 뒤 수백 개의 작은 구멍으로 분사됩니다.</li>
+<li><b>Heater Pedestal</b> — 접지된 하부 전극. 웨이퍼를 300–400 °C로 유지합니다.</li>
+<li><b>Chamber Wall</b> — 역시 접지. 따라서 접지 면적이 RF 전극 면적보다 큽니다.</li>
+<li><b>Ceramic Isolator</b> — RF가 걸린 Showerhead와 접지된 본체를 분리합니다.</li>
+<li><b>RF Generator → Matching Network</b> — 13.56 MHz(HF). 많은 장비가 ~400 kHz LF 전원을 추가로 씁니다.</li>
+<li><b>Throttle Valve + Pump</b> — 가스를 계속 흘리면서 1–5 Torr를 유지합니다.</li>
+<li><b>RPS</b> — NF₃ Chamber Clean용 원격 Plasma 소스.</li></ul>`,
+    co:[['try','Chamber 그림에 마우스를 올리거나, 아래 부품 버튼을 눌러 역할을 확인하세요.'],
+        ['key','Gap ≈ 10 mm, 압력 ≈ 2.5 Torr. 분자는 충돌 사이에 겨우 ~20–50 µm만 이동합니다 — Gap을 건너는 동안 수백 번 충돌한다는 뜻입니다. 이 숫자 하나가 이후 내용의 상당 부분을 설명합니다.']],
+    dd:[{t:'Showerhead는 왜 쓰고, 구멍은 왜 그렇게 작을까?', b:`<p><b>균일한 가스 공급.</b> 각 구멍은 작은 유동 저항입니다. Faceplate 뒤의 Plenum이 압력을 균등화하므로 모든 구멍이 거의 같은 유량을 내보내고, 300 mm 웨이퍼 전면에 가스가 고르게 도달합니다.</p>
+<p><b>구멍 안에서 Plasma가 켜지면 안 됩니다.</b> 구멍이 대략 Sheath 두께보다 크면 그 안에서 <i>Hollow-Cathode Discharge</i>가 점화될 수 있습니다. 이 국부 Hot Spot은 Faceplate를 침식시키고 파티클을 만듭니다. 그래서 구멍 지름은 보통 1 mm 안팎 이하로 설계합니다.</p>
+<p><b>Spacing도 공정 Knob입니다.</b> Showerhead–웨이퍼 간격(보통 ~5–15 mm)은 전기장, 가스 체류 시간, 반경 방향 균일도를 바꿉니다. Pedestal을 올리고 내려 설정하며 Recipe의 일부입니다.</p>
+<div class="dd-hl">Showerhead는 가스 분배기이자 RF 전극이고, 동시에 막이 쌓이는 표면이기도 합니다 — 그래서 Step 10에서 다시 등장합니다.</div>`}] },
+
+  { ch:0, title:'Recipe 시작 — Pump, Heat, Stabilize',
+    lead:'RF를 켜기 전에 장비는 웨이퍼 온도를 맞추고 가스 조성과 압력을 안정화합니다. 아직 Plasma는 없고, N₂O를 쓰는 한 <b>화학 반응도 아직 없습니다</b>.',
+    body:`<ul>
+<li>웨이퍼가 Heater Pedestal에 놓이고 온도가 안정화 (여기서는 350 °C)</li>
+<li>MFC가 유량 설정: SiH₄ ≈ 150 sccm, N₂O는 그 <b>20–100배</b> (여기서는 40 : 1)</li>
+<li>Capacitance Manometer가 설정값(여기서는 2.5 Torr)을 읽을 때까지 Throttle Valve가 닫힘</li>
+<li>가스는 웨이퍼 위에서 바깥쪽으로 퍼져 Pedestal을 돌아 Pump로 빠져나감</li></ul>`,
+    co:[['try','산화제를 O₂로 바꿔 보세요 — Plasma도 RF도 없는데 무슨 일이 일어날까요?'],
+        ['myth','“N₂O는 더 안전해서 쓴다.” 진짜 이유는 SiH₄ + O₂가 기상(gas phase)에서 자발적으로 반응해 웨이퍼에 닿기 전에 SiO₂ 분말(파티클)을 만들기 때문입니다. N₂O는 Plasma 전자가 분해하기 전까지 SiH₄와 반응하지 않으므로, 화학 반응이 Plasma가 있는 곳·있는 동안에만 일어납니다.'],
+        ['warn','표시 비율: SiH₄가 보이도록 1 : 10으로 그렸습니다. 이 Recipe의 실제 비율은 ≈ 1 : 40입니다.']],
+    dd:[{t:'산소 공급원 선택: N₂O, O₂, TEOS', b:`<p><b>SiH₄ + O₂</b>는 Plasma 없이도 반응합니다. 열 LTO(~400 °C)에서는 이를 일부러 이용하지만, Torr 영역의 PECVD Gap에서는 기상에서 파티클이 핵생성됩니다.</p>
+<p><b>SiH₄ + N₂O</b>는 전자 충돌이 있어야 O가 나옵니다. 대가로 약간의 질소와 수소가 막에 들어갑니다(Si–N, N–H, Si–H). N₂O를 크게 과량으로 쓰면 막이 화학량론적 SiO₂(굴절률 ≈ 1.46)에 가까워집니다.</p>
+<p><b>N₂O가 부족하면</b> Si-rich 산화막이 됩니다: 굴절률이 1.46보다 커지고 Si–H 결합이 늘어납니다. RI가 흔들리면 가장 먼저 확인하는 숫자가 N₂O/SiH₄ 비율입니다.</p>
+<p><b>TEOS + O₂</b>는 또 하나의 대표적인 PECVD 산화막입니다. 표면 반응 특성상 Step Coverage가 더 좋지만 탄소·수분 관리가 필요합니다 — 별도 강의 주제입니다.</p>`}] },
+
+  { ch:1, title:'점화 — Seed Electron에서 Avalanche까지',
+    lead:'전기장은 중성 분자를 직접 이온화할 수 없습니다 — 밀어낼 전하가 없기 때문입니다. 전기장은 이미 존재하는 소수의 자유전자에 에너지를 주고, 나머지는 <b>전자</b>가 해냅니다.',
+    body:`<ul>
+<li><b>Seed Electron</b>은 항상 존재: 우주선, 자연 방사선, 잔류 전하</li>
+<li>전기장이 전자를 가속(a = qE/m) → ~13 eV 이상이면 N₂O를 이온화: <code>e⁻ + N₂O → N₂O⁺ + 2e⁻</code></li>
+<li>이온화마다 전자가 하나씩 늘어남 → <b>Avalanche</b>: 지수적 증가, 실제로는 수 µs 안에 끝남</li>
+<li>점화 여부는 <b>압력 × Gap (pd)</b>에 달려 있음 — Paschen 법칙</li></ul>`,
+    co:[['try','압력과 Gap을 정하고 <b>Strike</b>를 누르세요. 가용 전압 500 V로는 점화되지 않는 pd를 찾을 수 있나요?'],
+        ['key','Recipe 조건(2.5 Torr × 1 cm)은 Paschen 최소점의 완만한 오른쪽에 있습니다 — PECVD가 안정적으로 점화되는 이유입니다.']],
+    dd:[{t:'Townsend 조건과 Paschen 법칙', b:`<p>전자는 1차 Townsend 계수 α = A·p·exp(−B·p/E)로 증식합니다. Gap을 빠져나가는 전자 하나가 남긴 이온들이 Cathode에서 평균 하나의 새 전자(2차 전자 방출 γ)를 만들어 내면 방전이 개시됩니다:</p>
+<div class="eq">γ·(e^(αd) − 1) = 1
+⟹  V_b = B·pd / [ ln(A·pd) − ln(ln(1 + 1/γ)) ]</div>
+<p><b>최소점 왼쪽</b>(낮은 pd): 충돌이 너무 적음 — 전자가 이온화하기 전에 전극에 도달합니다. <b>최소점 오른쪽</b>(높은 pd): 충돌이 너무 많음 — 전자가 이온화 에너지에 도달하기 전에 에너지를 잃습니다.</p>
+<p>차트는 N₂의 DC 계수(A = 12 cm⁻¹Torr⁻¹, B = 342 V·cm⁻¹Torr⁻¹, γ = 0.05)를 근사로 사용합니다. RF에서는 전자가 매 주기 쓸려나가지 않고 Gap 안에서 진동하므로, 보통 방전 개시 전압이 더 낮고 γ 의존성도 약합니다 — 하지만 pd에 대한 경향은 같습니다.</p>
+<div class="dd-hl">전기장은 <b>전자</b>에 에너지를 주고, 전자가 충돌로 분자에 전달합니다. 그래서 T<sub>e</sub>(수 eV ≈ 수만 K)가 가스 온도(~400–600 K)보다 훨씬 높습니다.</div>`}] },
+
+  { ch:1, title:'Plasma 유지 — 전자는 따라가고, 이온은 못 따라간다',
+    lead:'13.56 MHz에서 가벼운 전자는 매 주기 안에 반응하지만, 무거운 이온은 시간 평균된 전기장만 느낍니다. 그 결과 <b>두 Sheath가 서로 반대 위상으로 숨을 쉬듯</b> 늘었다 줄었다 합니다.',
+    body:`<ul>
+<li><b>Bulk Plasma</b> — 준중성, 전기장이 거의 없고, 발광하는 영역</li>
+<li><b>Sheath</b> — 전압 대부분이 걸리는 얇은(~0.5–1.5 mm) 전자 결핍층; Gap의 대부분은 Bulk가 차지</li>
+<li>매 주기 한쪽 Sheath가 붕괴(그 순간 전자 다발이 전극에 도달)하고 다른 쪽은 팽창: <b>전자 구름이 출렁임</b></li>
+<li><b>이온</b>은 시간 평균 Sheath 전기장에 의해 <b>양쪽 전극 바깥 방향으로</b> 가속 — RF에 따라 방향이 바뀌지 않음</li>
+<li>Plasma 전위는 항상 Chamber 안에서 가장 높은(+) 전위</li></ul>`,
+    co:[['try','A<sub>gnd</sub>/A<sub>pwr</sub>를 키워 보세요. Showerhead에 음(−)의 DC Self-Bias가 생기고, 웨이퍼 쪽 Sheath 전압은 줄어듭니다.'],
+        ['myth','“이온이 RF 극성에 따라 위아래로 왕복한다.” 여기서 이온 Plasma 주파수는 ~1–5 MHz로 13.56 MHz보다 낮습니다. 그래서 이온은 평균 전기장만 느낍니다.'],
+        ['key','발광은 <b>팽창 중인</b> Sheath 경계에서 가장 밝습니다. 움직이는 Sheath가 전자를 가열하기 때문입니다(Stochastic Heating). 밝은 띠를 관찰하세요.']],
+    dd:[{t:'전자는 얼마나 빠르고, 이온은 RF를 따라갈 수 있을까?', b:`<p>O⁺ 이온은 전자보다 ~2.9×10⁴배, N₂O⁺는 ~8.1×10⁴배 무겁습니다. 같은 전기장에서 a = qE/m이므로 전자는 사실상 즉시 반응합니다.</p>
+<p>더 정확한 기준은 각 입자의 고유 응답 주파수인 Plasma 주파수 f = (1/2π)·√(n e² / ε₀ m)입니다:</p>
+<div class="eq">n = 10¹⁰ cm⁻³ :
+  f_pe          ≈ 0.9 GHz  ≫ 13.56 MHz  → 전자는 따라감
+  f_pi (N₂O⁺)  ≈ 3 MHz    < 13.56 MHz  → 이온은 평균만 느낌</div>
+<p>이온은 ~1 mm 충돌성 Sheath를 건너는 데에도 여러 RF 주기가 걸리므로, 에너지는 <b>시간 평균</b> Sheath 전압으로 정해집니다. LF(~400 kHz)는 f_pi보다 느려서 이온이 따라갈 <i>수 있고</i> — 바로 그래서 LF가 이온 에너지를 높입니다(Step 6).</p>`},
+        {t:'Self-Bias: 웨이퍼를 접지 쪽에 두는 이유', b:`<p>Match에는 직렬(Blocking) Capacitor가 있어 RF 전극이 DC 오프셋으로 떠 있을 수 있습니다. 두 Sheath의 시간 평균 전압은 대략 면적비의 역수의 거듭제곱으로 나뉩니다:</p>
+<div class="eq">V̄_pwr / V̄_gnd ≈ (A_gnd / A_pwr)^q     q ≈ 1–2.5  (이 시뮬레이션: 1.5)
+V_dc (Self-Bias) = V̄_gnd − V̄_pwr</div>
+<p>실제 PECVD Chamber는 접지 면적(Pedestal + 벽)이 Showerhead보다 크므로, Showerhead가 음(−)으로 Self-Bias되어 큰 Sheath를 떠안습니다. 접지 Pedestal 위의 웨이퍼는 <b>작은</b> Sheath — 수십 V — 만 봅니다.</p>
+<p><b>Floating 전위와 다릅니다.</b> 고립된 표면은 전자·이온 Flux가 같아질 때까지 Charging되어 Plasma 전위보다 수 T<sub>e</sub> 낮은 전위에 머뭅니다. Self-Bias는 비대칭과 Blocking Capacitor 때문에 RF 전극에 생기는 DC 오프셋입니다. 완전 대칭 반응기의 Self-Bias는 ~0이지만, 각 Sheath는 여전히 평균 RF 진폭의 절반 정도를 가집니다.</p>`},
+        {t:'Sheath는 얼마나 두꺼울까 — 왜 더 두껍지 않을까?', b:`<p>Sheath의 길이 척도는 Debye 길이 λ_D = 7430·√(Tₑ/nₑ) m (Tₑ는 eV, nₑ는 m⁻³)입니다. Tₑ ≈ 3 eV, nₑ ≈ 10¹⁰ cm⁻³이면 λ_D ≈ 0.13 mm. 전압 V를 지탱하는 Sheath는 Debye 길이의 수 배~수십 배 두께입니다(Child 법칙):</p>
+<div class="eq">무충돌:  s ≈ 0.47·λ_D·(2V/Tₑ)^(3/4)
+   V = 50 V → 0.85 mm      V = 150 V → 1.9 mm
+충돌성 (2.5 Torr, λ_i ≈ 60 µm) → 더 얇아짐:
+   V = 50 V → ≈ 0.7 mm     V = 150 V → ≈ 1.3 mm</div>
+<p>즉 10 mm PECVD Gap에서 두 Sheath가 차지하는 비율은 ~15–25 %에 불과하고, Gap 대부분은 발광하는 Bulk입니다. 수 mm 두께의 Dark Space는 밀도가 낮거나(≲ 10⁹ cm⁻³) 압력이 낮은 조건에서나 나타납니다.</p>
+<p><b>파워를 올린다고 Sheath가 두꺼워지지 않습니다.</b> 충돌성 Scaling에서 s ∝ V^0.6 · nₑ^−0.4 · p^−0.2입니다. RF 파워를 올리면 V_rf와 함께 nₑ도 대략 비례해 커지므로 두 효과가 거의 상쇄됩니다: Plasma는 더 조밀해지고 Sheath 두께는 거의 그대로입니다.</p>
+<div class="dd-hl">이 시뮬레이션은 s ≈ (0.15 + 0.043·V^0.6) mm × (V_rf / 220 V)^−0.4 × (p / 2.5 Torr)^−0.2를 사용합니다. 같은 모델이 Canvas, V(x, t) 차트, Step 6의 IEDF를 모두 구동합니다.</div>`}] },
+
+  { ch:1, title:'왜 DC가 아닌 RF인가?',
+    lead:'DC Glow 방전은 금속 전극 사이에서 잘 유지됩니다 — DC Sputtering이 그렇게 동작합니다. 여기서 실패하는 이유는 <b>PECVD가 모든 표면을 절연막으로 덮기 때문</b>입니다.',
+    body:`<ul>
+<li><b>DC + 금속 노출</b> — Cathode에 충돌한 이온이 2차 전자(γ)를 방출하고, 전류가 금속을 통해 닫힘 → 안정적 Glow</li>
+<li><b>DC + SiO₂ 코팅</b> — 절연 표면에 전하가 쌓여(Cathode 쪽 +, Anode 쪽 −) ~0.1 ms 안에 인가 전압을 상쇄 → Plasma 소멸</li>
+<li><b>RF</b> — 37 ns마다 극성 반전. 반주기 동안 모인 이온 전하를 다음 반주기의 전자 다발이 중화하고, 전류는 막을 <b>변위 전류</b>로 통과</li></ul>`,
+    co:[['try','네 가지 조합을 모두 해보세요: 전원(RF / DC) × 전극 표면(금속 / 코팅).'],
+        ['key','PECVD에서는 Showerhead, 벽, 웨이퍼 모두에 절연막이 쌓이고 있습니다. 용량성(RF) 결합은 선택이 아니라 전류가 통과할 유일한 방법입니다.']],
+    dd:[{t:'변위 전류 — 그리고 왜 13.56 MHz인가?', b:`<p>절연막은 Capacitor입니다: 양단 전압이 변할 때만 전류가 흐릅니다, I = C·dV/dt. DC에서는 충전이 끝나면 dV/dt → 0. 얼마나 빨리 충전될까요?</p>
+<div class="eq">100 nm SiO₂ :  C/A = ε₀·3.9 / 100 nm ≈ 3.5×10⁻⁴ F/m²
+J_ion ≈ 1 A/m² (0.1 mA/cm²)  →  dV/dt ≈ 3 V/µs
+→ 수백 V가 ~0.1 ms 안에 상쇄됨</div>
+<p>13.56 MHz의 반주기는 37 ns에 불과하므로, 극성이 바뀌기 전 표면 전압 변화는 ~0.1 V로 무시할 수 있습니다. 이것이 용량성 결합입니다.</p>
+<p><b>왜 13.56 MHz?</b> 산업용으로 할당된 ISM 주파수(고조파 27.12, 40.68 MHz)라서 누설되어도 통신을 방해하지 않습니다. 더 높은 주파수(VHF)는 같은 전압에서 더 높은 밀도를, 낮은 주파수(~400 kHz, f_pi 이하)는 이온이 전기장을 따라가게 해 이온 에너지를 높입니다 — 응력 제어용 Dual-Frequency PECVD의 원리입니다.</p>`}] },
+
+  { ch:1, title:'웨이퍼의 Ion Bombardment',
+    lead:'이온은 웨이퍼 쪽 Sheath를 건너 성장 중인 막에 충돌합니다. PECVD 압력에서는 이온 에너지가 Sheath 전압보다 <b>도중에 몇 번 충돌하느냐</b>에 더 크게 좌우됩니다.',
+    body:`<ul>
+<li>상한: E ≤ e·V̄<sub>sheath</sub> — 접지 웨이퍼에서는 수십 V</li>
+<li>1–5 Torr에서 이온 평균 자유 행정(~30–150 µm)은 Sheath(~0.5–1 mm)보다 훨씬 짧음: <b>충돌성(Collisional) Sheath</b></li>
+<li>전하교환 충돌이 느린 이온과 고속 중성입자를 남김 → 저에너지 쪽에 몰린 넓은 IEDF</li>
+<li>수~20 eV는 표면 이동도를 높여 막을 치밀하게 하고 H를 줄임. LF 파워는 에너지를 높여 압축 응력을 키움</li></ul>`,
+    co:[['try','압력을 낮추거나 LF 파워를 더해 IEDF가 높은 에너지 쪽으로 이동하는 것을 확인하세요.'],
+        ['myth','“Ion Bombardment는 항상 막을 손상시킨다.” PECVD 압력에서 대부분의 이온은 수 eV로 도달합니다. Sputtering·결합 손상에는 대략 ≳ 50 eV가 필요하며, 강한 LF 바이어스나 낮은 압력에서만 그 영역에 들어갑니다.']],
+    dd:[{t:'숫자로 보는 충돌성 Sheath', b:`<div class="eq">n_g  = p / k_B·T        (2.5 Torr, 450 K → 5.4×10²² m⁻³)
+λ_i  = 1 / (n_g·σ_cx)   (σ_cx ≈ 3×10⁻¹⁹ m² → λ_i ≈ 60 µm)
+s ≈ 0.6–1 mm  →  s/λ_i ≈ 10–15 회 충돌</div>
+<p>충돌성 Sheath의 전위는 대략 Φ ∝ z^(5/3)로 증가합니다. 이온은 <b>마지막</b> 충돌 이후에만 에너지를 얻으므로 E = V̄·[1 − (z_c/s)^(5/3)]이고, 마지막 충돌 지점 z_c는 대개 웨이퍼 가까이에 있습니다. 그래서 IEDF는 0 근처에서 최대이고 꼬리가 e·V̄까지 이어집니다.</p>
+<p>수 mTorr의 Dry Etch와 비교하면: λ_i ≫ s이므로 이온이 충돌 없이 건너 거의 e·V̄ 전체 — 흔히 수백 eV — 로 도달합니다. 같은 물리, 다른 영역입니다.</p>
+<div class="dd-hl">단순화: 모든 충돌을 완전 전하교환으로 취급했고, Sheath 두께는 Step 4와 같은 충돌성 Child 법칙 Scaling을 썼으며, HF 변조는 평균 처리했습니다(이온 통과 시간 ≫ 74 ns). 차트의 임계값은 이온 종류·입사각·막에 따라 달라지는 대략적인 기준입니다.</div>`}] },
+
+  { ch:1, title:'Plasma 화학 & 발광',
+    lead:'수 eV의 전자가 화학 반응을 이끕니다: N₂O와 SiH₄를 반응성 Radical로 쪼개고, 원자를 여기시켜 빛을 내게 합니다. <b>발광은 읽을 수 있는 스펙트럼입니다.</b>',
+    body:`<ul>
+<li><code>e⁻ + SiH₄ → SiH₃· + H· + e⁻</code> — 해리 (≈ 8 eV)</li>
+<li><code>e⁻ + N₂O → N₂ + O· + e⁻</code> — 해리</li>
+<li><code>e⁻ + N₂O → N₂ + O⁻</code> — 해리성 부착 (≈ 2 eV): N₂O는 <b>전기음성(electronegative)</b> 가스</li>
+<li><code>e⁻ + N₂O → N₂O⁺ + 2e⁻</code> — 이온화 (≈ 12.9 eV)</li>
+<li>여기 → 발광: O 777 nm, SiH 414 nm, H<sub>α</sub> 656 nm, N₂ 337 nm</li>
+<li>이온화율은 ~10⁻⁷–10⁻⁶에 불과: Radical이 이온보다 압도적으로 많음</li></ul>`,
+    co:[['try','N₂O/SiH₄ 비율과 RF 파워를 바꿔 보세요 — 광방출 스펙트럼(OES)이 변합니다. Fab에서는 이 선들로 공정 안정성을 감시하고 Chamber Clean의 Endpoint를 잡습니다.'],
+        ['myth','“발광은 이온과 전자의 재결합에서 나온다.” 이 압력에서 기상 전자–이온 재결합은 무시할 만큼 작고, 하전 입자는 벽에서 소멸합니다. 빛은 전자 충돌 여기 후 탈여기에서 나옵니다.']],
+    dd:[{t:'N₂O는 전기음성 가스 — 무엇이 달라질까?', b:`<p>해리성 부착(e⁻ + N₂O → N₂ + O⁻)은 2 eV 근처에서 단면적이 커서, 전자 일부가 음이온으로 바뀝니다.</p>
+<ul><li><b>O⁻는 Bulk에 갇힙니다</b>: Sheath가 음전하를 밀어내므로 벽에 닿지 못합니다. Detachment나 양이온과의 이온–이온 재결합으로 소멸합니다 — 실제로 중요한 유일한 기상 재결합입니다.</li>
+<li><b>자유전자 감소</b>: 이온화를 유지하기 위해 남은 전자가 약간 더 뜨거워집니다.</li>
+<li><b>OES 읽기</b>: 선 세기 ∝ (발광 종의 밀도) × (전자 여기율). O 777 / SiH 414 같은 비율로 경향을 보고, 알려진 불활성 기체를 추가(Actinometry)하면 반정량적으로 쓸 수 있습니다.</li></ul>`}] },
+
+  { ch:2, title:'증착 — Radical이 막을 쌓는다',
+    lead:'막의 대부분을 실어 나르는 것은 이온이 아니라 중성 Radical입니다. Radical은 기체 속을 Random Walk하다가 닿는 표면 어디서든 반응합니다 — <b>웨이퍼도 그중 하나</b>입니다.',
+    body:`<ul>
+<li>SiH₃·와 O·는 Bulk에서 전자 충돌로 생성</li>
+<li>전기장이 밀어주지 않음: <b>확산</b>합니다. 표면이 Radical을 소모하므로 농도가 각 전극 쪽으로 감소 (분포 차트 참고)</li>
+<li>표면에서는 <b>반응 확률</b>이 결합할지 튕겨나갈지를 결정</li>
+<li>성장은 <b>연속적</b>: 두께 = 증착 속도 × 시간 (Silane 산화막: 보통 수백 nm/min)</li>
+<li>부산물(N₂, H₂, H₂O)은 Pump로 배기 — 그리고 Showerhead에도 막이 쌓임</li>
+<li>이상화한 전체 반응: <code>SiH₄ + 2N₂O → SiO₂ + 2N₂ + 2H₂</code></li></ul>`,
+    co:[['try','Radical 분포를 보세요: Gap 가운데가 가장 높고 양쪽 전극으로 갈수록 낮습니다. 이 농도 구배가 Radical을 웨이퍼로 전달합니다.'],
+        ['myth','“PECVD는 단원자층씩 막을 쌓는다.” 그것은 ALD(자기제한, 사이클 반복)입니다. PECVD는 연속적입니다: Radical이 모든 곳에 동시에 도달하고 반응합니다.'],
+        ['key','웨이퍼 색 = 산화막 두께(박막 간섭). 엔지니어는 한눈에 읽습니다: ~100 nm 보라, ~150 nm 하늘색, ~200 nm 금색.']],
+    dd:[{t:'Radical은 어떻게 웨이퍼에 도달하고, 막질은 무엇이 정할까?', b:`<div class="eq">Fick의 법칙 :  J = −D · dn/dx        D ∝ 1/p</div>
+<p><b>확산이 지배적.</b> 압력이 높으면 평균 자유 행정이 짧아져 확산이 느려지고, Radical이 기체 속에 더 오래 머물러 기상 반응(과 파티클)이 늘어납니다.</p>
+<p><b>대류는 부차적.</b> 가스는 웨이퍼 위에서 바깥쪽으로 흘러 Pump로 갑니다. Radical 전달보다는 Edge 두께 분포에 더 영향을 줍니다.</p>
+<p><b>반응 확률이 Conformality를 결정.</b> SiH₃는 반응 확률이 비교적 낮아 튕겨서 측벽까지 도달할 수 있어 Step Coverage가 보통 수준입니다. 반응성이 매우 큰 조각(SiH₂, SiH, O)은 닿자마자 붙어 패턴 윗부분에 쌓입니다.</p>
+<p><b>온도가 수소 함량을 결정.</b> 낮은 온도에서는 Si–OH, Si–H가 막에 남아 밀도가 낮아지고 Wet Etch Rate가 빨라집니다. Thermal Budget 안에서는(BEOL ≤ ~400 °C) 높을수록 유리합니다.</p>
+<div class="dd-hl">이 시뮬레이션의 Radical은 흡수 경계를 가진 실제 Random Walk를 합니다 — 차트의 농도 구배는 저절로 생기며, 아래로 미는 힘은 없습니다.</div>`}] },
+
+  { ch:2, title:'공정 Window',
+    lead:'모든 Knob은 여러 막 특성을 동시에 움직입니다. Spec을 만족하는 Recipe를 찾으며 <b>Trade-off를 직접 느껴 보세요</b>.',
+    body:`<ul>
+<li><b>HF 파워</b> → 해리 증가 → 증착 속도 ↑; 과하면 파티클, 불균일</li>
+<li><b>압력</b> → 체류 시간, 확산, 이온 에너지 (압력 ↑ = 부드러운 Bombardment)</li>
+<li><b>온도</b> → 수소 탈착: 높을수록 치밀, Wet Etch Rate ↓</li>
+<li><b>N₂O / SiH₄</b> → 화학량론: 비율이 낮으면 Si-rich, RI ↑</li>
+<li><b>Gap</b> → 전기장 분포와 균일도</li>
+<li><b>LF 파워</b> → 이온 에너지 → 압축 응력, 밀도</li></ul>`,
+    co:[['try','목표: RI 1.46 ± 0.01 · 응력 −100 ~ −250 MPa · 균일도 &lt; 2 % (1σ) · WER &lt; 열산화막의 2.5배.'],
+        ['warn','교육용 모델: 경향은 일반적인 Silane 산화막 PECVD 거동을 따르지만, 수치는 예시이며 특정 장비에 Calibration된 값이 아닙니다.']],
+    dd:[{t:'Knob들은 왜 서로 얽혀 있을까?', b:`<p><b>HF 파워 하나가 두 가지 일을 합니다.</b> Radical 생성(증착 속도)과 Sheath 전압(이온 에너지)을 동시에 정합니다. Dual-Frequency 장비는 이를 나눕니다: HF는 밀도, LF는 이온 에너지.</p>
+<p><b>압력은 속도와 균일도·파티클을 맞바꿉니다.</b> 압력이 높으면 체류 시간과 기상 반응이 늘고, 낮으면 이온 에너지가 커집니다.</p>
+<p><b>온도는 Thermal Budget이 상한입니다.</b> 금속 배선 위(BEOL)에서는 ~400 °C가 한계이므로, 막질은 이온 충격(LF)과 화학으로 확보해야 합니다.</p>
+<div class="dd-hl">그래서 Recipe는 DOE(실험계획법)로 개발합니다: 한 특성을 겨냥한 변경은 거의 항상 다른 두 특성을 함께 움직입니다.</div>`}] },
+
+  { ch:2, title:'Recipe 종료 — Purge, Clean & Seasoning',
+    lead:'RF를 끄면 Plasma는 수 µs 안에 사라집니다. 남는 것은 산화막으로 덮인 Chamber이며, <b>다음</b> 웨이퍼가 같은 막을 얻으려면 이를 Clean하고 다시 길들여야 합니다.',
+    body:`<ul>
+<li>RF off → 공정 가스 Purge·배기 → Slit Valve로 웨이퍼 반출</li>
+<li>웨이퍼마다 Showerhead와 벽에도 막이 쌓임; 두꺼워지면 갈라지고 떨어져 파티클이 됨</li>
+<li><b>NF₃ 원격 Plasma Clean</b>: RPS의 F Radical이 산화막을 식각 — <code>SiO₂ + 4F → SiF₄↑ + O₂</code></li>
+<li><b>Seasoning</b>: 얇고 제어된 산화막으로 Chamber를 다시 코팅해, 다음 웨이퍼가 같은 표면을 보게 함</li></ul>`,
+    co:[['try','Seasoning을 끄고, Clean 직후 첫 웨이퍼가 다른 웨이퍼들과 어긋나는 것을 확인하세요.']],
+    dd:[{t:'Chamber 표면이 중요한 이유 — First-Wafer Effect', b:`<p>벽면도 공정의 일부입니다. 표면 상태가 바꾸는 것들:</p>
+<ul><li><b>Radical 손실</b> — O·, SiH₃·가 벽에서 얼마나 쉽게 재결합하는지, 즉 웨이퍼에 몇 개가 도달하는지</li>
+<li><b>RF 귀환 경로 & Sheath Capacitance</b> — 두께가 변하는 절연층이 전압 분배와 Self-Bias를 바꿈</li>
+<li><b>Clean 후 잔류 불소</b> — Radical을 소모하거나 다음 막에 혼입될 수 있음</li></ul>
+<p>그래서 막 Clean한 Chamber는 “사용 중인” Chamber와 다르게 증착합니다: <b>First-Wafer Effect</b>. Seasoning은 표면을 알려진, 재현 가능한 상태로 만듭니다.</p>
+<p><b>왜 원격 Plasma인가?</b> F를 별도 소스에서 만들면 Showerhead와 Heater에 이온 충격이 가지 않아 침식과 파티클을 피할 수 있습니다. 세라믹 Heater(예: AlN)와 코팅·아노다이징 부품은 불소에 강하고, 균일한 표면은 Micro-Arcing을 일으키는 국부 전계 집중도 막아 줍니다.</p>`}] },
+
+  { ch:3, title:'핵심 정리', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'한 페이지로 보는 CCP PE-CVD', p:'물리, 숫자 — 그리고 강의 중 바로잡은 오해들.',
+    btn1:'PE-ALD vs PE-CVD — 무엇이 다를까?', btn2:'각 SiO₂는 어디에 쓰일까?',
+    cap1:'PE-ALD는 같은 Plasma Chamber 하드웨어를 쓰지만, 연속 증착 대신 주기적·자기제한적 시퀀스를 사용합니다.',
+    cap2:'PE-CVD: 두껍고 빠른 산화막(ILD, PMD, Passivation). PE-ALD: 얇고 Conformal한 산화막(Gate, Spacer, Liner).',
+    sPr:'설계 원리', sTab:'CCP PECVD vs ICP / HDP-CVD', sWin:'대표 공정 Window · Silane 산화막, 300 mm', sMyth:'바로잡은 오해', sLim:'한계 → 해결 방법',
+    pr:[['웨이퍼는 접지 전극 위에','면적 비대칭으로 큰 Sheath는 Showerhead에 걸리고, 웨이퍼는 수십 V만 봅니다.'],
+        ['모든 것이 코팅되니 RF','변위 전류가 절연막을 통과합니다. 전자는 13.56 MHz를 따라가고, 이온은 평균만 봅니다.'],
+        ['Torr 영역, 충돌성 Sheath','λ ≈ 30–150 µm ≪ Sheath → 부드럽고 넓은 IEDF, Radical 주도 공정.'],
+        ['N₂O 과량 (≥ 20 : 1)','화학량론적 SiO₂ (RI ≈ 1.46), O₂처럼 기상 분말이 생기지 않음.'],
+        ['온도 + LF가 막질을 결정','수소 감소, 밀도 증가, 압축 응력 제어.'],
+        ['매 주기 Clean & Seasoning','재현 가능한 Chamber 표면 → First-Wafer Effect 없음.']],
+    th:['파라미터','CCP PECVD','ICP / HDP-CVD'],
+    rows:[['압력','1 – 5 Torr','1 – 20 mTorr'],
+          ['전자 밀도 nₑ','10⁹ – 10¹⁰ cm⁻³','10¹¹ – 10¹² cm⁻³'],
+          ['이온화율','~10⁻⁸ – 10⁻⁶','~10⁻⁴ – 10⁻²'],
+          ['전자 온도 Tₑ','≈ 2 – 5 eV','≈ 2 – 5 eV'],
+          ['이온 평균 자유 행정','~30 – 150 µm','~mm – cm'],
+          ['Sheath','충돌성','거의 무충돌'],
+          ['웨이퍼 이온 에너지','수 – ~50 eV (LF ↑)','~10 – 30 eV; Bias → 수백'],
+          ['결합 방식','용량성 (E)','유도성 (H)']],
+    win:[['온도','300 – 400 °C'],['압력','2 – 3 Torr'],['HF 파워','200 – 1000 W'],['N₂O : SiH₄','20 – 100 : 1'],['증착 속도','~수백 nm/min'],['굴절률','1.46 ± 0.01'],['응력','−50 ~ −300 MPa'],['균일도','< 2 – 3 % (1σ)']],
+    winNote:'대표·예시 범위입니다 — 반드시 사용 장비와 Recipe 기준으로 확인하세요.',
+    myths:[['이온이 RF에 따라 왕복한다','이온은 시간 평균 전기장만 봄 (f_pi < 13.56 MHz)'],
+           ['DC로는 Plasma를 유지할 수 없다','금속 전극이면 DC도 됨; PECVD는 표면을 절연막으로 덮기 때문에 실패'],
+           ['발광은 재결합에서 나온다','전자 충돌 여기 후 탈여기; 하전 입자는 벽에서 소멸'],
+           ['Ion Bombardment = 손상','Torr 압력에서 대부분의 이온은 수 eV로 도달'],
+           ['PECVD는 단원자층씩 성장','그건 ALD; PECVD는 연속 성장'],
+           ['N₂O는 O₂보다 “안전”해서 쓴다','O₂는 SiH₄와 기상 반응해 파티클을 만듦']],
+    lim:[['이온 Flux·에너지가 HF 하나에 묶임','Dual Frequency (HF + LF)'],
+         ['ICP보다 낮은 밀도','Gap-Fill에는 HDP-CVD'],
+         ['고종횡비에서 Conformality 한계','PE-ALD'],
+         ['저온에서 막 내 수소','고온, LF Bombardment, Anneal'],
+         ['고파워·고압에서 기상 파티클','Window 조정, N₂O 과량'],
+         ['Chamber 벽면 증착','RPS Clean + Seasoning']],
+  },
+}};
+</script>
+<script>
+'use strict';
+/* ============================== ENGINE ============================== */
+const $=id=>document.getElementById(id);
+const TAU=Math.PI*2, rnd=Math.random;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+let lang='en';
+const L=()=>T[lang];
+const IL=k=>T[lang].I[k];
+
+/* ---------- canvas & logical frame (960×600, letterboxed) ---------- */
+const cv=$('cv'), ctx=cv.getContext('2d'), wrap=$('cvWrap');
+const LW=960, LH=600;
+let DPR=1, RS=1, OX=0, OY=0;
+function resize(){
+  const w=wrap.clientWidth, h=wrap.clientHeight; if(!w||!h) return;
+  DPR=window.devicePixelRatio||1;
+  cv.width=Math.round(w*DPR); cv.height=Math.round(h*DPR);
+  RS=Math.min(w/LW,h/LH); OX=(w-LW*RS)/2; OY=(h-LH*RS)/2;
+}
+new ResizeObserver(resize).observe(wrap); resize();
+function beginFrame(){
+  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(RS*DPR,0,0,RS*DPR,OX*DPR,OY*DPR);
+}
+
+const FONT='"Google Sans","Noto Sans KR",system-ui,sans-serif', MONO=FONT;   // Latin & digits: Google Sans; Hangul falls back to Noto Sans KR
+const C={purple:'#7030A0',purpleLt:'#F0E8F8',purpleMid:'#9B59D0',green:'#0F8C50',greenLt:'#E6F4ED',coral:'#E8553B',amber:'#D99A00',
+  ink:'#1A202C',ink2:'#334155',muted:'#64748B',label:'#94A3B8',border:'#E2E8F0',line:'#EEF2F6',blue:'#3A7AD6'};
+
+/* ---------- geometry (logical px) ---------- */
+const X0=300, X1=680, YT=190, YB=394, XC=490, PXMM=20.4;   // gap 10 mm ≈ 204 px
+const WAF={x:326,w:328};
+
+/* ---------- species ---------- */
+const SP={
+  SiH4:{c:'#475569',r:2.7,cat:'n',f:'SiH4'},  N2O:{c:'#A0AEC0',r:2.4,cat:'n',f:'N2O'},  O2:{c:'#7C8798',r:2.4,cat:'n',f:'O2'},
+  SiH3:{c:'#3A7AD6',r:2.9,cat:'r',f:'SiH3·'}, O:{c:'#0EA5B7',r:2.7,cat:'r',f:'O·'},     H:{c:'#93C5FD',r:2,cat:'r',f:'H·'},
+  F:{c:'#8DB92E',r:2.6,cat:'r',f:'F·'},       N2:{c:'#22A06B',r:2.2,cat:'b',f:'N2'},    SiF4:{c:'#8A94A6',r:2.8,cat:'b',f:'SiF4'},
+  N2Op:{c:'#E8553B',r:3.2,cat:'i',f:'N2O+'},  SiH3p:{c:'#F07B3F',r:3.2,cat:'i',f:'SiH3+'},
+  Om:{c:'#0F766E',r:3,cat:'ni',f:'O-'},       e:{c:'#E0A100',r:1.8,cat:'e',f:'e-'},
+  fast:{c:'#94A3B8',r:2,cat:'f',f:''},        powder:{c:'#CBD5E1',r:3,cat:'p',f:''},
+};
+
+/* ---------- shared state ---------- */
+const S={labels:false,p2:2.5,d2:1.0,v0:220,ratio:2.0,src:'rf',surf:'coated',p5:2.5,vb5:55,lf5:0,
+         R:40,P:400,pr:2.5,T:350,g:10,LF:0,oxid:'N2O',season:true,paused:false};
+const BASE={P:400,pr:2.5,T:350,R:40,g:10,LF:0};
+let cur=0, time=0, phase=0, parts=[], fx=[], frameN=0;
+let hoverPart=null, pinPart=null;
+const FA=0.5;                         // animated RF frequency (Hz) → 13.56 MHz slowed ≈ 2.7e7×
+const V0P=()=>120+0.25*S.P;           // RF amplitude from HF power (illustrative)
+
+/* ---------- small drawing helpers ---------- */
+function rr(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function pl(pts,col,w,dash,off){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';if(dash){ctx.setLineDash(dash);ctx.lineDashOffset=off||0;}ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.restore();}
+function pipe(pts,flow,col){pl(pts,'#C7CED9',3.4);pl(pts,'#FFFFFF',1.4);if(flow)pl(pts,col||'rgba(112,48,160,.7)',1.7,[4,8],-time*30);}
+function txt(s,x,y,o={}){ctx.save();ctx.font=`${o.w||400} ${o.sz||11}px ${o.mono?MONO:FONT}`;ctx.fillStyle=o.c||C.muted;ctx.textAlign=o.a||'left';ctx.textBaseline=o.b||'middle';ctx.fillText(s,x,y);ctx.restore();}
+function arrow(x0,y0,x1,y1,col,w=1.2){ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();const a=Math.atan2(y1-y0,x1-x0),h=6;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-h*Math.cos(a-.42),y1-h*Math.sin(a-.42));ctx.lineTo(x1-h*Math.cos(a+.42),y1-h*Math.sin(a+.42));ctx.closePath();ctx.fill();ctx.restore();}
+function gnd(x,y){ctx.save();ctx.strokeStyle='#475569';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+6);ctx.moveTo(x-9,y+6);ctx.lineTo(x+9,y+6);ctx.moveTo(x-6,y+10);ctx.lineTo(x+6,y+10);ctx.moveTo(x-3,y+14);ctx.lineTo(x+3,y+14);ctx.stroke();ctx.restore();}
+function chemText(f,x,y,sz,col,align){
+  ctx.save();ctx.fillStyle=col;ctx.textBaseline='middle';ctx.textAlign='left';
+  const segs=[];
+  for(let i=0;i<f.length;i++){const ch=f[i];
+    if(/[0-9]/.test(ch)) segs.push(['s',ch]);
+    else if((ch==='+'||ch==='-')&&i===f.length-1) segs.push(['u',ch==='-'?'−':'+']);
+    else if(segs.length&&segs[segs.length-1][0]==='b') segs[segs.length-1][1]+=ch; else segs.push(['b',ch]);}
+  const fb=`600 ${sz}px ${FONT}`, fs=`600 ${Math.round(sz*.72)}px ${FONT}`;
+  let w=0; for(const s of segs){ctx.font=s[0]==='b'?fb:fs;w+=ctx.measureText(s[1]).width;}
+  let cx=align==='left'?x:align==='right'?x-w:x-w/2;
+  for(const s of segs){ctx.font=s[0]==='b'?fb:fs;const oy=s[0]==='s'?sz*.28:s[0]==='u'?-sz*.32:0;ctx.fillText(s[1],cx,y+oy);cx+=ctx.measureText(s[1]).width;}
+  ctx.restore(); return w;
+}
+const fmtP=p=>p<0.1?`${(p*1000).toFixed(0)} mTorr`:`${p.toFixed(2)} Torr`;
+
+/* ---------- hardware drawing ---------- */
+const GAS_ROWS=[{id:'nf3',y:30,f:'NF3',c:'#8DB92E'},{id:'sih4',y:156,f:'SiH4',c:'#3A7AD6'},{id:'n2o',y:236,f:'N2O',c:'#0EA5B7'}];
+function drawGasPanel(o){
+  txt('GAS PANEL',24,12,{sz:9,mono:true,c:C.label});
+  const flowOf={nf3:o.rps>0,sih4:!!o.gas,n2o:!!o.gas};
+  const sccm={nf3:'1500',sih4:'150',n2o:o.oxid==='O2'?'600':'6000'};
+  for(const r of GAS_ROWS){
+    const y=r.y, f=r.id==='n2o'&&o.oxid==='O2'?'O2':r.f, py=y+30;
+    const g=ctx.createLinearGradient(26,0,52,0);g.addColorStop(0,'#DCE2EA');g.addColorStop(.5,'#FFFFFF');g.addColorStop(1,'#C5CDD8');
+    ctx.fillStyle=g;ctx.strokeStyle='#B4BCC8';ctx.lineWidth=1;rr(26,y+4,26,40,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle=r.c;ctx.fillRect(26,y+14,26,5);ctx.fillStyle='#94A3B8';ctx.fillRect(35,y-1,8,6);
+    chemText(f,62,y+12,13.5,C.ink,'left');
+    pipe([[52,py],[181,py]],flowOf[r.id],r.id==='nf3'?'rgba(141,185,46,.9)':null);
+    ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.2;rr(181,py-13,30,26,5);ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#64748B';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(189,py-6);ctx.lineTo(203,py+6);ctx.lineTo(203,py-6);ctx.lineTo(189,py+6);ctx.closePath();ctx.stroke();
+    txt('MFC',196,py+21,{sz:8.5,mono:true,a:'center',c:C.label});
+    if(flowOf[r.id]) txt(sccm[r.id]+' sccm',196,py-20,{sz:8.5,mono:true,a:'center',c:C.purple,w:600});
+  }
+  pipe([[211,60],[450,60]],o.rps>0,'rgba(141,185,46,.9)');
+  pipe([[211,186],[240,186]],!!o.gas); pipe([[211,266],[240,266],[240,96],[490,96]],!!o.gas);
+  ctx.fillStyle='#94A3B8';[[240,186],[490,96]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,3,0,TAU);ctx.fill();});
+  // RPS
+  const a=o.rps||0;
+  ctx.fillStyle='#fff';ctx.strokeStyle=a>0?'#8DB92E':'#C5CDD8';ctx.lineWidth=1.3;rr(450,30,80,46,8);ctx.fill();ctx.stroke();
+  if(a>0){const gg=ctx.createRadialGradient(490,53,2,490,53,34);gg.addColorStop(0,`rgba(214,120,220,${.75*a})`);gg.addColorStop(1,'rgba(214,120,220,0)');ctx.save();rr(450,30,80,46,8);ctx.clip();ctx.fillStyle=gg;ctx.fillRect(450,30,80,46);ctx.restore();}
+  txt('RPS',490,47,{sz:11,w:700,a:'center',c:C.ink2});txt('NF₃ → F·',490,62,{sz:8.5,mono:true,a:'center',c:C.label});
+}
+function genBox(x,y,w,h,title,sub,on,freq,col){
+  ctx.fillStyle='#fff';ctx.strokeStyle=on?col:'#C5CDD8';ctx.lineWidth=1.3;rr(x,y,w,h,8);ctx.fill();ctx.stroke();
+  ctx.save();rr(x,y,w,h,8);ctx.clip();ctx.fillStyle=on?col:'#CBD2DC';ctx.fillRect(x,y,w,4);ctx.restore();
+  txt(title,x+w/2,y+15,{sz:11,w:700,a:'center',c:C.ink2});txt(sub,x+w/2,y+28,{sz:8.5,mono:true,a:'center',c:on?col:C.label});
+  if(freq!=null){ctx.save();ctx.strokeStyle=on?col:'#D5DAE2';ctx.lineWidth=1.4;ctx.beginPath();const sx=x+10,sw=w-20,sy=y+44;
+    for(let i=0;i<=sw;i++){const yy=sy+5*(on?Math.sin(i/sw*TAU*freq-time*6):0);i?ctx.lineTo(sx+i,yy):ctx.moveTo(sx+i,yy);}ctx.stroke();ctx.restore();}
+}
+function drawRF(o){
+  genBox(770,24,88,58,o.dc?'DC':'HF',o.dc?'−400 V':'13.56 MHz',!!o.hf,o.dc?null:2.5,C.purple);
+  genBox(866,24,74,58,'LF','400 kHz',!!o.lf,o.lf?1:1,C.green);
+  pl([[814,82],[814,100]],o.hf?C.purple:'#C5CDD8',1.6); pl([[903,82],[903,100]],o.lf?C.green:'#C5CDD8',1.6);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.3;rr(770,100,170,48,8);ctx.fill();ctx.stroke();
+  txt('Matching network',855,116,{sz:10.5,w:600,a:'center',c:C.ink2});txt('→ 50 Ω',855,132,{sz:8.5,mono:true,a:'center',c:C.label});
+  const on=o.hf||o.lf, lc=on?C.purple:'#AEB7C4';
+  pl([[770,124],[738,124]],lc,1.8); pl([[728,124],[694,124]],lc,1.8);
+  ctx.save();ctx.strokeStyle=lc;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(738,114);ctx.lineTo(738,134);ctx.moveTo(728,114);ctx.lineTo(728,134);ctx.stroke();ctx.restore();
+  txt('C_block',733,104,{sz:8,mono:true,a:'center',c:C.label});
+}
+function drawPedestal(o){
+  const pins=o.pins||0, wx=o.wx||0, c=o.coat?Math.min(5,2+o.coat*6):0;
+  ctx.fillStyle='#B4BCC8';ctx.fillRect(474,430,32,52);ctx.fillRect(480,492,20,24);gnd(490,516);
+  const pg=ctx.createLinearGradient(0,400,0,430);pg.addColorStop(0,'#CFD5DE');pg.addColorStop(1,'#9AA3B2');ctx.fillStyle=pg;rr(312,400,356,30,4);ctx.fill();
+  ctx.save();ctx.strokeStyle=o.heat===false?'#A0A8B6':'rgba(232,85,59,.5)';ctx.lineWidth=1.1;ctx.beginPath();
+  for(let i=0;i<=34;i++){const x=322+i*10,y=415+(i%2?4:-4);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();ctx.restore();
+  if(c){ctx.fillStyle='rgba(140,190,236,.85)';ctx.fillRect(312,400-c,14,c);ctx.fillRect(654,400-c,14,c);if(o.wafer===false)ctx.fillRect(326,400-c,328,c);}
+  if(pins>0){ctx.fillStyle='#64748B';[400,580].forEach(x=>ctx.fillRect(x-1.5,400-pins*16,3,pins*16));}
+  if(o.wafer!==false){
+    const wy=394-pins*16, x=WAF.x+wx, fpx=Math.min(10,(o.film||0)/15);
+    ctx.fillStyle='#5B6475';ctx.fillRect(x,wy,WAF.w,6);
+    const sh=ctx.createLinearGradient(0,wy,0,wy+6);sh.addColorStop(0,'rgba(255,255,255,.45)');sh.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=sh;ctx.fillRect(x,wy,WAF.w,6);
+    if(fpx>.2){ctx.fillStyle='rgba(120,180,240,.88)';ctx.fillRect(x,wy-fpx,WAF.w,fpx);ctx.strokeStyle='rgba(58,122,214,.55)';ctx.lineWidth=.6;ctx.strokeRect(x,wy-fpx,WAF.w,fpx);}
+    if(o.defects){ctx.fillStyle='#F1F5F9';ctx.strokeStyle='#64748B';ctx.lineWidth=.8;for(const dx of o.defects){ctx.beginPath();ctx.arc(dx,wy-1.8,2.6,0,TAU);ctx.fill();ctx.stroke();}}
+  }
+}
+function drawPump(o){
+  pipe([[663,492],[663,528],[748,528]],!!o.pump); pipe([[772,528],[800,528]],!!o.pump);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(760,528,12,0,TAU);ctx.fill();ctx.stroke();
+  const open=o.tv!=null?o.tv:.45;
+  ctx.save();ctx.translate(760,528);ctx.rotate(-open*Math.PI/2);ctx.strokeStyle=C.ink2;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,10);ctx.stroke();ctx.restore();
+  txt('Throttle',760,550,{sz:9.5,a:'center',c:C.label});
+  ctx.fillStyle='#fff';ctx.strokeStyle='#CBD2DC';ctx.lineWidth=1.2;rr(800,506,124,44,8);ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#64748B';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(822,528,11,0,TAU);ctx.stroke();
+  ctx.beginPath();for(let k=0;k<3;k++){const a=time*4+k*TAU/3;ctx.moveTo(822,528);ctx.lineTo(822+9*Math.cos(a),528+9*Math.sin(a));}ctx.stroke();
+  txt('Vacuum pump',840,528,{sz:10.5,c:C.ink2,w:500});
+}
+function drawBase(o={}){
+  ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+  drawGasPanel(o); drawRF(o);
+  const c=o.coat?2+o.coat*7:0;
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(272,140,436,342);
+  const wg=ctx.createLinearGradient(0,140,0,492);wg.addColorStop(0,'#CBD2DC');wg.addColorStop(1,'#AEB7C4');ctx.fillStyle=wg;
+  ctx.fillRect(262,140,10,352);ctx.fillRect(708,140,10,352);ctx.fillRect(262,482,456,10);
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(650,482,26,10);
+  if(o.slit){ctx.fillStyle='#F3F5F9';ctx.fillRect(262,366,10,26);} else {ctx.fillStyle='#8B95A7';ctx.fillRect(262,366,4,26);}
+  if(c){ctx.fillStyle='rgba(140,190,236,.8)';ctx.fillRect(272,196,c,286);ctx.fillRect(708-c,196,c,286);ctx.fillRect(272,482-c,436,c);}
+  ctx.fillStyle='#EADFC8';ctx.strokeStyle='#CDBE9E';ctx.lineWidth=1;[[272,140],[680,140]].forEach(([x,y])=>{rr(x,y,28,56,3);ctx.fill();ctx.stroke();});
+  const mg=ctx.createLinearGradient(0,118,0,146);mg.addColorStop(0,'#D5DAE3');mg.addColorStop(1,'#A9B1BE');ctx.fillStyle=mg;rr(286,118,408,28,4);ctx.fill();
+  ctx.fillStyle='#E7EBF2';ctx.fillRect(302,146,376,30);
+  if(o.gas||o.rps>0){ctx.fillStyle=o.rps>0?'rgba(141,185,46,.16)':'rgba(112,48,160,.09)';ctx.fillRect(302,146,376,30);}
+  ctx.fillStyle='#A9B1BE';ctx.fillRect(296,146,6,30);ctx.fillRect(678,146,6,30);
+  const fg=ctx.createLinearGradient(0,176,0,190);fg.addColorStop(0,'#BCC4D0');fg.addColorStop(1,'#8E98A8');ctx.fillStyle=fg;ctx.fillRect(296,176,388,14);
+  ctx.fillStyle='#4B5563';for(let i=0;i<30;i++){const x=308+i*(364/29);ctx.fillRect(x-.7,177,1.4,13);}
+  if(o.hf){ctx.strokeStyle='rgba(112,48,160,.55)';ctx.lineWidth=1.4;ctx.strokeRect(296,118,388,72);}
+  const fc=(c?Math.min(c,6):0)+(o.fcoat||0);
+  if(fc>0){ctx.fillStyle='rgba(140,190,236,.85)';ctx.fillRect(300,190,380,fc);}
+  if(o.marks) o.marks();
+  pipe([[490,76],[490,118]],!!(o.gas||o.rps>0),o.rps>0?'rgba(141,185,46,.9)':null);
+  drawPedestal(o); drawPump(o);
+  pl([[262,300],[240,300]],'#AEB7C4',3);ctx.fillStyle='#fff';ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(228,300,11,0,TAU);ctx.fill();ctx.stroke();
+  txt('CM',228,300,{sz:8.5,w:700,c:C.ink2,a:'center',mono:true});
+  if(o.pr!=null) txt(fmtP(o.pr),228,322,{sz:9.5,c:C.purple,a:'center',mono:true,w:600});
+  pl([[300,492],[300,504]],'#475569',1.4);gnd(300,504);
+  // right-hand labels
+  const hot=o.hf;
+  txt(o.dc?L().I.s4.cath:'Showerhead · RF',724,182,{sz:10.5,w:600,c:hot?C.purple:C.ink2});
+  txt('Wafer',724,392,{sz:10.5,w:600,c:C.ink2});
+  txt(o.dc?L().I.s4.anode:'Pedestal · GND',724,414,{sz:10.5,w:600,c:C.ink2});
+  if(o.gapDim){arrow(694,262,694,194,C.label,1);arrow(694,322,694,390,C.label,1);txt('gap ≈ 10 mm',724,292,{sz:10,mono:true,c:C.muted});}
+  if(o.hl) highlightPart(o.hl);
+}
+
+/* ---------- plasma (RF sheath model) ----------
+   Sheath voltages: V̄_gnd = V0/(1+R), V̄_pwr = V0 − V̄_gnd, R = (A_gnd/A_pwr)^1.5
+   v_top(t) = V̄_pwr(1 − sin φ), v_bot(t) = V̄_gnd(1 + sin φ), V_sh(t) = V_dc + V0 sin φ  */
+/* Sheath width — collisional Child-law scaling, calibrated to 2.5 Torr, nₑ ~ 1e10 cm⁻³:
+   s ≈ (0.15 + 0.043·V^0.6) mm · (nₑ/nₑ0)^−0.4 · (p/2.5 Torr)^−0.2,  with nₑ ∝ V_rf  */
+const sMM=(v,nf=1)=>(0.15+0.043*Math.pow(Math.max(v,0),0.6))*nf;
+function sw(v,nf=1){return PXMM*sMM(v,nf);}
+function rfState(V0,ratio){
+  const R=Math.pow(ratio,1.5), Vb=V0/(1+R), Vt=V0-Vb, Vdc=Vb-Vt, s=Math.sin(phase), c=Math.cos(phase);
+  const vt=Vt*(1-s), vb=Vb*(1+s), nf=Math.pow(V0/220,-.4);
+  return {V0,Vb,Vt,Vdc,vt,vb,nf,vsh:Vdc+V0*s,vp:vb,sT:sw(vt,nf),sB:sw(vb,nf),sTm:sw(Vt,nf),sBm:sw(Vb,nf),expT:Math.max(0,-c),expB:Math.max(0,c)};
+}
+function drawPlasma(st,I){
+  if(I<=.01) return;
+  const yT=YT+st.sT, yB=YB-st.sB;
+  ctx.save();ctx.beginPath();ctx.rect(X0,YT,X1-X0,YB-YT);ctx.clip();
+  const hg=ctx.createLinearGradient(X0,0,X1,0);
+  hg.addColorStop(0,'rgba(186,160,240,0)');hg.addColorStop(.07,`rgba(190,166,242,${.55*I})`);hg.addColorStop(.93,`rgba(190,166,242,${.55*I})`);hg.addColorStop(1,'rgba(186,160,240,0)');
+  ctx.fillStyle=hg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const cy=(yT+yB)/2, rg=ctx.createRadialGradient(XC,cy,4,XC,cy,(X1-X0)*.5);
+  rg.addColorStop(0,`rgba(255,255,255,${.7*I})`);rg.addColorStop(.6,`rgba(240,234,255,${.32*I})`);rg.addColorStop(1,'rgba(240,234,255,0)');
+  ctx.fillStyle=rg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const band=(y,dir,a)=>{if(a<.03)return;const h=10,g=ctx.createLinearGradient(0,y,0,y+dir*h);g.addColorStop(0,`rgba(160,110,250,${.45*a})`);g.addColorStop(1,'rgba(160,110,250,0)');ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-h,X1-X0,h);};
+  band(yT,1,st.expT*I); band(yB,-1,st.expB*I);
+  const sheath=(y,s,dir)=>{const g=ctx.createLinearGradient(0,y,0,y+dir*s);g.addColorStop(0,`rgba(30,27,75,${.15*I})`);g.addColorStop(1,`rgba(30,27,75,${.03*I})`);ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-s,X1-X0,s);
+    pl([[X0,y+dir*s],[X1,y+dir*s]],`rgba(112,48,160,${.3*I})`,1,[3,4]);};
+  sheath(YT,st.sT,1); sheath(YB,st.sB,-1);
+  ctx.restore();
+}
+function sheathLabels(st){
+  txt(`sheath ≈ ${sMM(st.Vt,st.nf).toFixed(1)} mm`,724,YT+16,{sz:9.5,c:C.label}); txt('Bulk plasma',724,262,{sz:10.5,w:600,c:C.purpleMid});
+  txt(`sheath ≈ ${sMM(st.Vb,st.nf).toFixed(1)} mm`,724,YB-24,{sz:9.5,c:C.label});
+  txt(`V_sh ${st.vsh>=0?'+':''}${st.vsh.toFixed(0)} V`,724,154,{sz:9.5,mono:true,c:C.purple,w:600});
+}
+
+/* ---------- particles & effects ---------- */
+function spawn(s,x,y,vx=0,vy=0){const p={s,x,y,vx,vy,age:0};parts.push(p);return p;}
+function bulkPt(m=10){return{x:X0+m+rnd()*(X1-X0-2*m),y:YT+45+rnd()*(YB-YT-90)};}
+function placeBulk(p){const q=bulkPt();p.x=q.x;p.y=q.y;p.vx=0;p.vy=0;p.age=0;}
+function lang_(p,f,kick,drag){p.vx+=(rnd()-.5)*kick*f;p.vy+=(rnd()-.5)*kick*f;const d=Math.pow(drag,f);p.vx*=d;p.vy*=d;}
+function boxR(p,x0,x1,y0,y1){if(p.x<x0){p.x=x0;p.vx=Math.abs(p.vx);}if(p.x>x1){p.x=x1;p.vx=-Math.abs(p.vx);}if(p.y<y0){p.y=y0;p.vy=Math.abs(p.vy);}if(p.y>y1){p.y=y1;p.vy=-Math.abs(p.vy);}}
+function cap(p,m){const s=Math.hypot(p.vx,p.vy);if(s>m){p.vx*=m/s;p.vy*=m/s;}}
+function moveE(p,st,f){
+  lang_(p,f,2.4,.9);cap(p,5);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  const yT=YT+st.sT, yB=YB-st.sB;
+  if(p.y<yT){if(st.sT<7&&rnd()<.3)return'T';p.y=yT+1+rnd()*3;p.vy=Math.abs(p.vy);}
+  if(p.y>yB){if(st.sB<7&&rnd()<.3)return'B';p.y=yB-1-rnd()*3;p.vy=-Math.abs(p.vy);}
+  return null;
+}
+function moveIon(p,st,f){
+  const yTm=YT+st.sTm, yBm=YB-st.sBm;
+  if(p.y>yTm&&p.y<yBm){lang_(p,f,.12,.96);p.vy+=(p.y<(yTm+yBm)/2?-1:1)*.004*f;}
+  else{const top=p.y<=yTm,V=top?st.Vt:st.Vb,s=Math.max(top?st.sTm:st.sBm,5);p.vy+=(top?-1:1)*.22*V/s*f;p.vx*=.98;}
+  cap(p,10);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  if(p.y<=YT+1)return'T'; if(p.y>=YB-1)return'B'; return null;
+}
+function moveRF(f,st,onE,onI){
+  for(const p of parts){const c=SP[p.s].cat;
+    if(c==='e'){const r=moveE(p,st,f);if(r){onE&&onE(p,r);placeBulk(p);}}
+    else if(c==='i'){const r=moveIon(p,st,f);if(r){onI&&onI(p,r);placeBulk(p);}}}
+}
+function count(s){let n=0;for(const p of parts)if(p.s===s)n++;return n;}
+function trim(s,n){const c=count(s);if(c>n){const i=parts.findIndex(p=>p.s===s);if(i>=0)parts.splice(i,1);}}
+function drawPowder(p){ctx.save();ctx.fillStyle='#E2E8F0';ctx.strokeStyle='#94A3B8';ctx.lineWidth=.8;const r=p.r||2.5;
+  [[0,0],[r*.7,-r*.4],[-r*.6,r*.3],[r*.2,r*.7]].forEach(([dx,dy],i)=>{if(i>Math.min(3,Math.floor(r/1.5)))return;ctx.beginPath();ctx.arc(p.x+dx,p.y+dy,r*.75,0,TAU);ctx.fill();ctx.stroke();});ctx.restore();}
+function drawParts(list){
+  list=list||parts;
+  for(const p of list){const s=SP[p.s];
+    if(s.cat==='p'){drawPowder(p);continue;}
+    if(p.a!=null)ctx.globalAlpha=clamp(p.a,0,1);
+    if(s.cat==='e'){ctx.fillStyle='rgba(224,161,0,.22)';ctx.beginPath();ctx.arc(p.x,p.y,3.8,0,TAU);ctx.fill();}
+    ctx.fillStyle=s.c;ctx.beginPath();ctx.arc(p.x,p.y,s.r,0,TAU);ctx.fill();
+    if(s.cat==='i'){ctx.strokeStyle='rgba(232,85,59,.35)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='ni'){ctx.strokeStyle='rgba(15,118,110,.4)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='r'){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,Math.max(.7,s.r*.36),0,TAU);ctx.fill();}
+    ctx.globalAlpha=1;
+    if(S.labels&&s.f&&s.cat!=='e')chemText(s.f,p.x,p.y-8.5,8.5,s.c,'center');
+  }
+}
+function addFlash(x,y,rgb,life=.4,r=12,label){fx.push({t:'f',x,y,rgb,life,max:life,r,label});}
+function addRing(x,y,rgb,life=.45,r=10,label){fx.push({t:'r',x,y,rgb,life,max:life,r,label});}
+function stepFx(dt){for(const f of fx)f.life-=dt;fx=fx.filter(f=>f.life>0);}
+function drawFx(){
+  for(const f of fx){const a=f.life/f.max;
+    if(f.t==='f'){const r=f.r*(1.25-a*.45),g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);g.addColorStop(0,`rgba(${f.rgb},${.85*a})`);g.addColorStop(1,`rgba(${f.rgb},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(f.x,f.y,r,0,TAU);ctx.fill();}
+    else{ctx.strokeStyle=`rgba(${f.rgb},${a})`;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1.3-a),0,TAU);ctx.stroke();}
+    if(f.label)txt(f.label,f.x,f.y-13-(1-a)*10,{sz:9.5,mono:true,w:600,c:`rgba(${f.rgb},${Math.min(1,a*1.7)})`,a:'center'});
+  }
+}
+
+/* ---------- hotspots (step 1) ---------- */
+const PARTS=[
+  {id:'mfc',r:[[179,43,34,30],[179,169,34,30],[179,249,34,30]]},
+  {id:'nf3',r:[[22,22,156,56]]},{id:'sih4',r:[[22,148,156,56]]},{id:'n2o',r:[[22,228,156,56]]},
+  {id:'rps',r:[[446,26,88,54]]},{id:'iso',r:[[270,138,32,60],[678,138,32,60]]},
+  {id:'shead',r:[[286,116,408,76]]},{id:'wafer',r:[[326,388,328,12]]},{id:'gap',r:[[302,194,376,190]]},
+  {id:'ped',r:[[310,400,360,32],[472,430,36,90]]},{id:'slit',r:[[256,362,20,34]]},
+  {id:'wall',r:[[258,198,16,290],[706,198,16,290],[258,480,464,14]]},{id:'cm',r:[[212,286,52,30]]},
+  {id:'hf',r:[[768,22,92,62]]},{id:'lf',r:[[864,22,78,62]]},{id:'match',r:[[768,98,174,54]]},
+  {id:'tv',r:[[744,512,32,32]]},{id:'pump',r:[[798,502,128,52]]},
+];
+const partById=id=>PARTS.find(p=>p.id===id);
+function highlightPart(id){const p=partById(id);if(!p)return;ctx.save();ctx.strokeStyle=C.purple;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+  for(const [x,y,w,h] of p.r){rr(x-3,y-3,w+6,h+6,6);ctx.stroke();}ctx.restore();}
+function showTip(id,sx,sy){const t=$('tooltip');if(!id){t.classList.remove('show');return;}const [n,d]=L().parts[id];t.innerHTML=`<b>${n}</b>${d}`;t.style.left=sx+'px';t.style.top=sy+'px';t.classList.add('show');}
+function partAt(x,y){for(const p of PARTS)for(const [rx,ry,rw,rh] of p.r)if(x>=rx&&x<=rx+rw&&y>=ry&&y<=ry+rh)return p.id;return null;}
+
+/* ---------- chart helpers ---------- */
+function chartCtx(id){const c=$(id);if(!c)return null;const r=c.getBoundingClientRect();if(r.width<8||r.height<8)return null;
+  const d=window.devicePixelRatio||1,w=Math.round(r.width*d),h=Math.round(r.height*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
+  const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);return{g,W:r.width,H:r.height};}
+function gt(g,s,x,y,o={}){g.font=`${o.w||400} ${o.sz||10}px ${o.mono?MONO:FONT}`;g.fillStyle=o.c||C.muted;g.textAlign=o.a||'left';g.textBaseline=o.b||'middle';g.fillText(s,x,y);}
+function gl(g,pts,col,w,dash){g.save();g.strokeStyle=col;g.lineWidth=w||1;if(dash)g.setLineDash(dash);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore();}
+function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+function wl2rgb(w){let r=0,g=0,b=0;
+  if(w<380)return[123,92,214];
+  if(w<440){r=-(w-440)/60;b=1;}else if(w<490){g=(w-440)/50;b=1;}else if(w<510){g=1;b=-(w-510)/20;}else if(w<580){r=(w-510)/70;g=1;}else if(w<645){r=1;g=-(w-645)/65;}else{r=1;}
+  let f=1;if(w>700)f=Math.max(.35,.3+.7*(780-w)/80);else if(w<420)f=.3+.7*(w-380)/40;
+  return[Math.round(255*Math.pow(r*f,.8)),Math.round(255*Math.pow(g*f,.8)),Math.round(255*Math.pow(b*f,.8))];}
+
+/* ---------- control widgets ---------- */
+const rng=(id,label,min,max,step,val)=>`<div class="ctl"><div class="ctl-h"><label for="${id}">${label}</label><output id="${id}_o"></output></div><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+const seg=(id,opts,val)=>`<div class="seg" id="${id}">${opts.map(([v,l])=>`<button data-v="${v}" class="${v===val?'on':''}">${l}</button>`).join('')}</div>`;
+const statH=(id,k,cls='')=>`<div class="stat ${cls}" id="${id}_w"><div class="stat-k">${k}</div><div class="stat-v" id="${id}">—</div></div>`;
+function bindRange(id,get,set,fmt,on){const r=$(id);if(!r)return;const o=$(id+'_o');const upd=()=>{set(+r.value);if(o)o.innerHTML=fmt();on&&on();};r.addEventListener('input',upd);r.value=get();if(o)o.innerHTML=fmt();}
+function bindSeg(id,cb){const el=$(id);if(!el)return;el.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v);}));}
+function setStat(id,html,cls){const e=$(id);if(e&&e.innerHTML!==html)e.innerHTML=html;if(cls!==undefined){const w=$(id+'_w');if(w)w.className='stat '+cls;}}
+const card=(badge,title,inner,extra='')=>`<div class="icard" ${extra}><div class="ihead"><span class="badge"><span class="badge-dot"></span>${badge}</span><h3>${title}</h3></div>${inner}</div>`;
+
+/* ============================== STEPS ============================== */
+const SC=[];
+
+/* ---- 1 · Hardware ---- */
+SC[0]={legend:[],cls:'one',
+  init(){parts=[];fx=[];},
+  draw(){drawBase({hl:hoverPart||pinPart,gapDim:true,pr:.005,tv:1});},
+  inst(){const I=IL('hw');return card('HARDWARE',I.title,`<div class="stats" style="grid-template-columns:repeat(6,minmax(0,1fr))">${I.stats.map(([k,v])=>`<div class="stat"><div class="stat-k">${k}</div><div class="stat-v" style="font-size:12px">${v}</div></div>`).join('')}</div>`);},
+  rd(){return{p:'5 mTorr',T:'350 °C'};},
+};
+
+/* ---- 2 · Recipe start ---- */
+const st1={pr:.005,hist:[],ht:0,defects:[]};
+function flow1(p){if(p.y<391){const dx=p.x-XC;return[Math.sign(dx)*.22*Math.min(1,Math.abs(dx)/140),.22];}return[0,.45];}
+function confineInterior(p){
+  if(p.x<276){p.x=276;p.vx=Math.abs(p.vx);} if(p.x>704){p.x=704;p.vx=-Math.abs(p.vx);} if(p.y<193){p.y=193;p.vy=Math.abs(p.vy);}
+  if(p.x>309&&p.x<671&&p.y>391){const dl=p.x-309,dr=671-p.x,du=p.y-391,m=Math.min(dl,dr,du);
+    if(m===du){p.y=391;p.vy=-Math.abs(p.vy);}else if(m===dl){p.x=309;p.vx=-Math.abs(p.vx);}else{p.x=671;p.vx=Math.abs(p.vx);}}
+}
+SC[1]={get legend(){return S.oxid==='O2'?['SiH4','O2','powder']:['SiH4','N2O'];},
+  init(){parts=[];fx=[];st1.pr=.005;st1.hist=[];st1.defects=[];st1.ht=0;},
+  update(dt){const f=dt*60;
+    st1.pr+=(2.5-st1.pr)*Math.min(1,dt*.7);
+    st1.ht+=dt;if(st1.ht>.1){st1.ht=0;st1.hist.push(st1.pr);if(st1.hist.length>160)st1.hist.shift();}
+    const target=18+82*Math.min(1,st1.pr/2.5);
+    let ng=0;for(const p of parts)if(p.s!=='powder')ng++;
+    if(ng<target&&rnd()<.55*f){const x=X0+12+rnd()*(X1-X0-24);spawn(rnd()<1/11?'SiH4':(S.oxid==='O2'?'O2':'N2O'),x,YT+3,(rnd()-.5)*.4,.7+rnd()*.6);}
+    for(const p of parts){
+      if(p.s==='powder'){p.vx*=.95;p.vy=p.vy*.95+.02*f;p.vx+=(rnd()-.5)*.05*f;}else lang_(p,f,.4,.95);
+      const fl=flow1(p);p.x+=(p.vx+fl[0])*f;p.y+=(p.vy+fl[1])*f;
+      if(p.s==='powder'&&p.y>=390&&p.x>WAF.x&&p.x<WAF.x+WAF.w){p.dead=true;if(st1.defects.length<60)st1.defects.push(p.x);continue;}
+      confineInterior(p);
+    }
+    if(S.oxid==='O2'){
+      for(const a of parts){if(a.s!=='SiH4'||a.dead)continue;
+        for(const b of parts){if(b.s!=='O2'||b.dead)continue;
+          if(Math.abs(a.x-b.x)<14&&Math.abs(a.y-b.y)<14&&rnd()<.35){a.dead=b.dead=true;
+            let pw=parts.find(q=>q.s==='powder'&&!q.dead&&Math.hypot(q.x-a.x,q.y-a.y)<22);
+            if(pw)pw.r=Math.min(7,pw.r+.9);else{pw=spawn('powder',a.x,a.y,0,.1);pw.r=2.4;}
+            addFlash(a.x,a.y,'255,200,120',.35,10);break;}}}
+    }
+    parts=parts.filter(p=>!p.dead&&p.y<476);
+  },
+  draw(){drawBase({gas:true,oxid:S.oxid,pr:st1.pr,tv:clamp(1-st1.pr/2.5*.6,.35,1),pump:true,defects:st1.defects});
+    ctx.save();ctx.globalAlpha=.5;arrow(560,300,640,330,C.purpleMid,1);arrow(420,300,340,330,C.purpleMid,1);arrow(690,370,690,440,C.purpleMid,1);arrow(290,370,290,440,C.purpleMid,1);ctx.restore();
+    drawParts();drawFx();},
+  inst(){const I=IL('s1');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.oxid,`<div class="ctls"><div class="seg-row">${seg('segOx',[['N2O','N₂O'],['O2','O₂']],S.oxid)}<button class="btn" id="b1r">${I.restart}</button></div>
+      <div class="stats two">${statH('s1f',I.flows)}${statH('s1r',I.ratio)}${statH('s1h',I.heater)}${statH('s1d',I.defects)}</div></div>`);},
+  bind(){bindSeg('segOx',v=>{S.oxid=v;enterScene();});$('b1r').onclick=()=>enterScene();},
+  chart(){const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:36,r:W-8,t:10,b:H-14},I=IL('s1');
+    const Y=v=>b.b-v/3*(b.b-b.t);
+    [0,1,2,3].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,v,b.l-6,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    gl(g,[[b.l,Y(2.5)],[b.r,Y(2.5)]],C.green,1.2,[4,3]);gt(g,I.set+' 2.5 Torr',b.r-4,Y(2.5)-8,{a:'right',sz:9,c:C.green});
+    const h=st1.hist,n=160;gl(g,h.map((v,i)=>[b.l+(i+n-h.length)/(n-1)*(b.r-b.l),Y(v)]),C.purple,2);
+    gt(g,'Torr',b.l+4,b.t+4,{sz:9,mono:true,c:C.label});
+    setStat('s1f',`150 / ${S.oxid==='O2'?600:6000}<small> sccm</small>`);setStat('s1r',S.oxid==='O2'?'1 : 4':'1 : 40');setStat('s1h','350<small> °C</small>');
+    setStat('s1d',String(st1.defects.length),st1.defects.length?'fail':'');
+    setMsg(S.oxid==='O2'?I.react:I.stable,S.oxid==='O2'?'warn':'');},
+  rd(){return{p:fmtP(st1.pr),T:'350 °C',gas:`SiH₄ 150 · ${S.oxid==='O2'?'O₂ 600':'N₂O 6000'} sccm`};},
+};
+
+/* ---- 3 · Ignition ---- */
+const PA={A:12,B:342,C:Math.log(Math.log(1+1/.05))};
+function paschen(pd){const d=Math.log(PA.A*pd)-PA.C;return d>.03?PA.B*pd/d:Infinity;}
+const st2={strike:false,ign:false,ne:1,I:0,hist:[],ht:0};
+const p2map={to:v=>Math.round(Math.log10(v/.1)/2*100),from:s=>.1*Math.pow(100,s/100)};
+SC[2]={legend:['N2O','SiH4','e','N2Op'],
+  init(){parts=[];fx=[];Object.assign(st2,{strike:false,ign:false,ne:1,I:0,hist:[],ht:0});
+    for(let k=0;k<55;k++){const q=bulkPt(4);spawn(rnd()<1/11?'SiH4':'N2O',q.x,q.y);}
+    for(let k=0;k<2;k++){const q=bulkPt(40);spawn('e',q.x,q.y);}},
+  update(dt){const f=dt*60,Vb=paschen(S.p2*S.d2),ok=Vb<=500;
+    if(st2.strike&&!st2.ign){if(ok){st2.ne+=dt*(.9+2.4*(1-Vb/500));if(st2.ne>=9.5){st2.ne=9.5;st2.ign=true;}}}
+    if(st2.ign)st2.I=Math.min(1,st2.I+dt*.9);
+    st2.ht+=dt;if(st2.ht>.08){st2.ht=0;st2.hist.push(st2.ne);if(st2.hist.length>90)st2.hist.shift();}
+    if(st2.strike&&!st2.ign&&ok){const es=parts.filter(p=>p.s==='e'),target=Math.round(2*Math.pow(40,(st2.ne-1)/8.5));
+      for(let k=0;k<Math.min(3,target-es.length)&&es.length;k++){const src=es[Math.floor(rnd()*es.length)];
+        spawn('e',src.x,src.y,(rnd()-.5)*3,(rnd()-.5)*3);spawn('N2Op',src.x,src.y);addFlash(src.x,src.y,'255,214,120',.35,11);
+        const nb=parts.findIndex(p=>p.s==='N2O'&&Math.abs(p.x-src.x)<40&&Math.abs(p.y-src.y)<40);if(nb>=0)parts.splice(nb,1);}}
+    const st=st2.ign?rfState(220,2):null;
+    for(const p of parts){
+      if(p.s==='e'){
+        if(st2.ign){if(moveE(p,st,f))placeBulk(p);}
+        else if(st2.strike){p.vy-=Math.sin(phase)*.5*f;lang_(p,f,1.4,.93);cap(p,6);p.x+=p.vx*f;p.y+=p.vy*f;
+          if(p.y<YT+3||p.y>YB-3){if(!ok&&rnd()<.25){placeBulk(p);}else{p.y=clamp(p.y,YT+3,YB-3);p.vy*=-.4;}}
+          boxR(p,X0+3,X1-3,YT+3,YB-3);}
+        else{lang_(p,f,.5,.95);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0+3,X1-3,YT+3,YB-3);}
+      }else if(p.s==='N2Op'){
+        if(st2.ign){if(moveIon(p,st,f))placeBulk(p);}else{lang_(p,f,.1,.96);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0+3,X1-3,YT+3,YB-3);}
+      }else{lang_(p,f,.18,.95);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0+3,X1-3,YT+3,YB-3);}
+    }
+    if(st2.ign)for(let k=0;k<3;k++){trim('e',30);trim('N2Op',12);}
+    while(count('N2O')+count('SiH4')<55){const q=bulkPt(4);spawn(rnd()<1/11?'SiH4':'N2O',q.x,q.y);}
+  },
+  draw(){const on=st2.strike;drawBase({hf:on,gas:true,gapDim:!on,pr:S.p2,tv:.45});
+    if(st2.ign)drawPlasma(rfState(220,2),st2.I);
+    else if(on){const d=Math.sin(phase)>0?1:-1,a=.18+.25*Math.abs(Math.sin(phase));for(let i=0;i<7;i++){const x=X0+30+i*(X1-X0-60)/6;arrow(x,d>0?YT+12:YB-12,x,d>0?YB-12:YT+12,`rgba(112,48,160,${a})`,1);}
+      txt('E',X1-14,(YT+YB)/2,{sz:12,w:700,c:C.purple,a:'center'});}
+    drawParts();drawFx();
+    if(!on)for(const p of parts)if(p.s==='e'){pl([[p.x+4,p.y-4],[p.x+18,p.y-18]],C.amber,1);txt(IL('s2').seed,p.x+20,p.y-22,{sz:10,w:600,c:C.amber});}
+    if(st2.ign)sheathLabels(rfState(220,2));},
+  inst(){const I=IL('s2');return card('PASCHEN',I.chart,`<div class="crow"><canvas class="chart" id="chA" style="flex:1.7"></canvas><canvas class="chart" id="chB"></canvas></div>`)+
+    card('CONTROL',I.status,`<div class="ctls">${rng('r2p',I.p,0,100,1,p2map.to(S.p2))}${rng('r2d',I.d,.3,3,.05,S.d2)}
+      <div class="seg-row"><button class="btn pri" id="b2s">${I.strike}</button><button class="btn" id="b2r">${I.reset}</button></div>
+      <div class="stats">${statH('s2pd',I.pd)}${statH('s2vb',I.vb)}${statH('s2ne','nₑ')}</div></div>`);},
+  bind(){const re=()=>{Object.assign(st2,{strike:false,ign:false,ne:1,I:0,hist:[]});enterScene(true);};
+    bindRange('r2p',()=>p2map.to(S.p2),v=>S.p2=p2map.from(v),()=>`${S.p2.toFixed(2)} Torr`,re);
+    bindRange('r2d',()=>S.d2,v=>S.d2=v,()=>`${S.d2.toFixed(2)} cm`,re);
+    $('b2s').onclick=()=>{if(st2.ign)return;st2.strike=true;};$('b2r').onclick=re;},
+  chart(){const I=IL('s2'),pd=S.p2*S.d2,Vb=paschen(pd),ok=Vb<=500;
+    let k=chartCtx('chA');if(k){const{g,W,H}=k,b={l:40,r:W-8,t:10,b:H-16};
+      const lx0=-1,lx1=Math.log10(30),X=v=>b.l+(Math.log10(v)-lx0)/(lx1-lx0)*(b.r-b.l),Y=v=>b.b-Math.min(v,1500)/1500*(b.b-b.t);
+      [.1,.3,1,3,10,30].forEach(v=>{gl(g,[[X(v),b.t],[X(v),b.b]],C.line,1);gt(g,String(v),X(v),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+      [0,500,1000,1500].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,v,b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+      g.fillStyle='rgba(15,140,80,.06)';g.fillRect(b.l,Y(500),b.r-b.l,b.b-Y(500));
+      gl(g,[[b.l,Y(500)],[b.r,Y(500)]],C.coral,1.2,[4,3]);gt(g,I.vmax,b.r-4,Y(500)-8,{a:'right',sz:9,c:C.coral});
+      g.strokeStyle=C.purple;g.lineWidth=2;g.beginPath();let s=false;
+      for(let i=0;i<=240;i++){const v=Math.pow(10,lx0+(lx1-lx0)*i/240),vb=paschen(v);if(!isFinite(vb)||vb>1600){s=false;continue;}s?g.lineTo(X(v),Y(vb)):g.moveTo(X(v),Y(vb));s=true;}g.stroke();
+      const x=X(clamp(pd,.1,30)),y=isFinite(Vb)?Y(Vb):b.t;gl(g,[[x,b.t],[x,b.b]],ok?C.green:C.coral,1,[2,3]);
+      g.fillStyle=ok?C.green:C.coral;g.beginPath();g.arc(x,y,5,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+      gt(g,'V_b [V]',b.l+5,b.t+6,{sz:9,mono:true,c:C.label});gt(g,'pd [Torr·cm]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});}
+    k=chartCtx('chB');if(k){const{g,W,H}=k,b={l:26,r:W-6,t:10,b:H-16},Y=v=>b.b-v/10*(b.b-b.t);
+      [0,3,6,9].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,'10'+['⁰','³','⁶','⁹'][v/3],b.l-3,Y(v),{a:'right',sz:8.5,mono:true,c:C.label});});
+      gl(g,[[b.l,Y(9.5)],[b.r,Y(9.5)]],C.green,1,[3,3]);gt(g,I.sustain,b.r-2,Y(9.5)-7,{a:'right',sz:8.5,c:C.green});
+      const h=st2.hist,n=90;if(h.length>1)gl(g,h.map((v,i)=>[b.l+(i+n-h.length)/(n-1)*(b.r-b.l),Y(v)]),C.amber,2);
+      gt(g,I.growth,b.l+3,b.b+9,{sz:8.5,c:C.label});}
+    setStat('s2pd',`${pd.toFixed(2)}<small> Torr·cm</small>`);setStat('s2vb',isFinite(Vb)?`${Vb.toFixed(0)}<small> V</small>`:'∞',ok?'pass':'fail');
+    setStat('s2ne',`10<sup>${st2.ne.toFixed(1)}</sup><small> cm⁻³</small>`);
+    setMsg(st2.ign?I.lit:!st2.strike?I.ready:ok?I.aval:I.fail,st2.ign?'':!st2.strike?'info':ok?'info':'warn');},
+  rd(){return{p:fmtP(S.p2),T:'350 °C',hf:st2.strike?'13.56 MHz':null,gas:'N₂O + SiH₄',slow:st2.strike};},
+};
+
+/* ---- 4 · RF sustain ---- */
+let vAvgCache={k:'',a:null};
+function vProf(vsh,vp,sT,sB,x){if(x<sT)return vsh+(vp-vsh)*(1-Math.pow(1-x/sT,2));if(x>10-sB)return vp*Math.pow((10-x)/sB,2);return vp;}
+function vAvg(){const k=S.v0+'|'+S.ratio;if(vAvgCache.k===k)return vAvgCache.a;const N=80,M=96,a=new Float32Array(N+1),sv=phase;
+  for(let m=0;m<M;m++){phase=m/M*TAU;const st=rfState(S.v0,S.ratio);for(let i=0;i<=N;i++)a[i]+=vProf(st.vsh,st.vp,st.sT/PXMM,st.sB/PXMM,10*i/N)/M;}
+  phase=sv;vAvgCache={k,a};return a;}
+SC[3]={legend:['e','N2Op','SiH3p'],
+  init(){parts=[];fx=[];for(let k=0;k<34;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<18;k++){const q=bulkPt();spawn(rnd()<.6?'N2Op':'SiH3p',q.x,q.y);}},
+  update(dt){const f=dt*60;this.st=rfState(S.v0,S.ratio);
+    moveRF(f,this.st,(p,r)=>{if(rnd()<.5)addFlash(p.x,r==='T'?YT+3:YB-3,'240,180,40',.3,9);},(p,r)=>addRing(p.x,r==='T'?YT+1:YB-1,'232,85,59',.35,8));},
+  draw(){const st=this.st||rfState(S.v0,S.ratio);drawBase({hf:true,gas:true,pr:2.5});drawPlasma(st,1);drawParts();drawFx();sheathLabels(st);},
+  inst(){const I=IL('s3');return `<div class="icard"><div class="ihead"><span class="badge"><span class="badge-dot"></span>LIVE</span><h3>${I.chart}</h3><button class="btn" id="b3p" style="margin-left:auto;padding:3px 10px">${S.paused?I.play:I.pause}</button></div><canvas class="chart" id="chA"></canvas></div>`+
+    card('CONTROL','RF',`<div class="ctls">${rng('r3v',I.v0,100,400,5,S.v0)}${rng('r3a',I.ratio,1,4,.1,S.ratio)}
+      <div class="stats">${statH('s3t',I.vT)}${statH('s3b',I.vB)}${statH('s3d',I.vdc)}${statH('s3st',I.sT)}${statH('s3sb',I.sB)}${statH('s3f',I.frac)}</div></div>`);},
+  bind(){const I=IL('s3');bindRange('r3v',()=>S.v0,v=>S.v0=v,()=>`${S.v0} V`);bindRange('r3a',()=>S.ratio,v=>S.ratio=v,()=>`${S.ratio.toFixed(1)}`);
+    $('b3p').onclick=e=>{S.paused=!S.paused;e.target.textContent=S.paused?I.play:I.pause;};},
+  chart(){const I=IL('s3'),st=this.st||rfState(S.v0,S.ratio),k=chartCtx('chA');
+    setStat('s3t',`${st.Vt.toFixed(0)}<small> V</small>`);setStat('s3b',`${st.Vb.toFixed(0)}<small> V</small>`);setStat('s3d',`${st.Vdc.toFixed(0)}<small> V</small>`);
+    const mT=sMM(st.Vt,st.nf),mB=sMM(st.Vb,st.nf);setStat('s3st',`${mT.toFixed(2)}<small> mm</small>`);setStat('s3sb',`${mB.toFixed(2)}<small> mm</small>`);setStat('s3f',`${((mT+mB)/10*100).toFixed(0)}<small> % of 10 mm</small>`);
+    if(!k)return;const{g,W,H}=k,b={l:42,r:W-10,t:10,b:H-18};
+    const ymin=-2*st.Vt-10,ymax=2*st.Vb+30,X=x=>b.l+x/10*(b.r-b.l),Y=v=>b.b-(v-ymin)/(ymax-ymin)*(b.b-b.t);
+    g.fillStyle='rgba(30,27,75,.06)';g.fillRect(X(0),b.t,X(st.sT/PXMM)-X(0),b.b-b.t);g.fillRect(X(10-st.sB/PXMM),b.t,X(10)-X(10-st.sB/PXMM),b.b-b.t);
+    const step=ymax-ymin>500?200:100;for(let v=Math.ceil(ymin/step)*step;v<=ymax;v+=step){gl(g,[[b.l,Y(v)],[b.r,Y(v)]],v===0?'#CBD2DC':C.line,1);gt(g,v,b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});}
+    const av=vAvg();gl(g,Array.from(av,(v,i)=>[X(10*i/(av.length-1)),Y(v)]),C.label,1.6,[5,4]);
+    const pts=[];for(let i=0;i<=120;i++){const x=10*i/120;pts.push([X(x),Y(vProf(st.vsh,st.vp,st.sT/PXMM,st.sB/PXMM,x))]);}gl(g,pts,C.purple,2.2);
+    g.fillStyle=C.purple;g.beginPath();g.arc(X(0),Y(st.vsh),4,0,TAU);g.fill();g.fillStyle=C.green;g.beginPath();g.arc(X(10),Y(0),4,0,TAU);g.fill();
+    gt(g,I.x0,b.l+4,b.b+10,{sz:9,c:C.label});gt(g,I.x1+' (0 V)',b.r,b.b+10,{a:'right',sz:9,c:C.label});
+    gt(g,'— '+I.now,b.r-4,b.t+6,{a:'right',sz:9,c:C.purple,w:600});gt(g,'- - '+I.avg,b.r-4,b.t+18,{a:'right',sz:9,c:C.muted});
+    gt(g,'V_p',X(5),Y(st.vp)-9,{a:'center',sz:9,mono:true,c:C.purple});},
+  rd(){return{p:'2.50 Torr',T:'350 °C',hf:`V_rf ${S.v0} V`,gas:'N₂O + SiH₄',slow:true};},
+};
+
+/* ---- 5 · RF vs DC ---- */
+const st4={q:0,I:1,trace:[],ht:0};
+function drawDCGlow(I){if(I<.01)return;const y0=YT+(S.surf==='coated'?6:0);ctx.save();ctx.beginPath();ctx.rect(X0,YT,X1-X0,YB-YT);ctx.clip();
+  let g=ctx.createLinearGradient(0,y0,0,y0+34);g.addColorStop(0,`rgba(30,27,75,${.2*I})`);g.addColorStop(1,`rgba(30,27,75,${.05*I})`);ctx.fillStyle=g;ctx.fillRect(X0,y0,X1-X0,34);
+  g=ctx.createLinearGradient(0,y0+34,0,y0+92);g.addColorStop(0,`rgba(205,185,255,${.9*I})`);g.addColorStop(.3,`rgba(245,240,255,${.95*I})`);g.addColorStop(1,'rgba(205,185,255,0)');ctx.fillStyle=g;ctx.fillRect(X0,y0+34,X1-X0,58);
+  g=ctx.createLinearGradient(0,y0+110,0,YB);g.addColorStop(0,'rgba(232,172,232,0)');g.addColorStop(.25,`rgba(232,172,232,${.42*I})`);g.addColorStop(1,`rgba(232,172,232,${.32*I})`);ctx.fillStyle=g;ctx.fillRect(X0,y0+110,X1-X0,YB-y0-110);
+  pl([[X0,y0+34],[X1,y0+34]],`rgba(112,48,160,${.4*I})`,1,[3,4]);ctx.restore();
+  if(I>.3){txt('cathode fall',X0+8,y0+17,{sz:9,c:C.label});txt('negative glow',X0+8,y0+50,{sz:9,c:C.purpleMid});txt('positive column',X0+8,YB-30,{sz:9,c:C.purpleMid});}}
+SC[4]={legend:['e','N2Op'],
+  init(){parts=[];fx=[];Object.assign(st4,{q:0,I:1,trace:[],ht:0});for(let k=0;k<26;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<14;k++){const q=bulkPt();spawn('N2Op',q.x,q.y);}},
+  update(dt){const f=dt*60,coat=S.surf==='coated',cw=coat?6:1;
+    if(S.src==='rf'){st4.I=Math.min(1,st4.I+dt);this.st=rfState(220,2);moveRF(f,this.st,null,(p,r)=>addRing(p.x,r==='T'?YT+cw:YB-cw,'232,85,59',.3,7));}
+    else{
+      if(coat)st4.q=Math.min(1,st4.q+dt*.16*st4.I);
+      const vg=1-st4.q,tgt=coat?clamp((vg-.35)/.45,0,1):1;st4.I+=(tgt-st4.I)*Math.min(1,dt*2);const I=st4.I;
+      const yC=YT+cw,yA=YB-cw;
+      for(const p of parts){const c=SP[p.s].cat;
+        if(c==='i'){if(p.y>yC+34){lang_(p,f,.12,.96);p.vy-=.012*f*I;}else p.vy-=.6*f*I;cap(p,9);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0+3,X1-3,yC-5,yA);
+          if(p.y<=yC){addRing(p.x,yC,'232,85,59',.3,7);if(!coat){const e=spawn('e',p.x,yC+3,0,5);e.g=1;}if(rnd()<I){p.x=X0+20+rnd()*(X1-X0-40);p.y=yC+40+rnd()*50;p.vx=p.vy=0;}else p.dead=true;}}
+        else if(c==='e'){lang_(p,f,1.8,.9);p.vy+=.05*f*I;if(p.g){p.vy=Math.max(p.vy,4);p.g-=dt*3;if(p.g<=0)p.g=0;}cap(p,p.g?7:5);p.x+=p.vx*f;p.y+=p.vy*f;
+          if(!p.g&&p.y<yC+34){p.y=yC+34;p.vy=Math.abs(p.vy);}boxR(p,X0+3,X1-3,yC,yA+2);
+          if(p.y>=yA){if(rnd()<I){p.x=X0+20+rnd()*(X1-X0-40);p.y=yC+40+rnd()*50;p.vx=p.vy=0;}else p.dead=true;}}}
+      parts=parts.filter(p=>!p.dead);
+      if(count('e')<26*I){spawn('e',X0+20+rnd()*(X1-X0-40),yC+40+rnd()*50);}
+      if(count('N2Op')<14*I){spawn('N2Op',X0+20+rnd()*(X1-X0-40),yC+40+rnd()*50);}
+      if(I<.05)parts=parts.filter(p=>rnd()>.04);
+    }
+    st4.ht+=dt;if(st4.ht>.1){st4.ht=0;st4.trace.push(S.src==='rf'?1:1-st4.q);if(st4.trace.length>120)st4.trace.shift();}},
+  draw(){const coat=S.surf==='coated',dc=S.src==='dc';
+    const marks=()=>{if(!coat)return;ctx.fillStyle='rgba(140,190,236,.9)';ctx.fillRect(300,190,380,6);ctx.fillRect(WAF.x,388,WAF.w,6);
+      let nT,nB;if(dc){nT=nB=Math.round(st4.q*18);}else{const st=this.st||rfState(220,2);nT=Math.round(5*st.vt/(2*st.Vt));nB=Math.round(5*st.vb/(2*st.Vb));}
+      for(let i=0;i<nT;i++)txt('+',310+(i*37)%360,200,{sz:11,w:700,c:C.coral,a:'center'});for(let i=0;i<nB;i++)txt('−',336+(i*37)%310,381,{sz:12,w:700,c:C.blue,a:'center'});};
+    drawBase({hf:true,dc,gas:true,pr:2.5,film:0,marks});
+    if(dc){drawDCGlow(st4.I);for(let i=0;i<9;i++)txt('−',318+i*43,183,{sz:12,w:700,c:C.blue,a:'center'});}else drawPlasma(this.st||rfState(220,2),st4.I);
+    drawParts();drawFx();},
+  inst(){const I=IL('s4');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.src+' × '+I.surf,`<div class="ctls"><div class="seg-row"><span class="k">${I.src}</span>${seg('segSrc',[['rf','RF 13.56 MHz'],['dc','DC']],S.src)}</div>
+      <div class="seg-row"><span class="k">${I.surf}</span>${seg('segSurf',[['metal',I.metal],['coated',I.coated]],S.surf)}</div>
+      <div class="stats two">${statH('s4g',I.gap)}${statH('s4i','Glow')}</div><div class="seg-row"><button class="btn" id="b4r">${I.reset}</button></div></div>`);},
+  bind(){bindSeg('segSrc',v=>{S.src=v;enterScene(true);});bindSeg('segSurf',v=>{S.surf=v;enterScene(true);});$('b4r').onclick=()=>enterScene(true);},
+  chart(){const I=IL('s4'),k=chartCtx('chA');const vg=S.src==='rf'?1:1-st4.q;
+    setStat('s4g',`${(vg*100).toFixed(0)}<small> %</small>`,vg<.6?'fail':'');setStat('s4i',`${(st4.I*100).toFixed(0)}<small> %</small>`,st4.I<.2?'fail':'pass');
+    setMsg(S.src==='rf'?I.rfOk:S.surf==='metal'?I.dcOk:st4.I<.05?I.dcDead:I.dcCharging,S.src==='dc'&&S.surf==='coated'?(st4.I<.05?'warn':'info'):'');
+    if(!k)return;const{g,W,H}=k,b={l:36,r:W-8,t:10,b:H-14},Y=v=>b.b-v/1.1*(b.b-b.t);
+    [0,.5,1].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,(v*100)+'%',b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    gl(g,[[b.l,Y(.35)],[b.r,Y(.35)]],C.coral,1,[3,3]);gt(g,'glow off',b.r-4,Y(.35)+8,{a:'right',sz:9,c:C.coral});
+    const h=st4.trace,n=120;if(h.length>1)gl(g,h.map((v,i)=>[b.l+(i+n-h.length)/(n-1)*(b.r-b.l),Y(v)]),S.src==='rf'?C.purple:C.amber,2.2);
+    gt(g,'time →',b.r-4,b.b+7,{a:'right',sz:8.5,c:C.label});},
+  rd(){return{p:'2.50 Torr',T:'350 °C',hf:S.src==='rf'?'13.56 MHz':'DC −400 V',slow:S.src==='rf'};},
+};
+
+/* ---- 6 · Ion bombardment (zoom) ---- */
+const ZE=120, ZW=470, ZS=ZW-ZE, ZX0=170, ZX1=880;
+const st5={ions:[],fast:[],gas:[],sp:0,lfph:0,iedf:null,key:''};
+function ionParams(){const p=S.p5,ng=p*133.322/(1.380649e-23*450),lam=1/(ng*3e-19)*1e6,Vlf=.25*S.lf5,Veff=S.vb5+Vlf,
+  s=1000*sMM(Veff)*Math.pow(p/2.5,-.2);return{lam,s,Vlf};}
+function computeIEDF(){const key=[S.p5,S.vb5,S.lf5].join('|');if(st5.key===key)return st5.iedf;
+  const{lam,s,Vlf}=ionParams(),Emax=Math.max(60,(S.vb5+2*Vlf)*1.08),nb=64,h=new Float32Array(nb),N=5000;let sum=0,hi=0;
+  for(let i=0;i<N;i++){const Vs=S.vb5+(Vlf?Vlf*(1+Math.sin(TAU*rnd())):0);let z=0,zc=0;
+    for(let k=0;k<4000;k++){const d=-lam*Math.log(1-rnd());if(z+d>=s)break;z+=d;zc=z;}
+    const E=Vs*(1-Math.pow(zc/s,5/3));sum+=E;if(E>50)hi++;h[Math.min(nb-1,Math.floor(E/Emax*nb))]++;}
+  st5.iedf={h,Emax,mean:sum/N,hi:hi/N};st5.key=key;return st5.iedf;}
+function resetGas5(){st5.gas=[];const n=Math.round(14+22*S.p5);for(let i=0;i<n;i++)st5.gas.push({x:ZX0+rnd()*(ZX1-ZX0),y:ZE+rnd()*ZS});}
+SC[5]={legend:['N2Op','fast'],
+  init(){parts=[];fx=[];st5.ions=[];st5.fast=[];st5.sp=0;resetGas5();},
+  update(dt){const f=dt*60,{lam,s,Vlf}=ionParams(),lpx=ZS*lam/s;st5.lfph+=dt*TAU*.35;const Vs=S.vb5+(Vlf?Vlf*(1+Math.sin(st5.lfph)):0);this.Vs=Vs;
+    st5.sp+=dt;if(st5.sp>.12&&st5.ions.length<36){st5.sp=0;st5.ions.push({x:ZX0+20+rnd()*(ZX1-ZX0-40),z:0,zc:0,nf:-lpx*Math.log(1-rnd()),tr:[]});}
+    for(const io of st5.ions){const E=Vs*(Math.pow(io.z/ZS,5/3)-Math.pow(io.zc/ZS,5/3)),v=1+.95*Math.sqrt(Math.max(0,E));
+      io.tr.push([io.x,ZE+io.z]);if(io.tr.length>7)io.tr.shift();
+      let dz=v*f;if(io.z-io.zc+dz>=io.nf&&io.zc+io.nf<ZS){const zn=io.zc+io.nf;st5.fast.push({x:io.x,z:zn,v,tr:[]});addFlash(io.x,ZE+zn,'160,170,190',.3,7);io.z=zn;io.zc=zn;io.nf=-lpx*Math.log(1-rnd());io.tr=[];}
+      else io.z+=dz;
+      if(io.z>=ZS){io.dead=true;const Ei=Vs*(1-Math.pow(io.zc/ZS,5/3)),col=Ei<10?'15,140,80':Ei<30?'217,154,0':'232,85,59';addRing(io.x,ZW,col,.6,6+Math.sqrt(Ei)*1.6,`${Ei.toFixed(0)} eV`);}}
+    for(const n of st5.fast){n.tr.push([n.x,ZE+n.z]);if(n.tr.length>6)n.tr.shift();n.z+=n.v*f;if(n.z>=ZS){n.dead=true;addRing(n.x,ZW,'148,163,184',.35,5);}}
+    st5.ions=st5.ions.filter(i=>!i.dead);st5.fast=st5.fast.filter(i=>!i.dead);},
+  draw(){const I=IL('s5'),{lam,s}=ionParams(),Vs=this.Vs||S.vb5;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    txt(I.zoom,ZX0,26,{sz:11,mono:true,w:600,c:C.purple});
+    let g=ctx.createLinearGradient(0,40,0,ZE);g.addColorStop(0,'rgba(190,166,242,0)');g.addColorStop(1,'rgba(190,166,242,.7)');ctx.fillStyle=g;ctx.fillRect(ZX0,40,ZX1-ZX0,ZE-40);
+    txt('Bulk plasma',ZX1-8,70,{sz:11,w:600,c:C.purpleMid,a:'right'});
+    g=ctx.createLinearGradient(0,ZE,0,ZW);g.addColorStop(0,'rgba(30,27,75,.03)');g.addColorStop(1,`rgba(30,27,75,${.05+.0012*Vs})`);ctx.fillStyle=g;ctx.fillRect(ZX0,ZE,ZX1-ZX0,ZS);
+    pl([[ZX0,ZE],[ZX1,ZE]],'rgba(112,48,160,.5)',1,[4,4]);txt(I.edge,ZX1-8,ZE+12,{sz:10,c:C.purple,a:'right'});
+    ctx.fillStyle='#CBD2DC';for(const q of st5.gas){ctx.beginPath();ctx.arc(q.x+Math.sin(time*3+q.y)*1.2,q.y,1.6,0,TAU);ctx.fill();}
+    ctx.fillStyle='rgba(120,180,240,.9)';ctx.fillRect(ZX0,ZW,ZX1-ZX0,12);ctx.fillStyle='#5B6475';ctx.fillRect(ZX0,ZW+12,ZX1-ZX0,18);
+    ctx.fillStyle='#B4BCC8';ctx.fillRect(ZX0,ZW+30,ZX1-ZX0,40);txt('SiO₂ film',ZX0+8,ZW+6,{sz:9.5,c:'#1E4F8F',w:600});txt('Si wafer · grounded pedestal',ZX0+8,ZW+21,{sz:9.5,c:'#fff'});
+    // potential profile panel
+    const px0=40,px1=130;txt('Φ(z)',px0,ZE-14,{sz:10,mono:true,c:C.muted});
+    pl([[px0,ZE],[px0,ZW]],C.border,1);pl([[px0,ZW],[px1,ZW]],C.border,1);
+    const pts=[];for(let i=0;i<=40;i++){const z=i/40;pts.push([px0+(px1-px0)*(1-Math.pow(z,5/3)),ZE+z*ZS]);}pl(pts,C.purple,2);
+    txt(`${Vs.toFixed(0)} V`,px1,ZE-2,{sz:9.5,mono:true,c:C.purple,a:'right'});txt('0 V',px0+4,ZW-8,{sz:9.5,mono:true,c:C.muted});
+    // scale bars
+    const lpx=ZS*lam/s,by=ZW+86;pl([[ZX0,by],[ZX0+Math.min(lpx,ZX1-ZX0),by]],C.coral,3);txt(`λ_ion ≈ ${lam.toFixed(0)} µm`,ZX0,by+14,{sz:10,mono:true,c:C.coral});
+    txt(`s ≈ ${(s/1000).toFixed(2)} mm  (${I.edge} → ${I.wafer})`,ZX0+260,by+14,{sz:10,mono:true,c:C.purple});
+    for(const n of st5.fast){if(n.tr.length>1)pl(n.tr,'rgba(148,163,184,.5)',1.5);ctx.fillStyle=SP.fast.c;ctx.beginPath();ctx.arc(n.x,ZE+n.z,2,0,TAU);ctx.fill();}
+    for(const io of st5.ions){if(io.tr.length>1)pl(io.tr,'rgba(232,85,59,.35)',2);ctx.fillStyle=SP.N2Op.c;ctx.beginPath();ctx.arc(io.x,ZE+io.z,3.4,0,TAU);ctx.fill();
+      ctx.strokeStyle='rgba(232,85,59,.3)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(io.x,ZE+io.z,5.6,0,TAU);ctx.stroke();}
+    drawFx();
+    txt('↯ '+I.cx,ZX1-8,ZE+30,{sz:9.5,c:C.label,a:'right'});},
+  inst(){const I=IL('s5');return card('MONTE CARLO',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL','Sheath',`<div class="ctls">${rng('r5p',I.p,.3,5,.05,S.p5)}${rng('r5v',I.vb,20,120,1,S.vb5)}${rng('r5l',I.lf,0,600,10,S.lf5)}
+      <div class="stats">${statH('s5l',I.lam)}${statH('s5n',I.n)}${statH('s5m',I.mean)}</div></div>`);},
+  bind(){bindRange('r5p',()=>S.p5,v=>S.p5=v,()=>`${S.p5.toFixed(2)} Torr`,resetGas5);bindRange('r5v',()=>S.vb5,v=>S.vb5=v,()=>`${S.vb5} V`);bindRange('r5l',()=>S.lf5,v=>S.lf5=v,()=>`${S.lf5} W`);},
+  chart(){const I=IL('s5'),D=computeIEDF(),{lam,s}=ionParams();
+    setStat('s5l',`${lam.toFixed(0)}<small> µm</small>`);setStat('s5n',`${(s/lam).toFixed(1)}`);setStat('s5m',`${D.mean.toFixed(1)}<small> eV</small>`,D.hi>.05?'fail':'pass');
+    setMsg(`${I.hi}: ${(D.hi*100).toFixed(1)} %`,D.hi>.05?'warn':'');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:30,r:W-10,t:10,b:H-18},X=E=>b.l+E/D.Emax*(b.r-b.l);
+    g.fillStyle='rgba(15,140,80,.08)';g.fillRect(X(5),b.t,X(Math.min(30,D.Emax))-X(5),b.b-b.t);gt(g,I.dens,(X(5)+X(Math.min(30,D.Emax)))/2,b.t+7,{a:'center',sz:9,c:C.green});
+    if(D.Emax>50){g.fillStyle='rgba(232,85,59,.07)';g.fillRect(X(50),b.t,b.r-X(50),b.b-b.t);gt(g,I.dmg,b.r-3,b.t+7,{a:'right',sz:9,c:C.coral});}
+    let mx=0;for(const v of D.h)mx=Math.max(mx,v);const nb=D.h.length,bw=(b.r-b.l)/nb;
+    g.fillStyle='rgba(112,48,160,.75)';D.h.forEach((v,i)=>{const hh=v/mx*(b.b-b.t-16);g.fillRect(b.l+i*bw+.5,b.b-hh,bw-1,hh);});
+    gl(g,[[b.l,b.b],[b.r,b.b]],'#CBD2DC',1);const tick=D.Emax>200?50:D.Emax>100?20:10;
+    for(let e=0;e<=D.Emax;e+=tick)if(X(e)<b.r-22)gt(g,e,X(e),b.b+9,{a:'center',sz:9,mono:true,c:C.label});
+    gl(g,[[X(D.mean),b.t+12],[X(D.mean),b.b]],C.ink,1.2,[3,3]);gt(g,`⟨E⟩ ${D.mean.toFixed(1)} eV`,X(D.mean)+4,b.t+22,{sz:9.5,mono:true,w:600,c:C.ink});
+    gt(g,'eV',b.r,b.b+9,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:fmtP(S.p5),T:'350 °C',hf:'400 W',lf:S.lf5?`${S.lf5} W`:null};},
+};
+
+/* ---- 7 · Chemistry & glow ---- */
+const st6={ev:0,tick:[]};
+const OES_L=[[337.1,'N₂','n2'],[357.7,'N₂','n2b'],[414.2,'SiH','sih'],[486.1,'Hβ','hb'],[656.3,'Hα','ha'],[777.4,'O','o'],[844.6,'O','o2']];
+function oesI(){const fSi=1/(1+S.R/15),fO=S.R/(S.R+10),pw=Math.pow(S.P/400,.8);
+  return{n2:.7*fO*pw,n2b:.32*fO*pw,sih:.9*fSi*pw,hb:.35*(.6*fSi*pw+.05),ha:.6*fSi*pw+.05,o:.9*fO*pw,o2:.42*fO*pw};}
+const nSi6=()=>clamp(Math.round(46*4/S.R),1,20);
+function rx6(html,tag){st6.tick.unshift(`${html} <em>· ${tag}</em>`);if(st6.tick.length>3)st6.tick.pop();st6.dirty=true;}
+SC[6]={legend:['N2O','SiH4','e','N2Op','Om','SiH3','O','H','N2'],
+  init(){parts=[];fx=[];st6.tick=[];st6.dirty=true;for(let k=0;k<46;k++){const q=bulkPt(4);spawn('N2O',q.x,q.y);}for(let k=0;k<nSi6();k++){const q=bulkPt(4);spawn('SiH4',q.x,q.y);}
+    for(let k=0;k<16;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<7;k++){const q=bulkPt();spawn('N2Op',q.x,q.y);}for(let k=0;k<4;k++){const q=bulkPt(30);spawn('Om',q.x,q.y);}},
+  update(dt){const f=dt*60,st=rfState(V0P(),2);this.st=st;const yTm=YT+st.sTm,yBm=YB-st.sBm,R=IL('s6').rx;
+    for(const p of parts){const c=SP[p.s].cat;p.age+=dt;
+      if(c==='e'){if(moveE(p,st,f))placeBulk(p);}
+      else if(c==='i'){if(moveIon(p,st,f))placeBulk(p);}
+      else if(c==='ni'){lang_(p,f,.15,.96);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0+4,X1-4,yTm+4,yBm-4);}
+      else{lang_(p,f,c==='r'?1.2:.3,.94);p.x+=p.vx*f;p.y+=p.vy*f;
+        if(c==='r'&&(p.y<YT+2||p.y>YB-2)&&rnd()<.5){p.dead=true;continue;}
+        if(c==='b'&&p.age>7){p.dead=true;continue;}
+        if(c==='r'&&p.age>10){p.dead=true;continue;}
+        boxR(p,X0+3,X1-3,YT+2,YB-2);}}
+    parts=parts.filter(p=>!p.dead);
+    st6.ev+=dt;const iv=.16/Math.sqrt(S.P/400);
+    if(st6.ev>iv){st6.ev=0;const ns=parts.filter(p=>p.s==='N2O'||p.s==='SiH4');
+      if(ns.length){const t=ns[Math.floor(rnd()*ns.length)],x=t.x,y=t.y;t.dead=true;const u=rnd();
+        if(t.s==='N2O'){if(u<.5){spawn('N2',x-3,y,-.5,0);spawn('O',x+3,y,.5,0);rx6('e⁻ + N₂O → N₂ + O·',R.d1);}
+          else if(u<.8){spawn('N2',x-3,y,-.5,0);spawn('Om',x+3,y);const e=parts.find(p=>p.s==='e');if(e)e.dead=true;rx6('e⁻ + N₂O → N₂ + O⁻',R.att);}
+          else{spawn('N2Op',x,y);spawn('e',x+3,y-3);rx6('e⁻ + N₂O → N₂O⁺ + 2e⁻',R.ion);}}
+        else{if(u<.8){spawn('SiH3',x-3,y,-.5,0);spawn('H',x+3,y,.5,0);rx6('e⁻ + SiH₄ → SiH₃· + H· + e⁻',R.d2);}
+          else{spawn('SiH3p',x,y);spawn('H',x+3,y);spawn('e',x,y-3);rx6('e⁻ + SiH₄ → SiH₃⁺ + H + 2e⁻',R.ion2);}}
+        addFlash(x,y,'255,226,170',.35,10);}
+      // emission from an excited species
+      const I=oesI(),tot=I.o+I.sih+I.ha+I.n2;let u=rnd()*tot,line,sp;
+      if((u-=I.o)<0){line=777;sp='O';}else if((u-=I.sih)<0){line=414;sp='SiH3';}else if((u-=I.ha)<0){line=656;sp='H';}else{line=337;sp='N2';}
+      const cand=parts.filter(p=>p.s===sp);const src=cand.length?cand[Math.floor(rnd()*cand.length)]:bulkPt();
+      const c=wl2rgb(line);addFlash(src.x,src.y,c.join(','),.55,14,line+' nm');}
+    parts=parts.filter(p=>!p.dead);
+    while(count('N2O')<46)spawn('N2O',X0+10+rnd()*(X1-X0-20),YT+4,0,.6);
+    while(count('SiH4')<nSi6())spawn('SiH4',X0+10+rnd()*(X1-X0-20),YT+4,0,.6);
+    while(count('SiH4')>nSi6()){const i=parts.findIndex(p=>p.s==='SiH4');parts.splice(i,1);}
+    while(count('e')<16){const q=bulkPt();spawn('e',q.x,q.y);}
+    while(count('Om')>6){const i=parts.findIndex(p=>p.s==='Om');parts.splice(i,1);}},
+  draw(){const st=this.st||rfState(V0P(),2);drawBase({hf:true,gas:true,pr:2.5});drawPlasma(st,.6+.4*Math.sqrt(S.P/1000));drawParts();drawFx();sheathLabels(st);},
+  inst(){const I=IL('s6');return card('OES',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.tick,`<div class="ctls">${rng('r6r',I.R,5,100,1,S.R)}${rng('r6p',I.P,100,1000,10,S.P)}<div class="ticker" id="tick6"></div></div>`);},
+  bind(){bindRange('r6r',()=>S.R,v=>S.R=v,()=>`${S.R} : 1`);bindRange('r6p',()=>S.P,v=>S.P=v,()=>`${S.P} W`);st6.dirty=true;},
+  chart(){const I=IL('s6'),O=oesI();
+    if(st6.dirty){const t=$('tick6');if(t)t.innerHTML=st6.tick.map(s=>`<div>${s}</div>`).join('')||'<div><em>…</em></div>';st6.dirty=false;}
+    setMsg(`${I.ratio} = ${(O.o/O.sih).toFixed(2)} · ${I.film}: ${S.R<18?I.sirich:I.stoich}`,S.R<18?'warn':'');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:30,r:W-10,t:16,b:H-18},w0=300,w1=870,X=w=>b.l+(w-w0)/(w1-w0)*(b.r-b.l),ym=1.8,Y=v=>b.b-v/ym*(b.b-b.t);
+    const grd=g.createLinearGradient(X(380),0,X(750),0);[380,440,490,510,580,645,750].forEach(w=>{const c=wl2rgb(w);grd.addColorStop((w-380)/370,`rgba(${c},.18)`);});
+    g.fillStyle=grd;g.fillRect(X(380),b.b+2,X(750)-X(380),4);
+    for(let w=300;w<=850;w+=100){gl(g,[[X(w),b.t],[X(w),b.b]],C.line,1);gt(g,w,X(w),b.b+11,{a:'center',sz:9,mono:true,c:C.label});}
+    for(const [wl,lab,key] of OES_L){const a=O[key],c=wl2rgb(wl);g.beginPath();g.moveTo(X(wl-9),b.b);
+      for(let x=-9;x<=9;x+=.5)g.lineTo(X(wl+x),Y(a*Math.exp(-x*x/(2*2.2*2.2))));g.closePath();g.fillStyle=`rgba(${c},.55)`;g.fill();g.strokeStyle=`rgb(${c})`;g.lineWidth=1.4;g.stroke();
+      if(key!=='n2b'&&key!=='o2'&&key!=='hb')gt(g,`${lab} ${Math.round(wl)}`,X(wl),Y(a)-8,{a:'center',sz:9,mono:true,w:600,c:`rgb(${c.map(v=>Math.round(v*.75))})`});}
+    gl(g,[[b.l,b.b],[b.r,b.b]],'#CBD2DC',1);gt(g,'nm',b.r,b.b+11,{a:'right',sz:9,mono:true,c:C.label});gt(g,'a.u.',b.l+2,b.t-6,{sz:9,mono:true,c:C.label});},
+  rd(){return{p:'2.50 Torr',T:'350 °C',hf:`${S.P} W`,gas:`N₂O : SiH₄ = ${S.R} : 1`,slow:true};},
+};
+
+/* ---- 8 · Deposition ---- */
+const st7={nm:0,t:0,arr:0,top:0,prof:new Float32Array(24),rate:0};
+const STICK={SiH3:.35,O:.6};
+const IC=[[0,'#8E959F'],[30,'#A79C86'],[50,'#B8A27A'],[70,'#9A6A44'],[85,'#7A4A6A'],[100,'#5B3A8C'],[115,'#3D4FB0'],[130,'#3F7FD0'],[150,'#7FB3E3'],[170,'#BFD9C0'],[190,'#E3D78A'],[210,'#E8C455'],[230,'#E3A048'],[250,'#E07A5F'],[270,'#C0508A'],[290,'#7A48B8'],[310,'#3B5FCF'],[330,'#35A0B5'],[350,'#4DB06A']];
+function icol(nm){if(nm>350)nm=170+(nm-350)%180;for(let i=1;i<IC.length;i++)if(nm<=IC[i][0]){const t=(nm-IC[i-1][0])/(IC[i][0]-IC[i-1][0]),a=hex2rgb(IC[i-1][1]),b=hex2rgb(IC[i][1]);return a.map((v,j)=>Math.round(v+(b[j]-v)*t));}return hex2rgb(IC[IC.length-1][1]);}
+const NM_PER_HIT=1.6;
+SC[7]={legend:['SiH3','O','e','N2Op'],
+  init(){parts=[];fx=[];Object.assign(st7,{nm:0,t:0,arr:0,top:0,rate:0});st7.prof.fill(0);
+    for(let k=0;k<14;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<8;k++){const q=bulkPt();spawn('N2Op',q.x,q.y);}
+    for(let k=0;k<30;k++){const q=bulkPt(6);spawn(rnd()<.4?'SiH3':'O',q.x,q.y);}},
+  update(dt){const f=dt*60,st=rfState(V0P(),2);this.st=st;st7.t+=dt;
+    moveRF(f,st,null,(p,r)=>{if(r==='B')addRing(p.x,YB-1,'232,85,59',.3,7);});
+    if(rnd()<9*dt){const q=bulkPt(8);spawn(rnd()<.4?'SiH3':'O',q.x,q.y);addFlash(q.x,q.y,'255,226,170',.3,9);}
+    const yW=YB-Math.min(10,st7.nm/15);
+    for(const p of parts){if(SP[p.s].cat!=='r')continue;lang_(p,f,2,.92);p.x+=p.vx*f;p.y+=p.vy*f;
+      if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+      if(p.y>=yW){if(p.x>WAF.x&&p.x<WAF.x+WAF.w&&rnd()<STICK[p.s]){p.dead=true;st7.arr++;st7.nm+=NM_PER_HIT;if(rnd()<.35)addFlash(p.x,yW,'140,190,240',.3,7);}else{p.y=yW;p.vy=-Math.abs(p.vy);}}
+      if(p.y<=YT+2){if(rnd()<STICK[p.s]){p.dead=true;st7.top=Math.min(4,st7.top+.01);}else{p.y=YT+2;p.vy=Math.abs(p.vy);}}}
+    parts=parts.filter(p=>!p.dead);
+    const cnt=new Float32Array(24);for(const p of parts)if(SP[p.s].cat==='r'){const i=clamp(Math.floor((p.y-YT)/(YB-YT)*24),0,23);cnt[i]++;}
+    for(let i=0;i<24;i++)st7.prof[i]=st7.prof[i]*.97+cnt[i]*.03;
+    st7.rate=st7.t>2?st7.nm/st7.t*60:0;},
+  draw(){const st=this.st||rfState(V0P(),2);drawBase({hf:true,gas:true,pr:2.5,film:st7.nm,fcoat:st7.top,pump:true});drawPlasma(st,.9);drawParts();drawFx();sheathLabels(st);},
+  inst(){const I=IL('s7');return card('RANDOM WALK',I.chart,`<div class="crow"><canvas class="chart" id="chA" style="flex:2"></canvas><canvas class="chart" id="chB" style="flex:1"></canvas></div>`)+
+    card('FILM',I.thick,`<div class="ctls"><div class="stats">${statH('s7t',I.time)}${statH('s7n',I.thick)}${statH('s7r',I.rate)}</div>
+      <div class="seg-row"><button class="btn" id="b7r">${I.reset}</button></div><div class="note">${I.note}</div></div>`);},
+  bind(){$('b7r').onclick=()=>{Object.assign(st7,{nm:0,t:0,arr:0,top:0,rate:0});};},
+  chart(){const I=IL('s7');setStat('s7t',`${st7.t.toFixed(0)}<small> s</small>`);setStat('s7n',`${st7.nm.toFixed(0)}<small> nm</small>`);setStat('s7r',st7.rate?`${st7.rate.toFixed(0)}<small> nm/min</small>`:'…');
+    let k=chartCtx('chA');if(k){const{g,W,H}=k,b={l:26,r:W-8,t:12,b:H-18};let mx=1;for(const v of st7.prof)mx=Math.max(mx,v);const n=24,bh=(b.r-b.l)/n;
+      for(let i=0;i<n;i++){const h=st7.prof[i]/mx*(b.b-b.t-14);g.fillStyle=`rgba(58,122,214,${.35+.5*st7.prof[i]/mx})`;g.fillRect(b.l+i*bh+.5,b.b-h,bh-1,h);}
+      gl(g,[[b.l,b.b],[b.r,b.b]],'#CBD2DC',1);gt(g,'showerhead',b.l,b.b+10,{sz:9,c:C.label});gt(g,'wafer',b.r,b.b+10,{a:'right',sz:9,c:C.label});
+      gt(g,'n(x)',b.l-4,b.t,{a:'right',sz:9,mono:true,c:C.label});
+      const x1=b.r-bh*4,y1=b.b-st7.prof[n-4]/mx*(b.b-b.t-14)-10;g.save();g.strokeStyle=C.coral;g.fillStyle=C.coral;g.lineWidth=1.4;g.beginPath();g.moveTo(x1,y1);g.lineTo(b.r-6,b.b-6);g.stroke();g.restore();
+      gt(g,I.flux,b.r-6,b.t+4,{a:'right',sz:9,mono:true,c:C.coral});}
+    k=chartCtx('chB');if(k){const{g,W,H}=k,r=Math.min(W,H-16)/2-4,cx=W/2,cy=r+4,c=icol(st7.nm);
+      const gr=g.createRadialGradient(cx-r*.3,cy-r*.3,r*.1,cx,cy,r);gr.addColorStop(0,`rgb(${c.map(v=>Math.min(255,v+40))})`);gr.addColorStop(1,`rgb(${c})`);
+      g.fillStyle=gr;g.beginPath();g.arc(cx,cy,r,0,TAU);g.fill();g.strokeStyle='#94A3B8';g.lineWidth=1;g.stroke();
+      g.fillStyle='#fff';g.fillRect(cx-6,cy+r-2,12,3);gt(g,`${I.wafer} · ${st7.nm.toFixed(0)} nm`,cx,H-6,{a:'center',sz:9,c:C.muted});}},
+  rd(){return{p:'2.50 Torr',T:'350 °C',hf:`${S.P} W`,gas:'N₂O + SiH₄',slow:true};},
+};
+
+/* ---- 9 · Process window ---- */
+function pwModel(){const{P,pr,T,R,g,LF}=S;
+  const dr=620*(1-Math.exp(-P/420))*Math.pow(40/(R+20),.35)*(1-.0009*(T-300))*(.75+.1*pr)*Math.pow(10/g,.15);
+  const ri=1.458+.2*Math.exp(-(R-5)/9)+.012*(P/1000)+.004*(LF/500)-.004*((T-300)/100);
+  const st=-(40+.16*P+.42*LF+.5*(T-250))+25*(pr-2.5);
+  const u=.8+.35*Math.pow(Math.abs(pr-2.5),1.3)+.12*Math.abs(g-10)+.0012*Math.max(0,P-600)+(P<200?(200-P)*.004:0);
+  const wer=1.4+2.2*Math.exp(-(T-200)/70)-.0012*LF+.08*(pr-2.5);
+  const h=Math.max(.5,1.5+9*Math.exp(-(T-200)/80)-.004*LF);
+  const pa=Math.pow(pr/2.5,1.2)*Math.pow(P/400,.8)*Math.pow(40/R,.6)*Math.pow(10/g,.3);
+  const shape=.02*(pr-2.5)-.006*(g-10)+.00002*(P-400);
+  return{dr,ri,st,u,wer,h,pa,shape};}
+SC[8]={legend:['e','N2Op','SiH3','O','powder'],cls:'tall',
+  init(){parts=[];fx=[];for(let k=0;k<16;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<8;k++){const q=bulkPt();spawn('N2Op',q.x,q.y);}for(let k=0;k<22;k++){const q=bulkPt(6);spawn(rnd()<.4?'SiH3':'O',q.x,q.y);}},
+  update(dt){const f=dt*60,m=pwModel(),st=rfState(V0P()+.25*S.LF,2);this.st=st;moveRF(f,st);
+    for(const p of parts){const c=SP[p.s].cat;if(c==='r'){lang_(p,f,1.6,.92);p.x+=p.vx*f;p.y+=p.vy*f;if((p.y>YB-3||p.y<YT+3)&&rnd()<.4){placeBulk(p);}boxR(p,X0+3,X1-3,YT+3,YB-3);}
+      else if(c==='p'){p.vy+=.01*f;p.vx*=.97;p.vy*=.97;p.x+=p.vx*f;p.y+=p.vy*f;if(p.y>YB-4)p.dead=true;}}
+    if(m.pa>1.3&&rnd()<(m.pa-1.3)*.6*dt){const q=bulkPt(20);const pw=spawn('powder',q.x,q.y);pw.r=2+rnd()*2.5;}
+    parts=parts.filter(p=>!p.dead);},
+  draw(){const st=this.st||rfState(V0P(),2);drawBase({hf:true,lf:S.LF>0,gas:true,pr:S.pr,film:60,pump:true});drawPlasma(st,.55+.45*Math.sqrt(S.P/1000));drawParts();drawFx();sheathLabels(st);},
+  inst(){const I=IL('s8');return card('MODEL',I.out,`<div class="crow"><div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0">
+      <div class="stats four">${statH('o_dr',I.dr)}${statH('o_ri',I.ri)}${statH('o_st',I.st)}${statH('o_u',I.u)}${statH('o_w',I.wer)}${statH('o_h',I.h)}${statH('o_p',I.pa)}${statH('o_s',I.spec)}</div></div>
+      <canvas class="chart" id="chA" style="flex:0 0 150px"></canvas></div>`)+
+    card('RECIPE',I.knobs,`<div class="ctls g2">${rng('k_P',I.P,100,1000,10,S.P)}${rng('k_pr',I.pr,1,5,.05,S.pr)}${rng('k_T',I.T,200,400,5,S.T)}${rng('k_R',I.R,5,100,1,S.R)}${rng('k_g',I.g,6,18,.5,S.g)}${rng('k_LF',I.LF,0,500,10,S.LF)}
+      <div class="seg-row"><button class="btn" id="b8r">${I.reset}</button></div></div>`);},
+  bind(){bindRange('k_P',()=>S.P,v=>S.P=v,()=>`${S.P} W`);bindRange('k_pr',()=>S.pr,v=>S.pr=v,()=>`${S.pr.toFixed(2)} Torr`);bindRange('k_T',()=>S.T,v=>S.T=v,()=>`${S.T} °C`);
+    bindRange('k_R',()=>S.R,v=>S.R=v,()=>`${S.R} : 1`);bindRange('k_g',()=>S.g,v=>S.g=v,()=>`${S.g.toFixed(1)} mm`);bindRange('k_LF',()=>S.LF,v=>S.LF=v,()=>`${S.LF} W`);
+    $('b8r').onclick=()=>{Object.assign(S,BASE);renderInst();};},
+  chart(){const I=IL('s8'),m=pwModel();
+    const okRI=Math.abs(m.ri-1.46)<=.01,okSt=m.st<=-100&&m.st>=-250,okU=m.u<2,okW=m.wer<2.5,all=okRI&&okSt&&okU&&okW;
+    setStat('o_dr',`${m.dr.toFixed(0)}<small> nm/min</small>`);setStat('o_ri',m.ri.toFixed(3),okRI?'pass':'fail');setStat('o_st',`${m.st.toFixed(0)}<small> MPa</small>`,okSt?'pass':'fail');
+    setStat('o_u',`${m.u.toFixed(2)}<small> %</small>`,okU?'pass':'fail');setStat('o_w',`${m.wer.toFixed(2)}<small> ×</small>`,okW?'pass':'fail');setStat('o_h',`${m.h.toFixed(1)}<small> at.%</small>`);
+    setStat('o_p',m.pa<1.3?I.low:m.pa<2?I.med:I.high,m.pa<1.3?'':m.pa<2?'':'fail');setStat('o_s',all?I.pass:I.fail,all?'pass':'fail');
+    setMsg(all?'✓ '+I.spec+' '+I.pass:'',all?'':'info');
+    if(frameN%6)return;const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,r=Math.min(W,H-16)/2-3,cx=W/2,cy=r+3,amp=m.u*1.6/100,sg=Math.sign(m.shape)||1;
+    const N=44,cs=2*r/N;for(let i=0;i<N;i++)for(let j=0;j<N;j++){const x=-r+(i+.5)*cs,y=-r+(j+.5)*cs,rr2=(x*x+y*y)/(r*r);if(rr2>1)continue;
+      const d=sg*amp*(1-2*rr2)+(rr2>.85?-amp*(rr2-.85)*4:0),t=clamp(d/.04,-1,1);
+      const c=t<0?[Math.round(255+(58-255)*-t),Math.round(255+(122-255)*-t),Math.round(255+(214-255)*-t)]:[Math.round(255+(232-255)*t),Math.round(255+(85-255)*t),Math.round(255+(59-255)*t)];
+      g.fillStyle=`rgb(${c})`;g.fillRect(cx+x-cs/2,cy+y-cs/2,cs+.6,cs+.6);}
+    g.strokeStyle='#94A3B8';g.lineWidth=1;g.beginPath();g.arc(cx,cy,r,0,TAU);g.stroke();gt(g,`${I.map}  ±4 %`,cx,H-5,{a:'center',sz:9,c:C.muted});},
+  rd(){return{p:fmtP(S.pr),T:`${S.T} °C`,hf:`${S.P} W`,lf:S.LF?`${S.LF} W`:null,gas:`${S.R} : 1`,slow:true};},
+};
+
+/* ---- 10 · End of recipe, clean, season ---- */
+const PH_DUR=[2.4,3.4,3.6,7,4.2,3.6];
+const st9={ph:0,t:0,coat:.85,I:1,pr:2.5,pins:0,wx:0,waf:true,rps:0,end:false};
+function enter9(ph){st9.ph=ph;st9.t=0;st9.end=false;
+  if(ph===0){parts=parts.filter(p=>p.s==='N2O');Object.assign(st9,{coat:.85,I:1,pr:2.5,pins:0,wx:0,waf:true,rps:0});
+    while(count('N2O')<50){const q=bulkPt(4);spawn('N2O',q.x,q.y);}for(let k=0;k<14;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<7;k++){const q=bulkPt();spawn('N2Op',q.x,q.y);}}
+  if(ph===2){parts=[];Object.assign(st9,{I:0,pr:.05,pins:0,wx:0,waf:true});}
+  if(ph===3){parts=[];Object.assign(st9,{I:0,waf:false,pins:0,pr:1.5});}
+  if(ph===4){parts=parts.filter(p=>p.s!=='F');Object.assign(st9,{rps:0,waf:false,coat:Math.min(st9.coat,.02)});
+    if(S.season)for(let k=0;k<12;k++){const q=bulkPt();spawn('e',q.x,q.y);}}
+  if(ph===5){parts=[];Object.assign(st9,{I:0,waf:true,wx:-420,pins:1,rps:0,pr:.05});}
+  renderPhaseChips();}
+function renderPhaseChips(){const el=$('pc9');if(!el)return;el.querySelectorAll('.pc').forEach((b,i)=>b.className='pc'+(i===st9.ph?' on':i<st9.ph?' done':''));}
+SC[9]={get legend(){return st9.ph===3?['F','SiF4']:st9.ph<=1?['N2O','e','N2Op']:[];},
+  init(){parts=[];fx=[];enter9(0);},
+  update(dt){const f=dt*60,ph=st9.ph;st9.t+=dt;
+    if(ph===0){st9.I=Math.max(0,st9.I-dt*8);if(st9.t>.15)parts=parts.filter(p=>SP[p.s].cat!=='e'&&SP[p.s].cat!=='i');}
+    if(ph===1){st9.pr+=(.05-st9.pr)*Math.min(1,dt*1.2);}
+    if(ph===2){st9.pins=Math.min(1,st9.t/1);if(st9.t>1.2)st9.wx=-Math.min(420,(st9.t-1.2)*220);if(st9.wx<=-420)st9.waf=false;}
+    if(ph===3){st9.rps=Math.min(1,st9.rps+dt*2);st9.pr+=(1.5-st9.pr)*Math.min(1,dt);
+      if(count('F')<70&&rnd()<.7*f)spawn('F',X0+12+rnd()*(X1-X0-24),YT+3,(rnd()-.5)*.4,.8);
+      if(st9.coat>0)st9.coat=Math.max(0,st9.coat-dt*.16);
+      if(st9.coat<=.02&&!st9.end){st9.end=true;}}
+    if(ph===4){if(S.season){st9.I=Math.min(.6,st9.I+dt);st9.coat=Math.min(.25,st9.coat+dt*.08);}else st9.I=0;}
+    if(ph===5){st9.wx=Math.min(0,-420+st9.t*200);if(st9.wx>=0)st9.pins=Math.max(0,1-(st9.t-2.1)/.8);st9.pr+=(2.5-st9.pr)*Math.min(1,dt);}
+    const st=rfState(200,2);this.st=st;
+    for(const p of parts){const c=SP[p.s].cat;
+      if(c==='e'||c==='i'){if(ph===4){if(c==='e'){if(moveE(p,st,f))placeBulk(p);}}continue;}
+      lang_(p,f,.4,.95);const fl=flow1(p),k=ph===1?2.2:ph===3?2.4:1;p.x+=(p.vx+fl[0]*k)*f;p.y+=(p.vy+fl[1]*k)*f;
+      if(p.s==='F'&&st9.coat>.02&&(p.x<284||p.x>696||p.y<YT+6||p.y>468)&&rnd()<.3){p.s='SiF4';addFlash(p.x,p.y,'141,185,46',.3,8);}
+      if(!st9.waf){if(p.x<276){p.x=276;p.vx=Math.abs(p.vx);}if(p.x>704){p.x=704;p.vx=-Math.abs(p.vx);}if(p.y<193){p.y=193;p.vy=Math.abs(p.vy);}
+        if(p.x>309&&p.x<671&&p.y>397){p.y=397;p.vy=-Math.abs(p.vy);}}else confineInterior(p);}
+    parts=parts.filter(p=>p.y<476);
+    if(st9.t>PH_DUR[ph]){enter9((ph+1)%6);}},
+  draw(){const ph=st9.ph,st=this.st||rfState(200,2);
+    drawBase({hf:ph===0?st9.I>.01:ph===4&&S.season,gas:ph<=1||ph===4&&S.season,rps:ph===3?st9.rps:0,coat:st9.coat,pr:st9.pr,pump:ph===1||ph===3,
+      tv:ph===1?1:.45,wafer:st9.waf,pins:st9.pins,wx:st9.wx,slit:ph===2||ph===5,film:ph<=2?300:0});
+    if(ph===0)drawPlasma(st,st9.I);if(ph===4&&S.season)drawPlasma(st,st9.I);
+    drawParts();drawFx();
+    if(ph===3)txt('SiO₂ + 4F· → SiF₄↑ + O₂',XC,262,{sz:13,w:700,c:'#5B7F14',a:'center'});},
+  inst(){const I=IL('s9');return card('SEQUENCE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.season,`<div class="ctls"><div class="phase-chips" id="pc9">${I.phases.map((p,i)=>`<button class="pc" data-i="${i}">${i+1} · ${p}</button>`).join('')}</div>
+      <div class="seg-row"><span class="k">${I.season}</span>${seg('segSea',[['on',I.on],['off',I.off]],S.season?'on':'off')}</div>
+      <div class="stats two">${statH('s9c',I.coat)}${statH('s9f','1st wafer')}</div></div>`);},
+  bind(){$('pc9').querySelectorAll('.pc').forEach(b=>b.onclick=()=>enter9(+b.dataset.i));bindSeg('segSea',v=>{S.season=v==='on';});renderPhaseChips();},
+  chart(){const I=IL('s9');setStat('s9c',`${(st9.coat*100).toFixed(0)}<small> %</small>`);setStat('s9f',S.season?'≈ −0.4 %':'≈ −3.5 %',S.season?'pass':'fail');
+    setMsg(st9.ph===3&&st9.end?I.endpoint:st9.ph===4&&!S.season?I.skip:I.msg[st9.ph],st9.ph===4&&!S.season?'warn':st9.ph===3&&st9.end?'':'info');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:34,r:W-8,t:10,b:H-16},mid=b.t+(b.b-b.t)*.48,N=15,X=i=>b.l+(i+.5)/N*(b.r-b.l);
+    const base=S.season?.25:0;let c=base;const coat=[],dev=[];
+    for(let i=0;i<N;i++){const first=i%5===0;dev.push(first?(S.season?-.4:-3.5):[.2,-.15,.25,-.1][i%4]);c+=.15;coat.push(c);if(i%5===4)c=base;}
+    const Yc=v=>mid-6-v/1*(mid-6-b.t);gt(g,I.coat,b.l,b.t+2,{sz:9,c:C.label});
+    gl(g,coat.map((v,i)=>[X(i),Yc(v)]),C.blue,2);coat.forEach((v,i)=>{g.fillStyle=C.blue;g.beginPath();g.arc(X(i),Yc(v),2.4,0,TAU);g.fill();if(i%5===4){gl(g,[[X(i)+6,b.t],[X(i)+6,b.b]],'rgba(141,185,46,.6)',1,[3,3]);gt(g,I.clean,X(i)+(i>N-3?4:8),b.t+6,{a:i>N-3?'right':'left',sz:8.5,c:'#5B7F14'});}});
+    const y0=mid+(b.b-mid)/2,Yd=v=>y0-v/4*((b.b-mid)/2-2);gl(g,[[b.l,y0],[b.r,y0]],'#CBD2DC',1);gt(g,I.dev,b.l,mid+6,{sz:9,c:C.label});
+    dev.forEach((v,i)=>{g.fillStyle=Math.abs(v)>2?C.coral:C.green;const y=Yd(v);g.fillRect(X(i)-5,Math.min(y,y0),10,Math.abs(y-y0));});
+    for(let i=0;i<N-2;i+=2)gt(g,i+1,X(i),b.b+9,{a:'center',sz:8.5,mono:true,c:C.label});gt(g,I.wafer,b.r,b.b+9,{a:'right',sz:8.5,c:C.label});},
+  rd(){const ph=st9.ph;return{p:fmtP(st9.pr),T:'350 °C',hf:ph===0&&st9.I>.01||ph===4&&S.season?'13.56 MHz':null,gas:ph===3?'NF₃ → RPS':ph===1?'purge':ph===4&&S.season?'N₂O + SiH₄':null};},
+};
+
+/* ---- 11 · Takeaways ---- */
+SC[10]={legend:[],cls:'none',init(){parts=[];fx=[];},draw(){},inst(){return'';},rd(){return{p:'—',T:'—'};}};
+function renderTK(){const k=L().tk;
+  $('stageHtml').innerHTML=`<div class="tk-hero"><div><h2>${k.h}</h2><p>${k.p}</p></div><div class="tk-btns"><button class="btn pri" id="tkb1">${k.btn1}</button><button class="btn" id="tkb2">${k.btn2}</button></div></div>
+  <div class="tk-grid">
+    <div class="tk-sec"><h4>${k.sPr}</h4><div class="pr-list">${k.pr.map(([a,b],i)=>`<div class="pr"><span class="n">${i+1}</span><div><b>${a}</b><span>${b}</span></div></div>`).join('')}</div></div>
+    <div class="tk-sec"><h4>${k.sTab}</h4><table class="tk-table"><thead><tr>${k.th.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${k.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="tk-sec"><h4>${k.sWin}</h4>${k.win.map(([a,b])=>`<div class="kv"><span>${a}</span><span>${b}</span></div>`).join('')}<div class="tk-note">${k.winNote}</div></div>
+    <div class="tk-sec"><h4>${k.sMyth}</h4><div class="myths">${k.myths.map(([a,b])=>`<div class="myth-row"><span class="x">${a}</span><span class="a">→</span><span class="o">${b}</span></div>`).join('')}</div></div>
+    <div class="tk-sec" style="grid-column:1/-1"><h4>${k.sLim}</h4><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px">${k.lim.map(([a,b])=>`<div class="lim-row"><span>${a}</span><span class="a">→</span><span>${b}</span></div>`).join('')}</div></div>
+  </div>`;
+  $('tkb1').onclick=()=>openPop('./images/peald_pecvd.png',k.cap1);$('tkb2').onclick=()=>openPop('./images/pecvd_peald_sio2.png',k.cap2);}
+function openPop(src,cap){$('popImg').src=src;$('popCap').textContent=cap;$('pop').classList.add('show');}
+function closePop(){$('pop').classList.remove('show');}
+$('pop').addEventListener('click',e=>{if(e.target.id==='pop'||e.target.id==='popX')closePop();});
+
+/* ============================== UI SHELL ============================== */
+const ICON={
+  try:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9l5 12 1.8-5.2L21 14z"/><path d="M7.2 2.2L8 5.1"/><path d="M5.1 8L2.2 7.2"/><path d="M14 4.1L12 6"/><path d="M6 12l-1.9 2"/></svg>',
+  myth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+};
+const RMAP=[null,2,3,4,4,4,4,4,4,'d','all'];
+let lastRec='',lastRd='',lastMsg='';
+function renderRecipe(){const R=L().recipe;let on=RMAP[cur];
+  if(on==='d')on=[5,5,6,7,7,0][st9.ph];
+  const key=lang+'|'+on;if(key===lastRec)return;lastRec=key;
+  $('recipe').innerHTML=`<span class="recipe-k">${L().recipeK}</span>`+R.map((r,i)=>`${i?'<span class="rp-sep">›</span>':''}<span class="rp ${on==='all'?'done':i===on?'on':(on!=null&&i<on?'done':'')}">${r}</span>`).join('');}
+function setMsg(s,cls){const k=s+'|'+cls;if(k===lastMsg)return;lastMsg=k;const m=$('msg');m.textContent=s||'';m.className='msg '+(cls||'');}
+function setReadouts(){const r=SC[cur].rd?SC[cur].rd():null,R=L().rd;if(!r)return;
+  let h=`<span class="rd"><b>${R.p}</b>${r.p}</span><span class="rd"><b>${R.T}</b>${r.T}</span>`;
+  if(cur!==10)h+=`<span class="rd ${r.hf?'on':''}"><b>${R.hf}</b>${r.hf||R.off}</span>`;
+  if(r.lf)h+=`<span class="rd on"><b>${R.lf}</b>${r.lf}</span>`;if(r.gas)h+=`<span class="rd"><b>${R.gas}</b>${r.gas}</span>`;if(r.slow)h+=`<span class="rd slow">${R.slow}</span>`;
+  if(h!==lastRd){$('readouts').innerHTML=h;lastRd=h;}}
+let lastLeg='';
+function renderLegend(){const keys=SC[cur].legend||[],sp=L().sp;const k=lang+keys.join();if(k===lastLeg)return;lastLeg=k;
+  $('legend').innerHTML=keys.map(s=>{const d=SP[s];const cls=d.cat==='i'?'ion':d.cat==='p'?'pw':'';return`<span class="lg"><i class="${cls}" style="${d.cat==='p'?'':'background:'+d.c}"></i>${sp[s]}</span>`;}).join('');
+  $('lblBtn').style.display=keys.length&&cur!==5?'':'none';}
+function renderInst(){const sc=SC[cur],el=$('inst'),h=sc.inst?sc.inst():'';el.innerHTML=h;el.className='inst'+(sc.cls&&sc.cls!=='none'?' '+sc.cls:'');el.style.display=h?'':'none';sc.bind&&sc.bind();}
+function renderSide(){const s=L().steps[cur],n=L().steps.length;
+  $('chap').textContent=L().chapters[s.ch];$('scount').textContent=`${String(cur+1).padStart(2,'0')} ${L().of} ${n}`;
+  $('sTitle').innerHTML=s.title;const lead=cur===10?L().tk.p:s.lead;$('sLead').innerHTML=lead;
+  let body=s.body;
+  if(cur===0)body+=`<div class="parts">${Object.keys(L().parts).map(id=>`<button class="part ${pinPart===id?'on':''}" data-p="${id}">${L().parts[id][0]}</button>`).join('')}</div>`;
+  if(cur===10)body=`<div class="parts">${L().steps.slice(0,10).map((t,i)=>`<button class="part" data-go="${i}">${String(i+1).padStart(2,'0')} · ${t.title}</button>`).join('')}</div>`;
+  $('sBody').innerHTML=body;
+  $('sCo').innerHTML=s.co.map(([k,t])=>`<div class="co ${k}">${ICON[k]}<div><span class="tag">${L().tags[k]}</span>${t}</div></div>`).join('');
+  $('sDd').innerHTML=s.dd.map(d=>`<details class="dd"><summary><span class="db">${L().dd}</span><span class="dt">${d.t}</span><span class="chev">▼</span></summary><div class="dd-in">${d.b}</div></details>`).join('');
+  $('sBody').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pinPart=pinPart===b.dataset.p?null:b.dataset.p;$('sBody').querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x.dataset.p===pinPart));tipPinned();});
+  $('sBody').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $('prog').style.width=((cur+1)/n*100)+'%';
+  $('prevBtn').disabled=cur===0;$('nextBtn').disabled=cur===n-1;$('prevBtn').textContent=L().prev;$('nextBtn').textContent=L().next;$('kbd').textContent=L().kbd;
+  $('pills').querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',+p.dataset.i===cur));}
+function renderPills(){let h='',prev=-1;L().steps.forEach((s,i)=>{if(prev!==-1&&s.ch!==prev)h+='<span class="pill-gap"></span>';prev=s.ch;h+=`<button class="pill" data-i="${i}" title="${s.title.replace(/"/g,'&quot;')}">${i+1}</button>`;});
+  $('pills').innerHTML=h;$('pills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>go(+b.dataset.i));}
+function tipPinned(){if(cur!==0||!pinPart){showTip(null);return;}const p=partById(pinPart),[x,y,w]=p.r[0];showTip(pinPart,OX+(x+w/2)*RS,OY+y*RS);}
+function enterScene(keepInst){fx=[];SC[cur].init();lastLeg='';renderLegend();if(!keepInst)renderInst();}
+function go(i){const n=L().steps.length;if(i<0||i>=n)return;cur=i;hoverPart=null;if(i!==0)pinPart=null;showTip(null);setMsg('','');
+  $('stageHtml').classList.toggle('show',i===10);if(i===10)renderTK();
+  enterScene();renderSide();renderRecipe();setReadouts();$('sideScroll').scrollTop=0;}
+function setLang(l){lang=l;document.documentElement.lang=l;$('btnEN').classList.toggle('active',l==='en');$('btnKO').classList.toggle('active',l==='ko');
+  $('hTitle').textContent=L().title;$('hSub').textContent=L().sub;$('lblBtn').textContent=L().labels;lastRec=lastRd=lastLeg=lastMsg='';
+  renderPills();renderSide();renderInst();renderRecipe();renderLegend();setReadouts();if(cur===10)renderTK();if(cur===0)tipPinned();}
+
+$('btnEN').onclick=()=>setLang('en');$('btnKO').onclick=()=>setLang('ko');
+$('prevBtn').onclick=()=>go(cur-1);$('nextBtn').onclick=()=>go(cur+1);
+$('lblBtn').onclick=()=>{S.labels=!S.labels;$('lblBtn').classList.toggle('on',S.labels);};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePop();return;}const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+  if(e.key==='ArrowRight'){go(cur+1);e.preventDefault();}if(e.key==='ArrowLeft'){go(cur-1);e.preventDefault();}});
+cv.addEventListener('mousemove',e=>{if(cur!==0){cv.style.cursor='default';return;}const r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,x=(sx-OX)/RS,y=(sy-OY)/RS;
+  hoverPart=partAt(x,y);cv.style.cursor=hoverPart?'pointer':'default';if(hoverPart)showTip(hoverPart,sx,sy);else tipPinned();});
+cv.addEventListener('mouseleave',()=>{hoverPart=null;tipPinned();});
+cv.addEventListener('click',e=>{if(cur!==0)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left-OX)/RS,y=(e.clientY-r.top-OY)/RS,id=partAt(x,y);
+  pinPart=id&&id!==pinPart?id:null;$('sBody').querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===pinPart));});
+
+/* ---------- main loop ---------- */
+let last=performance.now(),rdT=0;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;frameN++;
+  if(!(cur===3&&S.paused))phase+=dt*TAU*FA;
+  const sc=SC[cur];
+  if(cur!==10){beginFrame();if(sc.update&&!(cur===3&&S.paused))sc.update(dt);if(!(cur===3&&S.paused))stepFx(dt);sc.draw();}
+  if(sc.chart)sc.chart(dt);
+  rdT+=dt;if(rdT>.15){rdT=0;setReadouts();if(cur===9){renderRecipe();renderLegend();}if(cur===1)renderLegend();}
+  requestAnimationFrame(loop);}
+setLang('en');go(0);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>requestAnimationFrame(loop));
+</script>
+</body>
+</html>

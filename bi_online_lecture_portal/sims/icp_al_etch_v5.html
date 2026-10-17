@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICP Metal Etch v5 — Interactive Lesson · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8FAFB; --card:#FFFFFF; --border:#E2E8F0; --line:#EEF2F6;
+  --text:#1A202C; --ink2:#334155; --muted:#64748B; --label:#94A3B8;
+  --green:#0F8C50; --green-lt:#E6F4ED; --green-dk:#0A6B3C;
+  --purple:#7030A0; --purple-lt:#F0E8F8; --purple-mid:#9B59D0; --purple-dk:#521A78;
+  --coral:#E8553B; --coral-lt:#FDEEEA; --coral-dk:#8A2E1C;
+  --amber:#B7791F; --amber-lt:#FEF6E4; --amber-dk:#7A4E0B;
+  --shadow:0 2px 12px rgba(15,23,42,.06);
+  --hdr:56px; --side:440px;
+  --sans:'Google Sans',system-ui,sans-serif;
+  --mono:var(--sans);
+  --serif:var(--sans);
+  --code:'JetBrains Mono','Noto Sans KR',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html[lang=ko]{--sans:'Google Sans','Noto Sans KR',system-ui,sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font-family:inherit}
+
+/* ── Header ── */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr);z-index:50;display:flex;align-items:center;gap:14px;
+  padding:0 20px;background:var(--card);border-bottom:1px solid var(--border)}
+.hdr-logo{height:32px;display:block}
+.hdr-div{width:1px;height:26px;background:var(--border)}
+.hdr-title{font-size:15px;font-weight:700;color:var(--purple);line-height:1.2;white-space:nowrap}
+.hdr-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-top:2px;white-space:nowrap}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:2px}
+.lang-btn{font-family:'Google Sans','Noto Sans KR',sans-serif;white-space:nowrap;font-size:12px;font-weight:600;padding:3px 12px;border-radius:16px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .18s}
+.lang-btn.active{background:var(--purple);color:#fff}
+
+/* ── App grid ── */
+.app{position:fixed;top:var(--hdr);left:0;right:0;bottom:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
+.stage{display:flex;flex-direction:column;gap:8px;padding:10px 10px 10px 12px;min-width:0;min-height:0}
+
+/* recipe bar */
+.recipe{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;flex-shrink:0;padding:0 2px}
+.recipe-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-right:6px;white-space:nowrap}
+.rp{font-size:11px;font-weight:600;color:var(--label);padding:4px 9px;border-radius:999px;border:1px solid var(--border);background:var(--card);white-space:nowrap;transition:all .2s}
+.rp.on{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(112,48,160,.25)}
+.rp.done{color:var(--muted)}
+.rp-sep{color:var(--border);font-size:10px}
+
+/* canvas card */
+.canvas-card{flex:1;min-height:0;position:relative;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.cv-wrap{flex:1;min-height:0;position:relative}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sbar{display:flex;align-items:center;gap:6px;padding:6px 10px;border-top:1px solid var(--line);min-height:36px;flex-wrap:wrap;flex-shrink:0}
+.rd{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;color:var(--ink2);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.rd b{font-weight:500;color:var(--label);margin-right:4px}
+.rd.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.rd.slow{color:var(--muted);background:transparent;border-style:dashed}
+.sbar-sp{flex:1}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2);white-space:nowrap}
+.lg i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.lg i.ion{box-shadow:0 0 0 2px rgba(232,85,59,.25)}
+.lg i.pw{border-radius:2px;background:#CBD5E1;border:1px solid #94A3B8}
+.lbl-btn{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:6px;padding:2px 8px;cursor:pointer}
+.lbl-btn.on{background:var(--purple-lt);color:var(--purple);border-color:#d9c6ec}
+.msg{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--green-lt);color:var(--green-dk);white-space:nowrap}
+.msg.warn{background:var(--coral-lt);color:var(--coral-dk)}
+.msg.info{background:var(--purple-lt);color:var(--purple-dk)}
+.msg:empty{display:none}
+sub,sup{font-size:.72em;line-height:0}
+
+#tooltip{position:absolute;pointer-events:none;z-index:20;max-width:300px;background:rgba(17,24,39,.96);color:#fff;
+  padding:10px 13px;border-radius:10px;font-size:12.5px;line-height:1.55;opacity:0;transition:opacity .12s;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);transform:translate(-50%,calc(-100% - 14px))}
+#tooltip.show{opacity:1}
+#tooltip b{display:block;color:#d8b9f3;margin-bottom:2px;font-size:12.5px}
+
+/* takeaway overlay */
+.stage-html{position:absolute;inset:0;overflow:auto;background:var(--card);display:none;padding:22px 24px 28px}
+.stage-html.show{display:block}
+
+/* instrument panel */
+.inst{flex-shrink:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,1fr);gap:8px;height:216px}
+.inst.tall{height:286px}
+.inst.one{grid-template-columns:1fr;height:auto}
+.icard{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:9px 12px;min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.ihead{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ihead h3{font-size:12px;font-weight:600;color:var(--ink2)}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-lt);color:var(--green);font-size:9.5px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.chart{flex:1;min-height:0;width:100%;display:block}
+.crow{flex:1;min-height:0;display:flex;gap:8px}
+.crow .chart{flex:1;min-width:0;height:100%}
+.ctls{display:flex;flex-direction:column;gap:6px;overflow:auto;min-height:0;padding-right:2px}
+.ctls.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;row-gap:8px;align-content:start}
+.ctls.g2 .seg-row{grid-column:1/-1}
+.ctl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px;line-height:1.25}
+.ctl-h label{font-size:11.5px;color:var(--muted);font-weight:500}
+.ctl-h output{font-family:var(--mono);font-size:11.5px;color:var(--purple);font-weight:600;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--purple-mid));outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:2.5px solid var(--purple);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--purple)}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px;flex-wrap:wrap}
+.seg button{border:none;background:transparent;padding:4px 10px;font-size:11.5px;font-weight:600;color:var(--muted);border-radius:6px;cursor:pointer}
+.seg button.on{background:var(--purple);color:#fff}
+.seg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.seg-row .k{font-size:11.5px;color:var(--muted);min-width:64px}
+.btn{font-size:11.5px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:8px;padding:5px 12px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.btn.pri{background:var(--purple);border-color:var(--purple);color:#fff}
+.btn.pri:hover{background:var(--purple-dk)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.stats.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;min-width:0}
+.stat-k{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--purple);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v small{font-size:10px;color:var(--muted);font-weight:500}
+.stat.pass{background:var(--green-lt);border-color:#cde9da}.stat.pass .stat-v{color:var(--green-dk)}
+.stat.fail{background:var(--coral-lt);border-color:#f6d3ca}.stat.fail .stat-v{color:var(--coral-dk)}
+.ticker{font-family:var(--sans);font-size:11.5px;line-height:1.7;color:var(--ink2);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 9px;min-height:68px}
+.ticker div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticker div em{font-style:normal;color:var(--label)}
+.phase-chips{display:flex;flex-wrap:wrap;gap:4px}
+.pc{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;padding:3px 9px;cursor:pointer}
+.pc.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+.pc.done{color:var(--green-dk);border-color:#cde9da;background:var(--green-lt)}
+.note{font-size:10.5px;color:var(--label);line-height:1.45}
+
+/* ── Side panel ── */
+.side{background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+.side-scroll{flex:1;overflow-y:auto;padding:18px 22px 16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.chap{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:var(--green-lt);padding:2px 8px;border-radius:4px}
+.scount{font-family:var(--mono);font-size:10px;color:var(--label);letter-spacing:.08em}
+.s-title{font-size:20px;font-weight:700;line-height:1.28;color:var(--text);margin-bottom:8px;letter-spacing:-.005em}
+.s-lead{font-family:var(--sans);font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:10px}
+.s-body{font-size:13px;line-height:1.72;color:#3b4456}
+.s-body ul{padding-left:1.05rem;margin:4px 0}
+.s-body li{margin-bottom:4px}
+.s-body li::marker{color:var(--purple-mid)}
+.s-body b{color:var(--text);font-weight:600}
+code,.s-body code{font-family:var(--mono);font-size:11.5px;background:var(--purple-lt);color:var(--purple-dk);padding:1px 5px;border-radius:4px;white-space:nowrap}
+.parts{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.part{font-size:11.5px;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:999px;padding:3px 10px;cursor:pointer;transition:all .14s}
+.part:hover,.part.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.co{display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-top:10px;font-size:12.5px;line-height:1.62}
+.co svg{flex:none;width:18px;height:18px;margin-top:2px}
+.co .tag{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:2px;opacity:.85}
+.co.try{background:var(--purple-lt);color:var(--purple-dk)}
+.co.myth{background:var(--coral-lt);color:var(--coral-dk)}
+.co.key{background:var(--green-lt);color:var(--green-dk)}
+.co.warn{background:var(--amber-lt);color:var(--amber-dk)}
+.dd{margin-top:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card)}
+.dd summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--text);user-select:none}
+.dd summary::-webkit-details-marker{display:none}
+.dd summary .db{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--purple);color:#fff;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.dd summary .dt{flex:1}
+.dd summary .chev{color:var(--label);font-size:10px;transition:transform .2s}
+.dd[open] summary{background:var(--purple-lt);border-bottom:1px solid var(--border)}
+.dd[open] summary .chev{transform:rotate(180deg)}
+.dd-in{padding:12px 14px;font-size:12.5px;line-height:1.75;color:#3b4456;background:var(--bg)}
+.dd-in p+p,.dd-in p+ul,.dd-in ul+p{margin-top:8px}
+.dd-in ul{padding-left:1.05rem}
+.dd-in b{color:var(--text)}
+.eq{font-family:var(--code);font-size:11.5px;line-height:1.7;background:#1F2433;color:#FFD580;border-radius:8px;padding:9px 12px;margin:8px 0;white-space:pre;overflow-x:auto}
+.dd-hl{border-left:3px solid var(--purple);background:var(--purple-lt);color:var(--purple-dk);border-radius:0 8px 8px 0;padding:8px 11px;margin-top:8px;font-size:12px;line-height:1.65}
+.side-foot{flex-shrink:0;border-top:1px solid var(--border);padding:10px 18px 12px;background:var(--card)}
+.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:9px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--purple));transition:width .3s}
+.pills{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:9px}
+.pill{width:28px;height:26px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s}
+.pill:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.pill.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.pill-gap{width:6px}
+.nav{display:flex;gap:8px}
+.nav button{flex:1;padding:9px;font-size:13px;font-weight:700;border:none;border-radius:9px;background:var(--text);color:#fff;cursor:pointer;transition:background .15s}
+.nav button:hover:not(:disabled){background:var(--purple)}
+.nav button:disabled{background:var(--line);color:var(--label);cursor:not-allowed}
+.kbd{font-family:var(--mono);font-size:9.5px;color:var(--label);text-align:center;margin-top:6px;letter-spacing:.06em}
+
+/* takeaway */
+.tk-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:16px}
+.tk-hero h2{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.tk-hero p{font-family:var(--serif);font-size:14px;color:var(--muted);margin-top:4px}
+.tk-btns{display:flex;gap:8px;flex-wrap:wrap}
+.tk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.tk-sec{border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:var(--card)}
+.tk-sec h4{font-size:11px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.pr-list{display:grid;gap:8px}
+.pr{display:flex;gap:10px;align-items:flex-start}
+.pr .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.pr b{display:block;font-size:13px}
+.pr span{font-size:12px;color:var(--muted);line-height:1.5}
+.tk-table{width:100%;border-collapse:collapse;font-size:12px}
+.tk-table th{background:var(--purple);color:#fff;font-weight:600;padding:6px 8px;text-align:left}
+.tk-table th:first-child{border-radius:6px 0 0 0}.tk-table th:last-child{border-radius:0 6px 0 0}
+.tk-table td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.tk-table td:nth-child(2){color:var(--purple-dk);font-family:var(--mono);font-size:11.5px}
+.tk-table td:nth-child(3){color:var(--muted);font-family:var(--mono);font-size:11.5px}
+.tk-table tr:nth-child(even) td{background:#FBF8FD}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.kv span:last-child{font-family:var(--mono);color:var(--text);font-weight:600;font-size:12px;text-align:right}
+.myths{display:grid;gap:7px}
+.myth-row{display:grid;grid-template-columns:1fr 18px 1.3fr;gap:6px;align-items:start;font-size:12px;line-height:1.5}
+.myth-row .x{color:var(--coral-dk);text-decoration:line-through;text-decoration-color:rgba(232,85,59,.5)}
+.myth-row .a{color:var(--label);text-align:center}
+.myth-row .o{color:var(--green-dk)}
+.lim-row{display:grid;grid-template-columns:1fr 18px 1fr;gap:6px;font-size:12px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.lim-row .a{color:var(--label);text-align:center}
+.lim-row span:last-child{color:var(--purple-dk);font-weight:600}
+.tk-note{font-size:11px;color:var(--label);margin-top:8px}
+
+/* popup */
+.pop{display:none;position:fixed;inset:0;z-index:300;background:rgba(15,18,30,.78);align-items:center;justify-content:center;padding:28px}
+.pop.show{display:flex}
+.pop-box{position:relative;background:#fff;border-radius:14px;padding:14px;max-width:min(94vw,1100px);max-height:92vh;display:flex;flex-direction:column;gap:8px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.pop-box img{max-width:100%;max-height:calc(92vh - 80px);object-fit:contain;border-radius:8px;display:block}
+.pop-cap{font-size:12.5px;color:var(--muted);text-align:center;line-height:1.5}
+.pop-x{position:absolute;top:-13px;right:-13px;width:32px;height:32px;border-radius:50%;border:none;background:var(--text);color:#fff;font-size:15px;cursor:pointer}
+.pop-x:hover{background:var(--purple)}
+
+/* responsive */
+@media (max-width:1200px){:root{--side:380px}.inst{grid-template-columns:minmax(0,1.2fr) minmax(230px,1fr)}}
+@media (max-width:940px){
+  html,body{overflow:auto;height:auto}
+  .hdr{position:sticky}
+  .hdr-sub{display:none}
+  .hdr{padding:0 12px;gap:10px}
+  .hdr-div{display:none}
+  .hdr-logo{height:26px}
+  .hdr-title{white-space:normal;font-size:12.5px}
+  .lang-btn{padding:3px 9px}
+  .app{position:static;display:block}
+  .stage{padding:10px 16px}
+  .canvas-card{flex:none;height:min(78vw,560px);min-height:300px}
+  .inst,.inst.tall{grid-template-columns:1fr;height:auto}
+  .inst .icard{min-height:200px}
+  .inst .chart{flex:none;height:190px}
+  .inst .crow{flex:none;height:190px}
+  .inst .crow .chart{height:100%;flex:1 1 0;width:auto;min-width:0}
+  .side{border-left:none;border-top:1px solid var(--border)}
+  .side-scroll{overflow:visible;padding:16px}
+  .side-foot{position:sticky;bottom:0}
+  .tk-grid{grid-template-columns:1fr}
+  .recipe{overflow-x:auto}
+}
+.dd-img{display:block;max-width:100%;border-radius:8px;margin:8px 0;cursor:zoom-in;border:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display:inline-flex">
+    <img class="hdr-logo" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  </a>
+  <div class="hdr-div"></div>
+  <div>
+    <div class="hdr-title" id="hTitle"></div>
+    <div class="hdr-sub" id="hSub"></div>
+  </div>
+  <div class="hdr-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN">EN</button>
+      <button class="lang-btn" id="btnKO">한국어</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <section class="stage">
+    <div class="recipe" id="recipe"></div>
+    <div class="canvas-card" id="card">
+      <div class="cv-wrap" id="cvWrap">
+        <canvas id="cv"></canvas>
+        <div id="tooltip"></div>
+      </div>
+      <div class="sbar">
+        <div id="readouts" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <span class="msg" id="msg"></span>
+        <span class="sbar-sp"></span>
+        <div class="legend" id="legend"></div>
+        <button class="lbl-btn" id="lblBtn"></button>
+      </div>
+      <div class="stage-html" id="stageHtml"></div>
+    </div>
+    <div class="inst" id="inst"></div>
+  </section>
+
+  <aside class="side">
+    <div class="side-scroll" id="sideScroll">
+      <div class="eyebrow"><span class="chap" id="chap"></span><span class="scount" id="scount"></span></div>
+      <h1 class="s-title" id="sTitle"></h1>
+      <p class="s-lead" id="sLead"></p>
+      <div class="s-body" id="sBody"></div>
+      <div id="sCo"></div>
+      <div id="sDd"></div>
+    </div>
+    <div class="side-foot">
+      <div class="prog"><i id="prog"></i></div>
+      <div class="pills" id="pills"></div>
+      <div class="nav"><button id="prevBtn"></button><button id="nextBtn"></button></div>
+      <div class="kbd" id="kbd"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="pop" id="pop">
+  <div class="pop-box">
+    <button class="pop-x" id="popX" aria-label="Close">✕</button>
+    <img id="popImg" src="" alt="">
+    <div class="pop-cap" id="popCap"></div>
+  </div>
+</div>
+
+<script>
+/* ==================================================================
+   ICP Metal (Al-Cu) Etch — Interactive Lesson v5 · Benedu Insight
+   BCl3 / Cl2 / Ar / N2 · 11 steps · EN / KO
+   Content (all text) lives in T; the engine follows in the next block.
+   ================================================================== */
+const T = {
+en:{
+  title:'ICP Metal Etch — Al-Cu Lines with BCl₃ / Cl₂',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ Prev', next:'Next ▶', kbd:'← → keys to navigate', of:'of',
+  labels:'Labels', explore:'Explore parts',
+  chapters:['Hardware & Setup','Plasma Physics','Etch Process','Summary'],
+  recipeK:'Recipe',
+  recipe:['Load','Pump','Chuck & He','Stabilize','Strike E→H','Breakthrough','Main etch','Over-etch','Dechuck','Strip / PET','WAC'],
+  rd:{p:'P',T:'Chuck',hf:'Source',lf:'Bias',gas:'Gas',off:'OFF',slow:'RF slowed ≈ 2.7×10⁷×'},
+  tags:{try:'Try it',myth:'Common misconception',key:'Key point',warn:'Note'},
+  dd:'Deep dive',
+  parts:{
+    coil:['Coil (antenna) — source RF','Planar spiral above the window. Its RF current creates an oscillating magnetic field that induces the plasma-driving electric field below the window.'],
+    fs:['Faraday shield','Grounded, slotted plate between coil and window. Lets the magnetic field through and blocks the coil\'s electrostatic field — less window sputtering and contamination, but harder ignition.'],
+    win:['Dielectric window','Al₂O₃ ceramic with a Y₂O₃ coating that resists chlorine attack. The field must pass through it, so deposits on it change the coupling.'],
+    inj:['Center gas injector','Gas enters through a nozzle in the window center (and side nozzles); the coil leaves no room for a showerhead.'],
+    smatch:['Source match','Matches the coil + plasma load to 50 Ω. Its tuning position shifts when the plasma changes mode or the window gets coated.'],
+    sgen:['Source RF generator','13.56 MHz, typically 0.5–2 kW. Sets plasma density and therefore ion flux.'],
+    bcl3:['BCl₃','Removes the native Al₂O₃ (breakthrough) and scavenges H₂O / O₂ in the chamber. Its ions (BClₓ⁺) also assist the etch.'],
+    cl2:['Cl₂','Main etchant: Cl atoms react spontaneously with Al → AlCl₃ / Al₂Cl₆. More Cl₂ = faster and more lateral.'],
+    ar:['Ar','Dilution and ion bombardment; stabilizes the discharge.'],
+    n2:['N₂ (additive)','Helps form sidewall passivation together with carbon from the resist — controls undercut.'],
+    mfc:['Mass flow controllers','Typical Al recipe: Cl₂ 40–100, BCl₃ 20–80, N₂ 5–20, Ar 0–50 sccm.'],
+    gap:['Plasma volume (~100 mm)','Dense plasma (10¹¹–10¹² cm⁻³), heated in a ~1–2 cm skin layer under the window, diffusing down to the wafer.'],
+    wafer:['Wafer — Al-Cu stack','Resist / TiN ARC / Al-0.5 % Cu / TiN / Ti on oxide. The lines that remain become interconnects.'],
+    fr:['Focus ring','Extends the electrode so the sheath stays flat to the wafer edge.'],
+    esc:['Electrostatic chuck','Clamps the wafer electrostatically; backside He sets the wafer at 40–80 °C for Al etching.'],
+    chuck:['Chuck — bias RF','Powered through its own match and blocking capacitor. Sets the self-bias and so the ion energy.'],
+    he:['Backside He','Heat transfer from wafer to chuck at mTorr pressure.'],
+    eschv:['ESC power supply','Clamps and, at the end, reverses / discharges to de-chuck.'],
+    bmatch:['Bias match + blocking capacitor','Blocks DC so the chuck can charge to a negative V_DC.'],
+    bgen:['Bias RF generator','13.56 MHz, typically 50–300 W. Sets ion energy (tens to a few hundred eV).'],
+    cm:['Capacitance manometer','Absolute pressure; drives the pendulum-valve loop.'],
+    pv:['Pendulum valve','Throttles the turbo pump to hold 5–20 mTorr.'],
+    tmp:['Turbo-molecular pump','High throughput at mTorr; removes AlCl₃ / Al₂Cl₆ before it can redeposit.'],
+    wall:['Liner / chamber wall (grounded)','Collects AlClₓ, boron oxide and carbon deposits; usually a replaceable, coated liner.'],
+  },
+  sp:{BCl3:'BCl₃',Cl2:'Cl₂',Ar:'Ar',N2:'N₂',Cl:'Cl·',BCl2:'BCl₂·',Clp:'Cl⁺',Arp:'Ar⁺',Neg:'Cl⁻',e:'e⁻',AlCl3:'AlCl₃',HCl:'HCl',powder:'window particles',fast:'fast neutral'},
+  I:{
+    hw:{title:'Typical hardware numbers',stats:[['Window → wafer','70–150 mm'],['Pressure','5–20 mTorr'],['Source RF','13.56 MHz · 0.5–2 kW'],['Bias RF','13.56 MHz · 50–300 W'],['Chuck temp.','40–80 °C'],['nₑ','10¹¹–10¹² cm⁻³']]},
+    s1:{chart:'Mean free path vs pressure',p:'Pressure',lam:'λ (gas)',sl:'ICP sheath / λ',reg:'Regime',coll:'collisional',trans:'weakly collisional',free:'collisionless',sheI:'ICP sheath ≈ 0.1–0.5 mm',sheC:'CCP oxide-etch sheath ≈ 5 mm',gap:'window → wafer 100 mm'},
+    s2:{chart:'Induced field below the window',top:'Top view — E_θ',Ps:'Source power',ne:'nₑ',d:'Skin depth δ',ef:'E_θ(z)',pw:'power deposited',depth:'depth below window (mm)',cw:'clockwise',ccw:'counter-clockwise'},
+    s3:{chart:'Electron density vs source power',Ps:'Source power',shield:'Faraday shield',on:'On',off:'Off',mode:'Mode',ne:'nₑ',win:'Window bombardment',low:'low',med:'medium',high:'high',E:'E-mode',H:'H-mode',up:'up',dn:'down',msgE:'E-mode — dim, capacitively coupled through the window',msgH:'H-mode — inductive, dense plasma'},
+    s4:{chart:'Ion flux vs ion energy',iedf:'IEDF',Ps:'Source power',Pb:'Bias power',J:'Ion current',vdc:'V_DC',Ei:'Ion energy',s:'Sheath',th:'Ion angle',fixB:'bias power fixed',fixS:'source power fixed'},
+    s5:{chart:'Rates',bcl3:'BCl₃ share of BCl₃ + Cl₂',n2:'N₂',Pb:'Bias power',bt:'Breakthrough',er:'Al etch rate',lat:'Lateral etch',sel:'Al : resist',zoom:'ZOOM · edge of an Al line',ox:'native Al₂O₃',pass:'sidewall passivation',vert:'Al vertical',latR:'Al lateral',prR:'Resist',msgBT:'Breaking through the native oxide…',msgEt:'Main etch — Al etching spontaneously + ion-assisted'},
+    s6:{chart:'Profile',Pb:'Bias power',n2:'N₂',cl:'BCl₃ share',T:'Chuck temp.',play:'Play',pause:'Pause',reset:'Reset',layer:'Etch front',under:'Undercut',res:'Cu residue',pr:'Resist left',oxl:'Oxide loss',none:'none',some:'some',heavy:'heavy',layers:['Resist','TiN ARC','Al-Cu','TiN / Ti','SiO₂'],run:'Etching…',done:'Done — inspect profile and residues',bt:'Breakthrough'},
+    s7:{chart:'OES endpoint — Al 396 nm',open:'Open area',oe:'Over-etch',restart:'Restart',ep:'Endpoint',tot:'Total',oxl:'Oxide loss C / E',res:'Metal left at the edge — increase over-etch',ok:'All spaces cleared',wait:'Etching the stack…',noisy:'Weak signal — endpoint uncertain',labels:['Center','Middle','Edge'],sig:'Al signal',main:'main etch',bar:'barrier',oeR:'over-etch'},
+    s8:{chart:'Corrosion sites vs time in air',pet:'Post-etch treatment',on:'On',off:'Off',restart:'Restart',q:'Time in air',cl:'Residual Cl',def:'Corrosion sites',msgOn:'PET: Cl replaced, resist stripped, sidewalls passivated',msgOff:'Cl + H₂O → HCl → Al corrodes',zoom:'ZOOM · Al lines after etch',hr:'h'},
+    s9:{phases:['RF off','Dechuck','Wafer → strip','WAC (Cl₂/O₂)','Season','Ready'],wac:'Waferless auto-clean',on:'On',off:'Off',chart:'Window deposits & etch-rate drift',poly:'window deposit',dev:'etch-rate drift (%)',wafer:'wafer #',msg:['Plasma off; bias collapses','ESC discharged — lift pins up','Wafer moves under vacuum to the strip chamber','Plasma clears AlClₓ, BOₓ and carbon from window and liner','Short seasoning restores the wall','Ready for the next wafer'],skip:'WAC skipped — window deposits build up'},
+  },
+  steps:[
+  { ch:0, title:'Inside an ICP Metal Etch Chamber',
+    lead:'An inductively coupled plasma (ICP) chamber has <b>two separate RF circuits</b>: a coil above a dielectric window makes the plasma, and the chuck below sets the ion energy. Here it patterns an Al-Cu interconnect stack with chlorine chemistry.',
+    body:`<ul>
+<li><b>Coil + source RF</b> — make the plasma through the window, with no electrode inside</li>
+<li><b>Faraday shield</b> — slotted grounded plate: passes the magnetic field, blocks capacitive coupling</li>
+<li><b>Dielectric window</b> — Al₂O₃ with a Y₂O₃ coating against chlorine</li>
+<li><b>ESC chuck + bias RF</b> — through a blocking capacitor; sets ion energy</li>
+<li>Gas: <code>BCl₃ + Cl₂ (+ N₂, Ar)</code> through a center injector and side nozzles</li>
+<li>Wafer: resist / TiN / Al-0.5 % Cu / TiN / Ti on oxide</li></ul>`,
+    co:[['try','Hover over the drawing — or tap a part below — to see what it does.'],
+        ['key','The two RF circuits are independent in function, not in ground: both return through the grounded chamber. Source power sets density; bias power sets ion energy.']],
+    dd:[{t:'Coil geometries — planar, dome, helical', b:`<p>The planar spiral drawn here is the most common source for 300 mm metal and silicon etching. Dome-shaped windows with multi-zone coils tune radial uniformity; helical coils around a tube make compact high-density sources, often used as remote plasma sources.</p>
+<img class="dd-img" src="./images/icp_antenna_style.png" alt="ICP antenna geometries" onclick="openPop(this.src,'')">
+<div class="dd-hl">Whatever the shape, the physics is the same: coil current → oscillating B → induced E (Faraday's law) → electrons heated in a thin skin layer under the window.</div>`}] },
+
+  { ch:0, title:'Recipe Start — Pump, Chuck, Stabilize',
+    lead:'The wafer is clamped and warmed on the ESC, and chlorine gases fill the chamber at only 5–20 mTorr — lower than CCP etching, because an ICP does not need electrode sheaths to sustain itself.',
+    body:`<ul>
+<li>Turbo pump + pendulum valve: 5–20 mTorr (here 10)</li>
+<li>ESC clamps; backside He sets the wafer temperature (≈ 40–80 °C for Al, so AlCl₃ stays volatile)</li>
+<li>BCl₃ scavenges residual H₂O and O₂ — moisture would re-oxidize the aluminium</li>
+<li>λ ≈ 5 mm at 10 mTorr: ions cross the sub-millimetre ICP sheath without collisions</li></ul>`,
+    co:[['try','Move the pressure and compare λ with the ICP sheath (~0.1–0.5 mm) and with the CCP oxide-etch sheath (~5 mm).'],
+        ['key','Thin sheath + long mean free path = collisionless, directional ions — even at modest ion energy.']],
+    dd:[{t:'Why the chuck is warm for Al etching', b:`<p>The etch product AlCl₃ (largely as the dimer Al₂Cl₆) must leave the surface quickly. A wafer at 40–80 °C keeps it volatile.</p>
+<p>The 0.5 % copper in Al-Cu is harder: CuClₓ is barely volatile below ~200 °C. It is removed by ion bombardment, so low bias or a cold chuck leaves <b>Cu residues</b> on the oxide between the lines.</p>
+<p>Too hot, and the resist softens and lateral chemical etching speeds up. The chuck temperature is therefore a profile knob, not just a setpoint.</p>`}] },
+
+  { ch:1, title:'Inductive Coupling — Coil, B-field, Skin Layer',
+    lead:'RF current in the coil makes an oscillating magnetic field. By Faraday\'s law it induces a <b>circular electric field</b> in the gas below the window — the plasma is driven without any electrode, but only within a thin <b>skin layer</b>.',
+    body:`<ul>
+<li>Coil current I(t) → B(t) through the window (through the slots of the Faraday shield)</li>
+<li>∇×E = −∂B/∂t → azimuthal E_θ: circular loops that <b>reverse every half-cycle</b></li>
+<li>The plasma screens the field: E decays as e<sup>−z/δ</sup>, skin depth δ ≈ c/ω<sub>pe</sub> ≈ 1–2 cm</li>
+<li>Electrons are heated in that layer; the plasma diffuses down to the wafer</li></ul>`,
+    co:[['try','Raise the source power: density rises and the skin layer becomes thinner. In the top view the induced field reverses each half-cycle — it oscillates, it does not rotate.'],
+        ['myth','“The induced E-field rotates and heats the whole volume.” It is azimuthal and oscillating, and confined to a skin depth of ~1–2 cm under the window. At these pressures electrons collide a few times per RF cycle — heating is collisional and stochastic, not orbiting.']],
+    dd:[{t:'Skin depth — and why ICP is denser than CCP', b:`<div class="eq">ω_pe = 5.64×10⁴·√nₑ[cm⁻³]  rad/s
+δ ≈ c / ω_pe :   nₑ = 10¹¹ → 17 mm     nₑ = 10¹² → 5 mm</div>
+<p>In a CCP, RF power reaches electrons mainly through the oscillating sheaths, and much of it is spent accelerating ions across them. In an ICP the induced field heats electrons directly inside the plasma, and little power is lost to ions at the window, whose sheath stays at a few Tₑ. The same power therefore gives 10–100× more electron density.</p>
+<p>Heating is strongest under the coil turns, so density peaks in a ring (torus) near the window; diffusion smooths it before it reaches the wafer. Multi-zone coils and window shape tune that profile.</p>`}] },
+
+  { ch:1, title:'Ignition — E-mode to H-mode',
+    lead:'An ICP does not start inductively. At low power the coil acts like a capacitor plate and makes a dim <b>E-mode</b> plasma; above a threshold it <b>jumps</b> into the bright inductive <b>H-mode</b> — with hysteresis.',
+    body:`<ul>
+<li>E-mode: the high coil voltage couples capacitively through the window → nₑ ~ 10⁹–10¹⁰ cm⁻³, dim</li>
+<li>Inductive coupling needs a plasma dense enough to absorb the induced field</li>
+<li>Above the threshold power the density jumps 10–100× → H-mode</li>
+<li>Ramping down, H-mode survives to lower power than it needed to start — <b>hysteresis</b></li></ul>`,
+    co:[['try','Ramp the source power slowly up and down. Then remove the Faraday shield: E-mode is brighter and ignition easier — but the window is now sputtered.'],
+        ['key','Recipes strike at higher power or pressure, then step to process conditions, so the plasma is safely in H-mode before etching begins.']],
+    dd:[{t:'What the Faraday shield trades off', b:`<p>Capacitive coupling from the coil helps ignition but hurts afterwards: hundreds to thousands of volts on the coil appear across the window sheath and accelerate ions into the window. That sputters Al₂O₃ / Y₂O₃ onto the wafer (particles, metal contamination) and erodes the window.</p>
+<p>A grounded, slotted Faraday shield blocks the electrostatic field while letting the magnetic field through. Ignition gets harder (some tools add an igniter or a short higher-pressure strike), but window erosion and contamination drop sharply.</p>`}] },
+
+  { ch:1, title:'Two Knobs — Source Sets Flux, Bias Sets Energy',
+    lead:'Source power sets plasma density and therefore ion flux. Bias power on the chuck builds a self-bias that sets ion energy. That separation is why ICP exists — but the two are <b>not perfectly independent</b>.',
+    body:`<ul>
+<li>Source only: the chuck floats; ions still arrive normal to the wafer, with only ~5 Tₑ ≈ 15–20 eV</li>
+<li>Bias on: blocking capacitor → V_DC; ion energy E ≈ e·(V<sub>p</sub> + |V_DC|) — tens to a few hundred eV</li>
+<li>Ion current I ≈ 0.6·e·nₑ·u<sub>B</sub>·A — ~5–20 mA/cm² at ICP densities</li>
+<li>Bias power ≈ ion current × sheath voltage: at fixed bias power, <b>more source power lowers ion energy</b></li>
+<li>The chuck sheath is only ~0.1–0.5 mm thick (CCP oxide etch: ~5 mm)</li></ul>`,
+    co:[['try','Keep bias at 150 W and raise the source: flux goes up, energy goes down. Then keep the source and change the bias.'],
+        ['myth','“With bias off, ions arrive from random directions.” Even a floating surface has a sheath of a few Tₑ: ions still arrive nearly normal, just with low energy and a wider angle (θ ≈ √(Tₑ/2E)).']],
+    dd:[{t:'Bias power, bias voltage and the IEDF', b:`<div class="eq">I_ion ≈ 0.6·e·nₑ·u_B·A          u_B = √(kTₑ/M) ≈ 3 km/s (Cl⁺)
+P_bias ≈ I_ion·|V_DC|   →   |V_DC| ≈ P_bias / I_ion
+E_ion ≈ e·(V_p + |V_DC|)      (V_p − V_float ≈ 5 Tₑ ≈ 18 V)</div>
+<p>The ICP sheath is so thin that ions cross it in less than one 13.56 MHz period and partly follow the bias waveform — the IEDF is broad and bimodal (chart). Tools therefore control either bias <i>power</i> or bias <i>voltage</i>; controlling the voltage keeps ion energy constant when density drifts.</p>`}] },
+
+  { ch:1, title:'Al Etch Chemistry — Breakthrough, Etch, Passivate',
+    lead:'Chlorine etches clean aluminium spontaneously — both the strength and the danger. Every Al surface first wears a 2–4 nm <b>native Al₂O₃</b> that Cl cannot remove alone, and once it is gone the etch runs <b>sideways as easily as down</b>.',
+    body:`<ul>
+<li><b>Breakthrough</b>: BCl₃ + ion bombardment removes the Al₂O₃ (BClₓ scavenges oxygen)</li>
+<li><b>Main etch</b>: <code>Al + 3Cl → AlCl₃↑</code> (Al₂Cl₆) — fast, spontaneous, isotropic</li>
+<li><b>Sidewall passivation</b>: carbon from sputtered resist plus N₂ / CHF₃ additives form a protective film</li>
+<li>Ions keep the trench bottom free of that film → vertical profile</li></ul>`,
+    co:[['try','Remove BCl₃: breakthrough slows dramatically. Remove N₂ and lower the bias: the lateral (undercut) rate rises.'],
+        ['myth','“Directional ions alone make Al profiles vertical.” Cl attacks Al spontaneously from every direction — without sidewall passivation the line is undercut even with perfectly vertical ions.']],
+    dd:[{t:'A different synergy from oxide etching', b:`<p>In fluorocarbon oxide etching, ions <i>enable</i> the reaction. In chlorine Al etching the reaction runs on its own; ions are needed to <b>break the native oxide</b>, to <b>clear passivation from the bottom</b>, and to remove <b>Cu residues</b>.</p>
+<div class="eq">Al₂O₃ (native, 2–4 nm) : needs BCl₃ + ions      → breakthrough step
+Al (+ 0.5 % Cu)        : Cl → AlCl₃ / Al₂Cl₆ ↑     (fast)
+Cu                     : CuClₓ, low volatility     → needs ions / heat
+Sidewall               : C, Cl, N from resist + N₂ → passivation</div>`}] },
+
+  { ch:2, title:'Etching the Metal Stack — Profile Control',
+    lead:'A real interconnect is a stack: TiN anti-reflection layer, Al-Cu, then a TiN/Ti barrier on oxide. Each layer etches at its own rate, and the profile is set by the <b>balance between lateral chemistry and passivation</b>.',
+    body:`<ul>
+<li>TiN / Ti need ion assistance (TiCl₄ is volatile, but the nitride bonds are strong)</li>
+<li>Al-Cu etches fastest — lateral attack shows up there as <b>undercut / notching</b></li>
+<li>Low ion energy or a cold chuck leaves <b>Cu residues</b> (CuClₓ) between the lines</li>
+<li>The resist erodes throughout — and feeds the sidewall passivation</li></ul>`,
+    co:[['try','Lower the bias (residues), remove N₂ (undercut), lower the BCl₃ share (faster, more lateral), cool the chuck (residues).'],
+        ['warn','Teaching model: trends follow published Al etch behavior; dimensions and rates are illustrative.']],
+    dd:[{t:'Microloading and the oxide underneath', b:`<p>Dense line arrays etch slower than isolated lines (microloading: less reactant per exposed area, more byproduct). The over-etch needed to clear the dense areas lands on the oxide under the isolated spaces — so selectivity to the oxide, and a gentle bias during over-etch, decide how much oxide is lost.</p>`}] },
+
+  { ch:2, title:'Endpoint Through the Stack',
+    lead:'The plasma glow tells the tool which layer it is in. Al emission rises while aluminium is etched and drops when it clears — the main-etch endpoint — followed by the barrier etch and an over-etch.',
+    body:`<ul>
+<li>Al 396 nm (and AlCl 261 nm) track aluminium etching</li>
+<li>Endpoint = Al signal drop; then barrier (TiN / Ti) etch and over-etch</li>
+<li>Center and edge clear at different times → the over-etch clears metal everywhere</li>
+<li>Over-etch consumes some underlying oxide — keep it short and gentle</li></ul>`,
+    co:[['try','Change the over-etch and the open area; check metal left at the edge and oxide lost at the center.']],
+    dd:[{t:'Why metal endpoint is easier than contact endpoint', b:`<p>Metal line patterns typically expose 30–60 % of the wafer, so the Al line changes strongly when the metal clears — unlike oxide contact etching with ~1 % open area. The harder part is the barrier: TiN and Ti give weak, overlapping signals, so the barrier step and over-etch are usually timed from the Al endpoint.</p>`}] },
+
+  { ch:2, title:'Post-Etch Corrosion — Treat Before Air',
+    lead:'After etching, chlorine remains in the sidewall film and resist. In air it reacts with moisture to form HCl, which <b>corrodes the aluminium within hours</b>. Al etchers therefore strip and passivate the wafer before it ever sees air.',
+    body:`<ul>
+<li>Residual Cl + H₂O → HCl → attacks Al → AlCl₃ hydrolyses → more HCl (self-sustaining)</li>
+<li>Copper makes it worse: galvanic cells between Al and Al₂Cu (θ-phase) precipitates</li>
+<li><b>Post-etch treatment (PET)</b>: in-situ H₂O-vapor / O₂ plasma replaces Cl with OH / O and strips the resist</li>
+<li>Then a solvent clean; the queue time between etch and treatment is tightly controlled</li></ul>`,
+    co:[['try','Turn PET off and let the wafer sit in clean-room air. Then turn PET on and compare.']],
+    dd:[{t:'The corrosion cycle', b:`<div class="eq">Cl (residue) + H₂O   → HCl
+6 HCl + 2 Al         → 2 AlCl₃ + 3 H₂
+AlCl₃ + 3 H₂O        → Al(OH)₃ + 3 HCl     ← HCl is regenerated</div>
+<p>Because HCl is regenerated, a little residual chlorine can corrode a lot of metal. PET breaks the cycle by removing chlorine while the wafer is still under vacuum and by leaving a thin protective oxide on the sidewalls.</p>`}] },
+
+  { ch:2, title:'After the Etch — Dechuck, Strip & Chamber Clean',
+    lead:'The wafer moves under vacuum to the strip chamber. Meanwhile the etch chamber has collected AlClₓ, boron oxides and carbon on the window and liner — which changes how the coil power couples in.',
+    body:`<ul>
+<li>RF off → He pump-out → ESC dechuck → transfer under vacuum to strip / PET</li>
+<li>Deposits on the window absorb or shield part of the coil field → density drifts</li>
+<li><b>WAC</b> (Cl₂ / O₂ plasma, no wafer) removes the deposits; a short seasoning restores the wall</li>
+<li>Window and liner are consumables, protected by Y₂O₃ coatings</li></ul>`,
+    co:[['try','Turn WAC off and watch window deposits and etch-rate drift grow wafer by wafer.']],
+    dd:[{t:'Why the window is critical in ICP', b:`<p>In a CCP, electrode deposits mainly change the self-bias. In an ICP the field must pass <i>through</i> the window: a conductive or lossy film (Al-rich deposits) partly shields the coil, lowering density and changing the radial profile. Engineers watch the source-match tuning position and OES intensities as early warnings of window coating.</p>`}] },
+
+  { ch:3, title:'Key Takeaways', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'ICP metal etch on one page', p:'Inductive coupling, two-knob control and aluminium chemistry — with the misconceptions corrected.',
+    btn1:'Where metal dry etch is used', btn2:'ICP antenna geometries',
+    img1:'./images/al_etching.png', cap1:'Metal line, via / pad, dummy-metal and trim etching — and the gases used.',
+    img2:'./images/icp_antenna_style.png', cap2:'Planar spiral, multi-zone dome and helical ICP antennas.',
+    sPr:'Design principles', sTab:'ICP metal etch vs. CCP oxide etch', sWin:'Typical process window · Al-Cu line etch', sMyth:'Misconceptions corrected', sLim:'Limitations → what solves them',
+    pr:[['Inductive coupling through a window','Coil → B → induced E in a 1–2 cm skin layer → nₑ ≈ 10¹¹–10¹² cm⁻³ with no internal electrode.'],
+        ['Faraday shield','Blocks capacitive coupling: less window sputtering and contamination, harder ignition.'],
+        ['Two knobs','Source power → ion flux; bias power → V_DC → ion energy (coupled at fixed bias power).'],
+        ['Thin sheath, low pressure','5–20 mTorr, sheath ~0.1–0.5 mm → collisionless, directional ions.'],
+        ['Cl chemistry needs passivation','Breakthrough (BCl₃ + ions), fast spontaneous Al etch, sidewall film from resist / N₂.'],
+        ['Treat before air','PET removes Cl before corrosion; WAC keeps the window clean.']],
+    th:['Parameter','ICP metal etch','CCP oxide etch'],
+    rows:[['Plasma generation','coil through window (inductive)','electrodes (capacitive)'],
+          ['Pressure','5 – 20 mTorr','10 – 100 mTorr'],
+          ['Electron density','10¹¹ – 10¹² cm⁻³','10¹⁰ – 10¹¹ cm⁻³'],
+          ['Ionization degree','~10⁻⁴ – 10⁻²','~10⁻⁵ – 10⁻⁴'],
+          ['Ion current at wafer','3 – 25 mA/cm²','0.3 – 3 mA/cm²'],
+          ['Sheath at wafer','0.1 – 0.5 mm','3 – 6 mm'],
+          ['Ion energy','20 – 300 eV (bias)','200 – 1000+ eV'],
+          ['Flux vs. energy','separate knobs','coupled (single f)'],
+          ['Chemistry','Cl₂ / BCl₃ (+ N₂, Ar)','C₄F₈ / O₂ / Ar']],
+    win:[['Pressure','5 – 20 mTorr'],['Source power','500 – 1500 W'],['Bias power','50 – 300 W'],['Cl₂ / BCl₃ / N₂','40–100 / 20–80 / 5–20 sccm'],['Chuck temperature','40 – 80 °C'],['Al etch rate','500 – 1000 nm/min'],['Al : resist','2 – 4 : 1'],['Al : oxide','5 – 15 : 1']],
+    winNote:'Typical / illustrative ranges — always check against your tool and recipe.',
+    myths:[['Ion energy = e·|V_DC + V_rf|','E ≈ e·(V_p + |V_DC|), with a broad IEDF in thin ICP sheaths'],
+           ['The induced E-field rotates and fills the chamber','It oscillates azimuthally within a 1–2 cm skin layer'],
+           ['Bias off → ions from random directions','Ions still arrive nearly normal, at ~5 Tₑ'],
+           ['Source and bias are fully independent','At fixed bias power, more density lowers ion energy'],
+           ['Coil and chuck share no ground','Both return through the grounded chamber'],
+           ['Directional ions alone give vertical Al lines','Cl etches Al spontaneously — passivation is required']],
+    lim:[['Window coating & erosion','Faraday shield, Y₂O₃ coating, WAC'],
+         ['Center-edge density (torus)','Multi-zone coils, dome windows'],
+         ['Cu residues in Al-Cu','Ion assist, warmer chuck, over-etch'],
+         ['Post-etch corrosion','In-situ PET, short queue time'],
+         ['Resist erosion','Hard masks (SiON / TiN), thicker resist'],
+         ['Fine-pitch Al lines','Cu damascene (Al remains for pads / top metal)']],
+  },
+},
+
+ko:{
+  title:'ICP 금속 식각 — BCl₃ / Cl₂로 Al-Cu 배선',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ 이전', next:'다음 ▶', kbd:'← → 키로 이동', of:'/',
+  labels:'라벨', explore:'부품 살펴보기',
+  chapters:['장비 & 준비','Plasma 물리','식각 공정','정리'],
+  recipeK:'Recipe',
+  recipe:['Load','Pump','Chuck & He','Stabilize','Strike E→H','Breakthrough','Main Etch','Over-etch','Dechuck','Strip / PET','WAC'],
+  rd:{p:'P',T:'Chuck',hf:'Source',lf:'Bias',gas:'Gas',off:'OFF',slow:'RF 속도 ≈ 2.7×10⁷배 느리게'},
+  tags:{try:'직접 해보기',myth:'흔한 오해',key:'핵심',warn:'참고'},
+  dd:'심화학습',
+  parts:{
+    coil:['Coil (안테나) — Source RF','Window 위의 평면 나선 코일. RF 전류가 진동 자기장을 만들고, 이것이 Window 아래에 Plasma를 구동하는 전기장을 유도합니다.'],
+    fs:['Faraday Shield','코일과 Window 사이의 접지된 슬롯 판. 자기장은 통과시키고 코일의 정전기장은 차단합니다 — Window Sputtering과 오염은 줄지만 점화는 어려워집니다.'],
+    win:['유전체 Window','염소에 강한 Y₂O₃ 코팅을 한 Al₂O₃ 세라믹. 전기장이 이것을 통과해야 하므로, 표면 증착물은 결합 효율을 바꿉니다.'],
+    inj:['중앙 가스 Injector','가스는 Window 중앙의 노즐(과 측면 노즐)로 들어갑니다. 코일 때문에 Showerhead를 둘 자리가 없습니다.'],
+    smatch:['Source Match','코일 + Plasma 부하를 50 Ω에 정합합니다. Plasma 모드가 바뀌거나 Window가 코팅되면 Tuning 위치가 움직입니다.'],
+    sgen:['Source RF Generator','13.56 MHz, 보통 0.5–2 kW. Plasma 밀도, 즉 이온 Flux를 정합니다.'],
+    bcl3:['BCl₃','자연 산화막 Al₂O₃를 제거(Breakthrough)하고 Chamber의 H₂O / O₂를 제거합니다. BClₓ⁺ 이온도 식각을 돕습니다.'],
+    cl2:['Cl₂','주 식각 가스: Cl 원자가 Al과 자발적으로 반응 → AlCl₃ / Al₂Cl₆. Cl₂가 많을수록 빠르고 측면 식각도 커집니다.'],
+    ar:['Ar','희석과 이온 충격; 방전을 안정화합니다.'],
+    n2:['N₂ (첨가 가스)','Resist에서 나온 탄소와 함께 측벽 Passivation을 형성 — Undercut을 제어합니다.'],
+    mfc:['Mass Flow Controller','대표적인 Al Recipe: Cl₂ 40–100, BCl₃ 20–80, N₂ 5–20, Ar 0–50 sccm.'],
+    gap:['Plasma 공간 (~100 mm)','고밀도 Plasma(10¹¹–10¹² cm⁻³). Window 아래 ~1–2 cm Skin Layer에서 가열되어 웨이퍼 쪽으로 확산합니다.'],
+    wafer:['웨이퍼 — Al-Cu 적층','Resist / TiN ARC / Al-0.5 % Cu / TiN / Ti / 산화막. 남는 라인이 배선이 됩니다.'],
+    fr:['Focus Ring','전극을 연장해 웨이퍼 끝까지 Sheath를 평탄하게 유지합니다.'],
+    esc:['정전 척 (ESC)','웨이퍼를 정전기력으로 고정; 후면 He로 Al 식각 시 웨이퍼를 40–80 °C로 유지합니다.'],
+    chuck:['Chuck — Bias RF','별도 Match와 Blocking Capacitor로 RF가 인가됩니다. Self-Bias, 즉 이온 에너지를 정합니다.'],
+    he:['후면 He','mTorr에서 웨이퍼와 Chuck 사이 열 전달.'],
+    eschv:['ESC 전원','웨이퍼를 고정하고, 공정 후 극성 반전·방전으로 De-chuck합니다.'],
+    bmatch:['Bias Match + Blocking Capacitor','DC를 막아 Chuck이 음(−)의 V_DC로 Charging될 수 있게 합니다.'],
+    bgen:['Bias RF Generator','13.56 MHz, 보통 50–300 W. 이온 에너지(수십–수백 eV)를 정합니다.'],
+    cm:['Capacitance Manometer','절대 압력계; Pendulum Valve 제어 루프를 구동합니다.'],
+    pv:['Pendulum Valve','Turbo Pump를 조여 5–20 mTorr를 유지합니다.'],
+    tmp:['Turbo-Molecular Pump','mTorr에서 큰 배기 능력; AlCl₃ / Al₂Cl₆가 재증착되기 전에 빼냅니다.'],
+    wall:['Liner / Chamber Wall (접지)','AlClₓ, 붕소 산화물, 탄소가 쌓이는 곳; 보통 교체 가능한 코팅 Liner입니다.'],
+  },
+  sp:{BCl3:'BCl₃',Cl2:'Cl₂',Ar:'Ar',N2:'N₂',Cl:'Cl·',BCl2:'BCl₂·',Clp:'Cl⁺',Arp:'Ar⁺',Neg:'Cl⁻',e:'e⁻',AlCl3:'AlCl₃',HCl:'HCl',powder:'Window 파티클',fast:'고속 중성입자'},
+  I:{
+    hw:{title:'대표적인 장비 수치',stats:[['Window → 웨이퍼','70–150 mm'],['압력','5–20 mTorr'],['Source RF','13.56 MHz · 0.5–2 kW'],['Bias RF','13.56 MHz · 50–300 W'],['Chuck 온도','40–80 °C'],['nₑ','10¹¹–10¹² cm⁻³']]},
+    s1:{chart:'압력에 따른 평균 자유 행정',p:'압력',lam:'λ (가스)',sl:'ICP Sheath / λ',reg:'영역',coll:'충돌성',trans:'약한 충돌성',free:'무충돌',sheI:'ICP Sheath ≈ 0.1–0.5 mm',sheC:'CCP 산화막 식각 Sheath ≈ 5 mm',gap:'Window → 웨이퍼 100 mm'},
+    s2:{chart:'Window 아래 유도 전기장',top:'위에서 본 E_θ',Ps:'Source 파워',ne:'nₑ',d:'Skin Depth δ',ef:'E_θ(z)',pw:'흡수 파워',depth:'Window 아래 깊이 (mm)',cw:'시계 방향',ccw:'반시계 방향'},
+    s3:{chart:'Source 파워에 따른 전자 밀도',Ps:'Source 파워',shield:'Faraday Shield',on:'On',off:'Off',mode:'모드',ne:'nₑ',win:'Window 이온 충격',low:'낮음',med:'보통',high:'높음',E:'E-mode',H:'H-mode',up:'상승',dn:'하강',msgE:'E-mode — Window를 통한 용량성 결합, 어두움',msgH:'H-mode — 유도성, 고밀도 Plasma'},
+    s4:{chart:'이온 Flux vs 이온 에너지',iedf:'IEDF',Ps:'Source 파워',Pb:'Bias 파워',J:'이온 전류',vdc:'V_DC',Ei:'이온 에너지',s:'Sheath',th:'이온 각도',fixB:'Bias 파워 고정',fixS:'Source 파워 고정'},
+    s5:{chart:'속도',bcl3:'BCl₃ 비율 (BCl₃ + Cl₂ 중)',n2:'N₂',Pb:'Bias 파워',bt:'Breakthrough',er:'Al 식각 속도',lat:'측면 식각',sel:'Al : Resist',zoom:'ZOOM · Al 라인의 가장자리',ox:'자연 Al₂O₃',pass:'측벽 Passivation',vert:'Al 수직',latR:'Al 측면',prR:'Resist',msgBT:'자연 산화막 Breakthrough 중…',msgEt:'Main Etch — 자발적 + 이온 보조 Al 식각'},
+    s6:{chart:'Profile',Pb:'Bias 파워',n2:'N₂',cl:'BCl₃ 비율',T:'Chuck 온도',play:'재생',pause:'일시정지',reset:'Reset',layer:'식각 위치',under:'Undercut',res:'Cu 잔류물',pr:'남은 Resist',oxl:'산화막 손실',none:'없음',some:'약간',heavy:'많음',layers:['Resist','TiN ARC','Al-Cu','TiN / Ti','SiO₂'],run:'식각 중…',done:'완료 — Profile과 잔류물을 확인하세요',bt:'Breakthrough'},
+    s7:{chart:'OES Endpoint — Al 396 nm',open:'Open Area',oe:'Over-etch',restart:'다시 시작',ep:'Endpoint',tot:'총 시간',oxl:'산화막 손실 중앙 / Edge',res:'Edge에 금속 잔류 — Over-etch를 늘리세요',ok:'모든 Space 관통 완료',wait:'적층막 식각 중…',noisy:'신호가 약함 — Endpoint 불확실',labels:['중앙','중간','Edge'],sig:'Al 신호',main:'Main Etch',bar:'Barrier',oeR:'Over-etch'},
+    s8:{chart:'대기 노출 시간에 따른 부식 개수',pet:'Post-Etch Treatment',on:'On',off:'Off',restart:'다시 시작',q:'대기 노출 시간',cl:'잔류 Cl',def:'부식 지점',msgOn:'PET: Cl 치환, Resist 제거, 측벽 Passivation',msgOff:'Cl + H₂O → HCl → Al 부식',zoom:'ZOOM · 식각 직후 Al 라인',hr:'h'},
+    s9:{phases:['RF off','De-chuck','웨이퍼 → Strip','WAC (Cl₂/O₂)','Seasoning','준비 완료'],wac:'Waferless Auto-Clean',on:'On',off:'Off',chart:'Window 증착물 & 식각 속도 Drift',poly:'Window 증착물',dev:'식각 속도 Drift (%)',wafer:'웨이퍼 #',msg:['Plasma off; Bias 소멸','ESC 방전 — Lift Pin 상승','진공 상태로 Strip Chamber로 이송','Plasma가 Window·Liner의 AlClₓ, BOₓ, 탄소를 제거','짧은 Seasoning으로 벽면 복원','다음 웨이퍼 준비 완료'],skip:'WAC 생략 — Window 증착물 누적'},
+  },
+  steps:[
+  { ch:0, title:'ICP 금속 식각 Chamber 들여다보기',
+    lead:'유도결합 Plasma(ICP) Chamber에는 <b>RF 회로가 두 개</b> 있습니다: 유전체 Window 위의 코일이 Plasma를 만들고, 아래 Chuck이 이온 에너지를 정합니다. 여기서는 염소 화학으로 Al-Cu 배선 적층막을 패터닝합니다.',
+    body:`<ul>
+<li><b>Coil + Source RF</b> — 내부 전극 없이 Window를 통해 Plasma를 생성</li>
+<li><b>Faraday Shield</b> — 접지된 슬롯 판: 자기장은 통과, 용량성 결합은 차단</li>
+<li><b>유전체 Window</b> — 염소에 강한 Y₂O₃ 코팅의 Al₂O₃</li>
+<li><b>ESC Chuck + Bias RF</b> — Blocking Capacitor를 통해 공급; 이온 에너지 결정</li>
+<li>가스: <code>BCl₃ + Cl₂ (+ N₂, Ar)</code>, 중앙 Injector와 측면 노즐로 주입</li>
+<li>웨이퍼: Resist / TiN / Al-0.5 % Cu / TiN / Ti / 산화막</li></ul>`,
+    co:[['try','그림에 마우스를 올리거나, 아래 부품 버튼을 눌러 역할을 확인하세요.'],
+        ['key','두 RF 회로는 기능상 독립이지만 접지는 공유합니다: 둘 다 접지된 Chamber로 귀환합니다. Source 파워는 밀도를, Bias 파워는 이온 에너지를 정합니다.']],
+    dd:[{t:'코일 형태 — 평면, Dome, 나선', b:`<p>여기 그린 평면 나선 코일은 300 mm 금속·실리콘 식각에서 가장 흔한 소스입니다. Dome 형 Window와 다중 Zone 코일은 반경 방향 균일도를 조절하고, 튜브에 감은 나선 코일은 소형 고밀도 소스로 흔히 원격 Plasma 소스(RPS)에 쓰입니다.</p>
+<img class="dd-img" src="./images/icp_antenna_style.png" alt="ICP 안테나 형태" onclick="openPop(this.src,'')">
+<div class="dd-hl">모양과 무관하게 물리는 같습니다: 코일 전류 → 진동 B → 유도 E (Faraday 법칙) → Window 아래 얇은 Skin Layer에서 전자 가열.</div>`}] },
+
+  { ch:0, title:'Recipe 시작 — Pump, Chuck, Stabilize',
+    lead:'웨이퍼를 ESC에 고정·가열하고, 염소 가스를 5–20 mTorr로 채웁니다 — CCP 식각보다 낮은 압력입니다. ICP는 전극 Sheath 없이도 방전이 유지되기 때문입니다.',
+    body:`<ul>
+<li>Turbo Pump + Pendulum Valve: 5–20 mTorr (여기서는 10)</li>
+<li>ESC 고정; 후면 He로 웨이퍼 온도 설정 (Al은 ≈ 40–80 °C — AlCl₃가 휘발되도록)</li>
+<li>BCl₃가 잔류 H₂O와 O₂를 제거 — 수분은 알루미늄을 다시 산화시킴</li>
+<li>10 mTorr에서 λ ≈ 5 mm: 이온은 1 mm 미만의 ICP Sheath를 충돌 없이 통과</li></ul>`,
+    co:[['try','압력을 바꿔 λ를 ICP Sheath(~0.1–0.5 mm), CCP 산화막 식각 Sheath(~5 mm)와 비교해 보세요.'],
+        ['key','얇은 Sheath + 긴 평균 자유 행정 = 무충돌, 방향성 이온 — 이온 에너지가 크지 않아도.']],
+    dd:[{t:'Al 식각에서 Chuck을 데우는 이유', b:`<p>식각 생성물 AlCl₃(주로 이량체 Al₂Cl₆)는 표면에서 빨리 떠나야 합니다. 40–80 °C의 웨이퍼는 이를 휘발성으로 유지합니다.</p>
+<p>Al-Cu의 0.5 % 구리가 더 까다롭습니다: CuClₓ는 ~200 °C 이하에서 거의 휘발하지 않아 이온 충격으로 제거해야 합니다. 그래서 Bias가 낮거나 Chuck이 차가우면 라인 사이 산화막 위에 <b>Cu 잔류물</b>이 남습니다.</p>
+<p>너무 뜨거우면 Resist가 무르고 측면 화학 식각이 빨라집니다. 그래서 Chuck 온도는 단순한 설정값이 아니라 Profile Knob입니다.</p>`}] },
+
+  { ch:1, title:'유도 결합 — 코일, 자기장, Skin Layer',
+    lead:'코일의 RF 전류가 진동 자기장을 만듭니다. Faraday 법칙에 따라 Window 아래 가스에 <b>원형 전기장</b>이 유도됩니다 — 전극 없이 Plasma를 구동하지만, 얇은 <b>Skin Layer</b> 안에서만 그렇습니다.',
+    body:`<ul>
+<li>코일 전류 I(t) → Window를 통과하는 B(t) (Faraday Shield의 슬롯을 통해)</li>
+<li>∇×E = −∂B/∂t → 방위각 방향 E_θ: <b>반주기마다 방향이 바뀌는</b> 원형 루프</li>
+<li>Plasma가 전기장을 차폐: E는 e<sup>−z/δ</sup>로 감쇠, Skin Depth δ ≈ c/ω<sub>pe</sub> ≈ 1–2 cm</li>
+<li>전자는 그 층에서 가열되고, Plasma는 웨이퍼 쪽으로 확산</li></ul>`,
+    co:[['try','Source 파워를 올려 보세요: 밀도가 오르고 Skin Layer가 얇아집니다. 위에서 본 그림의 유도 전기장은 반주기마다 방향이 바뀝니다 — 회전이 아니라 진동입니다.'],
+        ['myth','“유도 전기장이 회전하며 Chamber 전체를 가열한다.” 전기장은 방위각 방향으로 진동하며, Window 아래 ~1–2 cm Skin Depth에 갇혀 있습니다. 이 압력에서 전자는 RF 한 주기에 몇 번 충돌합니다 — 가열은 궤도 운동이 아니라 충돌·Stochastic 가열입니다.']],
+    dd:[{t:'Skin Depth — 그리고 ICP가 CCP보다 조밀한 이유', b:`<div class="eq">ω_pe = 5.64×10⁴·√nₑ[cm⁻³]  rad/s
+δ ≈ c / ω_pe :   nₑ = 10¹¹ → 17 mm     nₑ = 10¹² → 5 mm</div>
+<p>CCP에서는 RF 파워가 주로 진동하는 Sheath를 통해 전자에 전달되고, 상당 부분이 Sheath를 건너는 이온 가속에 쓰입니다. ICP에서는 유도 전기장이 Plasma 내부의 전자를 직접 가열하고, Window Sheath는 수 Tₑ에 머물러 이온으로 새는 파워가 작습니다. 그래서 같은 파워로 10–100배 높은 전자 밀도를 얻습니다.</p>
+<p>가열은 코일 권선 아래에서 가장 강해 Window 근처에 고리(Torus) 모양 밀도 분포가 생기고, 웨이퍼에 닿기 전 확산으로 평탄해집니다. 다중 Zone 코일과 Window 형태로 그 분포를 조절합니다.</p>`}] },
+
+  { ch:1, title:'점화 — E-mode에서 H-mode로',
+    lead:'ICP는 유도 방식으로 시작하지 않습니다. 낮은 파워에서는 코일이 축전기 판처럼 작동해 어두운 <b>E-mode</b> Plasma를 만들고, 임계값을 넘으면 밝은 유도성 <b>H-mode</b>로 <b>점프</b>합니다 — 히스테리시스와 함께.',
+    body:`<ul>
+<li>E-mode: 높은 코일 전압이 Window를 통해 용량성 결합 → nₑ ~ 10⁹–10¹⁰ cm⁻³, 어두움</li>
+<li>유도 결합은 유도 전기장을 흡수할 만큼 Plasma가 조밀해야 효율적</li>
+<li>임계 파워를 넘으면 밀도가 10–100배 점프 → H-mode</li>
+<li>파워를 내릴 때는 시작할 때보다 낮은 파워까지 H-mode가 유지 — <b>히스테리시스</b></li></ul>`,
+    co:[['try','Source 파워를 천천히 올렸다 내려 보세요. 그다음 Faraday Shield를 빼 보세요: E-mode가 밝아지고 점화가 쉬워지지만 — Window가 Sputtering됩니다.'],
+        ['key','Recipe는 높은 파워나 압력에서 점화한 뒤 공정 조건으로 바꿔, 식각 시작 전에 확실히 H-mode에 들어가게 합니다.']],
+    dd:[{t:'Faraday Shield의 Trade-off', b:`<p>코일의 용량성 결합은 점화에는 도움이 되지만 그 뒤엔 해롭습니다: 코일의 수백–수천 V가 Window Sheath에 걸려 이온을 Window로 가속합니다. 이는 Al₂O₃ / Y₂O₃를 웨이퍼로 Sputtering해(파티클, 금속 오염) Window를 침식시킵니다.</p>
+<p>접지된 슬롯형 Faraday Shield는 자기장은 통과시키고 정전기장은 막습니다. 점화는 어려워지지만(별도 Igniter나 짧은 고압 Strike를 쓰는 장비도 있음), Window 침식과 오염이 크게 줄어듭니다.</p>`}] },
+
+  { ch:1, title:'두 개의 Knob — Source는 Flux, Bias는 에너지',
+    lead:'Source 파워는 Plasma 밀도, 즉 이온 Flux를 정합니다. Chuck의 Bias 파워는 Self-Bias를 만들어 이온 에너지를 정합니다. 이 분리가 ICP를 쓰는 이유이지만 — 둘은 <b>완전히 독립적이지는 않습니다</b>.',
+    body:`<ul>
+<li>Source만: Chuck은 Floating; 이온은 여전히 웨이퍼에 수직으로 오지만 ~5 Tₑ ≈ 15–20 eV뿐</li>
+<li>Bias On: Blocking Capacitor → V_DC; 이온 에너지 E ≈ e·(V<sub>p</sub> + |V_DC|) — 수십–수백 eV</li>
+<li>이온 전류 I ≈ 0.6·e·nₑ·u<sub>B</sub>·A — ICP 밀도에서 ~5–20 mA/cm²</li>
+<li>Bias 파워 ≈ 이온 전류 × Sheath 전압: Bias 파워를 고정하면 <b>Source 파워를 올릴수록 이온 에너지는 낮아짐</b></li>
+<li>Chuck Sheath 두께는 ~0.1–0.5 mm에 불과 (CCP 산화막 식각: ~5 mm)</li></ul>`,
+    co:[['try','Bias를 150 W로 두고 Source를 올려 보세요: Flux는 늘고 에너지는 줄어듭니다. 그다음 Source를 두고 Bias를 바꿔 보세요.'],
+        ['myth','“Bias를 끄면 이온이 무작위 방향으로 온다.” Floating 표면에도 수 Tₑ의 Sheath가 있습니다: 이온은 여전히 거의 수직으로 오며, 에너지가 낮고 각도가 조금 넓을 뿐입니다 (θ ≈ √(Tₑ/2E)).']],
+    dd:[{t:'Bias 파워, Bias 전압, 그리고 IEDF', b:`<div class="eq">I_ion ≈ 0.6·e·nₑ·u_B·A          u_B = √(kTₑ/M) ≈ 3 km/s (Cl⁺)
+P_bias ≈ I_ion·|V_DC|   →   |V_DC| ≈ P_bias / I_ion
+E_ion ≈ e·(V_p + |V_DC|)      (V_p − V_float ≈ 5 Tₑ ≈ 18 V)</div>
+<p>ICP Sheath는 매우 얇아 이온이 13.56 MHz 한 주기보다 짧게 건너므로 Bias 파형을 부분적으로 따라갑니다 — IEDF는 넓은 쌍봉 분포입니다(차트). 그래서 장비는 Bias <i>파워</i> 또는 Bias <i>전압</i>을 제어하며, 전압을 제어하면 밀도가 흔들려도 이온 에너지가 일정합니다.</p>`}] },
+
+  { ch:1, title:'Al 식각 화학 — Breakthrough, 식각, Passivation',
+    lead:'염소는 깨끗한 알루미늄을 자발적으로 식각합니다 — 장점이자 위험입니다. 모든 Al 표면에는 Cl만으로는 못 지우는 2–4 nm의 <b>자연 Al₂O₃</b>가 있고, 그것이 사라지면 식각은 <b>아래만큼 옆으로도 쉽게</b> 진행됩니다.',
+    body:`<ul>
+<li><b>Breakthrough</b>: BCl₃ + 이온 충격이 Al₂O₃를 제거 (BClₓ가 산소를 제거)</li>
+<li><b>Main Etch</b>: <code>Al + 3Cl → AlCl₃↑</code> (Al₂Cl₆) — 빠르고 자발적이며 등방적</li>
+<li><b>측벽 Passivation</b>: Sputtering된 Resist의 탄소 + N₂ / CHF₃ 첨가로 보호막 형성</li>
+<li>이온이 Trench 바닥의 보호막을 계속 제거 → 수직 Profile</li></ul>`,
+    co:[['try','BCl₃를 빼 보세요: Breakthrough가 크게 느려집니다. N₂를 빼고 Bias를 낮추면 측면(Undercut) 식각이 커집니다.'],
+        ['myth','“방향성 이온만으로 Al Profile이 수직이 된다.” Cl은 모든 방향에서 Al을 자발적으로 공격합니다 — 측벽 Passivation이 없으면 이온이 완벽히 수직이어도 라인이 Undercut됩니다.']],
+    dd:[{t:'산화막 식각과는 다른 시너지', b:`<p>불화탄소 산화막 식각에서는 이온이 반응을 <i>가능하게</i> 합니다. 염소 Al 식각은 반응이 스스로 진행되며, 이온은 <b>자연 산화막 제거</b>, <b>바닥의 Passivation 제거</b>, <b>Cu 잔류물 제거</b>에 필요합니다.</p>
+<div class="eq">Al₂O₃ (자연, 2–4 nm)  : BCl₃ + 이온 필요       → Breakthrough Step
+Al (+ 0.5 % Cu)        : Cl → AlCl₃ / Al₂Cl₆ ↑   (빠름)
+Cu                     : CuClₓ, 휘발성 낮음      → 이온 / 열 필요
+측벽                   : Resist·N₂의 C, Cl, N   → Passivation</div>`}] },
+
+  { ch:2, title:'금속 적층막 식각 — Profile 제어',
+    lead:'실제 배선은 적층막입니다: TiN 반사방지막, Al-Cu, 그리고 산화막 위의 TiN/Ti Barrier. 층마다 식각 속도가 다르고, Profile은 <b>측면 화학 식각과 Passivation의 균형</b>으로 정해집니다.',
+    body:`<ul>
+<li>TiN / Ti는 이온 보조가 필요 (TiCl₄는 휘발성이지만 질화물 결합이 강함)</li>
+<li>Al-Cu가 가장 빠름 — 측면 공격이 여기서 <b>Undercut / Notching</b>으로 나타남</li>
+<li>이온 에너지가 낮거나 Chuck이 차가우면 라인 사이에 <b>Cu 잔류물</b>(CuClₓ)</li>
+<li>Resist는 계속 깎이며 — 측벽 Passivation의 원료가 됨</li></ul>`,
+    co:[['try','Bias를 낮추고(잔류물), N₂를 빼고(Undercut), BCl₃ 비율을 낮추고(빠르고 측면 증가), Chuck을 식혀(잔류물) 보세요.'],
+        ['warn','교육용 모델: 경향은 발표된 Al 식각 거동을 따르지만, 치수와 속도는 예시입니다.']],
+    dd:[{t:'Microloading과 아래 산화막', b:`<p>조밀한 라인 배열은 고립 라인보다 느리게 식각됩니다(Microloading: 노출 면적당 반응물이 적고 부산물이 많음). 조밀한 곳을 뚫기 위한 Over-etch는 고립 Space 아래 산화막을 깎으므로 — 산화막 선택비와 Over-etch 중의 약한 Bias가 산화막 손실을 결정합니다.</p>`}] },
+
+  { ch:2, title:'적층막을 따라가는 Endpoint',
+    lead:'Plasma 빛은 장비에게 지금 어느 층을 식각 중인지 알려 줍니다. 알루미늄이 식각되는 동안 Al 발광이 올라가고, 뚫리면 떨어집니다 — Main Etch의 Endpoint — 이어서 Barrier 식각과 Over-etch.',
+    body:`<ul>
+<li>Al 396 nm(와 AlCl 261 nm)가 알루미늄 식각을 추적</li>
+<li>Endpoint = Al 신호 하락; 이후 Barrier(TiN / Ti) 식각과 Over-etch</li>
+<li>중앙과 Edge는 뚫리는 시점이 다름 → Over-etch로 모든 곳의 금속 제거</li>
+<li>Over-etch는 아래 산화막을 일부 소모 — 짧고 약하게</li></ul>`,
+    co:[['try','Over-etch와 Open Area를 바꿔, Edge에 남는 금속과 중앙의 산화막 손실을 확인하세요.']],
+    dd:[{t:'금속 Endpoint가 Contact Endpoint보다 쉬운 이유', b:`<p>금속 라인 패턴은 보통 웨이퍼의 30–60 %를 노출하므로, 금속이 뚫릴 때 Al 선이 크게 변합니다 — Open Area ~1 %의 산화막 Contact 식각과 다릅니다. 어려운 쪽은 Barrier입니다: TiN과 Ti는 신호가 약하고 겹쳐서, Barrier Step과 Over-etch는 보통 Al Endpoint로부터 시간으로 정합니다.</p>`}] },
+
+  { ch:2, title:'식각 후 부식 — 대기 노출 전에 처리',
+    lead:'식각 후 염소가 측벽 막과 Resist에 남습니다. 대기 중 수분과 만나 HCl이 되고, <b>몇 시간 안에 알루미늄을 부식</b>시킵니다. 그래서 Al 식각 장비는 웨이퍼가 대기를 보기 전에 Strip과 Passivation을 합니다.',
+    body:`<ul>
+<li>잔류 Cl + H₂O → HCl → Al 공격 → AlCl₃ 가수분해 → HCl 재생성 (자기유지)</li>
+<li>구리는 이를 악화: Al과 Al₂Cu(θ상) 석출물 사이의 갈바닉 셀</li>
+<li><b>Post-Etch Treatment (PET)</b>: In-situ H₂O 증기 / O₂ Plasma가 Cl을 OH / O로 치환하고 Resist 제거</li>
+<li>이후 Solvent 세정; 식각과 처리 사이 Queue Time을 엄격히 관리</li></ul>`,
+    co:[['try','PET를 끄고 웨이퍼를 Clean Room 대기에 두어 보세요. 그다음 PET를 켜고 비교하세요.']],
+    dd:[{t:'부식 사이클', b:`<div class="eq">Cl (잔류) + H₂O     → HCl
+6 HCl + 2 Al         → 2 AlCl₃ + 3 H₂
+AlCl₃ + 3 H₂O        → Al(OH)₃ + 3 HCl     ← HCl 재생성</div>
+<p>HCl이 재생성되므로 소량의 잔류 염소로도 많은 금속이 부식됩니다. PET는 진공 상태에서 염소를 제거하고 측벽에 얇은 보호 산화막을 남겨 이 사이클을 끊습니다.</p>`}] },
+
+  { ch:2, title:'식각 후 — De-chuck, Strip & Chamber Clean',
+    lead:'웨이퍼는 진공 상태로 Strip Chamber로 이동합니다. 그동안 식각 Chamber의 Window와 Liner에는 AlClₓ, 붕소 산화물, 탄소가 쌓였고 — 이것이 코일 파워가 결합되는 방식을 바꿉니다.',
+    body:`<ul>
+<li>RF off → He 배기 → ESC De-chuck → 진공 이송으로 Strip / PET</li>
+<li>Window 증착물이 코일 전기장의 일부를 흡수·차폐 → 밀도 Drift</li>
+<li><b>WAC</b>(웨이퍼 없이 Cl₂ / O₂ Plasma)로 증착물 제거; 짧은 Seasoning으로 벽면 복원</li>
+<li>Window와 Liner는 Y₂O₃ 코팅으로 보호되는 소모품</li></ul>`,
+    co:[['try','WAC를 끄고 Window 증착물과 식각 속도 Drift가 웨이퍼마다 쌓이는 것을 확인하세요.']],
+    dd:[{t:'ICP에서 Window가 중요한 이유', b:`<p>CCP에서는 전극 증착물이 주로 Self-Bias를 바꿉니다. ICP에서는 전기장이 Window를 <i>통과</i>해야 합니다: 도전성이거나 손실이 있는 막(Al이 많은 증착물)은 코일을 부분적으로 차폐해 밀도를 낮추고 반경 분포를 바꿉니다. 엔지니어는 Source Match Tuning 위치와 OES 세기를 Window 코팅의 조기 경보로 봅니다.</p>`}] },
+
+  { ch:3, title:'핵심 정리', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'한 페이지로 보는 ICP 금속 식각', p:'유도 결합, 두 Knob 제어, 알루미늄 화학 — 그리고 바로잡은 오해들.',
+    btn1:'금속 건식 식각은 어디에 쓰일까?', btn2:'ICP 안테나 형태',
+    img1:'./images/al_etching.png', cap1:'금속 라인, Via / Pad, Dummy 금속, Trim 식각 — 그리고 사용 가스.',
+    img2:'./images/icp_antenna_style.png', cap2:'평면 나선, 다중 Zone Dome, 나선형 ICP 안테나.',
+    sPr:'설계 원리', sTab:'ICP 금속 식각 vs. CCP 산화막 식각', sWin:'대표 공정 Window · Al-Cu 라인 식각', sMyth:'바로잡은 오해', sLim:'한계 → 해결 방법',
+    pr:[['Window를 통한 유도 결합','코일 → B → 1–2 cm Skin Layer의 유도 E → 내부 전극 없이 nₑ ≈ 10¹¹–10¹² cm⁻³.'],
+        ['Faraday Shield','용량성 결합 차단: Window Sputtering·오염 감소, 점화는 어려워짐.'],
+        ['두 개의 Knob','Source 파워 → 이온 Flux; Bias 파워 → V_DC → 이온 에너지 (Bias 파워 고정 시 서로 묶임).'],
+        ['얇은 Sheath, 낮은 압력','5–20 mTorr, Sheath ~0.1–0.5 mm → 무충돌, 방향성 이온.'],
+        ['염소 화학엔 Passivation 필요','Breakthrough(BCl₃ + 이온), 빠른 자발적 Al 식각, Resist / N₂의 측벽 막.'],
+        ['대기 노출 전에 처리','PET로 부식 전에 Cl 제거; WAC로 Window를 깨끗하게.']],
+    th:['파라미터','ICP 금속 식각','CCP 산화막 식각'],
+    rows:[['Plasma 생성','Window 너머 코일 (유도성)','전극 (용량성)'],
+          ['압력','5 – 20 mTorr','10 – 100 mTorr'],
+          ['전자 밀도','10¹¹ – 10¹² cm⁻³','10¹⁰ – 10¹¹ cm⁻³'],
+          ['이온화율','~10⁻⁴ – 10⁻²','~10⁻⁵ – 10⁻⁴'],
+          ['웨이퍼 이온 전류','3 – 25 mA/cm²','0.3 – 3 mA/cm²'],
+          ['웨이퍼 Sheath','0.1 – 0.5 mm','3 – 6 mm'],
+          ['이온 에너지','20 – 300 eV (Bias)','200 – 1000+ eV'],
+          ['Flux vs. 에너지','별도 Knob','묶임 (단일 주파수)'],
+          ['화학','Cl₂ / BCl₃ (+ N₂, Ar)','C₄F₈ / O₂ / Ar']],
+    win:[['압력','5 – 20 mTorr'],['Source 파워','500 – 1500 W'],['Bias 파워','50 – 300 W'],['Cl₂ / BCl₃ / N₂','40–100 / 20–80 / 5–20 sccm'],['Chuck 온도','40 – 80 °C'],['Al 식각 속도','500 – 1000 nm/min'],['Al : Resist','2 – 4 : 1'],['Al : 산화막','5 – 15 : 1']],
+    winNote:'대표·예시 범위입니다 — 반드시 사용 장비와 Recipe 기준으로 확인하세요.',
+    myths:[['이온 에너지 = e·|V_DC + V_rf|','E ≈ e·(V_p + |V_DC|), 얇은 ICP Sheath에서는 IEDF가 넓음'],
+           ['유도 전기장이 회전하며 Chamber를 채운다','1–2 cm Skin Layer 안에서 방위각 방향으로 진동'],
+           ['Bias Off → 이온이 무작위 방향','이온은 여전히 거의 수직, ~5 Tₑ로 도달'],
+           ['Source와 Bias는 완전히 독립','Bias 파워 고정 시 밀도가 오르면 이온 에너지는 낮아짐'],
+           ['코일과 Chuck은 접지를 공유하지 않는다','둘 다 접지된 Chamber로 귀환'],
+           ['방향성 이온만으로 Al 라인이 수직','Cl은 Al을 자발적으로 식각 — Passivation 필수']],
+    lim:[['Window 코팅 & 침식','Faraday Shield, Y₂O₃ 코팅, WAC'],
+         ['중앙–Edge 밀도 (Torus)','다중 Zone 코일, Dome Window'],
+         ['Al-Cu의 Cu 잔류물','이온 보조, 따뜻한 Chuck, Over-etch'],
+         ['식각 후 부식','In-situ PET, 짧은 Queue Time'],
+         ['Resist 소모','Hard Mask (SiON / TiN), 두꺼운 Resist'],
+         ['미세 Pitch Al 배선','Cu Damascene (Al은 Pad / 최상위 금속에 사용)']],
+  },
+}};
+</script>
+
+<script>
+'use strict';
+/* ============================== ENGINE ============================== */
+const $=id=>document.getElementById(id);
+const TAU=Math.PI*2, rnd=Math.random;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+let lang='en';
+const L=()=>T[lang];
+const IL=k=>T[lang].I[k];
+
+/* ---------- canvas & logical frame (960×600, letterboxed) ---------- */
+const cv=$('cv'), ctx=cv.getContext('2d'), wrap=$('cvWrap');
+const LW=960, LH=600;
+let DPR=1, RS=1, OX=0, OY=0;
+function resize(){
+  const w=wrap.clientWidth, h=wrap.clientHeight; if(!w||!h) return;
+  DPR=window.devicePixelRatio||1;
+  cv.width=Math.round(w*DPR); cv.height=Math.round(h*DPR);
+  RS=Math.min(w/LW,h/LH); OX=(w-LW*RS)/2; OY=(h-LH*RS)/2;
+}
+new ResizeObserver(resize).observe(wrap); resize();
+function beginFrame(){
+  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(RS*DPR,0,0,RS*DPR,OX*DPR,OY*DPR);
+}
+
+const FONT='"Google Sans","Noto Sans KR",system-ui,sans-serif', MONO=FONT;   // Latin & digits: Google Sans; Hangul falls back to Noto Sans KR
+const C={purple:'#7030A0',purpleLt:'#F0E8F8',purpleMid:'#9B59D0',green:'#0F8C50',greenLt:'#E6F4ED',coral:'#E8553B',amber:'#D99A00',
+  ink:'#1A202C',ink2:'#334155',muted:'#64748B',label:'#94A3B8',border:'#E2E8F0',line:'#EEF2F6',blue:'#3A7AD6'};
+
+/* ---------- drawing helpers (shared with the PE-CVD lesson) ---------- */
+function rr(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function pl(pts,col,w,dash,off){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';if(dash){ctx.setLineDash(dash);ctx.lineDashOffset=off||0;}ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.restore();}
+function pipe(pts,flow,col){pl(pts,'#C7CED9',3.4);pl(pts,'#FFFFFF',1.4);if(flow)pl(pts,col||'rgba(112,48,160,.7)',1.7,[4,8],-time*30);}
+function txt(s,x,y,o={}){ctx.save();ctx.font=`${o.w||400} ${o.sz||11}px ${o.mono?MONO:FONT}`;ctx.fillStyle=o.c||C.muted;ctx.textAlign=o.a||'left';ctx.textBaseline=o.b||'middle';ctx.fillText(s,x,y);ctx.restore();}
+function arrow(x0,y0,x1,y1,col,w=1.2){ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();const a=Math.atan2(y1-y0,x1-x0),h=6;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-h*Math.cos(a-.42),y1-h*Math.sin(a-.42));ctx.lineTo(x1-h*Math.cos(a+.42),y1-h*Math.sin(a+.42));ctx.closePath();ctx.fill();ctx.restore();}
+function gnd(x,y){ctx.save();ctx.strokeStyle='#475569';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+6);ctx.moveTo(x-9,y+6);ctx.lineTo(x+9,y+6);ctx.moveTo(x-6,y+10);ctx.lineTo(x+6,y+10);ctx.moveTo(x-3,y+14);ctx.lineTo(x+3,y+14);ctx.stroke();ctx.restore();}
+function chemText(f,x,y,sz,col,align){
+  ctx.save();ctx.fillStyle=col;ctx.textBaseline='middle';ctx.textAlign='left';
+  const segs=[];
+  for(let i=0;i<f.length;i++){const ch=f[i];
+    if(/[0-9]/.test(ch)) segs.push(['s',ch]);
+    else if((ch==='+'||ch==='-')&&i===f.length-1) segs.push(['u',ch==='-'?'−':'+']);
+    else if(segs.length&&segs[segs.length-1][0]==='b') segs[segs.length-1][1]+=ch; else segs.push(['b',ch]);}
+  const fb=`600 ${sz}px ${FONT}`, fs=`600 ${Math.round(sz*.72)}px ${FONT}`;
+  let w=0; for(const s of segs){ctx.font=s[0]==='b'?fb:fs;w+=ctx.measureText(s[1]).width;}
+  let cx=align==='left'?x:align==='right'?x-w:x-w/2;
+  for(const s of segs){ctx.font=s[0]==='b'?fb:fs;const oy=s[0]==='s'?sz*.28:s[0]==='u'?-sz*.32:0;ctx.fillText(s[1],cx,y+oy);cx+=ctx.measureText(s[1]).width;}
+  ctx.restore(); return w;
+}
+const fmtP=p=>p<0.1?`${(p*1000).toFixed(0)} mTorr`:`${p.toFixed(2)} Torr`;
+
+function genBox(x,y,w,h,title,sub,on,freq,col){
+  ctx.fillStyle='#fff';ctx.strokeStyle=on?col:'#C5CDD8';ctx.lineWidth=1.3;rr(x,y,w,h,8);ctx.fill();ctx.stroke();
+  ctx.save();rr(x,y,w,h,8);ctx.clip();ctx.fillStyle=on?col:'#CBD2DC';ctx.fillRect(x,y,w,4);ctx.restore();
+  txt(title,x+w/2,y+15,{sz:11,w:700,a:'center',c:C.ink2});txt(sub,x+w/2,y+28,{sz:8.5,mono:true,a:'center',c:on?col:C.label});
+  if(freq!=null){ctx.save();ctx.strokeStyle=on?col:'#D5DAE2';ctx.lineWidth=1.4;ctx.beginPath();const sx=x+10,sw=w-20,sy=y+44;
+    for(let i=0;i<=sw;i++){const yy=sy+5*(on?Math.sin(i/sw*TAU*freq-time*6):0);i?ctx.lineTo(sx+i,yy):ctx.moveTo(sx+i,yy);}ctx.stroke();ctx.restore();}
+}
+
+function drawPlasma(st,I){
+  if(I<=.01) return;
+  const yT=YT+st.sT, yB=YB-st.sB;
+  ctx.save();ctx.beginPath();ctx.rect(X0,YT,X1-X0,YB-YT);ctx.clip();
+  const hg=ctx.createLinearGradient(X0,0,X1,0);
+  hg.addColorStop(0,'rgba(186,160,240,0)');hg.addColorStop(.07,`rgba(190,166,242,${.55*I})`);hg.addColorStop(.93,`rgba(190,166,242,${.55*I})`);hg.addColorStop(1,'rgba(186,160,240,0)');
+  ctx.fillStyle=hg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const cy=(yT+yB)/2, rg=ctx.createRadialGradient(XC,cy,4,XC,cy,(X1-X0)*.5);
+  rg.addColorStop(0,`rgba(255,255,255,${.7*I})`);rg.addColorStop(.6,`rgba(240,234,255,${.32*I})`);rg.addColorStop(1,'rgba(240,234,255,0)');
+  ctx.fillStyle=rg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const band=(y,dir,a)=>{if(a<.03)return;const h=10,g=ctx.createLinearGradient(0,y,0,y+dir*h);g.addColorStop(0,`rgba(160,110,250,${.45*a})`);g.addColorStop(1,'rgba(160,110,250,0)');ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-h,X1-X0,h);};
+  band(yT,1,st.expT*I); band(yB,-1,st.expB*I);
+  const sheath=(y,s,dir)=>{const g=ctx.createLinearGradient(0,y,0,y+dir*s);g.addColorStop(0,`rgba(30,27,75,${.15*I})`);g.addColorStop(1,`rgba(30,27,75,${.03*I})`);ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-s,X1-X0,s);
+    pl([[X0,y+dir*s],[X1,y+dir*s]],`rgba(112,48,160,${.3*I})`,1,[3,4]);};
+  sheath(YT,st.sT,1); sheath(YB,st.sB,-1);
+  ctx.restore();
+}
+
+/* ---------- particles & effects ---------- */
+function spawn(s,x,y,vx=0,vy=0){const p={s,x,y,vx,vy,age:0};parts.push(p);return p;}
+function bulkPt(m=10){return{x:X0+m+rnd()*(X1-X0-2*m),y:YT+45+rnd()*(YB-YT-90)};}
+function placeBulk(p){const q=bulkPt();p.x=q.x;p.y=q.y;p.vx=0;p.vy=0;p.age=0;}
+function lang_(p,f,kick,drag){p.vx+=(rnd()-.5)*kick*f;p.vy+=(rnd()-.5)*kick*f;const d=Math.pow(drag,f);p.vx*=d;p.vy*=d;}
+function boxR(p,x0,x1,y0,y1){if(p.x<x0){p.x=x0;p.vx=Math.abs(p.vx);}if(p.x>x1){p.x=x1;p.vx=-Math.abs(p.vx);}if(p.y<y0){p.y=y0;p.vy=Math.abs(p.vy);}if(p.y>y1){p.y=y1;p.vy=-Math.abs(p.vy);}}
+function cap(p,m){const s=Math.hypot(p.vx,p.vy);if(s>m){p.vx*=m/s;p.vy*=m/s;}}
+function moveE(p,st,f){
+  lang_(p,f,2.4,.9);cap(p,5);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  const yT=YT+st.sT, yB=YB-st.sB;
+  if(p.y<yT){if(st.sT<7&&rnd()<.3)return'T';p.y=yT+1+rnd()*3;p.vy=Math.abs(p.vy);}
+  if(p.y>yB){if(st.sB<7&&rnd()<.3)return'B';p.y=yB-1-rnd()*3;p.vy=-Math.abs(p.vy);}
+  return null;
+}
+function moveIon(p,st,f){
+  const yTm=YT+st.sTm, yBm=YB-st.sBm;
+  if(p.y>yTm&&p.y<yBm){lang_(p,f,.12,.96);p.vy+=(p.y<(yTm+yBm)/2?-1:1)*.004*f;}
+  else{const top=p.y<=yTm,V=top?st.Vt:st.Vb,s=Math.max(top?st.sTm:st.sBm,5);p.vy+=(top?-1:1)*.22*V/s*f;p.vx*=.98;}
+  cap(p,10);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  if(p.y<=YT+1)return'T'; if(p.y>=YB-1)return'B'; return null;
+}
+function moveRF(f,st,onE,onI){
+  for(const p of parts){const c=SP[p.s].cat;
+    if(c==='e'){const r=moveE(p,st,f);if(r){onE&&onE(p,r);placeBulk(p);}}
+    else if(c==='i'){const r=moveIon(p,st,f);if(r){onI&&onI(p,r);placeBulk(p);}}}
+}
+function count(s){let n=0;for(const p of parts)if(p.s===s)n++;return n;}
+function trim(s,n){const c=count(s);if(c>n){const i=parts.findIndex(p=>p.s===s);if(i>=0)parts.splice(i,1);}}
+function drawPowder(p){ctx.save();ctx.fillStyle='#E2E8F0';ctx.strokeStyle='#94A3B8';ctx.lineWidth=.8;const r=p.r||2.5;
+  [[0,0],[r*.7,-r*.4],[-r*.6,r*.3],[r*.2,r*.7]].forEach(([dx,dy],i)=>{if(i>Math.min(3,Math.floor(r/1.5)))return;ctx.beginPath();ctx.arc(p.x+dx,p.y+dy,r*.75,0,TAU);ctx.fill();ctx.stroke();});ctx.restore();}
+function drawParts(list){
+  list=list||parts;
+  for(const p of list){const s=SP[p.s];
+    if(s.cat==='p'){drawPowder(p);continue;}
+    if(p.a!=null)ctx.globalAlpha=clamp(p.a,0,1);
+    if(s.cat==='e'){ctx.fillStyle='rgba(224,161,0,.22)';ctx.beginPath();ctx.arc(p.x,p.y,3.8,0,TAU);ctx.fill();}
+    ctx.fillStyle=s.c;ctx.beginPath();ctx.arc(p.x,p.y,s.r,0,TAU);ctx.fill();
+    if(s.cat==='i'){ctx.strokeStyle='rgba(232,85,59,.35)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='ni'){ctx.strokeStyle='rgba(15,118,110,.4)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='r'){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,Math.max(.7,s.r*.36),0,TAU);ctx.fill();}
+    ctx.globalAlpha=1;
+    if(S.labels&&s.f&&s.cat!=='e')chemText(s.f,p.x,p.y-8.5,8.5,s.c,'center');
+  }
+}
+function addFlash(x,y,rgb,life=.4,r=12,label){fx.push({t:'f',x,y,rgb,life,max:life,r,label});}
+function addRing(x,y,rgb,life=.45,r=10,label){fx.push({t:'r',x,y,rgb,life,max:life,r,label});}
+function stepFx(dt){for(const f of fx)f.life-=dt;fx=fx.filter(f=>f.life>0);}
+function drawFx(){
+  for(const f of fx){const a=f.life/f.max;
+    if(f.t==='f'){const r=f.r*(1.25-a*.45),g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);g.addColorStop(0,`rgba(${f.rgb},${.85*a})`);g.addColorStop(1,`rgba(${f.rgb},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(f.x,f.y,r,0,TAU);ctx.fill();}
+    else{ctx.strokeStyle=`rgba(${f.rgb},${a})`;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1.3-a),0,TAU);ctx.stroke();}
+    if(f.label)txt(f.label,f.x,f.y-13-(1-a)*10,{sz:9.5,mono:true,w:600,c:`rgba(${f.rgb},${Math.min(1,a*1.7)})`,a:'center'});
+  }
+}
+
+/* ---------- hotspot helpers ---------- */
+const partById=id=>PARTS.find(p=>p.id===id);
+function highlightPart(id){const p=partById(id);if(!p)return;ctx.save();ctx.strokeStyle=C.purple;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+  for(const [x,y,w,h] of p.r){rr(x-3,y-3,w+6,h+6,6);ctx.stroke();}ctx.restore();}
+function showTip(id,sx,sy){const t=$('tooltip');if(!id){t.classList.remove('show');return;}const [n,d]=L().parts[id];t.innerHTML=`<b>${n}</b>${d}`;t.style.left=sx+'px';t.style.top=sy+'px';t.classList.add('show');}
+function partAt(x,y){for(const p of PARTS)for(const [rx,ry,rw,rh] of p.r)if(x>=rx&&x<=rx+rw&&y>=ry&&y<=ry+rh)return p.id;return null;}
+
+/* ---------- chart helpers ---------- */
+function chartCtx(id){const c=$(id);if(!c)return null;const r=c.getBoundingClientRect();if(r.width<8||r.height<8)return null;
+  const d=window.devicePixelRatio||1,w=Math.round(r.width*d),h=Math.round(r.height*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
+  const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);return{g,W:r.width,H:r.height};}
+function gt(g,s,x,y,o={}){g.font=`${o.w||400} ${o.sz||10}px ${o.mono?MONO:FONT}`;g.fillStyle=o.c||C.muted;g.textAlign=o.a||'left';g.textBaseline=o.b||'middle';g.fillText(s,x,y);}
+function gl(g,pts,col,w,dash){g.save();g.strokeStyle=col;g.lineWidth=w||1;if(dash)g.setLineDash(dash);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore();}
+function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+function wl2rgb(w){let r=0,g=0,b=0;
+  if(w<380)return[123,92,214];
+  if(w<440){r=-(w-440)/60;b=1;}else if(w<490){g=(w-440)/50;b=1;}else if(w<510){g=1;b=-(w-510)/20;}else if(w<580){r=(w-510)/70;g=1;}else if(w<645){r=1;g=-(w-645)/65;}else{r=1;}
+  let f=1;if(w>700)f=Math.max(.35,.3+.7*(780-w)/80);else if(w<420)f=.3+.7*(w-380)/40;
+  return[Math.round(255*Math.pow(r*f,.8)),Math.round(255*Math.pow(g*f,.8)),Math.round(255*Math.pow(b*f,.8))];}
+
+/* ---------- control widgets ---------- */
+const rng=(id,label,min,max,step,val)=>`<div class="ctl"><div class="ctl-h"><label for="${id}">${label}</label><output id="${id}_o"></output></div><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+const seg=(id,opts,val)=>`<div class="seg" id="${id}">${opts.map(([v,l])=>`<button data-v="${v}" class="${v===val?'on':''}">${l}</button>`).join('')}</div>`;
+const statH=(id,k,cls='')=>`<div class="stat ${cls}" id="${id}_w"><div class="stat-k">${k}</div><div class="stat-v" id="${id}">—</div></div>`;
+function bindRange(id,get,set,fmt,on){const r=$(id);if(!r)return;const o=$(id+'_o');const upd=()=>{set(+r.value);if(o)o.innerHTML=fmt();on&&on();};r.addEventListener('input',upd);r.value=get();if(o)o.innerHTML=fmt();}
+function bindSeg(id,cb){const el=$(id);if(!el)return;el.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v);}));}
+function setStat(id,html,cls){const e=$(id);if(e&&e.innerHTML!==html)e.innerHTML=html;if(cls!==undefined){const w=$(id+'_w');if(w)w.className='stat '+cls;}}
+const card=(badge,title,inner,extra='')=>`<div class="icard" ${extra}><div class="ihead"><span class="badge"><span class="badge-dot"></span>${badge}</span><h3>${title}</h3></div>${inner}</div>`;
+
+/* ---------- geometry (logical px) — planar-coil ICP ---------- */
+const X0=274, X1=706, YT=200, YB=430, XC=490, PXMM=2.3;   // window → wafer ≈ 100 mm
+const WAF={x:350,w:280};
+const COILX=[320,360,400,440,540,580,620,660];
+
+/* ---------- species ---------- */
+const SP={
+  BCl3:{c:'#7E57C2',r:2.9,cat:'n',f:'BCl3'}, Cl2:{c:'#86A33A',r:2.6,cat:'n',f:'Cl2'}, Ar:{c:'#A0AEC0',r:2.3,cat:'n',f:'Ar'}, N2:{c:'#22A06B',r:2.3,cat:'n',f:'N2'},
+  Cl:{c:'#9BC53D',r:2.5,cat:'r',f:'Cl·'},    BCl2:{c:'#5B8DEF',r:2.8,cat:'r',f:'BCl2·'},
+  Clp:{c:'#E8553B',r:3.2,cat:'i',f:'Cl+'},   Arp:{c:'#F07B3F',r:3.2,cat:'i',f:'Ar+'},  Neg:{c:'#0F766E',r:3,cat:'ni',f:'Cl-'},
+  e:{c:'#E0A100',r:1.8,cat:'e',f:'e-'},      AlCl3:{c:'#8A94A6',r:2.8,cat:'b',f:'AlCl3'}, HCl:{c:'#94A3B8',r:2.4,cat:'b',f:'HCl'},
+  powder:{c:'#CBD5E1',r:3,cat:'p',f:''},     fast:{c:'#94A3B8',r:2,cat:'f',f:''},
+};
+
+/* ---------- shared state ---------- */
+const S={labels:false,p:10,Ps:600,Ps3:150,Pb:150,shield:true,bcl3:40,n2:10,tC:50,open:40,oe:30,pet:false,wac:true,paused:false};
+let cur=0, time=0, phase=0, parts=[], fx=[], frameN=0;
+let hoverPart=null, pinPart=null;
+const FA=0.5;
+
+/* ---------- plasma model (illustrative, H-mode unless stated) ---------- */
+const TE=3.5;
+const neOf=(P,mode)=>mode==='E'?1.5e9+1.2e7*P:1.5e10+2.5e8*P;          // cm⁻³
+const skinMM=ne=>3e8/(5.64e4*Math.sqrt(ne))*1000;
+function icp(Ps=S.Ps,Pb=S.Pb){
+  const ne=neOf(Ps,'H'),uB=Math.sqrt(TE*1.602e-19/(35*1.6605e-27)),Jm2=1.602e-19*.6*ne*1e6*uB;   // A/m²
+  const I=Jm2*0.0707, vdc=Pb>0?Pb/I:0, Vf=5.2*TE, Ei=Vf+vdc;                                      // 300 mm wafer
+  const lD=7430*Math.sqrt(TE/(ne*1e6))*1000, s=.47*lD*Math.pow(2*Ei/TE,.75);
+  return{ne,J:Jm2/10,I,Vdc:-vdc,Ei,Vf,s,th:Math.sqrt(TE/(2*Ei)),delta:skinMM(ne)};}   // J in mA/cm²
+const glowI=ne=>clamp((Math.log10(ne)-8.6)/3,.04,1);
+function icpState(Ei){return{sT:9,sB:9,sTm:9,sBm:9,Vt:18,Vb:Ei,expT:0,expB:0};}
+
+/* ---------- hardware drawing ---------- */
+const GROWS=[{id:'bcl3',y:20,f:'BCl3',c:'#7E57C2',sc:()=>Math.round(100*S.bcl3/100)},{id:'cl2',y:90,f:'Cl2',c:'#86A33A',sc:()=>Math.round(100*(1-S.bcl3/100))},
+             {id:'ar',y:160,f:'Ar',c:'#94A3B8',sc:()=>20},{id:'n2',y:230,f:'N2',c:'#22A06B',sc:()=>S.n2}];
+function drawGasPanelI(o){
+  for(const r of GROWS){const y=r.y,py=y+30,fl=!!o.gas&&(!o.only||o.only.includes(r.id));
+    const g=ctx.createLinearGradient(26,0,52,0);g.addColorStop(0,'#DCE2EA');g.addColorStop(.5,'#FFFFFF');g.addColorStop(1,'#C5CDD8');
+    ctx.fillStyle=g;ctx.strokeStyle='#B4BCC8';ctx.lineWidth=1;rr(26,y+4,26,40,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle=r.c;ctx.fillRect(26,y+14,26,5);ctx.fillStyle='#94A3B8';ctx.fillRect(35,y-1,8,6);
+    chemText(r.f,62,y+12,13.5,C.ink,'left');
+    pipe([[52,py],[181,py]],fl);
+    ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.2;rr(181,py-13,30,26,5);ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#64748B';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(189,py-6);ctx.lineTo(203,py+6);ctx.lineTo(203,py-6);ctx.lineTo(189,py+6);ctx.closePath();ctx.stroke();
+    txt('MFC',196,py+21,{sz:8.5,mono:true,a:'center',c:C.label});
+    if(fl)txt(r.sc()+' sccm',196,py-20,{sz:8.5,mono:true,a:'center',c:C.purple,w:600});
+    pipe([[211,py],[240,py]],fl);}
+  pipe([[240,260],[240,50],[490,50],[490,200]],!!o.gas);pipe([[240,260],[240,300],[262,300]],!!o.gas);
+  ctx.fillStyle='#94A3B8';[[240,50],[240,120],[240,190],[240,260]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,3,0,TAU);ctx.fill();});
+}
+function drawTopI(o){
+  // source RF
+  genBox(758,30,86,52,'Source','13.56 MHz',!!o.src,2.5,C.purple);
+  pl([[801,82],[801,96]],o.src?C.purple:'#C5CDD8',1.6);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.3;rr(758,96,152,44,8);ctx.fill();ctx.stroke();
+  txt('Source match',834,112,{sz:10.5,w:600,a:'center',c:C.ink2});txt('→ 50 Ω',834,127,{sz:8.5,mono:true,a:'center',c:C.label});
+  pl([[660,140],[660,108],[758,108]],o.src?C.purple:'#AEB7C4',1.8);
+  // coil enclosure + conductors
+  ctx.save();ctx.strokeStyle='#D5DAE2';ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.strokeRect(290,124,400,44);ctx.restore();
+  const cs=o.src?Math.sign(Math.sin(phase))||1:0;
+  COILX.forEach((x,i)=>{ctx.fillStyle='#E7B98A';ctx.strokeStyle='#B07A43';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(x,148,8,0,TAU);ctx.fill();ctx.stroke();
+    if(cs){const out=(i<4?1:-1)*cs>0;ctx.fillStyle='#7A4A1C';if(out){ctx.beginPath();ctx.arc(x,148,2.4,0,TAU);ctx.fill();}else{pl([[x-3.5,144.5],[x+3.5,151.5]],'#7A4A1C',1.6);pl([[x+3.5,144.5],[x-3.5,151.5]],'#7A4A1C',1.6);}}});
+  // Faraday shield
+  if(o.shield!==false){ctx.fillStyle='#9AA3B2';for(let x=280;x<700;x+=14)ctx.fillRect(x,164,10,5);pl([[280,166.5],[252,166.5]],'#475569',1.2);gnd(252,166.5);}
+  // window
+  const wg=ctx.createLinearGradient(0,176,0,200);wg.addColorStop(0,'#E9EEF4');wg.addColorStop(1,'#D3DCE6');ctx.fillStyle=wg;ctx.fillRect(262,176,456,24);
+  ctx.fillStyle='#BFD3E6';ctx.fillRect(262,197,456,3);
+  if(o.dep){ctx.fillStyle=`rgba(150,110,70,${.25+.5*o.dep})`;ctx.fillRect(274,200,432,1+o.dep*5);}
+  // injector nozzle
+  ctx.fillStyle='#8B95A7';ctx.fillRect(486,176,8,26);
+}
+function drawBottomI(o){
+  ctx.fillStyle='#B4BCC8';ctx.fillRect(480,520,20,28);
+  const lc=o.bias?C.green:'#AEB7C4';
+  pl([[490,548],[490,556],[522,556]],lc,1.8);pl([[532,556],[560,556]],lc,1.8);
+  ctx.save();ctx.strokeStyle=lc;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(522,546);ctx.lineTo(522,566);ctx.moveTo(532,546);ctx.lineTo(532,566);ctx.stroke();ctx.restore();
+  txt('C_block',527,538,{sz:8,mono:true,a:'center',c:C.label});
+  ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.3;rr(560,534,150,44,8);ctx.fill();ctx.stroke();
+  txt('Bias match',635,550,{sz:10.5,w:600,a:'center',c:C.ink2});txt('→ 50 Ω',635,565,{sz:8.5,mono:true,a:'center',c:C.label});
+  pl([[710,556],[726,556]],lc,1.8);
+  genBox(726,530,86,52,'Bias','13.56 MHz',!!o.bias,2.5,C.green);
+  ctx.fillStyle='#fff';ctx.strokeStyle=o.he?'#7FB3E3':'#C5CDD8';rr(150,530,70,28,6);ctx.fill();ctx.stroke();txt('He',185,544,{sz:10.5,w:700,a:'center',c:C.ink2});
+  ctx.fillStyle='#fff';ctx.strokeStyle=o.esc?C.purple:'#C5CDD8';rr(150,566,70,28,6);ctx.fill();ctx.stroke();txt('ESC HV',185,580,{sz:10,w:700,a:'center',c:C.ink2});
+  pipe([[220,544],[464,544],[464,520]],!!o.he,'rgba(127,179,227,.95)');
+  pl([[220,580],[470,580],[470,520]],o.esc?'rgba(112,48,160,.6)':'#C5CDD8',1.4,[3,3]);
+}
+function drawPumpI(o){
+  pipe([[718,477],[730,477]],!!o.pump);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(742,477,12,0,TAU);ctx.fill();ctx.stroke();
+  ctx.save();ctx.translate(742,477);ctx.rotate(-(o.tv??.5)*Math.PI/2);ctx.strokeStyle=C.ink2;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,10);ctx.stroke();ctx.restore();
+  pipe([[754,477],[762,477]],!!o.pump);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#CBD2DC';ctx.lineWidth=1.2;rr(762,450,92,54,8);ctx.fill();ctx.stroke();
+  ctx.save();ctx.translate(784,477);ctx.strokeStyle='#64748B';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,12,0,TAU);ctx.stroke();
+  for(let k=0;k<6;k++){const a=time*9+k*TAU/6;ctx.beginPath();ctx.moveTo(3*Math.cos(a),3*Math.sin(a));ctx.lineTo(11*Math.cos(a+.35),11*Math.sin(a+.35));ctx.stroke();}ctx.restore();
+  txt('Turbo',802,471,{sz:10.5,w:600,c:C.ink2});txt('pump',802,485,{sz:10.5,w:600,c:C.ink2});txt('Pendulum',742,498,{sz:8.5,c:C.label,a:'center'});
+}
+function drawBaseI(o={}){
+  ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+  drawGasPanelI(o);drawBottomI(o);
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(272,200,436,310);
+  const wg=ctx.createLinearGradient(0,176,0,520);wg.addColorStop(0,'#CBD2DC');wg.addColorStop(1,'#AEB7C4');ctx.fillStyle=wg;
+  ctx.fillRect(262,200,10,320);ctx.fillRect(708,200,10,320);ctx.fillRect(262,510,456,10);
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(708,462,10,30);
+  if(o.slit){ctx.fillStyle='#F3F5F9';ctx.fillRect(262,392,10,30);}else{ctx.fillStyle='#8B95A7';ctx.fillRect(262,392,4,30);}
+  if(o.dep){ctx.fillStyle=`rgba(150,110,70,${.2+.45*o.dep})`;const d=1+o.dep*5;ctx.fillRect(272,200,d,296);ctx.fillRect(708-d,200,d,262);}
+  ctx.fillStyle='#8B95A7';ctx.fillRect(262,296,10,8);
+  drawTopI(o);
+  ctx.fillStyle='#AEB7C4';for(let x=274;x<322;x+=8)ctx.fillRect(x,496,5,4);for(let x=658;x<706;x+=8)ctx.fillRect(x,496,5,4);
+  ctx.fillStyle='#EADFC8';ctx.strokeStyle='#CDBE9E';ctx.lineWidth=1;[[326,428],[640,428]].forEach(([x,y])=>{rr(x,y,14,82,3);ctx.fill();ctx.stroke();});
+  const bg=ctx.createLinearGradient(0,444,0,494);bg.addColorStop(0,'#C9CFD9');bg.addColorStop(1,'#9AA3B2');ctx.fillStyle=bg;ctx.fillRect(340,444,300,50);
+  ctx.fillStyle='rgba(58,122,214,.32)';for(let i=0;i<7;i++){rr(352+i*41,464,28,7,3);ctx.fill();}
+  if(o.bias){ctx.strokeStyle='rgba(15,140,80,.6)';ctx.lineWidth=1.4;ctx.strokeRect(340,444,300,50);}
+  ctx.fillStyle='#B4BCC8';ctx.fillRect(472,494,36,16);
+  ctx.fillStyle='#E8E4DA';ctx.fillRect(345,436,290,8);pl([[352,440],[628,440]],o.esc?'rgba(112,48,160,.8)':'#9AA3B2',1.2,[4,3]);
+  ctx.fillStyle='#8E97A6';ctx.fillRect(334,426,16,10);ctx.fillRect(630,426,16,10);
+  const pins=o.pins||0, wx=o.wx||0;
+  if(pins>0){ctx.fillStyle='#64748B';[420,560].forEach(x=>ctx.fillRect(x-1.5,436-pins*16,3,pins*16));}
+  if(o.wafer!==false){const wy=430-pins*16,x=WAF.x+wx;
+    ctx.fillStyle='#5B6475';ctx.fillRect(x,wy,WAF.w,6);ctx.fillStyle='#C7CDD6';ctx.fillRect(x,wy-3,WAF.w,3);
+    if(o.pattern!==false){ctx.fillStyle='#E9A23B';for(let i=0;i<14;i++)ctx.fillRect(x+4+i*20,wy-5,12,2);}
+    if(o.he&&!pins){ctx.save();ctx.strokeStyle='rgba(127,179,227,.95)';ctx.lineWidth=1.3;ctx.setLineDash([3,4]);ctx.lineDashOffset=-time*20;ctx.beginPath();ctx.moveTo(x+4,wy+6.6);ctx.lineTo(x+WAF.w-4,wy+6.6);ctx.stroke();ctx.restore();}}
+  drawPumpI(o);
+  pl([[262,380],[240,380]],'#AEB7C4',3);ctx.fillStyle='#fff';ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(228,380,11,0,TAU);ctx.fill();ctx.stroke();
+  txt('CM',228,380,{sz:8.5,w:700,c:C.ink2,a:'center',mono:true});
+  if(o.p!=null)txt(typeof o.p==='string'?o.p:`${o.p.toFixed(0)} mTorr`,228,402,{sz:9.5,c:C.purple,a:'center',mono:true,w:600});
+  pl([[300,520],[300,528]],'#475569',1.4);gnd(300,528);
+  txt('Coil · source RF',724,150,{sz:10.5,w:600,c:o.src?C.purple:C.ink2});
+  txt('Faraday shield',724,167,{sz:10,c:C.muted});txt('Window · Al₂O₃ / Y₂O₃',724,186,{sz:10,c:C.muted});
+  txt('Wafer · focus ring',724,424,{sz:10.5,w:600,c:C.ink2});txt('ESC chuck · bias RF',724,440,{sz:10.5,w:600,c:o.bias?C.green:C.ink2});
+  if(o.gapDim){arrow(300,300,300,204,C.label,1);arrow(300,320,300,424,C.label,1);txt('≈ 100 mm',306,310,{sz:10,mono:true,c:C.muted});}
+  if(o.hl)highlightPart(o.hl);
+}
+function drawICP(o){
+  const I=o.I;if(I<.01)return;
+  ctx.save();ctx.beginPath();ctx.rect(X0,YT,X1-X0,YB-YT);ctx.clip();
+  let g=ctx.createLinearGradient(0,YT,0,YB);
+  g.addColorStop(0,`rgba(196,176,250,${.78*I})`);g.addColorStop(.45,`rgba(205,190,248,${.5*I})`);g.addColorStop(1,`rgba(215,205,245,${.22*I})`);
+  ctx.fillStyle=g;ctx.fillRect(X0,YT,X1-X0,YB-YT);
+  if(o.mode!=='E'){const d=o.dpx||30;for(const cx of [390,590]){const r=ctx.createRadialGradient(cx,YT+d*.5,4,cx,YT+d*.5,150);
+      r.addColorStop(0,`rgba(255,255,255,${.72*I})`);r.addColorStop(.5,`rgba(235,225,255,${.32*I})`);r.addColorStop(1,'rgba(235,225,255,0)');ctx.fillStyle=r;ctx.fillRect(X0,YT,X1-X0,YB-YT);}}
+  else{g=ctx.createLinearGradient(0,YT,0,YT+28);g.addColorStop(0,`rgba(232,218,255,${.95*I})`);g.addColorStop(1,'rgba(232,218,255,0)');ctx.fillStyle=g;ctx.fillRect(X0,YT,X1-X0,28);}
+  const sb=o.sB||3;ctx.fillStyle=`rgba(30,27,75,${.2*Math.max(I,.4)})`;ctx.fillRect(X0,YB-sb,X1-X0,sb);ctx.fillRect(X0,YT,X1-X0,3);
+  ctx.restore();
+  if(o.skin){pl([[X0,YT+o.dpx],[X1,YT+o.dpx]],'rgba(112,48,160,.55)',1,[4,4]);txt(`skin depth δ ≈ ${(o.dpx/PXMM).toFixed(0)} mm`,X0+6,YT+o.dpx-8,{sz:9.5,mono:true,c:C.purple});}
+}
+function flowI(p){if(p.y<424){const dx=p.x-XC;return[Math.sign(dx)*.22*Math.min(1,Math.abs(dx)/150),.12];}return[(p.x<XC?-.03:.03),.42];}
+function confineI(p){
+  if(p.x<275){p.x=275;p.vx=Math.abs(p.vx);}if(p.x>705){p.x=705;p.vx=-Math.abs(p.vx);}if(p.y<203){p.y=203;p.vy=Math.abs(p.vy);}
+  if(p.x>323&&p.x<657&&p.y>424){const dl=p.x-323,dr=657-p.x,du=p.y-424,m=Math.min(dl,dr,du);
+    if(m===du){p.y=424;p.vy=-Math.abs(p.vy);}else if(m===dl){p.x=323;p.vx=-Math.abs(p.vx);}else{p.x=657;p.vx=Math.abs(p.vx);}}}
+function moveBallistic(p,f,lamPx){const sp=Math.hypot(p.vx,p.vy)||1;if(rnd()<clamp(sp*f/lamPx,0,1)){const a=rnd()*TAU,v=1.2+rnd()*1.6;p.vx=v*Math.cos(a);p.vy=v*Math.sin(a);}}
+const pickGasI=()=>{const u=rnd();return u<.3?'BCl3':u<.75?'Cl2':u<.88?'Ar':'N2';};
+function spawnInlet(){return rnd()<.65?spawn(pickGasI(),490+(rnd()-.5)*6,204,(rnd()-.5)*1.2,.8+rnd()*.6):spawn(pickGasI(),277,300,.9+rnd()*.6,(rnd()-.5)*.8);}
+
+/* ---------- hotspots ---------- */
+const PARTS=[
+  {id:'mfc',r:[[179,37,34,28],[179,107,34,28],[179,177,34,28],[179,247,34,28]]},
+  {id:'bcl3',r:[[22,10,156,56]]},{id:'cl2',r:[[22,80,156,56]]},{id:'ar',r:[[22,150,156,56]]},{id:'n2',r:[[22,220,156,56]]},
+  {id:'inj',r:[[482,40,16,162]]},{id:'smatch',r:[[756,94,156,48]]},{id:'sgen',r:[[756,28,90,56]]},
+  {id:'coil',r:[[290,124,400,40]]},{id:'fs',r:[[278,161,424,10]]},{id:'win',r:[[262,172,456,30]]},
+  {id:'wafer',r:[[350,424,280,10]]},{id:'fr',r:[[332,422,20,16],[628,422,20,16]]},{id:'esc',r:[[345,435,290,10]]},
+  {id:'chuck',r:[[340,445,300,50],[472,494,36,56]]},{id:'gap',r:[[276,204,428,214]]},
+  {id:'he',r:[[148,528,74,32]]},{id:'eschv',r:[[148,564,74,32]]},{id:'cm',r:[[212,366,52,30]]},
+  {id:'bmatch',r:[[516,532,196,48]]},{id:'bgen',r:[[724,528,90,56]]},{id:'pv',r:[[728,463,28,28]]},{id:'tmp',r:[[760,448,96,58]]},
+  {id:'wall',r:[[258,206,16,300],[706,206,16,254],[258,508,464,14]]},
+];
+
+/* ============================== STEPS ============================== */
+const SC=[];
+
+/* ---- 1 · Hardware ---- */
+SC[0]={legend:[],cls:'one',
+  init(){parts=[];fx=[];},
+  draw(){drawBaseI({hl:hoverPart||pinPart,gapDim:true,p:'< 1 mTorr'});},
+  inst(){const I=IL('hw');return card('HARDWARE',I.title,`<div class="stats" style="grid-template-columns:repeat(6,minmax(0,1fr))">${I.stats.map(([k,v])=>`<div class="stat"><div class="stat-k">${k}</div><div class="stat-v" style="font-size:12px">${v}</div></div>`).join('')}</div>`);},
+  rd(){return{p:'< 1 mTorr',T:'50 °C'};},
+};
+
+/* ---- 2 · Pump, chuck, stabilize ---- */
+const lamGas=p=>1/(1.414*(p*0.133322/(1.380649e-23*300))*4.07e-19)*1000;   // mm
+const pmap={to:v=>Math.round(Math.log10(v)*50),from:s=>Math.max(1,Math.round(Math.pow(10,s/50)))};
+SC[1]={legend:['BCl3','Cl2','Ar','N2'],
+  init(){parts=[];fx=[];},
+  update(dt){const f=dt*60,lp=Math.max(2,lamGas(S.p)*PXMM),target=clamp(Math.round(14+S.p*2.2),14,170);
+    if(parts.length<target&&rnd()<.6*f){const p=spawnInlet();if(parts.filter(q=>q.tr).length<5)p.tr=[];}
+    for(const p of parts){moveBallistic(p,f,lp);const fl=flowI(p);p.x+=(p.vx+fl[0])*f;p.y+=(p.vy+fl[1])*f;confineI(p);if(p.tr){p.tr.push([p.x,p.y]);if(p.tr.length>45)p.tr.shift();}}
+    parts=parts.filter(p=>p.y<496);while(parts.length>target+12)parts.shift();},
+  draw(){drawBaseI({gas:true,esc:true,he:true,p:S.p,pump:true,tv:clamp(1-S.p/60,.15,1)});for(const p of parts)if(p.tr&&p.tr.length>1)pl(p.tr,'rgba(112,48,160,.38)',1.2);drawParts();},
+  inst(){const I=IL('s1');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.p,`<div class="ctls">${rng('r1p',I.p,0,100,1,pmap.to(S.p))}<div class="stats">${statH('s1l',I.lam)}${statH('s1s',I.sl)}${statH('s1g',I.reg)}</div></div>`);},
+  bind(){bindRange('r1p',()=>pmap.to(S.p),v=>S.p=pmap.from(v),()=>`${S.p} mTorr`);},
+  chart(){const I=IL('s1'),lam=lamGas(S.p),sl=.3/lam;
+    setStat('s1l',`${lam.toFixed(1)}<small> mm</small>`);setStat('s1s',sl.toFixed(2));setStat('s1g',sl<.3?I.free:sl<3?I.trans:I.coll,sl<3?'pass':'fail');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:40,r:W-10,t:10,b:H-16};
+    const X=v=>b.l+Math.log10(v)/2*(b.r-b.l),Y=v=>b.b-(Math.log10(v)+2)/4.3*(b.b-b.t);
+    [1,3,10,30,100].forEach(v=>{gl(g,[[X(v),b.t],[X(v),b.b]],C.line,1);gt(g,String(v),X(v),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    [.01,.1,1,10,100].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,String(v),b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    g.fillStyle='rgba(15,140,80,.12)';g.fillRect(b.l,Y(.5),b.r-b.l,Y(.1)-Y(.5));gt(g,I.sheI,b.l+6,Y(.5)-7,{sz:9,c:C.green});
+    gl(g,[[b.l,Y(5)],[b.r,Y(5)]],C.coral,1,[4,3]);gt(g,I.sheC,b.r-4,Y(5)-7,{a:'right',sz:9,c:C.coral});
+    gl(g,[[b.l,Y(100)],[b.r,Y(100)]],C.muted,1,[4,3]);gt(g,I.gap,b.r-4,Y(100)+9,{a:'right',sz:9,c:C.muted});
+    const pts=[];for(let i=0;i<=60;i++){const p=Math.pow(10,2*i/60);pts.push([X(p),Y(lamGas(p))]);}gl(g,pts,C.purple,2);
+    g.fillStyle=C.purple;g.beginPath();g.arc(X(S.p),Y(lam),5,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+    gt(g,'λ [mm]',b.l+4,b.t+6,{sz:9,mono:true,c:C.label});gt(g,'p [mTorr]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:`${S.p} mTorr`,T:'50 °C',gas:'BCl₃ / Cl₂ / Ar / N₂'};},
+};
+
+/* ---- 3 · Inductive coupling ---- */
+const st2={ev:0};
+SC[2]={legend:['Cl2','BCl3','Cl','BCl2','e','Clp'],
+  init(){parts=[];fx=[];for(let k=0;k<40;k++){const q=bulkPt(6);spawn(rnd()<.6?'Cl2':'BCl3',q.x,q.y);}for(let k=0;k<26;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<12;k++){const q=bulkPt();spawn('Clp',q.x,q.y);}},
+  update(dt){const f=dt*60,o=icp(S.Ps,0),st=icpState(o.Ei),dpx=o.delta*PXMM;this.o=o;
+    moveRF(f,st);
+    for(const p of parts){const c=SP[p.s].cat;if(c==='e'||c==='i')continue;p.age+=dt;lang_(p,f,c==='r'?1:.35,.94);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0+3,X1-3,YT+3,YB-3);if(c==='r'&&p.age>8)p.dead=true;}
+    st2.ev+=dt;const iv=.5/Math.sqrt(o.ne/1e11);
+    if(st2.ev>iv){st2.ev=0;const c=parts.filter(p=>(p.s==='Cl2'||p.s==='BCl3')&&p.y<YT+dpx*1.6);
+      if(c.length){const t=c[Math.floor(rnd()*c.length)];t.dead=true;if(t.s==='Cl2'){spawn('Cl',t.x-3,t.y,-.5,.2);spawn('Cl',t.x+3,t.y,.5,.2);}else{spawn('BCl2',t.x,t.y,0,.3);spawn('Cl',t.x+3,t.y,.5,.2);}addFlash(t.x,t.y,'230,226,255',.35,10);}}
+    parts=parts.filter(p=>!p.dead);
+    while(count('Cl2')+count('BCl3')<40)spawn(rnd()<.6?'Cl2':'BCl3',490+(rnd()-.5)*6,204,(rnd()-.5)*1.2,.8);},
+  draw(){const o=this.o||icp(S.Ps,0),dpx=o.delta*PXMM,es=-Math.sign(Math.cos(phase))||1;
+    drawBaseI({src:true,gas:true,esc:true,he:true,p:10});drawICP({I:glowI(o.ne),dpx,skin:true});
+    ctx.save();ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(112,48,160,.35)';ctx.lineWidth=1.2;
+    for(const cx of [380,600])for(const [rx,ry] of [[70,34],[110,58]]){ctx.beginPath();ctx.ellipse(cx,160,rx,ry,0,0,TAU);ctx.stroke();}ctx.restore();
+    txt('B',470,212,{sz:12,w:700,c:C.purpleMid});
+    for(let x=300;x<=680;x+=38){const out=(x<XC?1:-1)*es>0,y=YT+dpx*.5;ctx.fillStyle='rgba(112,48,160,.85)';ctx.strokeStyle='rgba(112,48,160,.85)';ctx.lineWidth=1.3;
+      ctx.beginPath();ctx.arc(x,y,6,0,TAU);ctx.stroke();if(out){ctx.beginPath();ctx.arc(x,y,1.8,0,TAU);ctx.fill();}else{pl([[x-3,y-3],[x+3,y+3]],'rgba(112,48,160,.85)',1.3);pl([[x+3,y-3],[x-3,y+3]],'rgba(112,48,160,.85)',1.3);}}
+    txt('E_θ',306,YT+dpx*.5-14,{sz:10,w:700,c:C.purple});
+    drawParts();drawFx();},
+  inst(){const I=IL('s2');return card('LIVE',I.chart,`<div class="crow"><canvas class="chart" id="chA" style="flex:1.8"></canvas><canvas class="chart" id="chB"></canvas></div>`)+
+    card('CONTROL',I.Ps,`<div class="ctls">${rng('r2s',I.Ps,300,1500,10,S.Ps)}<div class="stats">${statH('s2n',I.ne)}${statH('s2d',I.d)}${statH('s2j','J_ion')}</div></div>`);},
+  bind(){bindRange('r2s',()=>S.Ps,v=>S.Ps=v,()=>`${S.Ps} W`);},
+  chart(){const I=IL('s2'),o=icp(S.Ps,0);
+    setStat('s2n',`${(o.ne/1e11).toFixed(1)}<small>×10¹¹ cm⁻³</small>`);setStat('s2d',`${o.delta.toFixed(0)}<small> mm</small>`);setStat('s2j',`${o.J.toFixed(1)}<small> mA/cm²</small>`);
+    let k=chartCtx('chA');if(k){const{g,W,H}=k,b={l:30,r:W-10,t:12,b:H-18},zm=60,X=z=>b.l+z/zm*(b.r-b.l),Y=v=>b.b-v*(b.b-b.t);
+      for(let z=0;z<=zm;z+=10){gl(g,[[X(z),b.t],[X(z),b.b]],C.line,1);gt(g,String(z),X(z),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+      g.fillStyle='rgba(112,48,160,.08)';g.fillRect(b.l,b.t,X(o.delta)-b.l,b.b-b.t);
+      const e=[],pw=[];for(let i=0;i<=120;i++){const z=zm*i/120;e.push([X(z),Y(Math.exp(-z/o.delta))]);pw.push([X(z),Y(Math.exp(-2*z/o.delta))]);}
+      g.beginPath();g.moveTo(b.l,b.b);pw.forEach(p=>g.lineTo(p[0],p[1]));g.lineTo(b.r,b.b);g.closePath();g.fillStyle='rgba(232,85,59,.15)';g.fill();
+      gl(g,pw,C.coral,1.6);gl(g,e,C.purple,2.2);gl(g,[[X(o.delta),b.t],[X(o.delta),b.b]],C.purple,1,[3,3]);
+      gt(g,`δ = ${o.delta.toFixed(0)} mm`,X(o.delta)+4,b.t+8,{sz:9.5,mono:true,w:600,c:C.purple});
+      gt(g,'— '+I.ef,b.r-4,b.t+8,{a:'right',sz:9,w:600,c:C.purple});gt(g,'— '+I.pw,b.r-4,b.t+20,{a:'right',sz:9,w:600,c:C.coral});gt(g,I.depth,b.r,b.b-8,{a:'right',sz:9,c:C.label});}
+    k=chartCtx('chB');if(k){const{g,W,H}=k,cx=W/2,cy=(H-14)/2+2,R=Math.min(W,H-14)/2-4,es=-Math.sign(Math.cos(phase))||1;
+      g.fillStyle='#EEF2F7';g.beginPath();g.arc(cx,cy,R,0,TAU);g.fill();g.strokeStyle='#CBD2DC';g.stroke();
+      g.strokeStyle='#D09A62';g.lineWidth=1.6;g.beginPath();for(let a=0;a<TAU*3.2;a+=.1){const r=R*.2+R*.62*a/(TAU*3.2);const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);a?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();
+      g.strokeStyle=C.purple;g.fillStyle=C.purple;g.lineWidth=2;const rr2=R*.55;
+      for(let k2=0;k2<3;k2++){const a0=k2*TAU/3+.3,a1=a0+1.5;g.beginPath();g.arc(cx,cy,rr2,a0,a1,false);g.stroke();
+        const ae=es>0?a1:a0,dir=es>0?1:-1,x=cx+rr2*Math.cos(ae),y=cy+rr2*Math.sin(ae),tx=-Math.sin(ae)*dir,ty=Math.cos(ae)*dir;
+        g.beginPath();g.moveTo(x+tx*7,y+ty*7);g.lineTo(x-ty*4,y+tx*4);g.lineTo(x+ty*4,y-tx*4);g.closePath();g.fill();}
+      gt(g,`${I.top}: ${es>0?I.cw:I.ccw}`,cx,H-5,{a:'center',sz:9,c:C.muted});}},
+  rd(){return{p:'10 mTorr',T:'50 °C',hf:`${S.Ps} W`,slow:true};},
+};
+
+/* ---- 4 · E → H transition ---- */
+const st3={mode:'E',flake:0};
+const thr3=()=>S.shield?{up:400,dn:240}:{up:270,dn:180};
+SC[3]={legend:['e','Clp','powder'],
+  init(){parts=[];fx=[];st3.mode=S.Ps3>=thr3().up?'H':'E';for(let k=0;k<20;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<8;k++){const q=bulkPt();spawn('Clp',q.x,q.y);}},
+  update(dt){const f=dt*60,t=thr3();if(st3.mode==='E'&&S.Ps3>=t.up)st3.mode='H';if(st3.mode==='H'&&S.Ps3<t.dn)st3.mode='E';
+    const ne=S.Ps3<20?1e8:neOf(S.Ps3,st3.mode);this.ne=ne;const st=icpState(18);moveRF(f,st);
+    const ne_t=Math.round(6+28*glowI(ne));while(count('e')<ne_t){const q=bulkPt();spawn('e',q.x,q.y);}while(count('e')>ne_t)parts.splice(parts.findIndex(p=>p.s==='e'),1);
+    const bomb=this.bomb=st3.mode==='E'?(S.shield?.2:1):(S.shield?.05:.45);
+    if(S.Ps3>20&&rnd()<bomb*.25*f){const x=X0+20+rnd()*(X1-X0-40);addRing(x,YT+2,'232,85,59',.35,6);if(!S.shield&&rnd()<.25){const pw=spawn('powder',x,YT+6,0,.3);pw.r=1.6+rnd();}}
+    for(const p of parts)if(p.s==='powder'){p.vy+=.01*f;p.y+=p.vy*f;if(p.y>YB-6)p.dead=true;}
+    parts=parts.filter(p=>!p.dead);},
+  draw(){const ne=this.ne||1e9;drawBaseI({src:S.Ps3>20,gas:true,esc:true,he:true,p:10,shield:S.shield});
+    drawICP({I:S.Ps3>20?glowI(ne):0,mode:st3.mode,dpx:skinMM(ne)*PXMM});drawParts();drawFx();},
+  inst(){const I=IL('s3');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.Ps,`<div class="ctls">${rng('r3s',I.Ps,0,1500,10,S.Ps3)}<div class="seg-row"><span class="k">${I.shield}</span>${seg('segSh',[['on',I.on],['off',I.off]],S.shield?'on':'off')}</div>
+      <div class="stats">${statH('s3m',I.mode)}${statH('s3n',I.ne)}${statH('s3w',I.win)}</div></div>`);},
+  bind(){bindRange('r3s',()=>S.Ps3,v=>S.Ps3=v,()=>`${S.Ps3} W`);bindSeg('segSh',v=>{S.shield=v==='on';});},
+  chart(){const I=IL('s3'),t=thr3(),ne=this.ne||1e9,b0=this.bomb??0;
+    setStat('s3m',st3.mode==='H'?I.H:I.E,st3.mode==='H'?'pass':'');{const ex=Math.floor(Math.log10(ne));setStat('s3n',`${(ne/Math.pow(10,ex)).toFixed(1)}×10<sup>${ex}</sup><small> cm⁻³</small>`);}
+    setStat('s3w',b0>.6?I.high:b0>.15?I.med:I.low,b0>.6?'fail':b0>.15?'':'pass');
+    setMsg(S.Ps3<20?'':st3.mode==='H'?I.msgH:I.msgE,st3.mode==='H'?'':'info');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:44,r:W-10,t:12,b:H-16},X=P=>b.l+P/1500*(b.r-b.l),Y=n=>b.b-(Math.log10(n)-8)/4.5*(b.b-b.t);
+    [0,300,600,900,1200,1500].forEach(v=>{gl(g,[[X(v),b.t],[X(v),b.b]],C.line,1);gt(g,String(v),X(v),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    [1e8,1e9,1e10,1e11,1e12].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,'10'+['⁸','⁹','¹⁰','¹¹','¹²'][Math.round(Math.log10(v))-8],b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    const e=[],h=[];for(let P=20;P<=t.up;P+=10)e.push([X(P),Y(neOf(P,'E'))]);for(let P=t.dn;P<=1500;P+=10)h.push([X(P),Y(neOf(P,'H'))]);
+    gl(g,e,C.amber,2.2);gl(g,h,C.purple,2.2);
+    arrow(X(t.up),Y(neOf(t.up,'E')),X(t.up),Y(neOf(t.up,'H'))+4,C.amber,1.2);arrow(X(t.dn),Y(neOf(t.dn,'H')),X(t.dn),Y(neOf(t.dn,'E'))-4,C.purple,1.2);
+    gt(g,I.E,X(80),Y(neOf(80,'E'))-10,{sz:10,w:600,c:C.amber});gt(g,I.H,X(1100),Y(neOf(1100,'H'))-10,{sz:10,w:600,c:C.purple});
+    gt(g,`${I.up} ${t.up} W`,X(t.up)+5,(Y(neOf(t.up,'E'))+Y(neOf(t.up,'H')))/2,{sz:9,c:C.amber});gt(g,`${I.dn} ${t.dn} W`,X(t.dn)-5,(Y(neOf(t.dn,'E'))+Y(neOf(t.dn,'H')))/2,{a:'right',sz:9,c:C.purple});
+    if(S.Ps3>20){g.fillStyle=C.green;g.beginPath();g.arc(X(S.Ps3),Y(ne),5,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();}
+    gt(g,'nₑ [cm⁻³]',b.l+4,b.t+6,{sz:9,mono:true,c:C.label});gt(g,'P_source [W]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});
+    function arrow(x0,y0,x1,y1,c,w){gl(g,[[x0,y0],[x1,y1]],c,w,[3,3]);const a=Math.atan2(y1-y0,x1-x0);g.fillStyle=c;g.beginPath();g.moveTo(x1,y1);g.lineTo(x1-6*Math.cos(a-.4),y1-6*Math.sin(a-.4));g.lineTo(x1-6*Math.cos(a+.4),y1-6*Math.sin(a+.4));g.closePath();g.fill();}},
+  rd(){return{p:'10 mTorr',T:'50 °C',hf:S.Ps3>20?`${S.Ps3} W`:null};},
+};
+
+/* ---- 5 · Two knobs ---- */
+const st4={key:'',H:null};
+function iedf4(){const key=S.Ps+'|'+S.Pb;if(st4.key===key)return st4.H;const o=icp(),vd=-o.Vdc,nb=50,Em=Math.max(60,(o.Vf+2*vd)*1.08),h=new Float32Array(nb);
+  const M=35*1.6605e-27,s=o.s*1e-3,w=TAU*13.56e6,dE=vd>0?Math.min(2*vd,8*vd/(3*w*s)*Math.sqrt(2*1.602e-19*vd/M)):0;
+  for(let i=0;i<5000;i++){const E=o.Vf*(.85+.3*rnd())+vd+dE/2*Math.sin(TAU*rnd());h[clamp(Math.floor(E/Em*nb),0,nb-1)]++;}
+  st4.H={h,Em,dE};st4.key=key;return st4.H;}
+SC[4]={legend:['e','Clp','Arp'],cls:'tall',
+  init(){parts=[];fx=[];for(let k=0;k<30;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<20;k++){const q=bulkPt();spawn(rnd()<.7?'Clp':'Arp',q.x,q.y);}},
+  update(dt){const f=dt*60,o=icp();this.o=o;const H=iedf4();
+    moveRF(f,icpState(o.Ei),null,(p,r)=>{if(r==='B'){const E=o.Vf+(-o.Vdc)+H.dE/2*Math.sin(TAU*rnd());if(rnd()<.5)addRing(p.x,YB-1,E<60?'15,140,80':E<150?'217,154,0':'232,85,59',.5,5+Math.sqrt(E)*.6,`${E.toFixed(0)} eV`);}});
+    const n=Math.round(10+24*glowI(o.ne));while(count('Clp')+count('Arp')<n){const q=bulkPt();spawn(rnd()<.7?'Clp':'Arp',q.x,q.y);}while(count('Clp')+count('Arp')>n+2)parts.splice(parts.findIndex(p=>SP[p.s].cat==='i'),1);},
+  draw(){const o=this.o||icp(),sbp=Math.max(3,o.s*PXMM*10);drawBaseI({src:true,bias:S.Pb>0,gas:true,esc:true,he:true,p:10});
+    drawICP({I:glowI(o.ne),dpx:o.delta*PXMM,sB:sbp});drawParts();drawFx();
+    txt(`sheath ≈ ${(o.s*1000).toFixed(0)} µm (drawn ×10)`,724,YB-26,{sz:9.5,c:C.label});txt(`V_DC ${o.Vdc.toFixed(0)} V`,724,360,{sz:10,mono:true,w:600,c:C.green});txt(`E_ion ≈ ${o.Ei.toFixed(0)} eV`,724,376,{sz:10,mono:true,w:600,c:C.coral});},
+  inst(){const I=IL('s4');return card('MAP',I.chart,`<div class="crow"><canvas class="chart" id="chA" style="flex:1.6"></canvas><canvas class="chart" id="chB"></canvas></div>`)+
+    card('CONTROL',I.Ps+' · '+I.Pb,`<div class="ctls">${rng('r4s',I.Ps,200,1500,10,S.Ps)}${rng('r4b',I.Pb,0,400,5,S.Pb)}
+      <div class="stats">${statH('s4j',I.J)}${statH('s4v',I.vdc)}${statH('s4e',I.Ei)}${statH('s4s',I.s)}${statH('s4t',I.th)}${statH('s4n','nₑ')}</div></div>`);},
+  bind(){bindRange('r4s',()=>S.Ps,v=>S.Ps=v,()=>`${S.Ps} W`);bindRange('r4b',()=>S.Pb,v=>S.Pb=v,()=>`${S.Pb} W`);},
+  chart(){const I=IL('s4'),o=icp();
+    setStat('s4j',`${o.J.toFixed(1)}<small> mA/cm²</small>`);setStat('s4v',`${o.Vdc.toFixed(0)}<small> V</small>`);setStat('s4e',`${o.Ei.toFixed(0)}<small> eV</small>`);
+    setStat('s4s',`${(o.s*1000).toFixed(0)}<small> µm</small>`);setStat('s4t',`${(o.th*180/Math.PI).toFixed(0)}<small>°</small>`);setStat('s4n',`${(o.ne/1e11).toFixed(1)}<small>×10¹¹</small>`);
+    let k=chartCtx('chA');if(k){const{g,W,H}=k,b={l:36,r:W-10,t:12,b:H-18},X=E=>b.l+E/300*(b.r-b.l),Y=J=>b.b-J/16*(b.b-b.t);
+      for(let e=0;e<=300;e+=50){gl(g,[[X(e),b.t],[X(e),b.b]],C.line,1);gt(g,String(e),X(e),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+      for(let j=0;j<=16;j+=4){gl(g,[[b.l,Y(j)],[b.r,Y(j)]],C.line,1);gt(g,String(j),b.l-5,Y(j),{a:'right',sz:9,mono:true,c:C.label});}
+      const pb=[],ps=[];for(let P=200;P<=1500;P+=20){const q=icp(P,S.Pb);pb.push([X(Math.min(q.Ei,300)),Y(q.J)]);}for(let B=0;B<=400;B+=10){const q=icp(S.Ps,B);ps.push([X(Math.min(q.Ei,300)),Y(q.J)]);}
+      gl(g,pb,C.green,1.6,[5,4]);gl(g,ps,C.coral,1.6,[5,4]);
+      gt(g,'- - '+I.fixB,b.r-4,b.t+6,{a:'right',sz:9,c:C.green,w:600});gt(g,'- - '+I.fixS,b.r-4,b.t+18,{a:'right',sz:9,c:C.coral,w:600});
+      g.fillStyle=C.purple;g.beginPath();g.arc(X(Math.min(o.Ei,300)),Y(o.J),6,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+      gt(g,'J [mA/cm²]',b.l+4,b.t+6,{sz:9,mono:true,c:C.label});gt(g,'E_ion [eV]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});}
+    k=chartCtx('chB');if(k){const{g,W,H}=k,b={l:8,r:W-8,t:14,b:H-16},D=iedf4();let mx=0;for(const v of D.h)mx=Math.max(mx,v);const bw=(b.r-b.l)/D.h.length;
+      g.fillStyle='rgba(112,48,160,.75)';D.h.forEach((v,i)=>{const hh=v/mx*(b.b-b.t);g.fillRect(b.l+i*bw,b.b-hh,bw-.6,hh);});
+      gl(g,[[b.l,b.b],[b.r,b.b]],'#CBD2DC',1);gt(g,I.iedf,b.l,b.t-6,{sz:9,w:600,c:C.muted});gt(g,'0',b.l,b.b+9,{sz:9,mono:true,c:C.label});gt(g,`${D.Em.toFixed(0)} eV`,b.r,b.b+9,{a:'right',sz:9,mono:true,c:C.label});}},
+  rd(){return{p:'10 mTorr',T:'50 °C',hf:`${S.Ps} W`,lf:S.Pb?`${S.Pb} W`:null,slow:true};},
+};
+
+/* ---- 6 · Al chemistry (zoom) ---- */
+function alChem(Pb=S.Pb){const fB=S.bcl3/100,fC=1-fB,o=icp(S.Ps,Pb),dens=Math.sqrt(o.ne/1.65e11);
+  const er=(200+800*fC)*dens*(1+o.Ei/400);
+  const btRate=(.15+1.6*fB)*Math.sqrt(Math.max(0,o.Ei-15))/7*dens, bt=3/Math.max(btRate,.01);
+  const pass=clamp(.15+.035*S.n2+.0016*o.Ei,0,.95), lat=er*.12*Math.pow(1-pass,1.5)*(fC+.2);
+  const pr=(80+1.1*o.Ei+180*fC)*dens;
+  return{er,bt,pass,lat,pr,sel:er/pr,o};}
+const Z5={sc:.42,y0:270,xe:470,x1:830,al:500};
+const st5={t:0,ox:3,d:0,u:0,ph:'bt',hold:0,rads:[],ions:[],prod:[]};
+function reset5(){Object.assign(st5,{t:0,ox:3,d:0,u:0,ph:'bt',hold:0});}
+SC[5]={legend:['Cl','Clp','AlCl3'],noLabels:true,cls:'tall',
+  init(){parts=[];fx=[];reset5();st5.rads=[];st5.ions=[];st5.prod=[];},
+  update(dt){const f=dt*60,c=alChem(),tp=dt*4;this.c=c;
+    if(st5.ph==='bt'){st5.ox=Math.max(0,st5.ox-3/c.bt*tp);if(st5.ox<=0)st5.ph='etch';}
+    else if(st5.ph==='etch'){st5.d=Math.min(Z5.al,st5.d+c.er/60*tp);st5.u+=c.lat/60*tp;if(st5.d>=Z5.al)st5.ph='done';}
+    else{st5.hold+=dt;if(st5.hold>2.5)reset5();}
+    const top=Z5.y0+st5.d*Z5.sc;
+    if(rnd()<.5*f){const a=(rnd()-.5)*2.4;st5.rads.push({x:Z5.xe-40+rnd()*(Z5.x1-Z5.xe+40),y:60,vx:Math.sin(a)*2.2,vy:Math.cos(a)*2.2});}
+    if(rnd()<.35*f){st5.ions.push({x:150+rnd()*680,y:60});}
+    for(const r of st5.rads){r.x+=r.vx*f;r.y+=r.vy*f;
+      if(r.x<Z5.xe&&r.y>Z5.y0-130){r.dead=true;continue;}
+      if(r.x>=Z5.xe&&r.y>=(st5.ph==='bt'?Z5.y0-st5.ox*3:top)){r.dead=true;if(st5.ph==='bt')addFlash(r.x,Z5.y0-st5.ox*3,'160,170,190',.25,5);else{if(rnd()<.5)st5.prod.push({x:r.x,y:top-4,a:1});addFlash(r.x,top,'155,197,61',.25,6);}}}
+    for(const io of st5.ions){io.y+=8*f;const yy=io.x<Z5.xe?Z5.y0-130:(st5.ph==='bt'?Z5.y0-st5.ox*3:top);if(io.y>=yy){io.dead=true;addRing(io.x,yy,io.x<Z5.xe?'233,162,59':'232,85,59',.35,6);}}
+    for(const p of st5.prod){p.y-=1*f;p.a-=dt*.6;if(p.a<=0)p.dead=true;}
+    st5.rads=st5.rads.filter(r=>!r.dead&&r.y<600&&r.x>150&&r.x<Z5.x1);st5.ions=st5.ions.filter(r=>!r.dead);st5.prod=st5.prod.filter(r=>!r.dead);},
+  draw(){const I=IL('s5'),c=this.c||alChem(),sc=Z5.sc,y0=Z5.y0,top=y0+st5.d*sc,xe=Z5.xe,ub=st5.u*sc;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    txt(I.zoom,150,30,{sz:11,mono:true,w:600,c:C.purple});
+    const g=ctx.createLinearGradient(0,44,0,120);g.addColorStop(0,'rgba(190,166,242,.55)');g.addColorStop(1,'rgba(190,166,242,0)');ctx.fillStyle=g;ctx.fillRect(150,44,680,76);
+    ctx.fillStyle='#C7CDD6';ctx.fillRect(150,y0,680,Z5.al*sc);ctx.fillStyle='#9AA3B2';ctx.fillRect(150,y0+Z5.al*sc,680,20);ctx.fillStyle='#9CC9F0';ctx.fillRect(150,y0+Z5.al*sc+20,680,600-(y0+Z5.al*sc+20));
+    ctx.fillStyle='#E9A23B';ctx.fillRect(150,y0-130,xe-150,130);
+    if(st5.ph==='bt'){ctx.fillStyle='#4B5563';ctx.fillRect(xe,y0-st5.ox*3,Z5.x1-xe,st5.ox*3);}
+    if(st5.d>0){ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.moveTo(xe,y0);ctx.lineTo(xe-ub,y0+2);ctx.lineTo(xe-ub*.5,top);ctx.lineTo(Z5.x1,top);ctx.lineTo(Z5.x1,y0);ctx.closePath();ctx.fill();
+      ctx.fillRect(xe,y0-140,Z5.x1-xe,140);
+      pl([[xe,y0],[xe-ub,y0+2],[xe-ub*.5,top]],`rgba(47,163,107,${.4+.6*c.pass})`,1+3.5*c.pass);}
+    else{ctx.fillStyle='#FFFFFF';ctx.fillRect(xe,40,Z5.x1-xe,y0-st5.ox*3-40);}
+    ctx.fillStyle='#E9A23B';ctx.fillRect(150,y0-130,xe-150,130);ctx.fillStyle=`rgba(47,163,107,${.3+.5*c.pass})`;ctx.fillRect(xe-2,y0-130,3,130);
+    txt('Resist',160,y0-110,{sz:11,w:600,c:'#8A5300'});txt('Al-Cu',160,y0+20,{sz:11,w:600,c:C.ink2});txt('TiN / Ti',160,y0+Z5.al*sc+10,{sz:10,w:600,c:'#fff'});txt('SiO₂',160,y0+Z5.al*sc+40,{sz:10,w:600,c:'#1E4F8F'});
+    if(st5.ph==='bt')txt(`${I.ox} ${st5.ox.toFixed(1)} nm (×3)`,Z5.x1-6,y0-st5.ox*3-10,{sz:10,mono:true,a:'right',c:C.ink2});
+    if(st5.d>0)txt(`${I.pass}`,xe-ub-6,y0+60,{sz:9.5,a:'right',c:'#1F7A4D'});
+    ctx.save();ctx.beginPath();ctx.rect(150,40,Z5.x1-150,560);ctx.clip();
+    ctx.fillStyle=SP.Cl.c;for(const r of st5.rads){ctx.beginPath();ctx.arc(r.x,r.y,2.6,0,TAU);ctx.fill();}
+    for(const io of st5.ions){pl([[io.x,io.y-10],[io.x,io.y]],'rgba(232,85,59,.35)',2);ctx.fillStyle=SP.Clp.c;ctx.beginPath();ctx.arc(io.x,io.y,3,0,TAU);ctx.fill();}
+    for(const p of st5.prod)txt('AlCl₃',p.x,p.y,{sz:9.5,w:600,a:'center',c:`rgba(100,116,139,${clamp(p.a,0,1)})`});
+    drawFx();ctx.restore();},
+  inst(){const I=IL('s5');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL','BCl₃ · N₂ · Bias',`<div class="ctls">${rng('r5b',I.bcl3,0,100,5,S.bcl3)}${rng('r5n',I.n2,0,30,1,S.n2)}${rng('r5p',I.Pb,0,400,5,S.Pb)}
+      <div class="stats four">${statH('s5t',I.bt)}${statH('s5e',I.er)}${statH('s5l',I.lat)}${statH('s5s',I.sel)}</div></div>`);},
+  bind(){bindRange('r5b',()=>S.bcl3,v=>S.bcl3=v,()=>`${S.bcl3} %`,reset5);bindRange('r5n',()=>S.n2,v=>S.n2=v,()=>`${S.n2} sccm`);bindRange('r5p',()=>S.Pb,v=>S.Pb=v,()=>`${S.Pb} W`);},
+  chart(){const I=IL('s5'),c=alChem();
+    setStat('s5t',`${c.bt.toFixed(1)}<small> s</small>`,c.bt>12?'fail':'pass');setStat('s5e',`${c.er.toFixed(0)}<small> nm/min</small>`);setStat('s5l',`${c.lat.toFixed(0)}<small> nm/min</small>`,c.lat>40?'fail':'pass');setStat('s5s',`${c.sel.toFixed(1)} : 1`,c.sel>=2?'pass':'fail');
+    setMsg(st5.ph==='bt'?I.msgBT:I.msgEt,st5.ph==='bt'?'info':'');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:90,r:W-70,t:12,b:H-14},rows=[[I.vert,c.er,'#8E97A6'],[I.latR,c.lat,C.coral],[I.prR,c.pr,'#E9A23B']],mx=1400,rh=(b.b-b.t)/3;
+    for(let v=0;v<=mx;v+=350){const x=b.l+v/mx*(b.r-b.l);gl(g,[[x,b.t],[x,b.b]],C.line,1);gt(g,String(v),x,b.b+7,{a:'center',sz:8.5,mono:true,c:C.label});}
+    rows.forEach(([n,v,col],i)=>{const y=b.t+i*rh+rh*.2,h=rh*.6,w=Math.min(1,v/mx)*(b.r-b.l);g.fillStyle=col;g.globalAlpha=.85;g.fillRect(b.l,y,w,h);g.globalAlpha=1;
+      gt(g,n,b.l-8,y+h/2,{a:'right',sz:10.5,w:600,c:C.ink2});gt(g,`${v.toFixed(0)} nm/min`,b.l+w+6,y+h/2,{sz:10,mono:true,w:600,c:C.ink2});});},
+  rd(){return{p:'10 mTorr',T:'50 °C',hf:`${S.Ps} W`,lf:S.Pb?`${S.Pb} W`:null,gas:`BCl₃ ${S.bcl3} % · N₂ ${S.n2}`};},
+};
+
+/* ---- 7 · Metal-stack profile ---- */
+const STK={pr:600,arc:30,al:500,bar:50,sc:.32,y0:190};
+const LINES=[[150,240],[330,420],[510,600],[690,780]], SPACES=[[240,330],[420,510],[600,690]];
+const st6={t:0,bt:0,d:0,u:0,pr:600,oxl:0,ph:'bt',run:true,tMain:0,tOe:0};
+function reset6(){Object.assign(st6,{t:0,bt:0,d:0,u:0,pr:STK.pr,oxl:0,ph:'bt',run:true,tMain:0,tOe:0});}
+function rates6(){const c=alChem(),o=c.o,T=S.tC,kT=1+(T-50)*.004,ia=Math.sqrt(o.Ei/60);
+  return{c,al:c.er*kT,tin:.28*c.er*ia,bar:.3*c.er*ia,ox:.07*c.er*(o.Ei/60),pr:c.pr*(1+(T-50)*.006),lat:c.lat*(1+(T-50)*.015),res:clamp((55-o.Ei)/35+(45-T)/30,0,1)};}
+SC[6]={legend:[],noLabels:true,cls:'tall',
+  init(){parts=[];fx=[];reset6();},
+  update(dt){if(!st6.run||st6.ph==='done')return;const r=rates6(),tp=dt*6;st6.t+=tp;
+    st6.pr=Math.max(0,st6.pr-r.pr/60*tp);
+    if(st6.ph==='bt'){st6.bt+=tp;if(st6.bt>=r.c.bt)st6.ph='etch';return;}
+    if(st6.ph==='etch'){const d=st6.d,rate=d<STK.arc?r.tin:d<STK.arc+STK.al?r.al:r.bar;st6.d=Math.min(STK.arc+STK.al+STK.bar,d+rate/60*tp);
+      if(st6.d>STK.arc)st6.u+=r.lat/60*tp;if(st6.d>=STK.arc+STK.al+STK.bar){st6.ph='oe';st6.tMain=st6.t;}}
+    else if(st6.ph==='oe'){st6.oxl+=r.ox/60*tp;st6.u+=r.lat/60*tp*.3;st6.tOe+=tp;if(st6.tOe>=.3*st6.tMain)st6.ph='done';}},
+  draw(){const I=IL('s6'),r=rates6(),sc=STK.sc,y0=STK.y0,yA=y0+STK.arc*sc,yAl=yA+STK.al*sc,yB=yAl+STK.bar*sc,prT=st6.pr*sc;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    ctx.fillStyle='#9CC9F0';ctx.fillRect(150,yB,630,600-yB);ctx.fillStyle='#7C8798';ctx.fillRect(150,yAl,630,yB-yAl);ctx.fillStyle='#C7CDD6';ctx.fillRect(150,yA,630,yAl-yA);ctx.fillStyle='#5E6E86';ctx.fillRect(150,y0,630,yA-y0);
+    if(prT>0){ctx.fillStyle='#E9A23B';for(const [a,b] of LINES)ctx.fillRect(a,y0-prT,b-a,prT);}
+    const dpx=Math.min(st6.d,STK.arc+STK.al+STK.bar)*sc+st6.oxl*sc*3,u=st6.u*sc;
+    for(const [a,b] of SPACES){ctx.fillStyle='#FFFFFF';ctx.fillRect(a,y0-prT-2,b-a,prT+2);
+      if(st6.ph!=='bt'){ctx.fillRect(a,y0,b-a,dpx);
+        if(st6.d>STK.arc){const ye=Math.min(yAl,y0+st6.d*sc);ctx.beginPath();ctx.moveTo(a,yA);ctx.lineTo(a-u,yA+4);ctx.lineTo(a-u*.6,ye);ctx.lineTo(a,ye);ctx.closePath();ctx.fill();
+          ctx.beginPath();ctx.moveTo(b,yA);ctx.lineTo(b+u,yA+4);ctx.lineTo(b+u*.6,ye);ctx.lineTo(b,ye);ctx.closePath();ctx.fill();
+          const pc=`rgba(47,163,107,${.35+.6*r.c.pass})`,lw=1+3*r.c.pass;pl([[a,yA],[a-u,yA+4],[a-u*.6,ye]],pc,lw);pl([[b,yA],[b+u,yA+4],[b+u*.6,ye]],pc,lw);}
+        if(st6.ph==='oe'||st6.ph==='done'){const n=Math.round(r.res*14*(1-Math.min(1,st6.tOe/(.3*st6.tMain||1))*.5));ctx.fillStyle='#B07A43';for(let i=0;i<n;i++){ctx.beginPath();ctx.arc(a+8+((i*37)%(b-a-16)),yB+dpx-(yB-y0)-3+st6.oxl*0,2.4,0,TAU);ctx.fill();}}}}
+    const L=I.layers;txt(L[0],140,y0-Math.max(prT,14)/2,{sz:10.5,w:600,a:'right',c:'#B26B00'});txt(L[1],140,(y0+yA)/2,{sz:9.5,w:600,a:'right',c:'#3B4A60'});txt(L[2],140,(yA+yAl)/2,{sz:10.5,w:600,a:'right',c:C.ink2});txt(L[3],140,(yAl+yB)/2,{sz:9.5,w:600,a:'right',c:'#3B4A60'});txt(L[4],140,yB+40,{sz:10.5,w:600,a:'right',c:'#1E4F8F'});
+    pl([[800,560],[800+100*sc,560]],C.ink,2);txt('100 nm',800+50*sc,574,{sz:9.5,mono:true,a:'center',c:C.ink});
+    txt(`t = ${st6.t.toFixed(0)} s`,860,40,{sz:11,mono:true,w:600,c:C.purple,a:'right'});
+    if(st6.ph==='bt')txt(I.bt+'…',860,58,{sz:10,c:C.purple,a:'right'});},
+  inst(){const I=IL('s6');return card('PROFILE',I.chart,`<div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">${statH('s6l',I.layer)}${statH('s6u',I.under)}${statH('s6r',I.res)}${statH('s6p',I.pr)}${statH('s6o',I.oxl)}${statH('s6t','t')}</div>`)+
+    card('RECIPE',I.Pb,`<div class="ctls g2">${rng('r6b',I.Pb,0,400,5,S.Pb)}${rng('r6n',I.n2,0,30,1,S.n2)}${rng('r6c',I.cl,0,100,5,S.bcl3)}${rng('r6t',I.T,20,90,5,S.tC)}
+      <div class="seg-row"><button class="btn pri" id="b6p">${st6.run?I.pause:I.play}</button><button class="btn" id="b6r">${I.reset}</button></div></div>`);},
+  bind(){const I=IL('s6');bindRange('r6b',()=>S.Pb,v=>S.Pb=v,()=>`${S.Pb} W`);bindRange('r6n',()=>S.n2,v=>S.n2=v,()=>`${S.n2} sccm`);bindRange('r6c',()=>S.bcl3,v=>S.bcl3=v,()=>`${S.bcl3} %`);bindRange('r6t',()=>S.tC,v=>S.tC=v,()=>`${S.tC} °C`);
+    $('b6p').onclick=e=>{st6.run=!st6.run;e.target.textContent=st6.run?I.pause:I.play;};$('b6r').onclick=()=>{reset6();$('b6p').textContent=I.pause;};},
+  chart(){const I=IL('s6'),r=rates6(),d=st6.d,L=I.layers,lay=st6.ph==='bt'?I.bt:st6.ph!=='etch'?L[4]:d<STK.arc?L[1]:d<STK.arc+STK.al?L[2]:L[3];
+    const resLv=st6.ph==='etch'||st6.ph==='bt'?'—':r.res>.5?I.heavy:r.res>.1?I.some:I.none;
+    setStat('s6l',lay);setStat('s6u',`${st6.u.toFixed(0)}<small> nm</small>`,st6.u>25?'fail':'pass');setStat('s6r',resLv,r.res>.5&&resLv!=='—'?'fail':resLv==='—'?'':'pass');
+    setStat('s6p',`${st6.pr.toFixed(0)}<small> nm</small>`,st6.pr>100?'pass':'fail');setStat('s6o',`${st6.oxl.toFixed(0)}<small> nm</small>`);setStat('s6t',`${st6.t.toFixed(0)}<small> s</small>`);
+    setMsg(st6.ph==='done'?I.done:I.run,st6.ph==='done'?'':'info');},
+  rd(){return{p:'10 mTorr',T:`${S.tC} °C`,hf:`${S.Ps} W`,lf:S.Pb?`${S.Pb} W`:null,gas:`BCl₃ ${S.bcl3} % · N₂ ${S.n2}`};},
+};
+
+/* ---- 8 · Endpoint through the stack ---- */
+const RATES7=[1,.96,.92];
+const st7={t:0,h:[],ep:null,end:null,sm:null,base:null,peak:0};
+function reset7(){Object.assign(st7,{t:0,h:[],ep:null,end:null,sm:null,base:null,peak:0});}
+function times7(){const r=rates6();return RATES7.map(k=>{const a=r.c.bt+STK.arc/(r.tin*k/60),b=a+STK.al/(r.al*k/60),c=b+STK.bar/(r.bar*k/60);return{a,b,c};});}
+SC[7]={legend:[],noLabels:true,
+  init(){parts=[];fx=[];reset7();},
+  update(dt){if(st7.end!=null&&st7.t>=st7.end)return;const tp=dt*10;st7.t+=tp;const T=times7(),A=.03*S.open;
+    let al=0;T.forEach(x=>{al+=(1/(1+Math.exp(-(st7.t-x.a)/1.2)))*(1/(1+Math.exp((st7.t-x.b)/1.2)));});al/=3;
+    const sig=1+A*al+(rnd()-.5)*.1;st7.sm=st7.sm==null?sig:st7.sm*.9+sig*.1;if(st7.t<3)st7.base=st7.sm;st7.peak=Math.max(st7.peak,st7.sm);
+    if(st7.ep==null&&st7.peak-st7.base>A*.5&&st7.sm<st7.peak-A*.5){const r=rates6();st7.ep=st7.t;st7.end=st7.ep+STK.bar/(r.bar/60)+S.oe/100*st7.ep;}
+    if(st7.ep==null&&st7.t>T[2].c*1.6){st7.ep=st7.t;st7.end=st7.t;}
+    st7.h.push([st7.t,sig,st7.sm]);},
+  draw(){const I=IL('s7'),r=rates6(),T=times7(),sc=.42,y0=190,yA=y0+STK.arc*sc,yAl=yA+STK.al*sc,yB=yAl+STK.bar*sc,tE=st7.end??st7.t;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    [300,490,680].forEach((xc,i)=>{const tt=Math.min(st7.t,tE),x=T[i];let d;
+      if(tt<x.a)d=Math.max(0,(tt-r.c.bt))*r.tin*RATES7[i]/60;else if(tt<x.b)d=STK.arc+(tt-x.a)*r.al*RATES7[i]/60;else if(tt<x.c)d=STK.arc+STK.al+(tt-x.b)*r.bar*RATES7[i]/60;else d=STK.arc+STK.al+STK.bar;
+      const ox=tt>x.c?r.ox/60*(tt-x.c):0;
+      ctx.fillStyle='#9CC9F0';ctx.fillRect(xc-80,yB,160,110);ctx.fillStyle='#7C8798';ctx.fillRect(xc-80,yAl,160,yB-yAl);ctx.fillStyle='#C7CDD6';ctx.fillRect(xc-80,yA,160,yAl-yA);ctx.fillStyle='#5E6E86';ctx.fillRect(xc-80,y0,160,yA-y0);ctx.fillStyle='#E9A23B';ctx.fillRect(xc-80,y0-60,160,60);
+      ctx.fillStyle='#fff';ctx.fillRect(xc-24,y0-61,48,61+Math.max(0,d*sc)+ox*sc*3);
+      txt(I.labels[i],xc,y0-76,{sz:12,w:700,a:'center',c:C.ink});
+      const left=STK.arc+STK.al+STK.bar-d;txt(left>0.5?`${left.toFixed(0)} nm metal left`:`oxide −${ox.toFixed(0)} nm`,xc,yB+128,{sz:10.5,mono:true,w:600,a:'center',c:left>.5?C.coral:C.green});});
+    txt(`t = ${st7.t.toFixed(0)} s`,860,40,{sz:11,mono:true,w:600,c:C.purple,a:'right'});txt('(oxide loss drawn ×3)',860,58,{sz:9,c:C.label,a:'right'});},
+  inst(){const I=IL('s7');return card('OES',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.oe,`<div class="ctls">${rng('r7a',I.open,5,60,1,S.open)}${rng('r7o',I.oe,0,100,5,S.oe)}
+      <div class="stats">${statH('s7e',I.ep)}${statH('s7t',I.tot)}${statH('s7x',I.oxl)}</div><div class="seg-row"><button class="btn" id="b7r">${I.restart}</button></div></div>`);},
+  bind(){bindRange('r7a',()=>S.open,v=>S.open=v,()=>`${S.open} %`,reset7);bindRange('r7o',()=>S.oe,v=>S.oe=v,()=>`${S.oe} %`,reset7);$('b7r').onclick=reset7;},
+  chart(){const I=IL('s7'),T=times7(),r=rates6(),done=st7.end!=null&&st7.t>=st7.end,ox=i=>r.ox/60*Math.max(0,(st7.end??st7.t)-T[i].c);
+    setStat('s7e',st7.ep!=null?`${st7.ep.toFixed(0)}<small> s</small>`:'…');setStat('s7t',st7.end!=null?`${st7.end.toFixed(0)}<small> s</small>`:'…');setStat('s7x',done?`${ox(0).toFixed(0)} / ${ox(2).toFixed(0)}<small> nm</small>`:'…');
+    const resid=done&&T[2].c>st7.end;setMsg(!done?(S.open<10?I.noisy:I.wait):resid?I.res:I.ok,!done?(S.open<10?'warn':'info'):resid?'warn':'');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:36,r:W-10,t:12,b:H-16},Tm=Math.max(T[2].c*1.5,(st7.end||0)*1.05),A=.03*S.open,ymin=.9,ymax=1+A+.12,X=t=>b.l+t/Tm*(b.r-b.l),Y=v=>b.b-(v-ymin)/(ymax-ymin)*(b.b-b.t);
+    if(st7.ep!=null){const tb=st7.ep+STK.bar/(r.bar/60);g.fillStyle='rgba(112,48,160,.06)';g.fillRect(b.l,b.t,X(st7.ep)-b.l,b.b-b.t);g.fillStyle='rgba(15,140,80,.08)';g.fillRect(X(st7.ep),b.t,X(Math.min(tb,st7.end))-X(st7.ep),b.b-b.t);
+      g.fillStyle='rgba(217,154,0,.12)';g.fillRect(X(Math.min(tb,st7.end)),b.t,X(st7.end)-X(Math.min(tb,st7.end)),b.b-b.t);
+      gt(g,I.main,(b.l+X(st7.ep))/2,b.t+8,{a:'center',sz:9,c:C.purple});gt(g,I.bar,(X(st7.ep)+X(Math.min(tb,st7.end)))/2,b.t+8,{a:'center',sz:9,c:C.green});}
+    for(let t=0;t<=Tm;t+=20){gl(g,[[X(t),b.t],[X(t),b.b]],C.line,1);gt(g,String(t),X(t),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+    const h=st7.h;if(h.length>1){gl(g,h.map(q=>[X(q[0]),Y(q[1])]),'rgba(148,163,184,.6)',1);gl(g,h.map(q=>[X(q[0]),Y(q[2])]),C.purple,2);}
+    if(st7.ep!=null){gl(g,[[X(st7.ep),b.t],[X(st7.ep),b.b]],C.coral,1.4,[4,3]);gt(g,I.ep,X(st7.ep)+4,b.b-10,{sz:9.5,w:600,c:C.coral});}
+    gt(g,I.sig,b.l+4,b.t+8,{sz:9,c:C.label});gt(g,'s',b.r,b.b+9,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:'10 mTorr',T:`${S.tC} °C`,hf:`${S.Ps} W`,lf:S.Pb?`${S.Pb} W`:null};},
+};
+
+/* ---- 9 · Post-etch corrosion ---- */
+const st8={t:0,sites:[],hcl:[]};
+const defects8=(t,pet)=>pet?Math.min(3,.08*t):170*(1-Math.exp(-Math.pow(t/10,1.5)));
+const ALN=[[200,290],[350,440],[500,590],[650,740]];
+SC[8]={legend:[],noLabels:true,
+  init(){parts=[];fx=[];st8.t=0;st8.sites=[];st8.hcl=[];},
+  update(dt){const f=dt*60;if(st8.t<24)st8.t=Math.min(24,st8.t+dt*1.2);
+    const want=Math.floor(defects8(st8.t,S.pet));
+    while(st8.sites.length<want){const L=ALN[Math.floor(rnd()*4)],side=rnd();const s={r:.5};
+      if(side<.6){s.x=rnd()<.5?L[0]:L[1];s.y=260+rnd()*170;}else{s.x=L[0]+rnd()*(L[1]-L[0]);s.y=260;}st8.sites.push(s);}
+    for(const s of st8.sites)s.r=Math.min(6,s.r+dt*.8);
+    if(!S.pet&&rnd()<.4*f)st8.hcl.push({x:180+rnd()*580,y:250+rnd()*180,a:1});
+    for(const h of st8.hcl){h.y-=.5*f;h.a-=dt*.5;}st8.hcl=st8.hcl.filter(h=>h.a>0);},
+  draw(){const I=IL('s8'),pet=S.pet;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    txt(I.zoom,150,30,{sz:11,mono:true,w:600,c:C.purple});txt(`${I.q}: ${st8.t.toFixed(1)} ${I.hr}`,830,30,{sz:12,mono:true,w:700,a:'right',c:pet?C.green:C.coral});
+    ctx.fillStyle='#9CC9F0';ctx.fillRect(150,446,640,140);
+    for(const [a,b] of ALN){ctx.fillStyle='#7C8798';ctx.fillRect(a,430,b-a,16);ctx.fillStyle='#C7CDD6';ctx.fillRect(a,260,b-a,170);ctx.fillStyle='#5E6E86';ctx.fillRect(a,250,b-a,10);
+      if(!pet){ctx.fillStyle='#E9A23B';ctx.fillRect(a,170,b-a,80);ctx.fillStyle='rgba(47,163,107,.6)';ctx.fillRect(a-3,170,3,276);ctx.fillRect(b,170,3,276);
+        ctx.fillStyle='#86A33A';for(let i=0;i<9;i++){ctx.beginPath();ctx.arc(a-1.5,190+i*28,1.8,0,TAU);ctx.fill();ctx.beginPath();ctx.arc(b+1.5,200+i*28,1.8,0,TAU);ctx.fill();}}
+      else{ctx.fillStyle='rgba(58,122,214,.7)';ctx.fillRect(a-2,250,2,196);ctx.fillRect(b,250,2,196);}}
+    for(const s of st8.sites){ctx.fillStyle='rgba(120,72,30,.75)';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,TAU);ctx.fill();ctx.fillStyle='rgba(240,230,210,.8)';ctx.beginPath();ctx.arc(s.x+s.r*.3,s.y-s.r*.3,s.r*.35,0,TAU);ctx.fill();}
+    for(const h of st8.hcl)txt('HCl',h.x,h.y,{sz:9.5,w:600,a:'center',c:`rgba(100,116,139,${clamp(h.a,0,1)})`});
+    txt(pet?'thin Al₂O₃ passivation':'Cl in sidewall polymer & resist',150,600-10,{sz:10,c:pet?C.blue:'#5B7F14'});},
+  inst(){const I=IL('s8');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.pet,`<div class="ctls"><div class="seg-row"><span class="k">PET</span>${seg('segP',[['on',I.on],['off',I.off]],S.pet?'on':'off')}<button class="btn" id="b8r">${I.restart}</button></div>
+      <div class="stats">${statH('s8q',I.q)}${statH('s8c',I.cl)}${statH('s8d',I.def)}</div></div>`);},
+  bind(){bindSeg('segP',v=>{S.pet=v==='on';SC[8].init();});$('b8r').onclick=()=>SC[8].init();},
+  chart(){const I=IL('s8');setStat('s8q',`${st8.t.toFixed(1)}<small> h</small>`);setStat('s8c',S.pet?'low':'high',S.pet?'pass':'fail');setStat('s8d',String(st8.sites.length),st8.sites.length>10?'fail':'pass');
+    setMsg(S.pet?I.msgOn:I.msgOff,S.pet?'':'warn');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:36,r:W-10,t:12,b:H-16},X=t=>b.l+t/24*(b.r-b.l),Y=v=>b.b-v/170*(b.b-b.t);
+    for(let t=0;t<=24;t+=6){gl(g,[[X(t),b.t],[X(t),b.b]],C.line,1);gt(g,t+' h',X(t),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+    for(let v=0;v<=150;v+=50){gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,String(v),b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});}
+    const off=[],on=[];for(let t=0;t<=24;t+=.25){off.push([X(t),Y(defects8(t,false))]);on.push([X(t),Y(defects8(t,true))]);}
+    gl(g,off,C.coral,2);gl(g,on,C.green,2);gt(g,'PET off',X(14),Y(defects8(14,false))-10,{sz:9.5,w:600,c:C.coral});gt(g,'PET on',X(18),Y(4)-10,{sz:9.5,w:600,c:C.green});
+    gl(g,[[X(st8.t),b.t],[X(st8.t),b.b]],C.purple,1.2,[3,3]);},
+  rd(){return{p:'760 Torr (air)',T:'22 °C'};},
+};
+
+/* ---- 10 · After the etch: dechuck, strip, WAC ---- */
+const PH_DUR=[2,3,3.4,6,3,2.6];
+const st9={ph:0,t:0,dep:.25,I:1,pins:0,wx:0,waf:true,he:true,esc:true};
+function enter9(ph){st9.ph=ph;st9.t=0;
+  if(ph===0){parts=[];Object.assign(st9,{I:1,pins:0,wx:0,waf:true,he:true,esc:true,dep:S.wac?.2:Math.min(1,st9.dep+.2)});for(let k=0;k<14;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<8;k++){const q=bulkPt();spawn('Clp',q.x,q.y);}}
+  if(ph===1){parts=[];Object.assign(st9,{I:0,he:false});}
+  if(ph===2){Object.assign(st9,{esc:false,pins:1});}
+  if(ph===3){parts=[];Object.assign(st9,{waf:false,pins:0,wx:0});}
+  if(ph===5){parts=[];Object.assign(st9,{I:0});}
+  renderPhaseChips();}
+function renderPhaseChips(){const el=$('pc9');if(!el)return;el.querySelectorAll('.pc').forEach((b,i)=>b.className='pc'+(i===st9.ph?' on':i<st9.ph?' done':''));}
+SC[9]={get legend(){return st9.ph===0?['e','Clp']:[];},
+  init(){parts=[];fx=[];st9.dep=.2;enter9(0);},
+  update(dt){const f=dt*60,ph=st9.ph;st9.t+=dt;
+    if(ph===0){st9.I=Math.max(0,st9.I-dt*8);if(st9.t>.15)parts=[];}
+    if(ph===1){if(st9.t>.6&&st9.esc){st9.esc=false;addFlash(490,440,'112,48,160',.5,40);}st9.pins=clamp((st9.t-1.2)/1,0,1);}
+    if(ph===2){st9.wx=-Math.min(420,st9.t*150);if(st9.wx<=-420)st9.waf=false;}
+    if(ph===3){if(S.wac){st9.I=Math.min(.7,st9.I+dt);st9.dep=Math.max(0,st9.dep-dt*.06);if(rnd()<.2*f)addFlash(X0+rnd()*(X1-X0),YT+3,'150,110,70',.4,8);}else st9.I=0;}
+    if(ph===4){st9.I=S.wac?.5:0;}
+    if(ph===5){st9.I=0;}
+    if(st9.t>PH_DUR[ph])enter9((ph+1)%6);},
+  draw(){const ph=st9.ph,on=ph===0&&st9.I>.01||(ph===3||ph===4)&&S.wac;
+    drawBaseI({src:on,bias:ph===0&&st9.I>.01,gas:on,esc:st9.esc,he:st9.he,dep:st9.dep,p:on?10:'< 1 mTorr',pump:true,wafer:st9.waf,pins:st9.pins,wx:st9.wx,slit:ph===2});
+    if(on)drawICP({I:st9.I*.9,dpx:30});drawParts();drawFx();
+    if(ph===3&&S.wac)txt('AlClₓ · BOₓ · C  →  volatile',XC,300,{sz:13,w:700,c:'#7A5230',a:'center'});},
+  inst(){const I=IL('s9');return card('SEQUENCE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.wac,`<div class="ctls"><div class="phase-chips" id="pc9">${I.phases.map((p,i)=>`<button class="pc" data-i="${i}">${i+1} · ${p}</button>`).join('')}</div>
+      <div class="seg-row"><span class="k">WAC</span>${seg('segW',[['on',I.on],['off',I.off]],S.wac?'on':'off')}</div>
+      <div class="stats two">${statH('s9p',I.poly)}${statH('s9d','10th wafer')}</div></div>`);},
+  bind(){$('pc9').querySelectorAll('.pc').forEach(b=>b.onclick=()=>enter9(+b.dataset.i));bindSeg('segW',v=>{S.wac=v==='on';});renderPhaseChips();},
+  chart(){const I=IL('s9');setStat('s9p',`${(st9.dep*100).toFixed(0)}<small> %</small>`,st9.dep>.6?'fail':'');setStat('s9d',S.wac?'≈ −0.2 %':'≈ −8 %',S.wac?'pass':'fail');
+    setMsg(st9.ph===3&&!S.wac?I.skip:I.msg[st9.ph],st9.ph===3&&!S.wac?'warn':'info');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:34,r:W-8,t:10,b:H-16},mid=b.t+(b.b-b.t)*.48,N=15,X=i=>b.l+(i+.5)/N*(b.r-b.l);
+    const dep=[],dev=[];for(let i=0;i<N;i++){const p=S.wac?.2:Math.min(1,.2*(i+1));dep.push(p);dev.push((S.wac?0:-(p-.2)*10)+[.15,-.1,.2,-.15][i%4]);}
+    const Yc=v=>mid-6-v*(mid-6-b.t-8);gt(g,I.poly,b.l,b.t+2,{sz:9,c:C.label});
+    gl(g,dep.map((v,i)=>[X(i),Yc(v)]),'#96704A',2);dep.forEach((v,i)=>{g.fillStyle='#96704A';g.beginPath();g.arc(X(i),Yc(v),2.4,0,TAU);g.fill();});
+    const y0=mid+(b.b-mid)/2,Yd=v=>y0-v/9*((b.b-mid)/2-2);gl(g,[[b.l,y0],[b.r,y0]],'#CBD2DC',1);gt(g,I.dev,b.l,mid+6,{sz:9,c:C.label});
+    dev.forEach((v,i)=>{g.fillStyle=Math.abs(v)>2?C.coral:C.green;const y=Yd(v);g.fillRect(X(i)-5,Math.min(y,y0),10,Math.max(1,Math.abs(y-y0)));});
+    for(let i=0;i<N-2;i+=2)gt(g,String(i+1),X(i),b.b+9,{a:'center',sz:8.5,mono:true,c:C.label});gt(g,I.wafer,b.r,b.b+9,{a:'right',sz:8.5,c:C.label});},
+  rd(){const ph=st9.ph,on=ph===0&&st9.I>.01||(ph===3||ph===4)&&S.wac;return{p:on?'10 mTorr':'< 1 mTorr',T:'50 °C',hf:on?'13.56 MHz':null,gas:(ph===3||ph===4)&&S.wac?'Cl₂ / O₂':null};},
+};
+
+/* ---- 11 · Takeaways ---- */
+SC[10]={legend:[],cls:'none',init(){parts=[];fx=[];},draw(){},inst(){return'';},rd(){return{p:'—',T:'—'};}};
+function renderTK(){const k=L().tk;
+  $('stageHtml').innerHTML=`<div class="tk-hero"><div><h2>${k.h}</h2><p>${k.p}</p></div><div class="tk-btns"><button class="btn pri" id="tkb1">${k.btn1}</button><button class="btn" id="tkb2">${k.btn2}</button></div></div>
+  <div class="tk-grid">
+    <div class="tk-sec"><h4>${k.sPr}</h4><div class="pr-list">${k.pr.map(([a,b],i)=>`<div class="pr"><span class="n">${i+1}</span><div><b>${a}</b><span>${b}</span></div></div>`).join('')}</div></div>
+    <div class="tk-sec"><h4>${k.sWin}</h4>${k.win.map(([a,b])=>`<div class="kv"><span>${a}</span><span>${b}</span></div>`).join('')}<div class="tk-note">${k.winNote}</div></div>
+    <div class="tk-sec" style="grid-column:1/-1;overflow-x:auto"><h4>${k.sTab}</h4><table class="tk-table"><thead><tr>${k.th.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${k.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="tk-sec"><h4>${k.sMyth}</h4><div class="myths">${k.myths.map(([a,b])=>`<div class="myth-row"><span class="x">${a}</span><span class="a">→</span><span class="o">${b}</span></div>`).join('')}</div></div>
+    <div class="tk-sec"><h4>${k.sLim}</h4>${k.lim.map(([a,b])=>`<div class="lim-row"><span>${a}</span><span class="a">→</span><span>${b}</span></div>`).join('')}</div>
+  </div>`;
+  $('tkb1').onclick=()=>openPop(k.img1,k.cap1);$('tkb2').onclick=()=>openPop(k.img2,k.cap2);}
+function openPop(src,cap){$('popImg').src=src;$('popCap').textContent=cap;$('pop').classList.add('show');}
+function closePop(){$('pop').classList.remove('show');}
+$('pop').addEventListener('click',e=>{if(e.target.id==='pop'||e.target.id==='popX')closePop();});
+
+/* ============================== UI SHELL ============================== */
+const ICON={
+  try:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9l5 12 1.8-5.2L21 14z"/><path d="M7.2 2.2L8 5.1"/><path d="M5.1 8L2.2 7.2"/><path d="M14 4.1L12 6"/><path d="M6 12l-1.9 2"/></svg>',
+  myth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+};
+const RMAP=[null,3,4,4,6,5,6,7,9,'d','all'];
+let lastRec='',lastRd='',lastMsg='';
+function renderRecipe(){const R=L().recipe;let on=RMAP[cur];
+  if(on==='d')on=[7,8,9,10,10,0][st9.ph];
+  const key=lang+'|'+on;if(key===lastRec)return;lastRec=key;
+  $('recipe').innerHTML=`<span class="recipe-k">${L().recipeK}</span>`+R.map((r,i)=>`${i?'<span class="rp-sep">›</span>':''}<span class="rp ${on==='all'?'done':i===on?'on':(on!=null&&i<on?'done':'')}">${r}</span>`).join('');}
+function setMsg(s,cls){const k=s+'|'+cls;if(k===lastMsg)return;lastMsg=k;const m=$('msg');m.textContent=s||'';m.className='msg '+(cls||'');}
+function setReadouts(){const r=SC[cur].rd?SC[cur].rd():null,R=L().rd;if(!r)return;
+  let h=`<span class="rd"><b>${R.p}</b>${r.p}</span><span class="rd"><b>${R.T}</b>${r.T}</span>`;
+  if(cur!==10)h+=`<span class="rd ${r.hf?'on':''}"><b>${R.hf}</b>${r.hf||R.off}</span>`;
+  if(r.lf)h+=`<span class="rd on"><b>${R.lf}</b>${r.lf}</span>`;if(r.gas)h+=`<span class="rd"><b>${R.gas}</b>${r.gas}</span>`;if(r.slow)h+=`<span class="rd slow">${R.slow}</span>`;
+  if(h!==lastRd){$('readouts').innerHTML=h;lastRd=h;}}
+let lastLeg='';
+function renderLegend(){const keys=SC[cur].legend||[],sp=L().sp;const k=lang+keys.join();if(k===lastLeg)return;lastLeg=k;
+  $('legend').innerHTML=keys.map(s=>{const d=SP[s];const cls=d.cat==='i'?'ion':d.cat==='p'?'pw':'';return`<span class="lg"><i class="${cls}" style="${d.cat==='p'?'':'background:'+d.c}"></i>${sp[s]}</span>`;}).join('');
+  $('lblBtn').style.display=keys.length&&!SC[cur].noLabels?'':'none';}
+function renderInst(){const sc=SC[cur],el=$('inst'),h=sc.inst?sc.inst():'';el.innerHTML=h;el.className='inst'+(sc.cls&&sc.cls!=='none'?' '+sc.cls:'');el.style.display=h?'':'none';sc.bind&&sc.bind();}
+function renderSide(){const s=L().steps[cur],n=L().steps.length;
+  $('chap').textContent=L().chapters[s.ch];$('scount').textContent=`${String(cur+1).padStart(2,'0')} ${L().of} ${n}`;
+  $('sTitle').innerHTML=s.title;const lead=cur===10?L().tk.p:s.lead;$('sLead').innerHTML=lead;
+  let body=s.body;
+  if(cur===0)body+=`<div class="parts">${Object.keys(L().parts).map(id=>`<button class="part ${pinPart===id?'on':''}" data-p="${id}">${L().parts[id][0]}</button>`).join('')}</div>`;
+  if(cur===10)body=`<div class="parts">${L().steps.slice(0,10).map((t,i)=>`<button class="part" data-go="${i}">${String(i+1).padStart(2,'0')} · ${t.title}</button>`).join('')}</div>`;
+  $('sBody').innerHTML=body;
+  $('sCo').innerHTML=s.co.map(([k,t])=>`<div class="co ${k}">${ICON[k]}<div><span class="tag">${L().tags[k]}</span>${t}</div></div>`).join('');
+  $('sDd').innerHTML=s.dd.map(d=>`<details class="dd"><summary><span class="db">${L().dd}</span><span class="dt">${d.t}</span><span class="chev">▼</span></summary><div class="dd-in">${d.b}</div></details>`).join('');
+  $('sBody').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pinPart=pinPart===b.dataset.p?null:b.dataset.p;$('sBody').querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x.dataset.p===pinPart));tipPinned();});
+  $('sBody').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $('prog').style.width=((cur+1)/n*100)+'%';
+  $('prevBtn').disabled=cur===0;$('nextBtn').disabled=cur===n-1;$('prevBtn').textContent=L().prev;$('nextBtn').textContent=L().next;$('kbd').textContent=L().kbd;
+  $('pills').querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',+p.dataset.i===cur));}
+function renderPills(){let h='',prev=-1;L().steps.forEach((s,i)=>{if(prev!==-1&&s.ch!==prev)h+='<span class="pill-gap"></span>';prev=s.ch;h+=`<button class="pill" data-i="${i}" title="${s.title.replace(/"/g,'&quot;')}">${i+1}</button>`;});
+  $('pills').innerHTML=h;$('pills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>go(+b.dataset.i));}
+function tipPinned(){if(cur!==0||!pinPart){showTip(null);return;}const p=partById(pinPart),[x,y,w]=p.r[0];showTip(pinPart,OX+(x+w/2)*RS,OY+y*RS);}
+function enterScene(keepInst){fx=[];SC[cur].init();lastLeg='';renderLegend();if(!keepInst)renderInst();}
+function go(i){const n=L().steps.length;if(i<0||i>=n)return;cur=i;hoverPart=null;if(i!==0)pinPart=null;showTip(null);setMsg('','');
+  $('stageHtml').classList.toggle('show',i===10);if(i===10)renderTK();
+  enterScene();renderSide();renderRecipe();setReadouts();$('sideScroll').scrollTop=0;}
+function setLang(l){lang=l;document.documentElement.lang=l;$('btnEN').classList.toggle('active',l==='en');$('btnKO').classList.toggle('active',l==='ko');
+  $('hTitle').textContent=L().title;$('hSub').textContent=L().sub;$('lblBtn').textContent=L().labels;lastRec=lastRd=lastLeg=lastMsg='';
+  renderPills();renderSide();renderInst();renderRecipe();renderLegend();setReadouts();if(cur===10)renderTK();if(cur===0)tipPinned();}
+
+$('btnEN').onclick=()=>setLang('en');$('btnKO').onclick=()=>setLang('ko');
+$('prevBtn').onclick=()=>go(cur-1);$('nextBtn').onclick=()=>go(cur+1);
+$('lblBtn').onclick=()=>{S.labels=!S.labels;$('lblBtn').classList.toggle('on',S.labels);};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePop();return;}const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+  if(e.key==='ArrowRight'){go(cur+1);e.preventDefault();}if(e.key==='ArrowLeft'){go(cur-1);e.preventDefault();}});
+cv.addEventListener('mousemove',e=>{if(cur!==0){cv.style.cursor='default';return;}const r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,x=(sx-OX)/RS,y=(sy-OY)/RS;
+  hoverPart=partAt(x,y);cv.style.cursor=hoverPart?'pointer':'default';if(hoverPart)showTip(hoverPart,sx,sy);else tipPinned();});
+cv.addEventListener('mouseleave',()=>{hoverPart=null;tipPinned();});
+cv.addEventListener('click',e=>{if(cur!==0)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left-OX)/RS,y=(e.clientY-r.top-OY)/RS,id=partAt(x,y);
+  pinPart=id&&id!==pinPart?id:null;$('sBody').querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===pinPart));});
+
+/* ---------- main loop ---------- */
+let last=performance.now(),rdT=0;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;frameN++;
+  if(!(SC[cur].pausable&&S.paused))phase+=dt*TAU*FA;
+  const sc=SC[cur];
+  if(cur!==10){beginFrame();if(sc.update&&!(SC[cur].pausable&&S.paused))sc.update(dt);if(!(SC[cur].pausable&&S.paused))stepFx(dt);sc.draw();}
+  if(sc.chart)sc.chart(dt);
+  rdT+=dt;if(rdT>.15){rdT=0;setReadouts();if(cur===9){renderRecipe();renderLegend();}if(cur===1)renderLegend();}
+  requestAnimationFrame(loop);}
+setLang('en');go(0);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>requestAnimationFrame(loop));
+</script>
+</body>
+</html>

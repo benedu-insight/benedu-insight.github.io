@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remote Plasma Source v5 — Interactive Lesson · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8FAFB; --card:#FFFFFF; --border:#E2E8F0; --line:#EEF2F6;
+  --text:#1A202C; --ink2:#334155; --muted:#64748B; --label:#94A3B8;
+  --green:#0F8C50; --green-lt:#E6F4ED; --green-dk:#0A6B3C;
+  --purple:#7030A0; --purple-lt:#F0E8F8; --purple-mid:#9B59D0; --purple-dk:#521A78;
+  --coral:#E8553B; --coral-lt:#FDEEEA; --coral-dk:#8A2E1C;
+  --amber:#B7791F; --amber-lt:#FEF6E4; --amber-dk:#7A4E0B;
+  --shadow:0 2px 12px rgba(15,23,42,.06);
+  --hdr:56px; --side:440px;
+  --sans:'Google Sans',system-ui,sans-serif;
+  --mono:var(--sans);
+  --serif:var(--sans);
+  --code:'JetBrains Mono','Noto Sans KR',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html[lang=ko]{--sans:'Google Sans','Noto Sans KR',system-ui,sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font-family:inherit}
+
+/* ── Header ── */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr);z-index:50;display:flex;align-items:center;gap:14px;
+  padding:0 20px;background:var(--card);border-bottom:1px solid var(--border)}
+.hdr-logo{height:32px;display:block}
+.hdr-div{width:1px;height:26px;background:var(--border)}
+.hdr-title{font-size:15px;font-weight:700;color:var(--purple);line-height:1.2;white-space:nowrap}
+.hdr-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-top:2px;white-space:nowrap}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:2px}
+.lang-btn{font-family:'Google Sans','Noto Sans KR',sans-serif;white-space:nowrap;font-size:12px;font-weight:600;padding:3px 12px;border-radius:16px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .18s}
+.lang-btn.active{background:var(--purple);color:#fff}
+
+/* ── App grid ── */
+.app{position:fixed;top:var(--hdr);left:0;right:0;bottom:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
+.stage{display:flex;flex-direction:column;gap:8px;padding:10px 10px 10px 12px;min-width:0;min-height:0}
+
+/* recipe bar */
+.recipe{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;flex-shrink:0;padding:0 2px}
+.recipe-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-right:6px;white-space:nowrap}
+.rp{font-size:11px;font-weight:600;color:var(--label);padding:4px 9px;border-radius:999px;border:1px solid var(--border);background:var(--card);white-space:nowrap;transition:all .2s}
+.rp.on{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(112,48,160,.25)}
+.rp.done{color:var(--muted)}
+.rp-sep{color:var(--border);font-size:10px}
+
+/* canvas card */
+.canvas-card{flex:1;min-height:0;position:relative;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.cv-wrap{flex:1;min-height:0;position:relative}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sbar{display:flex;align-items:center;gap:6px;padding:6px 10px;border-top:1px solid var(--line);min-height:36px;flex-wrap:wrap;flex-shrink:0}
+.rd{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;color:var(--ink2);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.rd b{font-weight:500;color:var(--label);margin-right:4px}
+.rd.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.rd.slow{color:var(--muted);background:transparent;border-style:dashed}
+.sbar-sp{flex:1}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2);white-space:nowrap}
+.lg i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.lg i.ion{box-shadow:0 0 0 2px rgba(232,85,59,.25)}
+.lg i.pw{border-radius:2px;background:#CBD5E1;border:1px solid #94A3B8}
+.lbl-btn{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:6px;padding:2px 8px;cursor:pointer}
+.lbl-btn.on{background:var(--purple-lt);color:var(--purple);border-color:#d9c6ec}
+.msg{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--green-lt);color:var(--green-dk);white-space:nowrap}
+.msg.warn{background:var(--coral-lt);color:var(--coral-dk)}
+.msg.info{background:var(--purple-lt);color:var(--purple-dk)}
+.msg:empty{display:none}
+sub,sup{font-size:.72em;line-height:0}
+
+#tooltip{position:absolute;pointer-events:none;z-index:20;max-width:300px;background:rgba(17,24,39,.96);color:#fff;
+  padding:10px 13px;border-radius:10px;font-size:12.5px;line-height:1.55;opacity:0;transition:opacity .12s;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);transform:translate(-50%,calc(-100% - 14px))}
+#tooltip.show{opacity:1}
+#tooltip b{display:block;color:#d8b9f3;margin-bottom:2px;font-size:12.5px}
+
+/* takeaway overlay */
+.stage-html{position:absolute;inset:0;overflow:auto;background:var(--card);display:none;padding:22px 24px 28px}
+.stage-html.show{display:block}
+
+/* instrument panel */
+.inst{flex-shrink:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,1fr);gap:8px;height:216px}
+.inst.tall{height:286px}
+.inst.one{grid-template-columns:1fr;height:auto}
+.icard{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:9px 12px;min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.ihead{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ihead h3{font-size:12px;font-weight:600;color:var(--ink2)}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-lt);color:var(--green);font-size:9.5px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.chart{flex:1;min-height:0;width:100%;display:block}
+.crow{flex:1;min-height:0;display:flex;gap:8px}
+.crow .chart{flex:1;min-width:0;height:100%}
+.ctls{display:flex;flex-direction:column;gap:6px;overflow:auto;min-height:0;padding-right:2px}
+.ctls.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;row-gap:8px;align-content:start}
+.ctls.g2 .seg-row{grid-column:1/-1}
+.ctl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px;line-height:1.25}
+.ctl-h label{font-size:11.5px;color:var(--muted);font-weight:500}
+.ctl-h output{font-family:var(--mono);font-size:11.5px;color:var(--purple);font-weight:600;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--purple-mid));outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:2.5px solid var(--purple);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--purple)}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px;flex-wrap:wrap}
+.seg button{border:none;background:transparent;padding:4px 10px;font-size:11.5px;font-weight:600;color:var(--muted);border-radius:6px;cursor:pointer}
+.seg button.on{background:var(--purple);color:#fff}
+.seg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.seg-row .k{font-size:11.5px;color:var(--muted);min-width:64px}
+.btn{font-size:11.5px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:8px;padding:5px 12px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.btn.pri{background:var(--purple);border-color:var(--purple);color:#fff}
+.btn.pri:hover{background:var(--purple-dk)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.stats.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;min-width:0}
+.stat-k{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--purple);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v small{font-size:10px;color:var(--muted);font-weight:500}
+.stat.pass{background:var(--green-lt);border-color:#cde9da}.stat.pass .stat-v{color:var(--green-dk)}
+.stat.fail{background:var(--coral-lt);border-color:#f6d3ca}.stat.fail .stat-v{color:var(--coral-dk)}
+.ticker{font-family:var(--sans);font-size:11.5px;line-height:1.7;color:var(--ink2);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 9px;min-height:68px}
+.ticker div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticker div em{font-style:normal;color:var(--label)}
+.phase-chips{display:flex;flex-wrap:wrap;gap:4px}
+.pc{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;padding:3px 9px;cursor:pointer}
+.pc.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+.pc.done{color:var(--green-dk);border-color:#cde9da;background:var(--green-lt)}
+.note{font-size:10.5px;color:var(--label);line-height:1.45}
+
+/* ── Side panel ── */
+.side{background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+.side-scroll{flex:1;overflow-y:auto;padding:18px 22px 16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.chap{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:var(--green-lt);padding:2px 8px;border-radius:4px}
+.scount{font-family:var(--mono);font-size:10px;color:var(--label);letter-spacing:.08em}
+.s-title{font-size:20px;font-weight:700;line-height:1.28;color:var(--text);margin-bottom:8px;letter-spacing:-.005em}
+.s-lead{font-family:var(--sans);font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:10px}
+.s-body{font-size:13px;line-height:1.72;color:#3b4456}
+.s-body ul{padding-left:1.05rem;margin:4px 0}
+.s-body li{margin-bottom:4px}
+.s-body li::marker{color:var(--purple-mid)}
+.s-body b{color:var(--text);font-weight:600}
+code,.s-body code{font-family:var(--mono);font-size:11.5px;background:var(--purple-lt);color:var(--purple-dk);padding:1px 5px;border-radius:4px;white-space:nowrap}
+.parts{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.part{font-size:11.5px;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:999px;padding:3px 10px;cursor:pointer;transition:all .14s}
+.part:hover,.part.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.co{display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-top:10px;font-size:12.5px;line-height:1.62}
+.co svg{flex:none;width:18px;height:18px;margin-top:2px}
+.co .tag{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:2px;opacity:.85}
+.co.try{background:var(--purple-lt);color:var(--purple-dk)}
+.co.myth{background:var(--coral-lt);color:var(--coral-dk)}
+.co.key{background:var(--green-lt);color:var(--green-dk)}
+.co.warn{background:var(--amber-lt);color:var(--amber-dk)}
+.dd{margin-top:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card)}
+.dd summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--text);user-select:none}
+.dd summary::-webkit-details-marker{display:none}
+.dd summary .db{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--purple);color:#fff;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.dd summary .dt{flex:1}
+.dd summary .chev{color:var(--label);font-size:10px;transition:transform .2s}
+.dd[open] summary{background:var(--purple-lt);border-bottom:1px solid var(--border)}
+.dd[open] summary .chev{transform:rotate(180deg)}
+.dd-in{padding:12px 14px;font-size:12.5px;line-height:1.75;color:#3b4456;background:var(--bg)}
+.dd-in p+p,.dd-in p+ul,.dd-in ul+p{margin-top:8px}
+.dd-in ul{padding-left:1.05rem}
+.dd-in b{color:var(--text)}
+.eq{font-family:var(--code);font-size:11.5px;line-height:1.7;background:#1F2433;color:#FFD580;border-radius:8px;padding:9px 12px;margin:8px 0;white-space:pre;overflow-x:auto}
+.dd-hl{border-left:3px solid var(--purple);background:var(--purple-lt);color:var(--purple-dk);border-radius:0 8px 8px 0;padding:8px 11px;margin-top:8px;font-size:12px;line-height:1.65}
+.side-foot{flex-shrink:0;border-top:1px solid var(--border);padding:10px 18px 12px;background:var(--card)}
+.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:9px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--purple));transition:width .3s}
+.pills{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:9px}
+.pill{width:28px;height:26px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s}
+.pill:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.pill.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.pill-gap{width:6px}
+.nav{display:flex;gap:8px}
+.nav button{flex:1;padding:9px;font-size:13px;font-weight:700;border:none;border-radius:9px;background:var(--text);color:#fff;cursor:pointer;transition:background .15s}
+.nav button:hover:not(:disabled){background:var(--purple)}
+.nav button:disabled{background:var(--line);color:var(--label);cursor:not-allowed}
+.kbd{font-family:var(--mono);font-size:9.5px;color:var(--label);text-align:center;margin-top:6px;letter-spacing:.06em}
+
+/* takeaway */
+.tk-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:16px}
+.tk-hero h2{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.tk-hero p{font-family:var(--serif);font-size:14px;color:var(--muted);margin-top:4px}
+.tk-btns{display:flex;gap:8px;flex-wrap:wrap}
+.tk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.tk-sec{border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:var(--card)}
+.tk-sec h4{font-size:11px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.pr-list{display:grid;gap:8px}
+.pr{display:flex;gap:10px;align-items:flex-start}
+.pr .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.pr b{display:block;font-size:13px}
+.pr span{font-size:12px;color:var(--muted);line-height:1.5}
+.tk-table{width:100%;border-collapse:collapse;font-size:12px}
+.tk-table th{background:var(--purple);color:#fff;font-weight:600;padding:6px 8px;text-align:left}
+.tk-table th:first-child{border-radius:6px 0 0 0}.tk-table th:last-child{border-radius:0 6px 0 0}
+.tk-table td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.tk-table td:nth-child(2){color:var(--purple-dk);font-family:var(--mono);font-size:11.5px}
+.tk-table td:nth-child(3){color:var(--muted);font-family:var(--mono);font-size:11.5px}
+.tk-table tr:nth-child(even) td{background:#FBF8FD}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.kv span:last-child{font-family:var(--mono);color:var(--text);font-weight:600;font-size:12px;text-align:right}
+.myths{display:grid;gap:7px}
+.myth-row{display:grid;grid-template-columns:1fr 18px 1.3fr;gap:6px;align-items:start;font-size:12px;line-height:1.5}
+.myth-row .x{color:var(--coral-dk);text-decoration:line-through;text-decoration-color:rgba(232,85,59,.5)}
+.myth-row .a{color:var(--label);text-align:center}
+.myth-row .o{color:var(--green-dk)}
+.lim-row{display:grid;grid-template-columns:1fr 18px 1fr;gap:6px;font-size:12px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.lim-row .a{color:var(--label);text-align:center}
+.lim-row span:last-child{color:var(--purple-dk);font-weight:600}
+.tk-note{font-size:11px;color:var(--label);margin-top:8px}
+
+/* popup */
+.pop{display:none;position:fixed;inset:0;z-index:300;background:rgba(15,18,30,.78);align-items:center;justify-content:center;padding:28px}
+.pop.show{display:flex}
+.pop-box{position:relative;background:#fff;border-radius:14px;padding:14px;max-width:min(94vw,1100px);max-height:92vh;display:flex;flex-direction:column;gap:8px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.pop-box img{max-width:100%;max-height:calc(92vh - 80px);object-fit:contain;border-radius:8px;display:block}
+.pop-cap{font-size:12.5px;color:var(--muted);text-align:center;line-height:1.5}
+.pop-x{position:absolute;top:-13px;right:-13px;width:32px;height:32px;border-radius:50%;border:none;background:var(--text);color:#fff;font-size:15px;cursor:pointer}
+.pop-x:hover{background:var(--purple)}
+
+/* responsive */
+@media (max-width:1200px){:root{--side:380px}.inst{grid-template-columns:minmax(0,1.2fr) minmax(230px,1fr)}}
+@media (max-width:940px){
+  html,body{overflow:auto;height:auto}
+  .hdr{position:sticky}
+  .hdr-sub{display:none}
+  .hdr{padding:0 12px;gap:10px}
+  .hdr-div{display:none}
+  .hdr-logo{height:26px}
+  .hdr-title{white-space:normal;font-size:12.5px}
+  .lang-btn{padding:3px 9px}
+  .app{position:static;display:block}
+  .stage{padding:10px 16px}
+  .canvas-card{flex:none;height:min(78vw,560px);min-height:300px}
+  .inst,.inst.tall{grid-template-columns:1fr;height:auto}
+  .inst .icard{min-height:200px}
+  .inst .chart{flex:none;height:190px}
+  .inst .crow{flex:none;height:190px}
+  .inst .crow .chart{height:100%;flex:1 1 0;width:auto;min-width:0}
+  .side{border-left:none;border-top:1px solid var(--border)}
+  .side-scroll{overflow:visible;padding:16px}
+  .side-foot{position:sticky;bottom:0}
+  .tk-grid{grid-template-columns:1fr}
+  .recipe{overflow-x:auto}
+}
+.stat-k .nc{text-transform:none}
+.dd-img{display:block;max-width:100%;border-radius:8px;margin:8px 0;cursor:zoom-in;border:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display:inline-flex">
+    <img class="hdr-logo" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  </a>
+  <div class="hdr-div"></div>
+  <div>
+    <div class="hdr-title" id="hTitle"></div>
+    <div class="hdr-sub" id="hSub"></div>
+  </div>
+  <div class="hdr-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN">EN</button>
+      <button class="lang-btn" id="btnKO">한국어</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <section class="stage">
+    <div class="recipe" id="recipe"></div>
+    <div class="canvas-card" id="card">
+      <div class="cv-wrap" id="cvWrap">
+        <canvas id="cv"></canvas>
+        <div id="tooltip"></div>
+      </div>
+      <div class="sbar">
+        <div id="readouts" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <span class="msg" id="msg"></span>
+        <span class="sbar-sp"></span>
+        <div class="legend" id="legend"></div>
+        <button class="lbl-btn" id="lblBtn"></button>
+      </div>
+      <div class="stage-html" id="stageHtml"></div>
+    </div>
+    <div class="inst" id="inst"></div>
+  </section>
+
+  <aside class="side">
+    <div class="side-scroll" id="sideScroll">
+      <div class="eyebrow"><span class="chap" id="chap"></span><span class="scount" id="scount"></span></div>
+      <h1 class="s-title" id="sTitle"></h1>
+      <p class="s-lead" id="sLead"></p>
+      <div class="s-body" id="sBody"></div>
+      <div id="sCo"></div>
+      <div id="sDd"></div>
+    </div>
+    <div class="side-foot">
+      <div class="prog"><i id="prog"></i></div>
+      <div class="pills" id="pills"></div>
+      <div class="nav"><button id="prevBtn"></button><button id="nextBtn"></button></div>
+      <div class="kbd" id="kbd"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="pop" id="pop">
+  <div class="pop-box">
+    <button class="pop-x" id="popX" aria-label="Close">✕</button>
+    <img id="popImg" src="" alt="">
+    <div class="pop-cap" id="popCap"></div>
+  </div>
+</div>
+
+<script>
+/* ==================================================================
+   Remote Plasma Source (RPS) — PR Strip & Chamber Clean · Interactive Lesson v5 · Benedu Insight
+   Toroidal transformer-coupled source · O₂ / NF₃ · 11 steps · EN / KO
+   Content (all text) lives in T; the engine follows in the next block.
+   ================================================================== */
+const T = {
+en:{
+  title:'Remote Plasma Source — Resist Strip & Chamber Clean',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ Prev', next:'Next ▶', kbd:'← → keys to navigate', of:'of',
+  labels:'Labels', explore:'Explore parts',
+  chapters:['Hardware & Setup','Source Physics','Transport & Delivery','Strip & Clean','Summary'],
+  recipeK:'Recipe',
+  recipe:['Load','Heat','Ar ignite','Gas switch','Strip','Endpoint','Over-ash','Unload'],
+  rd:{p:'P',T:'Wafer',hf:'RPS',lf:'Bias',gas:'Gas',off:'OFF',slow:'motion slowed'},
+  tags:{try:'Try it',myth:'Common misconception',key:'Key point',warn:'Note'},
+  dd:'Deep dive',
+  parts:{
+    toroid:['Toroidal plasma tube','Closed-loop discharge channel. In NF₃ cleaning sources it is an anodized-aluminium block with dielectric breaks (F would etch quartz); O₂ strip sources often use quartz or sapphire. The plasma forms a ring current inside it.'],
+    ferrite:['Ferrite cores','High-permeability magnetic cores (μr in the thousands) encircling the tube legs — the transformer core. They guide the primary flux through the plasma loop, so coupling is efficient even at a few hundred kHz.'],
+    coil:['Primary winding','A few turns on each core. Primary current → oscillating flux in the core → induced loop voltage around the plasma ring (Faraday’s law).'],
+    ac:['AC power supply','Solid-state supply, typically ≈ 400 kHz and 2–10 kW (more for cleaning). There is no bias supply anywhere — nothing accelerates ions toward the wafer.'],
+    ign:['Ignition electrode','The induced loop field is far too weak to break down gas at Torr pressure. A short high-voltage kick on a capacitive starter electrode seeds the first electrons — always in Ar.'],
+    ar:['Ar','Ignition and dilution gas: easiest to break down and to sustain (lowest E/p).'],
+    o2:['O₂','Strip gas: e⁻ + O₂ → O + O. Typically 2–10 slm at 0.5–3 Torr.'],
+    fg:['N₂/H₂ (forming gas)','Additive (≈ 4 % H₂ in N₂). Raises the O-atom yield and helps remove residues; pure N₂/H₂ chemistry strips without oxidizing low-k or metals.'],
+    nf3:['NF₃','Chamber-clean gas: NF₃ → N₂ + 3 F with > 95 % dissociation. Not used during a wafer strip.'],
+    mfc:['Mass flow controllers','Set each gas flow (sccm–slm). Together with the throttle valve they set the pressure.'],
+    duct:['Downstream duct','Carries the afterglow from the source to the chamber. Charged particles are lost within milliseconds; atoms survive if the wall recombination probability γ is low.'],
+    baffle:['Baffle / showerhead (grounded)','Spreads the atom flow over the wafer and blocks line-of-sight VUV and stray ions from the source. No RF on it.'],
+    wafer:['Wafer with photoresist','The resist (a CₓHᵧO_z polymer) is oxidized to CO, CO₂ and H₂O. Removal is purely chemical and isotropic.'],
+    chuck:['Heated chuck (grounded)','Sets the wafer temperature, 200–300 °C, which controls the reaction rate (Arrhenius). Lift pins allow slow pre-heating. No RF, no sheath.'],
+    pump:['Throttle valve + dry pump','Holds 0.5–3 Torr while removing CO₂ and H₂O.'],
+    epd:['Endpoint sensor','Watches a by-product signal (CO / OH emission in a small sensor plasma, or an RGA). When it falls, the resist is gone.'],
+    cm:['Capacitance manometer','Measures the chamber pressure (Torr range).'],
+    inset:['Equivalent circuit','The plasma ring is a one-turn secondary winding: V_loop = V₁ / N and I_loop ≈ N · I₁. The plasma resistance is the load.'],
+    wall:['Chamber body (grounded)','Heated metal walls. Nothing in the process chamber carries RF.'],
+  },
+  sp:{O2:'O₂',O:'O atom',O2p:'O₂⁺',e:'e⁻',Ar:'Ar',Arp:'Ar⁺',NF3:'NF₃',F:'F atom',CO2:'CO₂ / H₂O',SiF4:'SiF₄',uv:'VUV photon',powder:'crust debris'},
+  I:{
+    hw:{title:'Typical hardware numbers',stats:[['Frequency','≈ 400 kHz'],['Power','2–10 kW'],['Pressure','0.5–3 Torr'],['<span class="nc">nₑ</span> in the ring','10¹²–10¹³ cm⁻³'],['Wafer temp.','200–300 °C'],['Wafer ion E','≈ 0 eV']]},
+    s1:{chart:'Loop voltage needed to sustain the ring',gas:'Gas',ar:'Ar',o2:'O₂',mix:'NF₃/Ar',nf3:'NF₃',p:'Pressure',P:'Power',E:'Loop field',V:'Loop voltage',I:'Loop current',ne:'<span class="nc">nₑ</span> (estimate)',vmax:'supply limit ≈ 900 V',okMsg:'Sustained — the plasma ring is the one-turn secondary',failMsg:'Needed loop voltage exceeds the supply — dilute with Ar or lower the pressure',ign:'Sustained — but ignition always starts in Ar; then the gas is switched'},
+    s2:{chart:'Dissociation vs power',gas:'Gas',o2:'O₂',nf3:'NF₃',P:'Power',Q:'Flow',f:'Dissociated',out:'Atom flow out',ev:'Energy per atom',fr:'fraction dissociated'},
+    s3:{chart:'Survival along the duct',L:'Duct length',mat:'Wall',q:'Quartz',an:'Anodized Al',ss:'Stainless',pt:'PTFE',p:'Pressure',t:'Transit time',ni:'Ions at outlet',so:'O atoms surviving',ratio:'Ions per O atom',ion:'ions  n/n₀',o:'O atoms',gam:'<span class="nc">γ</span> (O on wall)'},
+    s4:{chart:'Ash rate across the wafer',inlet:'Gas inlet',jet:'Center jet',sh:'Baffle',cov:'Resist coverage',p:'Pressure',c:'Center rate',e:'Edge rate',u:'Non-uniformity',load:'Loading',r:'radius',rel:'relative ash rate'},
+    s5:{chart:'Flux reaching the wafer (cm⁻² s⁻¹, log)',mode:'Mode',dir:'Direct plasma',rem:'Remote (RPS)',O:'O atoms',ion:'Ions',uv:'VUV',Ei:'Ion energy',lk:'Low-k damage',chg:'Gate charging',rate:'Ash rate @ 120 °C',none:'none',low:'low',high:'high'},
+    s6:{chart:'Arrhenius plot — ash rate',T:'Wafer temp.',P:'RPS power',add:'Additive',o2:'O₂ only',fg:'+ N₂/H₂',cf:'+ CF₄ 1 %',rate:'Ash rate',tt:'Time for 1.5 <span class="nc">µm</span>',ox:'Oxide loss',ea:'<span class="nc">Eₐ</span>'},
+    s7:{chart:'Strip trace',pr:'Resist',std:'Standard',imp:'High-dose implant',ramp:'Heating',slow:'Stepped',fast:'Direct 250 °C',run:'Restart',rem:'Resist left',ep:'Endpoint',oa:'Over-ash',res:'Result',clean:'clean',pop:'popping',sig:'by-product signal',left:'resist',msgPop:'Crust ruptured — solvent vapour trapped under the implant crust burst it (particles)',msgEp:'Endpoint — by-product signal fell; over-ashing',msgDone:'Strip complete',msgRun:'Stripping…',zoom:'ZOOM · resist over device topography'},
+    s8:{chart:'SiF₄ signal during the clean',nf3:'NF₃ flow',d:'Deposit on walls',T:'Chamber temp.',run:'Restart',t:'Clean time',util:'F utilization',use:'NF₃ used',co2:'CO₂-eq (1 % slip)',ep:'endpoint',msgRun:'Cleaning…',msgDone:'Endpoint — SiF₄ signal fell to baseline'},
+    s9:{knobs:'Strip recipe',reset:'Baseline',P:'RPS power',p:'Pressure',T:'Wafer temp.',Q:'O₂ flow',fg:'N₂/H₂ add',out:'Results (teaching model)',rate:'Ash rate',u:'Non-uniformity',ox:'Si oxidation',wph:'Throughput',spec:'Spec',pass:'PASS',fail:'FAIL'},
+  },
+  steps:[
+  { ch:0, title:'Inside a Remote Plasma Strip Tool',
+    lead:'A remote plasma source (RPS) <b>makes the plasma somewhere else</b>. A closed-loop toroidal discharge produces O atoms; a short duct delivers them to a grounded, plasma-free chamber where they burn off the photoresist.',
+    body:`<ul>
+<li><b>Toroidal source</b>: ferrite cores + primary windings at ≈ 400 kHz; the plasma ring is the transformer’s secondary</li>
+<li><b>Gases</b>: Ar (ignition), O₂ (strip), N₂/H₂ (additive), NF₃ (chamber clean)</li>
+<li><b>Duct + baffle</b>: charged particles are lost on the way, atoms are delivered and spread</li>
+<li><b>Heated, grounded chuck</b> at 200–300 °C and 0.5–3 Torr — no RF anywhere near the wafer</li></ul>`,
+    co:[['try','Hover over the drawing — or tap a part below — to see what it does.'],
+        ['key','Two separate jobs: the source turns electrical power into O atoms; the chamber turns O atoms + heat into CO₂ and H₂O. Every knob in this lesson acts on one of the two.']],
+    dd:[{t:'Toroidal, microwave or ICP — three ways to build a remote source', b:`<p>All three deliver the same thing — neutral atoms in a flowing afterglow — but couple power differently.</p>
+<div class="dd-hl"><b>Toroidal (transformer-coupled)</b>: ferrite cores, ≈ 400 kHz, very high power (up to ~15 kW). The standard for NF₃ chamber cleaning; also used for strip.</div>
+<div class="dd-hl"><b>Microwave (2.45 GHz)</b>: a quartz or sapphire tube in a waveguide cavity. The classic downstream asher.</div>
+<div class="dd-hl"><b>ICP downstream</b>: a 13.56 MHz coil around a dielectric tube, with a grounded grid between source and wafer to stop ions.</div>
+<p>The physics of what happens after the source — recombination, wall loss, Arrhenius chemistry — is the same for all three.</p>`}] },
+
+  { ch:1, title:'Ignition & Transformer Coupling',
+    lead:'The ferrite core and primary winding form a transformer whose <b>secondary is the plasma itself</b> — a single conducting ring. The induced loop voltage must be high enough to keep that ring alive.',
+    body:`<ul>
+<li>Faraday: V<sub>loop</sub> = −dΦ/dt; with N primary turns, V<sub>loop</sub> = V₁ / N and I<sub>loop</sub> ≈ N · I₁</li>
+<li>Sustaining needs a field E ≈ (E/p)<sub>gas</sub> · p around the loop — electronegative O₂ and NF₃ need far more than Ar</li>
+<li>The loop field cannot <b>break down</b> gas at Torr pressure: a high-voltage starter ignites Ar, then the process gas is bled in</li>
+<li>Power P = V<sub>loop</sub> · I<sub>loop</sub> → a very dense ring (10¹²–10¹³ cm⁻³)</li></ul>`,
+    co:[['try','Switch to NF₃ and raise the pressure: the loop voltage needed climbs past the supply limit. Then try NF₃/Ar.'],
+        ['myth','“A transformer source is just an ICP.” Same Faraday physics — but the closed ferrite core guides almost all of the flux through the plasma loop, so it couples efficiently at 400 kHz and handles very high power.']],
+    dd:[{t:'Why ignite in Ar, and why dilute NF₃?', b:`<p>In electronegative gases electrons are lost by <b>attachment</b> (e⁻ + O₂ → O⁻ + O, e⁻ + NF₃ → NF₂ + F⁻). To keep the ring alive, each remaining electron must ionize faster, which needs a higher field per pressure. Ar has no attachment, so it breaks down and sustains most easily.</p>
+<div class="eq">Sustaining E/p (illustrative, V cm⁻¹ Torr⁻¹)
+Ar ≈ 1     O₂ ≈ 5     NF₃ ≈ 12     NF₃/Ar 1:1 ≈ 6.6</div>
+<div class="dd-hl">Typical sequence: Ar strike at ~1 Torr → ramp power → bleed in O₂ (or NF₃) while reducing Ar → raise pressure to the process value.</div>`},
+        {t:'Quartz or metal? — why the tube must not form a closed conducting loop', b:`<p>Anything that encircles the ferrite core is a secondary winding. A seamless <b>metal tube</b> would be a one-turn, short-circuited secondary: the loop voltage (hundreds of V) drives a huge eddy current through near-zero resistance, the power heats the metal, and the plasma never lights — exactly like shorting a transformer’s output.</p>
+<div class="eq">Seamless metal → shorted secondary, wall heats
+Quartz tube    → no current path, plasma heats
+Metal + break  → electric loop open, gas loop closed</div>
+<p>So there are two ways to build the loop. An <b>insulating tube</b> (quartz, sapphire, ceramic) cannot carry current at all. A <b>metal body with one or two dielectric breaks</b> (ceramic rings inserted in the loop) keeps the gas channel continuous but cuts the electrical one; the loop voltage then appears across the breaks, so they must be designed against arcing.</p>
+<div class="dd-hl"><b>Quartz</b> suits O₂ strip sources: very low O recombination (γ ≈ 2×10⁻⁴), no metal contamination, already an oxide, and transparent for OES. But F etches it (SiO₂ + 4 F → SiF₄), it conducts heat poorly and cracks under thermal shock.</div>
+<div class="dd-hl"><b>Anodized Al + dielectric breaks</b> is the standard for high-power NF₃ cleaning: AlF₃ / Al₂O₃ resist F, water cooling can be machined into the block for many kW, and it does not break. The anodized layer is the consumable.</div>`}] },
+
+  { ch:1, title:'Dissociation — Turning Power into Atoms',
+    lead:'Inside the ring, electrons break molecules apart. How many atoms come out is an <b>energy budget</b>: power divided by the energy spent per atom, compared with how many molecules flow through.',
+    body:`<ul>
+<li>e⁻ + O₂ → O + O (bond 5.1 eV, threshold ≈ 6 eV) — but most electron energy goes into excitation, ionization and gas heating</li>
+<li>O₂ therefore costs tens of eV per atom → typically <b>10–30 %</b> dissociated</li>
+<li>NF₃ dissociates by near-zero-energy electron attachment → <b>> 95 %</b> dissociated</li>
+<li>More flow → more atoms but a lower fraction; more power → higher fraction, saturating</li></ul>`,
+    co:[['try','Compare O₂ and NF₃ at 5 kW and 5 slm: the fractions differ far more than the bond energies would suggest.'],
+        ['key','The strip rate follows the <b>atom flow</b> (atoms per second), not the dissociation fraction. Raising the O₂ flow lowers the fraction but can still raise the atom flow.']],
+    dd:[{t:'Why not simply add more power?', b:`<p>The ring runs at thousands of kelvin gas temperature. More power heats the gas further, raises recombination inside the source and erodes the tube coating (anodized layer or quartz). Beyond a point, extra kW mostly becomes heat in the cooling water.</p>
+<div class="dd-hl">A useful figure of merit is <b>atoms delivered per kWh</b> at the wafer — which also depends on the duct (next step).</div>`}] },
+
+  { ch:2, title:'Downstream Duct — Ions Die, Atoms Survive',
+    lead:'Leave the coupling region and the electrons cool within microseconds. Without heating, the charged population collapses by <b>recombination and diffusion to the walls</b> — while neutral atoms keep going as long as the walls do not catalyse O + O → O₂.',
+    body:`<ul>
+<li>Charges: dn/dt = −k<sub>a</sub>n − αn² (ambipolar diffusion + electron–ion recombination, α ≈ 2×10⁻⁷ cm³/s) → 10¹² falls to ~10⁸ cm⁻³ in a few ms</li>
+<li>Atoms: lost at the wall with probability γ per hit, k = γ v̄ / 2r (diffusion-limited when γ is large)</li>
+<li>γ<sub>O</sub>: PTFE ~10⁻⁴, quartz ~2×10⁻⁴, anodized Al ~3×10⁻³, stainless ~0.1</li>
+<li>Transit time t = L / u; a grounded baffle or grid then removes the last ions and blocks VUV</li></ul>`,
+    co:[['try','Switch the wall to stainless and lengthen the duct: the O atoms die — the ions were already gone.'],
+        ['myth','“Ions are filtered by hitting the duct walls.” At Torr pressure most of the loss is recombination in the gas, and the density never reaches exactly zero — it becomes ~10⁻⁸ of the atom density, with only thermal energy.']],
+    dd:[{t:'How are O atoms measured?', b:`<p><b>Actinometry</b>: add a trace of Ar and compare the O 844 nm line with Ar 750 nm; with similar excitation, the ratio tracks [O].</p>
+<p><b>NO titration</b>: NO + O → NO₂* glows yellow-green; adding NO until the glow vanishes counts the O atoms.</p>
+<div class="dd-hl">Catalytic probes (a hot wire heated by O + O recombination on its surface) give a simple online signal.</div>`}] },
+
+  { ch:2, title:'In the Chamber — Distribution & Loading',
+    lead:'The atoms arrive at one point and are <b>consumed by the resist itself</b>. A baffle spreads them out; how much resist is exposed sets how fast they are used up.',
+    body:`<ul>
+<li>Center jet → center-fast strip; baffle / showerhead → near-uniform</li>
+<li><b>Loading</b>: every O atom that burns resist is gone — more exposed resist → lower O density → slower strip</li>
+<li>Higher pressure → slower diffusion → stronger center-to-edge drop</li>
+<li>No sheath, no field: transport is only gas flow and diffusion</li></ul>`,
+    co:[['try','Switch to the center jet and raise the resist coverage: the center strips faster and the average falls.'],
+        ['key','Loading is why a blanket-resist wafer and a lightly patterned product wafer strip at different rates — recipes are qualified on real product.']],
+    dd:[{t:'Supply versus consumption', b:`<p>The O density above the wafer is set by a balance: <b>supply</b> from the duct against loss to the walls, to the gas (O + O + M) and to the resist. The resist term is a reaction probability (~10⁻⁴–10⁻³ per collision at 250 °C) times the exposed area.</p>
+<div class="dd-hl">When the resist term dominates, the strip is <b>supply-limited</b> and strongly loaded; when walls dominate, it is <b>reaction-limited</b> and nearly independent of pattern.</div>`}] },
+
+  { ch:2, title:'Direct vs. Remote — What Hits the Wafer',
+    lead:'Same O₂, same atoms — but a wafer inside the plasma also receives <b>ions, electrons and VUV photons</b>. Remote operation keeps the chemistry and removes the rest.',
+    body:`<ul>
+<li>Direct (CCP / ICP asher): ion flux 10¹⁵–10¹⁶ cm⁻²s⁻¹ at 10–300 eV plus 130 nm O VUV — fast, even at low temperature</li>
+<li>…but it charges gate oxides and breaks Si–CH₃ bonds in porous low-k</li>
+<li>Remote: ions < 10⁹ cm⁻²s⁻¹ at thermal energy; the baffle blocks VUV</li>
+<li>The price: remote needs heat (≈ 250 °C) to reach the same rate</li></ul>`,
+    co:[['try','Toggle the mode and compare the bars: O-atom flux is similar, ions and VUV are not.'],
+        ['myth','“Remote plasma is damage-free.” It is ion- and VUV-free. O atoms still oxidize exposed silicon and strip carbon from porous low-k — chemical damage needs a chemical fix (N₂/H₂).']],
+    dd:[{t:'Why VUV matters for low-k', b:`<p>The O resonance lines at 130 nm (9.5 eV) are absorbed in the top tens of nm of porous SiCOH and break Si–CH₃ bonds. O atoms then diffuse into the pores and replace methyl groups with Si–OH, raising k.</p>
+<div class="dd-hl">Photons travel in straight lines — an opaque baffle between source and wafer removes them completely. Atoms flow around it.</div>`}] },
+
+  { ch:3, title:'Ashing Kinetics — Heat & Additives',
+    lead:'Remote stripping is thermally activated chemistry: rate ∝ (O flux)<sup>0.8</sup> × exp(−Eₐ/kT). Temperature is the strongest knob; small additives change the chemistry itself.',
+    body:`<ul>
+<li>Eₐ ≈ 0.5 eV for O + resist → the rate doubles about every 25 °C near 250 °C</li>
+<li>N₂/H₂: more O atoms and H abstraction → faster, fewer residues</li>
+<li>CF₄ (≈ 1 %): F abstracts H, lowers Eₐ and raises the rate strongly — but it etches oxide, so it is used sparingly</li>
+<li>More power helps less than more temperature (flux exponent < 1)</li></ul>`,
+    co:[['try','Lower the temperature to 150 °C and see how far the rate falls; then add CF₄ and compare the oxide loss.'],
+        ['key','On an Arrhenius plot each chemistry is a straight line with slope −Eₐ/k. CF₄ makes the line flatter (lower Eₐ) and higher.']],
+    dd:[{t:'Why flux^0.8 and not linear?', b:`<p>O atoms adsorb on the resist surface before reacting. At low flux the surface is mostly empty and the rate follows the flux; at high flux adsorption sites fill up and O + O recombination on the surface competes — the response flattens (Langmuir–Hinshelwood behaviour).</p>`}] },
+
+  { ch:3, title:'Full Strip — Endpoint & Implanted Resist',
+    lead:'A strip is timed by its <b>endpoint</b>: the by-product signal stays flat while resist burns, then falls when it clears. Ion-implanted resist adds a trap — a hard carbonized crust.',
+    body:`<ul>
+<li>CO / CO₂ / H₂O signal ∝ removal rate → it drops at clear; then 20–50 % <b>over-ash</b> cleans residues in topography</li>
+<li>High-dose implant (> 10¹⁵ cm⁻²): the top 20–50 nm becomes a cross-linked crust that strips ~10× slower</li>
+<li>Heating fast under the crust → trapped solvent boils → the crust bursts (<b>popping</b>) → particles</li>
+<li>Fix: stepped heating — remove the crust at low temperature first, then go hot</li></ul>`,
+    co:[['try','Choose high-dose implant + direct 250 °C and run: watch for popping. Then switch to stepped heating.'],
+        ['key','Endpoint is taken where the signal falls most steeply; over-ash is a percentage of the time to endpoint.']],
+    dd:[{t:'What is left after the ash?', b:`<p>Ash removes the carbon-hydrogen polymer only. Implanted dopants (as oxides of As, P, B), metal contamination and sidewall polymers from etch are not volatile in O atoms.</p>
+<div class="dd-hl">That is why every strip is followed by a wet clean (SPM, dilute HF or a solvent) — “ash + clean” is one module.</div>`}] },
+
+  { ch:3, title:'Cleaning Mode — NF₃ Chamber Clean',
+    lead:'The same source running NF₃ cleans CVD chambers: F atoms turn the SiO₂ / SiN built up on walls into <b>volatile SiF₄</b> — no wafer, no in-situ plasma, no ion wear on chamber parts.',
+    body:`<ul>
+<li>NF₃ (+ Ar) → N₂ + 3 F at > 95 % dissociation</li>
+<li>SiO₂ + 4 F → SiF₄ + O₂; endpoint when the SiF₄ signal (FTIR / OES) returns to baseline</li>
+<li>Source and duct walls: anodized Al / Al₂O₃ resist F; quartz would be etched</li>
+<li>NF₃ is a strong greenhouse gas (GWP ≈ 17 000) → high destruction in the source + abatement</li></ul>`,
+    co:[['try','Double the deposit thickness and halve the NF₃ flow: compare clean time and F utilization.'],
+        ['key','Remote clean replaced in-situ RF cleaning with C₂F₆: faster, no ion erosion of showerhead and heater, and far lower PFC emissions.']],
+    dd:[{t:'Why remote clean replaced in-situ clean', b:`<p>In-situ cleaning ran a C₂F₆/O₂ plasma inside the CVD chamber. Much of the C₂F₆ passed through undissociated (a potent PFC), and ion bombardment slowly eroded the showerhead and heater.</p>
+<div class="dd-hl">A remote NF₃ source dissociates almost all of the feed, delivers only F atoms, and the chamber parts see chemistry without sputtering.</div>`}] },
+
+  { ch:3, title:'Process Window — Build a Strip Recipe',
+    lead:'Speed, uniformity and substrate safety pull in different directions. Find a recipe that meets every spec at once.',
+    body:`<ul>
+<li>Power + O₂ flow → O-atom flow (Step 3)</li>
+<li>Temperature → rate (Arrhenius), but also oxidation of exposed silicon</li>
+<li>Pressure → uniformity (diffusion) and gas-phase recombination</li>
+<li>N₂/H₂ → rate boost up to ~10 %, then mere dilution</li>
+<li>Specs: rate ≥ 3 µm/min, non-uniformity ≤ 5 %, Si oxidation ≤ 15 Å</li></ul>`,
+    co:[['try','The baseline fails on rate. Raise the temperature first, then the power — and keep an eye on Si oxidation.'],
+        ['warn','Teaching model: trends are physical, numbers are illustrative.']],
+    dd:[{t:'Throughput arithmetic', b:`<p>Strip time = thickness / rate × (1 + over-ash) + overhead (pump, heat, transfer). With 1.5 µm of resist, going from 3 to 6 µm/min saves only ~20 s per wafer — overhead soon dominates, which is why strip tools use several stations in parallel.</p>`}] },
+
+  { ch:4, title:'Key Takeaways', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'Remote plasma strip on one page', p:'A plasma that never touches the wafer — and the misconceptions corrected along the way.',
+    btn1:'Compare: ICP metal etch', btn2:'Compare: PE-CVD lesson',
+    sPr:'Design principles', sTab:'Remote (RPS) vs. direct plasma', sWin:'Typical process window · resist strip, 300 mm', sMyth:'Misconceptions corrected', sLim:'Limitations → what solves them',
+    pr:[['Transformer-coupled ring','Ferrite core + primary; plasma = one-turn secondary; ≈ 400 kHz, kW, Torr.'],
+        ['Ignite in Ar, then switch','Electronegative gases need a high E/p; NF₃ is diluted with Ar.'],
+        ['Atoms are an energy budget','O₂: 10–30 % dissociated; NF₃: > 95 %.'],
+        ['The duct is a charge filter','Recombination + diffusion remove ions; low-γ walls keep atoms.'],
+        ['Chemistry + heat strip the resist','Rate ∝ Γ_O^0.8 · exp(−Eₐ/kT), Eₐ ≈ 0.5 eV.'],
+        ['The same source cleans chambers','NF₃ → F → SiF₄; endpoint on SiF₄.']],
+    th:['Parameter','Remote (RPS)','Direct (CCP / ICP asher)'],
+    rows:[['Where the plasma is','in the source','around the wafer'],
+          ['Species at the wafer','O atoms (+ O₂)','O atoms + ions + e⁻ + VUV'],
+          ['Ion energy at the wafer','thermal (< 0.1 eV)','10 – 300 eV'],
+          ['Pressure','0.5 – 3 Torr','0.1 – 2 Torr'],
+          ['Wafer temperature','200 – 300 °C','RT – 250 °C'],
+          ['Profile','isotropic','isotropic (anisotropic with bias)'],
+          ['Damage risk','chemical only (oxidation, low-k C loss)','charging, VUV, ion damage']],
+    win:[['RPS power','2 – 10 kW'],['Frequency','≈ 400 kHz'],['Pressure','0.5 – 3 Torr'],['O₂ flow','2 – 10 slm'],['N₂/H₂ additive','0 – 10 %'],['Wafer temperature','200 – 300 °C'],['Ash rate','2 – 8 µm/min'],['Selectivity to oxide','> 1000 : 1 (no CF₄)']],
+    winNote:'Typical / illustrative ranges — always check against your tool and recipe.',
+    myths:[['Remote plasma is damage-free','Ion- and VUV-free; O atoms still oxidize and damage low-k'],
+           ['Ions are filtered by wall collisions','Mostly gas recombination; ~10⁴× lower, not zero'],
+           ['O₂ is mostly dissociated','Typically 10–30 %; NF₃ > 95 %'],
+           ['The toroid is always quartz','NF₃ sources use anodized Al — F etches quartz'],
+           ['More power = proportionally faster','Rate ∝ Γ^0.8; temperature is the stronger knob'],
+           ['Ash removes everything','Dopants and metals stay → wet clean follows']],
+    lim:[['Slow at low temperature','Heat to ~250 °C, N₂/H₂, a little CF₄'],
+         ['Implant-crust popping','Stepped heating, low-T crust strip'],
+         ['Low-k carbon depletion','N₂/H₂ (reducing) chemistry'],
+         ['Non-uniform delivery','Baffle / showerhead design'],
+         ['Atom loss in the duct','Short duct, low-γ coatings'],
+         ['NF₃ greenhouse impact','> 99 % destruction + abatement']],
+  },
+},
+
+ko:{
+  title:'Remote Plasma Source — PR Strip & Chamber Clean',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ 이전', next:'다음 ▶', kbd:'← → 키로 이동', of:'/',
+  labels:'라벨', explore:'부품 살펴보기',
+  chapters:['장비 구성','Source 물리','수송 & 전달','Strip & Clean','요약'],
+  recipeK:'Recipe',
+  recipe:['Load','Heat','Ar 점화','Gas 전환','Strip','Endpoint','Over-ash','Unload'],
+  rd:{p:'P',T:'웨이퍼',hf:'RPS',lf:'Bias',gas:'Gas',off:'OFF',slow:'느리게 표시'},
+  tags:{try:'직접 해보기',myth:'흔한 오해',key:'핵심',warn:'참고'},
+  dd:'심화학습',
+  parts:{
+    toroid:['Toroidal 플라즈마 튜브','닫힌 루프 형태의 방전 통로입니다. NF₃ Cleaning용 Source는 Dielectric Break가 있는 Anodized 알루미늄 블록이며(F가 석영을 식각하므로), O₂ Strip용은 석영이나 사파이어를 쓰기도 합니다. 플라즈마가 내부에서 링 전류를 이룹니다.'],
+    ferrite:['Ferrite Core','튜브 다리를 감싸는 고투자율(μr 수천) 자성 코어 — 변압기의 철심입니다. 1차 Flux를 플라즈마 루프로 모아 주므로 수백 kHz에서도 결합 효율이 높습니다.'],
+    coil:['1차 권선','각 코어에 몇 회 감긴 코일입니다. 1차 전류 → 코어 속 진동 Flux → 플라즈마 링을 따라 유도 루프 전압 (Faraday 법칙).'],
+    ac:['AC 전원','반도체식 전원, 보통 ≈ 400 kHz, 2–10 kW (Cleaning용은 더 큼). Bias 전원은 어디에도 없습니다 — 이온을 웨이퍼로 가속하는 것이 없습니다.'],
+    ign:['점화 전극','Torr 압력에서 유도 루프 전계만으로는 가스를 절연 파괴할 수 없습니다. 용량성 Starter 전극에 짧은 고전압을 걸어 첫 전자를 만듭니다 — 항상 Ar에서.'],
+    ar:['Ar','점화 및 희석 가스: 절연 파괴와 유지가 가장 쉽습니다 (E/p가 가장 낮음).'],
+    o2:['O₂','Strip 가스: e⁻ + O₂ → O + O. 보통 0.5–3 Torr에서 2–10 slm.'],
+    fg:['N₂/H₂ (Forming Gas)','첨가 가스(N₂ 중 H₂ ≈ 4 %). O 원자 수율을 높이고 잔류물 제거를 돕습니다. 순수 N₂/H₂ 화학은 Low-k나 금속을 산화시키지 않고 Strip합니다.'],
+    nf3:['NF₃','Chamber Clean 가스: NF₃ → N₂ + 3 F, 해리율 > 95 %. 웨이퍼 Strip 중에는 쓰지 않습니다.'],
+    mfc:['MFC (질량 유량 제어기)','각 가스 유량(sccm–slm)을 정합니다. Throttle Valve와 함께 압력도 정합니다.'],
+    duct:['Downstream Duct','Source의 Afterglow를 챔버로 운반합니다. 하전 입자는 수 ms 안에 사라지고, 벽 재결합 확률 γ가 낮으면 원자는 살아남습니다.'],
+    baffle:['Baffle / Showerhead (접지)','원자 흐름을 웨이퍼 위에 고르게 퍼뜨리고, Source에서 직선으로 오는 VUV와 잔류 이온을 막습니다. RF가 걸리지 않습니다.'],
+    wafer:['포토레지스트가 있는 웨이퍼','레지스트(CₓHᵧO_z 고분자)가 CO, CO₂, H₂O로 산화됩니다. 제거는 순수 화학적이며 등방성입니다.'],
+    chuck:['가열 Chuck (접지)','웨이퍼 온도 200–300 °C를 정하며, 이것이 반응 속도를 좌우합니다(Arrhenius). Lift Pin으로 천천히 예열할 수 있습니다. RF 없음, Sheath 없음.'],
+    pump:['Throttle Valve + Dry Pump','CO₂와 H₂O를 배기하면서 0.5–3 Torr를 유지합니다.'],
+    epd:['Endpoint 센서','부산물 신호(작은 센서 플라즈마의 CO / OH 발광, 또는 RGA)를 봅니다. 신호가 떨어지면 레지스트가 다 제거된 것입니다.'],
+    cm:['Capacitance Manometer','챔버 압력(Torr 범위)을 측정합니다.'],
+    inset:['등가 회로','플라즈마 링은 1회 감긴 2차 권선입니다: V_loop = V₁ / N, I_loop ≈ N · I₁. 플라즈마 저항이 부하입니다.'],
+    wall:['챔버 몸체 (접지)','가열된 금속 벽입니다. 공정 챔버 안에는 RF가 걸린 부품이 없습니다.'],
+  },
+  sp:{O2:'O₂',O:'O 원자',O2p:'O₂⁺',e:'e⁻',Ar:'Ar',Arp:'Ar⁺',NF3:'NF₃',F:'F 원자',CO2:'CO₂ / H₂O',SiF4:'SiF₄',uv:'VUV 광자',powder:'Crust 파편'},
+  I:{
+    hw:{title:'대표적인 장비 수치',stats:[['주파수','≈ 400 kHz'],['파워','2–10 kW'],['압력','0.5–3 Torr'],['링 내 <span class="nc">nₑ</span>','10¹²–10¹³ cm⁻³'],['웨이퍼 온도','200–300 °C'],['웨이퍼 이온 E','≈ 0 eV']]},
+    s1:{chart:'링 유지에 필요한 루프 전압',gas:'가스',ar:'Ar',o2:'O₂',mix:'NF₃/Ar',nf3:'NF₃',p:'압력',P:'파워',E:'루프 전계',V:'루프 전압',I:'루프 전류',ne:'<span class="nc">nₑ</span> (추정)',vmax:'전원 한계 ≈ 900 V',okMsg:'유지 — 플라즈마 링이 1회 권선 2차측',failMsg:'필요한 루프 전압이 전원 한계를 넘음 — Ar로 희석하거나 압력을 낮추세요',ign:'유지됨 — 단, 점화는 항상 Ar에서 시작한 뒤 가스를 전환합니다'},
+    s2:{chart:'파워에 따른 해리율',gas:'가스',o2:'O₂',nf3:'NF₃',P:'파워',Q:'유량',f:'해리율',out:'배출 원자 유량',ev:'원자당 에너지',fr:'해리율'},
+    s3:{chart:'Duct를 따른 생존율',L:'Duct 길이',mat:'벽 재질',q:'석영',an:'Anodized Al',ss:'Stainless',pt:'PTFE',p:'압력',t:'통과 시간',ni:'출구 이온 밀도',so:'O 원자 생존율',ratio:'O 원자당 이온',ion:'이온  n/n₀',o:'O 원자',gam:'<span class="nc">γ</span> (벽의 O)'},
+    s4:{chart:'웨이퍼 위치별 Ash Rate',inlet:'가스 유입',jet:'중앙 분사',sh:'Baffle',cov:'레지스트 면적',p:'압력',c:'중심 Rate',e:'가장자리 Rate',u:'불균일도',load:'Loading',r:'반경',rel:'상대 Ash Rate'},
+    s5:{chart:'웨이퍼 도달 Flux (cm⁻² s⁻¹, log)',mode:'모드',dir:'Direct 플라즈마',rem:'Remote (RPS)',O:'O 원자',ion:'이온',uv:'VUV',Ei:'이온 에너지',lk:'Low-k 손상',chg:'Gate Charging',rate:'Ash Rate @ 120 °C',none:'없음',low:'낮음',high:'높음'},
+    s6:{chart:'Arrhenius Plot — Ash Rate',T:'웨이퍼 온도',P:'RPS 파워',add:'첨가 가스',o2:'O₂ 단독',fg:'+ N₂/H₂',cf:'+ CF₄ 1 %',rate:'Ash Rate',tt:'1.5 <span class="nc">µm</span> 제거 시간',ox:'산화막 손실',ea:'<span class="nc">Eₐ</span>'},
+    s7:{chart:'Strip Trace',pr:'레지스트',std:'일반',imp:'고농도 Implant',ramp:'가열',slow:'단계 가열',fast:'바로 250 °C',run:'다시 시작',rem:'잔여 레지스트',ep:'Endpoint',oa:'Over-ash',res:'결과',clean:'깨끗함',pop:'Popping',sig:'부산물 신호',left:'레지스트',msgPop:'Crust 파열 — Implant Crust 아래 갇힌 용매 증기가 터짐 (파티클)',msgEp:'Endpoint — 부산물 신호 감소, Over-ash 진행',msgDone:'Strip 완료',msgRun:'Strip 중…',zoom:'ZOOM · 소자 단차 위의 레지스트'},
+    s8:{chart:'Clean 중 SiF₄ 신호',nf3:'NF₃ 유량',d:'벽 퇴적 두께',T:'챔버 온도',run:'다시 시작',t:'Clean 시간',util:'F 이용률',use:'NF₃ 사용량',co2:'CO₂-eq (1 % 누출)',ep:'Endpoint',msgRun:'Cleaning 중…',msgDone:'Endpoint — SiF₄ 신호가 기준선으로 복귀'},
+    s9:{knobs:'Strip Recipe',reset:'Baseline',P:'RPS 파워',p:'압력',T:'웨이퍼 온도',Q:'O₂ 유량',fg:'N₂/H₂ 첨가',out:'결과 (교육용 모델)',rate:'Ash Rate',u:'불균일도',ox:'Si 산화',wph:'처리량',spec:'Spec',pass:'PASS',fail:'FAIL'},
+  },
+  steps:[
+  { ch:0, title:'Remote Plasma Strip 장비의 내부',
+    lead:'Remote Plasma Source(RPS)는 <b>플라즈마를 다른 곳에서 만듭니다</b>. 닫힌 루프의 Toroidal 방전이 O 원자를 만들고, 짧은 Duct가 이를 접지된 무(無)플라즈마 챔버로 보내 포토레지스트를 태워 없앱니다.',
+    body:`<ul>
+<li><b>Toroidal Source</b>: ≈ 400 kHz의 Ferrite Core + 1차 권선; 플라즈마 링이 변압기의 2차측</li>
+<li><b>가스</b>: Ar(점화), O₂(Strip), N₂/H₂(첨가), NF₃(Chamber Clean)</li>
+<li><b>Duct + Baffle</b>: 하전 입자는 도중에 사라지고, 원자는 전달되어 퍼짐</li>
+<li><b>가열·접지 Chuck</b> 200–300 °C, 0.5–3 Torr — 웨이퍼 근처 어디에도 RF 없음</li></ul>`,
+    co:[['try','그림 위에 마우스를 올리거나 아래 부품을 눌러 역할을 확인해 보세요.'],
+        ['key','두 가지 일이 분리되어 있습니다: Source는 전력을 O 원자로, 챔버는 O 원자 + 열을 CO₂와 H₂O로 바꿉니다. 이 강의의 모든 조절값은 둘 중 하나에 작용합니다.']],
+    dd:[{t:'Toroidal, Microwave, ICP — Remote Source를 만드는 세 가지 방법', b:`<p>세 방식 모두 같은 것 — 흐르는 Afterglow 속의 중성 원자 — 을 전달하지만, 전력 결합 방식이 다릅니다.</p>
+<div class="dd-hl"><b>Toroidal (변압기 결합)</b>: Ferrite Core, ≈ 400 kHz, 매우 높은 파워(~15 kW). NF₃ Chamber Cleaning의 표준이며 Strip에도 쓰입니다.</div>
+<div class="dd-hl"><b>Microwave (2.45 GHz)</b>: 도파관 Cavity 안의 석영/사파이어 튜브. 전통적인 Downstream Asher.</div>
+<div class="dd-hl"><b>ICP Downstream</b>: 유전체 튜브를 감은 13.56 MHz 코일, Source와 웨이퍼 사이 접지 Grid로 이온 차단.</div>
+<p>Source 이후의 물리 — 재결합, 벽 손실, Arrhenius 화학 — 는 세 방식 모두 같습니다.</p>`}] },
+
+  { ch:1, title:'점화와 변압기 결합',
+    lead:'Ferrite Core와 1차 권선은 <b>2차측이 플라즈마 자체인</b> 변압기를 이룹니다 — 하나의 도전성 링입니다. 유도 루프 전압이 그 링을 유지할 만큼 높아야 합니다.',
+    body:`<ul>
+<li>Faraday: V<sub>loop</sub> = −dΦ/dt; 1차 권선 N회이면 V<sub>loop</sub> = V₁ / N, I<sub>loop</sub> ≈ N · I₁</li>
+<li>유지에는 루프를 따라 E ≈ (E/p)<sub>gas</sub> · p 의 전계가 필요 — 전기음성 기체 O₂, NF₃는 Ar보다 훨씬 큼</li>
+<li>Torr 압력에서는 루프 전계로 <b>절연 파괴</b>가 불가능: 고전압 Starter로 Ar을 점화한 뒤 공정 가스를 흘려 넣음</li>
+<li>파워 P = V<sub>loop</sub> · I<sub>loop</sub> → 매우 높은 밀도의 링 (10¹²–10¹³ cm⁻³)</li></ul>`,
+    co:[['try','NF₃로 바꾸고 압력을 올려 보세요: 필요한 루프 전압이 전원 한계를 넘습니다. 그다음 NF₃/Ar을 시도해 보세요.'],
+        ['myth','“변압기 결합 Source는 그냥 ICP다.” 같은 Faraday 물리지만, 닫힌 Ferrite Core가 거의 모든 Flux를 플라즈마 루프로 보내므로 400 kHz에서도 효율적으로 결합하고 매우 높은 파워를 견딥니다.']],
+    dd:[{t:'왜 Ar로 점화하고, 왜 NF₃를 희석하나?', b:`<p>전기음성 기체에서는 전자가 <b>부착</b>(e⁻ + O₂ → O⁻ + O, e⁻ + NF₃ → NF₂ + F⁻)으로 사라집니다. 링을 유지하려면 남은 전자가 더 빨리 이온화해야 하므로, 압력당 더 큰 전계가 필요합니다. Ar은 부착이 없어 절연 파괴와 유지가 가장 쉽습니다.</p>
+<div class="eq">유지 E/p (예시값, V cm⁻¹ Torr⁻¹)
+Ar ≈ 1     O₂ ≈ 5     NF₃ ≈ 12     NF₃/Ar 1:1 ≈ 6.6</div>
+<div class="dd-hl">일반적인 순서: ~1 Torr에서 Ar 점화 → 파워 상승 → Ar을 줄이며 O₂(또는 NF₃) 주입 → 공정 압력으로 상승.</div>`},
+        {t:'석영인가 금속인가? — 튜브가 닫힌 전도 루프가 되면 안 되는 이유', b:`<p>Ferrite Core를 감싸고 한 바퀴 도는 것은 무엇이든 2차 권선이 됩니다. 이음매 없는 <b>금속 튜브</b>라면 1회 감긴 단락 2차 권선이 됩니다: 루프 전압(수백 V)이 저항이 거의 0인 금속에 거대한 와전류를 흘리고, 전력은 벽을 가열하는 데 쓰이며, 플라즈마는 켜지지 않습니다 — 변압기 출력을 쇼트시킨 것과 같습니다.</p>
+<div class="eq">이음매 없는 금속 → 단락 2차측, 벽 가열
+석영 튜브 → 전류 경로 없음, 플라즈마 가열
+금속 + Break → 전기 루프 끊김, 가스 통로 유지</div>
+<p>그래서 루프를 만드는 방법은 두 가지입니다. <b>절연 튜브</b>(석영, 사파이어, 세라믹)는 애초에 전류가 흐를 수 없습니다. <b>금속 몸체 + Dielectric Break</b>는 루프 중간에 세라믹 절연 링을 한두 개 끼워 가스 통로는 이어 두고 전기 경로만 끊습니다. 이때 루프 전압이 절연 틈에 걸리므로 아킹을 막는 설계가 필요합니다.</p>
+<div class="dd-hl"><b>석영</b>은 O₂ Strip용 Source에 적합합니다: O 재결합이 매우 낮고(γ ≈ 2×10⁻⁴), 금속 오염이 없으며, 이미 산화물이고, OES 관찰을 위해 투명합니다. 그러나 F에 식각되고(SiO₂ + 4 F → SiF₄), 열전도가 나빠 열충격에 깨지기 쉽습니다.</div>
+<div class="dd-hl"><b>Anodized Al + Dielectric Break</b>는 고출력 NF₃ Cleaning의 표준입니다: AlF₃ / Al₂O₃가 F에 강하고, 블록에 수냉 채널을 가공해 수 kW 이상을 감당하며, 깨지지 않습니다. Anodizing 층이 소모품입니다.</div>`}] },
+
+  { ch:1, title:'해리 — 전력을 원자로 바꾸기',
+    lead:'링 안에서 전자가 분자를 쪼갭니다. 얼마나 많은 원자가 나오는지는 <b>에너지 수지</b>로 정해집니다: 파워 ÷ 원자당 소비 에너지를, 흘러 지나가는 분자 수와 비교합니다.',
+    body:`<ul>
+<li>e⁻ + O₂ → O + O (결합 5.1 eV, 문턱 ≈ 6 eV) — 그러나 전자 에너지 대부분은 여기, 이온화, 가스 가열로 쓰임</li>
+<li>그래서 O₂는 원자당 수십 eV가 들어 → 보통 <b>10–30 %</b> 해리</li>
+<li>NF₃는 거의 0 eV의 전자 부착으로 해리 → <b>> 95 %</b> 해리</li>
+<li>유량↑ → 원자 수는 늘지만 해리율↓; 파워↑ → 해리율↑, 점차 포화</li></ul>`,
+    co:[['try','5 kW, 5 slm에서 O₂와 NF₃를 비교해 보세요: 해리율 차이가 결합 에너지 차이보다 훨씬 큽니다.'],
+        ['key','Strip 속도는 해리율이 아니라 <b>원자 유량</b>(초당 원자 수)을 따릅니다. O₂ 유량을 올리면 해리율은 떨어져도 원자 유량은 오를 수 있습니다.']],
+    dd:[{t:'왜 그냥 파워를 더 넣지 않나?', b:`<p>링의 가스 온도는 수천 K입니다. 파워를 더 넣으면 가스가 더 뜨거워지고, Source 내부 재결합이 늘며, 튜브 코팅(Anodized 층이나 석영)이 침식됩니다. 어느 지점을 넘으면 추가 kW는 대부분 냉각수의 열이 됩니다.</p>
+<div class="dd-hl">유용한 성능 지표는 웨이퍼에 <b>kWh당 전달된 원자 수</b>이며, 이는 Duct(다음 단계)에도 좌우됩니다.</div>`}] },
+
+  { ch:2, title:'Downstream Duct — 이온은 사라지고 원자는 살아남는다',
+    lead:'결합 영역을 벗어나면 전자는 수 µs 안에 식습니다. 가열이 없으니 하전 입자는 <b>재결합과 벽으로의 확산</b>으로 급감하고 — 중성 원자는 벽이 O + O → O₂를 촉매하지 않는 한 계속 나아갑니다.',
+    body:`<ul>
+<li>하전 입자: dn/dt = −k<sub>a</sub>n − αn² (양극성 확산 + 전자–이온 재결합, α ≈ 2×10⁻⁷ cm³/s) → 수 ms 동안 10¹²에서 ~10⁸ cm⁻³로</li>
+<li>원자: 벽 충돌마다 확률 γ로 손실, k = γ v̄ / 2r (γ가 크면 확산이 율속)</li>
+<li>γ<sub>O</sub>: PTFE ~10⁻⁴, 석영 ~2×10⁻⁴, Anodized Al ~3×10⁻³, Stainless ~0.1</li>
+<li>통과 시간 t = L / u; 접지 Baffle이나 Grid가 마지막 이온을 제거하고 VUV를 차단</li></ul>`,
+    co:[['try','벽을 Stainless로 바꾸고 Duct를 늘려 보세요: O 원자가 사라집니다 — 이온은 이미 없어졌습니다.'],
+        ['myth','“이온은 Duct 벽에 부딪혀 걸러진다.” Torr 압력에서는 손실 대부분이 기체 중 재결합이며, 밀도가 정확히 0이 되지도 않습니다 — 원자 밀도의 ~10⁻⁸ 수준이 되고, 에너지는 열에너지뿐입니다.']],
+    dd:[{t:'O 원자는 어떻게 측정하나?', b:`<p><b>Actinometry</b>: 소량의 Ar을 넣고 O 844 nm 선과 Ar 750 nm 선을 비교합니다. 여기 조건이 비슷하므로 비율이 [O]를 따라갑니다.</p>
+<p><b>NO Titration</b>: NO + O → NO₂*가 황록색으로 빛납니다. 빛이 사라질 때까지 넣은 NO 양으로 O 원자를 셉니다.</p>
+<div class="dd-hl">촉매 Probe(표면의 O + O 재결합 열로 데워지는 열선)는 간단한 실시간 신호를 줍니다.</div>`}] },
+
+  { ch:2, title:'챔버 안 — 분포와 Loading',
+    lead:'원자는 한 지점으로 들어와 <b>레지스트 자체에 소비됩니다</b>. Baffle이 이를 퍼뜨리고, 노출된 레지스트 면적이 소비 속도를 정합니다.',
+    body:`<ul>
+<li>중앙 분사 → 중심이 빨리 Strip; Baffle / Showerhead → 거의 균일</li>
+<li><b>Loading</b>: 레지스트를 태운 O 원자는 사라짐 — 노출 레지스트↑ → O 밀도↓ → Strip↓</li>
+<li>압력↑ → 확산↓ → 중심–가장자리 차이↑</li>
+<li>Sheath도 전계도 없음: 수송은 가스 흐름과 확산뿐</li></ul>`,
+    co:[['try','중앙 분사로 바꾸고 레지스트 면적을 올려 보세요: 중심이 더 빨리 Strip되고 평균은 떨어집니다.'],
+        ['key','Loading 때문에 전면 레지스트 웨이퍼와 패턴이 적은 제품 웨이퍼의 Strip 속도가 다릅니다 — Recipe는 실제 제품으로 검증합니다.']],
+    dd:[{t:'공급 대 소비', b:`<p>웨이퍼 위 O 밀도는 Duct로부터의 <b>공급</b>과 벽, 기체(O + O + M), 레지스트로의 손실 사이 균형으로 정해집니다. 레지스트 항은 반응 확률(250 °C에서 충돌당 ~10⁻⁴–10⁻³) × 노출 면적입니다.</p>
+<div class="dd-hl">레지스트 항이 지배하면 <b>공급 율속</b>이라 Loading이 크고, 벽 손실이 지배하면 <b>반응 율속</b>이라 패턴과 거의 무관합니다.</div>`}] },
+
+  { ch:2, title:'Direct vs. Remote — 웨이퍼에 무엇이 닿나',
+    lead:'같은 O₂, 같은 원자 — 그러나 플라즈마 속 웨이퍼는 <b>이온, 전자, VUV 광자</b>도 받습니다. Remote 방식은 화학은 남기고 나머지를 없앱니다.',
+    body:`<ul>
+<li>Direct (CCP / ICP Asher): 10–300 eV의 이온 Flux 10¹⁵–10¹⁶ cm⁻²s⁻¹ + 130 nm O VUV — 저온에서도 빠름</li>
+<li>…그러나 Gate 산화막을 Charging시키고 다공성 Low-k의 Si–CH₃ 결합을 끊음</li>
+<li>Remote: 이온 < 10⁹ cm⁻²s⁻¹, 열에너지 수준; Baffle이 VUV 차단</li>
+<li>대가: Remote는 같은 속도를 얻으려면 열(≈ 250 °C)이 필요</li></ul>`,
+    co:[['try','모드를 바꿔 막대를 비교해 보세요: O 원자 Flux는 비슷하지만 이온과 VUV는 다릅니다.'],
+        ['myth','“Remote 플라즈마는 손상이 없다.” 이온과 VUV가 없을 뿐입니다. O 원자는 여전히 노출된 실리콘을 산화시키고 다공성 Low-k의 탄소를 빼냅니다 — 화학적 손상에는 화학적 해법(N₂/H₂)이 필요합니다.']],
+    dd:[{t:'Low-k에 VUV가 중요한 이유', b:`<p>130 nm(9.5 eV)의 O 공명선은 다공성 SiCOH의 상부 수십 nm에서 흡수되어 Si–CH₃ 결합을 끊습니다. 이어서 O 원자가 기공 속으로 확산해 메틸기를 Si–OH로 바꾸고 k가 올라갑니다.</p>
+<div class="dd-hl">광자는 직진합니다 — Source와 웨이퍼 사이 불투명한 Baffle이 이를 완전히 제거합니다. 원자는 Baffle을 돌아 흐릅니다.</div>`}] },
+
+  { ch:3, title:'Ashing 반응 속도 — 열과 첨가 가스',
+    lead:'Remote Strip은 열 활성화 화학입니다: Rate ∝ (O Flux)<sup>0.8</sup> × exp(−Eₐ/kT). 온도가 가장 강한 조절값이고, 소량의 첨가 가스는 화학 자체를 바꿉니다.',
+    body:`<ul>
+<li>O + 레지스트의 Eₐ ≈ 0.5 eV → 250 °C 근처에서 약 25 °C마다 속도 2배</li>
+<li>N₂/H₂: O 원자 증가 + H 추출 → 더 빠르고 잔류물 감소</li>
+<li>CF₄ (≈ 1 %): F가 H를 추출, Eₐ를 낮추고 속도를 크게 올림 — 그러나 산화막을 식각하므로 조금만 사용</li>
+<li>파워는 온도만큼 효과가 크지 않음 (Flux 지수 < 1)</li></ul>`,
+    co:[['try','온도를 150 °C로 내려 속도가 얼마나 떨어지는지 보고, CF₄를 넣어 산화막 손실을 비교해 보세요.'],
+        ['key','Arrhenius Plot에서 각 화학은 기울기 −Eₐ/k의 직선입니다. CF₄는 직선을 더 완만하게(Eₐ↓) 그리고 더 높게 만듭니다.']],
+    dd:[{t:'왜 Flux^0.8이고 선형이 아닌가?', b:`<p>O 원자는 반응 전에 레지스트 표면에 흡착합니다. Flux가 낮으면 표면이 대부분 비어 있어 속도가 Flux를 따르지만, Flux가 높으면 흡착 자리가 차고 표면의 O + O 재결합이 경쟁해 응답이 완만해집니다 (Langmuir–Hinshelwood 거동).</p>`}] },
+
+  { ch:3, title:'전체 Strip — Endpoint와 Implant 레지스트',
+    lead:'Strip 시간은 <b>Endpoint</b>로 정합니다: 레지스트가 타는 동안 부산물 신호는 평탄하다가, 다 제거되면 떨어집니다. 이온 주입된 레지스트에는 함정이 있습니다 — 단단한 탄화 Crust.',
+    body:`<ul>
+<li>CO / CO₂ / H₂O 신호 ∝ 제거 속도 → Clear 시점에 하락; 이후 20–50 % <b>Over-ash</b>로 단차 속 잔류물 제거</li>
+<li>고농도 Implant(> 10¹⁵ cm⁻²): 상부 20–50 nm가 가교된 Crust가 되어 ~10배 느리게 Strip</li>
+<li>Crust 아래를 빨리 가열 → 갇힌 용매가 끓음 → Crust 파열(<b>Popping</b>) → 파티클</li>
+<li>해법: 단계 가열 — 저온에서 Crust를 먼저 제거한 뒤 고온으로</li></ul>`,
+    co:[['try','고농도 Implant + 바로 250 °C로 실행해 Popping을 보고, 단계 가열로 바꿔 보세요.'],
+        ['key','Endpoint는 신호가 가장 가파르게 떨어지는 곳에서 잡고, Over-ash는 Endpoint까지 시간의 백분율로 정합니다.']],
+    dd:[{t:'Ash 후에는 무엇이 남나?', b:`<p>Ash는 탄소–수소 고분자만 제거합니다. 주입된 도펀트(As, P, B의 산화물), 금속 오염, Etch 측벽 Polymer는 O 원자로 휘발되지 않습니다.</p>
+<div class="dd-hl">그래서 모든 Strip 뒤에는 습식 세정(SPM, 묽은 HF, 또는 Solvent)이 따릅니다 — “Ash + Clean”이 하나의 모듈입니다.</div>`}] },
+
+  { ch:3, title:'Cleaning 모드 — NF₃ Chamber Clean',
+    lead:'같은 Source에 NF₃를 흘리면 CVD 챔버를 세정합니다: F 원자가 벽에 쌓인 SiO₂ / SiN을 <b>휘발성 SiF₄</b>로 바꿉니다 — 웨이퍼도, 챔버 내 플라즈마도, 부품의 이온 마모도 없습니다.',
+    body:`<ul>
+<li>NF₃ (+ Ar) → N₂ + 3 F, 해리율 > 95 %</li>
+<li>SiO₂ + 4 F → SiF₄ + O₂; SiF₄ 신호(FTIR / OES)가 기준선으로 돌아오면 Endpoint</li>
+<li>Source와 Duct 벽: Anodized Al / Al₂O₃는 F에 강함; 석영은 식각됨</li>
+<li>NF₃는 강력한 온실가스(GWP ≈ 17 000) → Source에서 높은 분해율 + Abatement</li></ul>`,
+    co:[['try','퇴적 두께를 두 배로, NF₃ 유량을 절반으로 바꿔 Clean 시간과 F 이용률을 비교해 보세요.'],
+        ['key','Remote Clean은 C₂F₆를 쓰던 In-situ RF Clean을 대체했습니다: 더 빠르고, Showerhead와 Heater의 이온 침식이 없으며, PFC 배출이 훨씬 적습니다.']],
+    dd:[{t:'Remote Clean이 In-situ Clean을 대체한 이유', b:`<p>In-situ Cleaning은 CVD 챔버 안에서 C₂F₆/O₂ 플라즈마를 켰습니다. C₂F₆의 상당 부분이 해리되지 않고 배출되었고(강력한 PFC), 이온 충격이 Showerhead와 Heater를 서서히 침식했습니다.</p>
+<div class="dd-hl">Remote NF₃ Source는 공급 가스를 거의 모두 해리하고 F 원자만 전달하므로, 챔버 부품은 Sputtering 없이 화학 반응만 겪습니다.</div>`}] },
+
+  { ch:3, title:'Process Window — Strip Recipe 만들기',
+    lead:'속도, 균일도, 기판 안전성은 서로 다른 방향을 당깁니다. 모든 Spec을 동시에 만족하는 Recipe를 찾아 보세요.',
+    body:`<ul>
+<li>파워 + O₂ 유량 → O 원자 유량 (Step 3)</li>
+<li>온도 → 속도(Arrhenius), 그러나 노출된 실리콘의 산화도 증가</li>
+<li>압력 → 균일도(확산)와 기체 중 재결합</li>
+<li>N₂/H₂ → ~10 %까지 속도 증가, 그 이상은 희석일 뿐</li>
+<li>Spec: Rate ≥ 3 µm/min, 불균일도 ≤ 5 %, Si 산화 ≤ 15 Å</li></ul>`,
+    co:[['try','Baseline은 속도에서 FAIL입니다. 먼저 온도를, 그다음 파워를 올리되 Si 산화를 지켜보세요.'],
+        ['warn','교육용 모델: 경향은 물리적이며 수치는 예시입니다.']],
+    dd:[{t:'처리량 계산', b:`<p>Strip 시간 = 두께 / 속도 × (1 + Over-ash) + Overhead(배기, 가열, 이송). 레지스트 1.5 µm에서 3 → 6 µm/min으로 올려도 웨이퍼당 ~20 s만 줄어듭니다 — 곧 Overhead가 지배하므로 Strip 장비는 여러 Station을 병렬로 씁니다.</p>`}] },
+
+  { ch:4, title:'핵심 정리', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'Remote Plasma Strip 한 장 요약', p:'웨이퍼에 닿지 않는 플라즈마 — 그리고 함께 바로잡은 오해들.',
+    btn1:'비교: ICP Metal Etch', btn2:'비교: PE-CVD 강의',
+    sPr:'설계 원리', sTab:'Remote (RPS) vs. Direct 플라즈마', sWin:'대표 Process Window · 레지스트 Strip, 300 mm', sMyth:'바로잡은 오해', sLim:'한계 → 해결책',
+    pr:[['변압기 결합 링','Ferrite Core + 1차 권선; 플라즈마 = 1회 권선 2차측; ≈ 400 kHz, kW, Torr.'],
+        ['Ar로 점화 후 전환','전기음성 기체는 높은 E/p 필요; NF₃는 Ar로 희석.'],
+        ['원자는 에너지 수지','O₂: 10–30 % 해리; NF₃: > 95 %.'],
+        ['Duct는 전하 필터','재결합 + 확산이 이온 제거; 낮은 γ 벽이 원자 보존.'],
+        ['화학 + 열이 레지스트 제거','Rate ∝ Γ_O^0.8 · exp(−Eₐ/kT), Eₐ ≈ 0.5 eV.'],
+        ['같은 Source로 챔버 세정','NF₃ → F → SiF₄; SiF₄로 Endpoint.']],
+    th:['항목','Remote (RPS)','Direct (CCP / ICP Asher)'],
+    rows:[['플라즈마 위치','Source 안','웨이퍼 주변'],
+          ['웨이퍼 도달 종','O 원자 (+ O₂)','O 원자 + 이온 + e⁻ + VUV'],
+          ['웨이퍼 이온 에너지','열에너지 (< 0.1 eV)','10 – 300 eV'],
+          ['압력','0.5 – 3 Torr','0.1 – 2 Torr'],
+          ['웨이퍼 온도','200 – 300 °C','상온 – 250 °C'],
+          ['Profile','등방성','등방성 (Bias 시 이방성)'],
+          ['손상 위험','화학적 손상뿐 (산화, Low-k 탄소 손실)','Charging, VUV, 이온 손상']],
+    win:[['RPS 파워','2 – 10 kW'],['주파수','≈ 400 kHz'],['압력','0.5 – 3 Torr'],['O₂ 유량','2 – 10 slm'],['N₂/H₂ 첨가','0 – 10 %'],['웨이퍼 온도','200 – 300 °C'],['Ash Rate','2 – 8 µm/min'],['산화막 대비 선택비','> 1000 : 1 (CF₄ 없음)']],
+    winNote:'대표값 / 예시 범위 — 실제 장비와 Recipe로 반드시 확인하세요.',
+    myths:[['Remote 플라즈마는 손상이 없다','이온·VUV가 없을 뿐; O 원자는 산화와 Low-k 손상을 일으킴'],
+           ['이온은 벽 충돌로 걸러진다','주로 기체 중 재결합; ~10⁴배 감소, 0은 아님'],
+           ['O₂는 대부분 해리된다','보통 10–30 %; NF₃는 > 95 %'],
+           ['Toroid는 항상 석영이다','NF₃ Source는 Anodized Al — F가 석영을 식각'],
+           ['파워에 비례해 빨라진다','Rate ∝ Γ^0.8; 온도가 더 강한 조절값'],
+           ['Ash가 모든 것을 제거한다','도펀트와 금속은 남음 → 습식 세정 필요']],
+    lim:[['저온에서 느림','~250 °C 가열, N₂/H₂, 소량 CF₄'],
+         ['Implant Crust Popping','단계 가열, 저온 Crust Strip'],
+         ['Low-k 탄소 손실','N₂/H₂ (환원) 화학'],
+         ['불균일한 전달','Baffle / Showerhead 설계'],
+         ['Duct 내 원자 손실','짧은 Duct, 낮은 γ 코팅'],
+         ['NF₃ 온실 효과','> 99 % 분해 + Abatement']],
+  },
+},
+};
+</script>
+
+<script>
+'use strict';
+/* ============================== ENGINE ============================== */
+const $=id=>document.getElementById(id);
+const TAU=Math.PI*2, rnd=Math.random;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+let lang='en';
+const L=()=>T[lang];
+const IL=k=>T[lang].I[k];
+
+/* ---------- canvas & logical frame (960×600, letterboxed) ---------- */
+const cv=$('cv'), ctx=cv.getContext('2d'), wrap=$('cvWrap');
+const LW=960, LH=600;
+let DPR=1, RS=1, OX=0, OY=0;
+function resize(){
+  const w=wrap.clientWidth, h=wrap.clientHeight; if(!w||!h) return;
+  DPR=window.devicePixelRatio||1;
+  cv.width=Math.round(w*DPR); cv.height=Math.round(h*DPR);
+  RS=Math.min(w/LW,h/LH); OX=(w-LW*RS)/2; OY=(h-LH*RS)/2;
+}
+new ResizeObserver(resize).observe(wrap); resize();
+function beginFrame(){
+  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(RS*DPR,0,0,RS*DPR,OX*DPR,OY*DPR);
+}
+
+const FONT='"Google Sans","Noto Sans KR",system-ui,sans-serif', MONO=FONT;   // Latin & digits: Google Sans; Hangul falls back to Noto Sans KR
+const C={purple:'#7030A0',purpleLt:'#F0E8F8',purpleMid:'#9B59D0',green:'#0F8C50',greenLt:'#E6F4ED',coral:'#E8553B',amber:'#D99A00',
+  ink:'#1A202C',ink2:'#334155',muted:'#64748B',label:'#94A3B8',border:'#E2E8F0',line:'#EEF2F6',blue:'#3A7AD6'};
+
+/* ---------- drawing helpers (shared with the PE-CVD lesson) ---------- */
+function rr(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function pl(pts,col,w,dash,off){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';if(dash){ctx.setLineDash(dash);ctx.lineDashOffset=off||0;}ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.restore();}
+function pipe(pts,flow,col){pl(pts,'#C7CED9',3.4);pl(pts,'#FFFFFF',1.4);if(flow)pl(pts,col||'rgba(112,48,160,.7)',1.7,[4,8],-time*30);}
+function txt(s,x,y,o={}){ctx.save();ctx.font=`${o.w||400} ${o.sz||11}px ${o.mono?MONO:FONT}`;ctx.fillStyle=o.c||C.muted;ctx.textAlign=o.a||'left';ctx.textBaseline=o.b||'middle';ctx.fillText(s,x,y);ctx.restore();}
+function arrow(x0,y0,x1,y1,col,w=1.2){ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();const a=Math.atan2(y1-y0,x1-x0),h=6;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-h*Math.cos(a-.42),y1-h*Math.sin(a-.42));ctx.lineTo(x1-h*Math.cos(a+.42),y1-h*Math.sin(a+.42));ctx.closePath();ctx.fill();ctx.restore();}
+function gnd(x,y){ctx.save();ctx.strokeStyle='#475569';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+6);ctx.moveTo(x-9,y+6);ctx.lineTo(x+9,y+6);ctx.moveTo(x-6,y+10);ctx.lineTo(x+6,y+10);ctx.moveTo(x-3,y+14);ctx.lineTo(x+3,y+14);ctx.stroke();ctx.restore();}
+function chemText(f,x,y,sz,col,align){
+  ctx.save();ctx.fillStyle=col;ctx.textBaseline='middle';ctx.textAlign='left';
+  const segs=[];
+  for(let i=0;i<f.length;i++){const ch=f[i];
+    if(/[0-9]/.test(ch)) segs.push(['s',ch]);
+    else if((ch==='+'||ch==='-')&&i===f.length-1) segs.push(['u',ch==='-'?'−':'+']);
+    else if(segs.length&&segs[segs.length-1][0]==='b') segs[segs.length-1][1]+=ch; else segs.push(['b',ch]);}
+  const fb=`600 ${sz}px ${FONT}`, fs=`600 ${Math.round(sz*.72)}px ${FONT}`;
+  let w=0; for(const s of segs){ctx.font=s[0]==='b'?fb:fs;w+=ctx.measureText(s[1]).width;}
+  let cx=align==='left'?x:align==='right'?x-w:x-w/2;
+  for(const s of segs){ctx.font=s[0]==='b'?fb:fs;const oy=s[0]==='s'?sz*.28:s[0]==='u'?-sz*.32:0;ctx.fillText(s[1],cx,y+oy);cx+=ctx.measureText(s[1]).width;}
+  ctx.restore(); return w;
+}
+const fmtP=p=>p<0.1?`${(p*1000).toFixed(0)} mTorr`:`${p.toFixed(2)} Torr`;
+
+function genBox(x,y,w,h,title,sub,on,freq,col){
+  ctx.fillStyle='#fff';ctx.strokeStyle=on?col:'#C5CDD8';ctx.lineWidth=1.3;rr(x,y,w,h,8);ctx.fill();ctx.stroke();
+  ctx.save();rr(x,y,w,h,8);ctx.clip();ctx.fillStyle=on?col:'#CBD2DC';ctx.fillRect(x,y,w,4);ctx.restore();
+  txt(title,x+w/2,y+15,{sz:11,w:700,a:'center',c:C.ink2});txt(sub,x+w/2,y+28,{sz:8.5,mono:true,a:'center',c:on?col:C.label});
+  if(freq!=null){ctx.save();ctx.strokeStyle=on?col:'#D5DAE2';ctx.lineWidth=1.4;ctx.beginPath();const sx=x+10,sw=w-20,sy=y+44;
+    for(let i=0;i<=sw;i++){const yy=sy+5*(on?Math.sin(i/sw*TAU*freq-time*6):0);i?ctx.lineTo(sx+i,yy):ctx.moveTo(sx+i,yy);}ctx.stroke();ctx.restore();}
+}
+
+function drawPlasma(st,I){
+  if(I<=.01) return;
+  const yT=YT+st.sT, yB=YB-st.sB;
+  ctx.save();ctx.beginPath();ctx.rect(X0,YT,X1-X0,YB-YT);ctx.clip();
+  const hg=ctx.createLinearGradient(X0,0,X1,0);
+  hg.addColorStop(0,'rgba(186,160,240,0)');hg.addColorStop(.07,`rgba(190,166,242,${.55*I})`);hg.addColorStop(.93,`rgba(190,166,242,${.55*I})`);hg.addColorStop(1,'rgba(186,160,240,0)');
+  ctx.fillStyle=hg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const cy=(yT+yB)/2, rg=ctx.createRadialGradient(XC,cy,4,XC,cy,(X1-X0)*.5);
+  rg.addColorStop(0,`rgba(255,255,255,${.7*I})`);rg.addColorStop(.6,`rgba(240,234,255,${.32*I})`);rg.addColorStop(1,'rgba(240,234,255,0)');
+  ctx.fillStyle=rg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const band=(y,dir,a)=>{if(a<.03)return;const h=10,g=ctx.createLinearGradient(0,y,0,y+dir*h);g.addColorStop(0,`rgba(160,110,250,${.45*a})`);g.addColorStop(1,'rgba(160,110,250,0)');ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-h,X1-X0,h);};
+  band(yT,1,st.expT*I); band(yB,-1,st.expB*I);
+  const sheath=(y,s,dir)=>{const g=ctx.createLinearGradient(0,y,0,y+dir*s);g.addColorStop(0,`rgba(30,27,75,${.15*I})`);g.addColorStop(1,`rgba(30,27,75,${.03*I})`);ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-s,X1-X0,s);
+    pl([[X0,y+dir*s],[X1,y+dir*s]],`rgba(112,48,160,${.3*I})`,1,[3,4]);};
+  sheath(YT,st.sT,1); sheath(YB,st.sB,-1);
+  ctx.restore();
+}
+
+/* ---------- particles & effects ---------- */
+function spawn(s,x,y,vx=0,vy=0){const p={s,x,y,vx,vy,age:0};parts.push(p);return p;}
+function bulkPt(m=10){return{x:X0+m+rnd()*(X1-X0-2*m),y:YT+45+rnd()*(YB-YT-90)};}
+function placeBulk(p){const q=bulkPt();p.x=q.x;p.y=q.y;p.vx=0;p.vy=0;p.age=0;}
+function lang_(p,f,kick,drag){p.vx+=(rnd()-.5)*kick*f;p.vy+=(rnd()-.5)*kick*f;const d=Math.pow(drag,f);p.vx*=d;p.vy*=d;}
+function boxR(p,x0,x1,y0,y1){if(p.x<x0){p.x=x0;p.vx=Math.abs(p.vx);}if(p.x>x1){p.x=x1;p.vx=-Math.abs(p.vx);}if(p.y<y0){p.y=y0;p.vy=Math.abs(p.vy);}if(p.y>y1){p.y=y1;p.vy=-Math.abs(p.vy);}}
+function cap(p,m){const s=Math.hypot(p.vx,p.vy);if(s>m){p.vx*=m/s;p.vy*=m/s;}}
+function moveE(p,st,f){
+  lang_(p,f,2.4,.9);cap(p,5);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  const yT=YT+st.sT, yB=YB-st.sB;
+  if(p.y<yT){if(st.sT<7&&rnd()<.3)return'T';p.y=yT+1+rnd()*3;p.vy=Math.abs(p.vy);}
+  if(p.y>yB){if(st.sB<7&&rnd()<.3)return'B';p.y=yB-1-rnd()*3;p.vy=-Math.abs(p.vy);}
+  return null;
+}
+function moveIon(p,st,f){
+  const yTm=YT+st.sTm, yBm=YB-st.sBm;
+  if(p.y>yTm&&p.y<yBm){lang_(p,f,.12,.96);p.vy+=(p.y<(yTm+yBm)/2?-1:1)*.004*f;}
+  else{const top=p.y<=yTm,V=top?st.Vt:st.Vb,s=Math.max(top?st.sTm:st.sBm,5);p.vy+=(top?-1:1)*.22*V/s*f;p.vx*=.98;}
+  cap(p,10);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  if(p.y<=YT+1)return'T'; if(p.y>=YB-1)return'B'; return null;
+}
+function moveRF(f,st,onE,onI){
+  for(const p of parts){const c=SP[p.s].cat;
+    if(c==='e'){const r=moveE(p,st,f);if(r){onE&&onE(p,r);placeBulk(p);}}
+    else if(c==='i'){const r=moveIon(p,st,f);if(r){onI&&onI(p,r);placeBulk(p);}}}
+}
+function count(s){let n=0;for(const p of parts)if(p.s===s)n++;return n;}
+function trim(s,n){const c=count(s);if(c>n){const i=parts.findIndex(p=>p.s===s);if(i>=0)parts.splice(i,1);}}
+function drawPowder(p){ctx.save();ctx.fillStyle='#E2E8F0';ctx.strokeStyle='#94A3B8';ctx.lineWidth=.8;const r=p.r||2.5;
+  [[0,0],[r*.7,-r*.4],[-r*.6,r*.3],[r*.2,r*.7]].forEach(([dx,dy],i)=>{if(i>Math.min(3,Math.floor(r/1.5)))return;ctx.beginPath();ctx.arc(p.x+dx,p.y+dy,r*.75,0,TAU);ctx.fill();ctx.stroke();});ctx.restore();}
+function drawParts(list){
+  list=list||parts;
+  for(const p of list){const s=SP[p.s];
+    if(s.cat==='p'){drawPowder(p);continue;}
+    if(p.a!=null)ctx.globalAlpha=clamp(p.a,0,1);
+    if(s.cat==='e'){ctx.fillStyle='rgba(224,161,0,.22)';ctx.beginPath();ctx.arc(p.x,p.y,3.8,0,TAU);ctx.fill();}
+    ctx.fillStyle=s.c;ctx.beginPath();ctx.arc(p.x,p.y,s.r,0,TAU);ctx.fill();
+    if(s.cat==='i'){ctx.strokeStyle='rgba(232,85,59,.35)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='ni'){ctx.strokeStyle='rgba(15,118,110,.4)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='r'){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,Math.max(.7,s.r*.36),0,TAU);ctx.fill();}
+    ctx.globalAlpha=1;
+    if(S.labels&&s.f&&s.cat!=='e')chemText(s.f,p.x,p.y-8.5,8.5,s.c,'center');
+  }
+}
+function addFlash(x,y,rgb,life=.4,r=12,label){fx.push({t:'f',x,y,rgb,life,max:life,r,label});}
+function addRing(x,y,rgb,life=.45,r=10,label){fx.push({t:'r',x,y,rgb,life,max:life,r,label});}
+function stepFx(dt){for(const f of fx)f.life-=dt;fx=fx.filter(f=>f.life>0);}
+function drawFx(){
+  for(const f of fx){const a=f.life/f.max;
+    if(f.t==='f'){const r=f.r*(1.25-a*.45),g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);g.addColorStop(0,`rgba(${f.rgb},${.85*a})`);g.addColorStop(1,`rgba(${f.rgb},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(f.x,f.y,r,0,TAU);ctx.fill();}
+    else{ctx.strokeStyle=`rgba(${f.rgb},${a})`;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1.3-a),0,TAU);ctx.stroke();}
+    if(f.label)txt(f.label,f.x,f.y-13-(1-a)*10,{sz:9.5,mono:true,w:600,c:`rgba(${f.rgb},${Math.min(1,a*1.7)})`,a:'center'});
+  }
+}
+
+/* ---------- hotspot helpers ---------- */
+const partById=id=>PARTS.find(p=>p.id===id);
+function highlightPart(id){const p=partById(id);if(!p)return;ctx.save();ctx.strokeStyle=C.purple;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+  for(const [x,y,w,h] of p.r){rr(x-3,y-3,w+6,h+6,6);ctx.stroke();}ctx.restore();}
+function showTip(id,sx,sy){const t=$('tooltip');if(!id){t.classList.remove('show');return;}const [n,d]=L().parts[id];t.innerHTML=`<b>${n}</b>${d}`;t.style.left=sx+'px';t.style.top=sy+'px';t.classList.add('show');}
+function partAt(x,y){for(const p of PARTS)for(const [rx,ry,rw,rh] of p.r)if(x>=rx&&x<=rx+rw&&y>=ry&&y<=ry+rh)return p.id;return null;}
+
+/* ---------- chart helpers ---------- */
+function chartCtx(id){const c=$(id);if(!c)return null;const r=c.getBoundingClientRect();if(r.width<8||r.height<8)return null;
+  const d=window.devicePixelRatio||1,w=Math.round(r.width*d),h=Math.round(r.height*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
+  const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);return{g,W:r.width,H:r.height};}
+function gt(g,s,x,y,o={}){g.font=`${o.w||400} ${o.sz||10}px ${o.mono?MONO:FONT}`;g.fillStyle=o.c||C.muted;g.textAlign=o.a||'left';g.textBaseline=o.b||'middle';g.fillText(s,x,y);}
+function gl(g,pts,col,w,dash){g.save();g.strokeStyle=col;g.lineWidth=w||1;if(dash)g.setLineDash(dash);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore();}
+function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+function wl2rgb(w){let r=0,g=0,b=0;
+  if(w<380)return[123,92,214];
+  if(w<440){r=-(w-440)/60;b=1;}else if(w<490){g=(w-440)/50;b=1;}else if(w<510){g=1;b=-(w-510)/20;}else if(w<580){r=(w-510)/70;g=1;}else if(w<645){r=1;g=-(w-645)/65;}else{r=1;}
+  let f=1;if(w>700)f=Math.max(.35,.3+.7*(780-w)/80);else if(w<420)f=.3+.7*(w-380)/40;
+  return[Math.round(255*Math.pow(r*f,.8)),Math.round(255*Math.pow(g*f,.8)),Math.round(255*Math.pow(b*f,.8))];}
+
+/* ---------- control widgets ---------- */
+const rng=(id,label,min,max,step,val)=>`<div class="ctl"><div class="ctl-h"><label for="${id}">${label}</label><output id="${id}_o"></output></div><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+const seg=(id,opts,val)=>`<div class="seg" id="${id}">${opts.map(([v,l])=>`<button data-v="${v}" class="${v===val?'on':''}">${l}</button>`).join('')}</div>`;
+const statH=(id,k,cls='')=>`<div class="stat ${cls}" id="${id}_w"><div class="stat-k">${k}</div><div class="stat-v" id="${id}">—</div></div>`;
+function bindRange(id,get,set,fmt,on){const r=$(id);if(!r)return;const o=$(id+'_o');const upd=()=>{set(+r.value);if(o)o.innerHTML=fmt();on&&on();};r.addEventListener('input',upd);r.value=get();if(o)o.innerHTML=fmt();}
+function bindSeg(id,cb){const el=$(id);if(!el)return;el.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v);}));}
+function setStat(id,html,cls){const e=$(id);if(e&&e.innerHTML!==html)e.innerHTML=html;if(cls!==undefined){const w=$(id+'_w');if(w)w.className='stat '+cls;}}
+const card=(badge,title,inner,extra='')=>`<div class="icard" ${extra}><div class="ihead"><span class="badge"><span class="badge-dot"></span>${badge}</span><h3>${title}</h3></div>${inner}</div>`;
+
+/* ---------- geometry (logical px) — toroidal RPS above a downstream strip chamber ---------- */
+const XC=480, X0=268, X1=692, YT=338, YB=446, YF=504;      // chamber interior below the baffle, wafer top, floor
+const WAF={x:330,w:300};
+const LP={x0:410,x1:550,y0:46,y1:186,r:69,w:12};             // toroid centre line (near-circular, R ≈ 70) + tube half-width
+const PRH=10, NB=60;                                        // drawn resist thickness (px), resist bins across the wafer
+
+/* ---------- species ---------- */
+const SP={
+  O2:{c:'#64748B',r:2.4,cat:'n',f:'O2'}, O:{c:'#2F80ED',r:2.8,cat:'r',f:'O'}, O2p:{c:'#E8553B',r:3,cat:'i',f:'O2+'}, e:{c:'#E0A100',r:1.8,cat:'e',f:'e-'},
+  Ar:{c:'#A0AEC0',r:2.3,cat:'n',f:'Ar'}, Arp:{c:'#E8553B',r:3,cat:'i',f:'Ar+'}, NF3:{c:'#8B5CF6',r:2.8,cat:'n',f:'NF3'}, F:{c:'#0F9D58',r:2.7,cat:'r',f:'F'},
+  CO2:{c:'#B4BCC8',r:2.3,cat:'n',f:'CO2'}, SiF4:{c:'#B4BCC8',r:2.8,cat:'n',f:'SiF4'}, uv:{c:'#9B59D0',r:2,cat:'u',f:''}, powder:{c:'#7C5A3A',r:3,cat:'p',f:''},
+};
+
+/* ---------- shared state ---------- */
+const S={labels:false,g1:'ar',p1:1,P1:5,g2:'o2',P2:5,Q2:5,L3:30,m3:'an',p3:1,in4:'sh',cov4:50,p4:1.5,m5:'rem',T6:250,P6:5,a6:'o2',pr7:'imp',rp7:'fast',
+  q8:2,d8:1,T8:300,P9:3,p9:1.5,T9:200,Q9:5,fg9:0,paused:false};
+let cur=0, time=0, phase=0, parts=[], fx=[], frameN=0;
+let hoverPart=null, pinPart=null;
+const FA=0.5;
+let prA=new Array(NB).fill(1), prHold=0;
+
+/* ---------- physics helpers (illustrative teaching models) ---------- */
+const kB=8.617e-5, arr=(Ea,T,Tr=523)=>Math.exp(-Ea/kB*(1/(T+273)-1/Tr));
+const fmtE=v=>{if(!(v>0))return'0';const e=Math.floor(Math.log10(v));return`${(v/Math.pow(10,e)).toFixed(1)}×10<sup>${e}</sup>`;};
+// step 2 — dissociation energy budget
+const EC={o2:40,nf3:3.5}, NA={o2:2,nf3:3};
+function c2(g,P,Q){const R=P*1000/(EC[g]*1.602e-19),M=Q*1000*4.48e17,f=1-Math.exp(-R/(NA[g]*M));return{f,out:f*NA[g]*Q,ev:P*1000/(f*NA[g]*M*1.602e-19)};}
+// step 1 — sustaining loop voltage
+const EP={ar:1,o2:5,mix:6.6,nf3:12}, LLOOP=40, VMAX=900, NPRI=6;
+function c1(g=S.g1,p=S.p1,P=S.P1){const E=EP[g]*(p+.3),V=E*LLOOP,ok=V<=VMAX,I=P*1000/V,s=I/7.07*1e4/(E*100),nu=(g==='ar'?5.3e9:1.2e10)*p;return{E,V,ok,I,ne:s*9.11e-31*nu/2.566e-38/1e6};}
+// step 3 — duct: ion decay (ambipolar + recombination) and O-atom wall loss
+const GAM={pt:1e-4,q:2e-4,an:3e-3,ss:.1};
+function duct3(L,m,p){const r=2,vb=6.3e4,kw=GAM[m]*vb/(2*r),kd=(140/p)/Math.pow(r/2.405,2),k=1/(1/kw+1/kd)+2*p*p,u=5039/p,t=L/u,
+  ka=(90/p)/Math.pow(r/2.405,2),n0=1e12,al=2e-7,ni=n0*Math.exp(-ka*t)/(1+n0*al*(1-Math.exp(-ka*t))/ka),so=Math.exp(-k*t),nO=.3*3.22e16*p*so;
+  return{t,ni,so,ratio:ni/nO,k,ka};}
+const SUPD='⁰¹²³⁴⁵⁶⁷⁸⁹',gFmt=v=>{const e=Math.floor(Math.log10(v)+1e-9),m=Math.round(v/Math.pow(10,e));return`${m}×10⁻${String(-e).split('').map(d=>SUPD[+d]).join('')}`;};
+const ionRel=(L,m,p)=>duct3(L,m,p).ni/1e12;
+// step 4 — radial delivery & loading
+function ch4(inl=S.in4,cov=S.cov4/100,p=S.p4){const a=(inl==='jet'?.3+.25*cov:.03+.03*cov)*(.6+.4*p),load=1/(1+.9*cov);return{a,load,c:load,e:load*(1-a),nu:(a/2)/(1-a/2)*100};}
+// step 6 — kinetics
+const EA6={o2:.5,fg:.5,cf:.35}, BO6={o2:1,fg:1.35,cf:2.2};
+const fluxF=P=>Math.pow(c2('o2',P,5).out/c2('o2',5,5).out,.8);
+function kin6(T=S.T6,P=S.P6,a=S.a6){const R=3*BO6[a]*fluxF(P)*arr(EA6[a],T),tt=1.5/R*60,ox=a==='cf'?14*(tt/60)*arr(.3,T):0;return{R,tt,ox,ea:EA6[a]};}
+// step 9 — process window
+function pw9(){const{P9:P,p9:p,T9:T,Q9:Q,fg9:fg}=S,fl=c2('o2',P,Q).out*duct3(15,'an',p).so,ref=c2('o2',5,5).out*duct3(15,'an',1.5).so,phi=fl/ref,
+  fgB=1+.035*Math.min(fg,10)-.02*Math.max(0,fg-10),rate=3*Math.pow(phi,.8)*fgB*arr(.5,T),
+  nu=1.8+2*Math.pow(Math.max(0,p-.5),1.3)+.12*Math.abs(Q-6),ox=4+9*Math.exp((T-250)/45)*Math.pow(phi,.3)*(1-.02*Math.min(fg,10)),wph=3600/(1.5/rate*60*1.3+25);
+  return{rate,nu,ox,wph,phi};}
+
+/* ---------- toroid path ---------- */
+const LSEG=(()=>{const{x0,x1,y0,y1,r}=LP,a0=x0+r,a1=x1-r,b0=y0+r,b1=y1-r,H=Math.PI/2;
+  return[['l',XC,y0,a1,y0],['a',a1,b0,-H,0],['l',x1,b0,x1,b1],['a',a1,b1,0,H],['l',a1,y1,a0,y1],['a',a0,b1,H,2*H],['l',x0,b1,x0,b0],['a',a0,b0,2*H,3*H],['l',a0,y0,XC,y0]]
+    .map(sg=>({sg,len:sg[0]==='l'?Math.hypot(sg[3]-sg[1],sg[4]-sg[2]):r*H}));})();
+const LLEN=LSEG.reduce((a,b)=>a+b.len,0);
+function loopAt(s){s=((s%1)+1)%1;let d=s*LLEN;
+  for(const{sg,len}of LSEG){if(d<=len){const t=d/len;
+    if(sg[0]==='l'){const dx=sg[3]-sg[1],dy=sg[4]-sg[2],l=Math.hypot(dx,dy);return{x:sg[1]+dx*t,y:sg[2]+dy*t,nx:dy/l,ny:-dx/l};}
+    const a=sg[3]+(sg[4]-sg[3])*t;return{x:sg[1]+LP.r*Math.cos(a),y:sg[2]+LP.r*Math.sin(a),nx:Math.cos(a),ny:Math.sin(a)};}d-=len;}
+  return{x:XC,y:LP.y0,nx:0,ny:-1};}
+
+/* ---------- hardware drawing ---------- */
+const GLOW={Ar:'205,160,255',O2:'170,190,255',NF3:'215,165,250'};
+const WALLC={pt:['#FFFFFF','#CBD2DC'],q:['#E3EEFA','#9CC0E6'],an:['#C9CED6','#97A1AF'],ss:['#E2E5EA','#7D8796']};
+function drawInset(v){
+  const x=24,y=300;ctx.fillStyle='#fff';ctx.strokeStyle=C.border;ctx.lineWidth=1;rr(x,y,200,160,10);ctx.fill();ctx.stroke();
+  txt('EQUIVALENT CIRCUIT',x+10,y+13,{sz:8.5,mono:true,c:C.label});
+  const on=v&&v.on,col=on?C.purple:'#94A3B8';
+  ctx.strokeStyle=col;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(x+28,y+78,11,0,TAU);ctx.stroke();
+  ctx.beginPath();for(let i=0;i<=20;i++){const xx=x+21+i*.7,yy=y+78-4*Math.sin(i/20*TAU);i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);}ctx.stroke();
+  pl([[x+28,y+67],[x+28,y+40],[x+70,y+40],[x+70,y+48]],col,1.4);pl([[x+28,y+89],[x+28,y+116],[x+70,y+116],[x+70,y+108]],col,1.4);
+  ctx.beginPath();for(let k=0;k<5;k++)ctx.arc(x+70,y+54+k*12,6,-Math.PI/2,Math.PI/2);ctx.stroke();
+  pl([[x+84,y+44],[x+84,y+112]],'#3F4654',2.4);pl([[x+89,y+44],[x+89,y+112]],'#3F4654',2.4);
+  const sc=on?'rgba(150,100,240,.95)':'#94A3B8';ctx.strokeStyle=sc;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+103,y+78,9,Math.PI/2,-Math.PI/2,true);ctx.stroke();
+  pl([[x+103,y+69],[x+103,y+48],[x+176,y+48],[x+176,y+64]],sc,2);pl([[x+103,y+87],[x+103,y+108],[x+176,y+108],[x+176,y+92]],sc,2);
+  ctx.fillStyle='#fff';ctx.strokeStyle=sc;ctx.lineWidth=1.6;ctx.strokeRect(x+168,y+64,16,28);ctx.fillStyle=on?'rgba(196,176,250,.6)':'#F1F5F9';ctx.fillRect(x+169,y+65,14,26);
+  txt('N',x+64,y+124,{sz:9,w:700,a:'center',c:C.muted});txt('1 turn',x+103,y+124,{sz:9,a:'center',c:C.muted});txt('R_plasma',x+176,y+124,{sz:9,a:'center',c:C.muted});
+  if(v&&v.V1!=null){txt(`V₁ ${v.V1.toFixed(0)} V`,x+10,y+142,{sz:9.5,mono:true,w:600,c:C.purple});txt(`V_loop ${v.V.toFixed(0)} V · ${v.I.toFixed(0)} A`,x+190,y+142,{sz:9.5,mono:true,w:600,c:C.purple,a:'right'});}
+}
+function drawBaseR(o={}){
+  ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+  if(o.inset)drawInset(o.inset);
+  const gas=o.gas||'O2',on=!!o.on,I=o.I??(on?1:0);
+  // gas panel
+  let anyF=false;
+  [[30,'Ar','#94A3B8','ar'],[88,'O2','#3A7AD6','o2'],[146,'N2/H2','#22A06B','fg'],[204,'NF3','#8B5CF6','nf3']].forEach(([y,f,col,id])=>{const py=y+30,fl=o[id];if(fl)anyF=true;
+    const g=ctx.createLinearGradient(26,0,52,0);g.addColorStop(0,'#DCE2EA');g.addColorStop(.5,'#FFFFFF');g.addColorStop(1,'#C5CDD8');
+    ctx.fillStyle=g;ctx.strokeStyle='#B4BCC8';ctx.lineWidth=1;rr(26,y+4,26,40,9);ctx.fill();ctx.stroke();ctx.fillStyle=col;ctx.fillRect(26,y+14,26,5);ctx.fillStyle='#94A3B8';ctx.fillRect(35,y-1,8,6);
+    chemText(f,62,y+12,13.5,C.ink,'left');pipe([[52,py],[181,py]],!!fl);pipe([[211,py],[240,py]],!!fl);
+    ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.2;rr(181,py-13,30,26,5);ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#64748B';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(189,py-6);ctx.lineTo(203,py+6);ctx.lineTo(203,py-6);ctx.lineTo(189,py+6);ctx.closePath();ctx.stroke();
+    txt('MFC',196,py+21,{sz:8.5,mono:true,a:'center',c:C.label});if(typeof fl==='string')txt(fl,196,py-20,{sz:8.5,mono:true,a:'center',c:C.purple,w:600});});
+  pipe([[240,234],[240,20],[XC,20],[XC,LP.y0-LP.w]],anyF);
+  // ignition electrode
+  ctx.fillStyle=o.ign?'#E0A100':'#B08A4A';ctx.fillRect(504,32,18,5);pl([[513,32],[513,25]],'#94A3B8',1.2);
+  // toroid body, gas core, plasma ring
+  ctx.save();rr(LP.x0,LP.y0,LP.x1-LP.x0,LP.y1-LP.y0,LP.r);ctx.lineWidth=2*LP.w+6;ctx.strokeStyle=o.tube||'#C3C9D3';ctx.stroke();
+  ctx.lineWidth=2*LP.w;ctx.strokeStyle='#F7F8FB';ctx.stroke();
+  if(I>.02){const gc=GLOW[gas]||GLOW.O2;ctx.shadowColor=`rgba(${gc},${.8*I})`;ctx.shadowBlur=14*I;ctx.lineWidth=2*LP.w-4;ctx.strokeStyle=`rgba(${gc},${.3+.5*I})`;ctx.stroke();
+    ctx.shadowBlur=0;ctx.lineWidth=5;ctx.strokeStyle=`rgba(255,255,255,${.55*I})`;ctx.stroke();}
+  ctx.restore();
+  // ferrite cores + primary windings
+  [LP.x0,LP.x1].forEach((x,k)=>{const out=k?1:-1;
+    ctx.fillStyle='#3F4654';rr(x-22,103,44,26,3);ctx.fill();ctx.fillStyle='rgba(255,255,255,.12)';ctx.fillRect(x-22,105,44,4);
+    if(on){ctx.fillStyle=`rgba(232,85,59,${.12+.25*Math.abs(Math.sin(phase*.6))*I})`;rr(x-22,103,44,26,3);ctx.fill();}
+    ctx.strokeStyle='#C27C3A';ctx.lineWidth=1.6;for(let i=0;i<5;i++){const xx=x+out*(13+i*2.3);ctx.beginPath();ctx.moveTo(xx,99);ctx.lineTo(xx,133);ctx.stroke();}});
+  // AC supply
+  genBox(770,24,150,60,'AC supply',o.acSub||'≈ 400 kHz',on,on?3:null,C.purple);
+  pl([[770,60],[744,60],[744,116],[LP.x1+24,116]],on?C.purple:'#AEB7C4',1.8);
+  // duct
+  const wc=WALLC[o.mat||'an'];ctx.fillStyle=wc[0];ctx.strokeStyle=wc[1];ctx.lineWidth=1;ctx.fillRect(XC-14,LP.y1+LP.w,28,296-(LP.y1+LP.w));ctx.strokeRect(XC-14,LP.y1+LP.w,28,296-(LP.y1+LP.w));
+  ctx.fillStyle='#F7F8FB';ctx.fillRect(XC-10,LP.y1+LP.w,20,296-(LP.y1+LP.w)+10);
+  if(I>.02){const g=ctx.createLinearGradient(0,LP.y1+LP.w,0,250);g.addColorStop(0,`rgba(${GLOW[gas]||GLOW.O2},${.45*I})`);g.addColorStop(1,'rgba(200,190,255,0)');ctx.fillStyle=g;ctx.fillRect(XC-10,LP.y1+LP.w,20,62);}
+  // chamber
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(262,306,436,204);
+  if(o.direct&&o.dI>.02){const g=ctx.createLinearGradient(0,338,0,YB);g.addColorStop(0,`rgba(196,176,250,${.55*o.dI})`);g.addColorStop(1,`rgba(215,200,250,${.35*o.dI})`);ctx.fillStyle=g;ctx.fillRect(272,338,416,YB-12-338);
+    ctx.fillStyle=`rgba(30,27,75,${.12*o.dI})`;ctx.fillRect(320,YB-12,340,12);}
+  const wg=ctx.createLinearGradient(0,296,0,520);wg.addColorStop(0,'#CBD2DC');wg.addColorStop(1,'#AEB7C4');ctx.fillStyle=wg;
+  ctx.fillRect(252,296,XC-14-252,10);ctx.fillRect(XC+14,296,708-XC-14,10);ctx.fillRect(252,296,10,224);ctx.fillRect(698,296,10,224);ctx.fillRect(252,510,456,10);
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(664,510,22,10);
+  // deposits (cleaning step)
+  if(o.dep){ctx.fillStyle='rgba(120,160,210,.85)';const d=o.dep;
+    ctx.fillRect(262,338,d[1],84);ctx.fillRect(698-d[2],338,d[2],84);ctx.fillRect(262,422,d[3],88);ctx.fillRect(698-d[4],422,d[4],88);
+    ctx.fillRect(310-d[5],452,d[5],30);ctx.fillRect(650,452,d[6],30);ctx.fillRect(310,452-d[7],340,d[7]);ctx.fillRect(262,510-d[8],210,d[8]);ctx.fillRect(488,510-d[9],176,d[9]);}
+  // baffle / showerhead (or direct-plasma electrode)
+  if(o.baffle!==false){ctx.fillStyle=o.direct?'#B9A6DA':'#AEB7C4';for(let x=280;x<680;x+=24)ctx.fillRect(x,330,18,4);
+    if(o.dep&&o.dep[0]){ctx.fillStyle='rgba(120,160,210,.85)';for(let x=280;x<680;x+=24)ctx.fillRect(x,334,18,o.dep[0]);}}
+  else{ctx.fillStyle='#AEB7C4';ctx.fillRect(XC-10,306,4,12);ctx.fillRect(XC+6,306,4,12);}
+  if(o.direct){genBox(770,300,150,56,'RF (direct)','13.56 MHz',o.dI>.02,2.5,C.coral);pl([[770,328],[708,328]],o.dI>.02?C.coral:'#AEB7C4',1.8);}
+  // chuck + wafer + resist
+  const pg=ctx.createLinearGradient(0,452,0,482);pg.addColorStop(0,'#CFD5DE');pg.addColorStop(1,'#9AA3B2');ctx.fillStyle=pg;rr(310,452,340,30,4);ctx.fill();
+  ctx.fillStyle='#B4BCC8';ctx.fillRect(462,482,36,28);
+  ctx.save();const hot=(o.Tw||25)>100;ctx.strokeStyle=hot?`rgba(232,85,59,${clamp(((o.Tw||25)-100)/200,.2,.8)})`:'#A0A8B6';ctx.lineWidth=1.1;ctx.beginPath();
+  for(let i=0;i<=32;i++){const x=318+i*10,y=468+(i%2?4:-4);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();ctx.restore();
+  if(!o.noWafer){ctx.fillStyle='#5B6475';ctx.fillRect(WAF.x,YB,WAF.w,6);
+    if(o.pr){ctx.fillStyle='#E3A35B';ctx.beginPath();ctx.moveTo(WAF.x,YB);for(let i=0;i<NB;i++){const x=WAF.x+(i+.5)*WAF.w/NB;ctx.lineTo(x,YB-Math.max(0,prA[i])*PRH);}ctx.lineTo(WAF.x+WAF.w,YB);ctx.closePath();ctx.fill();}}
+  // pump, endpoint sensor, gauge
+  pipe([[675,520],[675,546],[720,546]],!!o.pump);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#CBD2DC';ctx.lineWidth=1.2;rr(720,524,110,44,8);ctx.fill();ctx.stroke();txt('Dry pump',775,546,{sz:10.5,w:600,c:C.ink2,a:'center'});
+  ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';rr(675-7,526,14,14,3);ctx.fill();ctx.stroke();pl([[670,533],[680,533]],'#64748B',1.4);
+  pl([[630,546],[675,546]],'#AEB7C4',2);ctx.fillStyle='#fff';ctx.strokeStyle=o.epd!=null?C.purple:'#C5CDD8';ctx.lineWidth=1.2;rr(572,534,58,24,5);ctx.fill();ctx.stroke();
+  txt('EPD',584,546,{sz:9,w:700,mono:true,c:C.ink2});if(o.epd!=null){ctx.fillStyle='rgba(112,48,160,.18)';ctx.fillRect(606,539,18,14);ctx.fillStyle=C.purple;ctx.fillRect(606,553-14*clamp(o.epd,0,1),18,14*clamp(o.epd,0,1));}
+  pl([[300,296],[300,286]],'#AEB7C4',3);ctx.fillStyle='#fff';ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(300,275,11,0,TAU);ctx.fill();ctx.stroke();
+  txt('CM',300,275,{sz:8.5,w:700,c:C.ink2,a:'center',mono:true});if(o.p)txt(o.p,316,275,{sz:9.5,c:C.purple,mono:true,w:600});
+  pl([[300,520],[300,528]],'#475569',1.4);gnd(300,528);
+  // labels
+  txt('Toroidal source',604,40,{sz:10.5,w:600,c:on?C.purple:C.ink2});txt('Ferrite core + primary',604,146,{sz:10,c:C.muted});
+  txt('Duct',XC+20,250,{sz:10,c:C.muted});txt(o.direct?'RF electrode':'Baffle',716,o.direct?314:330,{sz:10.5,w:600,c:C.ink2});
+  txt(o.noWafer?'Heater (no wafer)':'Wafer + resist',716,440,{sz:10.5,w:600,c:C.ink2});txt('Heated chuck',716,466,{sz:10,c:C.muted});
+  if(o.hl)highlightPart(o.hl);
+}
+
+/* ---------- flow simulation: source → duct → baffle → chamber ---------- */
+const cntZ=(s,z)=>{let n=0;for(const p of parts)if(p.s===s&&p.z===z)n++;return n;};
+const ION={Ar:'Arp',O2:'O2p',NF3:'Arp'};
+function prTopAt(x){if(x<WAF.x||x>WAF.x+WAF.w)return YB;const i=clamp(Math.floor((x-WAF.x)/WAF.w*NB),0,NB-1);return YB-Math.max(0,prA[i])*PRH;}
+function feedSpawn(o){const sp=o.gas==='Ar'?'Ar':o.gas==='NF3'&&!(o.mix&&rnd()<.5)?'NF3':o.gas==='NF3'?'Ar':'O2';
+  const p=spawn(sp,XC,LP.y0);p.z='loop';p.q=0;p.dir=rnd()<.5?1:-1;p.off=(rnd()-.5)*1.3*LP.w;p.sp=.004+.002*rnd();
+  if(sp!=='Ar'&&rnd()<(o.fd||0))p.ds=.03+.42*rnd();return p;}
+function simRPS(dt,o){
+  const f=dt*60,I=o.I??1,gas=o.gas||'O2',acs=Math.sin(phase*.6)>=0?1:-1;
+  if(parts.length<300&&o.feed&&rnd()<o.feed*f)feedSpawn(o);
+  // ring electrons and ions follow the induced field (ions ~100× slower, opposite sign)
+  const nE=Math.round((o.ringN??16)*I),nI=Math.round(.6*(o.ringN??16)*I),ion=ION[gas];
+  while(cntZ('e','ring')<nE){const p=spawn('e',0,0);p.z='ring';p.u=rnd();p.off=(rnd()-.5)*1.6*LP.w;}
+  while(cntZ(ion,'ring')<nI){const p=spawn(ion,0,0);p.z='ring';p.u=rnd();p.off=(rnd()-.5)*1.4*LP.w;}
+  let ne=0,ni=0;for(const p of parts){if(p.z!=='ring')continue;if(p.s==='e'){if(++ne>nE)p.dead=true;}else if(++ni>nI||p.s!==ion)p.dead=true;}
+  for(const p of parts){
+    if(p.z==='ring'){p.u+=(p.s==='e'?acs*.007*(.6+.5*rnd()):-acs*.0007)*f;const q=loopAt(p.u);p.x=q.x+q.nx*p.off;p.y=q.y+q.ny*p.off;
+      if(p.s==='e'&&o.exc&&rnd()<.01*f)addFlash(p.x,p.y,GLOW[gas]||GLOW.O2,.25,6);}
+    else if(p.z==='loop'){p.q+=p.sp*f;const s=p.dir>0?p.q:1-p.q,q=loopAt(s);p.x=q.x+q.nx*p.off;p.y=q.y+q.ny*p.off;
+      if(p.ds&&p.q>=p.ds){p.dead=true;const rs=p.s==='NF3'?'F':'O';addFlash(p.x,p.y,'255,255,255',.3,7);
+        for(let k=0;k<2;k++){const r=spawn(rs,p.x,p.y);Object.assign(r,{z:'loop',q:p.q,dir:p.dir,off:clamp(p.off+(k?3:-3),-LP.w+2,LP.w-2),sp:p.sp*1.1});}}
+      else if(p.q>=.5){p.z='duct';p.x=XC+clamp(p.off,-8,8);p.y=LP.y1+LP.w;}}
+    else if(p.z==='duct'){const v=o.vD||1.6;p.y+=v*f;p.x=clamp(p.x+(rnd()-.5)*.9*f,XC-8,XC+8);const c=SP[p.s].cat;
+      if((c==='i'||c==='e')&&rnd()<(o.kI??.05)*v*f){p.dead=true;if(c==='i')addFlash(p.x,p.y,'232,85,59',.25,5);}
+      else if(c==='r'&&rnd()<(o.kR??.001)*v*f){addRing(p.x+(rnd()<.5?-9:9),p.y,'100,116,139',.35,5);if(p.s==='O')p.s='O2';else p.dead=true;}
+      if(p.y>=306){if(o.chamber===false||c==='i'||c==='e')p.dead=true;else if(o.baffle!==false){p.z='plen';p.tx=284+rnd()*392;p.y=312+rnd()*12;}else{p.z='ch';p.vx=(rnd()-.5)*1.2;p.vy=1.4;p.age=0;}}}
+    else if(p.z==='plen'){p.x+=clamp(p.tx-p.x,-3.5,3.5)*f;p.y=clamp(p.y+(rnd()-.5)*.8*f,310,326);if(Math.abs(p.x-p.tx)<3){p.z='ch';p.y=YT+2;p.vx=(rnd()-.5)*.6;p.vy=.8;p.age=0;}}
+    else if(p.z==='ch'){p.age=(p.age||0)+f;lang_(p,f,.55,.94);p.vy+=.012*f;cap(p,2.4);p.x+=p.vx*f;p.y+=p.vy*f;const c=SP[p.s].cat;
+      if(p.x<X0){p.x=X0;p.vx=Math.abs(p.vx);o.onWall&&c==='r'&&o.onWall(p,p.y<422?1:3);}if(p.x>X1){p.x=X1;p.vx=-Math.abs(p.vx);o.onWall&&c==='r'&&o.onWall(p,p.y<422?2:4);}
+      if(p.y<YT){p.y=YT;p.vy=Math.abs(p.vy);o.onWall&&c==='r'&&o.onWall(p,0);}
+      const inChuck=p.x>=310&&p.x<=650,surf=inChuck?(o.noWafer?452:prTopAt(p.x)):YF;
+      if(p.y>=surf){p.y=surf-.5;p.vy=-Math.abs(p.vy)*.8;
+        if(c==='r'){if(inChuck&&!o.noWafer&&o.react&&surf<YB-.6&&rnd()<o.react){p.dead=true;addFlash(p.x,surf,'227,163,91',.3,6);const b=spawn('CO2',p.x,surf-3);b.z='ex';}
+          else if(o.onWall)o.onWall(p,inChuck?7:(p.x<XC?8:9));}}
+      if(c==='r'&&rnd()<(o.kC??.002)*f)p.s=p.s==='O'?'O2':(p.dead=true,p.s);
+      if(c!=='r'&&p.age>(o.age||200))p.z='ex';}
+    else if(p.z==='ex'){p.x+=clamp(675-p.x,-2,2)*f*.6+(rnd()-.5)*.6*f;p.y+=(Math.abs(p.x-675)<14||p.y<440?1.1:.15)*f;if(p.x>650&&p.y<452&&p.y>440)p.x=Math.max(p.x,656);if(p.y>512)p.dead=true;}
+  }
+  parts=parts.filter(p=>!p.dead);
+}
+function trimRing(){parts=parts.filter(p=>p.z!=='ring');}
+// deterministic resist thinning with a short hold before the next wafer
+function ashPR(dt,rateFn,visRate){if(prHold>0){prHold-=dt;if(prHold<=0)prA.fill(1);return;}
+  let mx=0;for(let i=0;i<NB;i++){const r=(i+.5)/NB*2-1;prA[i]-=visRate*rateFn(Math.abs(r))*dt;mx=Math.max(mx,prA[i]);}if(mx<=0)prHold=1.2;}
+
+/* ---------- hotspots ---------- */
+const PARTS=[
+  {id:'inset',r:[[24,300,200,160]]},{id:'mfc',r:[[179,47,34,28],[179,105,34,28],[179,163,34,28],[179,221,34,28]]},
+  {id:'ar',r:[[22,26,156,56]]},{id:'o2',r:[[22,84,156,56]]},{id:'fg',r:[[22,142,156,56]]},{id:'nf3',r:[[22,200,156,56]]},
+  {id:'ac',r:[[768,22,154,64]]},{id:'ign',r:[[500,22,28,18]]},{id:'coil',r:[[384,97,16,38],[560,97,16,38]]},{id:'ferrite',r:[[400,101,26,30],[534,101,26,30]]},
+  {id:'toroid',r:[[444,32,72,26],[444,174,72,26],[400,58,28,38],[532,58,28,38],[400,136,28,38],[532,136,28,38]]},{id:'duct',r:[[464,190,32,104]]},
+  {id:'baffle',r:[[278,326,404,12]]},{id:'wafer',r:[[330,434,300,18]]},{id:'chuck',r:[[310,454,340,28],[462,482,36,28]]},
+  {id:'pump',r:[[718,522,114,48],[664,520,22,32]]},{id:'epd',r:[[570,532,62,28]]},{id:'cm',r:[[286,262,80,28]]},
+  {id:'wall',r:[[248,306,14,204],[698,306,14,204],[252,508,410,14]]},
+];
+
+/* ============================== STEPS ============================== */
+const SC=[];
+const gasRows=(g,v)=>({ar:g==='Ar'||g==='mix'?v.ar:false,o2:g==='O2'?v.o2:false,nf3:g==='NF3'||g==='mix'?v.nf3:false,fg:v.fg||false});
+
+/* ---- 1 · Hardware ---- */
+SC[0]={legend:[],cls:'one',
+  init(){parts=[];fx=[];prA.fill(1);},
+  draw(){drawBaseR({hl:hoverPart||pinPart,inset:{on:false},pr:true,p:'< 1 mTorr'});},
+  inst(){const I=IL('hw');return card('HARDWARE',I.title,`<div class="stats" style="grid-template-columns:repeat(6,minmax(0,1fr))">${I.stats.map(([k,v])=>`<div class="stat"><div class="stat-k">${k}</div><div class="stat-v" style="font-size:12px">${v}</div></div>`).join('')}</div>`);},
+  rd(){return{p:'< 1 mTorr',T:'25 °C'};},
+};
+
+/* ---- 2 · Ignition & transformer coupling ---- */
+const pmapT={to:v=>Math.round(Math.log10(v/.2)/Math.log10(50)*100),from:s=>+(0.2*Math.pow(50,s/100)).toFixed(s<45?2:1)};
+const st1={I:0};
+const G1={ar:'Ar',o2:'O2',mix:'NF3',nf3:'NF3'};
+SC[1]={legend:['e','Arp','O','F'],
+  init(){parts=[];fx=[];st1.I=c1().ok?.8:0;},
+  update(dt){const m=c1(),It=m.ok?.45+.55*Math.sqrt(S.P1/10):0;st1.I+=(It-st1.I)*Math.min(1,dt*2);if(st1.I<.05)trimRing();
+    const g=G1[S.g1];simRPS(dt,{I:st1.I,gas:g,mix:S.g1==='mix',feed:.3,fd:st1.I>.1?(g==='O2'?.16:g==='NF3'?.9:0):0,exc:true});},
+  draw(){const m=c1();drawBaseR({on:st1.I>.05,I:st1.I,gas:G1[S.g1],ign:S.g1==='ar'&&st1.I>.05&&st1.I<.6,...gasRows(S.g1==='mix'?'mix':G1[S.g1],{ar:'2 slm',o2:'5 slm',nf3:'2 slm'}),
+      inset:{on:st1.I>.05,V1:m.V*NPRI,V:m.V,I:m.I},acSub:`${S.P1} kW · 400 kHz`,p:`${S.p1} Torr`,pump:true});drawParts();drawFx();},
+  inst(){const I=IL('s1');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.gas,`<div class="ctls"><div class="seg-row"><span class="k">${I.gas}</span>${seg('seg1',[['ar',I.ar],['o2',I.o2],['mix',I.mix],['nf3',I.nf3]],S.g1)}</div>
+      ${rng('r1p',I.p,0,100,1,pmapT.to(S.p1))}${rng('r1P',I.P,1,10,.5,S.P1)}<div class="stats four">${statH('s1e',I.E)}${statH('s1v',I.V)}${statH('s1i',I.I)}${statH('s1n',I.ne)}</div></div>`);},
+  bind(){bindSeg('seg1',v=>{S.g1=v;parts=parts.filter(p=>p.z==='ring');});bindRange('r1p',()=>pmapT.to(S.p1),v=>S.p1=pmapT.from(v),()=>`${S.p1} Torr`);bindRange('r1P',()=>S.P1,v=>S.P1=v,()=>`${S.P1} kW`);},
+  chart(){const I=IL('s1'),m=c1();
+    setStat('s1e',`${m.E.toFixed(1)}<small> V/cm</small>`);setStat('s1v',`${m.V.toFixed(0)}<small> V</small>`,m.ok?'pass':'fail');setStat('s1i',m.ok?`${m.I.toFixed(0)}<small> A</small>`:'—');setStat('s1n',m.ok?`${fmtE(m.ne)}<small> cm⁻³</small>`:'—');
+    setMsg(!m.ok?I.failMsg:S.g1!=='ar'?I.ign:I.okMsg,!m.ok?'warn':S.g1!=='ar'?'info':'');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:42,r:W-10,t:12,b:H-16},X=p=>b.l+Math.log10(p/.2)/Math.log10(50)*(b.r-b.l),Y=v=>b.b-v/1500*(b.b-b.t);
+    [.2,.5,1,2,5,10].forEach(v=>{gl(g,[[X(v),b.t],[X(v),b.b]],C.line,1);gt(g,String(v),X(v),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    [0,500,1000,1500].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,String(v),b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    g.fillStyle='rgba(232,85,59,.07)';g.fillRect(b.l,b.t,b.r-b.l,Y(VMAX)-b.t);gl(g,[[b.l,Y(VMAX)],[b.r,Y(VMAX)]],C.coral,1.2,[4,3]);gt(g,I.vmax,b.l+4,Y(VMAX)-8,{sz:9,c:C.coral});
+    const cols={ar:'#94A3B8',o2:'#3A7AD6',mix:'#B07CE8',nf3:C.purple};
+    for(const gk of ['ar','o2','mix','nf3']){const pts=[];for(let i=0;i<=60;i++){const p=.2*Math.pow(50,i/60),v=c1(gk,p).V;if(v>1450)break;pts.push([X(p),Y(v)]);}gl(g,pts,cols[gk],gk===S.g1?2.4:1.3,gk===S.g1?null:[5,4]);
+      const pe=pts[pts.length-1];gt(g,I[gk],Math.min(pe[0]-6,b.r-4),pe[1]+(gk==='ar'?-8:2),{a:'right',sz:9,w:600,c:cols[gk]});}
+    g.fillStyle=m.ok?C.purple:C.coral;g.beginPath();g.arc(X(S.p1),Y(Math.min(m.V,1500)),5,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+    gt(g,'V_loop [V]',b.l+4,b.t+6,{sz:9,mono:true,c:C.label});gt(g,'p [Torr]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:`${S.p1} Torr`,T:'25 °C',hf:st1.I>.05?`${S.P1} kW`:null,gas:{ar:'Ar',o2:'O₂',mix:'NF₃ + Ar',nf3:'NF₃'}[S.g1]};},
+};
+
+/* ---- 3 · Dissociation ---- */
+SC[2]={legend:['O2','O','NF3','F','e'],
+  init(){parts=[];fx=[];},
+  update(dt){const g=S.g2==='o2'?'O2':'NF3',m=c2(S.g2,S.P2,S.Q2);simRPS(dt,{I:.45+.55*Math.sqrt(S.P2/10),gas:g,feed:.12+.05*S.Q2,fd:m.f});},
+  draw(){const g=S.g2==='o2'?'O2':'NF3';drawBaseR({on:true,I:.45+.55*Math.sqrt(S.P2/10),gas:g,...gasRows(g,{o2:`${S.Q2} slm`,nf3:`${S.Q2} slm`}),acSub:`${S.P2} kW`,p:'2 Torr',pump:true});drawParts();drawFx();},
+  inst(){const I=IL('s2');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.gas,`<div class="ctls"><div class="seg-row"><span class="k">${I.gas}</span>${seg('seg2',[['o2',I.o2],['nf3',I.nf3]],S.g2)}</div>${rng('r2P',I.P,1,10,.5,S.P2)}${rng('r2Q',I.Q,.5,10,.5,S.Q2)}
+      <div class="stats">${statH('s2f',I.f)}${statH('s2o',I.out)}${statH('s2e',I.ev)}</div></div>`);},
+  bind(){bindSeg('seg2',v=>{S.g2=v;parts=[];});bindRange('r2P',()=>S.P2,v=>S.P2=v,()=>`${S.P2} kW`);bindRange('r2Q',()=>S.Q2,v=>S.Q2=v,()=>`${S.Q2} slm`);},
+  chart(){const I=IL('s2'),m=c2(S.g2,S.P2,S.Q2);
+    setStat('s2f',`${(m.f*100).toFixed(m.f>.995?1:0)}<small> %</small>`);setStat('s2o',`${m.out.toFixed(2)}<small> slm ${S.g2==='o2'?'O':'F'}</small>`);setStat('s2e',`${m.ev.toFixed(0)}<small> eV</small>`);
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:36,r:W-10,t:12,b:H-16},X=P=>b.l+(P-1)/9*(b.r-b.l),Y=v=>b.b-v*(b.b-b.t);
+    for(let P=1;P<=10;P++){gl(g,[[X(P),b.t],[X(P),b.b]],C.line,1);if(P%3===1||P===10)gt(g,String(P),X(P),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+    [0,.25,.5,.75,1].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,(v*100)+'%',b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    for(const [gk,c] of [['o2','#3A7AD6'],['nf3',C.purple]]){const pts=[];for(let i=0;i<=45;i++){const P=1+9*i/45;pts.push([X(P),Y(c2(gk,P,S.Q2).f)]);}gl(g,pts,c,gk===S.g2?2.4:1.3,gk===S.g2?null:[5,4]);
+      gt(g,`${I[gk]} · ${S.Q2} slm`,X(9.8),Y(c2(gk,9.8,S.Q2).f)+(gk==='o2'?-10:12),{a:'right',sz:9,w:600,c});}
+    g.fillStyle=S.g2==='o2'?'#3A7AD6':C.purple;g.beginPath();g.arc(X(S.P2),Y(m.f),5,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+    gt(g,I.fr,b.l+4,b.t+6,{sz:9,mono:true,c:C.label});gt(g,'P [kW]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:'2 Torr',T:'25 °C',hf:`${S.P2} kW`,gas:`${S.g2==='o2'?'O₂':'NF₃'} ${S.Q2} slm`};},
+};
+
+/* ---- 4 · Downstream duct ---- */
+const pmapD={to:v=>Math.round(Math.log10(v/.3)/Math.log10(5/.3)*100),from:s=>+(0.3*Math.pow(5/.3,s/100)).toFixed(s<50?2:1)};
+SC[3]={legend:['O','O2','O2p','e'],
+  init(){parts=[];fx=[];},
+  update(dt){const m=duct3(S.L3,S.m3,S.p3),span=296-188,ionEnd=Math.max(m.ni/1e12,1e-6);
+    simRPS(dt,{I:1,gas:'O2',feed:.3,fd:.3,age:140,kI:-Math.log(ionEnd)/span*.6,kR:-Math.log(Math.max(m.so,1e-4))/span});
+    if(rnd()<.25*dt*60){const a=spawn('O2p',XC+(rnd()-.5)*12,190);a.z='duct';const e=spawn('e',XC+(rnd()-.5)*12,190);e.z='duct';}},
+  draw(){drawBaseR({on:true,I:1,gas:'O2',o2:'5 slm',mat:S.m3,acSub:'5 kW',p:`${S.p3} Torr`,pump:true});drawParts();drawFx();
+    txt(`L = ${S.L3} cm (scaled)`,XC+20,266,{sz:10,mono:true,w:600,c:C.purple});txt(`γ = ${gFmt(GAM[S.m3])}`,XC+20,282,{sz:10,mono:true,c:C.muted});},
+  inst(){const I=IL('s3');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.mat,`<div class="ctls"><div class="seg-row"><span class="k">${I.mat}</span>${seg('seg3',[['pt',I.pt],['q',I.q],['an',I.an],['ss',I.ss]],S.m3)}</div>${rng('r3L',I.L,5,100,1,S.L3)}${rng('r3p',I.p,0,100,1,pmapD.to(S.p3))}
+      <div class="stats four">${statH('s3t',I.t)}${statH('s3i',I.ni)}${statH('s3o',I.so)}${statH('s3r',I.ratio)}</div></div>`);},
+  bind(){bindSeg('seg3',v=>{S.m3=v;});bindRange('r3L',()=>S.L3,v=>S.L3=v,()=>`${S.L3} cm`);bindRange('r3p',()=>pmapD.to(S.p3),v=>S.p3=pmapD.from(v),()=>`${S.p3} Torr`);},
+  chart(){const I=IL('s3'),m=duct3(S.L3,S.m3,S.p3);
+    setStat('s3t',`${(m.t*1000).toFixed(1)}<small> ms</small>`);setStat('s3i',`${fmtE(m.ni)}<small> cm⁻³</small>`);setStat('s3o',`${(m.so*100).toFixed(0)}<small> %</small>`,m.so>.7?'pass':m.so<.4?'fail':'');setStat('s3r',fmtE(m.ratio));
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:40,r:W-10,t:12,b:H-16},X=L=>b.l+L/100*(b.r-b.l),Y=v=>b.b-(Math.log10(Math.max(v,1e-7))+7)/7*(b.b-b.t);
+    for(let L=0;L<=100;L+=20){gl(g,[[X(L),b.t],[X(L),b.b]],C.line,1);gt(g,String(L),X(L),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+    [1e-6,1e-4,1e-2,1].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,v===1?'1':'10'+['⁻⁶','⁻⁴','⁻²'][[1e-6,1e-4,1e-2].indexOf(v)],b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    const pi=[],po=[];for(let L=0;L<=100;L+=1){pi.push([X(L),Y(L?ionRel(L,S.m3,S.p3):1)]);po.push([X(L),Y(duct3(L,S.m3,S.p3).so)]);}
+    gl(g,pi,C.coral,2.2);gl(g,po,'#2F80ED',2.4);gt(g,I.ion,X(10)+4,Y(ionRel(10,S.m3,S.p3))+10,{sz:9.5,w:600,c:C.coral});gt(g,I.o,b.r-4,Y(duct3(100,S.m3,S.p3).so)-9,{a:'right',sz:9.5,w:600,c:'#2F80ED'});
+    gl(g,[[X(S.L3),b.t],[X(S.L3),b.b]],C.purple,1.3,[3,3]);g.fillStyle='#2F80ED';g.beginPath();g.arc(X(S.L3),Y(m.so),4.5,0,TAU);g.fill();g.fillStyle=C.coral;g.beginPath();g.arc(X(S.L3),Y(m.ni/1e12),4.5,0,TAU);g.fill();
+    gt(g,'L [cm]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:`${S.p3} Torr`,T:'25 °C',hf:'5 kW',gas:'O₂ 5 slm'};},
+};
+
+/* ---- 5 · Distribution & loading ---- */
+SC[4]={legend:['O','O2','CO2'],
+  init(){parts=[];fx=[];prA.fill(1);prHold=0;},
+  update(dt){const m=ch4();simRPS(dt,{I:1,gas:'O2',feed:.4,fd:.35,baffle:S.in4==='sh',react:.5,kC:.004});
+    ashPR(dt,r=>m.load*(1-m.a*r*r),.16);},
+  draw(){drawBaseR({on:true,I:1,gas:'O2',o2:'5 slm',acSub:'5 kW',p:`${S.p4} Torr`,pr:true,Tw:250,baffle:S.in4==='sh',pump:true});drawParts();drawFx();
+    txt(`${IL('s4').cov} ${S.cov4} %`,716,490,{sz:10,c:'#B7791F',w:600});},
+  inst(){const I=IL('s4');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.inlet,`<div class="ctls"><div class="seg-row"><span class="k">${I.inlet}</span>${seg('seg4',[['jet',I.jet],['sh',I.sh]],S.in4)}</div>${rng('r4c',I.cov,5,100,1,S.cov4)}${rng('r4p',I.p,.5,3,.1,S.p4)}
+      <div class="stats four">${statH('s4c',I.c)}${statH('s4e',I.e)}${statH('s4u',I.u)}${statH('s4l',I.load)}</div></div>`);},
+  bind(){bindSeg('seg4',v=>{S.in4=v;parts=parts.filter(p=>p.z!=='plen');});bindRange('r4c',()=>S.cov4,v=>S.cov4=v,()=>`${S.cov4} %`);bindRange('r4p',()=>S.p4,v=>S.p4=v,()=>`${S.p4.toFixed(1)} Torr`);},
+  chart(){const I=IL('s4'),m=ch4();
+    setStat('s4c',`${(m.c*100).toFixed(0)}<small> %</small>`);setStat('s4e',`${(m.e*100).toFixed(0)}<small> %</small>`);setStat('s4u',`± ${m.nu.toFixed(1)}<small> %</small>`,m.nu<=5?'pass':'fail');setStat('s4l',`−${((1-m.load)*100).toFixed(0)}<small> %</small>`);
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:40,r:W-10,t:12,b:H-16},X=r=>b.l+(r+150)/300*(b.r-b.l),Y=v=>b.b-v/1.05*(b.b-b.t);
+    [-150,-75,0,75,150].forEach(v=>{gl(g,[[X(v),b.t],[X(v),b.b]],C.line,1);gt(g,String(v),X(v),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    [0,.25,.5,.75,1].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,(v*100)+'%',b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    for(const [inl,c] of [['jet',C.coral],['sh',C.purple]]){const q=ch4(inl),pts=[];for(let r=-150;r<=150;r+=3)pts.push([X(r),Y(q.load*(1-q.a*(r/150)*(r/150)))]);gl(g,pts,c,inl===S.in4?2.4:1.3,inl===S.in4?null:[5,4]);
+      gt(g,I[inl],X(inl==='jet'?-118:118),Y(q.load*(1-q.a*.62))+(inl==='jet'?12:-10),{a:'center',sz:9,w:600,c});}
+    gt(g,I.rel,b.l+4,b.t+6,{sz:9,mono:true,c:C.label});gt(g,I.r+' [mm]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:`${S.p4.toFixed(1)} Torr`,T:'250 °C',hf:'5 kW',gas:'O₂ 5 slm'};},
+};
+
+/* ---- 6 · Direct vs remote ---- */
+const st5={uv:[]};
+const FL5={dir:{O:1e17,ion:3e15,uv:5e14},rem:{O:6e16,ion:1e8,uv:1e6}};
+SC[5]={legend:['O','O2p','e','uv'],
+  init(){parts=[];fx=[];st5.uv=[];prA.fill(1);prHold=0;},
+  update(dt){const f=dt*60;
+    if(S.m5==='rem'){simRPS(dt,{I:1,gas:'O2',feed:.4,fd:.3,react:.25});ashPR(dt,()=>.05,.16);}
+    else{parts=parts.filter(p=>p.z!=='ring'&&p.z!=='loop'&&p.z!=='duct'&&p.z!=='plen');
+      while(cntZ('O','d')<26){const p=spawn('O',290+rnd()*380,345+rnd()*80);p.z='d';}
+      while(cntZ('O2p','d')<14){const p=spawn('O2p',290+rnd()*380,345+rnd()*70);p.z='d';p.vy=0;}
+      while(cntZ('e','d')<14){const p=spawn('e',290+rnd()*380,345+rnd()*80);p.z='d';}
+      for(const p of parts){if(p.z!=='d')continue;
+        if(p.s==='O2p'){if(p.y>YB-12)p.vy+=.5*f;else{lang_(p,f,.2,.95);p.vy+=.01*f;}p.x+=(p.vx||0)*f;p.y+=p.vy*f;p.x=clamp(p.x,X0,X1);
+          if(p.y>=prTopAt(p.x)){p.dead=true;addFlash(p.x,prTopAt(p.x),'232,85,59',.3,7);}}
+        else{lang_(p,f,p.s==='e'?2:.6,.9);cap(p,p.s==='e'?4:2);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0,X1,YT,YB-14);
+          if(p.s==='O'&&p.y>=YB-14.5&&rnd()<.05){p.dead=true;}}}
+      if(rnd()<.35*f){const x=300+rnd()*360;st5.uv.push({x,y:350+rnd()*60,t:0});}
+      for(const u of st5.uv)u.t+=dt*3;st5.uv=st5.uv.filter(u=>u.t<1);parts=parts.filter(p=>!p.dead);ashPR(dt,()=>.6,.16);}},
+  draw(){const d=S.m5==='dir';drawBaseR({on:!d,I:d?0:1,gas:'O2',o2:'5 slm',acSub:'5 kW',p:'1 Torr',pr:true,Tw:120,direct:d,dI:d?1:0,pump:true});
+    if(d)for(const u of st5.uv){const y=u.y+(prTopAt(u.x)-u.y)*u.t;ctx.strokeStyle=`rgba(155,89,208,${1-u.t})`;ctx.lineWidth=1.4;ctx.beginPath();for(let k=0;k<=12;k++){const yy=y-24+k*2,xx=u.x+3*Math.sin(k*1.4+time*20);k?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);}ctx.stroke();}
+    drawParts();drawFx();},
+  inst(){const I=IL('s5');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.mode,`<div class="ctls"><div class="seg-row"><span class="k">${I.mode}</span>${seg('seg5',[['dir',I.dir],['rem',I.rem]],S.m5)}</div>
+      <div class="stats four">${statH('s5e',I.Ei)}${statH('s5k',I.lk)}${statH('s5c',I.chg)}${statH('s5r',I.rate)}</div></div>`);},
+  bind(){bindSeg('seg5',v=>{S.m5=v;parts=[];st5.uv=[];});},
+  chart(){const I=IL('s5'),d=S.m5==='dir';
+    setStat('s5e',d?'15–300<small> eV</small>':'< 0.1<small> eV</small>',d?'fail':'pass');setStat('s5k',d?'≈ 40<small> nm</small>':'≈ 3<small> nm</small>',d?'fail':'pass');
+    setStat('s5c',d?I.high:I.none,d?'fail':'pass');setStat('s5r',d?'≈ 1.5<small> µm/min</small>':'≈ 0.1<small> µm/min</small>',d?'pass':'fail');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:70,r:W-14,t:10,b:H-18},X=v=>b.l+(Math.log10(v)-6)/12*(b.r-b.l),rows=[['O',I.O,'#2F80ED'],['ion',I.ion,C.coral],['uv',I.uv,C.purpleMid]],bh=(b.b-b.t)/rows.length;
+    [6,9,12,15,18].forEach(e=>{gl(g,[[X(Math.pow(10,e)),b.t],[X(Math.pow(10,e)),b.b]],C.line,1);gt(g,'10'+({6:'⁶',9:'⁹',12:'¹²',15:'¹⁵',18:'¹⁸'})[e],X(Math.pow(10,e)),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    rows.forEach(([key,lab,c],i)=>{const y=b.t+i*bh+bh*.2,h=bh*.6,cv=FL5[S.m5][key],ov=FL5[d?'rem':'dir'][key];
+      g.strokeStyle=c;g.setLineDash([3,3]);g.lineWidth=1;g.strokeRect(b.l,y,X(ov)-b.l,h);g.setLineDash([]);g.fillStyle=c;g.globalAlpha=.85;g.fillRect(b.l,y,Math.max(1,X(cv)-b.l),h);g.globalAlpha=1;
+      gt(g,lab,b.l-6,y+h/2,{a:'right',sz:10,w:600,c});});},
+  rd(){const d=S.m5==='dir';return{p:'1 Torr',T:'120 °C',hf:d?null:'5 kW',lf:d?'RF 13.56 MHz':null,gas:'O₂'};},
+};
+
+/* ---- 7 · Kinetics ---- */
+SC[6]={legend:['O','O2','CO2','F'],
+  init(){parts=[];fx=[];prA.fill(1);prHold=0;},
+  update(dt){const m=kin6();simRPS(dt,{I:.45+.55*Math.sqrt(S.P6/10),gas:'O2',feed:.4,fd:.3,react:clamp(m.R/6,.03,.9)});
+    if(S.a6==='cf'&&rnd()<.04*dt*60&&count('F')<8){const p=spawn('F',XC,LP.y1+LP.w);p.z='duct';}
+    ashPR(dt,()=>1,clamp(m.R/3*.16,0,.6));},
+  draw(){const m=kin6();drawBaseR({on:true,I:.45+.55*Math.sqrt(S.P6/10),gas:'O2',o2:'5 slm',fg:S.a6==='fg'?'0.5 slm':false,nf3:false,acSub:`${S.P6} kW`,p:'1.5 Torr',pr:true,Tw:S.T6,pump:true});drawParts();drawFx();
+    txt(`${S.T6} °C`,716,490,{sz:10.5,mono:true,w:600,c:S.T6>=200?C.coral:C.muted});},
+  inst(){const I=IL('s6');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.add,`<div class="ctls">${rng('r6T',I.T,25,350,5,S.T6)}${rng('r6P',I.P,1,10,.5,S.P6)}<div class="seg-row"><span class="k">${I.add}</span>${seg('seg6',[['o2',I.o2],['fg',I.fg],['cf',I.cf]],S.a6)}</div>
+      <div class="stats four">${statH('s6r',I.rate)}${statH('s6t',I.tt)}${statH('s6o',I.ox)}${statH('s6e',I.ea)}</div></div>`);},
+  bind(){bindRange('r6T',()=>S.T6,v=>S.T6=v,()=>`${S.T6} °C`);bindRange('r6P',()=>S.P6,v=>S.P6=v,()=>`${S.P6} kW`);bindSeg('seg6',v=>{S.a6=v;});},
+  chart(){const I=IL('s6'),m=kin6();
+    setStat('s6r',`${m.R<.1?m.R.toFixed(3):m.R.toFixed(2)}<small> µm/min</small>`,m.R>=3?'pass':m.R<1?'fail':'');setStat('s6t',m.tt>3600?'> 1<small> h</small>':m.tt>120?`${(m.tt/60).toFixed(1)}<small> min</small>`:`${m.tt.toFixed(0)}<small> s</small>`);
+    setStat('s6o',m.ox>0?`${m.ox.toFixed(0)}<small> Å</small>`:'< 1<small> Å</small>',m.ox>5?'fail':'pass');setStat('s6e',`${m.ea.toFixed(2)}<small> eV</small>`);
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:40,r:W-10,t:12,b:H-18},iT=T=>1000/(T+273),xa=iT(350),xb=iT(80),X=T=>b.l+(iT(T)-xa)/(xb-xa)*(b.r-b.l),Y=v=>b.b-(Math.log10(Math.max(v,1e-3))+3)/4.5*(b.b-b.t);
+    [100,150,200,250,300,350].forEach(T=>{gl(g,[[X(T),b.t],[X(T),b.b]],C.line,1);gt(g,T+'°',X(T),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    [.001,.01,.1,1,10].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,String(v),b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    gl(g,[[b.l,Y(3)],[b.r,Y(3)]],C.green,1.1,[4,3]);gt(g,'3 µm/min',b.l+4,Y(3)-8,{sz:9,c:C.green});
+    for(const [a,c] of [['o2','#3A7AD6'],['fg',C.green],['cf',C.coral]]){const pts=[];for(let T=80;T<=350;T+=5)pts.push([X(T),Y(kin6(T,S.P6,a).R)]);gl(g,pts,c,a===S.a6?2.4:1.2,a===S.a6?null:[5,4]);
+      gt(g,I[a],X(95),Y(kin6(95,S.P6,a).R)+(a==='cf'?-9:a==='fg'?-9:10),{sz:9,w:600,c});}
+    g.fillStyle=C.purple;g.beginPath();g.arc(X(S.T6),Y(m.R),5,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+    gt(g,'µm/min (log)',b.r-4,b.t+6,{a:'right',sz:9,mono:true,c:C.label});gt(g,'1000/T →',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:'1.5 Torr',T:`${S.T6} °C`,hf:`${S.P6} kW`,gas:{o2:'O₂',fg:'O₂ + N₂/H₂',cf:'O₂ + CF₄'}[S.a6]};},
+};
+
+/* ---- 8 · Full strip, endpoint, implant crust ---- */
+const st7={};
+const Z7={x0:150,x1:810,base:470,sc:.22,per:150,lw:75,lh:300,PR:1500,crust:30};
+function reset7(){Object.assign(st7,{t:0,lvl:Z7.PR,crust:S.pr7==='imp'?Z7.crust:0,tr:[],ep:null,ph:0,pop:0,pops:[],sigMax:0,done:false,Tw:25});parts=[];fx=[];}
+function T7(t){return S.rp7==='fast'?25+225*(1-Math.exp(-t/3)):t<35?25+95*(1-Math.exp(-t/3)):120+130*(1-Math.exp(-(t-35)/4));}
+const bulk7=T=>50*arr(.5,T), crust7=T=>3*arr(.15,T);
+function step7(dts){if(st7.done)return;st7.t+=dts;const T=T7(st7.t);st7.Tw=T;let sig;
+  if(st7.crust>0){st7.crust=Math.max(0,st7.crust-crust7(T)*dts);sig=.25*crust7(T)/3;
+    if(T>150&&st7.crust>2&&rnd()<.6*dts){st7.pop++;const x=Z7.x0+20+rnd()*(Z7.x1-Z7.x0-40);st7.pops.push(x);addFlash(x,Z7.base-st7.lvl*Z7.sc,'255,200,120',.5,26);
+      for(let k=0;k<8;k++){const p=spawn('powder',x,Z7.base-st7.lvl*Z7.sc-4,(rnd()-.5)*5,-2-rnd()*4);p.z='z';p.r=1.6+rnd()*1.6;}}}
+  else if(st7.lvl>0){const a=st7.lvl>Z7.lh?1:.5;st7.lvl=Math.max(0,st7.lvl-bulk7(T)*dts);sig=a*bulk7(T)/50;}else sig=0;
+  sig*=1+(rnd()-.5)*.04;st7.sigMax=Math.max(st7.sigMax,sig);st7.tr.push([st7.t,st7.lvl/Z7.PR,sig]);
+  if(st7.ep==null&&st7.lvl<=0&&st7.sigMax>.3)st7.ep=st7.t;
+  st7.ph=st7.ep!=null?(st7.t>=st7.ep*1.3?3:2):st7.t<4?0:1;if(st7.ph===3)st7.done=true;}
+SC[7]={legend:['O','CO2','powder'],noLabels:true,
+  init(){reset7();},
+  update(dt){const f=dt*60;step7(dt*5);
+    const top=Z7.base-st7.lvl*Z7.sc;
+    if(!st7.done&&count('O')<22&&rnd()<.6*f){const p=spawn('O',Z7.x0+rnd()*(Z7.x1-Z7.x0),96);p.z='z';p.vy=1.2+rnd();p.vx=(rnd()-.5)*.6;}
+    for(const p of parts){if(p.z!=='z')continue;
+      if(p.s==='O'){p.x+=p.vx*f;p.y+=p.vy*f;const yy=surf7(p.x);if(p.y>=yy){p.dead=true;if(st7.lvl>0||st7.crust>0){addFlash(p.x,yy,'227,163,91',.3,7);const b=spawn('CO2',p.x,yy-3);b.z='z';b.vy=-1.4;b.vx=(rnd()-.5)*.8;}}}
+      else if(p.s==='CO2'){p.x+=p.vx*f;p.y+=p.vy*f;if(p.y<90)p.dead=true;}
+      else{p.vy+=.12*f;p.x+=p.vx*f;p.y+=p.vy*f;if(p.y>surf7(p.x)){p.y=surf7(p.x);p.vx=0;p.vy=0;}}}
+    parts=parts.filter(p=>!p.dead);void top;},
+  draw(){const I=IL('s7'),{x0,x1,base,sc,per,lw,lh}=Z7,top=base-st7.lvl*sc;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    txt(I.zoom,x0,66,{sz:11,mono:true,w:600,c:C.purple});
+    txt(`T = ${st7.Tw.toFixed(0)} °C   ·   t = ${st7.t.toFixed(0)} s`,x1,66,{sz:11,mono:true,w:600,a:'right',c:st7.Tw>150?C.coral:C.muted});
+    ctx.fillStyle='#fff';ctx.fillRect(x0,80,x1-x0,base+30-80);
+    if(st7.lvl>0){ctx.fillStyle='#E3A35B';ctx.fillRect(x0,top,x1-x0,base-top);}
+    if(st7.crust>0){ctx.fillStyle='#6B4226';ctx.fillRect(x0,top-st7.crust*sc*3,x1-x0,st7.crust*sc*3);txt(`${I.imp} crust (×3)`,x0+8,top-st7.crust*sc*3-9,{sz:9.5,w:600,c:'#6B4226'});}
+    ctx.fillStyle='#9CC9F0';for(let x=x0+per/2-lw/2;x<x1;x+=per)ctx.fillRect(x,base-lh*sc,Math.min(lw,x1-x),lh*sc);
+    ctx.fillStyle='#C9D3E0';ctx.fillRect(x0,base,x1-x0,30);ctx.strokeStyle=C.border;ctx.strokeRect(x0,80,x1-x0,base+30-80);
+    ctx.fillStyle='#1F2937';for(const x of st7.pops)ctx.fillRect(x-2,surf7(x)-3,4,3);
+    txt('Si',x0+8,base+16,{sz:10.5,w:600,c:C.ink2});txt('SiO₂',x0+per/2-lw/2+6,base-lh*sc+12,{sz:9.5,w:600,c:'#1E4F8F'});if(st7.lvl>Z7.lh)txt('Photoresist',x0+8,top+16,{sz:10.5,w:600,c:'#8A5A12'});
+    drawParts();drawFx();},
+  inst(){const I=IL('s7');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.pr,`<div class="ctls"><div class="seg-row"><span class="k">${I.pr}</span>${seg('seg7a',[['std',I.std],['imp',I.imp]],S.pr7)}</div><div class="seg-row"><span class="k">${I.ramp}</span>${seg('seg7b',[['slow',I.slow],['fast',I.fast]],S.rp7)}</div>
+      <div class="seg-row"><button class="btn" id="b7r">${I.run}</button></div><div class="stats four">${statH('s7l',I.rem)}${statH('s7e',I.ep)}${statH('s7o',I.oa)}${statH('s7r',I.res)}</div></div>`);},
+  bind(){bindSeg('seg7a',v=>{S.pr7=v;reset7();});bindSeg('seg7b',v=>{S.rp7=v;reset7();});$('b7r').onclick=reset7;},
+  chart(){const I=IL('s7');
+    setStat('s7l',`${st7.lvl.toFixed(0)}<small> nm</small>`);setStat('s7e',st7.ep!=null?`${st7.ep.toFixed(0)}<small> s</small>`:'…');setStat('s7o',st7.ep!=null?'30<small> %</small>':'—');
+    setStat('s7r',st7.pop?I.pop:st7.done?I.clean:'…',st7.pop?'fail':st7.done?'pass':'');
+    setMsg(st7.pop?I.msgPop:st7.done?I.msgDone:st7.ep!=null?I.msgEp:I.msgRun,st7.pop?'warn':st7.done?'':'info');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:36,r:W-10,t:12,b:H-16},tm=Math.max(80,(st7.ep||0)*1.4,st7.t*1.05),X=t=>b.l+t/tm*(b.r-b.l),Y=v=>b.b-v/1.1*(b.b-b.t);
+    for(let t=0;t<=tm;t+=20){gl(g,[[X(t),b.t],[X(t),b.b]],C.line,1);gt(g,String(t),X(t),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+    [0,.5,1].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,(v*100)+'%',b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    if(st7.ep!=null){g.fillStyle='rgba(15,140,80,.08)';g.fillRect(X(st7.ep),b.t,X(st7.ep*1.3)-X(st7.ep),b.b-b.t);gl(g,[[X(st7.ep),b.t],[X(st7.ep),b.b]],C.green,1.3,[4,3]);gt(g,I.ep,X(st7.ep)+4,b.t+8,{sz:9,w:600,c:C.green});}
+    if(st7.tr.length>1){gl(g,st7.tr.map(([t,l])=>[X(t),Y(l)]),'#D08A2E',2);gl(g,st7.tr.map(([t,,s])=>[X(t),Y(s)]),C.purple,2);}
+    gt(g,I.left,b.r-4,b.t+6,{a:'right',sz:9,w:600,c:'#D08A2E'});gt(g,I.sig,b.r-4,b.t+18,{a:'right',sz:9,w:600,c:C.purple});gt(g,'t [s]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:'1.5 Torr',T:`${st7.Tw.toFixed(0)} °C`,hf:'5 kW',gas:'O₂ + N₂/H₂'};},
+};
+function surf7(x){const{x0,base,sc,per,lw,lh}=Z7;if(st7.lvl>0)return base-st7.lvl*sc-(st7.crust>0?st7.crust*sc*3:0);
+  const u=((x-x0)%per+per)%per,inLine=u>=per/2-lw/2&&u<=per/2+lw/2;return inLine?base-lh*sc:base;}
+
+/* ---- 9 · NF₃ chamber clean ---- */
+const st8={};
+const FZ=[1.4,1.25,1.15,1.05,1,.95,.9,.8,.7,.6];
+function cl8(){const F=S.q8*3*.97*.85,F0=2*3*.97*.85,rate=Math.pow(F/F0,.8)*arr(.12,S.T8,573),tc=S.d8*1.4/rate,need=S.d8*1e-4*2000*.0367*4,sup=F/22.4*tc,g=S.q8/22.4*71*tc;
+  return{rate,tc,util:need/sup,g,co2:g*.01*17200/1000};}
+function reset8(){Object.assign(st8,{t:0,z:FZ.map(f=>f*S.d8),tr:[],ep:null,sig:0,done:false});parts=[];fx=[];}
+SC[8]={legend:['F','NF3','SiF4'],cls:'tall',
+  init(){reset8();},
+  update(dt){const f=dt*60,m=cl8();
+    if(!st8.done){const dtm=dt*10/60;st8.t+=dt*10;let n=0;for(let i=0;i<10;i++){if(st8.z[i]>0){st8.z[i]=Math.max(0,st8.z[i]-m.rate*dtm);n++;}}
+      st8.sig+=(n/10*m.rate-st8.sig)*Math.min(1,dt*10/8);st8.tr.push([st8.t,st8.sig]);if(st8.ep==null&&n===0&&st8.sig<.05*m.rate){st8.ep=st8.t;st8.done=true;}}
+    simRPS(dt,{I:1,gas:'NF3',mix:true,feed:.18+.06*S.q8,fd:.97,kR:.0004,noWafer:true,kC:.001,onWall:(p,i)=>{if(st8.z[i]>0&&rnd()<.4){p.dead=true;const s=spawn('SiF4',p.x,p.y);s.z='ex';addFlash(p.x,p.y,'15,157,88',.3,6);}}});
+    void f;},
+  draw(){const dep=st8.z.map(d=>d>0?Math.min(9,2+d*3.5):0);drawBaseR({on:true,I:1,gas:'NF3',ar:'2 slm',nf3:`${S.q8} slm`,acSub:'8 kW',p:'3 Torr',noWafer:true,Tw:S.T8,dep,pump:true,epd:st8.sig/Math.max(.01,cl8().rate)});drawParts();drawFx();},
+  inst(){const I=IL('s8');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.nf3,`<div class="ctls">${rng('r8q',I.nf3,.5,4,.1,S.q8)}${rng('r8d',I.d,.5,5,.1,S.d8)}${rng('r8T',I.T,100,400,10,S.T8)}<div class="seg-row"><button class="btn" id="b8r">${I.run}</button></div>
+      <div class="stats four">${statH('s8t',I.t)}${statH('s8u',I.util)}${statH('s8g',I.use)}${statH('s8c',I.co2)}</div></div>`);},
+  bind(){bindRange('r8q',()=>S.q8,v=>S.q8=v,()=>`${S.q8.toFixed(1)} slm`,reset8);bindRange('r8d',()=>S.d8,v=>S.d8=v,()=>`${S.d8.toFixed(1)} µm`,reset8);bindRange('r8T',()=>S.T8,v=>S.T8=v,()=>`${S.T8} °C`,reset8);$('b8r').onclick=reset8;},
+  chart(){const I=IL('s8'),m=cl8();
+    setStat('s8t',`${(m.tc*60).toFixed(0)}<small> s</small>`);setStat('s8u',`${(m.util*100).toFixed(0)}<small> %</small>`,m.util>.2?'pass':m.util<.08?'fail':'');setStat('s8g',`${m.g.toFixed(1)}<small> g</small>`);setStat('s8c',`${m.co2.toFixed(1)}<small> kg</small>`);
+    setMsg(st8.done?I.msgDone:I.msgRun,st8.done?'':'info');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:36,r:W-10,t:12,b:H-16},tm=Math.max(60,m.tc*60*1.25,st8.t*1.05),X=t=>b.l+t/tm*(b.r-b.l),ym=Math.max(1.2,m.rate*1.2),Y=v=>b.b-v/ym*(b.b-b.t);
+    const st=tm>200?60:30;for(let t=0;t<=tm;t+=st){gl(g,[[X(t),b.t],[X(t),b.b]],C.line,1);gt(g,String(t),X(t),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+    gl(g,[[b.l,b.b],[b.r,b.b]],'#CBD2DC',1);
+    if(st8.tr.length>1)gl(g,st8.tr.map(([t,s])=>[X(t),Y(s)]),C.green,2.2);
+    if(st8.ep!=null){gl(g,[[X(st8.ep),b.t],[X(st8.ep),b.b]],C.purple,1.3,[4,3]);gt(g,I.ep,X(st8.ep)+4,b.t+8,{sz:9,w:600,c:C.purple});}
+    gt(g,'SiF₄',b.l+4,b.t+6,{sz:9,mono:true,c:C.green});gt(g,'t [s]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:'3 Torr',T:`${S.T8} °C`,hf:'8 kW',gas:`NF₃ ${S.q8.toFixed(1)} + Ar`};},
+};
+
+/* ---- 10 · Process window ---- */
+const BASE9={P9:3,p9:1.5,T9:200,Q9:5,fg9:0};
+SC[9]={legend:['O','O2','CO2'],cls:'tall',
+  init(){parts=[];fx=[];prA.fill(1);prHold=0;},
+  update(dt){const m=pw9(),a=clamp((S.p9-.5)*.12,0,.4);simRPS(dt,{I:.45+.55*Math.sqrt(S.P9/10),gas:'O2',feed:.2+.04*S.Q9,fd:.3,react:clamp(m.rate/6,.03,.9)});
+    ashPR(dt,r=>1-a*r*r,clamp(m.rate/3*.16,0,.6));},
+  draw(){drawBaseR({on:true,I:.45+.55*Math.sqrt(S.P9/10),gas:'O2',o2:`${S.Q9} slm`,fg:S.fg9>0?`${S.fg9} %`:false,acSub:`${S.P9} kW`,p:`${S.p9.toFixed(1)} Torr`,pr:true,Tw:S.T9,pump:true});drawParts();drawFx();},
+  inst(){const I=IL('s9');return card('MODEL',I.out,`<div class="crow"><div style="flex:1;min-width:0"><div class="stats">${statH('o_r',I.rate)}${statH('o_u',I.u)}${statH('o_o',I.ox)}${statH('o_w',I.wph)}${statH('o_s',I.spec)}</div></div><canvas class="chart" id="chA" style="flex:0 0 46%"></canvas></div>`)+
+    card('RECIPE',I.knobs,`<div class="ctls g2">${rng('k_P',I.P,1,10,.5,S.P9)}${rng('k_p',I.p,.5,3,.1,S.p9)}${rng('k_T',I.T,150,300,5,S.T9)}${rng('k_Q',I.Q,2,10,.5,S.Q9)}${rng('k_f',I.fg,0,20,1,S.fg9)}
+      <div class="seg-row"><button class="btn" id="b9r">${I.reset}</button></div></div>`);},
+  bind(){bindRange('k_P',()=>S.P9,v=>S.P9=v,()=>`${S.P9} kW`);bindRange('k_p',()=>S.p9,v=>S.p9=v,()=>`${S.p9.toFixed(1)} Torr`);bindRange('k_T',()=>S.T9,v=>S.T9=v,()=>`${S.T9} °C`);
+    bindRange('k_Q',()=>S.Q9,v=>S.Q9=v,()=>`${S.Q9} slm`);bindRange('k_f',()=>S.fg9,v=>S.fg9=v,()=>`${S.fg9} %`);$('b9r').onclick=()=>{Object.assign(S,BASE9);renderInst();};},
+  chart(){const I=IL('s9'),m=pw9(),ok={r:m.rate>=3,u:m.nu<=5,o:m.ox<=15},all=ok.r&&ok.u&&ok.o;
+    setStat('o_r',`${m.rate.toFixed(2)}<small> µm/min</small>`,ok.r?'pass':'fail');setStat('o_u',`± ${m.nu.toFixed(1)}<small> %</small>`,ok.u?'pass':'fail');setStat('o_o',`${m.ox.toFixed(1)}<small> Å</small>`,ok.o?'pass':'fail');
+    setStat('o_w',`${m.wph.toFixed(0)}<small> wph</small>`);setStat('o_s',all?I.pass:I.fail,all?'pass':'fail');setMsg(all?'✓ '+I.spec+' '+I.pass:'',all?'':'info');
+    if(frameN%6)return;const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:30,r:W-30,t:10,b:H-16},X=T=>b.l+(T-150)/150*(b.r-b.l),Yr=v=>b.b-v/8*(b.b-b.t),Yo=v=>b.b-v/30*(b.b-b.t);
+    [150,200,250,300].forEach(T=>{gl(g,[[X(T),b.t],[X(T),b.b]],C.line,1);gt(g,T+'°',X(T),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    [0,4,8].forEach(v=>gt(g,String(v),b.l-4,Yr(v),{a:'right',sz:9,mono:true,c:C.purple}));[0,15,30].forEach(v=>gt(g,v+'Å',b.r+4,Yo(v),{sz:9,mono:true,c:C.coral}));
+    gl(g,[[b.l,Yr(3)],[b.r,Yr(3)]],C.purple,1,[3,3]);gl(g,[[b.l,Yo(15)],[b.r,Yo(15)]],C.coral,1,[3,3]);
+    const T0=S.T9,pr=[],po=[];for(let T=150;T<=300;T+=3){S.T9=T;const q=pw9();pr.push([X(T),Yr(q.rate)]);po.push([X(T),Yo(q.ox)]);}S.T9=T0;
+    gl(g,pr,C.purple,2.2);gl(g,po,C.coral,1.8);gt(g,I.rate,b.l+4,b.t+6,{sz:9,w:600,c:C.purple});gt(g,I.ox,b.l+4,b.t+18,{sz:9,w:600,c:C.coral});gl(g,[[X(T0),b.t],[X(T0),b.b]],C.green,1.3,[2,3]);},
+  rd(){return{p:`${S.p9.toFixed(1)} Torr`,T:`${S.T9} °C`,hf:`${S.P9} kW`,gas:S.fg9>0?`O₂ + ${S.fg9} % N₂/H₂`:'O₂'};},
+};
+
+/* ---- 11 · Takeaways ---- */
+SC[10]={legend:[],cls:'none',init(){parts=[];fx=[];},draw(){},inst(){return'';},rd(){return{p:'—',T:'—'};}};
+function renderTK(){const k=L().tk;
+  $('stageHtml').innerHTML=`<div class="tk-hero"><div><h2>${k.h}</h2><p>${k.p}</p></div><div class="tk-btns"><button class="btn pri" id="tkb1">${k.btn1}</button><button class="btn" id="tkb2">${k.btn2}</button></div></div>
+  <div class="tk-grid">
+    <div class="tk-sec"><h4>${k.sPr}</h4><div class="pr-list">${k.pr.map(([a,b],i)=>`<div class="pr"><span class="n">${i+1}</span><div><b>${a}</b><span>${b}</span></div></div>`).join('')}</div></div>
+    <div class="tk-sec"><h4>${k.sWin}</h4>${k.win.map(([a,b])=>`<div class="kv"><span>${a}</span><span>${b}</span></div>`).join('')}<div class="tk-note">${k.winNote}</div></div>
+    <div class="tk-sec" style="grid-column:1/-1;overflow-x:auto"><h4>${k.sTab}</h4><table class="tk-table"><thead><tr>${k.th.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${k.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="tk-sec"><h4>${k.sMyth}</h4><div class="myths">${k.myths.map(([a,b])=>`<div class="myth-row"><span class="x">${a}</span><span class="a">→</span><span class="o">${b}</span></div>`).join('')}</div></div>
+    <div class="tk-sec"><h4>${k.sLim}</h4>${k.lim.map(([a,b])=>`<div class="lim-row"><span>${a}</span><span class="a">→</span><span>${b}</span></div>`).join('')}</div>
+  </div>`;
+  $('tkb1').onclick=()=>window.open('./icp_al_etch_v5.html','_blank','noopener');$('tkb2').onclick=()=>window.open('./ccp_oxide_cvd_v5.html','_blank','noopener');}
+function openPop(src,cap){$('popImg').src=src;$('popCap').textContent=cap;$('pop').classList.add('show');}
+function closePop(){$('pop').classList.remove('show');}
+$('pop').addEventListener('click',e=>{if(e.target.id==='pop'||e.target.id==='popX')closePop();});
+
+/* ============================== UI SHELL ============================== */
+const ICON={
+  try:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9l5 12 1.8-5.2L21 14z"/><path d="M7.2 2.2L8 5.1"/><path d="M5.1 8L2.2 7.2"/><path d="M14 4.1L12 6"/><path d="M6 12l-1.9 2"/></svg>',
+  myth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+};
+const RMAP=[null,2,3,4,4,4,4,'d',null,4,'all'];
+let lastRec='',lastRd='',lastMsg='';
+function renderRecipe(){const R=L().recipe;let on=RMAP[cur];
+  if(on==='d')on=[1,4,6,7][st7.ph];
+  const key=lang+'|'+on;if(key===lastRec)return;lastRec=key;
+  $('recipe').innerHTML=`<span class="recipe-k">${L().recipeK}</span>`+R.map((r,i)=>`${i?'<span class="rp-sep">›</span>':''}<span class="rp ${on==='all'?'done':i===on?'on':(on!=null&&i<on?'done':'')}">${r}</span>`).join('');}
+function setMsg(s,cls){const k=s+'|'+cls;if(k===lastMsg)return;lastMsg=k;const m=$('msg');m.textContent=s||'';m.className='msg '+(cls||'');}
+function setReadouts(){const r=SC[cur].rd?SC[cur].rd():null,R=L().rd;if(!r)return;
+  let h=`<span class="rd"><b>${R.p}</b>${r.p}</span><span class="rd"><b>${R.T}</b>${r.T}</span>`;
+  if(cur!==10)h+=`<span class="rd ${r.hf?'on':''}"><b>${R.hf}</b>${r.hf||R.off}</span>`;
+  if(r.lf)h+=`<span class="rd on"><b>${R.lf}</b>${r.lf}</span>`;if(r.gas)h+=`<span class="rd"><b>${R.gas}</b>${r.gas}</span>`;if(r.slow)h+=`<span class="rd slow">${R.slow}</span>`;
+  if(h!==lastRd){$('readouts').innerHTML=h;lastRd=h;}}
+let lastLeg='';
+function renderLegend(){const keys=SC[cur].legend||[],sp=L().sp;const k=lang+keys.join();if(k===lastLeg)return;lastLeg=k;
+  $('legend').innerHTML=keys.map(s=>{const d=SP[s];const cls=d.cat==='i'?'ion':d.cat==='p'?'pw':'';return`<span class="lg"><i class="${cls}" style="${d.cat==='p'?'':'background:'+d.c}"></i>${sp[s]}</span>`;}).join('');
+  $('lblBtn').style.display=keys.length&&!SC[cur].noLabels?'':'none';}
+function renderInst(){const sc=SC[cur],el=$('inst'),h=sc.inst?sc.inst():'';el.innerHTML=h;el.className='inst'+(sc.cls&&sc.cls!=='none'?' '+sc.cls:'');el.style.display=h?'':'none';sc.bind&&sc.bind();}
+function renderSide(){const s=L().steps[cur],n=L().steps.length;
+  $('chap').textContent=L().chapters[s.ch];$('scount').textContent=`${String(cur+1).padStart(2,'0')} ${L().of} ${n}`;
+  $('sTitle').innerHTML=s.title;const lead=cur===10?L().tk.p:s.lead;$('sLead').innerHTML=lead;
+  let body=s.body;
+  if(cur===0)body+=`<div class="parts">${Object.keys(L().parts).map(id=>`<button class="part ${pinPart===id?'on':''}" data-p="${id}">${L().parts[id][0]}</button>`).join('')}</div>`;
+  if(cur===10)body=`<div class="parts">${L().steps.slice(0,10).map((t,i)=>`<button class="part" data-go="${i}">${String(i+1).padStart(2,'0')} · ${t.title}</button>`).join('')}</div>`;
+  $('sBody').innerHTML=body;
+  $('sCo').innerHTML=s.co.map(([k,t])=>`<div class="co ${k}">${ICON[k]}<div><span class="tag">${L().tags[k]}</span>${t}</div></div>`).join('');
+  $('sDd').innerHTML=s.dd.map(d=>`<details class="dd"><summary><span class="db">${L().dd}</span><span class="dt">${d.t}</span><span class="chev">▼</span></summary><div class="dd-in">${d.b}</div></details>`).join('');
+  $('sBody').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pinPart=pinPart===b.dataset.p?null:b.dataset.p;$('sBody').querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x.dataset.p===pinPart));tipPinned();});
+  $('sBody').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $('prog').style.width=((cur+1)/n*100)+'%';
+  $('prevBtn').disabled=cur===0;$('nextBtn').disabled=cur===n-1;$('prevBtn').textContent=L().prev;$('nextBtn').textContent=L().next;$('kbd').textContent=L().kbd;
+  $('pills').querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',+p.dataset.i===cur));}
+function renderPills(){let h='',prev=-1;L().steps.forEach((s,i)=>{if(prev!==-1&&s.ch!==prev)h+='<span class="pill-gap"></span>';prev=s.ch;h+=`<button class="pill" data-i="${i}" title="${s.title.replace(/"/g,'&quot;')}">${i+1}</button>`;});
+  $('pills').innerHTML=h;$('pills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>go(+b.dataset.i));}
+function tipPinned(){if(cur!==0||!pinPart){showTip(null);return;}const p=partById(pinPart),[x,y,w]=p.r[0];showTip(pinPart,OX+(x+w/2)*RS,OY+y*RS);}
+function enterScene(keepInst){fx=[];SC[cur].init();lastLeg='';renderLegend();if(!keepInst)renderInst();}
+function go(i){const n=L().steps.length;if(i<0||i>=n)return;cur=i;hoverPart=null;if(i!==0)pinPart=null;showTip(null);setMsg('','');
+  $('stageHtml').classList.toggle('show',i===10);if(i===10)renderTK();
+  enterScene();renderSide();renderRecipe();setReadouts();$('sideScroll').scrollTop=0;}
+function setLang(l){lang=l;document.documentElement.lang=l;$('btnEN').classList.toggle('active',l==='en');$('btnKO').classList.toggle('active',l==='ko');
+  $('hTitle').textContent=L().title;$('hSub').textContent=L().sub;$('lblBtn').textContent=L().labels;lastRec=lastRd=lastLeg=lastMsg='';
+  renderPills();renderSide();renderInst();renderRecipe();renderLegend();setReadouts();if(cur===10)renderTK();if(cur===0)tipPinned();}
+
+$('btnEN').onclick=()=>setLang('en');$('btnKO').onclick=()=>setLang('ko');
+$('prevBtn').onclick=()=>go(cur-1);$('nextBtn').onclick=()=>go(cur+1);
+$('lblBtn').onclick=()=>{S.labels=!S.labels;$('lblBtn').classList.toggle('on',S.labels);};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePop();return;}const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+  if(e.key==='ArrowRight'){go(cur+1);e.preventDefault();}if(e.key==='ArrowLeft'){go(cur-1);e.preventDefault();}});
+cv.addEventListener('mousemove',e=>{if(cur!==0){cv.style.cursor='default';return;}const r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,x=(sx-OX)/RS,y=(sy-OY)/RS;
+  hoverPart=partAt(x,y);cv.style.cursor=hoverPart?'pointer':'default';if(hoverPart)showTip(hoverPart,sx,sy);else tipPinned();});
+cv.addEventListener('mouseleave',()=>{hoverPart=null;tipPinned();});
+cv.addEventListener('click',e=>{if(cur!==0)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left-OX)/RS,y=(e.clientY-r.top-OY)/RS,id=partAt(x,y);
+  pinPart=id&&id!==pinPart?id:null;$('sBody').querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===pinPart));});
+
+/* ---------- main loop ---------- */
+let last=performance.now(),rdT=0;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;frameN++;
+  if(!(SC[cur].pausable&&S.paused))phase+=dt*TAU*FA;
+  const sc=SC[cur];
+  if(cur!==10){beginFrame();if(sc.update&&!(SC[cur].pausable&&S.paused))sc.update(dt);if(!(SC[cur].pausable&&S.paused))stepFx(dt);sc.draw();}
+  if(sc.chart)sc.chart(dt);
+  rdT+=dt;if(rdT>.15){rdT=0;setReadouts();if(cur===7){renderRecipe();renderLegend();}if(cur===1)renderLegend();}
+  requestAnimationFrame(loop);}
+setLang('en');go(0);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>requestAnimationFrame(loop));
+</script>
+</body>
+</html>

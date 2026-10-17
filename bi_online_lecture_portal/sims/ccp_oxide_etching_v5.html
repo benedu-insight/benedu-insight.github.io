@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCP Oxide Etch v5 — Interactive Lesson · Benedu Insight</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/benedu-insight/benedu-insight.github.io/refs/heads/main/logo_png/benedu_insight_Symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8FAFB; --card:#FFFFFF; --border:#E2E8F0; --line:#EEF2F6;
+  --text:#1A202C; --ink2:#334155; --muted:#64748B; --label:#94A3B8;
+  --green:#0F8C50; --green-lt:#E6F4ED; --green-dk:#0A6B3C;
+  --purple:#7030A0; --purple-lt:#F0E8F8; --purple-mid:#9B59D0; --purple-dk:#521A78;
+  --coral:#E8553B; --coral-lt:#FDEEEA; --coral-dk:#8A2E1C;
+  --amber:#B7791F; --amber-lt:#FEF6E4; --amber-dk:#7A4E0B;
+  --shadow:0 2px 12px rgba(15,23,42,.06);
+  --hdr:56px; --side:440px;
+  --sans:'Google Sans',system-ui,sans-serif;
+  --mono:var(--sans);
+  --serif:var(--sans);
+  --code:'JetBrains Mono','Noto Sans KR',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html[lang=ko]{--sans:'Google Sans','Noto Sans KR',system-ui,sans-serif}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font-family:inherit}
+
+/* ── Header ── */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hdr);z-index:50;display:flex;align-items:center;gap:14px;
+  padding:0 20px;background:var(--card);border-bottom:1px solid var(--border)}
+.hdr-logo{height:32px;display:block}
+.hdr-div{width:1px;height:26px;background:var(--border)}
+.hdr-title{font-size:15px;font-weight:700;color:var(--purple);line-height:1.2;white-space:nowrap}
+.hdr-sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-top:2px;white-space:nowrap}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:3px;gap:2px}
+.lang-btn{font-family:'Google Sans','Noto Sans KR',sans-serif;white-space:nowrap;font-size:12px;font-weight:600;padding:3px 12px;border-radius:16px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .18s}
+.lang-btn.active{background:var(--purple);color:#fff}
+
+/* ── App grid ── */
+.app{position:fixed;top:var(--hdr);left:0;right:0;bottom:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
+.stage{display:flex;flex-direction:column;gap:8px;padding:10px 10px 10px 12px;min-width:0;min-height:0}
+
+/* recipe bar */
+.recipe{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;overflow:hidden;flex-shrink:0;padding:0 2px}
+.recipe-k{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--label);margin-right:6px;white-space:nowrap}
+.rp{font-size:11px;font-weight:600;color:var(--label);padding:4px 9px;border-radius:999px;border:1px solid var(--border);background:var(--card);white-space:nowrap;transition:all .2s}
+.rp.on{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(112,48,160,.25)}
+.rp.done{color:var(--muted)}
+.rp-sep{color:var(--border);font-size:10px}
+
+/* canvas card */
+.canvas-card{flex:1;min-height:0;position:relative;background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column}
+.cv-wrap{flex:1;min-height:0;position:relative}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sbar{display:flex;align-items:center;gap:6px;padding:6px 10px;border-top:1px solid var(--line);min-height:36px;flex-wrap:wrap;flex-shrink:0}
+.rd{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;color:var(--ink2);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.rd b{font-weight:500;color:var(--label);margin-right:4px}
+.rd.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.rd.slow{color:var(--muted);background:transparent;border-style:dashed}
+.sbar-sp{flex:1}
+.legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2);white-space:nowrap}
+.lg i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.lg i.ion{box-shadow:0 0 0 2px rgba(232,85,59,.25)}
+.lg i.pw{border-radius:2px;background:#CBD5E1;border:1px solid #94A3B8}
+.lbl-btn{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:6px;padding:2px 8px;cursor:pointer}
+.lbl-btn.on{background:var(--purple-lt);color:var(--purple);border-color:#d9c6ec}
+.msg{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--green-lt);color:var(--green-dk);white-space:nowrap}
+.msg.warn{background:var(--coral-lt);color:var(--coral-dk)}
+.msg.info{background:var(--purple-lt);color:var(--purple-dk)}
+.msg:empty{display:none}
+sub,sup{font-size:.72em;line-height:0}
+
+#tooltip{position:absolute;pointer-events:none;z-index:20;max-width:300px;background:rgba(17,24,39,.96);color:#fff;
+  padding:10px 13px;border-radius:10px;font-size:12.5px;line-height:1.55;opacity:0;transition:opacity .12s;
+  box-shadow:0 10px 30px rgba(0,0,0,.28);transform:translate(-50%,calc(-100% - 14px))}
+#tooltip.show{opacity:1}
+#tooltip b{display:block;color:#d8b9f3;margin-bottom:2px;font-size:12.5px}
+
+/* takeaway overlay */
+.stage-html{position:absolute;inset:0;overflow:auto;background:var(--card);display:none;padding:22px 24px 28px}
+.stage-html.show{display:block}
+
+/* instrument panel */
+.inst{flex-shrink:0;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,1fr);gap:8px;height:216px}
+.inst.tall{height:286px}
+.inst.one{grid-template-columns:1fr;height:auto}
+.icard{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:9px 12px;min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.ihead{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ihead h3{font-size:12px;font-weight:600;color:var(--ink2)}
+.badge{display:inline-flex;align-items:center;gap:5px;background:var(--green-lt);color:var(--green);font-size:9.5px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.chart{flex:1;min-height:0;width:100%;display:block}
+.crow{flex:1;min-height:0;display:flex;gap:8px}
+.crow .chart{flex:1;min-width:0;height:100%}
+.ctls{display:flex;flex-direction:column;gap:6px;overflow:auto;min-height:0;padding-right:2px}
+.ctls.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;row-gap:8px;align-content:start}
+.ctls.g2 .seg-row{grid-column:1/-1}
+.ctl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px;line-height:1.25}
+.ctl-h label{font-size:11.5px;color:var(--muted);font-weight:500}
+.ctl-h output{font-family:var(--mono);font-size:11.5px;color:var(--purple);font-weight:600;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--purple-mid));outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:2.5px solid var(--purple);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:2.5px solid var(--purple)}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:2px;gap:2px;flex-wrap:wrap}
+.seg button{border:none;background:transparent;padding:4px 10px;font-size:11.5px;font-weight:600;color:var(--muted);border-radius:6px;cursor:pointer}
+.seg button.on{background:var(--purple);color:#fff}
+.seg-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.seg-row .k{font-size:11.5px;color:var(--muted);min-width:64px}
+.btn{font-size:11.5px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:8px;padding:5px 12px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.btn.pri{background:var(--purple);border-color:var(--purple);color:#fff}
+.btn.pri:hover{background:var(--purple-dk)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.stats.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;min-width:0}
+.stat-k{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--label);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--purple);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-v small{font-size:10px;color:var(--muted);font-weight:500}
+.stat.pass{background:var(--green-lt);border-color:#cde9da}.stat.pass .stat-v{color:var(--green-dk)}
+.stat.fail{background:var(--coral-lt);border-color:#f6d3ca}.stat.fail .stat-v{color:var(--coral-dk)}
+.ticker{font-family:var(--sans);font-size:11.5px;line-height:1.7;color:var(--ink2);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 9px;min-height:68px}
+.ticker div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticker div em{font-style:normal;color:var(--label)}
+.phase-chips{display:flex;flex-wrap:wrap;gap:4px}
+.pc{font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:999px;padding:3px 9px;cursor:pointer}
+.pc.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+.pc.done{color:var(--green-dk);border-color:#cde9da;background:var(--green-lt)}
+.note{font-size:10.5px;color:var(--label);line-height:1.45}
+
+/* ── Side panel ── */
+.side{background:var(--card);border-left:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
+.side-scroll{flex:1;overflow-y:auto;padding:18px 22px 16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.chap{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);background:var(--green-lt);padding:2px 8px;border-radius:4px}
+.scount{font-family:var(--mono);font-size:10px;color:var(--label);letter-spacing:.08em}
+.s-title{font-size:20px;font-weight:700;line-height:1.28;color:var(--text);margin-bottom:8px;letter-spacing:-.005em}
+.s-lead{font-family:var(--sans);font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:10px}
+.s-body{font-size:13px;line-height:1.72;color:#3b4456}
+.s-body ul{padding-left:1.05rem;margin:4px 0}
+.s-body li{margin-bottom:4px}
+.s-body li::marker{color:var(--purple-mid)}
+.s-body b{color:var(--text);font-weight:600}
+code,.s-body code{font-family:var(--mono);font-size:11.5px;background:var(--purple-lt);color:var(--purple-dk);padding:1px 5px;border-radius:4px;white-space:nowrap}
+.parts{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.part{font-size:11.5px;border:1px solid var(--border);background:var(--card);color:var(--ink2);border-radius:999px;padding:3px 10px;cursor:pointer;transition:all .14s}
+.part:hover,.part.on{border-color:#d9c6ec;background:var(--purple-lt);color:var(--purple-dk)}
+.co{display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-top:10px;font-size:12.5px;line-height:1.62}
+.co svg{flex:none;width:18px;height:18px;margin-top:2px}
+.co .tag{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:2px;opacity:.85}
+.co.try{background:var(--purple-lt);color:var(--purple-dk)}
+.co.myth{background:var(--coral-lt);color:var(--coral-dk)}
+.co.key{background:var(--green-lt);color:var(--green-dk)}
+.co.warn{background:var(--amber-lt);color:var(--amber-dk)}
+.dd{margin-top:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card)}
+.dd summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--text);user-select:none}
+.dd summary::-webkit-details-marker{display:none}
+.dd summary .db{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--purple);color:#fff;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.dd summary .dt{flex:1}
+.dd summary .chev{color:var(--label);font-size:10px;transition:transform .2s}
+.dd[open] summary{background:var(--purple-lt);border-bottom:1px solid var(--border)}
+.dd[open] summary .chev{transform:rotate(180deg)}
+.dd-in{padding:12px 14px;font-size:12.5px;line-height:1.75;color:#3b4456;background:var(--bg)}
+.dd-in p+p,.dd-in p+ul,.dd-in ul+p{margin-top:8px}
+.dd-in ul{padding-left:1.05rem}
+.dd-in b{color:var(--text)}
+.eq{font-family:var(--code);font-size:11.5px;line-height:1.7;background:#1F2433;color:#FFD580;border-radius:8px;padding:9px 12px;margin:8px 0;white-space:pre;overflow-x:auto}
+.dd-hl{border-left:3px solid var(--purple);background:var(--purple-lt);color:var(--purple-dk);border-radius:0 8px 8px 0;padding:8px 11px;margin-top:8px;font-size:12px;line-height:1.65}
+.side-foot{flex-shrink:0;border-top:1px solid var(--border);padding:10px 18px 12px;background:var(--card)}
+.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:9px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--purple));transition:width .3s}
+.pills{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:9px}
+.pill{width:28px;height:26px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-family:var(--mono);font-size:11px;font-weight:600;cursor:pointer;transition:all .13s}
+.pill:hover{border-color:#d9c6ec;color:var(--purple);background:var(--purple-lt)}
+.pill.on{background:var(--purple);border-color:var(--purple);color:#fff}
+.pill-gap{width:6px}
+.nav{display:flex;gap:8px}
+.nav button{flex:1;padding:9px;font-size:13px;font-weight:700;border:none;border-radius:9px;background:var(--text);color:#fff;cursor:pointer;transition:background .15s}
+.nav button:hover:not(:disabled){background:var(--purple)}
+.nav button:disabled{background:var(--line);color:var(--label);cursor:not-allowed}
+.kbd{font-family:var(--mono);font-size:9.5px;color:var(--label);text-align:center;margin-top:6px;letter-spacing:.06em}
+
+/* takeaway */
+.tk-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:16px}
+.tk-hero h2{font-size:24px;font-weight:700;letter-spacing:-.01em}
+.tk-hero p{font-family:var(--serif);font-size:14px;color:var(--muted);margin-top:4px}
+.tk-btns{display:flex;gap:8px;flex-wrap:wrap}
+.tk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.tk-sec{border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:var(--card)}
+.tk-sec h4{font-size:11px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+.pr-list{display:grid;gap:8px}
+.pr{display:flex;gap:10px;align-items:flex-start}
+.pr .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.pr b{display:block;font-size:13px}
+.pr span{font-size:12px;color:var(--muted);line-height:1.5}
+.tk-table{width:100%;border-collapse:collapse;font-size:12px}
+.tk-table th{background:var(--purple);color:#fff;font-weight:600;padding:6px 8px;text-align:left}
+.tk-table th:first-child{border-radius:6px 0 0 0}.tk-table th:last-child{border-radius:0 6px 0 0}
+.tk-table td{padding:6px 8px;border-bottom:1px solid var(--line)}
+.tk-table td:nth-child(2){color:var(--purple-dk);font-family:var(--mono);font-size:11.5px}
+.tk-table td:nth-child(3){color:var(--muted);font-family:var(--mono);font-size:11.5px}
+.tk-table tr:nth-child(even) td{background:#FBF8FD}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.kv span:last-child{font-family:var(--mono);color:var(--text);font-weight:600;font-size:12px;text-align:right}
+.myths{display:grid;gap:7px}
+.myth-row{display:grid;grid-template-columns:1fr 18px 1.3fr;gap:6px;align-items:start;font-size:12px;line-height:1.5}
+.myth-row .x{color:var(--coral-dk);text-decoration:line-through;text-decoration-color:rgba(232,85,59,.5)}
+.myth-row .a{color:var(--label);text-align:center}
+.myth-row .o{color:var(--green-dk)}
+.lim-row{display:grid;grid-template-columns:1fr 18px 1fr;gap:6px;font-size:12px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.lim-row .a{color:var(--label);text-align:center}
+.lim-row span:last-child{color:var(--purple-dk);font-weight:600}
+.tk-note{font-size:11px;color:var(--label);margin-top:8px}
+
+/* popup */
+.pop{display:none;position:fixed;inset:0;z-index:300;background:rgba(15,18,30,.78);align-items:center;justify-content:center;padding:28px}
+.pop.show{display:flex}
+.pop-box{position:relative;background:#fff;border-radius:14px;padding:14px;max-width:min(94vw,1100px);max-height:92vh;display:flex;flex-direction:column;gap:8px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.pop-box img{max-width:100%;max-height:calc(92vh - 80px);object-fit:contain;border-radius:8px;display:block}
+.pop-cap{font-size:12.5px;color:var(--muted);text-align:center;line-height:1.5}
+.pop-x{position:absolute;top:-13px;right:-13px;width:32px;height:32px;border-radius:50%;border:none;background:var(--text);color:#fff;font-size:15px;cursor:pointer}
+.pop-x:hover{background:var(--purple)}
+
+/* responsive */
+@media (max-width:1200px){:root{--side:380px}.inst{grid-template-columns:minmax(0,1.2fr) minmax(230px,1fr)}}
+@media (max-width:940px){
+  html,body{overflow:auto;height:auto}
+  .hdr{position:sticky}
+  .hdr-sub{display:none}
+  .hdr{padding:0 12px;gap:10px}
+  .hdr-div{display:none}
+  .hdr-logo{height:26px}
+  .hdr-title{white-space:normal;font-size:12.5px}
+  .lang-btn{padding:3px 9px}
+  .app{position:static;display:block}
+  .stage{padding:10px 16px}
+  .canvas-card{flex:none;height:min(78vw,560px);min-height:300px}
+  .inst,.inst.tall{grid-template-columns:1fr;height:auto}
+  .inst .icard{min-height:200px}
+  .inst .chart{flex:none;height:190px}
+  .inst .crow{flex:none;height:190px}
+  .inst .crow .chart{height:100%;flex:1 1 0;width:auto;min-width:0}
+  .side{border-left:none;border-top:1px solid var(--border)}
+  .side-scroll{overflow:visible;padding:16px}
+  .side-foot{position:sticky;bottom:0}
+  .tk-grid{grid-template-columns:1fr}
+  .recipe{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="https://benedu-insight.github.io/" target="_blank" rel="noopener noreferrer" style="display:inline-flex">
+    <img class="hdr-logo" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight">
+  </a>
+  <div class="hdr-div"></div>
+  <div>
+    <div class="hdr-title" id="hTitle"></div>
+    <div class="hdr-sub" id="hSub"></div>
+  </div>
+  <div class="hdr-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnEN">EN</button>
+      <button class="lang-btn" id="btnKO">한국어</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+  <section class="stage">
+    <div class="recipe" id="recipe"></div>
+    <div class="canvas-card" id="card">
+      <div class="cv-wrap" id="cvWrap">
+        <canvas id="cv"></canvas>
+        <div id="tooltip"></div>
+      </div>
+      <div class="sbar">
+        <div id="readouts" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <span class="msg" id="msg"></span>
+        <span class="sbar-sp"></span>
+        <div class="legend" id="legend"></div>
+        <button class="lbl-btn" id="lblBtn"></button>
+      </div>
+      <div class="stage-html" id="stageHtml"></div>
+    </div>
+    <div class="inst" id="inst"></div>
+  </section>
+
+  <aside class="side">
+    <div class="side-scroll" id="sideScroll">
+      <div class="eyebrow"><span class="chap" id="chap"></span><span class="scount" id="scount"></span></div>
+      <h1 class="s-title" id="sTitle"></h1>
+      <p class="s-lead" id="sLead"></p>
+      <div class="s-body" id="sBody"></div>
+      <div id="sCo"></div>
+      <div id="sDd"></div>
+    </div>
+    <div class="side-foot">
+      <div class="prog"><i id="prog"></i></div>
+      <div class="pills" id="pills"></div>
+      <div class="nav"><button id="prevBtn"></button><button id="nextBtn"></button></div>
+      <div class="kbd" id="kbd"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="pop" id="pop">
+  <div class="pop-box">
+    <button class="pop-x" id="popX" aria-label="Close">✕</button>
+    <img id="popImg" src="" alt="">
+    <div class="pop-cap" id="popCap"></div>
+  </div>
+</div>
+
+<script>
+/* ==================================================================
+   CCP Oxide Etch (SiO₂ RIE) — Interactive Lesson v5 · Benedu Insight
+   C4F8 / O2 / Ar · 11 steps · EN / KO
+   Content (all text) lives in T; the engine follows in the next block.
+   ================================================================== */
+const T = {
+en:{
+  title:'CCP Oxide Etch — SiO₂ RIE with C₄F₈ / O₂ / Ar',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ Prev', next:'Next ▶', kbd:'← → keys to navigate', of:'of',
+  labels:'Labels', explore:'Explore parts',
+  chapters:['Hardware & Setup','Plasma Physics','Etch Process','Summary'],
+  recipeK:'Recipe',
+  recipe:['Load','Pump','Chuck & He','Stabilize','Strike','Main etch','Endpoint · OE','Dechuck','Unload','WAC'],
+  rd:{p:'P',T:'Chuck',hf:'RF',lf:'LF',gas:'Gas',off:'OFF',slow:'RF slowed ≈ 2.7×10⁷×'},
+  tags:{try:'Try it',myth:'Common misconception',key:'Key point',warn:'Note'},
+  dd:'Deep dive',
+  parts:{
+    c4f8:['c-C₄F₈ — fluorocarbon etchant','Octafluorocyclobutane. The plasma breaks it into CF₂, CF and F. It supplies the fluorine that removes SiO₂ and the CFₓ polymer that protects sidewalls, mask and silicon.'],
+    o2:['O₂ — polymer control','Burns carbon to CO, CO₂ and COF₂. More O₂ means less polymer: a faster, more isotropic etch with lower selectivity to resist and silicon.'],
+    ar:['Ar — dilution & main ion','Usually 80–90 % of the flow. Ar⁺ carries most of the ion energy to the surface; dilution also tunes dissociation.'],
+    mfc:['Mass flow controllers','Typical oxide recipe: C₄F₈ 10–30, O₂ 5–20, Ar 200–500 sccm. The C₄F₈ : O₂ ratio is the main selectivity knob.'],
+    top:['Upper electrode — grounded','Showerhead (often a Si plate) at ground. With the chamber walls it forms the large grounded area A_gnd. A Si electrode also scavenges F, which helps selectivity.'],
+    gap:['Process gap (~25 mm)','Bulk plasma between a thin sheath on the grounded side and a thick, high-voltage sheath above the wafer.'],
+    wafer:['Wafer — SiO₂ on Si, resist mask','Sits on the RF-powered chuck, so it receives the energetic ions accelerated by the self-bias.'],
+    fr:['Focus ring','Ring (Si or quartz) around the wafer that extends the electrode so the sheath stays flat up to the wafer edge — it sets edge tilt and uniformity, and it erodes as a consumable.'],
+    esc:['Electrostatic chuck (ESC)','Ceramic layer with an embedded electrode at ±1–2 kV that clamps the wafer electrostatically — no mechanical clamp.'],
+    chuck:['Chuck baseplate — RF powered','The small powered electrode (A_pwr), fed through the blocking capacitor. Coolant channels hold it at −20 to 60 °C.'],
+    iso:['Insulator ring','Isolates the RF-hot chuck from the grounded chamber.'],
+    baffle:['Baffle / pumping plate','Perforated ring around the chuck: lets gas out evenly and helps confine the plasma.'],
+    he:['Backside He','~5–20 Torr of He between wafer and ESC carries away the ion-bombardment heat. Without it the wafer heats by 100 °C or more and the resist burns.'],
+    eschv:['ESC power supply','High-voltage DC that clamps the wafer and, at the end, reverses or discharges to de-chuck it.'],
+    cm:['Capacitance manometer','Absolute pressure gauge; its reading drives the pendulum-valve loop.'],
+    match:['Matching network + blocking capacitor','Matches the plasma to 50 Ω. Its series capacitor blocks DC, so the chuck can charge to a negative self-bias V_DC.'],
+    hf:['RF generator · 13.56 MHz','Classic RIE frequency. Modern dual-frequency etchers use a high frequency (27–100 MHz) here to set plasma density.'],
+    lf:['LF generator · 2 MHz (option)','Low enough for ions to partly follow the field: sets ion energy (hundreds of V to kV) for high-aspect-ratio etching.'],
+    pv:['Pendulum valve','Throttles the turbo pump to hold the mTorr setpoint.'],
+    tmp:['Turbo-molecular pump','Needed for the mTorr regime and high gas throughput; SiF₄, CO and COF₂ leave here toward the dry pump.'],
+    slit:['Slit valve','Wafer transfer door.'],
+    wall:['Chamber wall (grounded)','Part of the grounded area. Collects fluorocarbon polymer that waferless auto-clean (WAC) has to remove.'],
+  },
+  sp:{C4F8:'C₄F₈',O2:'O₂',Ar:'Ar',CF2:'CF₂·',F:'F·',O:'O·',Arp:'Ar⁺',CF3p:'CF₃⁺',Neg:'C₄F₈⁻',e:'e⁻',SiF4:'SiF₄',CO:'CO',fast:'fast neutral',poly:'CFₓ polymer'},
+  I:{
+    hw:{title:'Typical hardware numbers',stats:[['Electrode gap','20–40 mm'],['Pressure','10–100 mTorr'],['Wafer temp.','−20–60 °C'],['RF (HF)','13.56–100 MHz'],['LF (option)','0.4–2 MHz'],['Self-bias','−200 to −1000 V']]},
+    s1:{chart:'Mean free path vs pressure',p:'Pressure',lam:'λ (gas)',sl:'sheath / λ',reg:'Regime',coll:'collisional',trans:'weakly collisional',free:'nearly collisionless',sheath:'chuck sheath ≈ 4–6 mm',gap:'gap 25 mm',cvd:'PE-CVD (2.5 Torr): λ ≈ 25 µm'},
+    s2:{chart:'Optical emission spectrum (OES)',c4:'C₄F₈',o2:'O₂',ar:'Ar',tick:'Recent events',fc:'F/C',poly:'polymer-rich — selective, risk of etch stop',bal:'balanced',fr:'F-rich — fast, low selectivity',rx:{ring:'ring opening',att:'attachment',ion:'ionization',diss:'dissociation',scav:'C scavenging'}},
+    s3:{chart:'Chuck voltage V(t) — self-bias forming',v0:'RF amplitude V_rf',ratio:'Area ratio A_gnd / A_pwr',restart:'Restart',now:'V_DC now',eq:'V_DC final',cyc:'RF cycles',vch:'V_chuck(t)',vp:'V_p(t)',flux:'net e⁻ current → chuck'},
+    s4:{chart:'Potential across the gap  V(x, t)',now:'instantaneous',avg:'time-average',pause:'Pause',play:'Play',vT:'V̄ top sheath',vB:'V̄ chuck sheath',vdc:'Self-bias V_DC',sT:'s̄ top sheath',sB:'s̄ chuck sheath',ei:'Ion energy',x0:'upper electrode (0 V)',x1:'wafer'},
+    s5:{chart:'Ion energy distribution at the wafer (IEDF)',f:'RF',ion:'Ion',vb:'Chuck sheath V̄',p:'Pressure',dE:'ΔE',s:'Sheath s',lam:'λ ion',n:'s / λ',cyc:'RF cycles per transit',zoom:'ZOOM · chuck sheath',edge:'sheath edge',wafer:'wafer surface',cx:'charge exchange'},
+    s6:{chart:'Etch rate by material',E:'Ion energy',o2:'O₂ / C₄F₈',selSi:'SiO₂ : Si',selPR:'SiO₂ : PR',film:'CFₓ on SiO₂',ox:'SiO₂',si:'Si',pr:'Resist',dep:'Net polymer deposition — etch stop',etch:'Ion-assisted etching',zoom:'ZOOM · three surfaces under the same plasma',filmL:'CFₓ film'},
+    s7:{chart:'Profile',E:'Ion energy',o2:'O₂ / C₄F₈',p:'Pressure',play:'Play',pause:'Pause',reset:'Reset',depth:'Depth',ar:'Aspect ratio',angle:'Profile angle',bow:'Max CD',pr:'Resist left',sel:'SiO₂ : PR',stop:'Etch stop — polymer pinched off the bottom',mask:'Mask lost — top CD blowing out',si:'Reached Si — selective stop',run:'Etching…',bowW:'Bowing — too little sidewall polymer',scale:'100 nm'},
+    s8:{chart:'OES endpoint trace — CO 483 nm',open:'Open area',oe:'Over-etch',restart:'Restart',ep:'Endpoint',tot:'Total',rec:'Si recess C / E',res:'Oxide left at the edge — increase over-etch',ok:'All features cleared',wait:'Main etch…',noisy:'Weak, noisy signal — endpoint is uncertain',labels:['Center','Middle','Edge'],sig:'CO signal',main:'main etch',oeR:'over-etch'},
+    s9:{phases:['RF off','He pump-out','Dechuck','Wafer out','WAC (O₂ plasma)','Ready'],wac:'Waferless auto-clean',on:'On',off:'Off',chart:'Wall polymer & etch-rate drift',poly:'wall polymer',dev:'etch-rate drift (%)',wafer:'wafer #',msg:['Plasma off — the self-bias collapses','Backside He pumped out','ESC discharged — lift pins up','Wafer leaves through the slit valve','O₂ plasma burns CFₓ off the walls → CO, CO₂','Chamber ready for the next wafer'],skip:'WAC skipped — polymer keeps building up'},
+  },
+  steps:[
+  { ch:0, title:'Inside an Oxide Etch Chamber',
+    lead:'An asymmetric CCP built to do the opposite of PE-CVD: here the <b>wafer sits on the small, RF-powered electrode</b>, so it receives the energetic ions that a large self-bias provides.',
+    body:`<ul>
+<li><b>Upper electrode</b> — grounded showerhead; with the walls it makes the <b>large grounded area</b></li>
+<li><b>ESC chuck</b> — RF-powered, smaller area, fed through a <b>blocking capacitor</b></li>
+<li><b>Focus ring</b> — keeps the sheath flat up to the wafer edge</li>
+<li><b>Backside He + coolant</b> — remove the heat of ion bombardment</li>
+<li><b>Turbo pump + pendulum valve</b> — 10–100 mTorr, about 100× lower than PE-CVD</li>
+<li>Gas: <code>C₄F₈ + O₂ + Ar</code> — Ar is usually 80–90 % of the flow</li></ul>`,
+    co:[['try','Hover over the drawing — or tap a part below — to see what it does.'],
+        ['key','PE-CVD vs. oxide etch in one line: PE-CVD puts the wafer on the grounded electrode at Torr pressure (soft ions); oxide etch puts it on the powered electrode at mTorr (hard, directional ions).']],
+    dd:[{t:'Classic RIE vs. modern dual-frequency CCP', b:`<p>The textbook RIE uses a single 13.56 MHz supply on the wafer electrode — the model used in this lesson. Its weakness: one knob sets both plasma density (ion flux) and self-bias (ion energy).</p>
+<p>Production oxide etchers are <b>dual-frequency CCPs</b>: a high frequency (27–100 MHz) mainly sets density, a low frequency (0.4–2 MHz) mainly sets ion energy. Some also apply a DC voltage to the upper electrode to release secondary electrons and use a Si electrode to scavenge fluorine.</p>
+<div class="dd-hl">Everything in this lesson — area asymmetry, blocking capacitor, self-bias, IEDF — still applies; dual frequency just splits the two jobs. Step 6 lets you try a 2 MHz source.</div>`}] },
+
+  { ch:0, title:'Recipe Start — Pump, Chuck, Stabilize',
+    lead:'Before RF turns on, the wafer is clamped, cooled and surrounded by gas at a few tens of mTorr. At this pressure <b>a molecule flies millimetres between collisions</b> — the key to directional etching.',
+    body:`<ul>
+<li>Turbo pump + pendulum valve bring the chamber to the setpoint (here 30 mTorr)</li>
+<li>The ESC clamps the wafer; backside He (≈ 10 Torr) fills the space underneath for heat transfer</li>
+<li>MFCs set C₄F₈ / O₂ / Ar; the gas flows outward through the baffle to the pump</li>
+<li>Mean free path λ ∝ 1/p: ~1.8 mm at 30 mTorr vs. ~25 µm at 2.5 Torr (PE-CVD)</li></ul>`,
+    co:[['try','Move the pressure and compare λ with the 4–6 mm chuck sheath. As λ approaches the sheath thickness, ions cross it with only a few collisions — lower pressure means more directional ions. Watch the free paths of the highlighted molecules.'],
+        ['warn','Display: C₄F₈ and O₂ are drawn more often than their real ~5 % share so that they stay visible.']],
+    dd:[{t:'Why clamp electrostatically and cool with helium?', b:`<p>At mTorr there is almost no gas between a wafer and a flat chuck, so heat cannot conduct across the microscopic gap. Ion bombardment deposits roughly the bias power — hundreds of W to kW — into the wafer.</p>
+<div class="eq">no He        : wafer ΔT → 100–200 °C  (resist flows / burns, selectivity drops)
+He ≈ 10 Torr : wafer ΔT ≈ 5–20 °C    (stable, uniform)</div>
+<p>The He pressure must stay well below the clamping pressure, which is why an ESC (electrostatic force over the whole wafer) is used instead of a mechanical edge clamp. Zoned He and coolant let engineers tune the radial temperature profile — temperature changes polymer deposition, and with it etch rate and CD.</p>`}] },
+
+  { ch:1, title:'Ignition & Fluorocarbon Chemistry',
+    lead:'Ignition works just as in PE-CVD (seed electrons → avalanche). What is new is the chemistry: C₄F₈ breaks into <b>fluorine that etches</b> and <b>CFₓ that deposits polymer</b> — and O₂ sets the balance.',
+    body:`<ul>
+<li><code>e⁻ + Ar → Ar⁺ + 2e⁻</code> — ionization (15.8 eV); Ar⁺ is the main ion</li>
+<li><code>e⁻ + c-C₄F₈ → 2 C₂F₄ + e⁻</code>, then <code>C₂F₄ → 2 CF₂</code> — ring opening</li>
+<li><code>e⁻ + CF₂ → CF + F + e⁻</code> — further dissociation releases F</li>
+<li><code>e⁻ + C₄F₈ → C₄F₈⁻</code> — attachment: fluorocarbons are strongly electronegative</li>
+<li><code>O + CFₓ → CO / COF₂ + F</code> — oxygen scavenges carbon and frees fluorine</li></ul>`,
+    co:[['try','Change C₄F₈, O₂ and Ar. Watch the F/C balance and the OES lines: CF₂ band (250–320 nm), F 704 nm, Ar 750 / 811 nm, O 777 nm.'],
+        ['key','Low F/C → polymer-rich → high selectivity but risk of etch stop. High F/C → fast but less selective. Recipes live in between.']],
+    dd:[{t:'The F/C ratio — one number that predicts etch vs. deposition', b:`<p>The classic picture (Coburn & Winters): the fluorine-to-carbon ratio of the active species decides whether a surface is etched or coated.</p>
+<div class="eq">F/C high  (CF₄ + O₂)      → etching dominates
+F/C ≈ 2   (C₄F₈, C₄F₆)     → etching + polymer, selective
+F/C low   (+ H₂, CH₂F₂)    → polymer deposition</div>
+<p>Adding O₂ raises the effective F/C (carbon leaves as CO/COF₂); adding H₂ lowers it (fluorine leaves as HF). Ion bombardment moves the boundary: higher ion energy lets etching win at lower F/C — which is how the same gas etches the trench bottom while it coats the sidewalls.</p>`}] },
+
+  { ch:1, title:'DC Self-Bias Formation',
+    lead:'The moment the plasma touches the chuck, fast electrons reach it more readily than ions. The <b>blocking capacitor</b> traps the excess, and the chuck charges negative until electron and ion currents balance over each cycle.',
+    body:`<ul>
+<li>Over each RF cycle the net DC current into the chuck must be zero — the capacitor passes no DC</li>
+<li>The chuck waveform shifts down: V(t) = V_DC + V_rf·sin ωt, with V_DC → <b>−300 to −500 V</b> here</li>
+<li>Electrons then reach the chuck only during the brief moment its sheath collapses</li>
+<li>Small powered area + large grounded area → the voltage divides unequally: a <b>large sheath at the chuck</b></li></ul>`,
+    co:[['try','Raise A<sub>gnd</sub> / A<sub>pwr</sub> and press Restart: V_DC becomes more negative. At ratio 1 (symmetric) the self-bias disappears.'],
+        ['warn','Time is stretched: the real build-up takes microseconds to milliseconds (hundreds to thousands of RF cycles, set by C_block and the ion current).']],
+    dd:[{t:'Self-bias and the area ratio', b:`<p>Both sheaths carry the same RF current but have different areas. The time-averaged voltage across each scales roughly as the inverse area to a power:</p>
+<div class="eq">V̄_pwr / V̄_gnd ≈ (A_gnd / A_pwr)^q
+q = 4 (ideal collisionless theory), ≈ 1–2.5 measured   (this sim: 1.5)
+V_DC = V̄_gnd − V̄_pwr   (negative on the small powered electrode)</div>
+<p>“Area” means <b>everything grounded that the plasma can reach</b> — upper electrode <i>and</i> walls — not the electrode width. That is why confinement rings and chamber geometry change the bias. With a low-frequency (2 MHz) source |V_DC| can reach 1–2 kV for high-aspect-ratio etching.</p>`},
+        {t:'Why RF — could DC bias the wafer instead?', b:`<p>No. The wafer surface is SiO₂, an insulator. A DC voltage would be cancelled within ~0.1 ms by charge collecting on the oxide (see the PE-CVD lesson, Step 5). RF passes as displacement current through the oxide, the ESC ceramic and the blocking capacitor, and the electron burst at each sheath collapse neutralizes the positive charge the ions deliver.</p>
+<div class="dd-hl">RF does two jobs at once: it sustains the discharge, and — through the blocking capacitor — it creates the DC self-bias that drives ions into the wafer.</div>`}] },
+
+  { ch:1, title:'The Asymmetric Sheath',
+    lead:'With the self-bias in place, the chuck sheath carries hundreds of volts and grows to <b>several millimetres</b>; the grounded side keeps a thin, low-voltage sheath. Ions fall through the large one straight into the wafer.',
+    body:`<ul>
+<li>Chuck sheath: V̄ ≈ 400–500 V → s ≈ 4–6 mm (Child law)</li>
+<li>Upper-electrode sheath: V̄ ≈ 100 V → s ≈ 1–2 mm, little bombardment</li>
+<li>Ion energy at the wafer ≈ e·V̄<sub>chuck sheath</sub> = e·(V̄<sub>p</sub> − V_DC) — hundreds of eV</li>
+<li>Compare PE-CVD: sheaths ~0.5–1 mm and tens of volts at the wafer</li></ul>`,
+    co:[['try','Pause and step through the cycle. Ions always go outward; the chuck sheath collapses only for a short moment each cycle.'],
+        ['myth','“Ion energy = e·|V_DC + V_rf|.” Ions gain the potential between plasma and wafer, averaged over their transit: E ≈ e·(V̄<sub>p</sub> − V_DC). The spread around that value depends on frequency and ion mass (next step).']],
+    dd:[{t:'How thick is the sheath at mTorr?', b:`<div class="eq">λ_D ≈ 0.13 mm   (Tₑ ≈ 3 eV, nₑ ≈ 10¹⁰ cm⁻³)
+collisionless Child:  s ≈ 0.47·λ_D·(2V/Tₑ)^(3/4)
+   V = 100 V → 1.4 mm      V = 500 V → 4.7 mm</div>
+<p>At 30 mTorr the ion mean free path (~2 mm) is about half the sheath thickness: some ions cross without a collision and arrive with the full sheath energy, while charge exchange creates a lower-energy population (next step). Lower pressure raises the high-energy share. Here the sheath edge moves inside a fixed ion space charge, s(t) ≈ s̄·√(v(t)/V̄), and the electron burst reaches the chuck when v(t) → 0.</p>`}] },
+
+  { ch:1, title:'Ion Energy Distribution (IEDF)',
+    lead:'The sheath voltage oscillates, so ions do not all arrive with the same energy. How wide the spread is depends on <b>how many RF cycles an ion needs to cross the sheath</b>.',
+    body:`<ul>
+<li>Ions that take many RF cycles to cross feel the average → a narrow, <b>bimodal</b> IEDF around e·V̄</li>
+<li>Heavier ions and higher frequency → narrower; light ions and low frequency → wider</li>
+<li>At 2 MHz ions largely follow the field → the IEDF spans ~0 to 2e·V̄</li>
+<li>Collisions in the sheath add a low-energy tail and fast neutrals</li></ul>`,
+    co:[['try','Switch 2 / 13.56 / 60 MHz and the ion mass, then raise the pressure. Which setting gives the tightest energy control?'],
+        ['key','A narrow IEDF gives precise control — enough energy to etch oxide, but below the energy that damages the layer underneath.']],
+    dd:[{t:'Where the bimodal width comes from', b:`<div class="eq">ΔE ≈ (8·e·V̄ / 3ω·s̄) · √(2e·V̄ / M)      (Benoit-Cattin)
+Ar⁺, V̄ = 500 V, s̄ ≈ 4.7 mm :
+   60 MHz → ΔE ≈ 40 eV   13.56 MHz → ≈ 190 eV   2 MHz → ≈ 2e·V̄</div>
+<p>The two peaks come from ions that crossed while the sheath voltage was near its minimum and its maximum — a sine wave spends most of its time near its extremes. ΔE ∝ (1/ω)·√(1/M): that is why dual-frequency etchers use a low frequency to <i>raise</i> ion energy and accept a broad IEDF, or use tailored waveforms to sharpen it.</p>
+<div class="dd-hl">Model: E = V̄ + (ΔE/2)·sin φ sampled over phase, limited to 0…2V̄, plus charge-exchange collisions with σ ≈ 5×10⁻¹⁹ m².</div>`}] },
+
+  { ch:2, title:'Surface Reaction & Selectivity',
+    lead:'Fluorine alone etches SiO₂ only slowly. Oxide etches when <b>energetic ions drive fluorocarbon into the surface</b> — and the oxygen inside SiO₂ keeps that polymer thin. That is the secret of selectivity.',
+    body:`<ul>
+<li>CFₓ radicals form a thin fluorocarbon film on every surface</li>
+<li>Ion impact mixes film and substrate: <code>SiO₂ + CFₓ → SiF₄↑ + CO↑ / COF₂↑</code></li>
+<li>On <b>SiO₂</b> the oxide's own oxygen burns the carbon → thin film (~1 nm) → etching continues</li>
+<li>On <b>Si</b> and <b>resist</b> nothing removes the carbon → thicker film → ions are stopped → <b>selectivity</b></li>
+<li>Etch yield rises roughly as √E − √E<sub>th</sub> (threshold: tens of eV)</li></ul>`,
+    co:[['try','Lower the ion energy until the film wins (etch stop), then raise O₂ and watch the selectivity fall.'],
+        ['myth','“F atoms etch SiO₂ chemically; ions only add speed.” Thermal F etches SiO₂ very slowly. Oxide etching in fluorocarbon plasmas is ion-driven — which is also what makes it directional.']],
+    dd:[{t:'Why oxide etches but silicon stops', b:`<p>The steady-state fluorocarbon film balances deposition (CFₓ flux) against removal (ion-driven reaction and sputtering).</p>
+<ul><li><b>SiO₂</b>: every etched SiO₂ unit releases oxygen that leaves as CO/COF₂, consuming carbon from the film. The film stays ~1–2 nm and ions reach the interface.</li>
+<li><b>Si</b>: no oxygen in the substrate; the film grows to several nm and ions spend their energy in it, not in Si. Etching slows by an order of magnitude or more.</li>
+<li><b>Photoresist</b>: carbon-rich, so it also polymerizes; H and O in the resist give an intermediate film.</li></ul>
+<p>This is how oxide-to-silicon selectivities of 20 : 1 and higher are achieved — and why too much O₂, or too much ion energy, destroys them.</p>`}] },
+
+  { ch:2, title:'Trench Profile — Anisotropy, ARDE & Mask',
+    lead:'Directional ions etch the bottom, polymer protects the sidewalls, and the mask erodes slowly. The final profile is a <b>race between these rates</b>.',
+    body:`<ul>
+<li><b>Anisotropy</b>: ion angular spread (≈ √(Tₑ/2E), plus sheath collisions) sets how much reaches the sidewalls</li>
+<li><b>Sidewall passivation</b>: CFₓ polymer blocks lateral etching — too little → <b>bowing</b>, too much → <b>taper / etch stop</b></li>
+<li><b>ARDE</b>: deeper, narrower features etch slower — fewer neutrals and ions reach the bottom</li>
+<li><b>Mask selectivity</b>: the resist erodes at ER<sub>ox</sub> / selectivity and must survive the whole etch</li></ul>`,
+    co:[['try','Etch with the default recipe, then try: high O₂ (bowing, mask loss) · low ion energy with no O₂ (taper → etch stop) · high pressure (wider ion angles).'],
+        ['warn','Teaching model: trends follow published fluorocarbon-etch behavior; dimensions and rates are illustrative.']],
+    dd:[{t:'Charging and other high-aspect-ratio effects', b:`<p>Inside a deep insulating hole, electrons (broad angles) charge the top of the sidewalls negative while ions (narrow angles) charge the bottom positive. The bottom potential can reach tens of volts and deflect incoming ions — causing <b>twisting</b>, <b>notching</b> at the bottom and more ARDE.</p>
+<p>Remedies include pulsed plasmas (electrons reach the bottom during the off-time), negative-ion extraction and higher ion energy. These are the frontier problems of 3D-NAND channel-hole etching (aspect ratio > 50).</p>`}] },
+
+  { ch:2, title:'Endpoint & Over-etch',
+    lead:'The wafer never clears everywhere at once. The tool watches the plasma light to know <b>when the oxide is gone</b>, then adds a controlled over-etch so the slowest feature also clears.',
+    body:`<ul>
+<li>While oxide etches, CO from the reaction emits at 483 nm; when the oxide clears, the signal drops</li>
+<li>Endpoint = detected drop, then <b>over-etch</b> (often 20–50 % of the main-etch time)</li>
+<li>Center and edge etch at slightly different rates → the fast region sits on Si during over-etch</li>
+<li>That is why SiO₂ : Si selectivity matters: it limits <b>Si recess</b> where features cleared early</li></ul>`,
+    co:[['try','Drop the open area to 1–2 % (like contact holes): the signal becomes weak and noisy. Then set over-etch to 0 % and check the edge.']],
+    dd:[{t:'Endpoint detection in practice', b:`<p>The signal change scales with the area being etched. For a pattern with 1 % open area the CO line changes by only a fraction of a percent, buried in plasma noise. Fabs use multi-wavelength OES with principal-component analysis, interferometric endpoint on large features, or a timed etch with tight rate control.</p>
+<p>Too little over-etch leaves oxide in slow regions (open contacts); too much recesses Si, erodes the mask and enlarges the CD. The over-etch is set from the measured rate non-uniformity plus margin.</p>`}] },
+
+  { ch:2, title:'After the Etch — Dechuck, WAC & Ready',
+    lead:'Once the oxide is cleared, the wafer must be released safely and the chamber restored. Fluorocarbon polymer has coated the walls; left alone, it changes the next wafer\'s etch rate.',
+    body:`<ul>
+<li>RF off → backside He pumped out → <b>dechuck</b>: the ESC charge is reversed or discharged before the lift pins rise</li>
+<li>The wafer leaves through the slit valve</li>
+<li><b>WAC (waferless auto-clean)</b>: an O₂ plasma burns the CFₓ off the walls → CO, CO₂</li>
+<li>A short seasoning step can then restore a reproducible wall state</li></ul>`,
+    co:[['try','Turn WAC off and watch wall polymer and etch-rate drift build up from wafer to wafer.']],
+    dd:[{t:'Why the walls control etch rate', b:`<p>The walls are both a sink and a source: clean walls recombine F and O; polymer-coated walls release CFₓ and consume oxygen. As polymer builds up, the gas-phase F/C ratio drifts — and with it etch rate, selectivity and CD.</p>
+<p><b>Dechuck matters too.</b> Residual charge in the ESC can make the wafer stick or “pop” when the pins lift, causing particles or breakage. Tools apply a reverse voltage and often a short low-power plasma to neutralize the charge.</p>`}] },
+
+  { ch:3, title:'Key Takeaways', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'CCP oxide etch on one page', p:'From area asymmetry to profile control — and the misconceptions corrected along the way.',
+    btn1:'Where oxide RIE is used', btn2:'Open the PE-CVD lesson',
+    cap1:'Spacer etch and contact / via opening — two key oxide RIE applications.',
+    img:'./images/sio2_oxide_etching_en.png',
+    sPr:'Design principles', sTab:'PE-CVD vs. CCP oxide etch vs. ICP etch', sWin:'Typical process window · C₄F₈ / O₂ / Ar oxide etch', sMyth:'Misconceptions corrected', sLim:'Limitations → what solves them',
+    pr:[['Wafer on the small powered electrode','A_gnd ≫ A_pwr + blocking capacitor → large negative self-bias on the chuck.'],
+        ['mTorr pressure','λ ~ mm, comparable to the sheath → directional ions; the high-energy share grows as pressure drops.'],
+        ['Ions drive the reaction','Fluorocarbon film + ion mixing etches SiO₂; fluorine alone is slow.'],
+        ['Polymer is the selectivity','Oxide consumes carbon; Si and resist do not → thin vs. thick film.'],
+        ['Balance F/C with O₂','More O₂: faster, more isotropic, less selective. Less O₂: selective, risk of taper / stop.'],
+        ['Control wafer and walls','ESC + He for temperature, endpoint + over-etch, WAC for reproducibility.']],
+    th:['Parameter','PE-CVD (CCP)','Oxide etch (CCP)','ICP etch'],
+    rows:[['Wafer electrode','grounded','RF-powered','separate RF bias'],
+          ['Pressure','1 – 5 Torr','10 – 100 mTorr','1 – 30 mTorr'],
+          ['Electron density','10⁹ – 10¹⁰ cm⁻³','10¹⁰ – 10¹¹ cm⁻³','10¹¹ – 10¹² cm⁻³'],
+          ['Ion mean free path','~30 – 150 µm','~0.5 – 5 mm','~mm – cm'],
+          ['Sheath at wafer','0.5 – 1 mm, collisional','3 – 6 mm, partly collisional','0.5 – 2 mm'],
+          ['Ion energy at wafer','few – ~50 eV','200 – 1000+ eV','10 – 500 eV (bias)'],
+          ['Flux vs. energy','coupled','coupled (1 f) · split (2 f)','independent'],
+          ['Typical use','SiO₂ / SiN films','SiO₂, SiN, low-k, HAR','Si, poly, metal']],
+    win:[['Pressure','15 – 60 mTorr'],['C₄F₈ / O₂ / Ar','10–30 / 5–20 / 200–500 sccm'],['Self-bias','−300 to −1000 V'],['Etch rate','300 – 800 nm/min'],['SiO₂ : resist','4 – 10 : 1'],['SiO₂ : Si','10 – 30 : 1'],['Profile angle','88 – 90°'],['Chuck temperature','−20 – 60 °C']],
+    winNote:'Typical / illustrative ranges — always check against your tool and recipe.',
+    myths:[['Ion energy = e·|V_DC + V_rf|','E ≈ e·(V̄_p − V_DC), spread set by frequency and ion mass'],
+           ['F radicals etch SiO₂; ions just help','Oxide etching is ion-driven through a fluorocarbon film'],
+           ['C₄F₈ → 2CF₂ + CF₃ + F','Unbalanced; ring opening gives 2 C₂F₄ → 4 CF₂, then CF + F'],
+           ['A_gnd / A_pwr is an electrode width ratio','It is the whole grounded area the plasma sees, walls included'],
+           ['V_DC builds up in seconds','In microseconds to milliseconds'],
+           ['More O₂ is always better','Faster, but selectivity and profile control suffer']],
+    lim:[['Flux & energy coupled (single frequency)','Dual-frequency CCP'],
+         ['Polymer drift on the walls','WAC + seasoning'],
+         ['ARDE & charging in deep holes','Pulsing, higher energy, tailored waveforms'],
+         ['Resist erosion','Hard masks (a-C), low-O₂ steps'],
+         ['Edge tilt / non-uniformity','Focus ring, zoned He / temperature'],
+         ['Si recess during over-etch','High-selectivity over-etch step']],
+  },
+},
+
+ko:{
+  title:'CCP Oxide Etch — C₄F₈ / O₂ / Ar로 SiO₂ RIE',
+  sub:'Interactive Lesson v5 · Benedu Insight',
+  prev:'◀ 이전', next:'다음 ▶', kbd:'← → 키로 이동', of:'/',
+  labels:'라벨', explore:'부품 살펴보기',
+  chapters:['장비 & 준비','Plasma 물리','식각 공정','정리'],
+  recipeK:'Recipe',
+  recipe:['Load','Pump','Chuck & He','Stabilize','Strike','Main Etch','Endpoint · OE','Dechuck','Unload','WAC'],
+  rd:{p:'P',T:'Chuck',hf:'RF',lf:'LF',gas:'Gas',off:'OFF',slow:'RF 속도 ≈ 2.7×10⁷배 느리게'},
+  tags:{try:'직접 해보기',myth:'흔한 오해',key:'핵심',warn:'참고'},
+  dd:'심화학습',
+  parts:{
+    c4f8:['c-C₄F₈ — 불화탄소 식각 가스','Octafluorocyclobutane. Plasma에서 CF₂, CF, F로 분해됩니다. SiO₂를 제거하는 불소와, 측벽·마스크·실리콘을 보호하는 CFₓ Polymer를 함께 공급합니다.'],
+    o2:['O₂ — Polymer 조절','탄소를 CO, CO₂, COF₂로 태웁니다. O₂가 많을수록 Polymer가 줄어 식각이 빠르고 등방적이 되지만, Resist·실리콘 대비 선택비는 낮아집니다.'],
+    ar:['Ar — 희석 & 주 이온','보통 전체 유량의 80–90 %. Ar⁺가 표면에 이온 에너지 대부분을 전달하고, 희석으로 해리 정도도 조절합니다.'],
+    mfc:['Mass Flow Controller','대표적인 산화막 Recipe: C₄F₈ 10–30, O₂ 5–20, Ar 200–500 sccm. C₄F₈ : O₂ 비율이 선택비의 핵심 Knob입니다.'],
+    top:['상부 전극 — 접지','접지된 Showerhead(흔히 Si 판). Chamber 벽과 함께 큰 접지 면적 A_gnd를 이룹니다. Si 전극은 F를 소모해 선택비에도 도움을 줍니다.'],
+    gap:['공정 Gap (~25 mm)','접지 쪽의 얇은 Sheath와 웨이퍼 위의 두꺼운 고전압 Sheath 사이의 Bulk Plasma.'],
+    wafer:['웨이퍼 — Si 위 SiO₂, Resist 마스크','RF가 인가된 Chuck 위에 놓이므로, Self-Bias로 가속된 고에너지 이온을 받습니다.'],
+    fr:['Focus Ring','웨이퍼 둘레의 링(Si 또는 Quartz). 전극을 연장해 웨이퍼 끝까지 Sheath를 평탄하게 유지합니다 — Edge 기울기와 균일도를 결정하며, 소모성 부품입니다.'],
+    esc:['정전 척 (ESC)','±1–2 kV 전극이 내장된 세라믹 층. 기계적 Clamp 없이 웨이퍼를 정전기력으로 고정합니다.'],
+    chuck:['Chuck Baseplate — RF 인가','작은 RF 전극(A_pwr). Blocking Capacitor를 통해 RF가 공급되고, 냉각수 채널로 −20–60 °C를 유지합니다.'],
+    iso:['절연 링','RF가 걸린 Chuck과 접지된 Chamber를 분리합니다.'],
+    baffle:['Baffle / Pumping Plate','Chuck 둘레의 다공 링. 가스를 고르게 빼내면서 Plasma 가둠에도 도움을 줍니다.'],
+    he:['후면 He','웨이퍼와 ESC 사이 ~5–20 Torr의 He가 이온 충격 열을 빼냅니다. 없으면 웨이퍼가 100 °C 이상 올라가 Resist가 탑니다.'],
+    eschv:['ESC 전원','웨이퍼를 고정하는 고전압 DC. 공정 후에는 극성 반전·방전으로 De-chuck합니다.'],
+    cm:['Capacitance Manometer','절대 압력계. 이 값으로 Pendulum Valve 제어 루프가 동작합니다.'],
+    match:['Matching Network + Blocking Capacitor','Plasma를 50 Ω에 정합합니다. 직렬 Capacitor가 DC를 막아, Chuck이 음(−)의 Self-Bias V_DC로 Charging될 수 있습니다.'],
+    hf:['RF Generator · 13.56 MHz','고전적인 RIE 주파수. 최신 Dual-Frequency 식각 장비는 여기에 고주파(27–100 MHz)를 써서 Plasma 밀도를 정합니다.'],
+    lf:['LF Generator · 2 MHz (옵션)','이온이 전기장을 부분적으로 따라갈 만큼 낮은 주파수. 고종횡비 식각을 위해 이온 에너지(수백 V–kV)를 정합니다.'],
+    pv:['Pendulum Valve','Turbo Pump를 조여 mTorr 설정 압력을 유지합니다.'],
+    tmp:['Turbo-Molecular Pump','mTorr 영역과 큰 가스 유량에 필요합니다. SiF₄, CO, COF₂가 이곳을 거쳐 Dry Pump로 배출됩니다.'],
+    slit:['Slit Valve','웨이퍼 이송 출입구.'],
+    wall:['Chamber Wall (접지)','접지 면적의 일부. 불화탄소 Polymer가 쌓여 WAC(Waferless Auto-Clean)로 제거해야 합니다.'],
+  },
+  sp:{C4F8:'C₄F₈',O2:'O₂',Ar:'Ar',CF2:'CF₂·',F:'F·',O:'O·',Arp:'Ar⁺',CF3p:'CF₃⁺',Neg:'C₄F₈⁻',e:'e⁻',SiF4:'SiF₄',CO:'CO',fast:'고속 중성입자',poly:'CFₓ Polymer'},
+  I:{
+    hw:{title:'대표적인 장비 수치',stats:[['전극 Gap','20–40 mm'],['압력','10–100 mTorr'],['웨이퍼 온도','−20–60 °C'],['RF (HF)','13.56–100 MHz'],['LF (옵션)','0.4–2 MHz'],['Self-Bias','−200 ~ −1000 V']]},
+    s1:{chart:'압력에 따른 평균 자유 행정',p:'압력',lam:'λ (가스)',sl:'Sheath / λ',reg:'영역',coll:'충돌성',trans:'약한 충돌성',free:'거의 무충돌',sheath:'Chuck Sheath ≈ 4–6 mm',gap:'Gap 25 mm',cvd:'PE-CVD (2.5 Torr): λ ≈ 25 µm'},
+    s2:{chart:'광방출 스펙트럼 (OES)',c4:'C₄F₈',o2:'O₂',ar:'Ar',tick:'최근 반응',fc:'F/C',poly:'Polymer 우세 — 선택적, Etch Stop 위험',bal:'균형',fr:'F 우세 — 빠름, 선택비 낮음',rx:{ring:'고리 개환',att:'부착',ion:'이온화',diss:'해리',scav:'탄소 제거'}},
+    s3:{chart:'Chuck 전압 V(t) — Self-Bias 형성',v0:'RF 진폭 V_rf',ratio:'면적비 A_gnd / A_pwr',restart:'다시 시작',now:'현재 V_DC',eq:'최종 V_DC',cyc:'RF 주기',vch:'V_chuck(t)',vp:'V_p(t)',flux:'Chuck으로 향하는 순 전자 전류'},
+    s4:{chart:'Gap 전위 분포  V(x, t)',now:'순간값',avg:'시간 평균',pause:'일시정지',play:'재생',vT:'V̄ 상부 Sheath',vB:'V̄ Chuck Sheath',vdc:'Self-Bias V_DC',sT:'s̄ 상부 Sheath',sB:'s̄ Chuck Sheath',ei:'이온 에너지',x0:'상부 전극 (0 V)',x1:'웨이퍼'},
+    s5:{chart:'웨이퍼 도달 이온 에너지 분포 (IEDF)',f:'RF',ion:'이온',vb:'Chuck Sheath V̄',p:'압력',dE:'ΔE',s:'Sheath s',lam:'λ 이온',n:'s / λ',cyc:'통과 중 RF 주기 수',zoom:'ZOOM · Chuck Sheath',edge:'Sheath 경계',wafer:'웨이퍼 표면',cx:'전하교환'},
+    s6:{chart:'재료별 식각 속도',E:'이온 에너지',o2:'O₂ / C₄F₈',selSi:'SiO₂ : Si',selPR:'SiO₂ : PR',film:'SiO₂ 위 CFₓ',ox:'SiO₂',si:'Si',pr:'Resist',dep:'순 Polymer 증착 — Etch Stop',etch:'이온 보조 식각',zoom:'ZOOM · 같은 Plasma 아래 세 표면',filmL:'CFₓ 막'},
+    s7:{chart:'Profile',E:'이온 에너지',o2:'O₂ / C₄F₈',p:'압력',play:'재생',pause:'일시정지',reset:'Reset',depth:'깊이',ar:'종횡비',angle:'Profile 각도',bow:'최대 CD',pr:'남은 Resist',sel:'SiO₂ : PR',stop:'Etch Stop — Polymer가 바닥을 막음',mask:'마스크 소실 — 상부 CD 확대',si:'Si 도달 — 선택적 정지',run:'식각 중…',bowW:'Bowing — 측벽 Polymer 부족',scale:'100 nm'},
+    s8:{chart:'OES Endpoint 신호 — CO 483 nm',open:'Open Area',oe:'Over-etch',restart:'다시 시작',ep:'Endpoint',tot:'총 시간',rec:'Si Recess 중앙 / Edge',res:'Edge에 산화막 잔류 — Over-etch를 늘리세요',ok:'모든 패턴 관통 완료',wait:'Main Etch 중…',noisy:'신호가 약하고 잡음이 큼 — Endpoint 불확실',labels:['중앙','중간','Edge'],sig:'CO 신호',main:'Main Etch',oeR:'Over-etch'},
+    s9:{phases:['RF off','He 배기','De-chuck','웨이퍼 반출','WAC (O₂ Plasma)','준비 완료'],wac:'Waferless Auto-Clean',on:'On',off:'Off',chart:'벽면 Polymer & 식각 속도 Drift',poly:'벽면 Polymer',dev:'식각 속도 Drift (%)',wafer:'웨이퍼 #',msg:['Plasma off — Self-Bias 소멸','후면 He 배기','ESC 방전 — Lift Pin 상승','Slit Valve로 웨이퍼 반출','O₂ Plasma가 벽면 CFₓ를 태움 → CO, CO₂','다음 웨이퍼 준비 완료'],skip:'WAC 생략 — Polymer가 계속 누적'},
+  },
+  steps:[
+  { ch:0, title:'Oxide Etch Chamber 들여다보기',
+    lead:'PE-CVD와 정반대 목적으로 설계된 비대칭 CCP입니다. 여기서는 <b>웨이퍼가 작은 RF 전극 위에</b> 놓여, 큰 Self-Bias가 만드는 고에너지 이온을 받습니다.',
+    body:`<ul>
+<li><b>상부 전극</b> — 접지된 Showerhead; 벽과 함께 <b>큰 접지 면적</b>을 이룸</li>
+<li><b>ESC Chuck</b> — RF 인가, 작은 면적, <b>Blocking Capacitor</b>를 통해 공급</li>
+<li><b>Focus Ring</b> — 웨이퍼 끝까지 Sheath를 평탄하게 유지</li>
+<li><b>후면 He + 냉각수</b> — 이온 충격 열을 제거</li>
+<li><b>Turbo Pump + Pendulum Valve</b> — 10–100 mTorr, PE-CVD보다 약 100배 낮은 압력</li>
+<li>가스: <code>C₄F₈ + O₂ + Ar</code> — Ar이 보통 유량의 80–90 %</li></ul>`,
+    co:[['try','그림에 마우스를 올리거나, 아래 부품 버튼을 눌러 역할을 확인하세요.'],
+        ['key','PE-CVD vs. 산화막 식각을 한 줄로: PE-CVD는 웨이퍼를 접지 전극에 두고 Torr 압력(부드러운 이온), 산화막 식각은 RF 전극에 두고 mTorr(강하고 방향성 있는 이온).']],
+    dd:[{t:'고전적 RIE vs. 최신 Dual-Frequency CCP', b:`<p>교과서적인 RIE는 웨이퍼 전극에 13.56 MHz 전원 하나만 씁니다 — 이 강의의 모델입니다. 약점은 Knob 하나가 Plasma 밀도(이온 Flux)와 Self-Bias(이온 에너지)를 동시에 정한다는 점입니다.</p>
+<p>양산용 산화막 식각 장비는 <b>Dual-Frequency CCP</b>입니다. 고주파(27–100 MHz)가 주로 밀도를, 저주파(0.4–2 MHz)가 주로 이온 에너지를 정합니다. 상부 전극에 DC를 걸어 2차 전자를 만들고, Si 전극으로 불소를 소모시키는 장비도 있습니다.</p>
+<div class="dd-hl">면적 비대칭, Blocking Capacitor, Self-Bias, IEDF 등 이 강의의 내용은 그대로 적용됩니다. Dual Frequency는 두 역할을 나눌 뿐입니다. Step 6에서 2 MHz 전원을 직접 시험해 볼 수 있습니다.</div>`}] },
+
+  { ch:0, title:'Recipe 시작 — Pump, Chuck, Stabilize',
+    lead:'RF를 켜기 전에 웨이퍼를 고정·냉각하고, 수십 mTorr의 가스로 채웁니다. 이 압력에서는 <b>분자가 충돌 사이에 수 mm를 날아갑니다</b> — 방향성 식각의 열쇠입니다.',
+    body:`<ul>
+<li>Turbo Pump + Pendulum Valve로 설정 압력 도달 (여기서는 30 mTorr)</li>
+<li>ESC가 웨이퍼를 고정하고, 후면 He(≈ 10 Torr)가 아래 공간을 채워 열을 전달</li>
+<li>MFC가 C₄F₈ / O₂ / Ar 유량 설정; 가스는 바깥쪽 Baffle을 지나 Pump로</li>
+<li>평균 자유 행정 λ ∝ 1/p: 30 mTorr에서 ~1.8 mm, 2.5 Torr(PE-CVD)에서는 ~25 µm</li></ul>`,
+    co:[['try','압력을 바꿔 λ를 4–6 mm Chuck Sheath와 비교해 보세요. λ가 Sheath 두께에 가까워질수록 이온은 몇 번만 충돌하고 Sheath를 건넙니다 — 압력이 낮을수록 방향성이 커집니다. 강조된 분자의 자유 비행 경로를 관찰하세요.'],
+        ['warn','표시 비율: C₄F₈와 O₂는 보이도록 실제(~5 %)보다 자주 그렸습니다.']],
+    dd:[{t:'왜 정전 척으로 고정하고 He로 냉각할까?', b:`<p>mTorr에서는 웨이퍼와 평평한 Chuck 사이에 가스가 거의 없어, 미세한 틈으로 열이 전도되지 않습니다. 이온 충격은 대략 Bias 파워 — 수백 W에서 kW — 를 웨이퍼에 쏟아붓습니다.</p>
+<div class="eq">He 없음      : 웨이퍼 ΔT → 100–200 °C  (Resist 흐름·탐, 선택비 저하)
+He ≈ 10 Torr : 웨이퍼 ΔT ≈ 5–20 °C    (안정, 균일)</div>
+<p>He 압력은 고정력보다 충분히 낮아야 하므로, 가장자리만 누르는 기계식 Clamp 대신 웨이퍼 전체에 힘이 걸리는 ESC를 씁니다. Zone별 He와 냉각수로 반경 방향 온도 분포를 조절합니다 — 온도는 Polymer 증착을 바꾸고, 따라서 식각 속도와 CD를 바꿉니다.</p>`}] },
+
+  { ch:1, title:'점화 & 불화탄소 화학',
+    lead:'점화는 PE-CVD와 같습니다(Seed Electron → Avalanche). 새로운 것은 화학입니다: C₄F₈는 <b>식각하는 불소</b>와 <b>Polymer를 쌓는 CFₓ</b>로 쪼개지고, 그 균형을 O₂가 정합니다.',
+    body:`<ul>
+<li><code>e⁻ + Ar → Ar⁺ + 2e⁻</code> — 이온화(15.8 eV); Ar⁺가 주 이온</li>
+<li><code>e⁻ + c-C₄F₈ → 2 C₂F₄ + e⁻</code>, 이어서 <code>C₂F₄ → 2 CF₂</code> — 고리 개환</li>
+<li><code>e⁻ + CF₂ → CF + F + e⁻</code> — 추가 해리로 F 생성</li>
+<li><code>e⁻ + C₄F₈ → C₄F₈⁻</code> — 부착: 불화탄소는 강한 전기음성 가스</li>
+<li><code>O + CFₓ → CO / COF₂ + F</code> — 산소가 탄소를 제거하고 불소를 풀어 줌</li></ul>`,
+    co:[['try','C₄F₈, O₂, Ar을 바꿔 보세요. F/C 균형과 OES 선을 관찰하세요: CF₂ Band(250–320 nm), F 704 nm, Ar 750 / 811 nm, O 777 nm.'],
+        ['key','F/C가 낮으면 Polymer 우세 → 선택비는 높지만 Etch Stop 위험. 높으면 빠르지만 덜 선택적. Recipe는 그 사이에 있습니다.']],
+    dd:[{t:'F/C 비율 — 식각 vs. 증착을 예측하는 하나의 숫자', b:`<p>고전적인 그림(Coburn & Winters): 활성 종의 불소/탄소 비율이 표면이 식각될지 코팅될지를 결정합니다.</p>
+<div class="eq">F/C 높음  (CF₄ + O₂)      → 식각 우세
+F/C ≈ 2   (C₄F₈, C₄F₆)     → 식각 + Polymer, 선택적
+F/C 낮음  (+ H₂, CH₂F₂)    → Polymer 증착</div>
+<p>O₂를 넣으면 유효 F/C가 올라가고(탄소가 CO/COF₂로 빠짐), H₂를 넣으면 내려갑니다(불소가 HF로 빠짐). 이온 충격은 경계를 옮깁니다: 이온 에너지가 높으면 더 낮은 F/C에서도 식각이 이깁니다 — 같은 가스가 Trench 바닥은 식각하면서 측벽은 코팅하는 이유입니다.</p>`}] },
+
+  { ch:1, title:'DC Self-Bias 형성',
+    lead:'Plasma가 Chuck에 닿는 순간, 빠른 전자가 이온보다 훨씬 쉽게 도달합니다. <b>Blocking Capacitor</b>가 그 초과분을 가두고, Chuck은 한 주기 동안 전자·이온 전류가 같아질 때까지 음(−)으로 Charging됩니다.',
+    body:`<ul>
+<li>매 RF 주기 동안 Chuck으로 들어가는 순 DC 전류는 0이어야 함 — Capacitor는 DC를 통과시키지 않음</li>
+<li>Chuck 파형이 아래로 이동: V(t) = V_DC + V_rf·sin ωt, 여기서 V_DC → <b>−300 ~ −500 V</b></li>
+<li>이후 전자는 Chuck Sheath가 잠깐 붕괴하는 순간에만 Chuck에 도달</li>
+<li>작은 RF 면적 + 큰 접지 면적 → 전압이 불균등하게 나뉨: <b>Chuck에 큰 Sheath</b></li></ul>`,
+    co:[['try','A<sub>gnd</sub> / A<sub>pwr</sub>를 키우고 다시 시작해 보세요: V_DC가 더 음(−)이 됩니다. 면적비 1(대칭)에서는 Self-Bias가 사라집니다.'],
+        ['warn','시간이 늘려져 있습니다: 실제 형성은 수 µs–ms(수백–수천 RF 주기, C_block과 이온 전류로 결정)에 끝납니다.']],
+    dd:[{t:'Self-Bias와 면적비', b:`<p>두 Sheath는 같은 RF 전류를 나르지만 면적이 다릅니다. 각 Sheath의 시간 평균 전압은 대략 면적의 역수의 거듭제곱에 비례합니다:</p>
+<div class="eq">V̄_pwr / V̄_gnd ≈ (A_gnd / A_pwr)^q
+q = 4 (이상적 무충돌 이론), 실측 ≈ 1–2.5   (이 시뮬레이션: 1.5)
+V_DC = V̄_gnd − V̄_pwr   (작은 RF 전극에서 음수)</div>
+<p>여기서 “면적”은 전극 폭이 아니라 <b>Plasma가 닿는 모든 접지 면적</b> — 상부 전극과 벽까지 — 입니다. 그래서 Confinement Ring과 Chamber 구조가 Bias를 바꿉니다. 저주파(2 MHz) 전원을 쓰면 고종횡비 식각을 위해 |V_DC|가 1–2 kV에 이르기도 합니다.</p>`},
+        {t:'왜 RF인가 — DC로 웨이퍼에 Bias를 걸 수는 없을까?', b:`<p>안 됩니다. 웨이퍼 표면은 절연체인 SiO₂입니다. DC 전압은 산화막에 모이는 전하로 ~0.1 ms 안에 상쇄됩니다(PE-CVD 강의 Step 5 참고). RF는 산화막, ESC 세라믹, Blocking Capacitor를 변위 전류로 통과하고, 매 Sheath 붕괴 때의 전자 다발이 이온이 가져온 양전하를 중화합니다.</p>
+<div class="dd-hl">RF는 두 가지 일을 동시에 합니다: 방전을 유지하고, Blocking Capacitor를 통해 이온을 웨이퍼로 가속하는 DC Self-Bias를 만듭니다.</div>`}] },
+
+  { ch:1, title:'비대칭 Sheath',
+    lead:'Self-Bias가 형성되면 Chuck Sheath는 수백 V를 떠안고 <b>수 mm</b>까지 두꺼워지며, 접지 쪽은 얇고 낮은 전압의 Sheath를 유지합니다. 이온은 큰 Sheath를 따라 웨이퍼로 곧장 떨어집니다.',
+    body:`<ul>
+<li>Chuck Sheath: V̄ ≈ 400–500 V → s ≈ 4–6 mm (Child 법칙)</li>
+<li>상부 전극 Sheath: V̄ ≈ 100 V → s ≈ 1–2 mm, 충격이 적음</li>
+<li>웨이퍼 이온 에너지 ≈ e·V̄<sub>Chuck Sheath</sub> = e·(V̄<sub>p</sub> − V_DC) — 수백 eV</li>
+<li>PE-CVD와 비교: Sheath ~0.5–1 mm, 웨이퍼 쪽 수십 V</li></ul>`,
+    co:[['try','일시정지하고 주기를 따라가 보세요. 이온은 항상 바깥으로 향하고, Chuck Sheath는 주기마다 아주 잠깐만 붕괴합니다.'],
+        ['myth','“이온 에너지 = e·|V_DC + V_rf|.” 이온은 통과하는 동안 평균한 Plasma–웨이퍼 사이 전위를 얻습니다: E ≈ e·(V̄<sub>p</sub> − V_DC). 그 주변의 퍼짐은 주파수와 이온 질량에 달려 있습니다(다음 Step).']],
+    dd:[{t:'mTorr에서 Sheath는 얼마나 두꺼울까?', b:`<div class="eq">λ_D ≈ 0.13 mm   (Tₑ ≈ 3 eV, nₑ ≈ 10¹⁰ cm⁻³)
+무충돌 Child:  s ≈ 0.47·λ_D·(2V/Tₑ)^(3/4)
+   V = 100 V → 1.4 mm      V = 500 V → 4.7 mm</div>
+<p>30 mTorr에서 이온 평균 자유 행정(~2 mm)은 Sheath 두께의 절반 정도입니다 — 일부 이온은 충돌 없이 Sheath 에너지를 다 갖고 도달하고, 전하교환은 저에너지 이온 집단을 만듭니다(다음 Step). 압력이 낮을수록 고에너지 비율이 커집니다. 이 시뮬레이션에서 Sheath 경계는 고정된 이온 공간전하 안에서 s(t) ≈ s̄·√(v(t)/V̄)로 움직이고, v(t) → 0일 때 전자 다발이 Chuck에 도달합니다.</p>`}] },
+
+  { ch:1, title:'이온 에너지 분포 (IEDF)',
+    lead:'Sheath 전압이 진동하므로 이온이 모두 같은 에너지로 도달하지는 않습니다. 퍼짐의 폭은 <b>이온이 Sheath를 건너는 데 몇 RF 주기가 걸리느냐</b>로 정해집니다.',
+    body:`<ul>
+<li>여러 주기에 걸쳐 건너는 이온은 평균을 느낌 → e·V̄ 주변의 좁은 <b>쌍봉(bimodal)</b> IEDF</li>
+<li>무거운 이온, 높은 주파수 → 좁음; 가벼운 이온, 낮은 주파수 → 넓음</li>
+<li>2 MHz에서는 이온이 전기장을 대부분 따라감 → IEDF가 ~0에서 2e·V̄까지 퍼짐</li>
+<li>Sheath 내 충돌은 저에너지 꼬리와 고속 중성입자를 더함</li></ul>`,
+    co:[['try','2 / 13.56 / 60 MHz와 이온 질량을 바꾸고, 압력을 올려 보세요. 어떤 조건이 에너지를 가장 정밀하게 제어할까요?'],
+        ['key','좁은 IEDF는 정밀한 제어를 가능하게 합니다 — 산화막을 식각할 만큼은 크되, 아래 층을 손상시키는 에너지보다는 낮게.']],
+    dd:[{t:'쌍봉 폭은 어디서 오는가', b:`<div class="eq">ΔE ≈ (8·e·V̄ / 3ω·s̄) · √(2e·V̄ / M)      (Benoit-Cattin)
+Ar⁺, V̄ = 500 V, s̄ ≈ 4.7 mm :
+   60 MHz → ΔE ≈ 40 eV   13.56 MHz → ≈ 190 eV   2 MHz → ≈ 2e·V̄</div>
+<p>두 봉우리는 Sheath 전압이 최소·최대 근처일 때 건넌 이온들입니다 — 사인파는 극값 근처에 가장 오래 머뭅니다. ΔE ∝ (1/ω)·√(1/M): 그래서 Dual-Frequency 식각 장비는 저주파로 이온 에너지를 <i>높이면서</i> 넓은 IEDF를 감수하거나, 맞춤 파형으로 IEDF를 날카롭게 만듭니다.</p>
+<div class="dd-hl">모델: 위상에 대해 샘플링한 E = V̄ + (ΔE/2)·sin φ (0…2V̄로 제한) + σ ≈ 5×10⁻¹⁹ m²의 전하교환 충돌.</div>`}] },
+
+  { ch:2, title:'표면 반응 & 선택비',
+    lead:'불소만으로는 SiO₂가 느리게 식각됩니다. 산화막은 <b>고에너지 이온이 불화탄소를 표면으로 밀어 넣을 때</b> 식각되며, SiO₂ 안의 산소가 그 Polymer를 얇게 유지합니다. 이것이 선택비의 비밀입니다.',
+    body:`<ul>
+<li>CFₓ Radical이 모든 표면에 얇은 불화탄소 막을 형성</li>
+<li>이온 충돌이 막과 기판을 섞음: <code>SiO₂ + CFₓ → SiF₄↑ + CO↑ / COF₂↑</code></li>
+<li><b>SiO₂</b> 위에서는 산화막 자신의 산소가 탄소를 태움 → 얇은 막(~1 nm) → 식각 지속</li>
+<li><b>Si</b>와 <b>Resist</b> 위에서는 탄소를 없앨 것이 없음 → 두꺼운 막 → 이온이 막힘 → <b>선택비</b></li>
+<li>식각 Yield는 대략 √E − √E<sub>th</sub>로 증가 (임계값: 수십 eV)</li></ul>`,
+    co:[['try','이온 에너지를 낮춰 막이 이기게(Etch Stop) 만든 뒤, O₂를 올려 선택비가 떨어지는 것을 확인하세요.'],
+        ['myth','“F 원자가 SiO₂를 화학적으로 식각하고 이온은 속도만 더한다.” 열적 F는 SiO₂를 매우 느리게 식각합니다. 불화탄소 Plasma의 산화막 식각은 이온이 주도하며, 그래서 방향성도 생깁니다.']],
+    dd:[{t:'산화막은 식각되는데 실리콘은 왜 멈출까', b:`<p>정상상태의 불화탄소 막은 증착(CFₓ Flux)과 제거(이온 주도 반응·Sputtering)의 균형입니다.</p>
+<ul><li><b>SiO₂</b>: 식각되는 SiO₂마다 산소가 나와 CO/COF₂로 빠지며 막의 탄소를 소모합니다. 막은 ~1–2 nm로 유지되고 이온이 계면까지 도달합니다.</li>
+<li><b>Si</b>: 기판에 산소가 없어 막이 수 nm로 자라고, 이온 에너지가 Si가 아닌 막에서 소모됩니다. 식각이 한 자릿수 이상 느려집니다.</li>
+<li><b>Photoresist</b>: 탄소가 많아 역시 Polymer가 쌓이지만, Resist의 H와 O 때문에 중간 두께가 됩니다.</li></ul>
+<p>그래서 산화막 대 실리콘 선택비 20 : 1 이상이 가능하며 — O₂나 이온 에너지가 과하면 그 선택비가 무너집니다.</p>`}] },
+
+  { ch:2, title:'Trench Profile — 이방성, ARDE & 마스크',
+    lead:'방향성 이온은 바닥을 식각하고, Polymer는 측벽을 보호하며, 마스크는 천천히 깎입니다. 최종 Profile은 <b>이 속도들의 경주</b>입니다.',
+    body:`<ul>
+<li><b>이방성</b>: 이온 각도 퍼짐(≈ √(Tₑ/2E) + Sheath 충돌)이 측벽에 닿는 양을 결정</li>
+<li><b>측벽 Passivation</b>: CFₓ Polymer가 측면 식각을 막음 — 부족하면 <b>Bowing</b>, 과하면 <b>Taper / Etch Stop</b></li>
+<li><b>ARDE</b>: 깊고 좁을수록 느려짐 — 바닥에 닿는 중성입자·이온이 줄어듦</li>
+<li><b>마스크 선택비</b>: Resist는 ER<sub>ox</sub> / 선택비 속도로 깎이며, 식각이 끝날 때까지 버텨야 함</li></ul>`,
+    co:[['try','기본 Recipe로 식각한 뒤 시도해 보세요: O₂ 높게(Bowing, 마스크 소실) · 낮은 이온 에너지 + O₂ 없음(Taper → Etch Stop) · 높은 압력(넓은 이온 각도).'],
+        ['warn','교육용 모델: 경향은 발표된 불화탄소 식각 거동을 따르지만, 치수와 속도는 예시입니다.']],
+    dd:[{t:'Charging과 고종횡비 효과', b:`<p>깊은 절연체 구멍 안에서, 넓은 각도의 전자는 측벽 위쪽을 음(−)으로, 좁은 각도의 이온은 바닥을 양(+)으로 Charging합니다. 바닥 전위가 수십 V에 이르면 들어오는 이온을 휘게 해 <b>Twisting</b>, 바닥의 <b>Notching</b>, 더 심한 ARDE를 일으킵니다.</p>
+<p>대응책으로는 Pulsed Plasma(Off 시간에 전자가 바닥에 도달), 음이온 추출, 더 높은 이온 에너지가 있습니다. 3D-NAND Channel Hole 식각(종횡비 > 50)의 최전선 문제들입니다.</p>`}] },
+
+  { ch:2, title:'Endpoint & Over-etch',
+    lead:'웨이퍼 전체가 한 번에 뚫리지는 않습니다. 장비는 Plasma 빛을 보고 <b>산화막이 사라진 시점</b>을 알아내고, 가장 느린 패턴도 뚫리도록 제어된 Over-etch를 더합니다.',
+    body:`<ul>
+<li>산화막이 식각되는 동안 반응 생성물 CO가 483 nm로 발광; 산화막이 뚫리면 신호가 떨어짐</li>
+<li>Endpoint = 신호 하락 감지, 이후 <b>Over-etch</b>(흔히 Main Etch 시간의 20–50 %)</li>
+<li>중앙과 Edge의 식각 속도가 조금씩 다름 → 빠른 영역은 Over-etch 동안 Si 위에 머묾</li>
+<li>그래서 SiO₂ : Si 선택비가 중요: 일찍 뚫린 곳의 <b>Si Recess</b>를 제한</li></ul>`,
+    co:[['try','Open Area를 1–2 %로 낮춰 보세요(Contact Hole처럼): 신호가 약하고 잡음이 커집니다. 그다음 Over-etch를 0 %로 두고 Edge를 확인하세요.']],
+    dd:[{t:'실제 Endpoint 검출', b:`<p>신호 변화는 식각되는 면적에 비례합니다. Open Area가 1 %인 패턴에서는 CO 선이 1 %도 안 되게 변해 Plasma 잡음에 묻힙니다. Fab에서는 주성분 분석을 쓰는 다파장 OES, 큰 패턴에서의 간섭계 Endpoint, 또는 식각 속도를 엄격히 관리한 시간 식각을 씁니다.</p>
+<p>Over-etch가 부족하면 느린 영역에 산화막이 남고(Contact Open 불량), 과하면 Si가 깎이고 마스크가 소모되며 CD가 커집니다. Over-etch는 측정된 속도 불균일도에 여유를 더해 정합니다.</p>`}] },
+
+  { ch:2, title:'식각 후 — De-chuck, WAC & 준비',
+    lead:'산화막이 뚫리면 웨이퍼를 안전하게 풀어 주고 Chamber를 복원해야 합니다. 불화탄소 Polymer가 벽을 덮고 있어, 그대로 두면 다음 웨이퍼의 식각 속도가 바뀝니다.',
+    body:`<ul>
+<li>RF off → 후면 He 배기 → <b>De-chuck</b>: Lift Pin이 올라가기 전에 ESC 전하를 반전·방전</li>
+<li>Slit Valve로 웨이퍼 반출</li>
+<li><b>WAC (Waferless Auto-Clean)</b>: O₂ Plasma가 벽면 CFₓ를 태움 → CO, CO₂</li>
+<li>이어서 짧은 Seasoning으로 재현 가능한 벽면 상태를 복원하기도 함</li></ul>`,
+    co:[['try','WAC를 끄고 벽면 Polymer와 식각 속도 Drift가 웨이퍼마다 쌓이는 것을 확인하세요.']],
+    dd:[{t:'벽면이 식각 속도를 좌우하는 이유', b:`<p>벽은 흡수원이자 공급원입니다: 깨끗한 벽은 F와 O를 재결합시키고, Polymer로 덮인 벽은 CFₓ를 내놓고 산소를 소모합니다. Polymer가 쌓이면 기상 F/C 비율이 변하고, 그에 따라 식각 속도·선택비·CD가 흔들립니다.</p>
+<p><b>De-chuck도 중요합니다.</b> ESC에 남은 전하 때문에 Lift Pin이 올라갈 때 웨이퍼가 달라붙거나 “튀어” 파티클·파손이 생길 수 있습니다. 장비는 역전압을 걸고, 흔히 짧은 저파워 Plasma로 전하를 중화합니다.</p>`}] },
+
+  { ch:3, title:'핵심 정리', lead:'', body:'', co:[], dd:[] },
+  ],
+  tk:{
+    h:'한 페이지로 보는 CCP 산화막 식각', p:'면적 비대칭에서 Profile 제어까지 — 그리고 강의 중 바로잡은 오해들.',
+    btn1:'산화막 RIE는 어디에 쓰일까?', btn2:'PE-CVD 강의 열기',
+    cap1:'Spacer 식각과 Contact / Via 개구 — 대표적인 두 가지 산화막 RIE 응용.',
+    img:'./images/sio2_oxide_etching_kr.png',
+    sPr:'설계 원리', sTab:'PE-CVD vs. CCP 산화막 식각 vs. ICP 식각', sWin:'대표 공정 Window · C₄F₈ / O₂ / Ar 산화막 식각', sMyth:'바로잡은 오해', sLim:'한계 → 해결 방법',
+    pr:[['웨이퍼는 작은 RF 전극 위에','A_gnd ≫ A_pwr + Blocking Capacitor → Chuck에 큰 음(−)의 Self-Bias.'],
+        ['mTorr 압력','λ ~ mm로 Sheath와 비슷 → 방향성 이온; 압력이 낮을수록 고에너지 비율 증가.'],
+        ['반응은 이온이 주도','불화탄소 막 + 이온 혼합이 SiO₂를 식각; 불소만으로는 느림.'],
+        ['Polymer가 곧 선택비','산화막은 탄소를 소모하고 Si·Resist는 못 함 → 얇은 막 vs. 두꺼운 막.'],
+        ['O₂로 F/C 균형','O₂ ↑: 빠르고 등방적, 덜 선택적. O₂ ↓: 선택적, Taper / Stop 위험.'],
+        ['웨이퍼와 벽을 관리','ESC + He로 온도, Endpoint + Over-etch, WAC로 재현성.']],
+    th:['파라미터','PE-CVD (CCP)','산화막 식각 (CCP)','ICP 식각'],
+    rows:[['웨이퍼 전극','접지','RF 인가','별도 RF Bias'],
+          ['압력','1 – 5 Torr','10 – 100 mTorr','1 – 30 mTorr'],
+          ['전자 밀도','10⁹ – 10¹⁰ cm⁻³','10¹⁰ – 10¹¹ cm⁻³','10¹¹ – 10¹² cm⁻³'],
+          ['이온 평균 자유 행정','~30 – 150 µm','~0.5 – 5 mm','~mm – cm'],
+          ['웨이퍼 Sheath','0.5 – 1 mm, 충돌성','3 – 6 mm, 부분 충돌성','0.5 – 2 mm'],
+          ['웨이퍼 이온 에너지','수 – ~50 eV','200 – 1000+ eV','10 – 500 eV (Bias)'],
+          ['Flux vs. 에너지','묶임','묶임 (1 f) · 분리 (2 f)','독립'],
+          ['대표 용도','SiO₂ / SiN 증착','SiO₂, SiN, Low-k, HAR','Si, Poly, 금속']],
+    win:[['압력','15 – 60 mTorr'],['C₄F₈ / O₂ / Ar','10–30 / 5–20 / 200–500 sccm'],['Self-Bias','−300 ~ −1000 V'],['식각 속도','300 – 800 nm/min'],['SiO₂ : Resist','4 – 10 : 1'],['SiO₂ : Si','10 – 30 : 1'],['Profile 각도','88 – 90°'],['Chuck 온도','−20 – 60 °C']],
+    winNote:'대표·예시 범위입니다 — 반드시 사용 장비와 Recipe 기준으로 확인하세요.',
+    myths:[['이온 에너지 = e·|V_DC + V_rf|','E ≈ e·(V̄_p − V_DC), 퍼짐은 주파수·이온 질량이 결정'],
+           ['F Radical이 SiO₂를 식각, 이온은 보조','산화막 식각은 불화탄소 막을 통한 이온 주도 반응'],
+           ['C₄F₈ → 2CF₂ + CF₃ + F','원자 수 불균형; 고리 개환은 2 C₂F₄ → 4 CF₂, 이후 CF + F'],
+           ['A_gnd / A_pwr는 전극 폭의 비','벽을 포함해 Plasma가 보는 모든 접지 면적'],
+           ['V_DC는 수 초에 걸쳐 형성','수 µs – ms에 형성'],
+           ['O₂는 많을수록 좋다','빨라지지만 선택비와 Profile 제어가 나빠짐']],
+    lim:[['Flux·에너지가 묶임 (단일 주파수)','Dual-Frequency CCP'],
+         ['벽면 Polymer Drift','WAC + Seasoning'],
+         ['깊은 구멍의 ARDE & Charging','Pulsing, 고에너지, 맞춤 파형'],
+         ['Resist 소모','Hard Mask (a-C), 저 O₂ Step'],
+         ['Edge 기울기 / 불균일','Focus Ring, Zone별 He / 온도'],
+         ['Over-etch 중 Si Recess','고선택비 Over-etch Step']],
+  },
+}};
+</script>
+
+<script>
+'use strict';
+/* ============================== ENGINE ============================== */
+const $=id=>document.getElementById(id);
+const TAU=Math.PI*2, rnd=Math.random;
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+let lang='en';
+const L=()=>T[lang];
+const IL=k=>T[lang].I[k];
+
+/* ---------- canvas & logical frame (960×600, letterboxed) ---------- */
+const cv=$('cv'), ctx=cv.getContext('2d'), wrap=$('cvWrap');
+const LW=960, LH=600;
+let DPR=1, RS=1, OX=0, OY=0;
+function resize(){
+  const w=wrap.clientWidth, h=wrap.clientHeight; if(!w||!h) return;
+  DPR=window.devicePixelRatio||1;
+  cv.width=Math.round(w*DPR); cv.height=Math.round(h*DPR);
+  RS=Math.min(w/LW,h/LH); OX=(w-LW*RS)/2; OY=(h-LH*RS)/2;
+}
+new ResizeObserver(resize).observe(wrap); resize();
+function beginFrame(){
+  ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(RS*DPR,0,0,RS*DPR,OX*DPR,OY*DPR);
+}
+
+const FONT='"Google Sans","Noto Sans KR",system-ui,sans-serif', MONO=FONT;   // Latin & digits: Google Sans; Hangul falls back to Noto Sans KR
+const C={purple:'#7030A0',purpleLt:'#F0E8F8',purpleMid:'#9B59D0',green:'#0F8C50',greenLt:'#E6F4ED',coral:'#E8553B',amber:'#D99A00',
+  ink:'#1A202C',ink2:'#334155',muted:'#64748B',label:'#94A3B8',border:'#E2E8F0',line:'#EEF2F6',blue:'#3A7AD6'};
+
+/* ---------- drawing helpers (shared with the PE-CVD lesson) ---------- */
+function rr(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function pl(pts,col,w,dash,off){ctx.save();ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';if(dash){ctx.setLineDash(dash);ctx.lineDashOffset=off||0;}ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.restore();}
+function pipe(pts,flow,col){pl(pts,'#C7CED9',3.4);pl(pts,'#FFFFFF',1.4);if(flow)pl(pts,col||'rgba(112,48,160,.7)',1.7,[4,8],-time*30);}
+function txt(s,x,y,o={}){ctx.save();ctx.font=`${o.w||400} ${o.sz||11}px ${o.mono?MONO:FONT}`;ctx.fillStyle=o.c||C.muted;ctx.textAlign=o.a||'left';ctx.textBaseline=o.b||'middle';ctx.fillText(s,x,y);ctx.restore();}
+function arrow(x0,y0,x1,y1,col,w=1.2){ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();const a=Math.atan2(y1-y0,x1-x0),h=6;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x1-h*Math.cos(a-.42),y1-h*Math.sin(a-.42));ctx.lineTo(x1-h*Math.cos(a+.42),y1-h*Math.sin(a+.42));ctx.closePath();ctx.fill();ctx.restore();}
+function gnd(x,y){ctx.save();ctx.strokeStyle='#475569';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+6);ctx.moveTo(x-9,y+6);ctx.lineTo(x+9,y+6);ctx.moveTo(x-6,y+10);ctx.lineTo(x+6,y+10);ctx.moveTo(x-3,y+14);ctx.lineTo(x+3,y+14);ctx.stroke();ctx.restore();}
+function chemText(f,x,y,sz,col,align){
+  ctx.save();ctx.fillStyle=col;ctx.textBaseline='middle';ctx.textAlign='left';
+  const segs=[];
+  for(let i=0;i<f.length;i++){const ch=f[i];
+    if(/[0-9]/.test(ch)) segs.push(['s',ch]);
+    else if((ch==='+'||ch==='-')&&i===f.length-1) segs.push(['u',ch==='-'?'−':'+']);
+    else if(segs.length&&segs[segs.length-1][0]==='b') segs[segs.length-1][1]+=ch; else segs.push(['b',ch]);}
+  const fb=`600 ${sz}px ${FONT}`, fs=`600 ${Math.round(sz*.72)}px ${FONT}`;
+  let w=0; for(const s of segs){ctx.font=s[0]==='b'?fb:fs;w+=ctx.measureText(s[1]).width;}
+  let cx=align==='left'?x:align==='right'?x-w:x-w/2;
+  for(const s of segs){ctx.font=s[0]==='b'?fb:fs;const oy=s[0]==='s'?sz*.28:s[0]==='u'?-sz*.32:0;ctx.fillText(s[1],cx,y+oy);cx+=ctx.measureText(s[1]).width;}
+  ctx.restore(); return w;
+}
+const fmtP=p=>p<0.1?`${(p*1000).toFixed(0)} mTorr`:`${p.toFixed(2)} Torr`;
+
+function genBox(x,y,w,h,title,sub,on,freq,col){
+  ctx.fillStyle='#fff';ctx.strokeStyle=on?col:'#C5CDD8';ctx.lineWidth=1.3;rr(x,y,w,h,8);ctx.fill();ctx.stroke();
+  ctx.save();rr(x,y,w,h,8);ctx.clip();ctx.fillStyle=on?col:'#CBD2DC';ctx.fillRect(x,y,w,4);ctx.restore();
+  txt(title,x+w/2,y+15,{sz:11,w:700,a:'center',c:C.ink2});txt(sub,x+w/2,y+28,{sz:8.5,mono:true,a:'center',c:on?col:C.label});
+  if(freq!=null){ctx.save();ctx.strokeStyle=on?col:'#D5DAE2';ctx.lineWidth=1.4;ctx.beginPath();const sx=x+10,sw=w-20,sy=y+44;
+    for(let i=0;i<=sw;i++){const yy=sy+5*(on?Math.sin(i/sw*TAU*freq-time*6):0);i?ctx.lineTo(sx+i,yy):ctx.moveTo(sx+i,yy);}ctx.stroke();ctx.restore();}
+}
+
+function drawPlasma(st,I){
+  if(I<=.01) return;
+  const yT=YT+st.sT, yB=YB-st.sB;
+  ctx.save();ctx.beginPath();ctx.rect(X0,YT,X1-X0,YB-YT);ctx.clip();
+  const hg=ctx.createLinearGradient(X0,0,X1,0);
+  hg.addColorStop(0,'rgba(186,160,240,0)');hg.addColorStop(.07,`rgba(190,166,242,${.55*I})`);hg.addColorStop(.93,`rgba(190,166,242,${.55*I})`);hg.addColorStop(1,'rgba(186,160,240,0)');
+  ctx.fillStyle=hg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const cy=(yT+yB)/2, rg=ctx.createRadialGradient(XC,cy,4,XC,cy,(X1-X0)*.5);
+  rg.addColorStop(0,`rgba(255,255,255,${.7*I})`);rg.addColorStop(.6,`rgba(240,234,255,${.32*I})`);rg.addColorStop(1,'rgba(240,234,255,0)');
+  ctx.fillStyle=rg;ctx.fillRect(X0,yT,X1-X0,yB-yT);
+  const band=(y,dir,a)=>{if(a<.03)return;const h=10,g=ctx.createLinearGradient(0,y,0,y+dir*h);g.addColorStop(0,`rgba(160,110,250,${.45*a})`);g.addColorStop(1,'rgba(160,110,250,0)');ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-h,X1-X0,h);};
+  band(yT,1,st.expT*I); band(yB,-1,st.expB*I);
+  const sheath=(y,s,dir)=>{const g=ctx.createLinearGradient(0,y,0,y+dir*s);g.addColorStop(0,`rgba(30,27,75,${.15*I})`);g.addColorStop(1,`rgba(30,27,75,${.03*I})`);ctx.fillStyle=g;ctx.fillRect(X0,dir>0?y:y-s,X1-X0,s);
+    pl([[X0,y+dir*s],[X1,y+dir*s]],`rgba(112,48,160,${.3*I})`,1,[3,4]);};
+  sheath(YT,st.sT,1); sheath(YB,st.sB,-1);
+  ctx.restore();
+}
+
+/* ---------- particles & effects ---------- */
+function spawn(s,x,y,vx=0,vy=0){const p={s,x,y,vx,vy,age:0};parts.push(p);return p;}
+function bulkPt(m=10){return{x:X0+m+rnd()*(X1-X0-2*m),y:YT+45+rnd()*(YB-YT-90)};}
+function placeBulk(p){const q=bulkPt();p.x=q.x;p.y=q.y;p.vx=0;p.vy=0;p.age=0;}
+function lang_(p,f,kick,drag){p.vx+=(rnd()-.5)*kick*f;p.vy+=(rnd()-.5)*kick*f;const d=Math.pow(drag,f);p.vx*=d;p.vy*=d;}
+function boxR(p,x0,x1,y0,y1){if(p.x<x0){p.x=x0;p.vx=Math.abs(p.vx);}if(p.x>x1){p.x=x1;p.vx=-Math.abs(p.vx);}if(p.y<y0){p.y=y0;p.vy=Math.abs(p.vy);}if(p.y>y1){p.y=y1;p.vy=-Math.abs(p.vy);}}
+function cap(p,m){const s=Math.hypot(p.vx,p.vy);if(s>m){p.vx*=m/s;p.vy*=m/s;}}
+function moveE(p,st,f){
+  lang_(p,f,2.4,.9);cap(p,5);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  const yT=YT+st.sT, yB=YB-st.sB;
+  if(p.y<yT){if(st.sT<7&&rnd()<.3)return'T';p.y=yT+1+rnd()*3;p.vy=Math.abs(p.vy);}
+  if(p.y>yB){if(st.sB<7&&rnd()<.3)return'B';p.y=yB-1-rnd()*3;p.vy=-Math.abs(p.vy);}
+  return null;
+}
+function moveIon(p,st,f){
+  const yTm=YT+st.sTm, yBm=YB-st.sBm;
+  if(p.y>yTm&&p.y<yBm){lang_(p,f,.12,.96);p.vy+=(p.y<(yTm+yBm)/2?-1:1)*.004*f;}
+  else{const top=p.y<=yTm,V=top?st.Vt:st.Vb,s=Math.max(top?st.sTm:st.sBm,5);p.vy+=(top?-1:1)*.22*V/s*f;p.vx*=.98;}
+  cap(p,10);p.x+=p.vx*f;p.y+=p.vy*f;
+  if(p.x<X0+3){p.x=X0+3;p.vx=Math.abs(p.vx);}if(p.x>X1-3){p.x=X1-3;p.vx=-Math.abs(p.vx);}
+  if(p.y<=YT+1)return'T'; if(p.y>=YB-1)return'B'; return null;
+}
+function moveRF(f,st,onE,onI){
+  for(const p of parts){const c=SP[p.s].cat;
+    if(c==='e'){const r=moveE(p,st,f);if(r){onE&&onE(p,r);placeBulk(p);}}
+    else if(c==='i'){const r=moveIon(p,st,f);if(r){onI&&onI(p,r);placeBulk(p);}}}
+}
+function count(s){let n=0;for(const p of parts)if(p.s===s)n++;return n;}
+function trim(s,n){const c=count(s);if(c>n){const i=parts.findIndex(p=>p.s===s);if(i>=0)parts.splice(i,1);}}
+function drawPowder(p){ctx.save();ctx.fillStyle='#E2E8F0';ctx.strokeStyle='#94A3B8';ctx.lineWidth=.8;const r=p.r||2.5;
+  [[0,0],[r*.7,-r*.4],[-r*.6,r*.3],[r*.2,r*.7]].forEach(([dx,dy],i)=>{if(i>Math.min(3,Math.floor(r/1.5)))return;ctx.beginPath();ctx.arc(p.x+dx,p.y+dy,r*.75,0,TAU);ctx.fill();ctx.stroke();});ctx.restore();}
+function drawParts(list){
+  list=list||parts;
+  for(const p of list){const s=SP[p.s];
+    if(s.cat==='p'){drawPowder(p);continue;}
+    if(p.a!=null)ctx.globalAlpha=clamp(p.a,0,1);
+    if(s.cat==='e'){ctx.fillStyle='rgba(224,161,0,.22)';ctx.beginPath();ctx.arc(p.x,p.y,3.8,0,TAU);ctx.fill();}
+    ctx.fillStyle=s.c;ctx.beginPath();ctx.arc(p.x,p.y,s.r,0,TAU);ctx.fill();
+    if(s.cat==='i'){ctx.strokeStyle='rgba(232,85,59,.35)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='ni'){ctx.strokeStyle='rgba(15,118,110,.4)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(p.x,p.y,s.r+2.3,0,TAU);ctx.stroke();}
+    else if(s.cat==='r'){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,Math.max(.7,s.r*.36),0,TAU);ctx.fill();}
+    ctx.globalAlpha=1;
+    if(S.labels&&s.f&&s.cat!=='e')chemText(s.f,p.x,p.y-8.5,8.5,s.c,'center');
+  }
+}
+function addFlash(x,y,rgb,life=.4,r=12,label){fx.push({t:'f',x,y,rgb,life,max:life,r,label});}
+function addRing(x,y,rgb,life=.45,r=10,label){fx.push({t:'r',x,y,rgb,life,max:life,r,label});}
+function stepFx(dt){for(const f of fx)f.life-=dt;fx=fx.filter(f=>f.life>0);}
+function drawFx(){
+  for(const f of fx){const a=f.life/f.max;
+    if(f.t==='f'){const r=f.r*(1.25-a*.45),g=ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);g.addColorStop(0,`rgba(${f.rgb},${.85*a})`);g.addColorStop(1,`rgba(${f.rgb},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(f.x,f.y,r,0,TAU);ctx.fill();}
+    else{ctx.strokeStyle=`rgba(${f.rgb},${a})`;ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(f.x,f.y,f.r*(1.3-a),0,TAU);ctx.stroke();}
+    if(f.label)txt(f.label,f.x,f.y-13-(1-a)*10,{sz:9.5,mono:true,w:600,c:`rgba(${f.rgb},${Math.min(1,a*1.7)})`,a:'center'});
+  }
+}
+
+/* ---------- hotspot helpers ---------- */
+const partById=id=>PARTS.find(p=>p.id===id);
+function highlightPart(id){const p=partById(id);if(!p)return;ctx.save();ctx.strokeStyle=C.purple;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+  for(const [x,y,w,h] of p.r){rr(x-3,y-3,w+6,h+6,6);ctx.stroke();}ctx.restore();}
+function showTip(id,sx,sy){const t=$('tooltip');if(!id){t.classList.remove('show');return;}const [n,d]=L().parts[id];t.innerHTML=`<b>${n}</b>${d}`;t.style.left=sx+'px';t.style.top=sy+'px';t.classList.add('show');}
+function partAt(x,y){for(const p of PARTS)for(const [rx,ry,rw,rh] of p.r)if(x>=rx&&x<=rx+rw&&y>=ry&&y<=ry+rh)return p.id;return null;}
+
+/* ---------- chart helpers ---------- */
+function chartCtx(id){const c=$(id);if(!c)return null;const r=c.getBoundingClientRect();if(r.width<8||r.height<8)return null;
+  const d=window.devicePixelRatio||1,w=Math.round(r.width*d),h=Math.round(r.height*d);if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
+  const g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,r.width,r.height);return{g,W:r.width,H:r.height};}
+function gt(g,s,x,y,o={}){g.font=`${o.w||400} ${o.sz||10}px ${o.mono?MONO:FONT}`;g.fillStyle=o.c||C.muted;g.textAlign=o.a||'left';g.textBaseline=o.b||'middle';g.fillText(s,x,y);}
+function gl(g,pts,col,w,dash){g.save();g.strokeStyle=col;g.lineWidth=w||1;if(dash)g.setLineDash(dash);g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();g.restore();}
+function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+function wl2rgb(w){let r=0,g=0,b=0;
+  if(w<380)return[123,92,214];
+  if(w<440){r=-(w-440)/60;b=1;}else if(w<490){g=(w-440)/50;b=1;}else if(w<510){g=1;b=-(w-510)/20;}else if(w<580){r=(w-510)/70;g=1;}else if(w<645){r=1;g=-(w-645)/65;}else{r=1;}
+  let f=1;if(w>700)f=Math.max(.35,.3+.7*(780-w)/80);else if(w<420)f=.3+.7*(w-380)/40;
+  return[Math.round(255*Math.pow(r*f,.8)),Math.round(255*Math.pow(g*f,.8)),Math.round(255*Math.pow(b*f,.8))];}
+
+/* ---------- control widgets ---------- */
+const rng=(id,label,min,max,step,val)=>`<div class="ctl"><div class="ctl-h"><label for="${id}">${label}</label><output id="${id}_o"></output></div><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+const seg=(id,opts,val)=>`<div class="seg" id="${id}">${opts.map(([v,l])=>`<button data-v="${v}" class="${v===val?'on':''}">${l}</button>`).join('')}</div>`;
+const statH=(id,k,cls='')=>`<div class="stat ${cls}" id="${id}_w"><div class="stat-k">${k}</div><div class="stat-v" id="${id}">—</div></div>`;
+function bindRange(id,get,set,fmt,on){const r=$(id);if(!r)return;const o=$(id+'_o');const upd=()=>{set(+r.value);if(o)o.innerHTML=fmt();on&&on();};r.addEventListener('input',upd);r.value=get();if(o)o.innerHTML=fmt();}
+function bindSeg(id,cb){const el=$(id);if(!el)return;el.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{el.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));cb(b.dataset.v);}));}
+function setStat(id,html,cls){const e=$(id);if(e&&e.innerHTML!==html)e.innerHTML=html;if(cls!==undefined){const w=$(id+'_w');if(w)w.className='stat '+cls;}}
+const card=(badge,title,inner,extra='')=>`<div class="icard" ${extra}><div class="ihead"><span class="badge"><span class="badge-dot"></span>${badge}</span><h3>${title}</h3></div>${inner}</div>`;
+
+/* ---------- geometry (logical px) — asymmetric etch CCP ---------- */
+const X0=284, X1=696, YT=172, YB=406, XC=490, PXMM=9.36, GAPMM=25;   // gap 25 mm ≈ 234 px
+const WAF={x:350,w:280};
+
+/* ---------- species ---------- */
+const SP={
+  C4F8:{c:'#7E57C2',r:2.9,cat:'n',f:'C4F8'}, O2:{c:'#7C8798',r:2.4,cat:'n',f:'O2'}, Ar:{c:'#A0AEC0',r:2.3,cat:'n',f:'Ar'},
+  CF2:{c:'#3A7AD6',r:2.8,cat:'r',f:'CF2·'},  F:{c:'#8DB92E',r:2.5,cat:'r',f:'F·'},   O:{c:'#0EA5B7',r:2.6,cat:'r',f:'O·'},
+  Arp:{c:'#E8553B',r:3.2,cat:'i',f:'Ar+'},   CF3p:{c:'#F07B3F',r:3.2,cat:'i',f:'CF3+'}, Neg:{c:'#0F766E',r:3,cat:'ni',f:'C4F8-'},
+  e:{c:'#E0A100',r:1.8,cat:'e',f:'e-'},      SiF4:{c:'#8A94A6',r:2.7,cat:'b',f:'SiF4'}, CO:{c:'#B0B8C4',r:2.4,cat:'b',f:'CO'},
+  fast:{c:'#94A3B8',r:2,cat:'f',f:''},       poly:{c:'#2FA36B',r:2,cat:'f',f:''},     powder:{c:'#CBD5E1',r:3,cat:'p',f:''},
+};
+
+/* ---------- shared state ---------- */
+const S={labels:false,p:30,c4:15,o2:8,ar:300,v0:600,ratio:3,freq:13.56,ion:'Ar',vb5:500,E:400,o2r:.5,open:10,oe:30,wac:true,paused:false};
+let cur=0, time=0, phase=0, parts=[], fx=[], frameN=0;
+let hoverPart=null, pinPart=null;
+const FA=0.5;                         // animated RF frequency (Hz) → 13.56 MHz slowed ≈ 2.7e7×
+
+/* ---------- hardware drawing ---------- */
+const GROWS=[{id:'c4f8',y:40,f:'C4F8',c:'#7E57C2',k:'c4'},{id:'o2',y:120,f:'O2',c:'#0EA5B7',k:'o2'},{id:'ar',y:200,f:'Ar',c:'#94A3B8',k:'ar'}];
+function drawGasPanelE(o){
+  txt('GAS PANEL',24,22,{sz:9,mono:true,c:C.label});
+  for(const r of GROWS){
+    const y=r.y, py=y+30;
+    const g=ctx.createLinearGradient(26,0,52,0);g.addColorStop(0,'#DCE2EA');g.addColorStop(.5,'#FFFFFF');g.addColorStop(1,'#C5CDD8');
+    ctx.fillStyle=g;ctx.strokeStyle='#B4BCC8';ctx.lineWidth=1;rr(26,y+4,26,40,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle=r.c;ctx.fillRect(26,y+14,26,5);ctx.fillStyle='#94A3B8';ctx.fillRect(35,y-1,8,6);
+    chemText(r.f,62,y+12,13.5,C.ink,'left');
+    const fl=!!o.gas&&(!o.only||o.only===r.id);
+    pipe([[52,py],[181,py]],fl);
+    ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.2;rr(181,py-13,30,26,5);ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#64748B';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(189,py-6);ctx.lineTo(203,py+6);ctx.lineTo(203,py-6);ctx.lineTo(189,py+6);ctx.closePath();ctx.stroke();
+    txt('MFC',196,py+21,{sz:8.5,mono:true,a:'center',c:C.label});
+    if(fl) txt((o.only?'200':S[r.k])+' sccm',196,py-20,{sz:8.5,mono:true,a:'center',c:C.purple,w:600});
+  }
+  pipe([[211,70],[240,70]],!!o.gas&&!o.only); pipe([[211,150],[240,150]],!!o.gas); pipe([[211,230],[240,230],[240,70],[490,70],[490,96]],!!o.gas);
+  ctx.fillStyle='#94A3B8';[[240,70],[240,150]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,3,0,TAU);ctx.fill();});
+}
+function drawBottomE(o){
+  ctx.fillStyle='#B4BCC8';ctx.fillRect(480,500,20,40);
+  const lc=o.rf?C.purple:'#AEB7C4';
+  pl([[490,540],[490,546],[522,546]],lc,1.8); pl([[532,546],[560,546]],lc,1.8);
+  ctx.save();ctx.strokeStyle=lc;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(522,536);ctx.lineTo(522,556);ctx.moveTo(532,536);ctx.lineTo(532,556);ctx.stroke();ctx.restore();
+  txt('C_block',527,528,{sz:8,mono:true,a:'center',c:C.label});
+  ctx.fillStyle='#fff';ctx.strokeStyle='#C5CDD8';ctx.lineWidth=1.3;rr(560,524,150,44,8);ctx.fill();ctx.stroke();
+  txt('Matching network',635,540,{sz:10.5,w:600,a:'center',c:C.ink2});txt('→ 50 Ω',635,555,{sz:8.5,mono:true,a:'center',c:C.label});
+  pl([[710,546],[726,546]],lc,1.8);
+  genBox(726,520,86,52,'RF','13.56 MHz',!!o.rf,2.5,C.purple);
+  genBox(820,520,86,52,'LF','2 MHz',!!o.lf,1,C.green);
+  pl([[863,572],[863,584],[640,584],[640,568]],o.lf?C.green:'#C5CDD8',1.6);
+  ctx.fillStyle='#fff';ctx.strokeStyle=o.he?'#7FB3E3':'#C5CDD8';ctx.lineWidth=1.3;rr(150,520,70,28,6);ctx.fill();ctx.stroke();
+  txt('He',185,534,{sz:10.5,w:700,a:'center',c:C.ink2});
+  ctx.fillStyle='#fff';ctx.strokeStyle=o.esc?C.purple:'#C5CDD8';rr(150,558,70,28,6);ctx.fill();ctx.stroke();
+  txt('ESC HV',185,572,{sz:10,w:700,a:'center',c:C.ink2});
+  pipe([[220,534],[464,534],[464,500]],!!o.he,'rgba(127,179,227,.95)');
+  pl([[220,572],[470,572],[470,500]],o.esc?'rgba(112,48,160,.6)':'#C5CDD8',1.4,[3,3]);
+}
+function drawPumpE(o){
+  pipe([[718,455],[730,455]],!!o.pump);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(742,455,12,0,TAU);ctx.fill();ctx.stroke();
+  const open=o.tv!=null?o.tv:.5;
+  ctx.save();ctx.translate(742,455);ctx.rotate(-open*Math.PI/2);ctx.strokeStyle=C.ink2;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,10);ctx.stroke();ctx.restore();
+  pipe([[754,455],[762,455]],!!o.pump);
+  ctx.fillStyle='#fff';ctx.strokeStyle='#CBD2DC';ctx.lineWidth=1.2;rr(762,428,92,54,8);ctx.fill();ctx.stroke();
+  ctx.save();ctx.translate(784,455);ctx.strokeStyle='#64748B';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,12,0,TAU);ctx.stroke();
+  for(let k=0;k<6;k++){const a=time*9+k*TAU/6;ctx.beginPath();ctx.moveTo(3*Math.cos(a),3*Math.sin(a));ctx.lineTo(11*Math.cos(a+.35),11*Math.sin(a+.35));ctx.stroke();}
+  ctx.restore();
+  txt('Turbo',802,449,{sz:10.5,w:600,c:C.ink2});txt('pump',802,463,{sz:10.5,w:600,c:C.ink2});
+  txt('Pendulum',742,476,{sz:8.5,c:C.label,a:'center'});txt('→ dry pump',808,494,{sz:9,c:C.label,a:'center'});
+}
+function drawBaseE(o={}){
+  ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+  drawGasPanelE(o); drawBottomE(o);
+  const pc=o.poly?1.5+o.poly*6:0;
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(272,104,436,386);
+  const wg=ctx.createLinearGradient(0,96,0,500);wg.addColorStop(0,'#CBD2DC');wg.addColorStop(1,'#AEB7C4');ctx.fillStyle=wg;
+  ctx.fillRect(262,96,456,8);ctx.fillRect(262,96,10,404);ctx.fillRect(708,96,10,404);ctx.fillRect(262,490,456,10);
+  ctx.fillStyle='#F3F5F9';ctx.fillRect(708,440,10,30);
+  if(o.slit){ctx.fillStyle='#F3F5F9';ctx.fillRect(262,366,10,30);}else{ctx.fillStyle='#8B95A7';ctx.fillRect(262,366,4,30);}
+  // upper electrode (grounded showerhead)
+  const mg=ctx.createLinearGradient(0,104,0,128);mg.addColorStop(0,'#D5DAE3');mg.addColorStop(1,'#A9B1BE');ctx.fillStyle=mg;ctx.fillRect(276,104,428,24);
+  ctx.fillStyle='#E7EBF2';ctx.fillRect(286,128,408,24);
+  if(o.gas){ctx.fillStyle='rgba(112,48,160,.08)';ctx.fillRect(286,128,408,24);}
+  ctx.fillStyle='#A9B1BE';ctx.fillRect(280,128,6,24);ctx.fillRect(694,128,6,24);
+  const fg=ctx.createLinearGradient(0,152,0,172);fg.addColorStop(0,'#9BA4B3');fg.addColorStop(1,'#6E7889');ctx.fillStyle=fg;ctx.fillRect(280,152,420,20);
+  ctx.fillStyle='#3F4757';for(let i=0;i<34;i++){const x=290+i*(400/33);ctx.fillRect(x-.7,153,1.4,19);}
+  if(pc){ctx.fillStyle='rgba(47,163,107,.55)';ctx.fillRect(280,172,420,Math.min(pc,5));ctx.fillRect(272,176,pc,296);ctx.fillRect(708-pc,176,pc,264);}
+  // baffle
+  ctx.fillStyle='#AEB7C4';for(let x=274;x<322;x+=8)ctx.fillRect(x,472,5,4);for(let x=658;x<706;x+=8)ctx.fillRect(x,472,5,4);
+  // chuck assembly
+  ctx.fillStyle='#EADFC8';ctx.strokeStyle='#CDBE9E';ctx.lineWidth=1;[[326,404],[640,404]].forEach(([x,y])=>{rr(x,y,14,86,3);ctx.fill();ctx.stroke();});
+  const bg=ctx.createLinearGradient(0,420,0,470);bg.addColorStop(0,'#C9CFD9');bg.addColorStop(1,'#9AA3B2');ctx.fillStyle=bg;ctx.fillRect(340,420,300,50);
+  ctx.fillStyle='rgba(58,122,214,.32)';for(let i=0;i<7;i++){rr(352+i*41,440,28,7,3);ctx.fill();}
+  if(o.rf){ctx.strokeStyle='rgba(112,48,160,.55)';ctx.lineWidth=1.4;ctx.strokeRect(340,420,300,50);}
+  ctx.fillStyle='#B4BCC8';ctx.fillRect(472,470,36,20);
+  ctx.fillStyle='#E8E4DA';ctx.fillRect(345,412,290,8);
+  pl([[352,416],[628,416]],o.esc?'rgba(112,48,160,.8)':'#9AA3B2',1.2,[4,3]);
+  ctx.fillStyle='#8E97A6';ctx.fillRect(334,402,16,10);ctx.fillRect(630,402,16,10);
+  const pins=o.pins||0, wx=o.wx||0;
+  if(pins>0){ctx.fillStyle='#64748B';[420,560].forEach(x=>ctx.fillRect(x-1.5,412-pins*16,3,pins*16));}
+  if(o.wafer!==false){
+    const wy=406-pins*16, x=WAF.x+wx;
+    ctx.fillStyle='#5B6475';ctx.fillRect(x,wy,WAF.w,6);
+    ctx.fillStyle='rgba(120,180,240,.95)';ctx.fillRect(x,wy-2,WAF.w,2);
+    if(o.pattern!==false){ctx.fillStyle='#E9A23B';for(let i=0;i<14;i++)ctx.fillRect(x+4+i*20,wy-4,13,2);}
+    if(o.he&&!pins){ctx.save();ctx.strokeStyle='rgba(127,179,227,.95)';ctx.lineWidth=1.3;ctx.setLineDash([3,4]);ctx.lineDashOffset=-time*20;ctx.beginPath();ctx.moveTo(x+4,wy+6.6);ctx.lineTo(x+WAF.w-4,wy+6.6);ctx.stroke();ctx.restore();}
+  }
+  drawPumpE(o);
+  pl([[262,300],[240,300]],'#AEB7C4',3);ctx.fillStyle='#fff';ctx.strokeStyle='#94A3B8';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(228,300,11,0,TAU);ctx.fill();ctx.stroke();
+  txt('CM',228,300,{sz:8.5,w:700,c:C.ink2,a:'center',mono:true});
+  if(o.p!=null) txt(typeof o.p==='string'?o.p:`${o.p.toFixed(0)} mTorr`,228,322,{sz:9.5,c:C.purple,a:'center',mono:true,w:600});
+  pl([[300,500],[300,508]],'#475569',1.4);gnd(300,508);
+  txt('Upper electrode · GND',724,162,{sz:10.5,w:600,c:C.ink2});
+  txt('Wafer · focus ring',724,398,{sz:10.5,w:600,c:C.ink2});
+  txt('ESC chuck · RF',724,414,{sz:10.5,w:600,c:o.rf?C.purple:C.ink2});
+  if(o.gapDim){arrow(310,280,310,176,C.label,1);arrow(310,300,310,398,C.label,1);txt('gap ≈ 25 mm',316,290,{sz:10,mono:true,c:C.muted});}
+  if(o.hl) highlightPart(o.hl);
+}
+
+/* ---------- plasma: asymmetric RF sheath model (chuck = powered, bottom) ----------
+   V̄_gnd = V0/(1+R), V̄_pwr = V0 − V̄_gnd, R = (A_gnd/A_pwr)^1.5, V_DC = V̄_gnd − V̄_pwr
+   top (grounded) sheath v_t = V̄_gnd(1+sin φ) = V_p(t);  chuck sheath v_b = V̄_pwr(1 − sin φ)
+   mean width: collisionless Child law (Tₑ≈3 eV, nₑ≈1e10 cm⁻³), s ∝ nₑ^−0.5 with nₑ ∝ V_rf;
+   instantaneous edge inside a fixed ion space charge: s(t) = s̄·√(v(t)/V̄)                         */
+const sCL=v=>0.0447*Math.pow(Math.max(v,0),0.75);   // mm
+function rfE(V0,ratio,frac=1){
+  const R=Math.pow(ratio,1.5), Vg0=V0/(1+R);
+  const Vg=V0/2+frac*(Vg0-V0/2), Vc=V0-Vg, Vdc=Vg-Vc;
+  const s=Math.sin(phase), c=Math.cos(phase), nf=Math.pow(V0/600,-.5);
+  const vt=Vg*(1+s), vb=Vc*(1-s), sTm=PXMM*sCL(Vg)*nf, sBm=PXMM*sCL(Vc)*nf;
+  const w=(m,v,V)=>Math.max(PXMM*.1,m*Math.sqrt(Math.max(0,v)/Math.max(V,1)));
+  return {V0,Vt:Vg,Vb:Vc,Vdc,vt,vb,nf,vch:Vdc+V0*s,vp:vt,sT:w(sTm,vt,Vg),sB:w(sBm,vb,Vc),sTm,sBm,expT:Math.max(0,c),expB:Math.max(0,-c)};
+}
+function sheathLabelsE(st){
+  txt(`sheath ≈ ${(st.sTm/PXMM).toFixed(1)} mm`,724,YT+16,{sz:9.5,c:C.label});
+  txt('Bulk plasma',724,262,{sz:10.5,w:600,c:C.purpleMid});
+  txt(`sheath ≈ ${(st.sBm/PXMM).toFixed(1)} mm`,724,YB-24,{sz:9.5,c:C.label});
+  txt(`V_DC ${st.Vdc.toFixed(0)} V`,724,330,{sz:10,mono:true,w:600,c:C.purple});
+  txt(`V_chuck ${st.vch>=0?'+':''}${st.vch.toFixed(0)} V`,724,346,{sz:9.5,mono:true,c:C.muted});
+}
+function flowE(p){if(p.y<398){const dx=p.x-XC;return[Math.sign(dx)*.22*Math.min(1,Math.abs(dx)/150),.12];}return[(p.x<XC?-.03:.03),.42];}
+function confineE(p){
+  if(p.x<275){p.x=275;p.vx=Math.abs(p.vx);} if(p.x>705){p.x=705;p.vx=-Math.abs(p.vx);} if(p.y<175){p.y=175;p.vy=Math.abs(p.vy);}
+  if(p.x>323&&p.x<657&&p.y>398){const dl=p.x-323,dr=657-p.x,du=p.y-398,m=Math.min(dl,dr,du);
+    if(m===du){p.y=398;p.vy=-Math.abs(p.vy);}else if(m===dl){p.x=323;p.vx=-Math.abs(p.vx);}else{p.x=657;p.vx=Math.abs(p.vx);}}
+}
+function moveBallistic(p,f,lamPx){const sp=Math.hypot(p.vx,p.vy)||1;if(rnd()<clamp(sp*f/lamPx,0,1)){const a=rnd()*TAU,v=1.2+rnd()*1.6;p.vx=v*Math.cos(a);p.vy=v*Math.sin(a);}}
+
+/* ---------- hotspots (step 1) ---------- */
+const PARTS=[
+  {id:'mfc',r:[[179,57,34,28],[179,137,34,28],[179,217,34,28]]},
+  {id:'c4f8',r:[[22,30,156,56]]},{id:'o2',r:[[22,110,156,56]]},{id:'ar',r:[[22,190,156,56]]},
+  {id:'top',r:[[276,102,428,72]]},{id:'wafer',r:[[350,400,280,10]]},{id:'fr',r:[[332,398,20,16],[628,398,20,16]]},
+  {id:'esc',r:[[345,411,290,10]]},{id:'iso',r:[[324,402,18,88],[638,402,18,88]]},{id:'chuck',r:[[340,421,300,50],[472,470,36,70]]},
+  {id:'baffle',r:[[272,468,54,12],[654,468,54,12]]},{id:'gap',r:[[286,176,408,196]]},
+  {id:'he',r:[[148,518,74,32]]},{id:'eschv',r:[[148,556,74,32]]},{id:'cm',r:[[212,286,52,30]]},
+  {id:'match',r:[[516,522,196,48]]},{id:'hf',r:[[724,518,90,56]]},{id:'lf',r:[[818,518,90,56]]},
+  {id:'pv',r:[[728,441,28,28]]},{id:'tmp',r:[[760,426,96,58]]},{id:'slit',r:[[256,362,20,38]]},
+  {id:'wall',r:[[258,180,16,300],[706,180,16,256],[258,488,464,14]]},
+];
+
+/* ============================== STEPS ============================== */
+const SC=[];
+
+/* ---- 1 · Hardware ---- */
+SC[0]={legend:[],cls:'one',
+  init(){parts=[];fx=[];},
+  draw(){drawBaseE({hl:hoverPart||pinPart,gapDim:true,p:'< 1 mTorr'});},
+  inst(){const I=IL('hw');return card('HARDWARE',I.title,`<div class="stats" style="grid-template-columns:repeat(6,minmax(0,1fr))">${I.stats.map(([k,v])=>`<div class="stat"><div class="stat-k">${k}</div><div class="stat-v" style="font-size:12px">${v}</div></div>`).join('')}</div>`);},
+  rd(){return{p:'< 1 mTorr',T:'20 °C'};},
+};
+
+/* ---- 2 · Pump, chuck, stabilize ---- */
+const lamGas=p=>1/(1.414*(p*0.133322/(1.380649e-23*300))*4.07e-19)*1000;   // mm, p in mTorr
+const pmap={to:v=>Math.round(Math.log10(v/5)/Math.log10(40)*100),from:s=>Math.round(5*Math.pow(40,s/100))};
+const pickGas=()=>{const u=rnd();return u<.18?'C4F8':u<.3?'O2':'Ar';};
+SC[1]={legend:['C4F8','O2','Ar'],
+  init(){parts=[];fx=[];},
+  update(dt){const f=dt*60,lp=Math.max(2,lamGas(S.p)*PXMM),target=clamp(Math.round(10+S.p*1.1),10,170);
+    if(parts.length<target&&rnd()<.6*f){const p=spawn(pickGas(),X0+12+rnd()*(X1-X0-24),YT+4,(rnd()-.5)*1.5,.8+rnd());if(parts.filter(q=>q.tr).length<5)p.tr=[];}
+    for(const p of parts){moveBallistic(p,f,lp);const fl=flowE(p);p.x+=(p.vx+fl[0])*f;p.y+=(p.vy+fl[1])*f;confineE(p);
+      if(p.tr){p.tr.push([p.x,p.y]);if(p.tr.length>45)p.tr.shift();}}
+    parts=parts.filter(p=>p.y<476);
+    while(parts.length>target+12)parts.shift();},
+  draw(){drawBaseE({gas:true,esc:true,he:true,p:S.p,pump:true,tv:clamp(1-S.p/150,.15,1)});
+    for(const p of parts)if(p.tr&&p.tr.length>1)pl(p.tr,'rgba(112,48,160,.38)',1.2);
+    drawParts();drawFx();},
+  inst(){const I=IL('s1');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.p,`<div class="ctls">${rng('r1p',I.p,0,100,1,pmap.to(S.p))}<div class="stats">${statH('s1l',I.lam)}${statH('s1s',I.sl)}${statH('s1g',I.reg)}</div></div>`);},
+  bind(){bindRange('r1p',()=>pmap.to(S.p),v=>S.p=pmap.from(v),()=>`${S.p} mTorr`);},
+  chart(){const I=IL('s1'),lam=lamGas(S.p),sl=4.7/lam;
+    setStat('s1l',lam>=1?`${lam.toFixed(1)}<small> mm</small>`:`${(lam*1000).toFixed(0)}<small> µm</small>`);setStat('s1s',sl.toFixed(1));
+    setStat('s1g',sl<1?I.free:sl<5?I.trans:I.coll,sl<5?'pass':'fail');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:40,r:W-10,t:10,b:H-16};
+    const px0=Math.log10(5),px1=Math.log10(3000),X=v=>b.l+(Math.log10(v)-px0)/(px1-px0)*(b.r-b.l),Y=v=>b.b-(Math.log10(v)+2)/4*(b.b-b.t);
+    [5,10,30,100,300,1000,3000].forEach(v=>{gl(g,[[X(v),b.t],[X(v),b.b]],C.line,1);gt(g,v>=1000?(v/1000)+'k':String(v),X(v),b.b+9,{a:'center',sz:9,mono:true,c:C.label});});
+    [.01,.1,1,10,100].forEach(v=>{gl(g,[[b.l,Y(v)],[b.r,Y(v)]],C.line,1);gt(g,String(v),b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});});
+    g.fillStyle='rgba(112,48,160,.10)';g.fillRect(b.l,Y(6),b.r-b.l,Y(4)-Y(6));gt(g,I.sheath,b.r-4,Y(6)-7,{a:'right',sz:9,c:C.purple});
+    gl(g,[[b.l,Y(25)],[b.r,Y(25)]],C.muted,1,[4,3]);gt(g,I.gap,b.r-4,Y(25)-7,{a:'right',sz:9,c:C.muted});
+    const pts=[];for(let i=0;i<=60;i++){const p=Math.pow(10,px0+(px1-px0)*i/60);pts.push([X(p),Y(lamGas(p))]);}gl(g,pts,C.green,2);
+    g.fillStyle=C.coral;g.beginPath();g.arc(X(2500),Y(lamGas(2500)),4,0,TAU);g.fill();gt(g,I.cvd,X(2500)-8,Y(lamGas(2500))-2,{a:'right',sz:9,c:C.coral});
+    const x=X(S.p),y=Y(lam);g.fillStyle=C.green;g.beginPath();g.arc(x,y,5,0,TAU);g.fill();g.strokeStyle='#fff';g.lineWidth=2;g.stroke();
+    gt(g,'λ [mm]',b.l+4,b.t+6,{sz:9,mono:true,c:C.label});gt(g,'p [mTorr]',b.r-4,b.b-8,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:`${S.p} mTorr`,T:'20 °C',gas:`C₄F₈ ${S.c4} · O₂ ${S.o2} · Ar ${S.ar} sccm`};},
+};
+
+/* ---- 3 · Ignition & fluorocarbon chemistry ---- */
+const st2={ev:0,tick:[],dirty:true};
+const fcR=()=>2*(1+.9*S.o2/Math.max(S.c4,1));
+function gasX(){const t=S.c4+S.o2+S.ar;return{c4:S.c4/t,o2:S.o2/t,ar:S.ar/t};}
+function oesE(){const x=gasX(),k=S.o2/Math.max(S.c4,1);return{cf2:13*x.c4/(1+.9*k),F:5*x.c4*(1+1.2*k),ar:1.05*x.ar,O:10*Math.max(0,x.o2-.35*x.c4)};}
+const OESL=[[251,'cf2',.5],[259,'cf2',.8],[263,'cf2',1,'CF₂'],[271,'cf2',.75],[275,'cf2',.55],[290,'cf2',.3],[685.6,'F',.45],[703.7,'F',1,'F'],[750.4,'ar',1,'Ar'],[763.5,'ar',.6],[811.5,'ar',.8,'Ar'],[777.4,'O',1,'O'],[844.6,'O',.45]];
+function rx2(h,tag){st2.tick.unshift(`${h} <em>· ${tag}</em>`);if(st2.tick.length>3)st2.tick.pop();st2.dirty=true;}
+function nT2(){const x=gasX();return{C4F8:Math.round(6+160*x.c4),O2:Math.round(3+160*x.o2),Ar:Math.round(40*x.ar)};}
+SC[2]={legend:['C4F8','O2','Ar','e','Arp','Neg','CF2','F','O','CO'],cls:'tall',
+  init(){parts=[];fx=[];st2.tick=[];st2.dirty=true;const n=nT2();for(const s in n)for(let k=0;k<n[s];k++){const q=bulkPt(4);spawn(s,q.x,q.y);}
+    for(let k=0;k<16;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<8;k++){const q=bulkPt();spawn(rnd()<.8?'Arp':'CF3p',q.x,q.y);}
+    for(let k=0;k<3;k++){const q=bulkPt(40);spawn('Neg',q.x,q.y);}},
+  update(dt){const f=dt*60,st=rfE(600,3);this.st=st;const yTm=YT+st.sTm,yBm=YB-st.sBm,R=IL('s2').rx;
+    for(const p of parts){const c=SP[p.s].cat;p.age+=dt;
+      if(c==='e'){if(moveE(p,st,f))placeBulk(p);}
+      else if(c==='i'){if(moveIon(p,st,f))placeBulk(p);}
+      else if(c==='ni'){lang_(p,f,.15,.96);p.x+=p.vx*f;p.y+=p.vy*f;boxR(p,X0+4,X1-4,yTm+4,yBm-4);}
+      else{lang_(p,f,c==='r'?1.2:.4,.94);p.x+=p.vx*f;p.y+=p.vy*f;
+        if(c==='r'&&(p.y<YT+2||p.y>YB-2)&&rnd()<.4){p.dead=true;continue;}
+        if((c==='r'&&p.age>9)||(c==='b'&&p.age>6)){p.dead=true;continue;}
+        boxR(p,X0+3,X1-3,YT+2,YB-2);}}
+    st2.ev+=dt;
+    if(st2.ev>.14){st2.ev=0;
+      const pick=s=>{const a=parts.filter(p=>p.s===s&&!p.dead);return a.length?a[Math.floor(rnd()*a.length)]:null;};
+      const u=rnd();let t,x=null,y=null;
+      if(u<.4&&(t=pick('C4F8'))){x=t.x;y=t.y;t.dead=true;
+        if(rnd()<.72){spawn('CF2',x-3,y,-.6,0);spawn('CF2',x+3,y,.6,0);rx2('e⁻ + c-C₄F₈ → 2 C₂F₄ → 4 CF₂',R.ring);}
+        else{spawn('Neg',x,y);const e=pick('e');if(e)e.dead=true;rx2('e⁻ + C₄F₈ → C₄F₈⁻',R.att);}}
+      else if(u<.55&&(t=pick('CF2'))){x=t.x;y=t.y;t.dead=true;spawn('F',x,y,.5,0);rx2('e⁻ + CF₂ → CF + F + e⁻',R.diss);}
+      else if(u<.7&&(t=pick('O2'))){x=t.x;y=t.y;t.dead=true;spawn('O',x-3,y,-.5,0);spawn('O',x+3,y,.5,0);rx2('e⁻ + O₂ → 2 O + e⁻',R.diss);}
+      else if((t=pick('Ar'))){x=t.x;y=t.y;t.dead=true;spawn('Arp',x,y);spawn('e',x+3,y-3);rx2('e⁻ + Ar → Ar⁺ + 2e⁻',R.ion);}
+      if(x!=null)addFlash(x,y,'230,226,255',.35,10);
+      const o=pick('O');
+      if(o){const cf=parts.find(q=>q.s==='CF2'&&!q.dead&&Math.abs(q.x-o.x)<34&&Math.abs(q.y-o.y)<34);
+        if(cf){o.dead=cf.dead=true;spawn('CO',cf.x,cf.y,0,-.3);spawn('F',cf.x+3,cf.y,.4,0);rx2('O + CF₂ → CO + 2F',R.scav);}}
+      const O=oesE(),tot=O.cf2+O.F+O.ar+O.O;let v=rnd()*tot,line,sp;
+      if((v-=O.ar)<0){line=750;sp='Ar';}else if((v-=O.cf2)<0){line=263;sp='CF2';}else if((v-=O.F)<0){line=704;sp='F';}else{line=777;sp='O';}
+      const cand=parts.filter(p=>p.s===sp&&!p.dead),src=cand.length?cand[Math.floor(rnd()*cand.length)]:bulkPt();
+      addFlash(src.x,src.y,wl2rgb(line).join(','),.55,14,line+' nm');}
+    parts=parts.filter(p=>!p.dead);
+    const n=nT2();
+    for(const s in n){while(count(s)<n[s])spawn(s,X0+10+rnd()*(X1-X0-20),YT+4,0,.6);while(count(s)>n[s]+4)parts.splice(parts.findIndex(p=>p.s===s),1);}
+    while(count('e')<16){const q=bulkPt();spawn('e',q.x,q.y);}
+    while(count('Arp')+count('CF3p')<8){const q=bulkPt();spawn('Arp',q.x,q.y);}
+    while(count('Neg')>5)parts.splice(parts.findIndex(p=>p.s==='Neg'),1);},
+  draw(){const st=this.st||rfE(600,3);drawBaseE({rf:true,gas:true,esc:true,he:true,p:S.p,pump:true});drawPlasma(st,.9);drawParts();drawFx();sheathLabelsE(st);},
+  inst(){const I=IL('s2');return card('OES',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.tick,`<div class="ctls">${rng('r2c',I.c4,5,40,1,S.c4)}${rng('r2o',I.o2,0,30,1,S.o2)}${rng('r2a',I.ar,50,500,10,S.ar)}<div class="ticker" id="tick2"></div></div>`);},
+  bind(){bindRange('r2c',()=>S.c4,v=>S.c4=v,()=>`${S.c4} sccm`);bindRange('r2o',()=>S.o2,v=>S.o2=v,()=>`${S.o2} sccm`);bindRange('r2a',()=>S.ar,v=>S.ar=v,()=>`${S.ar} sccm`);st2.dirty=true;},
+  chart(){const I=IL('s2'),O=oesE(),fc=fcR();
+    if(st2.dirty){const t=$('tick2');if(t)t.innerHTML=st2.tick.map(s=>`<div>${s}</div>`).join('')||'<div><em>…</em></div>';st2.dirty=false;}
+    setMsg(`${I.fc} ≈ ${fc.toFixed(1)} · ${fc<2.6?I.poly:fc<3.6?I.bal:I.fr}`,fc<2.6?'info':fc<3.6?'':'warn');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:30,r:W-10,t:16,b:H-18},w0=240,w1=860,X=w=>b.l+(w-w0)/(w1-w0)*(b.r-b.l),ym=1.25,Y=v=>b.b-Math.min(v,ym)/ym*(b.b-b.t);
+    const grd=g.createLinearGradient(X(380),0,X(750),0);[380,440,490,510,580,645,750].forEach(w=>{const c=wl2rgb(w);grd.addColorStop((w-380)/370,`rgba(${c},.18)`);});
+    g.fillStyle=grd;g.fillRect(X(380),b.b+2,X(750)-X(380),4);
+    for(let w=300;w<=800;w+=100){gl(g,[[X(w),b.t],[X(w),b.b]],C.line,1);gt(g,String(w),X(w),b.b+11,{a:'center',sz:9,mono:true,c:C.label});}
+    for(const [wl,key,rel,lab] of OESL){const a=O[key]*rel,c=wl2rgb(wl);g.beginPath();g.moveTo(X(wl-9),b.b);
+      for(let x=-9;x<=9;x+=.5)g.lineTo(X(wl+x),Y(a*Math.exp(-x*x/(2*2.2*2.2))));g.closePath();g.fillStyle=`rgba(${c},.55)`;g.fill();g.strokeStyle=`rgb(${c})`;g.lineWidth=1.3;g.stroke();
+      if(lab)gt(g,lab,X(wl),Y(a)-8,{a:'center',sz:9.5,w:600,c:`rgb(${c.map(v=>Math.round(v*.72))})`});}
+    gl(g,[[b.l,b.b],[b.r,b.b]],'#CBD2DC',1);gt(g,'nm',b.r,b.b+11,{a:'right',sz:9,mono:true,c:C.label});gt(g,'a.u.',b.l+2,b.t-6,{sz:9,mono:true,c:C.label});},
+  rd(){return{p:`${S.p} mTorr`,T:'20 °C',hf:'13.56 MHz',gas:`F/C ≈ ${fcR().toFixed(1)}`,slow:true};},
+};
+
+/* ---- 4 · Self-bias formation ---- */
+const st3={frac:0,t:0,hist:[]};
+SC[3]={legend:['e','Arp','CF3p'],
+  init(){parts=[];fx=[];Object.assign(st3,{frac:0,t:0,hist:[]});for(let k=0;k<30;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<14;k++){const q=bulkPt();spawn(rnd()<.75?'Arp':'CF3p',q.x,q.y);}},
+  update(dt){const f=dt*60;st3.t+=dt;st3.frac=1-Math.exp(-st3.t/2.2);const st=rfE(S.v0,S.ratio,st3.frac);this.st=st;
+    moveRF(f,st,(p,r)=>{if(r==='B'&&rnd()<.6)addFlash(p.x,YB-2,'240,180,40',.3,9);},(p,r)=>addRing(p.x,r==='T'?YT+1:YB-1,'232,85,59',.3,r==='B'?9:6));
+    st3.hist.push([st3.t,st.vch,st.vp,st.Vdc]);while(st3.hist.length&&st3.hist[0][0]<st3.t-8)st3.hist.shift();},
+  draw(){const st=this.st||rfE(S.v0,S.ratio,0);drawBaseE({rf:true,gas:true,esc:true,he:true,p:30});drawPlasma(st,1);drawParts();drawFx();sheathLabelsE(st);
+    const a=clamp(1-st3.frac*1.6,0,1);if(a>.02){ctx.save();ctx.globalAlpha=a;arrow(560,226,560,380,C.amber,2.4);txt(IL('s3').flux,568,300,{sz:10.5,w:600,c:C.amber});ctx.restore();}},
+  inst(){const I=IL('s3');return card('LIVE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL','Self-bias',`<div class="ctls">${rng('r3v',I.v0,200,1200,10,S.v0)}${rng('r3a',I.ratio,1,5,.1,S.ratio)}
+      <div class="stats">${statH('s3n',I.now)}${statH('s3e',I.eq)}${statH('s3c',I.cyc)}</div><div class="seg-row"><button class="btn" id="b3r">${I.restart}</button></div></div>`);},
+  bind(){const re=()=>{st3.t=0;st3.frac=0;st3.hist=[];};
+    bindRange('r3v',()=>S.v0,v=>S.v0=v,()=>`${S.v0} V`,re);bindRange('r3a',()=>S.ratio,v=>S.ratio=v,()=>S.ratio.toFixed(1),re);$('b3r').onclick=re;},
+  chart(){const I=IL('s3'),st=this.st||rfE(S.v0,S.ratio,0),eq=rfE(S.v0,S.ratio,1);
+    setStat('s3n',`${st.Vdc.toFixed(0)}<small> V</small>`);setStat('s3e',`${eq.Vdc.toFixed(0)}<small> V</small>`);setStat('s3c',(st3.t*FA).toFixed(1));
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:46,r:W-10,t:14,b:H-16};
+    const ymin=eq.Vdc-S.v0-30,ymax=S.v0+40,X=t=>b.r-(st3.t-t)/8*(b.r-b.l),Y=v=>b.b-(v-ymin)/(ymax-ymin)*(b.b-b.t);
+    const step=ymax-ymin>1600?500:ymax-ymin>700?200:100;
+    for(let v=Math.ceil(ymin/step)*step;v<=ymax;v+=step){gl(g,[[b.l,Y(v)],[b.r,Y(v)]],v===0?'#CBD2DC':C.line,1);gt(g,String(v),b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});}
+    const h=st3.hist;if(h.length>1){gl(g,h.map(r=>[X(r[0]),Y(r[2])]),C.green,1.6);gl(g,h.map(r=>[X(r[0]),Y(r[1])]),C.purple,2);gl(g,h.map(r=>[X(r[0]),Y(r[3])]),C.coral,1.6,[5,4]);}
+    gt(g,'— '+I.vch,b.l+6,b.t,{sz:9,w:600,c:C.purple});gt(g,'— '+I.vp,b.l+96,b.t,{sz:9,w:600,c:C.green});gt(g,'- - V_DC',b.l+170,b.t,{sz:9,w:600,c:C.coral});
+    gt(g,'time →',b.r,b.b+9,{a:'right',sz:8.5,c:C.label});},
+  rd(){return{p:'30 mTorr',T:'20 °C',hf:`V_rf ${S.v0} V`,slow:true};},
+};
+
+/* ---- 5 · Asymmetric sheath ---- */
+let vAvgE={k:'',a:null};
+function vProfE(vp,vch,sT,sB,x){if(x<sT)return vp*(1-Math.pow(1-x/sT,2));if(x>GAPMM-sB)return vch+(vp-vch)*Math.pow((GAPMM-x)/sB,2);return vp;}
+function vAvgEf(){const k=S.v0+'|'+S.ratio;if(vAvgE.k===k)return vAvgE.a;const N=100,M=96,a=new Float32Array(N+1),sv=phase;
+  for(let m=0;m<M;m++){phase=m/M*TAU;const st=rfE(S.v0,S.ratio);for(let i=0;i<=N;i++)a[i]+=vProfE(st.vp,st.vch,st.sT/PXMM,st.sB/PXMM,GAPMM*i/N)/M;}
+  phase=sv;vAvgE={k,a};return a;}
+SC[4]={legend:['e','Arp','CF3p'],pausable:true,
+  init(){parts=[];fx=[];for(let k=0;k<30;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<16;k++){const q=bulkPt();spawn(rnd()<.75?'Arp':'CF3p',q.x,q.y);}},
+  update(dt){const f=dt*60;this.st=rfE(S.v0,S.ratio);
+    moveRF(f,this.st,(p,r)=>{if(r==='B'&&rnd()<.6)addFlash(p.x,YB-2,'240,180,40',.3,9);},(p,r)=>addRing(p.x,r==='T'?YT+1:YB-1,'232,85,59',.35,r==='B'?10:6));},
+  draw(){const st=this.st||rfE(S.v0,S.ratio);drawBaseE({rf:true,gas:true,esc:true,he:true,p:30});drawPlasma(st,1);drawParts();drawFx();sheathLabelsE(st);},
+  inst(){const I=IL('s4');return `<div class="icard"><div class="ihead"><span class="badge"><span class="badge-dot"></span>LIVE</span><h3>${I.chart}</h3><button class="btn" id="b4p" style="margin-left:auto;padding:3px 10px">${S.paused?I.play:I.pause}</button></div><canvas class="chart" id="chA"></canvas></div>`+
+    card('CONTROL','RF',`<div class="ctls">${rng('r4v',IL('s3').v0,200,1200,10,S.v0)}${rng('r4a',IL('s3').ratio,1,5,.1,S.ratio)}
+      <div class="stats">${statH('s4t',I.vT)}${statH('s4b',I.vB)}${statH('s4d',I.vdc)}${statH('s4st',I.sT)}${statH('s4sb',I.sB)}${statH('s4e',I.ei)}</div></div>`);},
+  bind(){const I=IL('s4');bindRange('r4v',()=>S.v0,v=>S.v0=v,()=>`${S.v0} V`);bindRange('r4a',()=>S.ratio,v=>S.ratio=v,()=>S.ratio.toFixed(1));
+    $('b4p').onclick=e=>{S.paused=!S.paused;e.target.textContent=S.paused?I.play:I.pause;};},
+  chart(){const I=IL('s4'),st=this.st||rfE(S.v0,S.ratio);
+    setStat('s4t',`${st.Vt.toFixed(0)}<small> V</small>`);setStat('s4b',`${st.Vb.toFixed(0)}<small> V</small>`);setStat('s4d',`${st.Vdc.toFixed(0)}<small> V</small>`);
+    setStat('s4st',`${(st.sTm/PXMM).toFixed(1)}<small> mm</small>`);setStat('s4sb',`${(st.sBm/PXMM).toFixed(1)}<small> mm</small>`);setStat('s4e',`≈ ${st.Vb.toFixed(0)}<small> eV</small>`);
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:46,r:W-10,t:10,b:H-18};
+    const ymin=-2*st.Vb-30,ymax=2*st.Vt+40,X=x=>b.l+x/GAPMM*(b.r-b.l),Y=v=>b.b-(v-ymin)/(ymax-ymin)*(b.b-b.t);
+    g.fillStyle='rgba(30,27,75,.06)';g.fillRect(X(0),b.t,X(st.sT/PXMM)-X(0),b.b-b.t);g.fillRect(X(GAPMM-st.sB/PXMM),b.t,X(GAPMM)-X(GAPMM-st.sB/PXMM),b.b-b.t);
+    const step=ymax-ymin>1600?500:ymax-ymin>700?200:100;
+    for(let v=Math.ceil(ymin/step)*step;v<=ymax;v+=step){gl(g,[[b.l,Y(v)],[b.r,Y(v)]],v===0?'#CBD2DC':C.line,1);gt(g,String(v),b.l-5,Y(v),{a:'right',sz:9,mono:true,c:C.label});}
+    const av=vAvgEf();gl(g,Array.from(av,(v,i)=>[X(GAPMM*i/(av.length-1)),Y(v)]),C.label,1.6,[5,4]);
+    const pts=[];for(let i=0;i<=150;i++){const x=GAPMM*i/150;pts.push([X(x),Y(vProfE(st.vp,st.vch,st.sT/PXMM,st.sB/PXMM,x))]);}gl(g,pts,C.purple,2.2);
+    g.fillStyle=C.green;g.beginPath();g.arc(X(0),Y(0),4,0,TAU);g.fill();g.fillStyle=C.purple;g.beginPath();g.arc(X(GAPMM),Y(st.vch),4,0,TAU);g.fill();
+    gt(g,I.x0,b.l+4,b.b+10,{sz:9,c:C.label});gt(g,I.x1,b.r,b.b+10,{a:'right',sz:9,c:C.label});
+    gt(g,'— '+I.now,b.r-4,b.t+6,{a:'right',sz:9,c:C.purple,w:600});gt(g,'- - '+I.avg,b.r-4,b.t+18,{a:'right',sz:9,c:C.muted});
+    gt(g,'V_p',X(GAPMM/2),Y(st.vp)-9,{a:'center',sz:9,mono:true,c:C.purple});},
+  rd(){return{p:'30 mTorr',T:'20 °C',hf:`V_rf ${S.v0} V`,slow:true};},
+};
+
+/* ---- 6 · IEDF (zoom on the chuck sheath) ---- */
+const ZE=110, ZW=470, ZS=ZW-ZE, ZX0=170, ZX1=880;
+const IONM={Ar:40,CF3:69,F:19};
+const st5={ions:[],fast:[],gas:[],gk:'',sp:0,ph:0,key:'',D:null};
+function ionE(){const M=IONM[S.ion]*1.6605e-27,V=S.vb5,s=sCL(V)*1e-3,w=TAU*S.freq*1e6,vm=Math.sqrt(2*1.602e-19*V/M);
+  const dE=Math.min(2*V,8*V/(3*w*s)*vm),cyc=3*s/vm*S.freq*1e6,ng=S.p*0.133322/(1.380649e-23*330),lam=1/(ng*5e-19)*1000;
+  return{dE,s:s*1000,lam,cyc};}
+function iedf5(){const key=[S.freq,S.ion,S.vb5,S.p].join('|');if(st5.key===key)return st5.D;
+  const{dE,s,lam}=ionE(),V=S.vb5,Emax=2*V*1.04,nb=72,h=new Float32Array(nb),N=6000;let sum=0,nc=0;
+  for(let i=0;i<N;i++){const Ef=V+dE/2*Math.sin(TAU*rnd());let z=0,zc=-1;
+    for(let k=0;k<600;k++){const d=-lam*Math.log(1-rnd());if(z+d>=s)break;z+=d;zc=z;}
+    const E=zc<0?Ef:Ef*(1-Math.pow(zc/s,4/3));if(zc<0)nc++;sum+=E;h[clamp(Math.floor(E/Emax*nb),0,nb-1)]++;}
+  st5.D={h,Emax,mean:sum/N,nc:nc/N};st5.key=key;return st5.D;}
+function gas5(){const k=String(S.p);if(st5.gk===k)return;st5.gk=k;st5.gas=[];const n=Math.round(6+Math.sqrt(S.p)*5);for(let i=0;i<n;i++)st5.gas.push({x:ZX0+rnd()*(ZX1-ZX0),y:ZE+rnd()*ZS});}
+SC[5]={legend:['Arp','fast'],noLabels:true,cls:'tall',
+  init(){parts=[];fx=[];st5.ions=[];st5.fast=[];st5.sp=0;st5.gk='';},
+  update(dt){const f=dt*60,{dE,s,lam,cyc}=ionE(),V=S.vb5,fv=Math.min(6,Math.max(.2,cyc/1.6));st5.ph+=dt*TAU*fv;this.v=V*(1-Math.sin(st5.ph));gas5();
+    const lpx=ZS*lam/s;
+    st5.sp+=dt;if(st5.sp>.12&&st5.ions.length<30){st5.sp=0;const io={x:ZX0+20+rnd()*(ZX1-ZX0-40),z:0,zc:-1,tr:[]};
+      let z=0;for(let k=0;k<600;k++){const d=-lpx*Math.log(1-rnd());if(z+d>=ZS)break;z+=d;io.zc=z;}st5.ions.push(io);}
+    for(const io of st5.ions){const fr=Math.pow(io.z/ZS,4/3),base=io.zc>=0&&io.z>io.zc?fr-Math.pow(io.zc/ZS,4/3):fr;
+      const v=1.2+.33*Math.sqrt(Math.max(0,base*V));io.tr.push([io.x,ZE+io.z]);if(io.tr.length>7)io.tr.shift();
+      const nz=io.z+v*f;if(io.zc>=0&&io.z<io.zc&&nz>=io.zc){st5.fast.push({x:io.x,z:io.zc,v,tr:[]});addFlash(io.x,ZE+io.zc,'160,170,190',.3,7);io.tr=[];}
+      io.z=nz;
+      if(io.z>=ZS){io.dead=true;const Ef=V+dE/2*((this.v-V)/V),E=io.zc>=0?Ef*(1-Math.pow(io.zc/ZS,4/3)):Ef,col=E<V*.6?'15,140,80':E<V*1.25?'217,154,0':'232,85,59';
+        addRing(io.x,ZW,col,.6,6+Math.sqrt(Math.max(E,0))*.45,`${E.toFixed(0)} eV`);}}
+    for(const n of st5.fast){n.tr.push([n.x,ZE+n.z]);if(n.tr.length>6)n.tr.shift();n.z+=n.v*f;if(n.z>=ZS){n.dead=true;addRing(n.x,ZW,'148,163,184',.35,5);}}
+    st5.ions=st5.ions.filter(i=>!i.dead);st5.fast=st5.fast.filter(i=>!i.dead);},
+  draw(){const I=IL('s5'),{s,lam,cyc}=ionE(),V=S.vb5,v=this.v??V,ey=ZW-ZS*Math.sqrt(Math.max(0,v)/(2*V));
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    txt(I.zoom,ZX0,26,{sz:11,mono:true,w:600,c:C.purple});
+    txt(`RF ${S.freq} MHz · ${cyc.toFixed(1)} ${I.cyc}`,ZX1,26,{sz:10,mono:true,c:C.muted,a:'right'});
+    let g=ctx.createLinearGradient(0,40,0,ey);g.addColorStop(0,'rgba(190,166,242,0)');g.addColorStop(1,'rgba(190,166,242,.7)');ctx.fillStyle=g;ctx.fillRect(ZX0,40,ZX1-ZX0,ey-40);
+    txt('Bulk plasma',ZX1-8,64,{sz:11,w:600,c:C.purpleMid,a:'right'});
+    g=ctx.createLinearGradient(0,ey,0,ZW);g.addColorStop(0,'rgba(30,27,75,.03)');g.addColorStop(1,'rgba(30,27,75,.16)');ctx.fillStyle=g;ctx.fillRect(ZX0,ey,ZX1-ZX0,ZW-ey);
+    pl([[ZX0,ey],[ZX1,ey]],'rgba(112,48,160,.6)',1.2,[4,4]);txt(I.edge,ZX1-8,ey-8,{sz:10,c:C.purple,a:'right'});
+    pl([[ZX0,ZE],[ZX0+18,ZE]],C.label,1);txt('s_max',ZX0+22,ZE,{sz:9,mono:true,c:C.label});
+    ctx.fillStyle='#CBD2DC';for(const q of st5.gas){ctx.beginPath();ctx.arc(q.x+Math.sin(time*3+q.y)*1.2,q.y,1.6,0,TAU);ctx.fill();}
+    ctx.fillStyle='rgba(120,180,240,.9)';ctx.fillRect(ZX0,ZW,ZX1-ZX0,12);ctx.fillStyle='#5B6475';ctx.fillRect(ZX0,ZW+12,ZX1-ZX0,18);ctx.fillStyle='#E8E4DA';ctx.fillRect(ZX0,ZW+30,ZX1-ZX0,14);ctx.fillStyle='#B4BCC8';ctx.fillRect(ZX0,ZW+44,ZX1-ZX0,30);
+    txt('SiO₂',ZX0+8,ZW+6,{sz:9.5,c:'#1E4F8F',w:600});txt('Si wafer',ZX0+8,ZW+21,{sz:9.5,c:'#fff'});txt('ESC · RF-powered chuck',ZX0+8,ZW+37,{sz:9.5,c:C.ink2});
+    const px0=40,px1=130;txt('Φ(z)',px0,ZE-14,{sz:10,mono:true,c:C.muted});pl([[px0,ZE],[px0,ZW]],C.border,1);pl([[px0,ZW],[px1,ZW]],C.border,1);
+    const pts=[];for(let i=0;i<=40;i++){const z=i/40;pts.push([px0+(px1-px0)*(1-Math.pow(z,4/3)),ZE+z*ZS]);}pl(pts,C.purple,2);
+    txt(`V̄ ${V} V`,px1,ZE-2,{sz:9.5,mono:true,c:C.purple,a:'right'});txt('wafer',px0+4,ZW-8,{sz:9.5,mono:true,c:C.muted});
+    const lpx=ZS*lam/s,by=ZW+92;pl([[ZX0,by],[ZX0+Math.min(lpx,ZX1-ZX0),by]],C.coral,3);txt(`λ_ion ≈ ${lam.toFixed(1)} mm`,ZX0,by+14,{sz:10,mono:true,c:C.coral});
+    txt(`s ≈ ${s.toFixed(1)} mm  (${I.edge} → ${I.wafer})`,ZX0+300,by+14,{sz:10,mono:true,c:C.purple});
+    for(const n of st5.fast){if(n.tr.length>1)pl(n.tr,'rgba(148,163,184,.5)',1.5);ctx.fillStyle=SP.fast.c;ctx.beginPath();ctx.arc(n.x,ZE+n.z,2,0,TAU);ctx.fill();}
+    for(const io of st5.ions){if(io.tr.length>1)pl(io.tr,'rgba(232,85,59,.35)',2);ctx.fillStyle=SP.Arp.c;ctx.beginPath();ctx.arc(io.x,ZE+io.z,3.4,0,TAU);ctx.fill();
+      ctx.strokeStyle='rgba(232,85,59,.3)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(io.x,ZE+io.z,5.6,0,TAU);ctx.stroke();}
+    drawFx();txt('↯ '+I.cx,ZX1-8,ZE+46,{sz:9.5,c:C.label,a:'right'});},
+  inst(){const I=IL('s5');return card('MONTE CARLO',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL','IEDF',`<div class="ctls"><div class="seg-row"><span class="k">${I.f}</span>${seg('segF',[['2','2 MHz'],['13.56','13.56 MHz'],['60','60 MHz']],String(S.freq))}</div>
+      <div class="seg-row"><span class="k">${I.ion}</span>${seg('segI',[['Ar','Ar⁺ 40'],['CF3','CF₃⁺ 69'],['F','F⁺ 19']],S.ion)}</div>
+      ${rng('r5v',I.vb,100,1200,10,S.vb5)}${rng('r5p',I.p,0,100,1,pmap.to(S.p))}
+      <div class="stats four">${statH('s5d',I.dE)}${statH('s5s',I.s)}${statH('s5l',I.lam)}${statH('s5n',I.n)}</div></div>`);},
+  bind(){bindSeg('segF',v=>S.freq=+v);bindSeg('segI',v=>S.ion=v);bindRange('r5v',()=>S.vb5,v=>S.vb5=v,()=>`${S.vb5} V`);bindRange('r5p',()=>pmap.to(S.p),v=>S.p=pmap.from(v),()=>`${S.p} mTorr`);},
+  chart(){const I=IL('s5'),D=iedf5(),{dE,s,lam}=ionE();
+    setStat('s5d',`${dE.toFixed(0)}<small> eV</small>`);setStat('s5s',`${s.toFixed(1)}<small> mm</small>`);setStat('s5l',`${lam.toFixed(1)}<small> mm</small>`);setStat('s5n',(s/lam).toFixed(1));
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:30,r:W-10,t:12,b:H-18},X=E=>b.l+E/D.Emax*(b.r-b.l);
+    let mx=0;for(const v of D.h)mx=Math.max(mx,v);const nb=D.h.length,bw=(b.r-b.l)/nb;
+    g.fillStyle='rgba(112,48,160,.75)';D.h.forEach((v,i)=>{const hh=v/mx*(b.b-b.t-18);g.fillRect(b.l+i*bw+.5,b.b-hh,bw-1,hh);});
+    gl(g,[[b.l,b.b],[b.r,b.b]],'#CBD2DC',1);const tick=D.Emax>1500?500:D.Emax>600?200:100;
+    for(let e=0;e<=D.Emax;e+=tick)if(X(e)<b.r-22)gt(g,String(e),X(e),b.b+9,{a:'center',sz:9,mono:true,c:C.label});
+    gl(g,[[X(S.vb5),b.t+12],[X(S.vb5),b.b]],C.ink,1,[3,3]);gt(g,`e·V̄ = ${S.vb5} eV`,X(S.vb5)+4,b.t+16,{sz:9.5,mono:true,w:600,c:C.ink});
+    const x1=X(S.vb5-dE/2),x2=X(S.vb5+dE/2);gl(g,[[x1,b.t+30],[x2,b.t+30]],C.coral,1.4);gt(g,`ΔE ≈ ${dE.toFixed(0)} eV`,(x1+x2)/2,b.t+40,{a:'center',sz:9.5,mono:true,w:600,c:C.coral});
+    gt(g,'eV',b.r,b.b+9,{a:'right',sz:9,mono:true,c:C.label});
+    setMsg(`${(D.nc*100).toFixed(0)} % collision-free · ⟨E⟩ ${D.mean.toFixed(0)} eV`,'');},
+  rd(){return{p:`${S.p} mTorr`,T:'20 °C',hf:`${S.freq} MHz`};},
+};
+
+/* ---- 7 · Surface reaction & selectivity ---- */
+function surf(E,o2r){const P=1/(1+2*o2r),g=Math.sqrt(150/Math.max(E,1)),t={ox:.4+1.6*P*g,si:1+6*P*g,pr:.8+3.5*P*g},Y=Math.max(0,Math.sqrt(E)-Math.sqrt(30));
+  const er={ox:70*Y*Math.exp(-t.ox),si:60*Y*Math.exp(-t.si),pr:30*Y*Math.exp(-t.pr)};return{P,t,er,dep:er.ox<40};}
+const COLS=[{k:'pr',x0:110,x1:350,c:'#E9A23B'},{k:'ox',x0:370,x1:610,c:'#9CC9F0'},{k:'si',x0:630,x1:870,c:'#8E97A6'}];
+const st6={rec:{pr:0,ox:0,si:0},ions:[],rads:[],prod:[],sp:0};
+const PROD={ox:['SiF₄','CO','COF₂'],si:['SiF₄'],pr:['CO','HF']};
+SC[6]={legend:['Arp','CF2'],noLabels:true,
+  init(){parts=[];fx=[];st6.rec={pr:0,ox:0,si:0};st6.ions=[];st6.rads=[];st6.prod=[];},
+  update(dt){const f=dt*60,m=surf(S.E,S.o2r),mx=Math.max(m.er.ox,1);
+    for(const c of COLS){st6.rec[c.k]+=m.er[c.k]/60*dt*1.6;if(st6.rec[c.k]>70)st6.rec[c.k]=0;}
+    st6.sp+=dt;if(st6.sp>.05){st6.sp=0;const c=COLS[Math.floor(rnd()*3)];st6.ions.push({x:c.x0+10+rnd()*(c.x1-c.x0-20),y:70,k:c.k});
+      if(rnd()<.6){const c2=COLS[Math.floor(rnd()*3)];st6.rads.push({x:c2.x0+10+rnd()*(c2.x1-c2.x0-20),y:70,vx:(rnd()-.5)*.8,k:c2.k});}}
+    const vI=2+.25*Math.sqrt(S.E);
+    for(const io of st6.ions){io.y+=vI*f;const sy=330+st6.rec[io.k]-m.t[io.k]*7;
+      if(io.y>=sy){io.dead=true;const etch=m.er[io.k]/mx;addRing(io.x,sy,etch>.3?'232,85,59':'148,163,184',.4,6);
+        if(rnd()<.8*m.er[io.k]/Math.max(400,mx)){const L=PROD[io.k];st6.prod.push({x:io.x,y:sy-4,t:L[Math.floor(rnd()*L.length)],a:1});}}}
+    for(const r of st6.rads){r.y+=1.1*f;r.x+=r.vx*f;const sy=330+st6.rec[r.k]-m.t[r.k]*7;if(r.y>=sy){r.dead=true;addFlash(r.x,sy,'47,163,107',.3,6);}}
+    for(const p of st6.prod){p.y-=.9*f;p.a-=dt*.6;if(p.a<=0)p.dead=true;}
+    st6.ions=st6.ions.filter(i=>!i.dead);st6.rads=st6.rads.filter(i=>!i.dead);st6.prod=st6.prod.filter(i=>!i.dead);},
+  draw(){const I=IL('s6'),m=surf(S.E,S.o2r);
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    txt(I.zoom,110,30,{sz:11,mono:true,w:600,c:C.purple});
+    const g=ctx.createLinearGradient(0,44,0,120);g.addColorStop(0,'rgba(190,166,242,.55)');g.addColorStop(1,'rgba(190,166,242,0)');ctx.fillStyle=g;ctx.fillRect(110,44,760,76);
+    for(const c of COLS){const sy=330+st6.rec[c.k],ft=m.t[c.k]*7;
+      ctx.fillStyle=c.c;ctx.fillRect(c.x0,sy,c.x1-c.x0,560-sy);
+      if(c.k!=='si'){ctx.fillStyle=c.k==='pr'?'#C98618':'#7FB0DA';ctx.fillRect(c.x0,sy+(c.k==='pr'?150:180),c.x1-c.x0,2);}
+      ctx.fillStyle='rgba(47,163,107,.78)';ctx.fillRect(c.x0,sy-ft,c.x1-c.x0,ft);
+      txt(I[c.k],(c.x0+c.x1)/2,150,{sz:14,w:700,a:'center',c:C.ink});
+      txt(`${m.er[c.k].toFixed(0)} nm/min`,(c.x0+c.x1)/2,170,{sz:11,mono:true,w:600,a:'center',c:m.er[c.k]>40?C.purple:C.label});
+      txt(`${I.filmL} ${m.t[c.k].toFixed(1)} nm`,(c.x0+c.x1)/2,sy-ft-10,{sz:10,mono:true,a:'center',c:'#1F7A4D'});}
+    ctx.fillStyle=SP.CF2.c;for(const r of st6.rads){ctx.beginPath();ctx.arc(r.x,r.y,2.6,0,TAU);ctx.fill();}
+    for(const io of st6.ions){pl([[io.x,io.y-10],[io.x,io.y]],'rgba(232,85,59,.35)',2);ctx.fillStyle=SP.Arp.c;ctx.beginPath();ctx.arc(io.x,io.y,3.2,0,TAU);ctx.fill();}
+    for(const p of st6.prod)txt(p.t,p.x,p.y,{sz:10,w:600,a:'center',c:`rgba(100,116,139,${clamp(p.a,0,1)})`});
+    drawFx();},
+  inst(){const I=IL('s6');return card('MODEL',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.E,`<div class="ctls">${rng('r6e',I.E,20,1000,10,S.E)}${rng('r6o',I.o2,0,1.5,.05,S.o2r)}
+      <div class="stats">${statH('s6a',I.selSi)}${statH('s6b',I.selPR)}${statH('s6c',I.film)}</div></div>`);},
+  bind(){bindRange('r6e',()=>S.E,v=>S.E=v,()=>`${S.E} eV`);bindRange('r6o',()=>S.o2r,v=>S.o2r=v,()=>S.o2r.toFixed(2));},
+  chart(){const I=IL('s6'),m=surf(S.E,S.o2r),ss=m.er.ox/Math.max(m.er.si,.1),sp=m.er.ox/Math.max(m.er.pr,.1);
+    setStat('s6a',m.dep?'—':`${ss.toFixed(1)} : 1`,m.dep?'':ss>=10?'pass':'fail');setStat('s6b',m.dep?'—':`${sp.toFixed(1)} : 1`,m.dep?'':sp>=4?'pass':'fail');setStat('s6c',`${m.t.ox.toFixed(1)}<small> nm</small>`);
+    setMsg(m.dep?I.dep:I.etch,m.dep?'warn':'');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:64,r:W-60,t:12,b:H-14},rows=[['ox',C.blue],['si','#64748B'],['pr','#E9A23B']],mx=900,rh=(b.b-b.t)/3;
+    for(let v=0;v<=mx;v+=300){const x=b.l+v/mx*(b.r-b.l);gl(g,[[x,b.t],[x,b.b]],C.line,1);gt(g,String(v),x,b.b+7,{a:'center',sz:8.5,mono:true,c:C.label});}
+    rows.forEach(([kk,c],i)=>{const y=b.t+i*rh+rh*.2,h=rh*.6,w=Math.min(1,m.er[kk]/mx)*(b.r-b.l);g.fillStyle=c;g.globalAlpha=.85;g.fillRect(b.l,y,w,h);g.globalAlpha=1;
+      gt(g,I[kk],b.l-8,y+h/2,{a:'right',sz:11,w:600,c:C.ink2});gt(g,`${m.er[kk].toFixed(0)} nm/min`,b.l+w+6,y+h/2,{sz:10,mono:true,w:600,c:C.ink2});});},
+  rd(){return{p:'30 mTorr',T:'20 °C',hf:'13.56 MHz',gas:`O₂/C₄F₈ ${S.o2r.toFixed(2)}`};},
+};
+
+/* ---- 8 · Trench profile ---- */
+const TR={cd:100,ox:1000,pr0:300,sc:.38,y0:150,xc:[380,600]};
+const st7={t:0,d:0,hw:null,pr:300,si:0,state:'run',run:true,ions:[],maskLost:false};
+function reset7(){Object.assign(st7,{t:0,d:0,hw:new Float32Array(101).fill(TR.cd/2),pr:TR.pr0,si:0,state:'run',ions:[],maskLost:false});}
+function th7(){return Math.sqrt(3/(2*S.E))+.02*(4.7/lamGas(S.p));}
+SC[7]={legend:[],noLabels:true,cls:'tall',
+  init(){parts=[];fx=[];reset7();},
+  update(dt){const f=dt*60,th=th7();
+    if(rnd()<.6*f){st7.ions.push({x:TR.xc[Math.floor(rnd()*2)]+(rnd()-.5)*120,y:10,a:(rnd()-.5)*2*th*3});}
+    for(const io of st7.ions){io.y+=9*f;io.x+=Math.sin(io.a)*9*f;const nr=Math.floor(st7.d/10);let stop=TR.y0-st7.pr*TR.sc;
+      for(const xc of TR.xc){const half=(st7.hw[0]||50)*TR.sc;if(Math.abs(io.x-xc)<half)stop=TR.y0+st7.d*TR.sc+(st7.state!=='run'?st7.si*TR.sc:0);}
+      if(io.y>=stop){io.dead=true;if(rnd()<.3)addFlash(io.x,stop,'232,85,59',.25,5);}}
+    st7.ions=st7.ions.filter(i=>!i.dead);
+    if(!st7.run||st7.state==='stop'||st7.state==='done')return;
+    const m=surf(S.E,S.o2r),tp=dt*12;st7.t+=tp;
+    if(st7.state==='run'){const AR=st7.d/TR.cd,rate=m.er.ox/60/(1+.035*AR),nd=Math.min(TR.ox,st7.d+rate*tp);
+      const taper=Math.max(0,m.P-.55)*2*Math.sqrt(150/S.E)+(S.E<150?(150-S.E)*.01:0);
+      for(let i=Math.floor(st7.d/10)+1;i<=Math.floor(nd/10);i++){st7.hw[i]=Math.max(0,st7.hw[i-1]-taper);if(st7.hw[i]<=4){st7.state='stop';st7.d=i*10;break;}}
+      if(st7.state==='run'){st7.d=nd;if(nd>=TR.ox)st7.state='si';}}
+    else if(st7.state==='si'){st7.si+=m.er.si/60*tp;if(st7.si>15)st7.state='done';}
+    const L=m.er.ox/60*th*Math.pow(1-.92*m.P,2)*.15,D=Math.max(st7.d,1),nr=Math.floor(st7.d/10);
+    for(let i=0;i<=nr;i++){const z=i*10,sh=.25+Math.exp(-Math.pow((z-.2*D)/(.18*D+30),2));st7.hw[i]+=L*tp*sh;}
+    st7.pr=Math.max(0,st7.pr-m.er.pr/60*tp);
+    if(st7.pr<=0){st7.maskLost=true;for(let i=0;i<=Math.min(nr,6);i++)st7.hw[i]+=m.er.ox/60*tp*.12*(1-i/7);}},
+  draw(){const I=IL('s7'),m=surf(S.E,S.o2r),sc=TR.sc,y0=TR.y0,yb=y0+TR.ox*sc;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    ctx.fillStyle='#9CC9F0';ctx.fillRect(150,y0,680,TR.ox*sc);ctx.fillStyle='#8E97A6';ctx.fillRect(150,yb,680,600-yb);
+    const prT=st7.pr*sc;if(prT>0){ctx.fillStyle='#E9A23B';ctx.fillRect(150,y0-prT,680,prT);}
+    const nr=Math.floor(st7.d/10);
+    for(const xc of TR.xc){
+      const L=[],R=[];for(let i=0;i<=nr;i++){const y=y0+Math.min(i*10,st7.d)*sc,h=st7.hw[i]*sc;L.push([xc-h,y]);R.push([xc+h,y]);}
+      const yd=y0+st7.d*sc,hb=(st7.hw[nr]||0)*sc;L.push([xc-hb,yd]);R.push([xc+hb,yd]);
+      ctx.fillStyle='#FFFFFF';ctx.beginPath();ctx.moveTo(xc-TR.cd/2*sc-(st7.maskLost?st7.hw[0]*sc-TR.cd/2*sc:0),y0-prT-1);
+      L.forEach(p=>ctx.lineTo(p[0],p[1]));for(let i=R.length-1;i>=0;i--)ctx.lineTo(R[i][0],R[i][1]);ctx.lineTo(xc+TR.cd/2*sc+(st7.maskLost?st7.hw[0]*sc-TR.cd/2*sc:0),y0-prT-1);ctx.closePath();ctx.fill();
+      if(st7.si>0){ctx.fillRect(xc-hb,yd-1,2*hb,st7.si*sc+1);}
+      ctx.save();ctx.strokeStyle=`rgba(47,163,107,${.35+.6*m.P})`;ctx.lineWidth=1+2.2*m.P;ctx.beginPath();L.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();
+      ctx.beginPath();R.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.restore();}
+    if(prT>0){ctx.fillStyle=`rgba(47,163,107,${.3+.6*m.P})`;ctx.fillRect(150,y0-prT-2,680,2);for(const xc of TR.xc){ctx.fillStyle='#FFFFFF';ctx.fillRect(xc-TR.cd/2*sc,y0-prT-3,TR.cd*sc,3);}}
+    for(const io of st7.ions){pl([[io.x-Math.sin(io.a)*10,io.y-10],[io.x,io.y]],'rgba(232,85,59,.55)',1.6);}
+    drawFx();
+    txt('Resist',140,y0-Math.max(prT,12)/2,{sz:10.5,w:600,a:'right',c:'#B26B00'});txt('SiO₂',140,y0+TR.ox*sc/2,{sz:10.5,w:600,a:'right',c:'#1E4F8F'});txt('Si',140,yb+20,{sz:10.5,w:600,a:'right',c:C.ink2});
+    pl([[850,560],[850+100*sc,560]],C.ink,2);txt(I.scale,850+50*sc,574,{sz:9.5,mono:true,a:'center',c:C.ink});
+    txt(`t = ${st7.t.toFixed(0)} s`,850,40,{sz:11,mono:true,w:600,c:C.purple});},
+  inst(){const I=IL('s7');return card('PROFILE',I.chart,`<div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">${statH('s7d',I.depth)}${statH('s7a',I.ar)}${statH('s7g',I.angle)}${statH('s7b',I.bow)}${statH('s7p',I.pr)}${statH('s7s',I.sel)}</div>`)+
+    card('RECIPE',I.E,`<div class="ctls">${rng('r7e',I.E,50,1000,10,S.E)}${rng('r7o',I.o2,0,1.5,.05,S.o2r)}${rng('r7p',I.p,0,100,1,pmap.to(S.p))}
+      <div class="seg-row"><button class="btn pri" id="b7p">${st7.run?I.pause:I.play}</button><button class="btn" id="b7r">${I.reset}</button></div></div>`);},
+  bind(){const I=IL('s7');bindRange('r7e',()=>S.E,v=>S.E=v,()=>`${S.E} eV`);bindRange('r7o',()=>S.o2r,v=>S.o2r=v,()=>S.o2r.toFixed(2));bindRange('r7p',()=>pmap.to(S.p),v=>S.p=pmap.from(v),()=>`${S.p} mTorr`);
+    $('b7p').onclick=e=>{st7.run=!st7.run;e.target.textContent=st7.run?I.pause:I.play;};$('b7r').onclick=()=>{reset7();st7.run=true;$('b7p').textContent=I.pause;};},
+  chart(){const I=IL('s7'),m=surf(S.E,S.o2r),nr=Math.floor(st7.d/10),top=st7.hw[0]*2,bot=(st7.hw[nr]||0)*2;let mx=0;for(let i=0;i<=nr;i++)mx=Math.max(mx,st7.hw[i]*2);
+    const ang=st7.d>20?90-Math.atan((top-bot)/2/st7.d)*180/Math.PI:90;
+    setStat('s7d',`${st7.d.toFixed(0)}<small> nm</small>`);setStat('s7a',(st7.d/TR.cd).toFixed(1));setStat('s7g',`${ang.toFixed(1)}<small>°</small>`,Math.abs(90-ang)<2?'pass':'fail');
+    setStat('s7b',`${mx.toFixed(0)}<small> nm</small>`,mx<TR.cd*1.2?'pass':'fail');setStat('s7p',`${st7.pr.toFixed(0)}<small> nm</small>`,st7.pr>30?'pass':'fail');setStat('s7s',`${(m.er.ox/Math.max(m.er.pr,.1)).toFixed(1)} : 1`);
+    const bowing=mx>TR.cd*1.2;
+    setMsg(st7.state==='stop'?I.stop:st7.maskLost?I.mask:st7.state!=='run'?I.si:bowing?I.bowW:I.run,st7.state==='stop'||st7.maskLost||bowing?'warn':st7.state!=='run'?'':'info');},
+  rd(){return{p:`${S.p} mTorr`,T:'20 °C',hf:'13.56 MHz',gas:`O₂/C₄F₈ ${S.o2r.toFixed(2)}`};},
+};
+
+/* ---- 9 · Endpoint & over-etch ---- */
+const RATES8=[1,.965,.93];
+const st8={t:0,h:[],ep:null,end:null,sm:null,base:null};
+function reset8(){Object.assign(st8,{t:0,h:[],ep:null,end:null,sm:null,base:null});}
+function tc8(){const er=surf(S.E,S.o2r).er.ox;return RATES8.map(r=>TR.ox/(er*r/60));}
+SC[8]={legend:[],noLabels:true,
+  init(){parts=[];fx=[];reset8();},
+  update(dt){const tc=tc8();if(st8.end!=null&&st8.t>=st8.end)return;const tp=dt*15;st8.t+=tp;
+    let et=0;tc.forEach(c=>{et+=1/(1+Math.exp((st8.t-c)/Math.max(c*.012,1)));});et/=3;
+    const A=.04*S.open,sig=1+A*et+(rnd()-.5)*.1;st8.sm=st8.sm==null?sig:st8.sm*.9+sig*.1;if(st8.t<12)st8.base=st8.sm;
+    if(st8.ep==null&&st8.t>20&&st8.base-st8.sm>A*.5){st8.ep=st8.t;st8.end=st8.ep*(1+S.oe/100);}
+    if(st8.ep==null&&st8.t>tc[2]*1.8){st8.ep=st8.t;st8.end=st8.t;}
+    st8.h.push([st8.t,sig,st8.sm]);},
+  draw(){const I=IL('s8'),m=surf(S.E,S.o2r),tc=tc8(),sc=.3,y0=150,yb=y0+TR.ox*sc;
+    ctx.fillStyle='#EDF1F5';for(let x=12;x<LW;x+=24)for(let y=12;y<LH;y+=24)ctx.fillRect(x,y,1.3,1.3);
+    [300,490,680].forEach((xc,i)=>{const d=Math.min(TR.ox,m.er.ox*RATES8[i]*st8.t/60),rec=m.er.si/60*Math.max(0,Math.min(st8.t,st8.end??st8.t)-tc[i]);
+      ctx.fillStyle='#9CC9F0';ctx.fillRect(xc-80,y0,160,TR.ox*sc);ctx.fillStyle='#8E97A6';ctx.fillRect(xc-80,yb,160,90);ctx.fillStyle='#E9A23B';ctx.fillRect(xc-80,y0-30,160,30);
+      ctx.fillStyle='#fff';ctx.fillRect(xc-16,y0-31,32,31+d*sc);if(d>=TR.ox&&rec>0)ctx.fillRect(xc-16,yb-1,32,rec*sc*3+1);
+      txt(I.labels[i],xc,y0-46,{sz:12,w:700,a:'center',c:C.ink});
+      const cleared=d>=TR.ox;txt(cleared?`Si recess ${rec.toFixed(0)} nm`:`${(TR.ox-d).toFixed(0)} nm left`,xc,yb+108,{sz:10.5,mono:true,w:600,a:'center',c:cleared?C.green:C.coral});});
+    txt(`t = ${st8.t.toFixed(0)} s`,860,40,{sz:11,mono:true,w:600,c:C.purple,a:'right'});
+    txt('(Si recess drawn ×3)',860,58,{sz:9,c:C.label,a:'right'});},
+  inst(){const I=IL('s8');return card('OES',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.oe,`<div class="ctls">${rng('r8a',I.open,1,50,1,S.open)}${rng('r8o',I.oe,0,100,5,S.oe)}
+      <div class="stats">${statH('s8e',I.ep)}${statH('s8t',I.tot)}${statH('s8r',I.rec)}</div><div class="seg-row"><button class="btn" id="b8r">${I.restart}</button></div></div>`);},
+  bind(){bindRange('r8a',()=>S.open,v=>S.open=v,()=>`${S.open} %`,reset8);bindRange('r8o',()=>S.oe,v=>S.oe=v,()=>`${S.oe} %`,reset8);$('b8r').onclick=reset8;},
+  chart(){const I=IL('s8'),m=surf(S.E,S.o2r),tc=tc8(),done=st8.end!=null&&st8.t>=st8.end;
+    const rec=i=>m.er.si/60*Math.max(0,(st8.end??st8.t)-tc[i]);
+    setStat('s8e',st8.ep!=null?`${st8.ep.toFixed(0)}<small> s</small>`:'…');setStat('s8t',st8.end!=null?`${st8.end.toFixed(0)}<small> s</small>`:'…');
+    setStat('s8r',done?`${rec(0).toFixed(0)} / ${rec(2).toFixed(0)}<small> nm</small>`:'…');
+    const resid=done&&tc[2]>st8.end;
+    setMsg(!done?(S.open<4?I.noisy:I.wait):resid?I.res:I.ok,!done?(S.open<4?'warn':'info'):resid?'warn':'');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:36,r:W-10,t:12,b:H-16},Tm=Math.max(tc[2]*1.8,(st8.end||0)*1.05),A=.04*S.open;
+    const ymin=.9,ymax=1+A+.12,X=t=>b.l+t/Tm*(b.r-b.l),Y=v=>b.b-(v-ymin)/(ymax-ymin)*(b.b-b.t);
+    if(st8.ep!=null){g.fillStyle='rgba(112,48,160,.06)';g.fillRect(b.l,b.t,X(st8.ep)-b.l,b.b-b.t);g.fillStyle='rgba(217,154,0,.12)';g.fillRect(X(st8.ep),b.t,X(st8.end)-X(st8.ep),b.b-b.t);
+      gt(g,I.main,(b.l+X(st8.ep))/2,b.t+8,{a:'center',sz:9,c:C.purple});gt(g,I.oeR,(X(st8.ep)+X(st8.end))/2,b.t+8,{a:'center',sz:9,c:C.amber});}
+    for(let t=0;t<=Tm;t+=60){gl(g,[[X(t),b.t],[X(t),b.b]],C.line,1);gt(g,String(t),X(t),b.b+9,{a:'center',sz:9,mono:true,c:C.label});}
+    tc.forEach(c=>gl(g,[[X(c),b.b-6],[X(c),b.b]],C.green,2));
+    const h=st8.h;if(h.length>1){gl(g,h.map(r=>[X(r[0]),Y(r[1])]),'rgba(148,163,184,.6)',1);gl(g,h.map(r=>[X(r[0]),Y(r[2])]),C.purple,2);}
+    if(st8.ep!=null){gl(g,[[X(st8.ep),b.t],[X(st8.ep),b.b]],C.coral,1.4,[4,3]);gt(g,I.ep,X(st8.ep)+4,b.b-10,{sz:9.5,w:600,c:C.coral});}
+    gt(g,I.sig,b.l+4,b.t+8,{sz:9,c:C.label});gt(g,'s',b.r,b.b+9,{a:'right',sz:9,mono:true,c:C.label});},
+  rd(){return{p:'30 mTorr',T:'20 °C',hf:'13.56 MHz',gas:'C₄F₈ / O₂ / Ar'};},
+};
+
+/* ---- 10 · After the etch: dechuck, WAC ---- */
+const PH_DUR=[2,2.4,3,3.4,6,2.6];
+const st9={ph:0,t:0,poly:.25,I:1,pins:0,wx:0,waf:true,he:true,esc:true};
+function enter9(ph){st9.ph=ph;st9.t=0;
+  if(ph===0){parts=[];Object.assign(st9,{I:1,pins:0,wx:0,waf:true,he:true,esc:true,poly:S.wac?.25:Math.min(1,st9.poly+.25)});
+    for(let k=0;k<14;k++){const q=bulkPt();spawn('e',q.x,q.y);}for(let k=0;k<8;k++){const q=bulkPt();spawn('Arp',q.x,q.y);}}
+  if(ph===2){parts=[];Object.assign(st9,{I:0,he:false});}
+  if(ph===3){Object.assign(st9,{esc:false,pins:1,he:false});}
+  if(ph===4){parts=[];Object.assign(st9,{waf:false,pins:0,wx:0,I:0});}
+  if(ph===5){parts=parts.filter(p=>p.s==='CO');Object.assign(st9,{I:0});}
+  renderPhaseChips();}
+function renderPhaseChips(){const el=$('pc9');if(!el)return;el.querySelectorAll('.pc').forEach((b,i)=>b.className='pc'+(i===st9.ph?' on':i<st9.ph?' done':''));}
+SC[9]={get legend(){return st9.ph===4?['O','CO']:st9.ph===0?['e','Arp']:[];},
+  init(){parts=[];fx=[];st9.poly=.25;enter9(0);},
+  update(dt){const f=dt*60,ph=st9.ph;st9.t+=dt;const st=rfE(400,3);this.st=st;
+    if(ph===0){st9.I=Math.max(0,st9.I-dt*8);if(st9.t>.15)parts=parts.filter(p=>SP[p.s].cat!=='e'&&SP[p.s].cat!=='i');}
+    if(ph===1&&st9.t>.4)st9.he=false;
+    if(ph===2){if(st9.t>.6&&st9.esc){st9.esc=false;addFlash(490,416,'112,48,160',.5,40);}st9.pins=clamp((st9.t-1)/1,0,1);}
+    if(ph===3){st9.wx=-Math.min(420,st9.t*170);if(st9.wx<=-420)st9.waf=false;}
+    if(ph===4){if(S.wac){st9.I=Math.min(.7,st9.I+dt);st9.poly=Math.max(0,st9.poly-dt*.12);
+        if(rnd()<.5*f&&count('O')<40)spawn('O',X0+10+rnd()*(X1-X0-20),YT+4,(rnd()-.5)*.6,.8);}else st9.I=0;}
+    for(const p of parts){const c=SP[p.s].cat;if(c==='e'||c==='i')continue;lang_(p,f,.5,.94);const fl=flowE(p);p.x+=(p.vx+fl[0])*f;p.y+=(p.vy+fl[1])*f;
+      if(p.s==='O'&&st9.poly>.02&&(p.x<284||p.x>696||p.y<YT+6)&&rnd()<.3){p.s='CO';addFlash(p.x,p.y,'47,163,107',.3,8);}
+      if(p.x<275){p.x=275;p.vx=Math.abs(p.vx);}if(p.x>705){p.x=705;p.vx=-Math.abs(p.vx);}if(p.y<175){p.y=175;p.vy=Math.abs(p.vy);}
+      if(p.x>323&&p.x<657&&p.y>400){p.y=400;p.vy=-Math.abs(p.vy);}}
+    parts=parts.filter(p=>p.y<476);
+    if(st9.t>PH_DUR[ph])enter9((ph+1)%6);},
+  draw(){const ph=st9.ph,st=this.st||rfE(400,3);
+    drawBaseE({rf:ph===0&&st9.I>.01||ph===4&&S.wac,gas:ph===0||ph===4&&S.wac,only:ph===4?'o2':null,esc:st9.esc,he:st9.he,poly:st9.poly,p:ph===4?20:ph<=1?30:'< 1 mTorr',pump:true,
+      wafer:st9.waf,pins:st9.pins,wx:st9.wx,slit:ph===3});
+    if(ph===0)drawPlasma(st,st9.I);if(ph===4&&S.wac)drawPlasma(st,st9.I);
+    drawParts();drawFx();
+    if(ph===4&&S.wac)txt('CFₓ (wall) + O → CO, CO₂',XC,262,{sz:13,w:700,c:'#1F7A4D',a:'center'});},
+  inst(){const I=IL('s9');return card('SEQUENCE',I.chart,`<canvas class="chart" id="chA"></canvas>`)+
+    card('CONTROL',I.wac,`<div class="ctls"><div class="phase-chips" id="pc9">${I.phases.map((p,i)=>`<button class="pc" data-i="${i}">${i+1} · ${p}</button>`).join('')}</div>
+      <div class="seg-row"><span class="k">WAC</span>${seg('segW',[['on',I.on],['off',I.off]],S.wac?'on':'off')}</div>
+      <div class="stats two">${statH('s9p',I.poly)}${statH('s9d','10th wafer')}</div></div>`);},
+  bind(){$('pc9').querySelectorAll('.pc').forEach(b=>b.onclick=()=>enter9(+b.dataset.i));bindSeg('segW',v=>{S.wac=v==='on';});renderPhaseChips();},
+  chart(){const I=IL('s9');setStat('s9p',`${(st9.poly*100).toFixed(0)}<small> %</small>`,st9.poly>.6?'fail':'');setStat('s9d',S.wac?'≈ −0.2 %':'≈ −7 %',S.wac?'pass':'fail');
+    setMsg(st9.ph===4&&!S.wac?I.skip:I.msg[st9.ph],st9.ph===4&&!S.wac?'warn':'info');
+    const k=chartCtx('chA');if(!k)return;const{g,W,H}=k,b={l:34,r:W-8,t:10,b:H-16},mid=b.t+(b.b-b.t)*.48,N=15,X=i=>b.l+(i+.5)/N*(b.r-b.l);
+    const poly=[],dev=[];for(let i=0;i<N;i++){const p=S.wac?.25:Math.min(1,.25*(i+1));poly.push(p);dev.push(S.wac?[.15,-.1,.2,-.15][i%4]:-(p-.25)*9.3+[.15,-.1,.2,-.15][i%4]);}
+    const Yc=v=>mid-6-v*(mid-6-b.t-8);gt(g,I.poly,b.l,b.t+2,{sz:9,c:C.label});
+    gl(g,poly.map((v,i)=>[X(i),Yc(v)]),'#2FA36B',2);poly.forEach((v,i)=>{g.fillStyle='#2FA36B';g.beginPath();g.arc(X(i),Yc(v),2.4,0,TAU);g.fill();});
+    const y0=mid+(b.b-mid)/2,Yd=v=>y0-v/8*((b.b-mid)/2-2);gl(g,[[b.l,y0],[b.r,y0]],'#CBD2DC',1);gt(g,I.dev,b.l,mid+6,{sz:9,c:C.label});
+    dev.forEach((v,i)=>{g.fillStyle=Math.abs(v)>2?C.coral:C.green;const y=Yd(v);g.fillRect(X(i)-5,Math.min(y,y0),10,Math.max(1,Math.abs(y-y0)));});
+    for(let i=0;i<N-2;i+=2)gt(g,String(i+1),X(i),b.b+9,{a:'center',sz:8.5,mono:true,c:C.label});gt(g,I.wafer,b.r,b.b+9,{a:'right',sz:8.5,c:C.label});},
+  rd(){const ph=st9.ph;return{p:ph===4?'20 mTorr':ph<=1?'30 mTorr':'< 1 mTorr',T:'20 °C',hf:ph===0&&st9.I>.01||ph===4&&S.wac?'13.56 MHz':null,gas:ph===4&&S.wac?'O₂':ph===0?'C₄F₈ / O₂ / Ar':null};},
+};
+
+/* ---- 11 · Takeaways ---- */
+SC[10]={legend:[],cls:'none',init(){parts=[];fx=[];},draw(){},inst(){return'';},rd(){return{p:'—',T:'—'};}};
+function renderTK(){const k=L().tk;
+  $('stageHtml').innerHTML=`<div class="tk-hero"><div><h2>${k.h}</h2><p>${k.p}</p></div><div class="tk-btns"><button class="btn pri" id="tkb1">${k.btn1}</button><button class="btn" id="tkb2">${k.btn2}</button></div></div>
+  <div class="tk-grid">
+    <div class="tk-sec"><h4>${k.sPr}</h4><div class="pr-list">${k.pr.map(([a,b],i)=>`<div class="pr"><span class="n">${i+1}</span><div><b>${a}</b><span>${b}</span></div></div>`).join('')}</div></div>
+    <div class="tk-sec"><h4>${k.sWin}</h4>${k.win.map(([a,b])=>`<div class="kv"><span>${a}</span><span>${b}</span></div>`).join('')}<div class="tk-note">${k.winNote}</div></div>
+    <div class="tk-sec" style="grid-column:1/-1;overflow-x:auto"><h4>${k.sTab}</h4><table class="tk-table"><thead><tr>${k.th.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${k.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="tk-sec"><h4>${k.sMyth}</h4><div class="myths">${k.myths.map(([a,b])=>`<div class="myth-row"><span class="x">${a}</span><span class="a">→</span><span class="o">${b}</span></div>`).join('')}</div></div>
+    <div class="tk-sec"><h4>${k.sLim}</h4>${k.lim.map(([a,b])=>`<div class="lim-row"><span>${a}</span><span class="a">→</span><span>${b}</span></div>`).join('')}</div>
+  </div>`;
+  $('tkb1').onclick=()=>openPop(k.img,k.cap1);$('tkb2').onclick=()=>window.open('./ccp_oxide_cvd_v5.html','_blank','noopener');}
+function openPop(src,cap){$('popImg').src=src;$('popCap').textContent=cap;$('pop').classList.add('show');}
+function closePop(){$('pop').classList.remove('show');}
+$('pop').addEventListener('click',e=>{if(e.target.id==='pop'||e.target.id==='popX')closePop();});
+
+/* ============================== UI SHELL ============================== */
+const ICON={
+  try:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9l5 12 1.8-5.2L21 14z"/><path d="M7.2 2.2L8 5.1"/><path d="M5.1 8L2.2 7.2"/><path d="M14 4.1L12 6"/><path d="M6 12l-1.9 2"/></svg>',
+  myth:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  key:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+};
+const RMAP=[null,3,4,5,5,5,5,5,6,'d','all'];
+let lastRec='',lastRd='',lastMsg='';
+function renderRecipe(){const R=L().recipe;let on=RMAP[cur];
+  if(on==='d')on=[6,7,7,8,9,9][st9.ph];
+  const key=lang+'|'+on;if(key===lastRec)return;lastRec=key;
+  $('recipe').innerHTML=`<span class="recipe-k">${L().recipeK}</span>`+R.map((r,i)=>`${i?'<span class="rp-sep">›</span>':''}<span class="rp ${on==='all'?'done':i===on?'on':(on!=null&&i<on?'done':'')}">${r}</span>`).join('');}
+function setMsg(s,cls){const k=s+'|'+cls;if(k===lastMsg)return;lastMsg=k;const m=$('msg');m.textContent=s||'';m.className='msg '+(cls||'');}
+function setReadouts(){const r=SC[cur].rd?SC[cur].rd():null,R=L().rd;if(!r)return;
+  let h=`<span class="rd"><b>${R.p}</b>${r.p}</span><span class="rd"><b>${R.T}</b>${r.T}</span>`;
+  if(cur!==10)h+=`<span class="rd ${r.hf?'on':''}"><b>${R.hf}</b>${r.hf||R.off}</span>`;
+  if(r.lf)h+=`<span class="rd on"><b>${R.lf}</b>${r.lf}</span>`;if(r.gas)h+=`<span class="rd"><b>${R.gas}</b>${r.gas}</span>`;if(r.slow)h+=`<span class="rd slow">${R.slow}</span>`;
+  if(h!==lastRd){$('readouts').innerHTML=h;lastRd=h;}}
+let lastLeg='';
+function renderLegend(){const keys=SC[cur].legend||[],sp=L().sp;const k=lang+keys.join();if(k===lastLeg)return;lastLeg=k;
+  $('legend').innerHTML=keys.map(s=>{const d=SP[s];const cls=d.cat==='i'?'ion':d.cat==='p'?'pw':'';return`<span class="lg"><i class="${cls}" style="${d.cat==='p'?'':'background:'+d.c}"></i>${sp[s]}</span>`;}).join('');
+  $('lblBtn').style.display=keys.length&&!SC[cur].noLabels?'':'none';}
+function renderInst(){const sc=SC[cur],el=$('inst'),h=sc.inst?sc.inst():'';el.innerHTML=h;el.className='inst'+(sc.cls&&sc.cls!=='none'?' '+sc.cls:'');el.style.display=h?'':'none';sc.bind&&sc.bind();}
+function renderSide(){const s=L().steps[cur],n=L().steps.length;
+  $('chap').textContent=L().chapters[s.ch];$('scount').textContent=`${String(cur+1).padStart(2,'0')} ${L().of} ${n}`;
+  $('sTitle').innerHTML=s.title;const lead=cur===10?L().tk.p:s.lead;$('sLead').innerHTML=lead;
+  let body=s.body;
+  if(cur===0)body+=`<div class="parts">${Object.keys(L().parts).map(id=>`<button class="part ${pinPart===id?'on':''}" data-p="${id}">${L().parts[id][0]}</button>`).join('')}</div>`;
+  if(cur===10)body=`<div class="parts">${L().steps.slice(0,10).map((t,i)=>`<button class="part" data-go="${i}">${String(i+1).padStart(2,'0')} · ${t.title}</button>`).join('')}</div>`;
+  $('sBody').innerHTML=body;
+  $('sCo').innerHTML=s.co.map(([k,t])=>`<div class="co ${k}">${ICON[k]}<div><span class="tag">${L().tags[k]}</span>${t}</div></div>`).join('');
+  $('sDd').innerHTML=s.dd.map(d=>`<details class="dd"><summary><span class="db">${L().dd}</span><span class="dt">${d.t}</span><span class="chev">▼</span></summary><div class="dd-in">${d.b}</div></details>`).join('');
+  $('sBody').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pinPart=pinPart===b.dataset.p?null:b.dataset.p;$('sBody').querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x.dataset.p===pinPart));tipPinned();});
+  $('sBody').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $('prog').style.width=((cur+1)/n*100)+'%';
+  $('prevBtn').disabled=cur===0;$('nextBtn').disabled=cur===n-1;$('prevBtn').textContent=L().prev;$('nextBtn').textContent=L().next;$('kbd').textContent=L().kbd;
+  $('pills').querySelectorAll('.pill').forEach(p=>p.classList.toggle('on',+p.dataset.i===cur));}
+function renderPills(){let h='',prev=-1;L().steps.forEach((s,i)=>{if(prev!==-1&&s.ch!==prev)h+='<span class="pill-gap"></span>';prev=s.ch;h+=`<button class="pill" data-i="${i}" title="${s.title.replace(/"/g,'&quot;')}">${i+1}</button>`;});
+  $('pills').innerHTML=h;$('pills').querySelectorAll('.pill').forEach(b=>b.onclick=()=>go(+b.dataset.i));}
+function tipPinned(){if(cur!==0||!pinPart){showTip(null);return;}const p=partById(pinPart),[x,y,w]=p.r[0];showTip(pinPart,OX+(x+w/2)*RS,OY+y*RS);}
+function enterScene(keepInst){fx=[];SC[cur].init();lastLeg='';renderLegend();if(!keepInst)renderInst();}
+function go(i){const n=L().steps.length;if(i<0||i>=n)return;cur=i;hoverPart=null;if(i!==0)pinPart=null;showTip(null);setMsg('','');
+  $('stageHtml').classList.toggle('show',i===10);if(i===10)renderTK();
+  enterScene();renderSide();renderRecipe();setReadouts();$('sideScroll').scrollTop=0;}
+function setLang(l){lang=l;document.documentElement.lang=l;$('btnEN').classList.toggle('active',l==='en');$('btnKO').classList.toggle('active',l==='ko');
+  $('hTitle').textContent=L().title;$('hSub').textContent=L().sub;$('lblBtn').textContent=L().labels;lastRec=lastRd=lastLeg=lastMsg='';
+  renderPills();renderSide();renderInst();renderRecipe();renderLegend();setReadouts();if(cur===10)renderTK();if(cur===0)tipPinned();}
+
+$('btnEN').onclick=()=>setLang('en');$('btnKO').onclick=()=>setLang('ko');
+$('prevBtn').onclick=()=>go(cur-1);$('nextBtn').onclick=()=>go(cur+1);
+$('lblBtn').onclick=()=>{S.labels=!S.labels;$('lblBtn').classList.toggle('on',S.labels);};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePop();return;}const t=e.target.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+  if(e.key==='ArrowRight'){go(cur+1);e.preventDefault();}if(e.key==='ArrowLeft'){go(cur-1);e.preventDefault();}});
+cv.addEventListener('mousemove',e=>{if(cur!==0){cv.style.cursor='default';return;}const r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,x=(sx-OX)/RS,y=(sy-OY)/RS;
+  hoverPart=partAt(x,y);cv.style.cursor=hoverPart?'pointer':'default';if(hoverPart)showTip(hoverPart,sx,sy);else tipPinned();});
+cv.addEventListener('mouseleave',()=>{hoverPart=null;tipPinned();});
+cv.addEventListener('click',e=>{if(cur!==0)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left-OX)/RS,y=(e.clientY-r.top-OY)/RS,id=partAt(x,y);
+  pinPart=id&&id!==pinPart?id:null;$('sBody').querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===pinPart));});
+
+/* ---------- main loop ---------- */
+let last=performance.now(),rdT=0;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;frameN++;
+  if(!(SC[cur].pausable&&S.paused))phase+=dt*TAU*FA;
+  const sc=SC[cur];
+  if(cur!==10){beginFrame();if(sc.update&&!(SC[cur].pausable&&S.paused))sc.update(dt);if(!(SC[cur].pausable&&S.paused))stepFx(dt);sc.draw();}
+  if(sc.chart)sc.chart(dt);
+  rdT+=dt;if(rdT>.15){rdT=0;setReadouts();if(cur===9){renderRecipe();renderLegend();}if(cur===1)renderLegend();}
+  requestAnimationFrame(loop);}
+setLang('en');go(0);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>requestAnimationFrame(loop));
+</script>
+</body>
+</html>
