@@ -179,7 +179,7 @@
     .course-meta > span { font-size: 12px; font-weight: 700; border-radius: var(--pill); padding: 5px 11px; background: var(--chip); }
     .mods { list-style: none; margin: 22px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); display: grid; gap: 9px; }
     .mods li { display: flex; gap: 10px; align-items: baseline; font-size: 13.5px; line-height: 1.4; }
-    .mods li b { flex: 0 0 30px; font-size: 11px; font-weight: 700; letter-spacing: .5px; color: var(--fg-soft); }
+    .mods li b { flex: 0 0 34px; font-size: 11px; font-weight: 700; letter-spacing: .5px; color: var(--fg-soft); }
     .mods li em { font-style: normal; margin-left: auto; padding-left: 8px; font-size: 10px; font-weight: 700; letter-spacing: .6px;
       border: 1px solid var(--line); border-radius: var(--pill); padding: 1px 7px; color: var(--fg-soft); white-space: nowrap; }
     .mods .trk { font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--fg-soft); padding-top: 6px; }
@@ -461,6 +461,16 @@
     }
 
     #sidebar.collapsed { margin-left: -320px; }
+
+    /* Auto-hide mode: the sidebar floats over the lesson and slides in from the left edge on hover */
+    #classroom-view.sb-auto #sidebar { position: fixed; left: 0; top: 0; bottom: 0; height: 100%; margin-left: 0; transform: translateX(-100%); z-index: 200; }
+    #classroom-view.sb-auto #sidebar.peek { transform: translateX(0); box-shadow: 10px 0 32px rgba(0, 0, 0, 0.14); }
+    #sb-hotzone { display: none; position: fixed; left: 0; top: 0; bottom: 0; width: 14px; z-index: 150; cursor: e-resize; }
+    #classroom-view.sb-auto #sb-hotzone { display: block; }
+    #sb-hotzone::after { content: ''; position: absolute; left: 0; top: 50%; width: 4px; height: 72px; transform: translateY(-50%); border-radius: 0 4px 4px 0; background: var(--color-class1); opacity: 0.45; }
+    .class2-active #sb-hotzone::after { background: var(--color-class2); }
+    .btn-icon.on { background: #ECFDF5; border-color: rgba(16, 185, 129, 0.45); color: var(--color-class1); }
+    .class2-active .btn-icon.on { background: #F5F3FF; border-color: rgba(139, 92, 246, 0.45); color: var(--color-class2); }
 
     .sidebar-brand {
       padding: 1.25rem 1.5rem;
@@ -752,12 +762,12 @@
                <span class="t-ko">원자론과 화학 결합, 가스 방전 물리, 그리고 CVD·Dry Etch·PVD·RPS 등 산업 핵심 플라즈마 공정 어플리케이션을 파헤칩니다.</span></p>
             <div class="course-meta"><span>6 <span class="t-en">lectures</span><span class="t-ko">강</span></span><span>7–8 h</span><span>CCP · ICP</span></div>
             <ul class="mods">
-              <li><b>REF</b>History of Physics</li>
               <li><b>M1</b>History of Atomic Theory</li>
               <li><b>M2</b>Chemistry Basics &amp; Chemical Bonds</li>
               <li><b>M3</b>Fundamentals of Plasma</li>
               <li><b>M4</b>Electromagnetics &amp; Maxwell's Equations</li>
               <li><b>M5</b>Semiconductor Plasma Processes</li>
+              <li><b>REF</b>History of Physics</li>
             </ul>
             <div class="course-foot">
               <button class="btn-on" type="button" onclick="enterClassroom(1)">
@@ -783,15 +793,17 @@
             <h3><span class="t-en">RF Power Transmission Theory for Plasma Formation</span><span class="t-ko">플라즈마 형성을 위한 RF 전력전송 이론</span></h3>
             <p class="sub"><span class="t-en">Transmission lines and standing waves, impedance and the Smith chart, matching networks, and real RF generator architecture and control.</span>
                <span class="t-ko">전송선로와 정재파, 임피던스와 스미스 차트, 정합 회로 설계부터 실제 RF 전원의 구성과 제어 파라미터까지 체계적으로 다룹니다.</span></p>
-            <div class="course-meta"><span>7 <span class="t-en">lectures</span><span class="t-ko">강</span></span><span>7–8 h</span><span>Smith Chart</span></div>
+            <div class="course-meta"><span>9 <span class="t-en">lectures</span><span class="t-ko">강</span></span><span>7–8 h</span><span>Smith Chart</span></div>
             <ul class="mods">
               <li><b>M1</b>RF Transmission</li>
               <li><b>M2</b>Standing Wave</li>
               <li><b>M3</b>Impedance</li>
               <li><b>M4</b>Smith Chart</li>
               <li><b>M5</b>Matching Network</li>
+              <li><b>M5-1</b>RF Matching Application<em>MEMBER</em></li>
               <li><b>M6</b>Power Delivery &amp; Monitoring<em>MEMBER</em></li>
               <li><b>M7</b>RF Source &amp; its Application</li>
+              <li><b>M7-1</b>RF Source Application<em>MEMBER</em></li>
             </ul>
             <div class="course-foot">
               <button class="btn-on" type="button" onclick="enterClassroom(2)">
@@ -1038,7 +1050,8 @@
        ───────────────────────────────────────────────────────────────────────── -->
   <div id="classroom-view">
     
-    <aside id="sidebar">
+    <div id="sb-hotzone" onmouseenter="peekSidebar(true)" onclick="peekSidebar(true)"></div>
+    <aside id="sidebar" onmouseenter="peekSidebar(true)" onmouseleave="peekSidebar(false)">
       <div class="sidebar-brand">
         <div class="sidebar-brand-inner">
           <img class="sidebar-logo-img" src="https://benedu-insight.github.io/logo_png/benedu_insight_logo_EN_horizontal.png" alt="Benedu Insight Logo">
@@ -1072,6 +1085,9 @@
         <div class="control-left">
           <button class="btn-icon" onclick="toggleSidebar()" title="Toggle Sidebar">
             <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </button>
+          <button class="btn-icon" id="btn-autohide" onclick="toggleSidebarAuto()" title="Auto-hide sidebar">
+            <svg style="width: 18px; height: 18px;" viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 2v12h4V6H4zm6 0v12h10V6H10zm3.5 3.5L17 12l-3.5 2.5v-5z"/></svg>
           </button>
           <div class="lecture-breadcrumbs">
             <span class="breadcrumb-class" id="bread-class">Class 01</span>
@@ -1132,6 +1148,7 @@
         loadingText: "SECURELY DEPLOYING LESSON...",
         lblSyllabus: "Course Modules",
         lblPortal: "Main Portal",
+        autoHideTip: "Auto-hide sidebar",
         errTitle: "Lecture Slide File Pending",
         errDesc: "The platform cannot locate the specified local HTML file at the current folder location. Make sure the following file is saved together with this index portal:",
         errDismiss: "Dismiss and view Frame container",
@@ -1174,7 +1191,8 @@
         secureBadge: "보안 샌드박스 프레임 작동 중",
         loadingText: "보안 강의 페이지를 생성 중입니다...",
         lblSyllabus: "강의 커리큘럼 리스트",
-        lblPortal: "플랫폼 메인 입구",
+        lblPortal: "Main Portal",
+        autoHideTip: "사이드바 자동 숨기기",
         errTitle: "교육 강의 파일 감지 불가",
         errDesc: "상대경로 내에 지정된 강의 교안 HTML 파일이 발견되지 않았습니다. 포탈 파일과 동일한 디렉토리(폴더)에 아래의 파일을 위치해 주시기 바랍니다:",
         errDismiss: "경고창 닫고 프레임 유지",
@@ -1213,12 +1231,12 @@
         indicator: "CLASS 01",
         colorClass: "class1-active",
         lectures: [
-          { id: "history-physics", isRef: true, titleEn: "History of Physics", titleKo: "물리학의 역사 (History of Physics)", file: "01_benedu_history_of_physics.html", duration: "30m" },
           { id: "atomic-theory", titleEn: "History of Atomic Theory", titleKo: "원자론의 역사 (Atomic Theory)", file: "11_benedu_hisory_of_atomic_theory.html", duration: "45m" },
           { id: "chem-bonding", titleEn: "Chemistry Basics & Chemical Bonds", titleKo: "기초 화학 및 결합 원리", file: "12_benedu_chem_course.html", duration: "50m" },
           { id: "plasma-basics", titleEn: "Fundamentals of Plasma Basics", titleKo: "플라즈마 상태 및 방전 물리", file: "13_benedu_plasma_lecture.html", duration: "60m" },
           { id: "maxwell-equations-c1", titleEn: "Electromagnetics & Maxwell's Equations", titleKo: "맥스웰 방정식과 전자기학 기초", file: "14_benedu_maxwell_equation.html", duration: "60m" },
-          { id: "plasma-semi-process", titleEn: "Semiconductor Plasma Processes", titleKo: "반도체 플라즈마 공정 및 응용", file: "15_benedu_plasma_semi_lecture_v1.html", duration: "75m" }
+          { id: "plasma-semi-process", titleEn: "Semiconductor Plasma Processes", titleKo: "반도체 플라즈마 공정 및 응용", file: "15_benedu_plasma_semi_lecture_v1.html", duration: "75m" },
+          { id: "history-physics", isRef: true, titleEn: "History of Physics", titleKo: "물리학의 역사 (History of Physics)", file: "01_benedu_history_of_physics.html", duration: "30m" }
         ]
       },
       2: {
@@ -1232,8 +1250,10 @@
           { id: "impedance", titleEn: "Impedance", titleKo: "Impedance", file: "23_impedance.html", duration: "75m" },
           { id: "smith-chart", titleEn: "Smith Chart", titleKo: "Smith Chart", file: "24_smithchart.html", duration: "75m" },
           { id: "matching-network", titleEn: "Matching Network", titleKo: "Matching Network", file: "25_m_network.html", duration: "75m" },
+          { id: "rf-matching-app", members: true, badge: "M5-1", titleEn: "RF Matching Application", titleKo: "RF Matching Application", file: "m5_1_members.html", duration: "60m" },
           { id: "power-delivery", members: true, titleEn: "Power Delivery & Monitoring Parameters", titleKo: "Power Delivery & Monitoring Parameters", file: "m6_members.html", duration: "60m" },
-          { id: "rf-source", titleEn: "RF Source & its Application", titleKo: "RF Source & its Application", file: "27_rf_source.html", duration: "60m" }
+          { id: "rf-source", titleEn: "RF Source & its Application", titleKo: "RF Source & its Application", file: "27_rf_source.html", duration: "60m" },
+          { id: "rf-source-app", members: true, badge: "M7-1", titleEn: "RF Source Application", titleKo: "RF Source Application", file: "m7_1_members.html", duration: "60m" }
         ]
       }
     };
@@ -1254,6 +1274,7 @@
       
       applyTranslations();
       iframe.addEventListener('load', () => spinner.classList.remove('active'));
+      try { if (localStorage.getItem('benedu_pref_sidebar_autohide') === '1') setSidebarAuto(true); } catch (e) {}
 
       if (portalSplash) {
         const pnav = document.getElementById('pnav');
@@ -1288,6 +1309,7 @@
       
       document.getElementById('lbl-syllabus').innerText = T.lblSyllabus;
       document.getElementById('lbl-btn-portal').innerText = T.lblPortal;
+      document.getElementById('btn-autohide').title = T.autoHideTip;
       document.getElementById('lbl-loading').innerText = T.loadingText;
 
       document.getElementById('lbl-secure').innerHTML = `<svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:currentColor;margin-right:4px;"><path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm-2 5c0-1.1.9-2 2-2s2 .9 2 2v3h-4V7zm2 8c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/></svg>${T.secureBadge}`;
@@ -1362,7 +1384,7 @@
       let moduleCounter = 0;
       config.lectures.forEach((lecture, index) => {
         const activeClass = (index === currentLectureIndex) ? 'active' : '';
-        let badgeLabel = lecture.isRef ? "REF" : `M${++moduleCounter}`;
+        let badgeLabel = lecture.isRef ? "REF" : (lecture.badge || `M${++moduleCounter}`);
         
         const itemLi = document.createElement('li');
         itemLi.innerHTML = `
@@ -1392,6 +1414,7 @@
       
       iframe.src = lecture.members ? `./${lecture.file}?lang=${currentLang}` : `./${lecture.file}`;
       checkLocalFileAvailability(lecture.file);
+      peekSidebar(false);
     }
 
     function reloadLectureFrame() {
@@ -1405,7 +1428,30 @@
       return currentClassId ? CLASS_DATA[currentClassId].lectures[currentLectureIndex].file : "none";
     }
 
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      if (sbAuto) { clearTimeout(sbHideTimer); sb.classList.toggle('peek'); return; }
+      sb.classList.toggle('collapsed');
+    }
+
+    // Sidebar auto-hide: hidden by default, slides in when the pointer reaches the left edge, hides again when it leaves
+    let sbAuto = false, sbHideTimer = null;
+    function setSidebarAuto(on) {
+      sbAuto = on;
+      const sb = document.getElementById('sidebar');
+      document.getElementById('classroom-view').classList.toggle('sb-auto', on);
+      sb.classList.remove('peek'); sb.classList.remove('collapsed');
+      document.getElementById('btn-autohide').classList.toggle('on', on);
+      try { localStorage.setItem('benedu_pref_sidebar_autohide', on ? '1' : '0'); } catch (e) {}
+    }
+    function toggleSidebarAuto() { setSidebarAuto(!sbAuto); }
+    function peekSidebar(show) {
+      if (!sbAuto) return;
+      const sb = document.getElementById('sidebar');
+      clearTimeout(sbHideTimer);
+      if (show) sb.classList.add('peek');
+      else sbHideTimer = setTimeout(() => sb.classList.remove('peek'), 350);
+    }
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
