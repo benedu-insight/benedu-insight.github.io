@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ko" class="lang-ko">
+<head>
+<script>
+  /* language: ko default / en, or ?lang=en; remembered per browser */
+  (function(){
+    var l='ko'; try{ l = localStorage.getItem('benedu_schools_lang') || 'ko' }catch(e){}
+    var q = new URLSearchParams(location.search).get('lang'); if (q==='en' || q==='ko') l = q;
+    document.documentElement.className = 'lang-'+l; document.documentElement.lang = l;
+  })();
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Benedu — Plasma School · AI School</title>
+<meta name="description" content="Benedu의 두 학교. 반도체 플라즈마·RF를 가르치는 Plasma School(Benedu Insight)과 제조 현장 실무자를 위한 AI School(benedu atelier).">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Benedu — Plasma School · AI School">
+<meta property="og:description" content="반도체 플라즈마·RF 교육 Benedu Insight와 기업실무활용 AI 교육 benedu atelier.">
+<meta property="og:url" content="https://benedu-insight.github.io/schools/">
+<link rel="canonical" href="https://benedu-insight.github.io/schools/">
+<link rel="icon" type="image/svg+xml" href="../assets/logo/benedu_insight_symbol_color.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* Parent page for both Benedu brands. Motion and tokens follow the Benedu brand design
+   system index (green Insight ring linked with the sky-blue atelier ring). */
+:root{
+  --ink-black:#181715; --card-dark:#232120; --hairline-dark:#3A3733; --on-dark:#FFFFFF; --on-dark-muted:#C9C4BC;
+  --green:#0F8C50; --green-lit:#3DBB7E; --purple:#7030A0; --coral:#CC785C; --amber:#E8A55A;
+  --sky:#2BB3F0; --sky-light:#7DD0F7; --sky-deep:#1698DE;
+  --sans:'Google Sans','Pretendard Variable',Pretendard,'Segoe UI',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --pad:clamp(20px,5vw,72px);
+}
+*{box-sizing:border-box}
+html{background:var(--ink-black);scroll-behavior:smooth}
+body{margin:0;background:var(--ink-black);color:var(--on-dark);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html.lang-ko body{word-break:keep-all;overflow-wrap:break-word}
+html.lang-ko .t-en, html.lang-en .t-ko{display:none!important}
+a{color:inherit}
+h1,h2,h3,p,ul{margin:0}
+ul{padding:0;list-style:none}
+img{display:block;max-width:100%;height:auto}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
+
+/* ---------- hero (motion from the brand design system index) ---------- */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;overflow:hidden;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:0;z-index:-2;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.2px);background-size:28px 28px;-webkit-mask-image:radial-gradient(ellipse 80% 70% at 70% 45%,#000 30%,transparent 75%);mask-image:radial-gradient(ellipse 80% 70% at 70% 45%,#000 30%,transparent 75%)}
+.hero::after{content:"";position:absolute;z-index:-1;width:900px;height:900px;right:-220px;top:50%;transform:translateY(-50%);background:radial-gradient(circle,rgba(15,140,80,.16),rgba(43,179,240,.06) 45%,transparent 70%);animation:glow 9s ease-in-out infinite}
+@keyframes glow{50%{opacity:.6}}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px var(--pad)}
+.brand{display:flex;align-items:center;text-decoration:none}
+.brand img{height:40px;width:auto}
+.top nav{display:flex;align-items:center;gap:6px}
+.top nav a{font:500 14px/1 var(--sans);text-decoration:none;color:var(--on-dark-muted);padding:10px 14px;border-radius:999px;min-height:40px;display:inline-flex;align-items:center}
+.top nav a:hover{color:var(--on-dark);background:rgba(255,255,255,.06)}
+.lang{display:flex;background:var(--card-dark);border-radius:999px;padding:3px;margin-left:6px}
+.lang button{border:0;background:transparent;color:var(--on-dark-muted);font:700 12px/1 var(--sans);letter-spacing:.5px;padding:8px 11px;border-radius:999px}
+.lang button.on{background:var(--on-dark);color:var(--ink-black)}
+
+.stage{flex:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:clamp(24px,4vw,64px);padding:0 var(--pad) clamp(32px,5vh,56px)}
+.copy{max-width:640px}
+.k{font:700 12px/1.2 var(--mono);letter-spacing:.2em;color:var(--amber)}
+h1{font:700 clamp(38px,5.6vw,72px)/1.08 var(--sans);letter-spacing:-.02em;margin:20px 0 22px}
+h1 .g{color:var(--green-lit)} h1 .s{color:var(--sky)}
+.lead{font-size:clamp(16px,1.35vw,19px);color:var(--on-dark-muted);margin:0 0 34px;max-width:560px}
+.lead b{color:var(--on-dark);font-weight:500}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 24px;border-radius:999px;font:700 17px/1 var(--sans);text-decoration:none;transition:transform .2s ease,background .2s ease,border-color .2s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#12a05c}
+.btn-ghost{border:1.5px solid var(--hairline-dark);color:var(--on-dark)}
+.btn-ghost:hover{border-color:var(--sky)}
+
+.art{position:relative;width:100%;max-width:640px;justify-self:center;aspect-ratio:1}
+.art svg{width:100%;height:100%;display:block;overflow:visible}
+.draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 1.6s cubic-bezier(.65,0,.35,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.d1{animation-delay:.15s} .d2{animation-delay:.75s}
+.orbit{transform-origin:300px 300px;animation:spin 60s linear infinite}
+.orbit.rev{animation-duration:90s;animation-direction:reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.px{transform-box:fill-box;transform-origin:center;opacity:0;animation:pop .5s cubic-bezier(.34,1.56,.64,1) forwards, bob 4s ease-in-out infinite}
+.px1{animation-delay:1.55s,2.2s} .px2{animation-delay:1.75s,2.6s} .px3{animation-delay:1.95s,3s}
+@keyframes pop{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -6px}}
+.bit{transform-box:fill-box;opacity:0;animation:fly 3.6s ease-out infinite}
+@keyframes fly{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
+.spark{opacity:0;animation:spark 3.2s ease-out infinite}
+@keyframes spark{0%{opacity:0;transform:translate(0,0)}20%{opacity:.85}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+.label{font:700 11px/1 var(--mono);letter-spacing:.16em;fill:var(--on-dark-muted);opacity:0;animation:fade .8s ease forwards}
+.l1{animation-delay:1.4s} .l2{animation-delay:2.2s}
+@keyframes fade{to{opacity:1}}
+.pulse{transform-origin:300px 300px;animation:pulse 6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.18;transform:scale(1)}50%{opacity:.06;transform:scale(1.06)}}
+.scroll-hint{display:flex;justify-content:center;padding:0 0 24px}
+.scroll-hint a{font:700 11px/1 var(--mono);letter-spacing:.2em;color:var(--on-dark-muted);text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:10px}
+.scroll-hint i{width:1px;height:28px;background:linear-gradient(var(--on-dark-muted),transparent);animation:hint 2.4s ease-in-out infinite}
+html.lang-ko .scroll-hint a{font:600 13px/1 var(--sans);letter-spacing:.04em}
+@keyframes hint{0%,100%{transform:scaleY(.4);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}}
+
+/* ---------- two schools ---------- */
+.schools{padding:clamp(56px,9vw,112px) var(--pad);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;max-width:1360px;margin:0 auto}
+.sec-head{grid-column:1/-1;max-width:720px;margin-bottom:16px}
+.sec-head h2{font:700 clamp(28px,3.4vw,40px)/1.2 var(--sans);letter-spacing:-.01em;margin-top:14px}
+.school{position:relative;overflow:hidden;border-radius:24px;background:var(--card-dark);border:1px solid var(--hairline-dark);padding:clamp(28px,3.4vw,44px);display:flex;flex-direction:column;gap:22px;min-height:560px}
+.school::after{content:"";position:absolute;width:420px;height:420px;right:-140px;top:-140px;border-radius:50%;border:56px solid var(--c);opacity:.12;pointer-events:none}
+.school.plasma{--c:var(--green)}
+.school.ai{--c:var(--sky)}
+.school .logo{height:56px;display:flex;align-items:center}
+.school .logo > img{height:48px;width:auto}
+.lockup{--h:56px;display:block;position:relative;overflow:hidden;height:var(--h);width:calc(var(--h) * 1122 / 414)}
+.lockup img{position:absolute;height:calc(var(--h) * 684 / 414);width:auto;max-width:none;left:calc(var(--h) * -246 / 414);top:calc(var(--h) * -135 / 414)}
+.school .tag{font:700 12px/1.2 var(--mono);letter-spacing:.2em;color:var(--c)}
+.school.plasma .tag{color:var(--green-lit)}
+.school h3{font:700 clamp(30px,3.4vw,42px)/1.1 var(--sans);letter-spacing:-.02em;margin-top:10px}
+.school .sub{color:var(--on-dark-muted);font-size:17px;margin-top:10px}
+.facts{display:grid;gap:12px;margin-top:4px}
+.facts li{display:flex;gap:12px;align-items:flex-start;font-size:16px}
+.facts li::before{content:"";flex:none;width:8px;height:8px;border-radius:2px;background:var(--c);margin-top:9px}
+.school.plasma .facts li::before{border-radius:50%}
+.school .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:8px}
+.school .btn{height:48px;font-size:15px;padding:0 20px}
+.btn-sky{background:var(--sky);color:#0a0a0a}
+.btn-sky:hover{background:var(--sky-light)}
+
+/* ---------- contact strip ---------- */
+.contact{max-width:1360px;margin:0 auto;padding:0 var(--pad) clamp(56px,8vw,96px)}
+.contact-in{border-radius:24px;border:1px solid var(--hairline-dark);padding:clamp(28px,3.4vw,44px);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:center;background:linear-gradient(120deg,rgba(15,140,80,.10),rgba(43,179,240,.08))}
+.contact h2{font:700 clamp(24px,2.6vw,32px)/1.25 var(--sans);letter-spacing:-.01em}
+.contact p{color:var(--on-dark-muted);margin-top:10px}
+.reach{display:grid;gap:10px;font-size:16px}
+.reach li{display:flex;gap:14px;align-items:baseline}
+.reach li > span{font:700 11px/1 var(--mono);letter-spacing:.16em;color:var(--on-dark-muted);width:64px;flex:none}
+.reach a{text-decoration:none;border-bottom:1px solid var(--hairline-dark)}
+.reach a:hover{border-color:var(--on-dark-muted)}
+
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:18px var(--pad);border-top:1px solid var(--hairline-dark);font:500 12px/1.5 var(--mono);letter-spacing:.06em;color:var(--on-dark-muted)}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--on-dark)}
+
+@media (max-width:900px){
+  .stage{grid-template-columns:1fr;padding-top:8px}
+  .art{max-width:360px;order:-1;margin:0 auto -8px}
+  .top nav a{display:none}
+  .schools{grid-template-columns:1fr}
+  .school{min-height:0}
+  .contact-in{grid-template-columns:1fr}
+}
+@media (max-width:480px){
+  .brand img{height:32px}
+  .cta .btn{width:100%;justify-content:center}
+  .art{max-width:280px}
+  .lockup{--h:46px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}
+  .draw{stroke-dashoffset:0}
+  .px,.label{opacity:1}
+  .bit,.spark{display:none}
+}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <header class="top">
+      <a class="brand" href="./" aria-label="Benedu">
+        <img class="t-ko" src="../assets/logo/benedu_insight_logo_KR_horizontal_reverse.svg" alt="베네듀 인사이트" width="325" height="112">
+        <img class="t-en" src="../assets/logo/benedu_insight_logo_EN_horizontal_reverse.svg" alt="Benedu Insight" width="330" height="113">
+      </a>
+      <nav aria-label="Schools">
+        <a href="#plasma">Plasma School</a>
+        <a href="#ai">AI School</a>
+        <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="ko">KO</button><button type="button" data-lang="en">EN</button></div>
+      </nav>
+    </header>
+
+    <div class="stage">
+      <div class="copy">
+        <div class="k">BENEDU · TWO SCHOOLS</div>
+        <h1><span class="t-ko"><span class="g">Plasma School</span>과<br><span class="s">AI School</span>,<br>현장에서 시작합니다</span><span class="t-en"><span class="g">Plasma School</span><br>and <span class="s">AI School</span>,<br>built from the floor</span></h1>
+        <p class="lead"><span class="t-ko">반도체 플라즈마와 RF를 가르치는 <b>Benedu Insight</b>, 그리고 제조 현장 실무자에게 AI 활용을 가르치는 <b>benedu atelier</b>. 두 학교 모두 현장에서 일한 경험에서 출발합니다.</span><span class="t-en"><b>Benedu Insight</b> teaches semiconductor plasma and RF. <b>benedu atelier</b> teaches manufacturing staff to put AI to work. Both start from years of work on the factory floor.</span></p>
+        <div class="cta">
+          <a class="btn btn-green" href="../"><span class="dot" style="background:#fff"></span>Plasma School →</a>
+          <a class="btn btn-ghost" href="../atelier-ai/"><span class="dot" style="background:var(--sky)"></span>AI School →</a>
+        </div>
+      </div>
+
+      <div class="art" role="img" aria-label="The green Benedu Insight ring linked with the sky-blue benedu atelier ring, with plasma sparks and data pixels flying out">
+        <svg viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+          <defs>
+            <mask id="notch">
+              <rect x="0" y="0" width="600" height="600" fill="#fff"/>
+              <rect x="451.5" y="116.5" width="29" height="29" fill="#000"/>
+            </mask>
+          </defs>
+          <g class="pulse"><circle cx="300" cy="300" r="286" fill="none" stroke="#0F8C50" stroke-width="2"/></g>
+          <g class="orbit"><circle cx="300" cy="300" r="268" fill="none" stroke="#3A3733" stroke-width="1.5" stroke-dasharray="2 10"/><circle cx="300" cy="32" r="5" fill="#E8A55A"/></g>
+          <g class="orbit rev"><circle cx="300" cy="300" r="238" fill="none" stroke="#3A3733" stroke-width="1" stroke-dasharray="1 7"/><circle cx="62" cy="300" r="3.5" fill="#5DB8A6"/></g>
+
+          <circle class="draw d1" style="--len:754" cx="250" cy="330" r="120" fill="none" stroke="#0F8C50" stroke-width="60" transform="rotate(-90 250 330)"/>
+          <!-- plasma sparks leave the green ring -->
+          <g fill="#3DBB7E">
+            <circle class="spark" style="--dx:-70px;--dy:60px;animation-delay:2.2s" cx="140" cy="400" r="4"/>
+            <circle class="spark" style="--dx:-90px;--dy:10px;animation-delay:3s" cx="128" cy="340" r="3"/>
+            <circle class="spark" style="--dx:-40px;--dy:90px;animation-delay:3.8s" cx="170" cy="440" r="3.5"/>
+            <circle class="spark" style="--dx:-80px;--dy:-30px;animation-delay:4.6s" cx="140" cy="290" r="2.5"/>
+          </g>
+
+          <g mask="url(#notch)">
+            <circle cx="386" cy="200" r="77" fill="none" stroke="#181715" stroke-width="58"/>
+            <circle class="draw d2" style="--len:484" cx="386" cy="200" r="77" fill="none" stroke="#2BB3F0" stroke-width="40" transform="rotate(-60 386 200)"/>
+          </g>
+          <rect class="px px1" x="454.5" y="94.5" width="23.5" height="23.5" rx="2.5" fill="#2BB3F0"/>
+          <rect class="px px2" x="503.5" y="94.5" width="23.5" height="23.5" rx="2.5" fill="#7DD0F7"/>
+          <rect class="px px3" x="479" y="119" width="23.5" height="23.5" rx="2.5" fill="#1698DE"/>
+          <g fill="#7DD0F7">
+            <rect class="bit" style="--dx:70px;--dy:-60px;animation-delay:2.4s" x="520" y="92" width="9" height="9" rx="1.5"/>
+            <rect class="bit" style="--dx:96px;--dy:-18px;animation-delay:3.3s" x="530" y="120" width="7" height="7" rx="1.5"/>
+            <rect class="bit" style="--dx:40px;--dy:-92px;animation-delay:4.1s" x="500" y="80" width="8" height="8" rx="1.5"/>
+            <rect class="bit" style="--dx:88px;--dy:-70px;animation-delay:4.9s" x="526" y="100" width="6" height="6" rx="1"/>
+            <rect class="bit" style="--dx:60px;--dy:10px;animation-delay:5.6s" x="512" y="140" width="7" height="7" rx="1.5"/>
+          </g>
+          <text class="label l1" x="250" y="520" text-anchor="middle">PLASMA SCHOOL</text>
+          <text class="label l2" x="494" y="236" text-anchor="start">AI SCHOOL</text>
+        </svg>
+      </div>
+    </div>
+    <div class="scroll-hint"><a href="#schools"><span class="t-ko">두 학교 보기</span><span class="t-en">SEE BOTH SCHOOLS</span><i></i></a></div>
+  </section>
+
+  <section class="schools" id="schools" aria-labelledby="schools-title">
+    <div class="sec-head">
+      <div class="k">TWO SCHOOLS · ONE ROOT</div>
+      <h2 id="schools-title"><span class="t-ko">무엇을 배우고 싶으신가요?</span><span class="t-en">What would you like to learn?</span></h2>
+    </div>
+
+    <article class="school plasma" id="plasma" aria-labelledby="plasma-title">
+      <div class="logo">
+        <img class="t-ko" src="../assets/logo/benedu_insight_logo_KR_horizontal_reverse.svg" alt="베네듀 인사이트" width="325" height="112" loading="lazy">
+        <img class="t-en" src="../assets/logo/benedu_insight_logo_EN_horizontal_reverse.svg" alt="Benedu Insight" width="330" height="113" loading="lazy">
+      </div>
+      <div>
+        <div class="tag">PLASMA SCHOOL</div>
+        <h3 id="plasma-title"><span class="t-ko">반도체 플라즈마 · RF 교육</span><span class="t-en">Semiconductor plasma &amp; RF</span></h3>
+        <p class="sub"><span class="t-ko">나무가 아닌 숲을. 원자 하나에서 시작해 Chamber 속 플라즈마와 RF Generator까지 이어지는 엔지니어 교육입니다.</span><span class="t-en">The forest, not just the trees. Engineer training that runs from a single atom to the plasma in the Chamber and the RF Generator.</span></p>
+      </div>
+      <ul class="facts">
+        <li><span class="t-ko">입문부터 현장까지 세 단계 커리큘럼: Basic · Class-01 · Class-02</span><span class="t-en">A three-step curriculum from basics to the fab: Basic, Class-01, Class-02</span></li>
+        <li><span class="t-ko">직접 조작하는 시뮬레이터: ARC · PRISM</span><span class="t-en">Simulators you operate yourself: ARC and PRISM</span></li>
+        <li><span class="t-ko">2003년부터 120회 이상 엔지니어 교육</span><span class="t-en">120+ sessions with engineers since 2003</span></li>
+      </ul>
+      <div class="acts">
+        <a class="btn btn-green" href="../">Plasma School <span class="t-ko">홈페이지</span><span class="t-en">website</span> →</a>
+        <a class="btn btn-ghost" href="../bi_online_lecture_portal/"><span class="t-ko">온라인 강의 포탈</span><span class="t-en">Online lecture portal</span></a>
+      </div>
+    </article>
+
+    <article class="school ai" id="ai" aria-labelledby="ai-title">
+      <div class="logo">
+        <span class="lockup">
+          <img class="t-ko" src="../atelier-ai/assets/logo/benedu_atelier_logo_2line_white_outlined.svg" alt="benedu atelier — 기업실무활용 AI 교육" width="1613" height="684" loading="lazy">
+          <img class="t-en" src="../atelier-ai/assets/logo/benedu_atelier_logo_2line_en_white_outlined.svg" alt="benedu atelier — Practical AI Training for Business" width="1613" height="684" loading="lazy">
+        </span>
+      </div>
+      <div>
+        <div class="tag">AI SCHOOL</div>
+        <h3 id="ai-title"><span class="t-ko">제조 현장 실무자를 위한 AI 실무 과정</span><span class="t-en">Practical AI for manufacturing staff</span></h3>
+        <p class="sub"><span class="t-ko">바이브코딩은 엔진을 배우는 것이 아니라 운전하는 법을 익히는 것. 영업·제조·품질·기획 현장에서 AI로 실제로 만든 결과물을 보여 드립니다.</span><span class="t-en">Vibe coding isn't about the engine, it's about learning to drive. We show real results built with AI in sales, manufacturing, quality and planning.</span></p>
+      </div>
+      <ul class="facts">
+        <li><span class="t-ko">4교시 7개 강의 · 총 4–5시간, 강사 시연 중심</span><span class="t-en">7 lectures in 4 periods, 4–5 hours, instructor demos</span></li>
+        <li><span class="t-ko">영업·마케팅부터 품질·경영지원까지 6개 부서 대상</span><span class="t-en">For six departments, from sales and marketing to quality and business support</span></li>
+        <li><span class="t-ko">부서별 실무 사례 27개</span><span class="t-en">27 real cases from those departments</span></li>
+      </ul>
+      <div class="acts">
+        <a class="btn btn-sky" href="../atelier-ai/">AI School <span class="t-ko">과정 소개</span><span class="t-en">overview</span> →</a>
+        <a class="btn btn-ghost" href="../atelier-ai/classroom/">Classroom</a>
+      </div>
+    </article>
+  </section>
+
+  <section class="contact" aria-labelledby="contact-title">
+    <div class="contact-in">
+      <div>
+        <h2 id="contact-title"><span class="t-ko">우리 회사에 맞는 교육이 궁금하다면</span><span class="t-en">Not sure which fits your team?</span></h2>
+        <p><span class="t-ko">대상과 인원, 원하는 주제를 알려 주시면 두 학교 중 맞는 과정과 구성을 제안해 드립니다.</span><span class="t-en">Tell us who it's for, how many people and the topic, and we'll suggest the right school and plan.</span></p>
+      </div>
+      <ul class="reach">
+        <li><span>PHONE</span><a href="tel:01023763891">010-2376-3891</a></li>
+        <li><span>EMAIL</span><a href="mailto:benedu.insight@gmail.com">benedu.insight@gmail.com</a></li>
+        <li><span><span class="t-ko">문의 폼</span><span class="t-en">FORMS</span></span><span><a href="../#contact">Plasma School</a> · <a href="../atelier-ai/#inquiry">AI School</a></span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="foot"><span>© <span id="year">2026</span> BENEDU INSIGHT</span><span>PLASMA SCHOOL · AI SCHOOL</span><a href="../">BENEDU-INSIGHT.GITHUB.IO</a></footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  function setLang(l){
+    root.className = 'lang-' + l; root.lang = l;
+    document.querySelectorAll('.lang button').forEach(function(b){ b.classList.toggle('on', b.dataset.lang === l); });
+    try{ localStorage.setItem('benedu_schools_lang', l) }catch(e){}
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){ b.addEventListener('click', function(){ setLang(b.dataset.lang); }); });
+  setLang(root.classList.contains('lang-en') ? 'en' : 'ko');
+  document.getElementById('year').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
